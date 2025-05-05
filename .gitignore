@@ -48,11 +48,11 @@ data/
 mongo-data/
 
 # Docker
-*.dockerignore
-Dockerfile*
-docker-compose*.yml
-docker-compose.dcproj
-*.dcproj
+# *.dockerignore
+# Dockerfile*
+# docker-compose*.yml
+# docker-compose.dcproj
+# *.dcproj
 
 # General IDE and Editor Files
 *.code-workspace
