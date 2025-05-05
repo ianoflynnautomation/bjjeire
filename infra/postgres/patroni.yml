@@ -1,0 +1,98 @@
+scope: mycluster
+name: postgres-1
+
+log:
+  format: '%(asctime)s %(levelname)s: %(message)s'
+  level: ERROR
+  max_queue_size: 1000
+  traceback_level: ERROR
+  type: plain
+
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: postgres-1:8008
+
+etcd:
+  hosts:
+  - etcd:2379
+  #protocol: http
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        password_encryption: scram-sha-256
+        wal_level: replica
+        hot_standby: "on"
+        max_connections: 100
+        max_worker_processes: 8
+        wal_keep_segments: 8
+        max_wal_senders: 10
+        max_replication_slots: 10
+        max_prepared_transactions: 0
+        max_locks_per_transaction: 64
+        wal_log_hints: "on"
+        track_commit_timestamp: "off"
+        archive_mode: "on"
+        archive_timeout: 1800s
+        archive_command: mkdir -p ../wal_archive && test ! -f ../wal_archive/%f && cp %p ../wal_archive/%f
+      recovery_conf:
+        restore_command: cp ../wal_archive/%f %p
+
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+    - locale: en_US.UTF-8
+    - auth: scram-sha-256
+
+  pg_hba:
+    - host replication replicator 127.0.0.1/32 scram-sha-256
+    - host replication replicator 0.0.0.0/0 scram-sha-256
+    - host replication grafana 127.0.0.1/32 scram-sha-256
+    - host all grafana 172.18.0.0/16 scram-sha-256  # Allow grafana from Docker network
+    - hostssl all all 0.0.0.0/0 scram-sha-256   
+
+  post_init: /scripts/post_init.sh 
+
+  parameters:
+    #bg_mon.listen_port: 0  
+    ssl: 'off'  # Or 'off' if SSL is not required
+    ssl_cert_file: '/home/postgres/server.crt'
+    ssl_key_file: '/home/postgres/server.key'
+    unix_socket_directories: '/var/run/postgresql'
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: postgres-1:5432
+  data_dir: /var/lib/postgresql/data
+  bin_dir: /usr/local/bin
+  pgpass: /tmp/pgpass
+  authentication:
+    replication:
+      username: replicator
+      password: replicator_password
+    superuser:
+      username: grafana
+      password: local-dev-password
+
+parameters:
+    unix_socket_directories: '/var/run/postgresql'
+
+# tags:
+#   noloadbalance: false
+#   nofailover: false
+#   noloadbalance: false
+#   clonefrom: false
+#   nosync: false
+
+watchdog:
+  mode: 'off'
+  device: /dev/watchdog
+  safety_margin: 5

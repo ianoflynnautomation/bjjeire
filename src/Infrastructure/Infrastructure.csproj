@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>BjjWorld.Infrastructure</RootNamespace>
+    <AssemblyName>BjjWorld.Infrastructure</AssemblyName>
+  </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="LiteDB" />
+        <PackageReference Include="MongoDB.Bson" />
+        <PackageReference Include="MongoDB.Driver" />
+         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
+    </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

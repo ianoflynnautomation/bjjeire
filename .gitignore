@@ -1,0 +1,135 @@
+# .NET Core / ASP.NET Core
+bin/
+obj/
+*.csproj.user
+*.suo
+*.user
+*.pubxml
+*.nupkg
+*.vsconfig
+*.pdb
+*.log
+*.cache
+*.bak
+*.swp
+*.tmp
+*.temp
+*.orig
+*.rej
+*.DotSettings
+*.ncrunch*
+*.xproj
+*.xsc
+*.xss
+*.tss
+.vs/
+.vscode/
+.idea/
+*.sln.iml
+
+# Node.js / React / Vite
+node_modules/
+dist/
+build/
+coverage/
+*.log
+npm-debug.log
+yarn-error.log
+.vite/
+.eslintcache
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# MongoDB
+data/
+mongo-data/
+
+# Docker
+*.dockerignore
+Dockerfile*
+docker-compose*.yml
+docker-compose.dcproj
+*.dcproj
+
+# General IDE and Editor Files
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.tmproj
+*.tmproject
+*.tm_properties
+*.tmbundle
+*.tmPreferences
+*.tmTheme
+*.tmSnippet
+*.tmLanguage
+*.tmCommand
+
+# OS-Specific Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Sensitive Files
+secrets/
+*.secret
+*.p12
+*.jks
+*.snk
+*.mdf
+*.ldf
+*.sdf
+*.accdb
+*.mdb
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.s3db
+*.sqlitedb
+*.db-shm
+*.db-wal
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+
+# Build and Test Artifacts
+test-results/
+*.trx
+*.coverage
+*.coveragexml
+*.lcov
+*.testlog
+
+# Package Manager Files
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Documentation and Miscellaneous
+*.md.bak
+*.md~
+*.docx
+*.xlsx
+*.pptx
+*.pdf
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/*
+!.idea/.gitignore
+!.idea/vcs.xml
+!.idea/modules.xml
+!.idea/*.iml
