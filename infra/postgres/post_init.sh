@@ -1,65 +1,58 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
+LOG_FILE="/tmp/post_init.log"
 
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
 
-log "Executing post_init.sh script..."
+exec > >(tee -a "$LOG_FILE") 2>&1
 
-# Ensure POSTGRES_USER is set (default to 'postgres' for initialization)
-# POSTGRES_USER=${POSTGRES_USER:-postgres}
+log "Starting post_init.sh..."
 
-# Create roles and database using the postgres user
-psql -v ON_ERROR_STOP=1 --username "grafana" --dbname "postgres" <<-EOSQL
-    DO \$\$
-    BEGIN
-        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'grafana') THEN
-            RAISE NOTICE 'Creating role grafana...';
-            CREATE ROLE grafana WITH LOGIN PASSWORD 'Postgres.12345' CREATEROLE CREATEDB;
-        ELSE
-            RAISE NOTICE 'Role grafana already exists.';
-            -- Update password in case it was changed
-            ALTER ROLE grafana WITH PASSWORD 'Postgres.12345';
-        END IF;
-    END
-    \$\$;
+log "Checking PostgreSQL connectivity..."
+psql -U postgres -d postgres -c "SELECT 1;" || {
+    log "❌ Failed to connect to PostgreSQL."
+    exit 1
+}
 
-    DO \$\$
-    BEGIN
-        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'admin') THEN
-            RAISE NOTICE 'Creating role admin...';
-            CREATE ROLE admin WITH LOGIN PASSWORD 'admin' CREATEROLE CREATEDB;
-        ELSE
-            RAISE NOTICE 'Role admin already exists.';
-            ALTER ROLE admin WITH PASSWORD 'admin';
-        END IF;
-    END
-    \$\$;
+log "Ensuring roles 'replicator' and 'grafana' exist..."
+psql -v ON_ERROR_STOP=1 -U postgres -d postgres <<'EOSQL'
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'replicator') THEN
+        CREATE ROLE replicator WITH LOGIN REPLICATION PASSWORD 'Replicator.12345';
+    ELSE
+        ALTER ROLE replicator WITH PASSWORD 'Replicator.12345';
+    END IF;
+END$$;
 
-    DO \$\$
-    BEGIN
-        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'replicator') THEN
-            RAISE NOTICE 'Creating role replicator...';
-            CREATE ROLE replicator WITH LOGIN PASSWORD 'replicator_password' REPLICATION;
-        ELSE
-            RAISE NOTICE 'Role replicator already exists.';
-            ALTER ROLE replicator WITH PASSWORD 'replicator_password';
-        END IF;
-    END
-    \$\$;
-
-    -- Create grafana database if it doesn't exist
-    SELECT 'CREATE DATABASE grafana OWNER grafana'
-    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'grafana')\gexec
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'grafana') THEN
+        CREATE ROLE grafana WITH LOGIN PASSWORD 'Postgres.12345';
+    ELSE
+        ALTER ROLE grafana WITH PASSWORD 'Postgres.12345';
+    END IF;
+END$$;
 EOSQL
 
-if [ $? -eq 0 ]; then
-    log "Users and database checked/created successfully."
+log "Checking if 'grafana' database exists..."
+if ! psql -U postgres -tAc "SELECT 1 FROM pg_database WHERE datname='grafana'" | grep -q 1; then
+    log "Creating 'grafana' database..."
+    psql -U postgres -c "CREATE DATABASE grafana OWNER grafana;"
 else
-    log "Error: Failed to create users or database."
-    exit 1
+    log "Database 'grafana' already exists."
 fi
 
-log "post_init.sh script finished."
+log "Granting privileges to 'grafana' user..."
+psql -v ON_ERROR_STOP=1 -U postgres -d grafana <<'EOSQL'
+GRANT CONNECT ON DATABASE grafana TO grafana;
+GRANT USAGE ON SCHEMA public TO grafana;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO grafana;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO grafana;
+EOSQL
+
+log "✅ post_init.sh completed successfully."
+
