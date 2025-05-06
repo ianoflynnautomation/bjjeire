@@ -210,8 +210,8 @@ services:
       - GF_LOG_MODE=${GF_LOG_MODE}
       - GF_DATABASE_TYPE=${GF_DATABASE_TYPE}
       - GF_DATABASE_HOST=${GF_DATABASE_HOST}
-      - GF_DATABASE_NAME=${POSTGRES_DB_NAME}
-      - GF_DATABASE_USER=${POSTGRES_USER}
+      - GF_DATABASE_NAME=${GF_DATABASE_NAME}
+      - GF_DATABASE_USER=${GF_DATABASE_USER}
       - GF_DATABASE_PASSWORD=${POSTGRES_PASSWORD}
       - GF_AUTH_SESSION_PROVIDER=${GF_AUTH_SESSION_PROVIDER}
       - GF_AUTH_SESSION_PROVIDER_CONFIG=${GF_AUTH_SESSION_PROVIDER_CONFIG}
@@ -294,17 +294,19 @@ services:
     environment:
       - PATRONI_NAME=postgres-1
       - PATRONI_SCOPE=${PATRONI_SCOPE}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PATRONI_RESTAPI_PORT=8008
+      - GRAFANA_DB_NAME=${POSTGRES_USER}
+      - GRAFANA_DB_USER=${GF_DATABASE_USER}
+      - GRAFANA_DB_PASSWORD=${GF_DATABASE_PASSWORD}
       - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
-      - PATRONI_POSTGRES_SUPERUSER_USERNAME=${POSTGRES_USER}
-      - PATRONI_POSTGRES_SUPERUSER_PASSWORD=${POSTGRES_PASSWORD}
-      - PATRONI_REPLICATION_USERNAME=${REPLICATION_USERNAME}
-      - PATRONI_REPLICATION_PASSWORD=${REPLICATION_PASSWORD}
+      - PATRONI_POSTGRES_SUPERUSER_USERNAME=${PATRONI_POSTGRES_SUPERUSER_USERNAME}
+      - PATRONI_POSTGRES_SUPERUSER_PASSWORD=${PATRONI_POSTGRES_SUPERUSER_PASSWORD}
+      - PATRONI_REPLICATION_USERNAME=${PATRONI_REPLICATION_USERNAME}
+      - PATRONI_REPLICATION_PASSWORD=${PATRONI_REPLICATION_PASSWORD}
       - ETCD_NODE_1=${ETCD_NODE_1}
     volumes:
       - postgres_data_1:/var/lib/postgresql/data
-      - ${BASE_PATH}/infra/postgres/patroni.yml:/venv/etc/patroni.yml:ro
+      - ${BASE_PATH}/infra/postgres/patroni.yml.template:/venv/etc/patroni.yml.template:ro
       - ${BASE_PATH}/infra/postgres/post_init.sh:/scripts/post_init.sh
       - ${BASE_PATH}/infra/postgres/certs/server.crt:/home/postgres/server.crt:ro
       - ${BASE_PATH}/infra/postgres/certs/server.key:/home/postgres/server.key:ro
@@ -312,7 +314,7 @@ services:
       etcd:
         condition: service_healthy
     ports:
-      - "5432:5432"
+      - "6432:5432"
       - "8008:8008"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
@@ -322,39 +324,43 @@ services:
     networks:
       - bjj-network
 
-  # postgres-2:
-  #   container_name: postgres-2
-  #   build:
-  #     context: ./infra/postgres
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - PATRONI_NAME=postgres-2
-  #     - PATRONI_SCOPE=mycluster
-  #     - POSTGRES_USER=grafana
-  #     - POSTGRES_PASSWORD=local-dev-password
-  #     - REPLICATION_USERNAME=replicator
-  #     - REPLICATION_PASSWORD=replicator_password
-  #     - PATRONI_ETCD_HOSTS=etcd:2379
-  #     - PATRONI_POSTGRES_LISTEN=0.0.0.0:5432
-  #     - PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
-  #   volumes:
-  #     - postgres_data_replica:/var/lib/postgresql/data
-  #     - ${BASE_PATH}/infra/postgres/patroni.yml:/etc/patroni.yml
-  #     - ${BASE_PATH}/infra/postgres/post_init.sh:/scripts/post_init.sh
-  #   depends_on:
-  #     etcd:
-  #       condition: service_healthy
-  #   ports:
-  #     - "5434:5432"
-  #     - "8009:8008"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #     start_period: 10s
-  #   networks:
-  #     - bjj-network
+  postgres-2:
+    container_name: postgres-2
+    build:
+      context: ./infra/postgres
+      dockerfile: Dockerfile
+    environment:
+      - PATRONI_NAME=postgres-2
+      - PATRONI_SCOPE=${PATRONI_SCOPE}
+      - PATRONI_RESTAPI_PORT=8008
+      - GRAFANA_DB_NAME=${POSTGRES_USER}
+      - GRAFANA_DB_USER=${GF_DATABASE_USER}
+      - GRAFANA_DB_PASSWORD=${GF_DATABASE_PASSWORD}
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - PATRONI_POSTGRES_SUPERUSER_USERNAME=${PATRONI_POSTGRES_SUPERUSER_USERNAME}
+      - PATRONI_POSTGRES_SUPERUSER_PASSWORD=${PATRONI_POSTGRES_SUPERUSER_PASSWORD}
+      - PATRONI_REPLICATION_USERNAME=${PATRONI_REPLICATION_USERNAME}
+      - PATRONI_REPLICATION_PASSWORD=${PATRONI_REPLICATION_PASSWORD}
+      - ETCD_NODE_1=${ETCD_NODE_1}
+    volumes:
+      - postgres_data_2:/var/lib/postgresql/data
+      - ${BASE_PATH}/infra/postgres/patroni.yml.template:/venv/etc/patroni.yml.template:ro
+      - ${BASE_PATH}/infra/postgres/post_init.sh:/scripts/post_init.sh
+      - ${BASE_PATH}/infra/postgres/certs/server.crt:/home/postgres/server.crt:ro
+      - ${BASE_PATH}/infra/postgres/certs/server.key:/home/postgres/server.key:ro
+    depends_on:
+      etcd:
+        condition: service_healthy
+    ports:
+      - "6433:5432"
+      - "8009:8008"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bjj-network
         
   haproxy:
     image: haproxy:latest
@@ -362,14 +368,17 @@ services:
     restart: unless-stopped
     volumes:
       - ${BASE_PATH}/infra/postgres/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-    # ports:
-    #   - "5004:5004"
+    ports:
+      - "5432:5432"
+      - "5433:5433"
+      - "7001:7001"
     depends_on:
       - postgres-1
+      - postgres-2
       # postgres-1:
-      #   condition: service_healthy
+      #    condition: service_healthy
       # postgres-2:
-      #   condition: service_healthy
+      #    condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "5432"]
       interval: 10s
@@ -519,13 +528,9 @@ volumes:
   grafana-data:
   prometheus-data:
   alertmanager-data:
-  # postgres-data:
-  # redis-data:
-  # postgres_data_primary:
-  # postgres_data_replica:
   etcd_data:
   postgres_data_1:
-  # postgres_data_2:
+  postgres_data_2:
   redis_data_primary:
   redis_data_replica:
   redis_sentinel_data:
