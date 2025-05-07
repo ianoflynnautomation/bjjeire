@@ -13,7 +13,7 @@ log "Starting post_init.sh..."
 
 log "Checking PostgreSQL connectivity..."
 psql -U postgres -d postgres -c "SELECT 1;" || {
-    log "❌ Failed to connect to PostgreSQL."
+    log "Failed to connect to PostgreSQL."
     exit 1
 }
 
@@ -54,5 +54,5 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO grafana;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO grafana;
 EOSQL
 
-log "✅ post_init.sh completed successfully."
+log "post_init.sh completed successfully."
 

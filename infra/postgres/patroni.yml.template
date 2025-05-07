@@ -40,6 +40,7 @@ bootstrap:
     - host replication ${PATRONI_REPLICATION_USERNAME} 172.18.0.0/16 scram-sha-256
     - host all ${GRAFANA_DB_USER} 172.18.0.0/16 scram-sha-256
     - host all all 172.18.0.0/16 scram-sha-256
+    - host all all 0.0.0.0/0 reject
 
   post_init: /scripts/post_init.sh
 
