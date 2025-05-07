@@ -44,4 +44,14 @@ scrape_configs:
   - job_name: 'alertmanager'
     static_configs:
       - targets: ['alertmanager:9093']
-
+  
+  - job_name: 'patroni'
+    metrics_path: /metrics
+    scheme: http 
+    basic_auth:
+      username: postgres
+      password: postgres
+    static_configs:
+      - targets:
+          -  postgres-1:8008
+          -  postgres-2:8008
