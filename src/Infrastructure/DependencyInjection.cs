@@ -94,12 +94,10 @@ public static class DependencyInjection
         var conventionPack = new ConventionPack
         {
             new IgnoreExtraElementsConvention(true),
-            new CamelCaseElementNameConvention(),  
-            // Add other conventions
-            // new EnumRepresentationConvention(BsonType.String)
+            new CamelCaseElementNameConvention(),
+            // new EnumRepresentationConvention(BsonType.Int32)
         };
-
-        ConventionRegistry.Register("AppConventions", conventionPack, t => true);
+         ConventionRegistry.Register("AppConventions", conventionPack, t => true);
     }
 
     private static void RegisterCache(this IServiceCollection serviceCollection)

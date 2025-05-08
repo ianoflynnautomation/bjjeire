@@ -1,14 +1,14 @@
 
 using BjjWorld.Application.Features.BjjEvents.DTOs;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.Validators;
 
 public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
 {
-    public BjjEventDtoValidator(IValidator<BjjEventHoursDto> bjjEventHoursDtoValidator,
-                           IValidator<ContactDto> contactDtoValidator)
+    public BjjEventDtoValidator(IValidator<ContactDto> contactDtoValidator,IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator )
     {
-        RuleFor(x => x.EventName)
+        RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Event name is required.")
             .MaximumLength(100).WithMessage("Event name cannot exceed 100 characters.");
 
@@ -28,34 +28,33 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
             .NotEmpty().WithMessage("Address is required.")
             .MaximumLength(200).WithMessage("Address cannot exceed 200 characters.");
 
-        RuleForEach(g => g.BjjEventHours)
-            .SetValidator(bjjEventHoursDtoValidator);
-
+        RuleFor(x => x.Schedule)
+            .SetValidator(bjjEventScheduleDtoValidator);
 
         RuleFor(g => g.Contact)
                .SetValidator(contactDtoValidator);
     }
 
-    
-public class ContactDtoValidator : AbstractValidator<ContactDto>
-{
-    public ContactDtoValidator()
+
+    public class ContactDtoValidator : AbstractValidator<ContactDto>
     {
-        RuleFor(c => c.Phone)
-           .NotEmpty().WithMessage("Phone number is required.")
-           .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Phone number must be a valid format (e.g., +1234567890).")
-           .Length(7, 15).WithMessage("Phone number must be between 7 and 15 digits.");
+        public ContactDtoValidator()
+        {
+            RuleFor(c => c.Phone)
+               .NotEmpty().WithMessage("Phone number is required.")
+               .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Phone number must be a valid format (e.g., +1234567890).")
+               .Length(7, 15).WithMessage("Phone number must be between 7 and 15 digits.");
 
 
-        RuleFor(x => x.Email).EmailAddress().WithMessage("A valid {PropertyName} is required.")
-                .When(c => !string.IsNullOrEmpty(c.Email))
-                .MaximumLength(100).WithMessage("{PropertyName} must not exceed 100 characters.");
+            RuleFor(x => x.Email).EmailAddress().WithMessage("A valid {PropertyName} is required.")
+                    .When(c => !string.IsNullOrEmpty(c.Email))
+                    .MaximumLength(100).WithMessage("{PropertyName} must not exceed 100 characters.");
 
-        RuleFor(x => x.Website)
-            .NotEmpty().WithMessage("Website is required.")
-            .Must(BeAValidUrl).WithMessage("Website must be a valid URL (e.g., https://example.com).");
+            RuleFor(x => x.Website)
+                .NotEmpty().WithMessage("Website is required.")
+                .Must(BeAValidUrl).WithMessage("Website must be a valid URL (e.g., https://example.com).");
+        }
     }
-}
 
     public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto>
     {
@@ -79,5 +78,51 @@ public class ContactDtoValidator : AbstractValidator<ContactDto>
         return Uri.TryCreate(url, UriKind.Absolute, out Uri? uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
     }
+
+public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto>
+{
+    public BjjEventScheduleDtoValidator()
+    {
+        // ScheduleType must be a valid enum value
+        RuleFor(x => x.ScheduleType)
+            .IsInEnum()
+            .WithMessage("ScheduleType must be either Recurring or FixedDate.");
+
+        // For FixedDate, StartDate and EndDate are required
+        When(x => x.ScheduleType == ScheduleType.FixedDate, () =>
+        {
+            RuleFor(x => x.StartDate)
+                .NotNull()
+                .WithMessage("StartDate is required for FixedDate schedules.");
+
+            RuleFor(x => x.EndDate)
+                .NotNull()
+                .WithMessage("EndDate is required for FixedDate schedules.");
+
+            RuleFor(x => x.EndDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
+                .WithMessage("EndDate must be on or after StartDate.");
+        });
+
+        // For Recurring, StartDate and EndDate are optional, but EndDate must be >= StartDate if both provided
+        When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, () =>
+        {
+            RuleFor(x => x.EndDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .WithMessage("EndDate must be on or after StartDate.");
+        });
+
+        // Hours validation (can be null or empty)
+        RuleFor(x => x.Hours)
+            .NotNull()
+            .WithMessage("Hours cannot be null (use an empty list for no hours).")
+            .Must(hours => hours == null || hours.All(h => h != null))
+            .WithMessage("Hours list cannot contain null entries.");
+
+        // Nested validation for each BjjEventHoursDto
+        RuleForEach(x => x.Hours).SetValidator(new BjjEventHoursDtoValidator());
+    }
+}
 
 }

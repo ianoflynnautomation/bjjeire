@@ -5,7 +5,6 @@ using BjjWorld.Application.Common.Interfaces;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Application.Features.BjjEvents.Services;
 using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Entities.Gyms;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;

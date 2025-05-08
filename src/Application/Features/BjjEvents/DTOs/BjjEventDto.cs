@@ -1,12 +1,12 @@
 using BjjWorld.Application.Common;
 using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Entities.Enums;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.DTOs;
 
 public class BjjEventDto : BaseApiEntityModel
 {
-    public string EventName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     public BjjEventType Type {get; set;}
 
@@ -20,7 +20,7 @@ public class BjjEventDto : BaseApiEntityModel
 
     public string City { get; set; } = string.Empty;
 
-    public List<BjjEventHoursDto> BjjEventHours { get; set; } = [];
+    public BjjEventScheduleDto Schedule { get; set; } = null!;
 
     public ContactDto Contact { get; set; } = new();
 
@@ -35,11 +35,11 @@ public class BjjEventMapping : Profile
 {
     public BjjEventMapping()
     {
-        CreateMap<BjjEventDto, BjjEvent>()
-        .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-        .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
-        CreateMap<BjjEvent, BjjEventDto>()
-        .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-        .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
-    }
+  CreateMap<BjjEvent, BjjEventDto>()
+    .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+    .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
+CreateMap<BjjEventDto, BjjEvent>()
+    .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+    .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
+} 
 }
