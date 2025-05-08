@@ -1,4 +1,4 @@
-namespace BjjWorld.Domain.Entities.Enums;
+namespace BjjWorld.Domain.Enums;
 
 public enum BjjEventType
 {

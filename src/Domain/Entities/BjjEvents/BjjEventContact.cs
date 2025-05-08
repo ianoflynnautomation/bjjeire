@@ -1,10 +1,12 @@
-using System;
-using MongoDB.Bson.Serialization.Attributes;
+
 
 namespace BjjWorld.Domain.Entities.BjjEvents;
 
 public class BjjEventContact
 {
+     [BsonElement("contactPerson")]
+    public string ContactPerson {get; set; } = string.Empty;
+
     [BsonElement("phone")]
     public string? Phone { get; set; }
 
@@ -16,4 +18,5 @@ public class BjjEventContact
 
     [BsonElement("socialMedia")]
     public Dictionary<string, string>? SocialMedia { get; set; } = [];
+
 }

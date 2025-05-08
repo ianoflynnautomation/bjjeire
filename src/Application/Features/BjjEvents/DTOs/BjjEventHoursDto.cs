@@ -15,6 +15,6 @@ public class BjjEventHoursMapping : Profile
     public BjjEventHoursMapping()
     {
         CreateMap<BjjEventHours, BjjEventHoursDto>();
-        CreateMap<BjjEventHoursDto, BjjEventHours>();
+        CreateMap<BjjEventHoursDto, BjjEventHours>();            
     }
 }

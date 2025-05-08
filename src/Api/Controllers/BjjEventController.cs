@@ -4,7 +4,7 @@ using BjjWorld.Application.Features.BjjEvents.Commands;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Application.Features.BjjEvents.Queries;
 using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Entities.Enums;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Api.Controllers;
 public class BjjEventController(IMediator mediator) : BaseApiController
@@ -38,7 +38,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
 
         // var location = Url.Action(nameof(Post), new { id = model.Id }) ?? $"/{model.Id}";
         // return CreatedAtAction(location, model);
-        return Ok(model.Id);
+         return Ok(model);
 
     }
 

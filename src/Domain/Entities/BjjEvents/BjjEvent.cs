@@ -1,14 +1,13 @@
 
-using BjjWorld.Domain.Entities.Enums;
-using BjjWorld.Domain.Entities.Gyms;
 using BjjWorld.Domain.Entities.Common;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Domain.Entities.BjjEvents;
 
 public class BjjEvent : BaseEntity
 {
     [BsonElement("name")]
-    public string EventName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
     [BsonElement("type")]
     public BjjEventType Type { get; set; }
@@ -26,8 +25,8 @@ public class BjjEvent : BaseEntity
     public string Address { get; set; } = string.Empty;
     [BsonElement("city")]
     public string City { get; set; } = string.Empty;
-    [BsonElement("eventHours")]
-    public List<BjjEventHours> EventHours { get; set; } = [];
+    [BsonElement("schedule")]
+     public BjjEventSchedule Schedule { get; set; } = null!;
     [BsonElement("contact")]
     public BjjEventContact Contact { get; set; } = new();
     [BsonElement("coordinates")]

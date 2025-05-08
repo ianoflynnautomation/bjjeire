@@ -1,6 +1,6 @@
 
 using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Domain.Entities.Enums;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.Queries;
 

@@ -20,8 +20,6 @@ public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bj
 
     public async Task<PaginatedBjjEventResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Request: Page={request.Page}, PageSize={request.PageSize}, City={request.City}, Type={request.Type}");
-
         var key = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.City, request.Type);
         return await _cacheBase.GetAsync(key, async () =>
         {

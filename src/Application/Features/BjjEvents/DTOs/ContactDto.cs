@@ -5,7 +5,7 @@ namespace BjjWorld.Application.Features.BjjEvents.DTOs;
 
 public class ContactDto
 {
-    public string ContactPersom {get; set; } = string.Empty;
+    public string ContactPerson {get; set; } = string.Empty;
     public string? Phone { get; set; }
     public string? Email { get; set; }
     public string? Website { get; set; }
