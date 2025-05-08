@@ -1,1 +1,1 @@
-export const CITIES = ['Zurich', 'Dublin'] as const;
+export const CITIES = ['Cork', 'Dublin'] as const;

@@ -1,7 +1,5 @@
-export interface BaseApiEntityModel {
-    id: string; 
-  }
-  
+import { BaseApiEntityModel } from "./common";
+
   export interface GymOpeningHoursDto {
     day: string;
     openTime: string;
@@ -37,55 +35,10 @@ export interface BaseApiEntityModel {
     contact: ContactDto;
     imageUrl?: string;
   }
-  
-  export interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    error?: {
-      message: string;
-      code?: string;
-    };
-  }
-  
 
-  export interface PaginatedResponse<T> {
-    data: T[];
-    pagination: {
-      totalItems: number;
-      currentPage: number;
-      pageSize: number;
-      totalPages: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      nextPageUrl?: string | null;
-      previousPageUrl?: string | null;
-    };
-  }
-  
-  // Specific response types
-  export type GymResponse = ApiResponse<GymDto>;
-  export type GymListResponse = PaginatedResponse<GymDto>;
-  export type DeleteGymResponse = ApiResponse<boolean>;
-  
-  // Request types for commands
-  export interface CreateGymRequest {
-    model: GymDto;
-  }
-  
-  export interface UpdateGymRequest {
-    model: GymDto;
-  }
-  
-  export interface DeleteGymRequest {
-    model: GymDto;
-  }
-  
   export interface GetGymsByCityPaginationQuery {
     city: string;
     page?: number; 
     pageSize?: number;
   }
   
-  export interface GetGenericQuery {
-    id: string;
-  }

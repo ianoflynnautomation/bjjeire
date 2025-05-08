@@ -1,13 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddContainer("grafana", "grafana/grafana")
-       .WithBindMount("../../infra/grafana/config", "/etc/grafana", isReadOnly: true)
-       .WithBindMount("../../infra/grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
-       .WithHttpEndpoint(port: 3200, targetPort: 3000, name: "http");
+// builder.AddContainer("grafana", "grafana/grafana")
+//        .WithBindMount("../../infra/grafana/config", "/etc/grafana", isReadOnly: true)
+//        .WithBindMount("../../infra/grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
+//        .WithHttpEndpoint(port: 3200, targetPort: 3000, name: "http");
 
-builder.AddContainer("prometheus", "prom/prometheus")
-       .WithBindMount("../../infra/prometheus", "/etc/prometheus", isReadOnly: true)
-       .WithHttpEndpoint(port: 9090, targetPort: 9090);
+// builder.AddContainer("prometheus", "prom/prometheus")
+//        .WithBindMount("../../infra/prometheus", "/etc/prometheus", isReadOnly: true)
+//        .WithHttpEndpoint(port: 9090, targetPort: 9090);
 
 // builder.AddContainer("prometheus", "prom/prometheus:v2.47.0")
 //        .WithBindMount("/absolute/path/to/infra/prometheus/prometheus.yml", "/etc/prometheus/prometheus.yml", isReadOnly: true)

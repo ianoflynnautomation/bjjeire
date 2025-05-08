@@ -3,21 +3,16 @@ namespace BjjWorld.Domain.Entities.Common;
 
 public class GeoCoordinates
 {
-    public GeoCoordinates()
-    {
-        Type = "Point";
-        Coordinates = [0, 0];
-    }
 
-    public GeoCoordinates(double longitude, double latitude)
-    {
-        Type = "Point";
-        Coordinates = [longitude, latitude];
-    }
+  [BsonElement("type")]
+  public string Type { get; private set; } = "Point";
 
-    [BsonElement("type")]
-    public string Type { get; private set; } = "Point";
-
-    [BsonElement("coordinates")]
-    public List<double> Coordinates { get; set; }
+  [BsonElement("latitude")]
+  public double Latitude { get; set; }
+  [BsonElement("longitude")]
+  public double Longitude { get; set; }
+  [BsonElement("placeName")]
+  public string? PlaceName { get; set; }
+  [BsonElement("placeId")]
+  public string? PlaceId { get; set; }
 }

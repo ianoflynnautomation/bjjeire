@@ -2,8 +2,9 @@
 using BjjWorld.Application.Common;
 using BjjWorld.Application.Common.Behaviours;
 using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Features.GymOpenMats.DTOs;
-using BjjWorld.Application.Features.GymOpenMats.Services;
+using BjjWorld.Application.Features.BjjEvents.DTOs;
+using BjjWorld.Application.Features.BjjEvents.Services;
+using BjjWorld.Domain.Entities.BjjEvents;
 using BjjWorld.Domain.Entities.Gyms;
 using Microsoft.Extensions.Hosting;
 
@@ -31,14 +32,14 @@ public static class DependencyInjection
 
     private static void RegisterOpenMatService(this IServiceCollection services)
     {
-        services.AddScoped<IGymService, GymService>();
+        services.AddScoped<IBjjEventService, BjjEventService>();
     }
 
     public static void RegisterRequestHandler(this IServiceCollection services)
     {
         var handlerTypes = new (Type dto, Type entity)[]
         {
-            (typeof(GymDto), typeof(Gym))
+            (typeof(BjjEventDto), typeof(BjjEvent))
         };
 
         foreach (var (dto, entity) in handlerTypes)

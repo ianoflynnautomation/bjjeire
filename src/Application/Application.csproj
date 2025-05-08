@@ -21,4 +21,11 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features/BjjEvents/DTOs/" />
+    <Folder Include="Features/BjjEvents/Queries/" />
+    <Folder Include="Features/BjjEvents/Services/" />
+    <Folder Include="Features/BjjEvents/Validators/" />
+  </ItemGroup>
+
 </Project>
