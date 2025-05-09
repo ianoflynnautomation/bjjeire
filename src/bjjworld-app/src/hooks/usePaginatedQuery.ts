@@ -1,67 +1,74 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useQuery, QueryKey } from '@tanstack/react-query';
-import { PaginatedResponse, PaginationMeta } from '../types/common';
+import { useQuery } from '@tanstack/react-query';
+import { useState, useCallback } from 'react';
+import { HateoasPagination } from '../types/common';
 
-interface UsePaginatedQueryProps<TData, TQueryParams extends object> {
-  queryKeyBase: QueryKey;
-  fetchFn: (params: TQueryParams & { page: number; pageSize: number }) => Promise<PaginatedResponse<TData>>;
-  initialParams?: Omit<TQueryParams, 'page' | 'pageSize'>;
-  initialPage?: number;
-  initialPageSize?: number;
+interface PaginatedQueryParams<T, TParams> {
+  queryKeyBase: string[];
+  fetchFn: (params: TParams & { url?: string | null }) => Promise<PaginatedResponse<T>>;
+  initialParams: TParams;
 }
 
-export interface UsePaginatedQueryResult<TData, TQueryParams extends object> {
-  data: TData[] | undefined;
-  meta: PaginationMeta | undefined; // Changed from `pagination` to `meta`
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: HateoasPagination;
+}
+
+interface PaginatedQueryResult<T, TParams> {
+  data: T[] | undefined;
+  pagination: HateoasPagination | undefined;
   isLoading: boolean;
   isFetching: boolean;
   error: Error | null;
   currentPage: number;
-  handlePageChange: (page: number) => void;
-  updateFilters: (newFilters: Partial<Omit<TQueryParams, 'page' | 'pageSize'>>) => void;
+  handlePageChange: (url: string | null, page?: number) => void;
+  updateFilters: (newFilters: Partial<TParams>) => void;
 }
 
-export function usePaginatedQuery<TData, TQueryParams extends object>({
+export const usePaginatedQuery = <T, TParams extends Record<string, string | number | undefined>>({
   queryKeyBase,
   fetchFn,
-  initialParams = {} as Omit<TQueryParams, 'page' | 'pageSize'>,
-  initialPage = 1,
-  initialPageSize = 9,
-}: UsePaginatedQueryProps<TData, TQueryParams>): UsePaginatedQueryResult<TData, TQueryParams> {
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [queryParams, setQueryParams] = useState<Omit<TQueryParams, 'page' | 'pageSize'>>(initialParams);
-
-  const queryKey = useMemo(
-    () => [...queryKeyBase, { ...queryParams, page: currentPage, pageSize: initialPageSize }],
-    [queryKeyBase, queryParams, currentPage, initialPageSize]
+  initialParams,
+}: PaginatedQueryParams<T, TParams>): PaginatedQueryResult<T, TParams> => {
+  const [params, setParams] = useState<TParams>(initialParams);
+  const [currentPage, setCurrentPage] = useState<number>(
+    typeof initialParams.page === 'string' ? parseInt(initialParams.page, 10) : initialParams.page || 1
   );
+  const [currentUrl, setCurrentUrl] = useState<string | null | undefined>(undefined);
 
-  const { data, isLoading, isFetching, error } = useQuery<PaginatedResponse<TData>, Error>({
-    queryKey,
-    queryFn: () =>
-      fetchFn({
-        ...queryParams,
-        page: currentPage,
-        pageSize: initialPageSize,
-      } as TQueryParams & { page: number; pageSize: number }),
+  const { data, isLoading, isFetching, error } = useQuery<PaginatedResponse<T>>({
+    queryKey: [...queryKeyBase, { ...params, url: currentUrl }],
+    queryFn: () => fetchFn({ ...params, url: currentUrl }),
+    placeholderData: (previousData) => previousData,
     staleTime: 5 * 60 * 1000,
   });
 
-  const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage);
-  }, []);
+  const handlePageChange = useCallback(
+    (url: string | null, page?: number) => {
+      setCurrentUrl(url);
+      if (page !== undefined) {
+        setCurrentPage(page);
+      } else if (url) {
+        const pageMatch = url.match(/page=(\d+)/);
+        if (pageMatch) {
+          setCurrentPage(parseInt(pageMatch[1], 10));
+        }
+      }
+    },
+    []
+  );
 
   const updateFilters = useCallback(
-    (newFilters: Partial<Omit<TQueryParams, 'page' | 'pageSize'>>) => {
-      setQueryParams((prev) => ({ ...prev, ...newFilters }));
+    (newFilters: Partial<TParams>) => {
+      setParams((prev) => ({ ...prev, ...newFilters, page: 1 }));
       setCurrentPage(1);
+      setCurrentUrl(undefined); // Reset URL when filters change
     },
     []
   );
 
   return {
     data: data?.data,
-    meta: data?.meta, // Changed from `pagination` to `meta`
+    pagination: data?.pagination,
     isLoading,
     isFetching,
     error,
@@ -69,4 +76,4 @@ export function usePaginatedQuery<TData, TQueryParams extends object>({
     handlePageChange,
     updateFilters,
   };
-}
+};

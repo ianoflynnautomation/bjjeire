@@ -1,20 +1,37 @@
 import { queryOptions } from '@tanstack/react-query';
+import {City} from '../constants/cities';
 import { api } from '../lib/api-client';
-import { PaginatedResponse, PaginationMeta } from '../types/common';
-import { BjjEventDto, GetBjjEventsPaginationQuery, BackendBjjEventDto } from '../types/event';
+import { PaginatedResponse, HateoasPagination } from '../types/common';
+import { BjjEventDto, BackendBjjEventDto, BjjEventType } from '../types/event';
 import { normalizeEvent } from '../utils/dataMappers';
 
 interface BackendBjjEventsResponse {
   data: BackendBjjEventDto[];
-  meta: PaginationMeta; 
+  pagination: HateoasPagination;
+}
+
+export interface GetBjjEventsPaginationQuery {
+  city?: City | 'all';
+  type?: BjjEventType | undefined;
+  page?: number;
+  pageSize?: number;
 }
 
 export const getBjjEvents = async ({
   city,
   type,
   page = 1,
-  pageSize = 9,
-}: GetBjjEventsPaginationQuery): Promise<PaginatedResponse<BjjEventDto>> => {
+  pageSize = 10,
+  url,
+}: GetBjjEventsPaginationQuery & { url?: string | null }): Promise<PaginatedResponse<BjjEventDto>> => {
+  if (url) {
+    const response = await api.get<BackendBjjEventsResponse>(url);
+    return {
+      data: response.data.map(normalizeEvent),
+      pagination: response.pagination,
+    };
+  }
+
   const params: Record<string, string | number> = {
     page,
     pageSize,
@@ -22,14 +39,14 @@ export const getBjjEvents = async ({
   if (city && city !== 'all') {
     params.city = city;
   }
-  if (type && type !== 'all') {
-    params.type = type;
+  if (type !== undefined) {
+    params.type = type; 
   }
 
   const response = await api.get<BackendBjjEventsResponse>('/api/bjjevent', { params });
   return {
     data: response.data.map(normalizeEvent),
-    meta: response.meta,
+    pagination: response.pagination,
   };
 };
 
@@ -38,17 +55,19 @@ export const getBjjEventsQueryOptions = ({
   type,
   page,
   pageSize,
-}: GetBjjEventsPaginationQuery) => {
+  url,
+}: GetBjjEventsPaginationQuery & { url?: string | null }) => {
   const queryKeyParams = {
     city: city || 'all',
-    type: type || 'all',
+    type: type ?? undefined,
     page: page || 1,
-    pageSize: pageSize || 9,
+    pageSize: pageSize || 10,
+    url,
   };
 
   return queryOptions({
     queryKey: ['bjjEvents', queryKeyParams],
-    queryFn: () => getBjjEvents({ city, type, page, pageSize }),
+    queryFn: () => getBjjEvents({ city, type, page, pageSize, url }),
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60 * 1000,
   });

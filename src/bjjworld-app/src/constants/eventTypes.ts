@@ -8,7 +8,6 @@ export const BJJ_EVENT_TYPES: { value: BjjEventType; label: string }[] = [
   { value: BjjEventType.Other, label: 'Other' },
 ];
 
-// Helper to map string to BjjEventType
 export const getBjjEventTypeFromString = (typeString: string): BjjEventType => {
   const normalized = typeString.toLowerCase();
   const typeMap: { [key: string]: BjjEventType } = {

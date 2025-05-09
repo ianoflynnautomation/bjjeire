@@ -1,4 +1,6 @@
-export interface PaginationMeta {
+
+
+export interface HateoasPagination {
   totalItems: number;
   currentPage: number;
   pageSize: number;
@@ -11,5 +13,5 @@ export interface PaginationMeta {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  meta: PaginationMeta; // Changed from `pagination` to `meta`
+  pagination: HateoasPagination;
 }
