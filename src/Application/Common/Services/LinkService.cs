@@ -17,7 +17,7 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
           string actionName,
           int currentPage,
           int pageSize,
-          int totalPages, // totalPages wasn't used but is good context to have
+          int totalPages,
           bool hasNextPage,
           bool hasPreviousPage,
           RouteValueDictionary? additionalRouteValues = null)

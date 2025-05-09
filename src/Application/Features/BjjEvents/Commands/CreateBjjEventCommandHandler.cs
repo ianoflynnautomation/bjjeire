@@ -3,7 +3,6 @@
 using BjjWorld.Application.Common.Interfaces;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.Commands;
 

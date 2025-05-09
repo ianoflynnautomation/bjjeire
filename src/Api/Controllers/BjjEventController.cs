@@ -4,7 +4,6 @@ using BjjWorld.Application.Features.BjjEvents.Commands;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Application.Features.BjjEvents.Queries;
 using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Api.Controllers;
 public class BjjEventController(IMediator mediator) : BaseApiController
@@ -18,19 +17,20 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedBjjEventResponseDto))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAll([FromQuery] string? city = null,[FromQuery] BjjEventType? type = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 12 )
+    public async Task<IActionResult> GetAll([FromQuery] GetBjjEventPaginationQuery query )
     {
-        var response = await _mediator.Send(new GetBjjEventPaginationQuery {Page = page, PageSize = pageSize, City = city, Type = type });
+        var response = await _mediator.Send(query);
 
         return Ok(response);
     }
+
 
     [EndpointDescription("Add new entity to Bjj Event")]
     [EndpointName("InsertBjjEvent")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GymDto))]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BjjEventDto))]
+    //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] BjjEventDto model)
     {
@@ -38,6 +38,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
 
         // var location = Url.Action(nameof(Post), new { id = model.Id }) ?? $"/{model.Id}";
         // return CreatedAtAction(location, model);
+          //return CreatedAtRoute("GetBjjEventById", new { id = model.Id }, model);
          return Ok(model);
 
     }
