@@ -1,5 +1,5 @@
 import React from 'react';
-import { EventFormData } from '../types/event';
+import { EventFormData } from '../../types/event';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -7,7 +7,7 @@ interface EventFormProps {
   onSubmit: (formData: EventFormData) => Promise<void>;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ isOpen, onClose, onSubmit }) => {
+export const EventForm: React.FC<EventFormProps> = ({ isOpen, onClose, onSubmit }) => {
   if (!isOpen) return null;
 
   return (
@@ -23,7 +23,7 @@ const EventForm: React.FC<EventFormProps> = ({ isOpen, onClose, onSubmit }) => {
             Cancel
           </button>
           <button
-            onClick={() => onSubmit({ /* form data */ } as EventFormData)}
+            onClick={() => onSubmit({} as EventFormData)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Submit
@@ -33,5 +33,3 @@ const EventForm: React.FC<EventFormProps> = ({ isOpen, onClose, onSubmit }) => {
     </div>
   );
 };
-
-export default EventForm;

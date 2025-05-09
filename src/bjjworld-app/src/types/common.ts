@@ -1,36 +1,46 @@
-import { CITIES } from "../constants/cities";
+import { CITIES } from '../constants/cities'
 
 export interface GetGenericQuery {
-    id: string;
-  }
+  id: string
+}
 
-  export interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    error?: {
-      message: string;
-      code?: string;
-    };
+export interface ApiResponse<T> {
+  pagination: {
+    totalItems: number
+    currentPage: number
+    pageSize: number
+    totalPages: number
+    hasNextPage: false
+    hasPreviousPage: false
+    nextPageUrl: null
+    previousPageUrl: null
   }
-
-  export interface PaginatedResponse<T> {
-    data: T[];
-    pagination: {
-      totalItems: number;
-      currentPage: number;
-      pageSize: number;
-      totalPages: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      nextPageUrl?: string | null;
-      previousPageUrl?: string | null;
-    };
+  success: boolean
+  data?: T
+  error?: {
+    message: string
+    code?: string
   }
-  
+}
 
-  export interface BaseApiEntityModel {
-    id: string; 
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    totalItems: number
+    currentPage: number
+    pageSize: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+    nextPageUrl?: string | null
+    previousPageUrl?: string | null
   }
-  
+}
 
-  export type City = typeof CITIES[number] | 'all';
+
+
+export interface BaseApiEntityModel {
+  id: string
+}
+
+export type City = (typeof CITIES)[number] | 'all'
