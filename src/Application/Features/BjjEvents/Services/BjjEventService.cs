@@ -5,16 +5,16 @@ using BjjWorld.Domain.Entities.BjjEvents;
 
 namespace BjjWorld.Application.Features.BjjEvents.Services;
 
-public class BjjEventService(IRepository<BjjEvent> openMatRepository, ICacheBase cacheBase) : IBjjEventService
+public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBase cacheBase) : IBjjEventService
 {
-    private readonly IRepository<BjjEvent> _openMatRepository = openMatRepository;
+    private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly ICacheBase _cacheBase = cacheBase;
 
     public virtual Task<BjjEvent> GetById(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
         var key = string.Format(CacheKey.BJJ_EVENT_BY_ID_KEY, id);
-        return _cacheBase.GetAsync(key, () => _openMatRepository.GetByIdAsync(id));
+        return _cacheBase.GetAsync(key, () => _bjjEventRepository.GetByIdAsync(id));
     }
 
     public Task<List<BjjEvent>> GetAll()
@@ -26,7 +26,7 @@ public class BjjEventService(IRepository<BjjEvent> openMatRepository, ICacheBase
     {
         ArgumentNullException.ThrowIfNull(gym);
 
-        await _openMatRepository.InsertAsync(gym);
+        await _bjjEventRepository.InsertAsync(gym);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
     }
@@ -35,7 +35,7 @@ public class BjjEventService(IRepository<BjjEvent> openMatRepository, ICacheBase
     {
         ArgumentNullException.ThrowIfNull(gym);
 
-        await _openMatRepository.UpdateAsync(gym);
+        await _bjjEventRepository.UpdateAsync(gym);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
     }
@@ -46,6 +46,6 @@ public class BjjEventService(IRepository<BjjEvent> openMatRepository, ICacheBase
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
 
-        await _openMatRepository.DeleteAsync(gym);
+        await _bjjEventRepository.DeleteAsync(gym);
     }
 }

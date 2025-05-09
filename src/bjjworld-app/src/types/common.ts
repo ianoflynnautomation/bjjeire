@@ -11,5 +11,5 @@ export interface PaginationMeta {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  pagination: PaginationMeta;
+  meta: PaginationMeta; // Changed from `pagination` to `meta`
 }
