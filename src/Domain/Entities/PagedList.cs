@@ -1,9 +1,10 @@
 ﻿namespace BjjWorld.Domain.Entities;
 
+
 [Serializable]
 public class PagedList<T> : List<T>, IPagedList<T>
 {
-    public int PageIndex { get; protected set; }
+    public int PageIndex { get; protected set; } // 0-based index
     public int PageSize { get; protected set; }
     public int TotalCount { get; protected set; }
     public int TotalPages { get; protected set; }
@@ -11,44 +12,33 @@ public class PagedList<T> : List<T>, IPagedList<T>
     public bool HasPreviousPage => PageIndex > 0;
     public bool HasNextPage => PageIndex + 1 < TotalPages;
 
-    public PagedList()
+    public PagedList() : base()
     {
     }
 
-    private PagedList(List<T> items, int count, int pageIndex, int pageSize, int totalPages)
+    private PagedList(List<T> items, int count, int pageIndex, int pageSize) : base(items)
     {
-        TotalCount = count;
         PageIndex = pageIndex;
         PageSize = pageSize;
-        TotalPages = totalPages;
-
-        AddRange(items);
+        TotalCount = count;
+        TotalPages = (pageSize > 0 && count > 0) ? (int)Math.Ceiling(count / (double)pageSize) : 0;
     }
 
-    public static async Task<PagedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
+    public static async Task<IPagedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        if (pageSize <= 0) pageSize = 1;
+        if (pageSize <= 0) pageSize = 10; // Default page size, consider making this configurable
+        if (pageIndex < 0) pageIndex = 0; // Ensure page index is not negative
 
-        int count = await source.CountAsync();
-        int totalPages = (count == 0) ? 0 : (int)Math.Ceiling(count / (double)pageSize);
-        int currentPageIndex = pageIndex;
-        if (totalPages > 0 && currentPageIndex >= totalPages)
-        {
-            currentPageIndex = totalPages - 1;
-        }
-        else if (currentPageIndex < 0)
-        {
-            currentPageIndex = 0;
-        }
+        int count = await source.CountAsync(cancellationToken);
 
         var items = new List<T>();
         if (count > 0)
         {
-            items = await source.Skip(currentPageIndex * pageSize).Take(pageSize).ToListAsync();
+            items = await source.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync(cancellationToken);
         }
 
-        return new PagedList<T>(items, count, currentPageIndex, pageSize, totalPages);
+        return new PagedList<T>(items, count, pageIndex, pageSize);
     }
 }

@@ -95,12 +95,8 @@ export const fetchBjjEvents = async (
 
   try {
     const response = await api.get<BjjEventsApiResponse>('/api/bjjevent', { params: apiParams });
-
-    // It's better if api.get throws an error for non-success or empty response.data,
-    // but as a safeguard:
     if (!response || !response.data) {
       console.warn('API response or response.data is undefined or null.');
-      // Throw an error to be caught by useQuery
       throw new Error('Invalid API response: No data received.');
     }
 
@@ -146,11 +142,11 @@ export const useBjjEvents = (
 ) => {
   return usePaginatedQuery<BjjEventDto, GetBjjEventsPaginationQuery>({
     queryKeyBase: ['bjjEvents'], // Key for caching and refetching, e.g., for React Query
-    fetchFn: fetchBjjEvents,    // The actual data fetching function
-    initialParams: initialFilters, // Initial filter parameters (city, type)
+    fetchFn: fetchBjjEvents,  
+    initialParams: initialFilters,
     initialPage,
     initialPageSize,
-    staleTime: 5 * 60 * 1000, // Data is considered fresh for 5 minutes
+    staleTime: 5 * 60 * 1000, 
     // gcTime (or cacheTime in older TanStack Query versions) could also be set here
     // gcTime: 10 * 60 * 1000, // How long to keep unused data in memory (10 minutes)
   });
