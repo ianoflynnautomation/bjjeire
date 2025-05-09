@@ -26,10 +26,7 @@ const SupportModal = ({ isOpen, onClose }: SupportModalProps) => {
       <div className="bg-white rounded-lg max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z" fill="#F7931A"/>
-              <path d="M17.0921 10.1344C17.0921 6.80063 14.4006 5.40063 11.4006 5.40063H7.20063V18.6006H11.4006C14.4006 18.6006 17.0921 17.2006 17.0921 13.8669C17.0921 12.2672 16.2006 10.9344 17.0921 10.1344ZM11.4006 7.20063C13.2006 7.20063 14.4006 7.80063 14.4006 9.60063C14.4006 11.4006 13.2006 12.0006 11.4006 12.0006H9.60063V7.20063H11.4006ZM11.4006 16.8006H9.60063V12.0006H11.4006C13.2006 12.0006 14.4006 12.6006 14.4006 14.4006C14.4006 16.2006 13.2006 16.8006 11.4006 16.8006Z" fill="white"/>
-            </svg>
+            <img src="/bitcoin.png" alt="Bitcoin Logo" className="w-8 h-8" />
             <h2 className="text-2xl font-bold text-gray-900">Support BJJ World</h2>
           </div>
           <button
@@ -41,12 +38,12 @@ const SupportModal = ({ isOpen, onClose }: SupportModalProps) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="space-y-4">
           <p className="text-gray-600">
             Support the BJJ World project by donating Bitcoin. Your contribution helps us maintain and improve the platform.
           </p>
-          
+
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-500 mb-2">Bitcoin Address:</p>
             <div className="flex items-center gap-2">
@@ -73,4 +70,4 @@ const SupportModal = ({ isOpen, onClose }: SupportModalProps) => {
   );
 };
 
-export default SupportModal; 
+export default SupportModal;
