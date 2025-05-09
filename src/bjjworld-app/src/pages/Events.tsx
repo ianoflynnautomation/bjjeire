@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { City } from '../constants/cities';
 import { EventForm } from '../components/EventForm/EventForm';
 import { EventCard } from '../components/EventCard/EventCard';
-import { EventFilters } from '../components/EventCard/EventFilters';
+import EventFilters  from '../components/EventCard/EventFilters';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { usePaginatedQuery } from '../hooks/usePaginatedQuery';
@@ -14,13 +14,16 @@ import { PlusIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroi
 
 const EventsPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = React.useState(false);
-  const [filters, setFilters] = React.useState<{ city: City | 'all'; type: BjjEventType | 'all' }>({
+  const [filters, setFilters] = React.useState<{
+    city: City | 'all';
+    type: BjjEventType | undefined; // Changed from BjjEventType | 'all'
+  }>({
     city: 'all',
-    type: 'all',
+    type: undefined, // Default to undefined for "all types"
   });
 
-  const { data, meta, isLoading, isFetching, error, currentPage, handlePageChange, updateFilters } =
-    usePaginatedQuery<BjjEventDto, { city: City | 'all'; type: BjjEventType | 'all' }>({
+  const { data, pagination, isLoading, isFetching, error, currentPage, handlePageChange, updateFilters } =
+    usePaginatedQuery<BjjEventDto, { city: City | 'all'; type: BjjEventType | undefined }>({
       queryKeyBase: ['bjjEvents'],
       fetchFn: getBjjEvents,
       initialParams: filters,
@@ -33,17 +36,23 @@ const EventsPage: React.FC = () => {
   }, []);
 
   const handleFilterChange = useCallback(
-    (key: 'city' | 'type', value: City | BjjEventType | 'all') => {
-      setFilters((prev) => ({ ...prev, [key]: value }));
-      updateFilters({ [key]: value });
+    (key: 'city' | 'type', value: City | BjjEventType | 'all' | undefined) => {
+      const newFilters: Partial<typeof filters> = {};
+      if (key === 'city') {
+        newFilters.city = value as City | 'all';
+      } else if (key === 'type') {
+        newFilters.type = value === 'all' ? undefined : (value as BjjEventType);
+      }
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+      updateFilters(newFilters);
       scrollToTop();
     },
     [updateFilters, scrollToTop]
   );
 
   const onPageChange = useCallback(
-    (newPage: number) => {
-      handlePageChange(newPage);
+    (url: string | null, page?: number) => {
+      handlePageChange(url, page);
       scrollToTop();
     },
     [handlePageChange, scrollToTop]
@@ -98,7 +107,7 @@ const EventsPage: React.FC = () => {
         <div className="mb-8">
           <EventFilters
             selectedCity={filters.city}
-            selectedType={filters.type}
+            selectedType={filters.type} // Now BjjEventType | undefined
             onCityChange={(city) => handleFilterChange('city', city)}
             onTypeChange={(type) => handleFilterChange('type', type)}
             disabled={isFetching}
@@ -154,11 +163,11 @@ const EventsPage: React.FC = () => {
           )}
         </main>
 
-        {meta && meta.totalPages > 1 && !hasError && (
+        {pagination && pagination.totalPages > 1 && !hasError && (
           <div className="mt-10 border-t border-slate-200 pt-8">
             <Pagination
               currentPage={currentPage}
-              totalPages={meta.totalPages}
+              pagination={pagination}
               onPageChange={onPageChange}
             />
           </div>

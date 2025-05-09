@@ -1,4 +1,4 @@
-import { City } from '../constants/cities';
+import { City} from '../constants/cities';
 
 export enum BjjEventType {
   OpenMat = 0,
@@ -27,18 +27,11 @@ export interface BjjEventScheduleDto {
   hours: BjjEventHoursDto[];
 }
 
-export interface BackendBjjEventHoursDto {
+export interface BjjEventHoursDto {
   day?: string;
   date?: string | null;
   openTime: string;
   closeTime: string;
-}
-
-export interface BackendBjjEventScheduleDto {
-  scheduleType: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  hours: BackendBjjEventHoursDto[];
 }
 
 export interface ContactDto {
@@ -65,13 +58,13 @@ export interface GeoCoordinatesDto {
 export interface BackendBjjEventDto {
   id?: string;
   name: string;
-  type: string;
+  type: string; // Non-null, as ensured by backend
   eventUrl?: string | null;
   isActive: boolean;
   statusReason?: string | null;
   address: string;
-  city: string;
-  schedule: BackendBjjEventScheduleDto;
+  city: string; // Non-null, as ensured by backend
+  schedule: BjjEventScheduleDto;
   contact: ContactDto;
   coordinates: GeoCoordinatesDto;
   cost?: number | null;
@@ -82,24 +75,27 @@ export interface BackendBjjEventDto {
 export interface BjjEventDto {
   id?: string;
   name: string;
-  type: BjjEventType;
+  type: BjjEventType; // Non-null, as ensured by backend
   eventUrl?: string | null;
   isActive: boolean;
   statusReason?: string | null;
   address: string;
-  city: City;
+  city: City; // Non-null, as ensured by backend
   schedule: BjjEventScheduleDto;
   contact: ContactDto;
   coordinates: GeoCoordinatesDto;
   cost?: number | null;
 }
 
+
 export interface GetBjjEventsPaginationQuery {
+  city?: City | 'all';
+  type?: BjjEventType | undefined;
   page?: number;
   pageSize?: number;
-  city?: City | 'all';
-  type?: BjjEventType | 'all';
 }
+
+
 
 export interface EventScheduleFormData {
   scheduleType: ScheduleType;
@@ -110,8 +106,8 @@ export interface EventScheduleFormData {
 
 export interface EventFormData {
   title: string;
-  type: BjjEventType;
-  city: City;
+  type: BjjEventType; // Non-null
+  city: City; // Non-null
   address?: string;
   cost?: number;
   schedule: EventScheduleFormData;

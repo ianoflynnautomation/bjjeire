@@ -1,75 +1,68 @@
 import React, { memo } from 'react';
-import { generatePageNumbers, ELLIPSIS } from '../utils/paginationUtils';
+import { HateoasPagination } from '../types/common';
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  maxVisiblePages?: number;
+  currentPage: number; 
+  pagination: HateoasPagination; 
+  onPageChange: (url: string | null, page?: number) => void; 
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-  maxVisiblePages = 5,
-}) => {
+const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPageChange }) => {
+  const { totalPages, hasNextPage, hasPreviousPage, nextPageUrl, previousPageUrl, totalItems, pageSize } = pagination;
+
   if (totalPages <= 1) return null;
-
-  const pageNumbers = generatePageNumbers(currentPage, totalPages, Math.max(3, maxVisiblePages));
-
-  const handlePageClick = (page: number | string) => {
-    if (typeof page === 'number' && page !== currentPage && page >= 1 && page <= totalPages) {
-      onPageChange(page);
-    }
-  };
 
   const buttonBaseClasses =
     'px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1';
   const inactiveClasses = 'bg-white text-gray-700 hover:bg-gray-100';
-  const activeClasses = 'bg-blue-600 text-white border-blue-600 cursor-default';
   const disabledClasses = 'opacity-60 cursor-not-allowed bg-gray-50 text-gray-400';
 
+  // Fallback URLs when nextPageUrl/previousPageUrl are null
+  const fallbackNextUrl = hasNextPage
+    ? `/api/bjjevent?page=${currentPage + 1}&pageSize=${pageSize}`
+    : null;
+  const fallbackPrevUrl = hasPreviousPage
+    ? `/api/bjjevent?page=${currentPage - 1}&pageSize=${pageSize}`
+    : null;
+
+  // Calculate items shown (e.g., "Showing 1-10 of 12 events")
+  const itemsStart = totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null;
+  const itemsEnd = totalItems && pageSize ? Math.min(currentPage * pageSize, totalItems) : null;
+  const itemsText = itemsStart && itemsEnd && totalItems ? `Showing ${itemsStart}-${itemsEnd} of ${totalItems} events` : '';
+
   return (
-    <nav className="flex items-center justify-center gap-3 py-6" aria-label="Pagination navigation">
-      <button
-        className={`${buttonBaseClasses} ${inactiveClasses} ${currentPage === 1 ? disabledClasses : ''}`}
-        onClick={() => handlePageClick(currentPage - 1)}
-        disabled={currentPage === 1}
-        aria-label="Previous page"
-      >
-        « Prev
-      </button>
+    <nav className="flex flex-col items-center justify-center gap-3 py-6" aria-label="Pagination navigation">
+      {itemsText && (
+        <div className="mb-2 text-sm text-gray-600" aria-live="polite">
+          {itemsText}
+        </div>
+      )}
+      <div className="flex items-center gap-3">
+        {/* Previous Page */}
+        <button
+          className={`${buttonBaseClasses} ${inactiveClasses} ${!hasPreviousPage ? disabledClasses : ''}`}
+          onClick={() => hasPreviousPage && onPageChange(previousPageUrl || fallbackPrevUrl, currentPage - 1)}
+          disabled={!hasPreviousPage}
+          aria-label="Previous page"
+        >
+          « Prev
+        </button>
 
-      <ul className="flex gap-1.5">
-        {pageNumbers.map((page, index) => (
-          <li key={typeof page === 'number' ? `page-${page}` : `ellipsis-${index}`}>
-            {page === ELLIPSIS ? (
-              <span className="px-3 py-1.5 text-sm text-gray-500" aria-hidden="true">
-                {ELLIPSIS}
-              </span>
-            ) : (
-              <button
-                className={`${buttonBaseClasses} ${currentPage === page ? activeClasses : inactiveClasses}`}
-                onClick={() => handlePageClick(page)}
-                aria-current={currentPage === page ? 'page' : undefined}
-                aria-label={`Page ${page}`}
-              >
-                {page}
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+        {/* Current Page Indicator */}
+        <span className="px-3 py-1.5 text-sm font-medium text-gray-700" aria-current="page">
+          Page {currentPage} of {totalPages}
+        </span>
 
-      <button
-        className={`${buttonBaseClasses} ${inactiveClasses} ${currentPage === totalPages ? disabledClasses : ''}`}
-        onClick={() => handlePageClick(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        aria-label="Next page"
-      >
-        Next »
-      </button>
+        {/* Next Page */}
+        <button
+          className={`${buttonBaseClasses} ${inactiveClasses} ${!hasNextPage ? disabledClasses : ''}`}
+          onClick={() => hasNextPage && onPageChange(nextPageUrl || fallbackNextUrl, currentPage + 1)}
+          disabled={!hasNextPage}
+          aria-label="Next page"
+        >
+          Next »
+        </button>
+      </div>
     </nav>
   );
 };

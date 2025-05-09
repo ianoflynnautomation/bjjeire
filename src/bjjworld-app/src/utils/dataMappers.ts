@@ -1,57 +1,34 @@
-import { EventFormData, BackendBjjEventDto, BjjEventDto, BjjEventType, ScheduleType } from '../types/event';
 import { City } from '../constants/cities';
+import { BjjEventType, BjjEventDto, BackendBjjEventDto, EventFormData, ScheduleType } from '../types/event';
+import { getBjjEventTypeFromString } from '../constants/eventTypes';
 
-// Validates and maps a backend city string to a valid City type
-const mapCity = (city: string): City => {
-  const validCities: City[] = ['Cork', 'Dublin', 'all'];
-  return validCities.includes(city as City) ? (city as City) : 'all';
-};
-
-// Normalizes backend DTO to frontend DTO
-export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => {
-  const typeMap: { [key: string]: BjjEventType } = {
-    OpenMat: BjjEventType.OpenMat,
-    Seminar: BjjEventType.Seminar,
-    Tournament: BjjEventType.Tournament,
-    Camp: BjjEventType.Camp,
-    Other: BjjEventType.Other,
-  };
-
-  return {
-    id: backendEvent.id,
-    name: backendEvent.name,
-    type: typeMap[backendEvent.type] ?? BjjEventType.Other,
-    eventUrl: backendEvent.eventUrl,
-    isActive: backendEvent.isActive,
-    statusReason: backendEvent.statusReason,
-    address: backendEvent.address,
-    city: mapCity(backendEvent.city),
-    schedule: {
-      scheduleType: backendEvent.schedule.scheduleType as ScheduleType,
-      startDate: backendEvent.schedule.startDate,
-      endDate: backendEvent.schedule.endDate,
-      hours: (backendEvent.schedule.hours ?? []).map((hour) => ({
-        dayOfWeek: hour.day ? getDayOfWeekNumber(hour.day) : null,
-        date: hour.date,
-        openTime: hour.openTime,
-        closeTime: hour.closeTime,
-      })),
-    },
-    contact: backendEvent.contact,
-    coordinates: backendEvent.coordinates,
-    cost: backendEvent.cost,
-  };
-};
-
-// Helper to convert day string to number (0-6)
-const getDayOfWeekNumber = (day: string): number => {
+// Helper function to convert day string to dayOfWeek number (e.g., 'Monday' -> 1)
+const getDayOfWeek = (day: string): number => {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return days.indexOf(day);
 };
 
-// Maps form data to backend DTO for POST request
+// Map backend event to frontend event
+export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => ({
+  ...backendEvent,
+  type: getBjjEventTypeFromString(backendEvent.type),
+  city: backendEvent.city as City, // Safe cast since backend ensures valid city
+  schedule: {
+    ...backendEvent.schedule,
+    scheduleType: backendEvent.schedule.scheduleType as ScheduleType,
+    hours: backendEvent.schedule.hours.map((hour) => ({
+      dayOfWeek: hour.day ? getDayOfWeek(hour.day) : null,
+      date: hour.date,
+      openTime: hour.openTime,
+      closeTime: hour.closeTime,
+    })),
+  },
+});
+
+// Map EventFormData to BackendBjjEventDto for API submission
 export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventDto => {
-  const typeMap: { [key: number]: string } = {
+  // Convert BjjEventType enum to string representation for backend
+  const typeMap: Record<BjjEventType, string> = {
     [BjjEventType.OpenMat]: 'OpenMat',
     [BjjEventType.Seminar]: 'Seminar',
     [BjjEventType.Tournament]: 'Tournament',
@@ -61,20 +38,32 @@ export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventD
 
   return {
     name: formData.title,
-    type: typeMap[formData.type] ?? 'Other',
-    city: formData.city,
-    address: formData.address || '',
-    cost: formData.cost || null,
+    type: typeMap[formData.type], // Convert enum to string
+    city: formData.city, // City is already a string (e.g., 'Cork', 'Dublin')
+    address: formData.address || '', // Provide empty string if undefined
+    cost: formData.cost ?? null, // Use null if undefined
     schedule: {
       scheduleType: formData.schedule.scheduleType,
-      startDate: formData.schedule.startDate || null,
-      endDate: formData.schedule.endDate || null,
-      hours: formData.schedule.hours ?? [],
+      startDate: formData.schedule.startDate ?? null,
+      endDate: formData.schedule.endDate ?? null,
+      hours: (formData.schedule.hours ?? []).map((hour) => ({
+        date: hour.date ?? null,
+        openTime: hour.openTime,
+        closeTime: hour.closeTime,
+        day: hour.date ? undefined : formData.schedule.scheduleType === ScheduleType.Recurring ? 'Sunday' : undefined, // Default to Sunday for recurring, omit for fixed date
+      })),
     },
-    isActive: true,
-    statusReason: 'Published',
-    eventUrl: null,
-    contact: {},
-    coordinates: { type: 'Point', latitude: 0, longitude: 0 },
+    isActive: true, // Default for new events
+    contact: {}, // Empty contact object (adjust based on form data if contact fields are added)
+    coordinates: {
+      type: 'Point',
+      latitude: 0, // Placeholder; backend may geocode based on address
+      longitude: 0,
+      placeName: formData.address || '',
+    },
+    eventUrl: null, // Optional, not provided in form
+    statusReason: null, // Optional
+    createdOnUtc: new Date().toISOString(), // Set current timestamp
+    updatedOnUtc: null, // Not set for new events
   };
 };
