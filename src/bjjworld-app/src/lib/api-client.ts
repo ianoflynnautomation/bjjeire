@@ -1,15 +1,13 @@
-import Axios from 'axios';
+import Axios, { AxiosRequestConfig } from 'axios';
 import { env } from '../config/env';
 
-export const api = Axios.create({
+const instance = Axios.create({
   baseURL: env.API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-api.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
+instance.interceptors.response.use(
+  (response) => response.data,
   (error) => {
     if (error.response) {
       console.error('API error:', {
@@ -26,3 +24,13 @@ api.interceptors.response.use(
   }
 );
 
+export const api = {
+  get: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    instance.get<T>(url, config) as Promise<T>,
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    instance.post<T>(url, data, config) as Promise<T>,
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> =>
+    instance.put<T>(url, data, config) as Promise<T>,
+  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
+    instance.delete<T>(url, config) as Promise<T>,
+};

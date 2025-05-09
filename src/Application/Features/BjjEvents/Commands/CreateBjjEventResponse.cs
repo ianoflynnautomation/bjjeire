@@ -1,4 +1,3 @@
-using BjjWorld.Application.Features.BjjEvents.DTOs;
 
 namespace BjjWorld.Application.Features.BjjEvents.Commands;
 

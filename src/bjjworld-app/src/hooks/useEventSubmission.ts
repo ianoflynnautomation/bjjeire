@@ -5,8 +5,7 @@ import { mapEventFormDataToDto } from '../utils/dataMappers';
 
 const postEvent = async (formData: EventFormData): Promise<BackendBjjEventDto> => {
   const apiPayload = mapEventFormDataToDto(formData);
-  const response = await api.post<BackendBjjEventDto>('/api/bjjevent', apiPayload);
-  return response.data;
+  return api.post<BackendBjjEventDto>('/api/bjjevent', apiPayload);
 };
 
 export const useEventSubmission = () => {
@@ -14,8 +13,12 @@ export const useEventSubmission = () => {
 
   return useMutation({
     mutationFn: postEvent,
-    onSuccess: () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ['bjjEvents'] });
+    },
+    onError: (error) => {
+      console.error('Event submission failed:', error);
     },
   });
 };
