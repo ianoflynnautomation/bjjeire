@@ -1,46 +1,15 @@
-import { CITIES } from '../constants/cities'
-
-export interface GetGenericQuery {
-  id: string
-}
-
-export interface ApiResponse<T> {
-  pagination: {
-    totalItems: number
-    currentPage: number
-    pageSize: number
-    totalPages: number
-    hasNextPage: false
-    hasPreviousPage: false
-    nextPageUrl: null
-    previousPageUrl: null
-  }
-  success: boolean
-  data?: T
-  error?: {
-    message: string
-    code?: string
-  }
+export interface PaginationMeta {
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPageUrl: string | null;
+  previousPageUrl: string | null;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[]
-  pagination: {
-    totalItems: number
-    currentPage: number
-    pageSize: number
-    totalPages: number
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-    nextPageUrl?: string | null
-    previousPageUrl?: string | null
-  }
+  data: T[];
+  pagination: PaginationMeta;
 }
-
-
-
-export interface BaseApiEntityModel {
-  id: string
-}
-
-export type City = (typeof CITIES)[number] | 'all'
