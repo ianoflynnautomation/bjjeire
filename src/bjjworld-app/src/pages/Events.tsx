@@ -1,102 +1,114 @@
-import React, { useCallback } from 'react';
-import { City } from '../constants/cities';
-import { EventForm } from '../components/EventForm/EventForm';
-import { EventCard } from '../components/EventCard/EventCard';
-import EventFilters  from '../components/EventCard/EventFilters';
-import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { usePaginatedQuery } from '../hooks/usePaginatedQuery';
-import { getBjjEvents } from '../api/get-bjj-events';
-import { useEventSubmission } from '../hooks/useEventSubmission';
-import { EventFormData, BjjEventType, BjjEventDto } from '../types/event';
-import clsx from 'clsx';
-import { PlusIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/20/solid';
+import React, { useCallback } from 'react'
+import { City } from '../constants/cities'
+import { EventForm } from '../components/EventForm/EventForm'
+import { EventCard } from '../components/EventCard/EventCard'
+import EventFilters from '../components/EventCard/EventFilters'
+import Pagination from '../components/Pagination'
+import LoadingSpinner from '../components/LoadingSpinner'
+import { usePaginatedQuery } from '../hooks/usePaginatedQuery'
+import { getBjjEvents } from '../api/get-bjj-events'
+import { useEventSubmission } from '../hooks/useEventSubmission'
+import { EventFormData, BjjEventType, BjjEventDto } from '../types/event'
+import clsx from 'clsx'
+import { PlusIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/20/solid'
 
 const EventsPage: React.FC = () => {
-  const [isFormOpen, setIsFormOpen] = React.useState(false);
+  const [isFormOpen, setIsFormOpen] = React.useState(false)
   const [filters, setFilters] = React.useState<{
-    city: City | 'all';
-    type: BjjEventType | undefined; // Changed from BjjEventType | 'all'
+    city: City | 'all'
+    type: BjjEventType | undefined
   }>({
     city: 'all',
-    type: undefined, // Default to undefined for "all types"
-  });
+    type: undefined,
+  })
 
-  const { data, pagination, isLoading, isFetching, error, currentPage, handlePageChange, updateFilters } =
-    usePaginatedQuery<BjjEventDto, { city: City | 'all'; type: BjjEventType | undefined }>({
-      queryKeyBase: ['bjjEvents'],
-      fetchFn: getBjjEvents,
-      initialParams: filters,
-    });
+  const {
+    data,
+    pagination,
+    isLoading,
+    isFetching,
+    error,
+    currentPage,
+    handlePageChange,
+    updateFilters,
+  } = usePaginatedQuery<BjjEventDto, { city: City | 'all'; type: BjjEventType | undefined }>({
+    queryKeyBase: ['bjjEvents'],
+    fetchFn: getBjjEvents,
+    initialParams: filters,
+  })
 
-  const { mutate: submitEvent, isPending: isSubmittingEvent } = useEventSubmission();
+  const { mutate: submitEvent, isPending: isSubmittingEvent } = useEventSubmission()
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   const handleFilterChange = useCallback(
     (key: 'city' | 'type', value: City | BjjEventType | 'all' | undefined) => {
-      const newFilters: Partial<typeof filters> = {};
+      const newFilters: Partial<typeof filters> = {}
       if (key === 'city') {
-        newFilters.city = value as City | 'all';
+        newFilters.city = value as City | 'all'
       } else if (key === 'type') {
-        newFilters.type = value === 'all' ? undefined : (value as BjjEventType);
+        newFilters.type = value === 'all' ? undefined : (value as BjjEventType)
       }
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-      updateFilters(newFilters);
-      scrollToTop();
+      setFilters((prev) => ({ ...prev, ...newFilters }))
+      updateFilters(newFilters)
+      scrollToTop()
     },
     [updateFilters, scrollToTop]
-  );
+  )
 
   const onPageChange = useCallback(
     (url: string | null, page?: number) => {
-      handlePageChange(url, page);
-      scrollToTop();
+      handlePageChange(url, page)
+      scrollToTop()
     },
     [handlePageChange, scrollToTop]
-  );
+  )
 
   const handleSubmitEvent = useCallback(
     (formData: EventFormData): Promise<void> =>
       new Promise((resolve, reject) => {
         submitEvent(formData, {
           onSuccess: () => {
-            setIsFormOpen(false);
-            resolve();
+            setIsFormOpen(false)
+            resolve()
           },
           onError: (error) => {
-            console.error('Event submission failed:', error);
-            reject(error);
+            console.error('Event submission failed:', error)
+            reject(error)
           },
-        });
+        })
       }),
     [submitEvent]
-  );
+  )
 
-  const events = data ?? [];
-  const isInitialLoading = isLoading && !events.length;
-  const isBackgroundFetching = isFetching && !isLoading;
-  const hasError = !!error;
-  const noEventsFound = !isLoading && !isFetching && !hasError && !events.length;
+  const events = data ?? []
+  const isInitialLoading = isLoading && !events.length
+  const isBackgroundFetching = isFetching && !isLoading
+  const hasError = !!error
+  const noEventsFound = !isLoading && !isFetching && !hasError && !events.length
 
   const errorMessage = error?.message.includes('failed to fetch')
     ? 'Could not connect to the server. Please check your internet connection and try again.'
-    : error?.message || 'Failed to load events. Please try again.';
+    : error?.message || 'Failed to load events. Please try again.'
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <header className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">BJJ Events</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            BJJ Events
+          </h1>
           <button
             type="button"
             onClick={() => setIsFormOpen(true)}
             disabled={isSubmittingEvent}
             className={clsx(
               'inline-flex items-center gap-x-2 rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm',
-              isSubmittingEvent ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+              isSubmittingEvent
+                ? 'bg-indigo-400 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700'
             )}
           >
             <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
@@ -126,8 +138,14 @@ const EventsPage: React.FC = () => {
             </div>
           )}
           {hasError && !isInitialLoading && (
-            <div role="alert" className="my-10 rounded-md border border-red-300 bg-red-50 p-6 text-center shadow">
-              <ExclamationTriangleIcon className="mx-auto h-10 w-10 text-red-400" aria-hidden="true" />
+            <div
+              role="alert"
+              className="my-10 rounded-md border border-red-300 bg-red-50 p-6 text-center shadow"
+            >
+              <ExclamationTriangleIcon
+                className="mx-auto h-10 w-10 text-red-400"
+                aria-hidden="true"
+              />
               <h3 className="mt-2 text-lg font-semibold text-red-800">Error Loading Events</h3>
               <p className="mt-1 text-sm text-red-700">{errorMessage}</p>
               <button
@@ -140,7 +158,10 @@ const EventsPage: React.FC = () => {
           )}
           {noEventsFound && (
             <div className="my-10 rounded-md border border-yellow-300 bg-yellow-50 p-6 text-center shadow">
-              <InformationCircleIcon className="mx-auto h-10 w-10 text-yellow-400" aria-hidden="true" />
+              <InformationCircleIcon
+                className="mx-auto h-10 w-10 text-yellow-400"
+                aria-hidden="true"
+              />
               <p className="mt-2 text-lg font-semibold text-yellow-800">No Events Found</p>
               <p className="mt-1 text-sm text-yellow-700">
                 Try adjusting your filters or{' '}
@@ -183,7 +204,7 @@ const EventsPage: React.FC = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EventsPage;
+export default EventsPage

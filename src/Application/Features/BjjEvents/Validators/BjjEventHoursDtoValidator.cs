@@ -1,3 +1,4 @@
+using BjjWorld.Application.Common.Extensions;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 
 namespace BjjWorld.Application.Features.BjjEvents.Validators;
@@ -7,10 +8,9 @@ public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto>
     public BjjEventHoursDtoValidator()
     {
         RuleFor(oh => oh.Day)
-            .IsInEnum().WithMessage("A valid {PropertyName} must be specified.");
+            .ApplyEnumValidator("Day");
 
         RuleFor(oh => oh.CloseTime)
-            .GreaterThan(oh => oh.OpenTime)
-            .WithMessage("{PropertyName} must be later than OpenTime for same-day closing.");
+            .ApplyGreaterThanValidator(oh => oh.OpenTime, "Close Time", "OpenTime");
     }
 }

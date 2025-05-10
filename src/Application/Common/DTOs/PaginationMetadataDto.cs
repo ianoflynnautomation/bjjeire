@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjWorld.Application.Common.DTOs;
 
 public class PaginationMetadataDto
 {

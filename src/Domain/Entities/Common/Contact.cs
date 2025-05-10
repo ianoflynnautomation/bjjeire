@@ -1,8 +1,7 @@
 
+namespace BjjWorld.Domain.Entities.Common;
 
-namespace BjjWorld.Domain.Entities.BjjEvents;
-
-public class BjjEventContact
+public class Contact
 {
      [BsonElement("contactPerson")]
     public string ContactPerson {get; set; } = string.Empty;

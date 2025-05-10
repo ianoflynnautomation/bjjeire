@@ -1,37 +1,52 @@
 
-using BjjWorld.Application.Common.Extentions;
+using BjjWorld.Application.Common.DTOs;
+using BjjWorld.Application.Common.Extensions;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 
 namespace BjjWorld.Application.Features.BjjEvents.Validators;
 
 public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
 {
-    public BjjEventDtoValidator(IValidator<ContactDto> contactDtoValidator, IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator)
+    public BjjEventDtoValidator(IValidator<ContactDto> contactDtoValidator,
+                                IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
+                                IValidator<BjjEventPricingModelDto> pricingModelDtoValidator)
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Event name is required.")
-            .MaximumLength(100).WithMessage("Event name cannot exceed 100 characters.");
+          .ApplyRequiredString("Event name", 100);
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithMessage("Invalid event type.");
+            .ApplyEnumValidator("Event type");
 
         RuleFor(x => x.EventUrl)
-            .Must(ValtionExtention.BeAValidUrl).When(x => !string.IsNullOrEmpty(x.EventUrl))
-            .WithMessage("Event URL must be a valid URL.");
+            .ApplyUrlValidator("Event URL");
 
         RuleFor(x => x.StatusReason)
-            .NotEmpty().When(x => !x.IsActive).WithMessage("Status reason is required when event is inactive.")
-            .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.StatusReason))
-            .WithMessage("Status reason cannot exceed 500 characters.");
+            .NotEmpty()
+                .When(x => !x.IsActive)
+                .WithName("Status Reason")
+                .WithMessage(ValidationMessages.ConditionalRequired.Message("Status reason", "event is inactive"))
+                .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode)
+            .MaximumLength(500)
+                .When(x => !string.IsNullOrEmpty(x.StatusReason))
+                .WithMessage(ValidationMessages.MaxLength.Message("Status reason", 500))
+                .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
 
         RuleFor(x => x.Address)
-            .NotEmpty().WithMessage("Address is required.")
-            .MaximumLength(200).WithMessage("Address cannot exceed 200 characters.");
+            .ApplyRequiredString("Address", 200);
+
+        RuleFor(x => x.City)
+            .ApplyRequiredString("City", 100);
 
         RuleFor(x => x.Schedule)
+            .ApplyNotNullValidator("Schedule")
             .SetValidator(bjjEventScheduleDtoValidator);
 
-        RuleFor(g => g.Contact)
-               .SetValidator(contactDtoValidator);
+        RuleFor(x => x.Contact)
+            .ApplyNotNullValidator("Contact")
+            .SetValidator(contactDtoValidator);
+
+        RuleFor(x => x.Pricing)
+            .ApplyNotNullValidator("Pricing")
+            .SetValidator(pricingModelDtoValidator);
     }
 }

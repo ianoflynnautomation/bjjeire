@@ -4,12 +4,13 @@ using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Domain.Entities.BjjEvents;
 using BjjWorld.Application.Common;
 using Microsoft.AspNetCore.Routing;
+using BjjWorld.Application.Common.DTOs;
 
 namespace BjjWorld.Application.Features.BjjEvents.Queries;
 
 public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bjjEventRepository, IMapper mapper,
 ICacheBase cacheBase, ILinkService linkService)
-: IRequestHandler<GetBjjEventPaginationQuery, PaginatedBjjEventResponseDto>
+: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponseDto>
 {
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly IMapper _mapper = mapper;
@@ -18,7 +19,7 @@ ICacheBase cacheBase, ILinkService linkService)
     private const string ControllerNameForLinks = "GetAllBjjEvents";
     private const string ActionNameForLinks = "GetAll";
 
-    public async Task<PaginatedBjjEventResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<GetBjjEventPaginatedResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.City, request.Type);
 
@@ -36,7 +37,7 @@ ICacheBase cacheBase, ILinkService linkService)
                 query = query.Where(x => x.Type == request.Type.Value);
             }
 
-            query = query.OrderBy(x => x.Name);
+            query = query.OrderBy(x => x.CreatedOnUtc);
 
             var pagedBjjEventDtos = await query
                 .ProjectTo<BjjEventDto>(_mapper.ConfigurationProvider)
@@ -63,7 +64,7 @@ ICacheBase cacheBase, ILinkService linkService)
                 additionalRouteValues: additionalRouteValues
             );
 
-            return new PaginatedBjjEventResponseDto
+            return new GetBjjEventPaginatedResponseDto
             {
                 Data = [.. pagedBjjEventDtos],
                 Pagination = new PaginationMetadataDto
