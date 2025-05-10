@@ -1,19 +1,19 @@
 // src/components/EventCard/EventCard.tsx (Simplified version)
-import React from 'react';
-import { BjjEventDto } from '../../types/event';
-import { getEventTypeLabel, getEventTypeColorClasses } from '../../utils/eventUtils';
-import { EventSchedule } from './EventSchedule';
-import { EventDetails } from './EventDetails'; // Updated EventDetails will be used
+import React from 'react'
+import { BjjEventDto } from '../../types/event'
+import { getEventTypeLabel, getEventTypeColorClasses } from '../../utils/eventUtils'
+import { EventSchedule } from './EventSchedule'
+import { EventDetails } from './EventDetails' // Updated EventDetails will be used
 
-import { LinkIcon } from '@heroicons/react/20/solid';
+import { LinkIcon } from '@heroicons/react/20/solid'
 
 interface EventCardProps {
-  event: BjjEventDto;
+  event: BjjEventDto
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ event }) => {
-  const eventTypeLabel = getEventTypeLabel(event.type);
-  const { name, eventUrl, schedule } = event; // Destructure for easier access
+  const eventTypeLabel = getEventTypeLabel(event.type)
+  const { name, eventUrl, schedule } = event // Destructure for easier access
 
   return (
     <article className="flex h-full flex-col rounded-lg bg-white shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl overflow-hidden">
@@ -23,7 +23,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
             <h3 className="text-xl font-semibold leading-tight text-slate-800 hover:text-indigo-700 transition-colors">
               {eventUrl ? (
-                <a href={eventUrl} target="_blank" rel="noopener noreferrer" title={`Visit event page for ${name || 'Unnamed Event'}`}>
+                <a
+                  href={eventUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Visit event page for ${name || 'Unnamed Event'}`}
+                >
                   {name || 'Unnamed Event'}
                 </a>
               ) : (
@@ -40,7 +45,9 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
         {/* Delegated Details: Location, Cost, Contact Info, Social Media etc. */}
         {/* EventDetails now handles more, including social links and contact website */}
-        <div className="mb-4 text-sm"> {/* Removed text-slate-600, let EventDetails handle its own text color */}
+        <div className="mb-4 text-sm">
+          {' '}
+          {/* Removed text-slate-600, let EventDetails handle its own text color */}
           <EventDetails event={event} />
         </div>
 
@@ -70,5 +77,5 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         )}
       </div>
     </article>
-  );
-};
+  )
+}

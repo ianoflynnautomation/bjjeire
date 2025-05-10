@@ -3,9 +3,11 @@ using BjjWorld.Application.Common;
 using BjjWorld.Application.Features.BjjEvents.Commands;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Application.Features.BjjEvents.Queries;
+using BjjWorld.Application.Features.Gyms.Queries;
 using BjjWorld.Domain.Entities.BjjEvents;
 
 namespace BjjWorld.Api.Controllers;
+
 public class BjjEventController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
@@ -14,7 +16,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [EndpointName("GetAllBjjEvents")]
     [HttpGet()]
     [EnableQuery]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedBjjEventResponseDto))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAll([FromQuery] GetBjjEventPaginationQuery query )

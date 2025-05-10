@@ -1,7 +1,6 @@
+using BjjWorld.Domain.Entities.Common;
 
-using BjjWorld.Domain.Entities.BjjEvents;
-
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjWorld.Application.Common.DTOs;
 
 public class ContactDto
 {
@@ -16,7 +15,7 @@ public class ContactMapping : Profile
 {
     public ContactMapping()
     {
-        CreateMap<BjjEventContact, ContactDto>();
-        CreateMap<ContactDto, BjjEventContact>();
+        CreateMap<Contact, ContactDto>();
+        CreateMap<ContactDto, Contact>();
     }
 }

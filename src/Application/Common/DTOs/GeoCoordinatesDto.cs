@@ -1,6 +1,6 @@
 using BjjWorld.Domain.Entities.Common;
 
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjWorld.Application.Common.DTOs;
 
 public class GeoCoordinatesDto
 {

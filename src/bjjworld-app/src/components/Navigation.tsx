@@ -11,10 +11,8 @@ interface NavItem {
 // Navigation items configuration
 const navItems: NavItem[] = [
   { to: "/events", label: "Events" },
-  { to: "/dojos", label: "Dojos" },
-  { to: "/organizations", label: "Organizations" },
-  { to: "/articles", label: "Articles" },
-  { to: "/contact", label: "Contact" },
+  { to: "/gyms", label: "Gyms" },
+  { to: "/about", label: "About" },
 ];
 
 // A simple Bitcoin icon component (or you can use an image/icon library)
@@ -48,7 +46,7 @@ const Navigation = () => {
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 <Link to="/" className="text-2xl font-bold text-gray-800 hover:text-[#F7931A] transition-colors">
-                  BJJ World
+                  BJJ Éire
                 </Link>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

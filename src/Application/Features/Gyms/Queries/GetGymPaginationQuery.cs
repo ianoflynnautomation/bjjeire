@@ -1,9 +1,7 @@
 
-using BjjWorld.Domain.Enums;
+namespace BjjWorld.Application.Features.Gyms.Queries;
 
-namespace BjjWorld.Application.Features.BjjEvents.Queries;
-
-public record GetBjjEventPaginationQuery : IRequest<GetBjjEventPaginatedResponseDto>
+public record GetGymPaginationQuery : IRequest<GetGymPaginatedResponse>
 {
     private const int DefaultPage = 1;
     private const int DefaultPageSize = 10;
@@ -24,5 +22,4 @@ public record GetBjjEventPaginationQuery : IRequest<GetBjjEventPaginatedResponse
     }
 
     public string? City { get; set; }
-    public BjjEventType? Type { get; set; }
 }

@@ -6,6 +6,10 @@ public static partial class CacheKey
         public static string BJJ_EVENT_PATTERN_KEY => "BjjEvent.";
         public static string BJJ_EVENT_BY_ID_KEY => "BjjEvent.id-{0}";
         public static string BJJ_EVENT_ALL => "BjjEvent.all-{0}-{1}-{2}-{3}";
+        
+        public static string GYM_PATTERN_KEY => "Gym.";
+        public static string GYM_BY_ID_KEY => "Gym.id-{0}";
+        public static string GYM_ALL => "Gym.all-{0}-{1}-{2}-{3}";
 
 //     private const string BjjEventPrefix = "BjjEvent";
 //     public static string BjjEventPattern => $"{BjjEventPrefix}:*";

@@ -1,4 +1,5 @@
 
+using BjjWorld.Application.Common.Extensions;
 using BjjWorld.Application.Features.BjjEvents.DTOs;
 using BjjWorld.Domain.Enums;
 
@@ -9,42 +10,47 @@ public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDt
     public BjjEventScheduleDtoValidator()
     {
         RuleFor(x => x.ScheduleType)
-            .IsInEnum()
-            .WithMessage("ScheduleType must be either Recurring or FixedDate.");
+        .ApplyEnumValidator("Schedule Type");
 
-        // For FixedDate, StartDate and EndDate are required
         When(x => x.ScheduleType == ScheduleType.FixedDate, () =>
         {
             RuleFor(x => x.StartDate)
-                .NotNull()
-                .WithMessage("StartDate is required for FixedDate schedules.");
+                     .NotNull()
+                     .WithName("Start date")
+                     .WithMessage(ValidationMessages.ConditionalRequired.Message("Start date", "schedule type is FixedDate"))
+                     .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode);
 
             RuleFor(x => x.EndDate)
                 .NotNull()
-                .WithMessage("EndDate is required for FixedDate schedules.");
+                .WithName("End date")
+                .WithMessage(ValidationMessages.ConditionalRequired.Message("End date", "schedule type is FixedDate"))
+                .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode);
 
             RuleFor(x => x.EndDate)
-                .GreaterThanOrEqualTo(x => x.StartDate)
-                .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
-                .WithMessage("EndDate must be on or after StartDate.");
+                       .GreaterThanOrEqualTo(x => x.StartDate)
+                       .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
+                       .WithMessage(ValidationMessages.GreaterThanOrEqual.Message("End date", "start date"))
+                       .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode);
         });
 
-        // For Recurring, StartDate and EndDate are optional, but EndDate must be >= StartDate if both provided
         When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, () =>
         {
             RuleFor(x => x.EndDate)
                 .GreaterThanOrEqualTo(x => x.StartDate)
-                .WithMessage("EndDate must be on or after StartDate.");
+                .WithMessage(ValidationMessages.GreaterThanOrEqual.Message("End date", "start date"))
+                .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode);
         });
 
-        // Hours validation (can be null or empty)
         RuleFor(x => x.Hours)
             .NotNull()
-            .WithMessage("Hours cannot be null (use an empty list for no hours).")
+            .WithMessage(ValidationMessages.NotNull.Message("Hours"))
+            .WithErrorCode(ValidationMessages.NotNull.ErrorCode)
             .Must(hours => hours == null || hours.All(h => h != null))
-            .WithMessage("Hours list cannot contain null entries.");
+            .WithMessage(ValidationMessages.NoNullEntries.Message("Hours"))
+            .WithErrorCode(ValidationMessages.NoNullEntries.ErrorCode);
 
-        // Nested validation for each BjjEventHoursDto
+
+
         RuleForEach(x => x.Hours).SetValidator(new BjjEventHoursDtoValidator());
     }
 

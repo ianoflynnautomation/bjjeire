@@ -22,30 +22,30 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
         throw new NotImplementedException();
     }
 
-    public virtual async Task Insert(BjjEvent gym)
+    public virtual async Task Insert(BjjEvent bjjEvent)
     {
-        ArgumentNullException.ThrowIfNull(gym);
+        ArgumentNullException.ThrowIfNull(bjjEvent);
 
-        await _bjjEventRepository.InsertAsync(gym);
+        await _bjjEventRepository.InsertAsync(bjjEvent);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
     }
 
-    public virtual async Task Update(BjjEvent gym)
+    public virtual async Task Update(BjjEvent bjjEvent)
     {
-        ArgumentNullException.ThrowIfNull(gym);
+        ArgumentNullException.ThrowIfNull(bjjEvent);
 
-        await _bjjEventRepository.UpdateAsync(gym);
+        await _bjjEventRepository.UpdateAsync(bjjEvent);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
     }
 
-    public virtual async Task Delete(BjjEvent gym)
+    public virtual async Task Delete(BjjEvent bjjEvent)
     {
-        ArgumentNullException.ThrowIfNull(gym);
+        ArgumentNullException.ThrowIfNull(bjjEvent);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BJJ_EVENT_PATTERN_KEY);
 
-        await _bjjEventRepository.DeleteAsync(gym);
+        await _bjjEventRepository.DeleteAsync(bjjEvent);
     }
 }
