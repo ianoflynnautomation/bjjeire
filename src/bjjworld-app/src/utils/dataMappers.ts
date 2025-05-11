@@ -1,5 +1,5 @@
 import { City } from '../constants/cities';
-import { BjjEventType, BackendBjjEventDto, BjjEventDto, EventFormData, ScheduleType } from '../types/event';
+import { BjjEventType, BackendBjjEventDto, BjjEventDto, EventFormData, RecurringSchedule, ScheduleType, EventScheduleUnion, FixedDateSchedule } from '../types/event';
 
 // Convert backend type string to BjjEventType enum
 export const getBjjEventTypeFromString = (type: string): BjjEventType => {
@@ -13,45 +13,60 @@ export const getBjjEventTypeFromString = (type: string): BjjEventType => {
   return typeMap[type] ?? BjjEventType.Other;
 };
 
-export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => ({
-  id: backendEvent.id ?? "", // Handle optional id (from previous fix)
-  name: backendEvent.name,
-  type: getBjjEventTypeFromString(backendEvent.type),
-  city: backendEvent.city as City,
-  isActive: backendEvent.isActive,
-  address: backendEvent.address,
-  eventUrl: backendEvent.eventUrl ?? undefined,
-  schedule: {
-    ...backendEvent.schedule,
-    scheduleType: backendEvent.schedule.scheduleType as ScheduleType,
-    hours: backendEvent.schedule.hours ?? [],
-    startDate: backendEvent.schedule.startDate ?? undefined,
-    endDate: backendEvent.schedule.endDate ?? undefined,
-  },
-  pricing: {
-    ...backendEvent.pricing,
-    amount: backendEvent.pricing.amount ?? 0,
-    durationDays: backendEvent.pricing.durationDays ?? null,
-    currency: backendEvent.pricing.currency ?? 'EUR',
-    type: backendEvent.pricing.type,
-  },
-  coordinates: backendEvent.coordinates
-    ? {
-        type: 'Point',
-        latitude: backendEvent.coordinates.latitude,
-        longitude: backendEvent.coordinates.longitude,
-      }
-    : undefined,
-  contact: backendEvent.contact
-    ? {
-        contactPerson: backendEvent.contact.contactPerson ?? undefined,
-        phone: backendEvent.contact.phone ?? undefined, // Convert null to undefined
-        email: backendEvent.contact.email ?? undefined, // Convert null to undefined
-        website: backendEvent.contact.website ?? undefined, // Convert null to undefined
-        socialMedia: backendEvent.contact.socialMedia ?? undefined, // Convert null to undefined
-      }
-    : undefined,
-});
+export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => {
+  // Normalize schedule based on scheduleType
+  const normalizeSchedule = (schedule: EventScheduleUnion): EventScheduleUnion => {
+    if (schedule.scheduleType === ScheduleType.FixedDate) {
+      return {
+        scheduleType: ScheduleType.FixedDate,
+        startDate: schedule.startDate, // Required for FixedDate
+        endDate: schedule.endDate ?? undefined,
+        hours: schedule.hours ?? [],
+      } as FixedDateSchedule;
+    } else {
+      return {
+        scheduleType: ScheduleType.Recurring,
+        startDate: schedule.startDate ?? undefined,
+        endDate: schedule.endDate ?? undefined,
+        hours: schedule.hours ?? [],
+      } as RecurringSchedule;
+    }
+  };
+
+  return {
+    id: backendEvent.id ?? "",
+    name: backendEvent.name,
+    type: getBjjEventTypeFromString(backendEvent.type),
+    city: backendEvent.city as City,
+    isActive: backendEvent.isActive,
+    address: backendEvent.address,
+    eventUrl: backendEvent.eventUrl ?? undefined,
+    schedule: normalizeSchedule(backendEvent.schedule),
+    pricing: {
+      ...backendEvent.pricing,
+      amount: backendEvent.pricing.amount ?? 0,
+      durationDays: backendEvent.pricing.durationDays ?? null,
+      currency: backendEvent.pricing.currency ?? 'EUR',
+      type: backendEvent.pricing.type,
+    },
+    coordinates: backendEvent.coordinates
+      ? {
+          type: 'Point',
+          latitude: backendEvent.coordinates.latitude,
+          longitude: backendEvent.coordinates.longitude,
+        }
+      : undefined,
+    contact: backendEvent.contact
+      ? {
+          contactPerson: backendEvent.contact.contactPerson ?? undefined,
+          phone: backendEvent.contact.phone ?? undefined,
+          email: backendEvent.contact.email ?? undefined,
+          website: backendEvent.contact.website ?? undefined,
+          socialMedia: backendEvent.contact.socialMedia ?? undefined,
+        }
+      : undefined,
+  };
+};
 
 export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventDto => {
   const typeMap: Record<BjjEventType, string> = {
@@ -60,6 +75,35 @@ export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventD
     [BjjEventType.Tournament]: 'Tournament',
     [BjjEventType.Camp]: 'Camp',
     [BjjEventType.Other]: 'Other',
+  };
+
+  // Map schedule based on scheduleType
+  const mapSchedule = (schedule: EventScheduleUnion): EventScheduleUnion => {
+    if (schedule.scheduleType === ScheduleType.FixedDate) {
+      return {
+        scheduleType: ScheduleType.FixedDate,
+        startDate: schedule.startDate, // Required for FixedDate
+        endDate: schedule.endDate ?? undefined,
+        hours: (schedule.hours ?? []).map((hour) => ({
+          dayOfWeek: hour.dayOfWeek ?? null,
+          date: hour.date ?? null,
+          openTime: hour.openTime,
+          closeTime: hour.closeTime,
+        })),
+      } as FixedDateSchedule;
+    } else {
+      return {
+        scheduleType: ScheduleType.Recurring,
+        startDate: schedule.startDate ?? undefined,
+        endDate: schedule.endDate ?? undefined,
+        hours: (schedule.hours ?? []).map((hour) => ({
+          dayOfWeek: hour.dayOfWeek ?? null,
+          date: hour.date ?? null,
+          openTime: hour.openTime,
+          closeTime: hour.closeTime,
+        })),
+      } as RecurringSchedule;
+    }
   };
 
   return {
@@ -71,17 +115,7 @@ export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventD
     statusReason: null,
     address: formData.address ?? '',
     city: formData.city,
-    schedule: {
-      scheduleType: formData.schedule.scheduleType,
-      startDate: formData.schedule.startDate ?? undefined, // Use undefined instead of null
-      endDate: formData.schedule.endDate ?? undefined, // Use undefined instead of null
-      hours: (formData.schedule.hours ?? []).map((hour) => ({
-        dayOfWeek: hour.dayOfWeek ?? null,
-        date: hour.date ?? null,
-        openTime: hour.openTime,
-        closeTime: hour.closeTime,
-      })),
-    },
+    schedule: mapSchedule(formData.schedule),
     contact: {
       contactPerson: formData.contact?.contactPerson ?? '',
       phone: formData.contact?.phone ?? null,

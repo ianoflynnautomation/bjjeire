@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { BjjEventDto } from '../../types/event';
 import { getEventTypeLabel, getEventTypeColorClasses } from '../../utils/eventUtils';
-import { EventSchedule } from './EventSchedule';
+import { EventSchedule } from './EventSchedule/EventSchedule';
 import { EventDetails } from './EventDetails';
 import { LinkIcon } from '@heroicons/react/20/solid';
 
