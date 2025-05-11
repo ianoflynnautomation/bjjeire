@@ -4,7 +4,6 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Events from './pages/Events';
-import Dojos from './pages/Dojos';
 import { initGA, trackPageView } from './utils/telemetry';
 import './index.css';
 
@@ -32,7 +31,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/events" element={<Events />} />
-            <Route path="/dojos" element={<Dojos />} />
             {/* Add more routes as needed */}
           </Routes>
         </main>

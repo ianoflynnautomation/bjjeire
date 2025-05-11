@@ -32,6 +32,7 @@ public class GymDto : BaseApiEntityModel
 }
 
 
+
 public class GymtDtoMapping : Profile
 {
     public GymtDtoMapping()

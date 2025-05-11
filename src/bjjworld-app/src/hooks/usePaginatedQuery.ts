@@ -1,16 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
-import { HateoasPagination } from '../types/common';
+import { HateoasPagination, PaginatedResponse } from '../types/common';
 
 interface PaginatedQueryParams<T, TParams> {
   queryKeyBase: string[];
   fetchFn: (params: TParams & { url?: string | null }) => Promise<PaginatedResponse<T>>;
   initialParams: TParams;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: HateoasPagination;
 }
 
 interface PaginatedQueryResult<T, TParams> {
@@ -24,14 +19,15 @@ interface PaginatedQueryResult<T, TParams> {
   updateFilters: (newFilters: Partial<TParams>) => void;
 }
 
-export const usePaginatedQuery = <T, TParams extends Record<string, string | number | undefined>>({
+export const usePaginatedQuery = <T, TParams extends object>({
   queryKeyBase,
   fetchFn,
   initialParams,
 }: PaginatedQueryParams<T, TParams>): PaginatedQueryResult<T, TParams> => {
   const [params, setParams] = useState<TParams>(initialParams);
   const [currentPage, setCurrentPage] = useState<number>(
-    typeof initialParams.page === 'string' ? parseInt(initialParams.page, 10) : initialParams.page || 1
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (initialParams as any).page || 1
   );
   const [currentUrl, setCurrentUrl] = useState<string | null | undefined>(undefined);
 
@@ -47,6 +43,7 @@ export const usePaginatedQuery = <T, TParams extends Record<string, string | num
       setCurrentUrl(url);
       if (page !== undefined) {
         setCurrentPage(page);
+        setParams((prev) => ({ ...prev, page }));
       } else if (url) {
         const pageMatch = url.match(/page=(\d+)/);
         if (pageMatch) {

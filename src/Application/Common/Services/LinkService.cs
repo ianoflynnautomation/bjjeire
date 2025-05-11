@@ -25,7 +25,6 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
         {
-            // This service relies on HttpContext. Log if called outside a request.
             _logger.LogWarning("HttpContext is null. Cannot generate pagination URLs outside of a request context.");
             return (null, null);
         }
@@ -34,7 +33,6 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
             ? new RouteValueDictionary(additionalRouteValues)
             : [];
 
-        // Ensure page size is part of the base values if not already present
         if (!baseRouteValues.ContainsKey("pageSize"))
         {
             baseRouteValues["pageSize"] = pageSize;
@@ -57,8 +55,7 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
             nextPageUrl = GenerateAbsoluteUrl(httpContext, controllerName, actionName, nextRouteValues);
         }
 
-        // Generate previous page URL if applicable
-        if (hasPreviousPage && currentPage > 1) // Added check against 1 for safety
+        if (hasPreviousPage && currentPage > 1) 
         {
             var prevRouteValues = new RouteValueDictionary(baseRouteValues)
             {

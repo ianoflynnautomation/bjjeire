@@ -9,7 +9,8 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
 {
     public BjjEventDtoValidator(IValidator<ContactDto> contactDtoValidator,
                                 IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
-                                IValidator<BjjEventPricingModelDto> pricingModelDtoValidator)
+                                IValidator<BjjEventPricingModelDto> pricingModelDtoValidator,
+                                IValidator<GeoCoordinatesDto> geoCoordinatesDtoValidator)
     {
         RuleFor(x => x.Name)
           .ApplyRequiredString("Event name", 100);
@@ -19,6 +20,9 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
 
         RuleFor(x => x.EventUrl)
             .ApplyUrlValidator("Event URL");
+
+        RuleFor(x => x.Organiser)
+            .ApplyRequiredString("Organiser", 100);
 
         RuleFor(x => x.StatusReason)
             .NotEmpty()
@@ -37,13 +41,17 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
         RuleFor(x => x.City)
             .ApplyRequiredString("City", 100);
 
+        RuleFor(x => x.Contact)
+            .ApplyNotNullValidator("Contact")
+            .SetValidator(contactDtoValidator);
+
         RuleFor(x => x.Schedule)
             .ApplyNotNullValidator("Schedule")
             .SetValidator(bjjEventScheduleDtoValidator);
 
-        RuleFor(x => x.Contact)
-            .ApplyNotNullValidator("Contact")
-            .SetValidator(contactDtoValidator);
+        RuleFor(x => x.Coordinates)
+          .ApplyNotNullValidator("Pricing")
+            .SetValidator(geoCoordinatesDtoValidator);
 
         RuleFor(x => x.Pricing)
             .ApplyNotNullValidator("Pricing")

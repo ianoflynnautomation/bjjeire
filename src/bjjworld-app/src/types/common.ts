@@ -15,3 +15,11 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: HateoasPagination;
 }
+
+export interface BaseApiEntityModel 
+{
+  id?: string;
+  createdOnUtc?: string | null
+  updatedOnUtc?: string | null;
+
+}
