@@ -15,6 +15,9 @@ public class BjjEvent : BaseEntity
     [BsonElement("eventUrl")]
     public string? EventUrl { get; set; }
 
+    [BsonElement("organiser")]
+    public string Organiser { get; set; } = string.Empty;
+
     [BsonElement("isActive")]
     public bool IsActive { get; set; } = true;
     [BsonElement("statusReason")]
@@ -26,7 +29,7 @@ public class BjjEvent : BaseEntity
     [BsonElement("city")]
     public string City { get; set; } = string.Empty;
     [BsonElement("schedule")]
-     public BjjEventSchedule Schedule { get; set; } = null!;
+    public BjjEventSchedule Schedule { get; set; } = null!;
     [BsonElement("contact")]
     public Contact Contact { get; set; } = new();
     [BsonElement("coordinates")]

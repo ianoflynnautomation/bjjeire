@@ -1,5 +1,6 @@
 
 using System.Linq.Expressions;
+using FluentValidation;
 
 namespace BjjWorld.Application.Common.Extensions;
 
@@ -22,6 +23,18 @@ public static class ValidationRuleExtensions
             .MaximumLength(maxLength)
             .WithName(fieldName)
             .WithMessage(ValidationMessages.MaxLength.Message(fieldName, maxLength))
+            .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
+    }
+
+        public static IRuleBuilderOptions<T, string> ApplyMaxLengthValidator<T>(
+        this IRuleBuilderInitial<T, string> ruleBuilder,
+        string friendlyName,
+        int maxLength)
+    {
+        return ruleBuilder
+            .MaximumLength(maxLength) // FluentValidation's MaxLength handles null/empty strings gracefully
+            .WithName(friendlyName)
+            .WithMessage(ValidationMessages.MaxLength.Message(friendlyName, maxLength)) // Assumes this overload exists
             .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
     }
 
@@ -183,4 +196,30 @@ public static class ValidationRuleExtensions
             .WithMessage(ValidationMessages.MustBeNull.Message(fieldName, condition))
             .WithErrorCode(ValidationMessages.MustBeNull.ErrorCode);
     }
+    
+        public static IRuleBuilderOptions<T, string> ApplyMustBeEqualValidator<T>(
+        this IRuleBuilderInitial<T, string> ruleBuilder,
+        string friendlyName,
+        string expectedValue)
+    {
+        return ruleBuilder
+            .Must(val => val == expectedValue)
+            .WithName(friendlyName)
+            .WithMessage(ValidationMessages.MustBeEqualString.Message(expectedValue))
+            .WithErrorCode(ValidationMessages.MustBeEqualString.ErrorCode);
+    }
+
+    public static IRuleBuilderOptions<T, TProperty> ApplyInclusiveBetweenValidator<T, TProperty>(
+        this IRuleBuilderInitial<T, TProperty> ruleBuilder,
+        string friendlyName,
+        TProperty from,
+        TProperty to)
+        where TProperty : IComparable<TProperty>, IComparable
+    {
+        return ruleBuilder
+            .InclusiveBetween(from, to)
+            .WithName(friendlyName)
+            .WithErrorCode(ValidationMessages.NumericRange.ErrorCode);
+    }
+
 }

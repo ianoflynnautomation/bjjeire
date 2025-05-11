@@ -33,7 +33,6 @@ public class BjjEventDto : BaseApiEntityModel
 
 }
 
-
 public class BjjEventMapping : Profile
 {
     public BjjEventMapping()

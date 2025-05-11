@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BjjWorld.Api.Extensions;
+using BjjWorld.Api.Extensions.Exceptions;
 using BjjWorld.Application.Common.Interfaces;
 using BjjWorld.Application.Common.Services;
 using Prometheus;

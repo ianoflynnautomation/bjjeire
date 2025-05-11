@@ -97,6 +97,18 @@ public static class ValidationMessages
         public static string Message(string fieldName) => $"{fieldName} must be a valid email address.";
     }
 
+       public static class MustBeEqualString
+    {
+        public const string ErrorCode = "VALUE_MUST_BE_EQUAL";
+        public static string Message(string expectedValue) => $"{{PropertyName}} must be '{expectedValue}'.";
+    }
+
+    public static class NumericRange
+    {
+        public const string ErrorCode = "VALUE_OUT_OF_RANGE";
+        public static string Message(object from, object to) => $"{{PropertyName}} must be between {from} and {to} (inclusive).";
+    }
+
     public static class ObjectValidation
     {
         public const string InvalidScheduleErrorCode = "INVALID_SCHEDULE";

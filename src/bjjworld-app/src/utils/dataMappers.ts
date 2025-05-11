@@ -1,33 +1,59 @@
 import { City } from '../constants/cities';
-import { BjjEventType, BjjEventDto, BackendBjjEventDto, EventFormData, ScheduleType } from '../types/event';
-import { getBjjEventTypeFromString } from '../constants/eventTypes';
+import { BjjEventType, BackendBjjEventDto, BjjEventDto, EventFormData, ScheduleType } from '../types/event';
 
-// Helper function to convert day string to dayOfWeek number (e.g., 'Monday' -> 1)
-const getDayOfWeek = (day: string): number => {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return days.indexOf(day);
+// Convert backend type string to BjjEventType enum
+export const getBjjEventTypeFromString = (type: string): BjjEventType => {
+  const typeMap: Record<string, BjjEventType> = {
+    OpenMat: BjjEventType.OpenMat,
+    Seminar: BjjEventType.Seminar,
+    Tournament: BjjEventType.Tournament,
+    Camp: BjjEventType.Camp,
+    Other: BjjEventType.Other,
+  };
+  return typeMap[type] ?? BjjEventType.Other;
 };
 
-// Map backend event to frontend event
 export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => ({
-  ...backendEvent,
+  id: backendEvent.id ?? "", // Handle optional id (from previous fix)
+  name: backendEvent.name,
   type: getBjjEventTypeFromString(backendEvent.type),
-  city: backendEvent.city as City, // Safe cast since backend ensures valid city
+  city: backendEvent.city as City,
+  isActive: backendEvent.isActive,
+  address: backendEvent.address,
+  eventUrl: backendEvent.eventUrl ?? undefined,
   schedule: {
     ...backendEvent.schedule,
     scheduleType: backendEvent.schedule.scheduleType as ScheduleType,
-    hours: backendEvent.schedule.hours.map((hour) => ({
-      dayOfWeek: hour.day ? getDayOfWeek(hour.day) : null,
-      date: hour.date,
-      openTime: hour.openTime,
-      closeTime: hour.closeTime,
-    })),
+    hours: backendEvent.schedule.hours ?? [],
+    startDate: backendEvent.schedule.startDate ?? undefined,
+    endDate: backendEvent.schedule.endDate ?? undefined,
   },
+  pricing: {
+    ...backendEvent.pricing,
+    amount: backendEvent.pricing.amount ?? 0,
+    durationDays: backendEvent.pricing.durationDays ?? null,
+    currency: backendEvent.pricing.currency ?? 'EUR',
+    type: backendEvent.pricing.type,
+  },
+  coordinates: backendEvent.coordinates
+    ? {
+        type: 'Point',
+        latitude: backendEvent.coordinates.latitude,
+        longitude: backendEvent.coordinates.longitude,
+      }
+    : undefined,
+  contact: backendEvent.contact
+    ? {
+        contactPerson: backendEvent.contact.contactPerson ?? undefined,
+        phone: backendEvent.contact.phone ?? undefined, // Convert null to undefined
+        email: backendEvent.contact.email ?? undefined, // Convert null to undefined
+        website: backendEvent.contact.website ?? undefined, // Convert null to undefined
+        socialMedia: backendEvent.contact.socialMedia ?? undefined, // Convert null to undefined
+      }
+    : undefined,
 });
 
-// Map EventFormData to BackendBjjEventDto for API submission
 export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventDto => {
-  // Convert BjjEventType enum to string representation for backend
   const typeMap: Record<BjjEventType, string> = {
     [BjjEventType.OpenMat]: 'OpenMat',
     [BjjEventType.Seminar]: 'Seminar',
@@ -37,33 +63,46 @@ export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventD
   };
 
   return {
-    name: formData.title,
-    type: typeMap[formData.type], // Convert enum to string
-    city: formData.city, // City is already a string (e.g., 'Cork', 'Dublin')
-    address: formData.address || '', // Provide empty string if undefined
-    cost: formData.cost ?? null, // Use null if undefined
+    name: formData.name,
+    type: typeMap[formData.type],
+    eventUrl: formData.eventUrl ?? null,
+    organiser: null,
+    isActive: true,
+    statusReason: null,
+    address: formData.address ?? '',
+    city: formData.city,
     schedule: {
       scheduleType: formData.schedule.scheduleType,
-      startDate: formData.schedule.startDate ?? null,
-      endDate: formData.schedule.endDate ?? null,
+      startDate: formData.schedule.startDate ?? undefined, // Use undefined instead of null
+      endDate: formData.schedule.endDate ?? undefined, // Use undefined instead of null
       hours: (formData.schedule.hours ?? []).map((hour) => ({
+        dayOfWeek: hour.dayOfWeek ?? null,
         date: hour.date ?? null,
         openTime: hour.openTime,
         closeTime: hour.closeTime,
-        day: hour.date ? undefined : formData.schedule.scheduleType === ScheduleType.Recurring ? 'Sunday' : undefined, // Default to Sunday for recurring, omit for fixed date
       })),
     },
-    isActive: true, // Default for new events
-    contact: {}, // Empty contact object (adjust based on form data if contact fields are added)
-    coordinates: {
-      type: 'Point',
-      latitude: 0, // Placeholder; backend may geocode based on address
-      longitude: 0,
-      placeName: formData.address || '',
+    contact: {
+      contactPerson: formData.contact?.contactPerson ?? '',
+      phone: formData.contact?.phone ?? null,
+      email: formData.contact?.email ?? null,
+      website: formData.contact?.website ?? null,
+      socialMedia: formData.contact?.socialMedia ?? null,
     },
-    eventUrl: null, // Optional, not provided in form
-    statusReason: null, // Optional
-    createdOnUtc: new Date().toISOString(), // Set current timestamp
-    updatedOnUtc: null, // Not set for new events
+    coordinates: formData.coordinates
+      ? {
+          type: 'Point',
+          latitude: formData.coordinates.latitude,
+          longitude: formData.coordinates.longitude,
+          placeName: formData.address ?? '',
+          placeId: null,
+        }
+      : undefined,
+    pricing: {
+      type: formData.pricing.type,
+      amount: formData.pricing.amount ?? 0,
+      durationDays: formData.pricing.durationDays ?? null,
+      currency: formData.pricing.currency ?? 'EUR',
+    },
   };
 };
