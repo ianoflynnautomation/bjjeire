@@ -1,26 +1,30 @@
 // src/components/EventSchedule/HoursList.tsx
-import React from 'react';
-import { BjjEventHoursDto, ScheduleType } from '../../../types/event'; 
-import { formatTime, formatDate } from '../../../utils/dateUtils';
-import { ScheduleItem } from './ScheduleItem';
-import { DAYS_OF_WEEK } from './constants';
+import React from 'react'
+import { BjjEventHoursDto, ScheduleType } from '../../types/event'
+import { formatTime, formatDate } from '../../utils/dateUtils'
+import { ScheduleItem } from './ScheduleItem'
+import { DAYS_OF_WEEK } from './constants'
 
 interface HoursListProps {
-  hours: BjjEventHoursDto[];
-  scheduleType: ScheduleType;
+  hours: BjjEventHoursDto[]
+  scheduleType: ScheduleType
 }
 
 export const HoursList: React.FC<HoursListProps> = ({ hours, scheduleType }) => {
   if (!hours || hours.length === 0) {
-    return null; // Or a specific message/component if nothing should render
+    return null
   }
 
-  const MAX_VISIBLE_HOURS = 3;
+  const MAX_VISIBLE_HOURS = 3
 
   return (
-    <ul className="mt-1 list-none space-y-0.5 pl-7"> {/* Aligned with icon/title */}
+    <ul className="mt-1 list-none space-y-0.5 pl-7">
+      {' '}
+      {/* Aligned with icon/title */}
       {hours.slice(0, MAX_VISIBLE_HOURS).map((hour, index) => (
-        <ScheduleItem key={`${scheduleType}-${hour.openTime}-${index}`}> {/* Improved key */}
+        <ScheduleItem key={`${scheduleType}-${hour.openTime}-${index}`}>
+          {' '}
+          {/* Improved key */}
           {scheduleType === ScheduleType.Recurring &&
           hour.dayOfWeek !== null &&
           hour.dayOfWeek !== undefined
@@ -39,5 +43,5 @@ export const HoursList: React.FC<HoursListProps> = ({ hours, scheduleType }) => 
         </ScheduleItem>
       )}
     </ul>
-  );
-};
+  )
+}
