@@ -1,72 +1,32 @@
-import React, { useCallback, useState, memo } from 'react';
-import { City } from '../constants/cities';
-import { EventForm } from '../components/EventForm/EventForm';
-import { EventCard } from '../components/EventCard/EventCard';
-import EventFilters from '../components/EventFilters/EventFilters';
-import Pagination from '../components/Pagination';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { usePaginatedQuery } from '../hooks/usePaginatedQuery';
-import { getBjjEvents } from '../api/get-bjj-events';
-import { useEventSubmission } from '../hooks/useEventSubmission';
+import React, { useCallback, useState, memo, useMemo } from 'react';
+import { City } from '../constants/cities'; 
+import { EventForm } from '../components/Events/EventForm/EventForm'; 
+import EventFilters from '../components/Events/EventFilters/EventFilters'; 
+import Pagination from '../components/Pagination'; 
+import { usePaginatedQuery } from '../hooks/usePaginatedQuery'; 
+import { getBjjEvents } from '../api/get-bjj-events'; 
+import { useEventSubmission } from '../hooks/useEventSubmission'; 
 import { EventFormData, BjjEventType, BjjEventDto, GetBjjEventsPaginationQuery } from '../types/event';
-import clsx from 'clsx';
-import { PlusIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/20/solid';
+import LoadingState from '../components/Events/EventsPageFeedback/LoadingState';
+import ErrorState from '../components/Events/EventsPageFeedback/ErrorState';
+import NoEventsState from '../components/Events/EventsPageFeedback/NoEventsState';
+import BackgroundFetchingIndicator from '../components/Events/EventsPageFeedback/BackgroundFetchingIndicator';
+import EventsPageHeader from '../components/Events/EventsPageHeader';
+import EventsList from '../components/Events/EventsList';
 
-// Subcomponent for loading state
-const LoadingState: React.FC<{ message?: string }> = ({ message = 'Loading events...' }) => (
-  <div className="flex justify-center rounded-lg bg-white p-10 shadow">
-    <LoadingSpinner color="text-indigo-600" text={message} size="lg" />
-  </div>
-);
+const DEFAULT_PAGE_SIZE = 12;
 
-// Subcomponent for error state
-const ErrorState: React.FC<{ message: string; onRetry: () => void }> = ({ message, onRetry }) => (
-  <div
-    role="alert"
-    className="my-10 rounded-md border border-red-300 bg-red-50 p-6 text-center shadow"
-  >
-    <ExclamationTriangleIcon className="mx-auto h-10 w-10 text-red-400" aria-hidden="true" />
-    <h3 className="mt-2 text-lg font-semibold text-red-800">Error Loading Events</h3>
-    <p className="mt-1 text-sm text-red-700">{message}</p>
-    <button
-      onClick={onRetry}
-      className="mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-    >
-      Retry
-    </button>
-  </div>
-);
-
-// Subcomponent for no events found
-const NoEventsState: React.FC<{ onOpenForm: () => void }> = ({ onOpenForm }) => (
-  <div className="my-10 rounded-md border border-yellow-300 bg-yellow-50 p-6 text-center shadow">
-    <InformationCircleIcon className="mx-auto h-10 w-10 text-yellow-400" aria-hidden="true" />
-    <p className="mt-2 text-lg font-semibold text-yellow-800">No Events Found</p>
-    <p className="mt-1 text-sm text-yellow-700">
-      Try adjusting your filters or{' '}
-      <button
-        onClick={onOpenForm}
-        className="font-medium text-indigo-600 hover:text-indigo-500"
-      >
-        submit a new event
-      </button>
-      .
-    </p>
-  </div>
-);
-
-// Main EventsPage component
 const EventsPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [filters, setFilters] = useState<GetBjjEventsPaginationQuery>({
+  const [activeFilters, setActiveFilters] = useState<GetBjjEventsPaginationQuery>({
     city: 'all',
     type: undefined,
     page: 1,
-    pageSize: 12,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
   const {
-    data,
+    data: paginatedData,
     pagination,
     isLoading,
     isFetching,
@@ -74,28 +34,31 @@ const EventsPage: React.FC = () => {
     currentPage,
     handlePageChange,
     updateFilters,
+    refetch,
   } = usePaginatedQuery<BjjEventDto, GetBjjEventsPaginationQuery>({
     queryKeyBase: ['bjjEvents'],
-    fetchFn: getBjjEvents, // Use getBjjEvents instead of getBjjEventsQueryOptions
-    initialParams: filters,
+    fetchFn: getBjjEvents,
+    initialParams: activeFilters,
   });
 
   const { mutate: submitEvent, isPending: isSubmittingEvent } = useEventSubmission();
 
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, []);
 
   const handleFilterChange = useCallback(
-    (key: keyof GetBjjEventsPaginationQuery, value: City | BjjEventType | 'all') => {
-      const newFilters: Partial<GetBjjEventsPaginationQuery> = {};
+    (key: keyof Omit<GetBjjEventsPaginationQuery, 'page' | 'pageSize'>, value: City | BjjEventType | 'all' | undefined) => {
+      const newFilterUpdate: Partial<GetBjjEventsPaginationQuery> = { page: 1 }; // Reset to page 1 on filter change
       if (key === 'city') {
-        newFilters.city = value as City | 'all';
+        newFilterUpdate.city = value as City | 'all';
       } else if (key === 'type') {
-        newFilters.type = value === 'all' ? undefined : (value as BjjEventType);
+        newFilterUpdate.type = value === 'all' ? undefined : (value as BjjEventType | undefined);
       }
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-      updateFilters(newFilters);
+      setActiveFilters((prev) => ({ ...prev, ...newFilterUpdate }));
+      updateFilters(newFilterUpdate);
       scrollToTop();
     },
     [updateFilters, scrollToTop]
@@ -103,7 +66,11 @@ const EventsPage: React.FC = () => {
 
   const onPageChange = useCallback(
     (url: string | null, page?: number) => {
-      handlePageChange(url, page);
+      handlePageChange(url, page); // This should internally update 'page' in usePaginatedQuery
+      // Update activeFilters if necessary, though usePaginatedQuery should handle current page.
+      if (page) {
+          setActiveFilters(prev => ({...prev, page}));
+      }
       scrollToTop();
     },
     [handlePageChange, scrollToTop]
@@ -115,88 +82,76 @@ const EventsPage: React.FC = () => {
         submitEvent(formData, {
           onSuccess: () => {
             setIsFormOpen(false);
-            updateFilters(filters); // Refresh events
+            updateFilters({}); // Refreshes events with current filters (including current page)
             resolve();
           },
-          onError: (error) => {
-            console.error('Event submission failed:', error);
-            reject(error);
+          onError: (submissionError) => {
+            console.error('Event submission failed:', submissionError);
+            // Consider user-facing notification for submission error (e.g., toast)
+            reject(submissionError);
           },
         });
       }),
-    [submitEvent, updateFilters, filters]
+    [submitEvent, updateFilters]
   );
 
-  const events = data ?? [];
-  const isInitialLoading = isLoading && !events.length;
+  const handleRetryFetch = useCallback(() => {
+    if (refetch) {
+      refetch();
+    } else {
+      // Fallback if refetch is not available from the hook
+      updateFilters(activeFilters);
+    }
+  }, [refetch, updateFilters, activeFilters]);
+
+  const events = useMemo(() => paginatedData ?? [], [paginatedData]);
+
+  const isInitialLoading = isLoading && events.length === 0;
   const isBackgroundFetching = isFetching && !isLoading;
   const hasError = !!error;
-  const noEventsFound = !isLoading && !isFetching && !hasError && !events.length;
+  const noEventsFound = !isInitialLoading && !hasError && events.length === 0 && !isFetching;
 
-  const errorMessage = error?.message.includes('failed to fetch')
-    ? 'Could not connect to the server. Please check your internet connection and try again.'
-    : error?.message || 'Failed to load events. Please try again.';
+  const errorMessage = useMemo(() => {
+    if (!error) return '';
+    return error.message?.includes('failed to fetch')
+      ? 'Could not connect to the server. Please check your internet connection and try again.'
+      : error.message || 'An unexpected error occurred while loading events. Please try again.';
+  }, [error]);
+
+  const renderMainContent = () => {
+    if (isInitialLoading) return <LoadingState />;
+    if (hasError) return <ErrorState message={errorMessage} onRetry={handleRetryFetch} />;
+    if (noEventsFound) return <NoEventsState onOpenForm={() => setIsFormOpen(true)} />;
+    if (events.length > 0) return <EventsList events={events} />;
+    return null;
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
+    <div className="min-h-screen bg-slate-50 py-8  sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <header className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            BJJ Events
-          </h1>
-          <button
-            type="button"
-            onClick={() => setIsFormOpen(true)}
-            disabled={isSubmittingEvent}
-            className={clsx(
-              'inline-flex items-center gap-x-2 rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm',
-              isSubmittingEvent
-                ? 'bg-indigo-400 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
-            )}
-            aria-controls="event-form"
-            aria-expanded={isFormOpen}
-          >
-            <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-            {isSubmittingEvent ? 'Submitting...' : 'Submit Event'}
-          </button>
-        </header>
+        <EventsPageHeader
+          onOpenForm={() => setIsFormOpen(true)}
+          isSubmittingEvent={isSubmittingEvent}
+          isFormOpen={isFormOpen}
+        />
 
         <div className="mb-8">
           <EventFilters
-            selectedCity={filters.city}
-            selectedType={filters.type}
+            selectedCity={activeFilters.city}
+            selectedType={activeFilters.type}
             onCityChange={(city) => handleFilterChange('city', city)}
             onTypeChange={(type) => handleFilterChange('type', type)}
-            disabled={isFetching}
+            disabled={isFetching || isLoading}
           />
         </div>
 
-        <main className="relative" aria-live="polite">
-          {isInitialLoading && <LoadingState />}
-          {isBackgroundFetching && events.length > 0 && (
-            <div
-              className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700 shadow-lg"
-              aria-live="polite"
-            >
-              Updating...
-            </div>
-          )}
-          {hasError && !isInitialLoading && (
-            <ErrorState message={errorMessage} onRetry={() => updateFilters(filters)} />
-          )}
-          {noEventsFound && <NoEventsState onOpenForm={() => setIsFormOpen(true)} />}
-          {!isInitialLoading && !hasError && events.length > 0 && (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {events.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          )}
+        <main className="relative" aria-live="polite" aria-busy={isFetching}>
+          {isBackgroundFetching && events.length > 0 && <BackgroundFetchingIndicator />}
+          {renderMainContent()}
         </main>
 
-        {pagination && pagination.totalPages > 1 && !hasError && (
-          <div className="mt-10 border-t border-slate-200 pt-8">
+        {pagination && pagination.totalPages > 1 && !hasError && events.length > 0 && (
+          <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
             <Pagination
               currentPage={currentPage}
               pagination={pagination}
@@ -211,6 +166,7 @@ const EventsPage: React.FC = () => {
             onClose={() => setIsFormOpen(false)}
             onSubmit={handleSubmitEvent}
             isSubmitting={isSubmittingEvent}
+            // Consider passing initialFocusRef to EventForm for accessibility
           />
         )}
       </div>

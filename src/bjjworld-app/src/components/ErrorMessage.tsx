@@ -5,10 +5,10 @@ interface ErrorMessageProps {
 
 function ErrorMessage({ message, code }: ErrorMessageProps) {
   return (
-    <div className="text-center p-8 text-red-600 bg-red-100 rounded">
-      <h3 className="text-lg font-semibold">Error</h3>
-      <p>{message}</p>
-      {code && <p>Code: {code}</p>}
+    <div className="text-center p-8 text-orange-700 bg-orange-50 rounded-md shadow-sm">
+      <h3 className="text-lg font-semibold text-slate-800">Error</h3>
+      <p className="text-slate-600">{message}</p>
+      {code && <p className="text-slate-600">Code: {code}</p>}
     </div>
   );
 }

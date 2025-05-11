@@ -6,7 +6,7 @@ interface NoResultsProps {
 
 function NoResults({ city }: NoResultsProps) {
   return (
-    <div className="text-center p-8 text-gray-600 bg-gray-50 rounded text-lg shadow-sm">
+    <div className="text-center p-8 text-slate-600 bg-emerald-50 rounded-md shadow-sm text-lg">
       No gyms found in {city}.
     </div>
   );

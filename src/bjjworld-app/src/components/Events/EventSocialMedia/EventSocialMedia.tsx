@@ -1,4 +1,3 @@
-// src/components/EventSocialMedia/EventSocialMedia.tsx
 import React from 'react'
 import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config'
 

@@ -1,18 +1,17 @@
-// src/components/Filters/ButtonGroupFilter.tsx
-import clsx from 'clsx'
+import clsx from 'clsx';
 
 export interface ButtonOption<T> {
-  value: T
-  label: string
+  value: T;
+  label: string;
 }
 
 interface ButtonGroupFilterProps<T> {
-  label: string
-  options: ButtonOption<T>[]
-  selectedValue: T | undefined
-  onValueChange: (value: T | 'all') => void 
-  disabled?: boolean
-  allOptionLabel?: string
+  label: string;
+  options: ButtonOption<T>[];
+  selectedValue: T | undefined;
+  onValueChange: (value: T | 'all') => void;
+  disabled?: boolean;
+  allOptionLabel?: string;
 }
 
 const ButtonGroupFilter = <T extends string | number>({
@@ -35,9 +34,9 @@ const ButtonGroupFilter = <T extends string | number>({
           className={clsx(
             'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
             selectedValue === undefined
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400',
-            disabled ? 'opacity-50 cursor-not-allowed hover:bg-white hover:border-slate-300' : ''
+              ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-600'
+              : 'bg-white text-slate-700 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300',
+            disabled ? 'opacity-50 cursor-not-allowed hover:bg-white hover:border-emerald-200' : ''
           )}
         >
           {allOptionLabel}
@@ -53,9 +52,9 @@ const ButtonGroupFilter = <T extends string | number>({
             className={clsx(
               'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors',
               selectedValue === option.value
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:border-slate-400',
-              disabled ? 'opacity-50 cursor-not-allowed hover:bg-white hover:border-slate-300' : ''
+                ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-600'
+                : 'bg-white text-slate-700 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300',
+              disabled ? 'opacity-50 cursor-not-allowed hover:bg-white hover:border-emerald-200' : ''
             )}
           >
             {option.label}
@@ -63,7 +62,7 @@ const ButtonGroupFilter = <T extends string | number>({
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ButtonGroupFilter
+export default ButtonGroupFilter;

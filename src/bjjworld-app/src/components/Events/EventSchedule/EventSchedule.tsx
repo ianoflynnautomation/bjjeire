@@ -1,6 +1,5 @@
-
 import React from 'react'
-import {BjjEventDto, ScheduleType, RecurringSchedule, FixedDateSchedule} from '../../types/event' 
+import {BjjEventDto, ScheduleType, RecurringSchedule, FixedDateSchedule} from '../../../types/event' 
 import { EmptyScheduleMessage } from './EmptyScheduleMessage'
 import { RecurringScheduleView } from './RecurringScheduleView'
 import { FixedDateScheduleView } from './FixedDateScheduleView'

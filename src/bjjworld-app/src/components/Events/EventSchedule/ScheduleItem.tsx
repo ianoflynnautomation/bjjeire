@@ -1,4 +1,3 @@
-// src/components/EventSchedule/ScheduleItem.tsx
 import React from 'react'
 
 interface ScheduleItemProps {
