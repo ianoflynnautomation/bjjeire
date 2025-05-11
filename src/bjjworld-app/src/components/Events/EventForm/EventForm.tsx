@@ -3,16 +3,16 @@ import React, { useState, useEffect } from 'react';
 import {
   ScheduleType,
   BjjEventType,
-  EventFormData, // Uses BjjEventHoursDto for schedule.hours
+  EventFormData,
   BjjEventHoursDto,
   PricingType,
   FixedDateSchedule,
   RecurringSchedule,
   EventScheduleUnion,
-} from '../../types/event';
-import { City, CITIES } from '../../constants/cities';
-import { BJJ_EVENT_TYPES } from '../../constants/eventTypes';
-import { DAYS_OF_WEEK } from '../../constants/common';
+} from '../../../types/event';
+import { City, CITIES } from '../../../constants/cities';
+import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes';
+import { DAYS_OF_WEEK } from '../../../constants/common';
 
 // --- Helper: Unique ID Generator ---
 const generateTempKey = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -52,8 +52,8 @@ const getDefaultFormData = (): FormDataTypeForState => ({
     scheduleType: ScheduleType.FixedDate,
     startDate: '',
     endDate: undefined,
-    hours: [], // Will be FormBjjEventHoursDto[]
-  } as FormFixedDateSchedule, // Asserting the default schedule part
+    hours: [],
+  } as FormFixedDateSchedule,
   contact: undefined,
   coordinates: undefined,
   eventUrl: undefined,
@@ -62,7 +62,7 @@ const getDefaultFormData = (): FormDataTypeForState => ({
 interface EventFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (formData: EventFormData) => Promise<void>; // onSubmit expects original EventFormData
+  onSubmit: (formData: EventFormData) => Promise<void>;
   isSubmitting: boolean;
   initialData?: Partial<EventFormData>;
 }
@@ -162,14 +162,14 @@ export const EventForm: React.FC<EventFormProps> = ({
           scheduleType: ScheduleType.FixedDate,
           startDate: typeof existingStartDate === 'string' ? existingStartDate : '',
           endDate: existingEndDate,
-          hours: [], // Empty FormBjjEventHoursDto array
+          hours: [],
         } as FormFixedDateSchedule;
-      } else { // RecurringSchedule
+      } else { 
         newScheduleObject = {
           scheduleType: ScheduleType.Recurring,
           startDate: existingStartDate,
           endDate: existingEndDate,
-          hours: [], // Empty FormBjjEventHoursDto array
+          hours: [],
         } as FormRecurringSchedule;
       }
       return { ...prev, schedule: newScheduleObject };
@@ -206,13 +206,13 @@ export const EventForm: React.FC<EventFormProps> = ({
   const addHourEntry = () => {
     setFormData((prev) => {
       const newHour: FormBjjEventHoursDto = {
-        _formKey: generateTempKey(), // Assign key
+        _formKey: generateTempKey(),
         openTime: '09:00',
         closeTime: '11:00',
         dayOfWeek: null,
         date: null,
       };
-      const currentSchedule = prev.schedule; // Correctly typed FormFixedDateSchedule or FormRecurringSchedule
+      const currentSchedule = prev.schedule;
 
       if (currentSchedule.scheduleType === ScheduleType.FixedDate) {
         newHour.date = currentSchedule.startDate || '';
@@ -244,11 +244,10 @@ export const EventForm: React.FC<EventFormProps> = ({
     const currentFormSchedule = formData.schedule;
 
     const finalHours: BjjEventHoursDto[] = currentFormSchedule.hours.map((formHour) => {
-      // Strip _formKey and ensure correct fields for DTO
       const { ...dtoHour } = formHour;
       if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
         return { openTime: dtoHour.openTime, closeTime: dtoHour.closeTime, date: dtoHour.date ?? null, dayOfWeek: null };
-      } else { // Recurring
+      } else { 
         return { openTime: dtoHour.openTime, closeTime: dtoHour.closeTime, dayOfWeek: dtoHour.dayOfWeek ?? null, date: null };
       }
     });
@@ -261,7 +260,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         endDate: currentFormSchedule.endDate,
         hours: finalHours,
       } as FixedDateSchedule;
-    } else { // Recurring
+    } else { 
       finalSchedulePayload = {
         scheduleType: ScheduleType.Recurring,
         startDate: currentFormSchedule.startDate,
@@ -271,7 +270,7 @@ export const EventForm: React.FC<EventFormProps> = ({
     }
 
     const payload: EventFormData = {
-      ...(formData as Omit<EventFormData, 'schedule'>), // Cast formData to base type for non-schedule fields
+      ...(formData as Omit<EventFormData, 'schedule'>),
       schedule: finalSchedulePayload,
     };
     await onSubmit(payload);
@@ -282,123 +281,267 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-lg bg-white shadow-emerald-100 p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-slate-800">
             {initialData?.name ? 'Edit Event' : 'Submit New Event'}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close form">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700" aria-label="Close form">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Event Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Event Name</label>
-            <input id="name" type="text" name="name" value={formData.name} onChange={handleInputChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required />
+            <label htmlFor="name" className="block text-sm font-medium text-slate-700">Event Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              disabled={isSubmitting}
+              required
+            />
           </div>
           {/* Event Type */}
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700">Event Type</label>
-            <select id="type" name="type" value={formData.type} onChange={handleInputChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required>
-              {BJJ_EVENT_TYPES.map(({ value, label }) => (<option key={value} value={value}>{label}</option>))}
+            <label htmlFor="type" className="block text-sm font-medium text-slate-700">Event Type</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              disabled={isSubmitting}
+              required
+            >
+              {BJJ_EVENT_TYPES.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
           </div>
           {/* City */}
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-            <select id="city" name="city" value={formData.city} onChange={handleInputChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required >
-              {CITIES.map((city) => (<option key={city.value} value={city.value}>{city.label}</option>))}
+            <label htmlFor="city" className="block text-sm font-medium text-slate-700">City</label>
+            <select
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              disabled={isSubmitting}
+              required
+            >
+              {CITIES.map((city) => (
+                <option key={city.value} value={city.value}>{city.label}</option>
+              ))}
             </select>
           </div>
           {/* Address */}
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
-            <input id="address" type="text" name="address" value={formData.address || ''} onChange={handleInputChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting}/>
+            <label htmlFor="address" className="block text-sm font-medium text-slate-700">Address</label>
+            <input
+              id="address"
+              type="text"
+              name="address"
+              value={formData.address || ''}
+              onChange={handleInputChange}
+              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              disabled={isSubmitting}
+            />
           </div>
           {/* Pricing Type */}
           <div>
-            <label htmlFor="pricing.type" className="block text-sm font-medium text-gray-700">Pricing Type</label>
-            <select id="pricing.type" name="pricing.type" value={formData.pricing.type} onChange={handlePricingChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required>
+            <label htmlFor="pricing.type" className="block text-sm font-medium text-slate-700">Pricing Type</label>
+            <select
+              id="pricing.type"
+              name="pricing.type"
+              value={formData.pricing.type}
+              onChange={handlePricingChange}
+              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+              disabled={isSubmitting}
+              required
+            >
               <option value={PricingType.Free}>Free</option>
               <option value={PricingType.FlatRate}>Flat Rate</option>
               <option value={PricingType.PerSession}>Per Session</option>
               <option value={PricingType.PerDay}>Per Day</option>
             </select>
           </div>
-          {/* Pricing Amount: Conditionally rendered and required */}
+          {/* Pricing Amount */}
           {formData.pricing.type !== PricingType.Free && (
             <div>
-              <label htmlFor="pricing.amount" className="block text-sm font-medium text-gray-700">Cost (EUR)</label>
-              <input id="pricing.amount" type="number" name="pricing.amount" value={formData.pricing.amount} onChange={handlePricingChange} placeholder="e.g., 20" className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} min="0" step="any" required />
+              <label htmlFor="pricing.amount" className="block text-sm font-medium text-slate-700">Cost (EUR)</label>
+              <input
+                id="pricing.amount"
+                type="number"
+                name="pricing.amount"
+                value={formData.pricing.amount}
+                onChange={handlePricingChange}
+                placeholder="e.g., 20"
+                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                disabled={isSubmitting}
+                min="0"
+                step="any"
+                required
+              />
             </div>
           )}
 
           {/* Schedule Section */}
-          <div className="space-y-4 rounded-md border border-gray-200 p-4">
-            <h3 className="text-lg font-medium text-gray-900">Schedule Details</h3>
+          <div className="space-y-4 rounded-md border border-emerald-200 p-4">
+            <h3 className="text-lg font-medium text-slate-900">Schedule Details</h3>
             {/* Schedule Type Select */}
             <div>
-              <label htmlFor="scheduleTypeSelect" className="block text-sm font-medium text-gray-700">Schedule Type</label>
-              <select id="scheduleTypeSelect" name="scheduleType" value={formData.schedule.scheduleType} onChange={(e) => handleScheduleTypeChange(e.target.value as ScheduleType)} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required>
+              <label htmlFor="scheduleTypeSelect" className="block text-sm font-medium text-slate-700">Schedule Type</label>
+              <select
+                id="scheduleTypeSelect"
+                name="scheduleType"
+                value={formData.schedule.scheduleType}
+                onChange={(e) => handleScheduleTypeChange(e.target.value as ScheduleType)}
+                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                disabled={isSubmitting}
+                required
+              >
                 <option value={ScheduleType.FixedDate}>Fixed Date (e.g., Seminar, Competition)</option>
                 <option value={ScheduleType.Recurring}>Recurring (e.g., Regular Class)</option>
               </select>
             </div>
             {/* Start Date */}
             <div>
-              <label htmlFor="schedule.startDate" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="schedule.startDate" className="block text-sm font-medium text-slate-700">
                 {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Event Start Date' : 'Effective Start Date (Optional)'}
               </label>
-              <input id="schedule.startDate" type="date" name="startDate" value={formData.schedule.startDate || ''} onChange={handleScheduleDetailsChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} required={formData.schedule.scheduleType === ScheduleType.FixedDate} />
+              <input
+                id="schedule.startDate"
+                type="date"
+                name="startDate"
+                value={formData.schedule.startDate || ''}
+                onChange={handleScheduleDetailsChange}
+                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                disabled={isSubmitting}
+                required={formData.schedule.scheduleType === ScheduleType.FixedDate}
+              />
             </div>
             {/* End Date */}
             <div>
-              <label htmlFor="schedule.endDate" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="schedule.endDate" className="block text-sm font-medium text-slate-700">
                 {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Event End Date (Optional)' : 'Effective End Date (Optional)'}
               </label>
-              <input id="schedule.endDate" type="date" name="endDate" value={formData.schedule.endDate || ''} onChange={handleScheduleDetailsChange} className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" disabled={isSubmitting} min={formData.schedule.startDate || undefined} />
+              <input
+                id="schedule.endDate"
+                type="date"
+                name="endDate"
+                value={formData.schedule.endDate || ''}
+                onChange={handleScheduleDetailsChange}
+                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                disabled={isSubmitting}
+                min={formData.schedule.startDate || undefined}
+              />
             </div>
 
             {/* Hours Configuration */}
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-slate-700">
                 {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Daily Hours' : 'Weekly Hours'}
-                {formData.schedule.hours.length === 0 && <span className="text-xs text-gray-500"> (At least one time slot is required)</span>}
+                {formData.schedule.hours.length === 0 && <span className="text-xs text-slate-500"> (At least one time slot is required)</span>}
               </label>
               {formData.schedule.hours.map((hourEntry, index) => (
-                <div key={hourEntry._formKey} className="grid grid-cols-1 gap-3 rounded-md border p-3 sm:grid-cols-[1fr_auto_auto_auto]">
+                <div key={hourEntry._formKey} className="grid grid-cols-1 gap-3 rounded-md border border-emerald-200 p-3 sm:grid-cols-[1fr_auto_auto_auto]">
                   {/* Date Input for FixedDate */}
                   {formData.schedule.scheduleType === ScheduleType.FixedDate && (
                     <div>
                       <label htmlFor={`hourDate-${index}`} className="sr-only">Date</label>
-                      <input type="date" id={`hourDate-${index}`} value={hourEntry.date || ''} onChange={(e) => handleHourChange(index, 'date', e.target.value)} className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" disabled={isSubmitting} required min={(formData.schedule as FixedDateSchedule).startDate || undefined} max={(formData.schedule as FixedDateSchedule).endDate || undefined} />
+                      <input
+                        type="date"
+                        id={`hourDate-${index}`}
+                        value={hourEntry.date || ''}
+                        onChange={(e) => handleHourChange(index, 'date', e.target.value)}
+                        className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                        disabled={isSubmitting}
+                        required
+                        min={(formData.schedule as FixedDateSchedule).startDate || undefined}
+                        max={(formData.schedule as FixedDateSchedule).endDate || undefined}
+                      />
                     </div>
                   )}
                   {/* DayOfWeek Select for Recurring */}
                   {formData.schedule.scheduleType === ScheduleType.Recurring && (
                     <div>
                       <label htmlFor={`dayOfWeek-${index}`} className="sr-only">Day of Week</label>
-                      <select id={`dayOfWeek-${index}`} value={hourEntry.dayOfWeek ?? ''} onChange={(e) => handleHourChange(index, 'dayOfWeek', e.target.value === '' ? null : Number(e.target.value))} className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" disabled={isSubmitting} required>
+                      <select
+                        id={`dayOfWeek-${index}`}
+                        value={hourEntry.dayOfWeek ?? ''}
+                        onChange={(e) => handleHourChange(index, 'dayOfWeek', e.target.value === '' ? null : Number(e.target.value))}
+                        className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                        disabled={isSubmitting}
+                        required
+                      >
                         <option value="" disabled>Select Day</option>
-                        {DAYS_OF_WEEK.map((day) => (<option key={day.value} value={day.value}>{day.label}</option>))}
+                        {DAYS_OF_WEEK.map((day) => (
+                          <option key={day.value} value={day.value}>{day.label}</option>
+                        ))}
                       </select>
                     </div>
                   )}
                   {/* Open Time */}
-                  <div><label htmlFor={`openTime-${index}`} className="sr-only">Open Time</label><input type="time" id={`openTime-${index}`} value={hourEntry.openTime} onChange={(e) => handleHourChange(index, 'openTime', e.target.value)} className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" disabled={isSubmitting} required /></div>
+                  <div>
+                    <label htmlFor={`openTime-${index}`} className="sr-only">Open Time</label>
+                    <input
+                      type="time"
+                      id={`openTime-${index}`}
+                      value={hourEntry.openTime}
+                      onChange={(e) => handleHourChange(index, 'openTime', e.target.value)}
+                      className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </div>
                   {/* Close Time */}
-                  <div><label htmlFor={`closeTime-${index}`} className="sr-only">Close Time</label><input type="time" id={`closeTime-${index}`} value={hourEntry.closeTime} onChange={(e) => handleHourChange(index, 'closeTime', e.target.value)} className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" disabled={isSubmitting} required min={hourEntry.openTime || undefined} /></div>
+                  <div>
+                    <label htmlFor={`closeTime-${index}`} className="sr-only">Close Time</label>
+                    <input
+                      type="time"
+                      id={`closeTime-${index}`}
+                      value={hourEntry.closeTime}
+                      onChange={(e) => handleHourChange(index, 'closeTime', e.target.value)}
+                      className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                      disabled={isSubmitting}
+                      required
+                      min={hourEntry.openTime || undefined}
+                    />
+                  </div>
                   {/* Remove Button */}
-                  <button type="button" onClick={() => removeHourEntry(index)} className="flex items-center justify-center rounded-md bg-red-50 p-2 text-red-500 hover:bg-red-100 sm:col-start-auto" aria-label="Remove time slot" disabled={isSubmitting}>
-                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                  <button
+                    type="button"
+                    onClick={() => removeHourEntry(index)}
+                    className="flex items-center justify-center rounded-md bg-orange-50 p-2 text-orange-500 hover:bg-orange-100"
+                    aria-label="Remove time slot"
+                    disabled={isSubmitting}
+                  >
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                   </button>
                 </div>
               ))}
-              {formData.schedule.hours.length === 0 && (<p className="text-sm text-gray-500">At least one time slot is required.</p>)}
+              {formData.schedule.hours.length === 0 && (
+                <p className="text-sm text-slate-500">At least one time slot is required.</p>
+              )}
               {/* Add Time Slot Button */}
-              <button type="button" onClick={addHourEntry} className="mt-2 flex items-center gap-2 rounded-md border border-dashed border-gray-400 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50" disabled={isSubmitting}>
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+              <button
+                type="button"
+                onClick={addHourEntry}
+                className="mt-2 flex items-center gap-2 rounded-md border border-dashed border-emerald-400 px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
+                disabled={isSubmitting}
+              >
+                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
                 Add Time Slot
               </button>
             </div>
@@ -406,8 +549,19 @@ export const EventForm: React.FC<EventFormProps> = ({
 
           {/* Form Actions */}
           <div className="flex justify-end gap-3 pt-4">
-            <button type="button" onClick={onClose} className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" disabled={isSubmitting}>Cancel</button>
-            <button type="submit" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50" disabled={isSubmitting || formData.schedule.hours.length === 0}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-md bg-gradient-to-r from-emerald-700 to-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+              disabled={isSubmitting || formData.schedule.hours.length === 0}
+            >
               {isSubmitting ? 'Submitting...' : (initialData?.name ? 'Save Changes' : 'Submit Event')}
             </button>
           </div>

@@ -1,4 +1,3 @@
-// src/components/EventSocialMedia/socialMedia.config.ts
 import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si'
 
 export const platformConfig = {

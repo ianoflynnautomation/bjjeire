@@ -1,6 +1,5 @@
-// src/components/EventCard/EventCard.tsx
 import React, { memo } from 'react'
-import { BjjEventDto } from '../../types/event' 
+import { BjjEventDto } from '../../../types/event'
 import { EventSchedule } from './../EventSchedule/EventSchedule'
 import { EventDetails } from '../EventDetails/EventDetails'
 import { EventHeader } from './EventHeader'
@@ -16,18 +15,18 @@ export const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
   return (
     <article
       className="
-        flex h-full flex-col rounded-lg 
-        bg-white dark:bg-slate-900 
-        shadow-sm transition-shadow duration-200 ease-in-out 
-        hover:shadow-md dark:hover:shadow-slate-800/50 
-        overflow-hidden
+    flex h-full flex-col rounded-lg 
+    bg-white border-emerald-200
+    shadow-sm transition-shadow duration-200 ease-in-out 
+    hover:hover:bg-emerald-50 hover:border-emerald-200
+    overflow-hidden
       "
     >
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <EventHeader name={name} eventUrl={eventUrl} type={type} />
 
         {/* Event Details Section */}
-        <div className="mb-3 text-sm text-gray-700 dark:text-gray-300">
+        <div className="mb-3 text-sm text-slate-700">
           <EventDetails event={event} />
         </div>
 

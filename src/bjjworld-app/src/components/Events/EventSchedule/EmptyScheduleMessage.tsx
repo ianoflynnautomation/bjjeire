@@ -1,4 +1,3 @@
-// src/components/EventSchedule/EmptyScheduleMessage.tsx
 import React from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
 

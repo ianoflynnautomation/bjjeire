@@ -1,4 +1,3 @@
-// src/components/EventSchedule/ScheduleSection.tsx
 import React from 'react'
 
 interface ScheduleSectionProps {
