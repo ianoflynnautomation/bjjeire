@@ -1,74 +1,49 @@
-import React, { memo } from 'react';
-import { BjjEventDto } from '../../types/event';
-import { getEventTypeLabel, getEventTypeColorClasses } from '../../utils/eventUtils';
-import { EventSchedule } from './EventSchedule/EventSchedule';
-import { EventDetails } from './EventDetails';
-import { LinkIcon } from '@heroicons/react/20/solid';
+// src/components/EventCard/EventCard.tsx
+import React, { memo } from 'react'
+import { BjjEventDto } from '../../types/event' 
+import { EventSchedule } from './../EventSchedule/EventSchedule'
+import { EventDetails } from '../EventDetails/EventDetails'
+import { EventHeader } from './EventHeader'
+import { EventFooter } from './EventFooter'
 
 interface EventCardProps {
-  event: BjjEventDto;
+  event: BjjEventDto
 }
 
 export const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
-  const { name, eventUrl, schedule, type } = event;
-  const eventTypeLabel = getEventTypeLabel(type);
+  const { name, eventUrl, schedule, type } = event
 
   return (
-    <article className="flex h-full flex-col rounded-lg bg-white shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl overflow-hidden">
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {/* Header: Event Name and Type Badge */}
-        <header className="mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-            <h3 className="text-xl font-semibold leading-tight text-slate-800 hover:text-indigo-700 transition-colors">
-              {eventUrl ? (
-                <a
-                  href={eventUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Visit event page for ${name || 'Unnamed Event'}`}
-                >
-                  {name || 'Unnamed Event'}
-                </a>
-              ) : (
-                name || 'Unnamed Event'
-              )}
-            </h3>
-            <span
-              className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${getEventTypeColorClasses(type)}`}
-              aria-label={`Event type: ${eventTypeLabel}`}
-            >
-              {eventTypeLabel}
-            </span>
-          </div>
-        </header>
+    <article
+      className="
+        flex h-full flex-col rounded-lg 
+        bg-white dark:bg-slate-900 
+        shadow-sm transition-shadow duration-200 ease-in-out 
+        hover:shadow-md dark:hover:shadow-slate-800/50 
+        overflow-hidden
+      "
+    >
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <EventHeader name={name} eventUrl={eventUrl} type={type} />
 
-        {/* Event Details: Location, Pricing, Contact, Social Media */}
-        <div className="mb-4 text-sm">
+        {/* Event Details Section */}
+        <div className="mb-3 text-sm text-gray-700 dark:text-gray-300">
           <EventDetails event={event} />
         </div>
 
-        {/* Event Schedule: Dates/Times */}
-        <div className="mb-5">
-          <EventSchedule schedule={schedule} />
-        </div>
-
-        <div className="flex-grow" />
-
-        {eventUrl && (
-          <div className="mt-auto pt-4">
-            <a
-              href={eventUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-150 ease-in-out hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              aria-label={`Get more information about ${name || 'this event'}`}
-            >
-              <LinkIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-              More Information
-            </a>
+        {/* Event Schedule Section */}
+        {schedule && (
+          <div className="mb-4">
+            <EventSchedule schedule={schedule} />
           </div>
         )}
+
+        {/* Spacer to push footer down */}
+        <div className="flex-grow" />
+
+        {/* Event Footer Section */}
+        <EventFooter eventUrl={eventUrl} eventName={name} />
       </div>
     </article>
-  );
-});
+  )
+})

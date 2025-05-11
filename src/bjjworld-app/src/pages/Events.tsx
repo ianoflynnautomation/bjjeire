@@ -2,7 +2,7 @@ import React, { useCallback, useState, memo } from 'react';
 import { City } from '../constants/cities';
 import { EventForm } from '../components/EventForm/EventForm';
 import { EventCard } from '../components/EventCard/EventCard';
-import EventFilters from '../components/EventCard/EventFilters';
+import EventFilters from '../components/EventFilters/EventFilters';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { usePaginatedQuery } from '../hooks/usePaginatedQuery';

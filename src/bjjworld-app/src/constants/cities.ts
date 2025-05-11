@@ -31,3 +31,4 @@ export const CITIES: { value: City; label: string }[] = Object.values(City).map(
   value: city,
   label: city,
 }));
+

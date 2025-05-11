@@ -1,19 +1,16 @@
 // src/components/EventSchedule/FixedDateScheduleView.tsx
 import React from 'react';
-// Ensure this import path is correct and FixedDateSchedule is exported from your types
-import { ScheduleType, FixedDateSchedule } from '../../../types/event';
-import { formatDate } from '../../../utils/dateUtils';
+import { ScheduleType, FixedDateSchedule } from '../../types/event';
+import { formatDate } from '../../utils/dateUtils';
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid';
 import { ScheduleSection } from './ScheduleSection';
 import { HoursList } from './HoursList';
 
 interface FixedDateScheduleViewProps {
-  schedule: FixedDateSchedule; // Use the specific interface here
+  schedule: FixedDateSchedule;
 }
 
 export const FixedDateScheduleView: React.FC<FixedDateScheduleViewProps> = ({ schedule }) => {
-  // Now, 'schedule' is correctly typed as FixedDateSchedule,
-  // so schedule.endDate and schedule.hours are known properties.
   return (
     <ScheduleSection title="Event Dates & Times" icon={<CalendarDaysIcon />}>
       <p className="text-slate-600 pl-7">

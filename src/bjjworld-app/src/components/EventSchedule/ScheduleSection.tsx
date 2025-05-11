@@ -1,10 +1,10 @@
 // src/components/EventSchedule/ScheduleSection.tsx
-import React from 'react';
+import React from 'react'
 
 interface ScheduleSectionProps {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+  title: string
+  icon: React.ReactNode
+  children: React.ReactNode
 }
 
 export const ScheduleSection: React.FC<ScheduleSectionProps> = ({ title, icon, children }) => (
@@ -17,4 +17,4 @@ export const ScheduleSection: React.FC<ScheduleSectionProps> = ({ title, icon, c
     </div>
     {children}
   </div>
-);
+)
