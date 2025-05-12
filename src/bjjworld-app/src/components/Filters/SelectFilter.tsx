@@ -37,7 +37,7 @@ function SelectFilter<T extends string | number>({
 
   return (
     <div className={clsx('flex flex-col', className)} data-testid={`${dataTestId}-wrapper`}>
-      <label htmlFor={id} className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      <label htmlFor={id} className="text-sm font-medium text-slate-70">
         {label}
       </label>
       <div className="relative mt-1">

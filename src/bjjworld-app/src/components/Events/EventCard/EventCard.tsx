@@ -24,7 +24,7 @@ export const EventCard: React.FC<EventCardProps> = memo(({ event }) => {
       "
     >
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <EventHeader name={name} eventUrl={eventUrl} type={type} data-testid="event-header" />
+        <EventHeader name={name} type={type} data-testid="event-header" />
 
         {/* Event Details Section */}
         <div data-testid="event-details" className="mb-3 text-sm text-slate-700">

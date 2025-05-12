@@ -82,6 +82,9 @@ const EventsPage: React.FC = () => {
         submitEvent(formData, {
           onSuccess: () => {
             setIsFormOpen(false);
+            //TODO: Handle toast message
+            //toast.success('Event submitted successfully for review!');
+
             updateFilters({}); // Refreshes events with current filters (including current page)
             resolve();
           },

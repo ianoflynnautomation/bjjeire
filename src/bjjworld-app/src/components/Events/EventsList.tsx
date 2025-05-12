@@ -16,7 +16,10 @@ const EventsList: React.FC<EventsListProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid={baseTestId}>
+    <div 
+      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4" 
+      data-testid={baseTestId}
+    >
       {events.map((event, index) => (
         <EventCard
           key={event.id || `event-card-${index}`}

@@ -59,6 +59,7 @@ export interface BjjEventDto {
   id?: string;
   name: string;
   type: BjjEventType;
+  organiser?: string | null;
   address?: string;
   city: City;
   isActive: boolean;
@@ -82,6 +83,7 @@ export interface BjjEventDto {
 export interface EventFormData {
   name: string;
   type: BjjEventType;
+  organiser?: string | null;
   city: City;
   address?: string;
   pricing: BjjEventPricingModelDto;

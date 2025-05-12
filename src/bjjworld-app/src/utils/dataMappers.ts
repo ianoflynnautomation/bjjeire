@@ -37,6 +37,7 @@ export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto =>
     id: backendEvent.id ?? "",
     name: backendEvent.name,
     type: getBjjEventTypeFromString(backendEvent.type),
+    organiser: backendEvent.organiser,
     city: backendEvent.city as City,
     isActive: backendEvent.isActive,
     address: backendEvent.address,
@@ -140,3 +141,23 @@ export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventD
     },
   };
 };
+
+// export const mapCreateEventFormDataToDto = (formData: EventFormData): Omit<BackendBjjEventDto, 'id' | 'createdOnUtc' | 'updatedOnUtc'> => {
+//   // ... map other fields ...
+//   return {
+//     // ... other mapped fields from formData ...
+//     name: formData.name,
+//     type: formData.type.toString(), // Assuming backend expects string representation of enum
+//     city: formData.city,
+//     address: formData.address,
+//     pricing: formData.pricing,
+//     schedule: formData.schedule, // Assuming structure matches backend DTO
+//     contact: formData.contact,
+//     coordinates: formData.coordinates ? { type: 'Point', ...formData.coordinates } : undefined,
+//     eventUrl: formData.eventUrl,
+//     isActive: false, // Submitted events start as inactive until approved
+//     status: SubmissionStatus.Pending, // <--- Add status for review queue
+//     statusReason: 'Pending Review', // Optional reason
+//     organiser: undefined, // Or get organiser info if available
+//   };
+// };
