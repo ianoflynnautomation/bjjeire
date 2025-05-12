@@ -23,8 +23,8 @@ public class Gym : BaseEntity
     public List<ClassCategory> OfferedClasses { get; set; } = [];
     [BsonElement("coordinates")]
     public GeoCoordinates Coordinates { get; set; } = new();
-    [BsonElement("contact")]
-    public Contact Contact { get; set; } = new();
+    // [BsonElement("contact")]
+    // public Contact Contact { get; set; } = new();
     [BsonElement("imageUrl")]
     public string? ImageUrl { get; set; }
 }

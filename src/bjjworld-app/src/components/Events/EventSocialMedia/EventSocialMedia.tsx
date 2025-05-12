@@ -1,10 +1,11 @@
 import React from 'react';
 import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config';
+import { SocialMediaDto } from '../../../types/event';
 
-interface SocialLinkProps { 
+interface SocialLinkProps {
   platform: KnownPlatform;
   url: string;
-  'data-testid'?: string; 
+  'data-testid'?: string;
 }
 
 const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': dataTestId }) => {
@@ -20,7 +21,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': d
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`View on ${label}`}
+      aria-label={`View event on ${label}`}
       title={`View on ${label}`}
       data-testid={dataTestId}
       className={`
@@ -43,7 +44,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': d
 };
 
 interface EventSocialMediaProps {
-  socialMedia?: Record<string, string | undefined | null>; 
+  socialMedia: SocialMediaDto;
   'data-testid'?: string;
 }
 
@@ -51,10 +52,6 @@ export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
   socialMedia,
   'data-testid': baseTestId = 'event-social-media',
 }) => {
-  if (!socialMedia || Object.keys(socialMedia).length === 0) {
-    return null;
-  }
-
   const validSocialLinks = Object.entries(socialMedia)
     .filter(([platform, url]) => {
       return isKnownPlatform(platform) && url && typeof url === 'string' && url.trim() !== '';
@@ -70,8 +67,8 @@ export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
 
   return (
     <div
-      className="flex flex-wrap items-center gap-x-4 gap-y-2"
-      data-testid={baseTestId} 
+      className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2"
+      data-testid={baseTestId}
     >
       {validSocialLinks.map(({ platform, url }) => (
         <SocialLink

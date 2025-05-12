@@ -8,12 +8,25 @@ export const EventFormTestIds = {
   FORM_ELEMENT: `${EVENT_FORM_BASE_ID}-form-element`,
   MODAL_TITLE: `${EVENT_FORM_BASE_ID}-modal-title`,
   CLOSE_BUTTON: `${EVENT_FORM_BASE_ID}-close-button`,
+  STATUS_SELECT: `${EVENT_FORM_BASE_ID}-close-status-select`,
 
   // Basic Info Section
   NAME_INPUT: `${EVENT_FORM_BASE_ID}-name-input`,
   TYPE_SELECT: `${EVENT_FORM_BASE_ID}-type-select`,
+  REGION_INPUT: `${EVENT_FORM_BASE_ID}-region-input`,
   CITY_SELECT: `${EVENT_FORM_BASE_ID}-city-select`,
+
+  ORGANISER_NAME_INPUT: `${EVENT_FORM_BASE_ID}-oprganiser-name-input`,
+  ORGANISER_WEBSITE_INPUT: `${EVENT_FORM_BASE_ID}-oprganiser-website-input`,
+
   ADDRESS_INPUT: `${EVENT_FORM_BASE_ID}-address-input`,
+  VENUE_INPUT: `${EVENT_FORM_BASE_ID}-venue-input`,
+
+
+  INSTAGRAM_INPUT: `${EVENT_FORM_BASE_ID}-social-instagram`,
+  FACEBOOK_INPUT: `${EVENT_FORM_BASE_ID}-social-facebook`,
+  X_INPUT: `${EVENT_FORM_BASE_ID}-social-x`,
+  YOUTUBE_INPUT: `${EVENT_FORM_BASE_ID}-social-youtube`,
 
   // Pricing Section
   PRICING_TYPE_SELECT: `${EVENT_FORM_BASE_ID}-pricing-type-select`,

@@ -9,27 +9,31 @@ public class BjjEventDto : BaseApiEntityModel
 {
     public string Name { get; set; } = string.Empty;
 
+    public string? Description { get; set; } = string.Empty;
+
     public BjjEventType Type { get; set; }
 
-    public string EventUrl { get; set; }= string.Empty;
+    public OrganizerDto Organiser { get; set; } = new();
 
-    public string Organiser {get; set;} = string.Empty;
-
-    public bool IsActive { get; set; } = true;
+    public EventStatus Status { get; set; }
 
     public string? StatusReason { get; set; }
 
-    public string Address { get; set; } = string.Empty;
+    public SocialMediaDto SocialMedia { get; set; } = new();
+
+    public string Region { get; set; } = string.Empty;
 
     public string City { get; set; } = string.Empty;
 
-    public ContactDto Contact { get; set; } = new();
+    public LocationDto Location { get; set; } = new();
 
     public BjjEventScheduleDto Schedule { get; set; } = null!;
 
-    public GeoCoordinatesDto Coordinates { get; set; } = new();
-
     public BjjEventPricingModelDto Pricing { get; set; } = new();
+
+    public string EventUrl { get; set; } = string.Empty;
+
+    public string ImageUrl { get; set; } = string.Empty;
 
 }
 

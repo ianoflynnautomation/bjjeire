@@ -11,7 +11,6 @@ public class BjjEventPricingModelDto
     public string Currency { get; set; } = "EUR";
 }
 
-
 public class PricingModelMapping : Profile
 {
     public PricingModelMapping()
