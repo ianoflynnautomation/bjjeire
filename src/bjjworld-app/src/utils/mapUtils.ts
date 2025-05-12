@@ -1,11 +1,21 @@
 import { BjjEventDto } from '../types/event';
 
 export const getGoogleMapsUrl = (event: BjjEventDto): string => {
-  if (event.coordinates?.latitude && event.coordinates?.longitude) {
-    return `https://www.google.com/maps?q=${event.coordinates.latitude},${event.coordinates.longitude}`;
+  if (!event.location) {
+    return '#';
   }
-  if (event.address) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`;
+
+  const { coordinates, address, venue } = event.location;
+
+  if (coordinates?.latitude && coordinates?.longitude) {
+    return `https://www.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`;
   }
+
+  if (address || venue) {
+    // Combine address and venue for a more precise search, if both are available
+    const query = [address, venue].filter(Boolean).join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  }
+
   return '#';
 };

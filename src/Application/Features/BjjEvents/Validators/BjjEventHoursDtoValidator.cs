@@ -7,10 +7,10 @@ public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto>
 {
     public BjjEventHoursDtoValidator()
     {
-        RuleFor(oh => oh.Day)
+        RuleFor(x => x.Day)
             .ApplyEnumValidator("Day");
 
-        RuleFor(oh => oh.CloseTime)
-            .ApplyGreaterThanValidator(oh => oh.OpenTime, "Close Time", "OpenTime");
+        RuleFor(x => x.CloseTime)
+            .ApplyGreaterThanValidator(x => x.OpenTime, "Close Time", "OpenTime");
     }
 }

@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { queryOptions } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import { PaginatedResponse } from '../types/common';
-import { EventFormData, BackendBjjEventDto, BjjEventDto, GetBjjEventsPaginationQuery, BackendBjjEventsResponse } from '../types/event';
+import { PaginatedResponse, HateoasPagination } from '../types/common';
+import { EventFormData, BjjEventDto, GetBjjEventsPaginationQuery } from '../types/event';
 import { normalizeEvent, mapEventFormDataToDto } from '../utils/dataMappers';
+
+// Interface for backend API response (replaces BackendBjjEventsResponse)
+interface BjjEventsApiResponse {
+  data: any[]; // Raw backend BjjEventDto
+  pagination: HateoasPagination;
+}
 
 export const getBjjEvents = async ({
   city,
@@ -12,7 +19,7 @@ export const getBjjEvents = async ({
   url,
 }: GetBjjEventsPaginationQuery & { url?: string | null }): Promise<PaginatedResponse<BjjEventDto>> => {
   if (url) {
-    const response = await api.get<BackendBjjEventsResponse>(url);
+    const response = await api.get<BjjEventsApiResponse>(url);
     return {
       data: response.data.map(normalizeEvent),
       pagination: response.pagination,
@@ -23,7 +30,7 @@ export const getBjjEvents = async ({
   if (city && city !== 'all') params.city = city;
   if (type !== undefined) params.type = type;
 
-  const response = await api.get<BackendBjjEventsResponse>('/api/bjjevent', { params });
+  const response = await api.get<BjjEventsApiResponse>('/api/bjjevent', { params });
   return {
     data: response.data.map(normalizeEvent),
     pagination: response.pagination,
@@ -44,7 +51,8 @@ export const getBjjEventsQueryOptions = ({
     staleTime: 5 * 60 * 1000,
   });
 
-export const postEvent = async (formData: EventFormData): Promise<BackendBjjEventDto> => {
+export const postEvent = async (formData: EventFormData): Promise<BjjEventDto> => {
   const apiPayload = mapEventFormDataToDto(formData);
-  return api.post<BackendBjjEventDto>('/api/bjjevent', apiPayload);
+  const response = await api.post<any>('/api/bjjevent', apiPayload);
+  return normalizeEvent(response);
 };

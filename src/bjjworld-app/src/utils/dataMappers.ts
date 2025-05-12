@@ -1,5 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { City } from '../constants/cities';
-import { BjjEventType, BackendBjjEventDto, BjjEventDto, EventFormData, RecurringSchedule, ScheduleType, EventScheduleUnion, FixedDateSchedule } from '../types/event';
+import {
+  BjjEventDto,
+  EventFormData,
+  BjjEventType,
+  ScheduleType,
+  BjjEventHoursDto,
+  PricingType,
+  EventScheduleUnion,
+  FixedDateSchedule,
+  RecurringSchedule,
+} from '../types/event';
+
+// Convert BjjEventType enum to backend string
+export const getBjjEventTypeToString = (type: BjjEventType): string => {
+  const typeMap: Record<BjjEventType, string> = {
+    [BjjEventType.OpenMat]: 'OpenMat',
+    [BjjEventType.Seminar]: 'Seminar',
+    [BjjEventType.Tournament]: 'Tournament',
+    [BjjEventType.Camp]: 'Camp',
+    [BjjEventType.Other]: 'Other',
+  };
+  return typeMap[type] ?? 'Other';
+};
 
 // Convert backend type string to BjjEventType enum
 export const getBjjEventTypeFromString = (type: string): BjjEventType => {
@@ -13,151 +36,133 @@ export const getBjjEventTypeFromString = (type: string): BjjEventType => {
   return typeMap[type] ?? BjjEventType.Other;
 };
 
-export const normalizeEvent = (backendEvent: BackendBjjEventDto): BjjEventDto => {
-  // Normalize schedule based on scheduleType
-  const normalizeSchedule = (schedule: EventScheduleUnion): EventScheduleUnion => {
-    if (schedule.scheduleType === ScheduleType.FixedDate) {
+// Normalize backend BjjEventDto to frontend BjjEventDto
+export const normalizeEvent = (backendEvent: any): BjjEventDto => {
+  // Normalize schedule to EventScheduleUnion
+  const normalizeSchedule = (schedule: any): EventScheduleUnion => {
+    if (schedule?.scheduleType === ScheduleType.FixedDate) {
       return {
         scheduleType: ScheduleType.FixedDate,
-        startDate: schedule.startDate, // Required for FixedDate
+        startDate: schedule.startDate ?? '', // Required for FixedDate
         endDate: schedule.endDate ?? undefined,
-        hours: schedule.hours ?? [],
+        hours: (schedule.hours ?? []).map((hour: any): BjjEventHoursDto => ({
+          dayOfWeek: hour.day ?? null, // Map backend 'day' to 'dayOfWeek'
+          date: null, // Backend doesn't use date
+          openTime: hour.openTime ?? '',
+          closeTime: hour.closeTime ?? '',
+        })),
       } as FixedDateSchedule;
-    } else {
-      return {
-        scheduleType: ScheduleType.Recurring,
-        startDate: schedule.startDate ?? undefined,
-        endDate: schedule.endDate ?? undefined,
-        hours: schedule.hours ?? [],
-      } as RecurringSchedule;
     }
+    return {
+      scheduleType: ScheduleType.Recurring,
+      startDate: schedule?.startDate ?? undefined,
+      endDate: schedule?.endDate ?? undefined,
+      hours: (schedule?.hours ?? []).map((hour: any): BjjEventHoursDto => ({
+        dayOfWeek: hour.day ?? null, // Map backend 'day' to 'dayOfWeek'
+        date: null, // Backend doesn't use date
+        openTime: hour.openTime ?? '',
+        closeTime: hour.closeTime ?? '',
+      })),
+    } as RecurringSchedule;
   };
 
   return {
-    id: backendEvent.id ?? "",
-    name: backendEvent.name,
+    id: backendEvent.id ?? undefined,
+    createdOnUtc: backendEvent.createdOnUtc ?? null,
+    updatedOnUtc: backendEvent.updatedOnUtc ?? null,
+    name: backendEvent.name ?? '',
+    description: backendEvent.description ?? null,
     type: getBjjEventTypeFromString(backendEvent.type),
-    organiser: backendEvent.organiser,
+    organiser: {
+      name: backendEvent.organiser?.name ?? '',
+      website: backendEvent.organiser?.website ?? '',
+    },
+    status: backendEvent.status ?? 0, // Adjust based on EventStatus enum
+    statusReason: backendEvent.statusReason ?? null,
+    socialMedia: {
+      instagram: backendEvent.socialMedia?.instagram ?? '',
+      facebook: backendEvent.socialMedia?.facebook ?? '',
+      x: backendEvent.socialMedia?.x ?? '',
+      youTube: backendEvent.socialMedia?.youTube ?? '',
+    },
+    region: backendEvent.region ?? '',
     city: backendEvent.city as City,
-    isActive: backendEvent.isActive,
-    address: backendEvent.address,
-    eventUrl: backendEvent.eventUrl ?? undefined,
+    location: {
+      address: backendEvent.location?.address ?? '',
+      venue: backendEvent.location?.venue ?? '',
+      coordinates: {
+        type: 'Point',
+        latitude: backendEvent.location?.coordinates?.latitude ?? 0,
+        longitude: backendEvent.location?.coordinates?.longitude ?? 0,
+        placeName: backendEvent.location?.coordinates?.placeName ?? null,
+        placeId: backendEvent.location?.coordinates?.placeId ?? null,
+      },
+    },
     schedule: normalizeSchedule(backendEvent.schedule),
     pricing: {
-      ...backendEvent.pricing,
-      amount: backendEvent.pricing.amount ?? 0,
-      durationDays: backendEvent.pricing.durationDays ?? null,
-      currency: backendEvent.pricing.currency ?? 'EUR',
-      type: backendEvent.pricing.type,
+      type: backendEvent.pricing?.type ?? PricingType.Free,
+      amount: backendEvent.pricing?.amount ?? 0,
+      durationDays: backendEvent.pricing?.durationDays ?? null,
+      currency: backendEvent.pricing?.currency ?? 'EUR',
     },
-    coordinates: backendEvent.coordinates
-      ? {
-          type: 'Point',
-          latitude: backendEvent.coordinates.latitude,
-          longitude: backendEvent.coordinates.longitude,
-        }
-      : undefined,
-    contact: backendEvent.contact
-      ? {
-          contactPerson: backendEvent.contact.contactPerson ?? undefined,
-          phone: backendEvent.contact.phone ?? undefined,
-          email: backendEvent.contact.email ?? undefined,
-          website: backendEvent.contact.website ?? undefined,
-          socialMedia: backendEvent.contact.socialMedia ?? undefined,
-        }
-      : undefined,
+    eventUrl: backendEvent.eventUrl ?? '',
+    imageUrl: backendEvent.imageUrl ?? '',
   };
 };
 
-export const mapEventFormDataToDto = (formData: EventFormData): BackendBjjEventDto => {
-  const typeMap: Record<BjjEventType, string> = {
-    [BjjEventType.OpenMat]: 'OpenMat',
-    [BjjEventType.Seminar]: 'Seminar',
-    [BjjEventType.Tournament]: 'Tournament',
-    [BjjEventType.Camp]: 'Camp',
-    [BjjEventType.Other]: 'Other',
-  };
-
-  // Map schedule based on scheduleType
-  const mapSchedule = (schedule: EventScheduleUnion): EventScheduleUnion => {
-    if (schedule.scheduleType === ScheduleType.FixedDate) {
-      return {
-        scheduleType: ScheduleType.FixedDate,
-        startDate: schedule.startDate, // Required for FixedDate
-        endDate: schedule.endDate ?? undefined,
-        hours: (schedule.hours ?? []).map((hour) => ({
-          dayOfWeek: hour.dayOfWeek ?? null,
-          date: hour.date ?? null,
-          openTime: hour.openTime,
-          closeTime: hour.closeTime,
-        })),
-      } as FixedDateSchedule;
-    } else {
-      return {
-        scheduleType: ScheduleType.Recurring,
-        startDate: schedule.startDate ?? undefined,
-        endDate: schedule.endDate ?? undefined,
-        hours: (schedule.hours ?? []).map((hour) => ({
-          dayOfWeek: hour.dayOfWeek ?? null,
-          date: hour.date ?? null,
-          openTime: hour.openTime,
-          closeTime: hour.closeTime,
-        })),
-      } as RecurringSchedule;
-    }
+// Map frontend EventFormData to backend BjjEventDto
+export const mapEventFormDataToDto = (formData: EventFormData): any => {
+  // Map schedule to backend structure
+  const mapSchedule = (schedule: EventScheduleUnion): any => {
+    return {
+      scheduleType: schedule.scheduleType,
+      startDate: schedule.startDate ?? null,
+      endDate: schedule.endDate ?? null,
+      hours: (schedule.hours ?? []).map((hour) => ({
+        day: hour.dayOfWeek ?? null, // Map 'dayOfWeek' to backend 'day'
+        openTime: hour.openTime,
+        closeTime: hour.closeTime,
+      })),
+    };
   };
 
   return {
     name: formData.name,
-    type: typeMap[formData.type],
-    eventUrl: formData.eventUrl ?? null,
-    organiser: null,
-    isActive: true,
-    statusReason: null,
-    address: formData.address ?? '',
-    city: formData.city,
-    schedule: mapSchedule(formData.schedule),
-    contact: {
-      contactPerson: formData.contact?.contactPerson ?? '',
-      phone: formData.contact?.phone ?? null,
-      email: formData.contact?.email ?? null,
-      website: formData.contact?.website ?? null,
-      socialMedia: formData.contact?.socialMedia ?? null,
+    description: formData.description ?? null,
+    type: getBjjEventTypeToString(formData.type),
+    organiser: {
+      name: formData.organiser.name,
+      website: formData.organiser.website,
     },
-    coordinates: formData.coordinates
-      ? {
-          type: 'Point',
-          latitude: formData.coordinates.latitude,
-          longitude: formData.coordinates.longitude,
-          placeName: formData.address ?? '',
-          placeId: null,
-        }
-      : undefined,
+    status: formData.status,
+    statusReason: formData.statusReason ?? null,
+    socialMedia: {
+      instagram: formData.socialMedia.instagram,
+      facebook: formData.socialMedia.facebook,
+      x: formData.socialMedia.x,
+      youTube: formData.socialMedia.youTube,
+    },
+    region: formData.region,
+    city: formData.city,
+    location: {
+      address: formData.location.address,
+      venue: formData.location.venue,
+      coordinates: {
+        type: 'Point',
+        latitude: formData.location.coordinates.latitude,
+        longitude: formData.location.coordinates.longitude,
+        placeName: formData.location.coordinates.placeName ?? null,
+        placeId: formData.location.coordinates.placeId ?? null,
+      },
+    },
+    schedule: mapSchedule(formData.schedule),
     pricing: {
       type: formData.pricing.type,
-      amount: formData.pricing.amount ?? 0,
+      amount: formData.pricing.amount,
       durationDays: formData.pricing.durationDays ?? null,
-      currency: formData.pricing.currency ?? 'EUR',
+      currency: formData.pricing.currency,
     },
+    eventUrl: formData.eventUrl,
+    imageUrl: formData.imageUrl,
   };
 };
-
-// export const mapCreateEventFormDataToDto = (formData: EventFormData): Omit<BackendBjjEventDto, 'id' | 'createdOnUtc' | 'updatedOnUtc'> => {
-//   // ... map other fields ...
-//   return {
-//     // ... other mapped fields from formData ...
-//     name: formData.name,
-//     type: formData.type.toString(), // Assuming backend expects string representation of enum
-//     city: formData.city,
-//     address: formData.address,
-//     pricing: formData.pricing,
-//     schedule: formData.schedule, // Assuming structure matches backend DTO
-//     contact: formData.contact,
-//     coordinates: formData.coordinates ? { type: 'Point', ...formData.coordinates } : undefined,
-//     eventUrl: formData.eventUrl,
-//     isActive: false, // Submitted events start as inactive until approved
-//     status: SubmissionStatus.Pending, // <--- Add status for review queue
-//     statusReason: 'Pending Review', // Optional reason
-//     organiser: undefined, // Or get organiser info if available
-//   };
-// };

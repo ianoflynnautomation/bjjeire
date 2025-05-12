@@ -12,7 +12,7 @@ export const EventFooter: React.FC<EventFooterProps> = memo(({ eventUrl, eventNa
   }
 
   return (
-    <div className="mt-auto pt-4 bg-emerald-50 rounded-md shadow-sm">
+    <div className="mt-auto pt-4 bg-emerald-50  rounded-md shadow-sm">
       <a
         href={eventUrl}
         target="_blank"

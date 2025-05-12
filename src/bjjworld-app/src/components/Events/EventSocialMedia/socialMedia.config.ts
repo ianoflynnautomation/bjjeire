@@ -1,4 +1,4 @@
-import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si'
+import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si';
 
 export const platformConfig = {
   instagram: {
@@ -11,22 +11,20 @@ export const platformConfig = {
     hoverTextColorClass: 'hover:text-[#1877F2]',
     label: 'Facebook',
   },
-  twitter: {
+  x: {
     IconComponent: SiX,
     hoverTextColorClass: 'hover:text-black dark:hover:text-white',
-    label: 'X (formerly Twitter)',
+    label: 'X',
   },
-  youtube: {
+  youTube: {
     IconComponent: SiYoutube,
     hoverTextColorClass: 'hover:text-[#FF0000]',
     label: 'YouTube',
   },
-  // Add other platforms here as needed
-  // e.g. tiktok, linkedin, etc.
-} as const
+} as const;
 
-export type KnownPlatform = keyof typeof platformConfig
+export type KnownPlatform = keyof typeof platformConfig;
 
 export function isKnownPlatform(platform: string): platform is KnownPlatform {
-  return platform in platformConfig
+  return platform in platformConfig;
 }

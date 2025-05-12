@@ -9,31 +9,33 @@ import {
   FixedDateSchedule,
   RecurringSchedule,
   EventScheduleUnion,
-} from '../../../types/event'; // Adjust path
+  EventStatus,
+  BjjEventPricingModelDto,
+} from '../../../types/event';
 import {
   FormDataTypeForState,
   FormEventScheduleUnion,
   FormBjjEventHoursDto,
-} from './eventForm.types'; // Adjust path
+} from './eventForm.types';
 import {
   getDefaultFormData,
   generateTempKey,
   mapFormHoursToDtoHours,
 } from './eventForm.utils';
-import { EventFormTestIds } from './eventForm.testIds'; // Adjust path
-import { BasicInfoSection } from './BasicInfoSection'; // Adjust path
-import { PricingSection } from './PricingSection'; // Adjust path
-import { ScheduleSection } from './ScheduleSection'; // Adjust path
-import { FormActions } from './FormActions'; // Adjust path
-import { City } from '../../../constants/cities'; 
+import { EventFormTestIds } from './eventForm.testIds';
+import { BasicInfoSection } from './BasicInfoSection';
+import { PricingSection } from './PricingSection';
+import { ScheduleSection } from './ScheduleSection';
+import { FormActions } from './FormActions';
+import { City } from '../../../constants/cities';
 import { CloseIcon } from '../../shared/icons/CloseIcon';
 
 interface EventFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (formData: EventFormData) => Promise<void>; // Expects promise for async handling
+  onSubmit: (formData: EventFormData) => Promise<void>;
   isSubmitting: boolean;
-  initialData?: Partial<EventFormData>; // For editing existing events
+  initialData?: Partial<EventFormData>;
 }
 
 export const EventForm: React.FC<EventFormProps> = ({
@@ -44,13 +46,12 @@ export const EventForm: React.FC<EventFormProps> = ({
   initialData,
 }) => {
   const [formData, setFormData] = useState<FormDataTypeForState>(getDefaultFormData());
-  const isEditMode = useMemo(() => !!initialData?.name, [initialData]); // Simple check for edit mode
+  const isEditMode = useMemo(() => !!initialData?.name, [initialData]);
 
   // Effect to initialize or reset form data when modal opens or initialData changes
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        // --- Logic to merge initialData with default state ---
         const defaultState = getDefaultFormData();
         let effectiveSchedule: FormEventScheduleUnion;
 
@@ -62,8 +63,7 @@ export const EventForm: React.FC<EventFormProps> = ({
           return (
             hours?.map((h) => ({
               ...h,
-              _formKey: generateTempKey(), // Add temporary key
-              // Ensure correct fields based on type, defaulting to null if missing
+              _formKey: generateTempKey(),
               dayOfWeek: type === ScheduleType.Recurring ? (h.dayOfWeek ?? null) : null,
               date: type === ScheduleType.FixedDate ? (h.date ?? null) : null,
             })) || []
@@ -74,32 +74,42 @@ export const EventForm: React.FC<EventFormProps> = ({
         if (initialData.schedule?.scheduleType === ScheduleType.FixedDate) {
           const initialScheduleData = initialData.schedule as FixedDateSchedule;
           effectiveSchedule = {
-            ...initialScheduleData, // Spread existing fixed date fields
-            scheduleType: ScheduleType.FixedDate, // Ensure type literal
-            startDate: initialScheduleData.startDate || '', // Default if missing
+            scheduleType: ScheduleType.FixedDate,
+            startDate: initialScheduleData.startDate || '',
+            endDate: initialScheduleData.endDate,
             hours: mapToFormHours(initialScheduleData.hours, ScheduleType.FixedDate),
           };
         } else if (initialData.schedule?.scheduleType === ScheduleType.Recurring) {
           const initialScheduleData = initialData.schedule as RecurringSchedule;
           effectiveSchedule = {
-            ...initialScheduleData, // Spread existing recurring fields
-            scheduleType: ScheduleType.Recurring, // Ensure type literal
+            scheduleType: ScheduleType.Recurring,
+            startDate: initialScheduleData.startDate,
+            endDate: initialScheduleData.endDate,
             hours: mapToFormHours(initialScheduleData.hours, ScheduleType.Recurring),
           };
         } else {
-          // If initialData has no schedule or unknown type, use default
           effectiveSchedule = defaultState.schedule;
         }
 
-        // Set the form state by merging defaults, initialData (excluding schedule), and the processed schedule
+        // Merge defaults with initialData
         setFormData({
           ...defaultState,
-          ...(initialData as Partial<Omit<EventFormData, 'schedule'>>), // Overlay non-schedule initialData
-          schedule: effectiveSchedule, // Set the processed schedule
+          name: initialData.name ?? defaultState.name,
+          description: initialData.description ?? defaultState.description,
+          type: initialData.type ?? defaultState.type,
+          organiser: initialData.organiser ?? defaultState.organiser,
+          status: initialData.status ?? defaultState.status,
+          statusReason: initialData.statusReason ?? defaultState.statusReason,
+          socialMedia: initialData.socialMedia ?? defaultState.socialMedia,
+          region: initialData.region ?? defaultState.region,
+          city: initialData.city ?? defaultState.city,
+          location: initialData.location ?? defaultState.location,
+          pricing: initialData.pricing ?? defaultState.pricing,
+          eventUrl: initialData.eventUrl ?? defaultState.eventUrl,
+          imageUrl: initialData.imageUrl ?? defaultState.imageUrl,
+          schedule: effectiveSchedule,
         });
-        // --- End of merge logic ---
       } else {
-        // Reset to default if no initialData (creating new event)
         setFormData(getDefaultFormData());
       }
     }
@@ -110,16 +120,54 @@ export const EventForm: React.FC<EventFormProps> = ({
   const handleBasicInfoChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
-      setFormData((prev) => ({
-        ...prev,
-        // Handle specific type conversions if necessary (e.g., for enums)
-        [name]:
-          name === 'type'
-            ? (Number(value) as BjjEventType) // Assuming type is numeric enum
-            : name === 'city'
-              ? (value as City) // Assuming city is string enum/type
+      setFormData((prev) => {
+        if (name === 'organiser.name' || name === 'organiser.website') {
+          const field = name.split('.')[1];
+          return {
+            ...prev,
+            organiser: {
+              ...prev.organiser,
+              [field]: value,
+            },
+          };
+        }
+        if (name === 'location.address' || name === 'location.venue') {
+          const field = name.split('.')[1];
+          return {
+            ...prev,
+            location: {
+              ...prev.location,
+              [field]: value,
+            },
+          };
+        }
+        if (
+          name === 'socialMedia.instagram' ||
+          name === 'socialMedia.facebook' ||
+          name === 'socialMedia.x' ||
+          name === 'socialMedia.youTube'
+        ) {
+          const field = name.split('.')[1];
+          return {
+            ...prev,
+            socialMedia: {
+              ...prev.socialMedia,
+              [field]: value,
+            },
+          };
+        }
+        return {
+          ...prev,
+          [name]:
+            name === 'type'
+              ? (Number(value) as BjjEventType)
+              : name === 'city'
+              ? (value as City)
+              : name === 'status'
+              ? (Number(value) as EventStatus)
               : value,
-      }));
+        };
+      });
     },
     []
   );
@@ -127,23 +175,27 @@ export const EventForm: React.FC<EventFormProps> = ({
   const handlePricingChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target;
-      const field = name.split('.')[1]; // Get field name like 'type' or 'amount'
+      const field = name.split('.')[1] as keyof BjjEventPricingModelDto;
 
       setFormData((prev) => {
         const newPricing = { ...prev.pricing };
 
-        if (field === 'type') {
-          newPricing.type = Number(value) as PricingType;
-          // Reset amount to 0 if switching to Free
-          if (newPricing.type === PricingType.Free) {
-            newPricing.amount = 0;
-          }
-        } else if (field === 'amount') {
-          // Allow empty string temporarily, parse to number or 0
-          newPricing.amount = value === '' ? 0 : parseFloat(value) || 0;
-        } else {
-          // Handle other potential pricing fields like currency if added
-          (newPricing as any)[field] = value;
+        switch (field) {
+          case 'type':
+            newPricing.type = Number(value) as PricingType;
+            if (newPricing.type === PricingType.Free) {
+              newPricing.amount = 0;
+            }
+            break;
+          case 'amount':
+            newPricing.amount = value === '' ? 0 : parseFloat(value) || 0;
+            break;
+          case 'durationDays':
+            newPricing.durationDays = value === '' ? null : parseInt(value) || null;
+            break;
+          case 'currency':
+            newPricing.currency = value;
+            break;
         }
 
         return { ...prev, pricing: newPricing };
@@ -154,25 +206,23 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   const handleScheduleTypeChange = useCallback((newScheduleType: ScheduleType) => {
     setFormData((prev) => {
-      // Preserve existing dates if possible when switching types
-      const existingStartDate = (prev.schedule as any).startDate;
-      const existingEndDate = (prev.schedule as any).endDate;
+      const existingStartDate = prev.schedule.startDate;
+      const existingEndDate = prev.schedule.endDate;
       let newScheduleObject: FormEventScheduleUnion;
 
       if (newScheduleType === ScheduleType.FixedDate) {
         newScheduleObject = {
           scheduleType: ScheduleType.FixedDate,
-          startDate: typeof existingStartDate === 'string' ? existingStartDate : '',
+          startDate: existingStartDate || '',
           endDate: existingEndDate,
-          hours: [], // Reset hours when type changes
+          hours: [],
         };
       } else {
-        // Recurring
         newScheduleObject = {
           scheduleType: ScheduleType.Recurring,
           startDate: existingStartDate,
           endDate: existingEndDate,
-          hours: [], // Reset hours when type changes
+          hours: [],
         };
       }
       return { ...prev, schedule: newScheduleObject };
@@ -181,26 +231,23 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   const handleScheduleDetailsChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const { name, value } = e.target; // name will be 'startDate' or 'endDate'
+      const { name, value } = e.target;
       setFormData((prev) => ({
         ...prev,
         schedule: {
           ...prev.schedule,
-          [name]: value || undefined, // Store as string or undefined if empty
-        } as FormEventScheduleUnion, // Type assertion needed here
+          [name]: value || undefined,
+        } as FormEventScheduleUnion,
       }));
     },
     []
   );
-
-  // --- Hour Entry Handlers ---
 
   const handleHourChange = useCallback(
     (index: number, field: keyof BjjEventHoursDto, value: string | number | null) => {
       setFormData((prev) => {
         const updatedHours = prev.schedule.hours.map((hour, i) => {
           if (i === index) {
-            // Handle specific conversions or null assignment
             let processedValue = value;
             if ((field === 'date' || field === 'dayOfWeek') && value === '') {
               processedValue = null;
@@ -226,19 +273,17 @@ export const EventForm: React.FC<EventFormProps> = ({
     setFormData((prev) => {
       const newHour: FormBjjEventHoursDto = {
         _formKey: generateTempKey(),
-        openTime: '09:00', // Sensible defaults
+        openTime: '09:00',
         closeTime: '11:00',
-        dayOfWeek: null, // Default to null
-        date: null, // Default to null
+        dayOfWeek: null,
+        date: null,
       };
       const currentSchedule = prev.schedule;
 
-      // Pre-fill date or day based on schedule type
       if (currentSchedule.scheduleType === ScheduleType.FixedDate) {
-        newHour.date = currentSchedule.startDate || ''; // Use start date if available
+        newHour.date = currentSchedule.startDate || '';
       } else {
-        // Recurring: default to first day of week maybe? Or require selection.
-        newHour.dayOfWeek = 0; // Default to Sunday/Monday (depending on DAYS_OF_WEEK)
+        newHour.dayOfWeek = 0; // Default to Sunday
       }
 
       return {
@@ -267,12 +312,10 @@ export const EventForm: React.FC<EventFormProps> = ({
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (formData.schedule.hours.length === 0) {
-        // Basic validation feedback - consider a more robust validation library (e.g., Zod, react-hook-form)
         alert('Please add at least one time slot to the schedule.');
         return;
       }
 
-      // Prepare final payload for submission
       const currentFormSchedule = formData.schedule;
       const finalHours = mapFormHoursToDtoHours(
         currentFormSchedule.hours,
@@ -284,42 +327,42 @@ export const EventForm: React.FC<EventFormProps> = ({
         finalSchedulePayload = {
           scheduleType: ScheduleType.FixedDate,
           startDate: currentFormSchedule.startDate,
-          endDate: currentFormSchedule.endDate || undefined, // Ensure undefined if empty
+          endDate: currentFormSchedule.endDate || undefined,
           hours: finalHours,
         };
       } else {
-        // Recurring
         finalSchedulePayload = {
           scheduleType: ScheduleType.Recurring,
-          startDate: currentFormSchedule.startDate || undefined, // Ensure undefined if empty
-          endDate: currentFormSchedule.endDate || undefined, // Ensure undefined if empty
+          startDate: currentFormSchedule.startDate || undefined,
+          endDate: currentFormSchedule.endDate || undefined,
           hours: finalHours,
         };
       }
 
-      // Construct the final EventFormData object
       const payload: EventFormData = {
         name: formData.name,
+        description: formData.description,
         type: formData.type,
+        organiser: formData.organiser,
+        status: formData.status,
+        statusReason: formData.statusReason,
+        socialMedia: formData.socialMedia,
+        region: formData.region,
         city: formData.city,
-        address: formData.address || undefined,
+        location: formData.location,
         pricing: {
-            ...formData.pricing,
-            // Ensure amount is a number, default to 0 if somehow invalid
-            amount: Number(formData.pricing.amount) || 0,
+          ...formData.pricing,
+          amount: Number(formData.pricing.amount) || 0,
         },
         schedule: finalSchedulePayload,
-        contact: formData.contact, // Pass along contact, coordinates, eventUrl if collected
-        coordinates: formData.coordinates,
-        eventUrl: formData.eventUrl || undefined,
+        eventUrl: formData.eventUrl,
+        imageUrl: formData.imageUrl,
       };
 
       try {
-        await onSubmit(payload); // Call the passed onSubmit prop
-        // onClose(); // Optionally close modal on success (often handled by parent via isSubmitting change)
+        await onSubmit(payload);
       } catch (error) {
         console.error('Submission error in form:', error);
-        // Error handling might be done in the parent component's onSubmit handler
       }
     },
     [formData, onSubmit]
@@ -329,7 +372,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   if (!isOpen) return null;
 
-  const canSubmitForm = formData.schedule.hours.length > 0; // Basic validation check
+  const canSubmitForm = formData.schedule.hours.length > 0;
 
   return (
     <div
@@ -372,7 +415,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             name={formData.name}
             type={formData.type}
             city={formData.city}
-            address={formData.address}
+            region={formData.region}
+            organiser={formData.organiser}
+            location={formData.location}
+            socialMedia={formData.socialMedia}
+            status={formData.status}
             isSubmitting={isSubmitting}
             onInputChange={handleBasicInfoChange}
           />
@@ -393,8 +440,6 @@ export const EventForm: React.FC<EventFormProps> = ({
             onRemoveHour={removeHourEntry}
           />
 
-          {/* Optional: Add ContactSection, UrlSection etc. here */}
-
           <FormActions
             onClose={onClose}
             isSubmitting={isSubmitting}
@@ -403,12 +448,11 @@ export const EventForm: React.FC<EventFormProps> = ({
           />
         </form>
       </div>
-      {/* Basic CSS for modal animation */}
       <style>{`
         @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes modalShow { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-        .animate-modalShow { animation: modalShow 0.3s ease-out 0.1s forwards; } /* Delay modal animation slightly */
+        .animate-modalShow { animation: modalShow 0.3s ease-out 0.1s forwards; }
       `}</style>
     </div>
   );

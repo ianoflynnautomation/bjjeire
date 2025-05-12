@@ -3,7 +3,7 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.DTOs;
 
-public class BjjEventScheduleDto 
+public class BjjEventScheduleDto
 {
     public ScheduleType ScheduleType { get; set; }
     public DateTime? StartDate { get; set; }

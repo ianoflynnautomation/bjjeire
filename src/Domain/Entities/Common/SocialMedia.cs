@@ -1,0 +1,14 @@
+
+namespace BjjWorld.Domain.Entities.Common;
+
+public class SocialMedia
+{
+    [BsonElement("instagram")]
+    public string? Instagram { get; set; } = string.Empty;
+    [BsonElement("facebook")]
+    public string? Facebook { get; set; } = string.Empty;
+    [BsonElement("x")]
+    public string? X { get; set; } = string.Empty;
+    [BsonElement("youTube")]
+    public string? YouTube { get; set; } = string.Empty;
+}

@@ -5,6 +5,7 @@ using BjjWorld.Domain.Entities.BjjEvents;
 using BjjWorld.Application.Common;
 using Microsoft.AspNetCore.Routing;
 using BjjWorld.Application.Common.DTOs;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.Queries;
 
@@ -25,7 +26,7 @@ ICacheBase cacheBase, ILinkService linkService)
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            var query = _bjjEventRepository.Table.Where(x => x.IsActive);
+            var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
             if (!string.IsNullOrWhiteSpace(request.City))
             {

@@ -25,7 +25,7 @@ public class GymDto : BaseApiEntityModel
 
     public GeoCoordinatesDto Coordinates { get; set; } = new();
 
-    public ContactDto Contact { get; set; } = new();
+    // public ContactDto Contact { get; set; } = new();
 
      public string? ImageUrl { get; set; } 
 
