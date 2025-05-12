@@ -1,20 +1,28 @@
-import React from 'react';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import clsx from 'clsx';
+import React from 'react'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import clsx from 'clsx'
 
 interface EventsPageHeaderProps {
-  onOpenForm: () => void;
-  isSubmittingEvent: boolean;
-  isFormOpen: boolean;
+  onOpenForm: () => void
+  isSubmittingEvent: boolean
+  isFormOpen: boolean
+  'data-testid'?: string
 }
 
 const EventsPageHeader: React.FC<EventsPageHeaderProps> = ({
   onOpenForm,
   isSubmittingEvent,
   isFormOpen,
+  'data-testid': baseTestId = 'events-page-header',
 }) => (
-  <header className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-    <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+  <header
+    className="mb-8 flex flex-col items-center justify-between gap-4 sm:flex-row"
+    data-testid={baseTestId}
+  >
+    <h1
+      className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl"
+      data-testid={`${baseTestId}-title`}
+    >
       BJJ Events
     </h1>
     <button
@@ -29,11 +37,12 @@ const EventsPageHeader: React.FC<EventsPageHeaderProps> = ({
       )}
       aria-controls="event-form"
       aria-expanded={isFormOpen}
+      data-testid={`${baseTestId}-submit-event-button`}
     >
       <PlusIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
       {isSubmittingEvent ? 'Submitting...' : 'Submit Event'}
     </button>
   </header>
-);
+)
 
-export default React.memo(EventsPageHeader);
+export default React.memo(EventsPageHeader)

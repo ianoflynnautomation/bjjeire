@@ -1,18 +1,20 @@
-import React from 'react'
-import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config'
+import React from 'react';
+import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config';
 
-interface SocialLinkItemProps {
-  platform: KnownPlatform
-  url: string
+interface SocialLinkProps { 
+  platform: KnownPlatform;
+  url: string;
+  'data-testid'?: string; 
 }
 
-const SocialLink: React.FC<SocialLinkItemProps> = ({ platform, url }) => {
-  const config = platformConfig[platform]
+const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': dataTestId }) => {
+  const config = platformConfig[platform];
   if (!config) {
-    console.warn(`No configuration found for social media platform: ${platform}`)
-    return null
+    console.warn(`No configuration found for social media platform: ${platform}`);
+    return null;
   }
-  const { IconComponent, label, hoverTextColorClass } = config
+  const { IconComponent, label, hoverTextColorClass } = config;
+
   return (
     <a
       href={url}
@@ -20,6 +22,7 @@ const SocialLink: React.FC<SocialLinkItemProps> = ({ platform, url }) => {
       rel="noopener noreferrer"
       aria-label={`View on ${label}`}
       title={`View on ${label}`}
+      data-testid={dataTestId}
       className={`
         group rounded-full p-1.5 transition-all duration-200 ease-in-out
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
@@ -33,39 +36,51 @@ const SocialLink: React.FC<SocialLinkItemProps> = ({ platform, url }) => {
           ${hoverTextColorClass}
           transition-all duration-200 ease-in-out
         `}
+        aria-hidden="true"
       />
     </a>
-  )
-}
-// --- End of SocialLink sub-component ---
+  );
+};
 
 interface EventSocialMediaProps {
-  socialMedia?: Record<string, string>
+  socialMedia?: Record<string, string | undefined | null>; 
+  'data-testid'?: string;
 }
 
-export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({ socialMedia }) => {
+export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
+  socialMedia,
+  'data-testid': baseTestId = 'event-social-media',
+}) => {
   if (!socialMedia || Object.keys(socialMedia).length === 0) {
-    return null
+    return null;
   }
 
   const validSocialLinks = Object.entries(socialMedia)
     .filter(([platform, url]) => {
-      return isKnownPlatform(platform) && url && typeof url === 'string' && url.trim() !== ''
+      return isKnownPlatform(platform) && url && typeof url === 'string' && url.trim() !== '';
     })
     .map(([platform, url]) => ({
       platform: platform as KnownPlatform,
       url: url as string,
-    }))
+    }));
 
   if (validSocialLinks.length === 0) {
-    return null
+    return null;
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div
+      className="flex flex-wrap items-center gap-x-4 gap-y-2"
+      data-testid={baseTestId} 
+    >
       {validSocialLinks.map(({ platform, url }) => (
-        <SocialLink key={platform} platform={platform} url={url} />
+        <SocialLink
+          key={platform}
+          platform={platform}
+          url={url}
+          data-testid={`${baseTestId}-link-${platform.toLowerCase()}`}
+        />
       ))}
     </div>
-  )
-}
+  );
+};

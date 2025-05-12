@@ -41,17 +41,23 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
 
   return (
     <nav
+      data-testid="pagination"
       className="flex flex-col items-center justify-center gap-3 py-6 bg-emerald-50 rounded-md"
       aria-label="Pagination navigation"
     >
       {itemsText && (
-        <div className="mb-2 text-sm text-slate-600" aria-live="polite">
+        <div
+          data-testid="pagination-items-text"
+          className="mb-2 text-sm text-slate-600"
+          aria-live="polite"
+        >
           {itemsText}
         </div>
       )}
       <div className="flex items-center gap-3">
         {/* Previous Page */}
         <button
+          data-testid="pagination-prev-button"
           className={`${buttonBaseClasses} ${inactiveClasses} ${!hasPreviousPage ? disabledClasses : ''}`}
           onClick={() =>
             hasPreviousPage && onPageChange(previousPageUrl || fallbackPrevUrl, currentPage - 1)
@@ -63,12 +69,17 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
         </button>
 
         {/* Current Page Indicator */}
-        <span className="px-3 py-1.5 text-sm font-medium text-slate-800" aria-current="page">
+        <span
+          data-testid="pagination-page-indicator"
+          className="px-3 py-1.5 text-sm font-medium text-slate-800"
+          aria-current="page"
+        >
           Page {currentPage} of {totalPages}
         </span>
 
         {/* Next Page */}
         <button
+          data-testid="pagination-next-button"
           className={`${buttonBaseClasses} ${inactiveClasses} ${!hasNextPage ? disabledClasses : ''}`}
           onClick={() =>
             hasNextPage && onPageChange(nextPageUrl || fallbackNextUrl, currentPage + 1)
