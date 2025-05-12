@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   ScheduleType,
   BjjEventType,
@@ -9,31 +9,31 @@ import {
   FixedDateSchedule,
   RecurringSchedule,
   EventScheduleUnion,
-} from '../../../types/event';
-import { City, CITIES } from '../../../constants/cities';
-import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes';
-import { DAYS_OF_WEEK } from '../../../constants/common';
+} from '../../../types/event'
+import { City, CITIES } from '../../../constants/cities'
+import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes'
+import { DAYS_OF_WEEK } from '../../../constants/common'
 
 // --- Helper: Unique ID Generator ---
-const generateTempKey = () => Date.now().toString(36) + Math.random().toString(36).substring(2);
+const generateTempKey = () => Date.now().toString(36) + Math.random().toString(36).substring(2)
 
 // --- Local Form-Specific Types ---
 interface FormBjjEventHoursDto extends BjjEventHoursDto {
-  _formKey: string; // For React list key
+  _formKey: string // For React list key
 }
 
 // Define form-specific schedule types that use FormBjjEventHoursDto
 interface FormFixedDateSchedule extends Omit<FixedDateSchedule, 'hours'> {
-  hours: FormBjjEventHoursDto[];
+  hours: FormBjjEventHoursDto[]
 }
 interface FormRecurringSchedule extends Omit<RecurringSchedule, 'hours'> {
-  hours: FormBjjEventHoursDto[];
+  hours: FormBjjEventHoursDto[]
 }
-type FormEventScheduleUnion = FormFixedDateSchedule | FormRecurringSchedule;
+type FormEventScheduleUnion = FormFixedDateSchedule | FormRecurringSchedule
 
 // This is the type for our component's internal state
 interface FormDataTypeForState extends Omit<EventFormData, 'schedule'> {
-  schedule: FormEventScheduleUnion;
+  schedule: FormEventScheduleUnion
 }
 // --- End Local Form-Specific Types ---
 
@@ -57,14 +57,14 @@ const getDefaultFormData = (): FormDataTypeForState => ({
   contact: undefined,
   coordinates: undefined,
   eventUrl: undefined,
-});
+})
 
 interface EventFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (formData: EventFormData) => Promise<void>;
-  isSubmitting: boolean;
-  initialData?: Partial<EventFormData>;
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (formData: EventFormData) => Promise<void>
+  isSubmitting: boolean
+  initialData?: Partial<EventFormData>
 }
 
 export const EventForm: React.FC<EventFormProps> = ({
@@ -74,25 +74,30 @@ export const EventForm: React.FC<EventFormProps> = ({
   isSubmitting,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<FormDataTypeForState>(getDefaultFormData());
+  const [formData, setFormData] = useState<FormDataTypeForState>(getDefaultFormData())
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        const defaultState = getDefaultFormData();
-        let effectiveSchedule: FormEventScheduleUnion;
+        const defaultState = getDefaultFormData()
+        let effectiveSchedule: FormEventScheduleUnion
 
         if (initialData.schedule) {
-          const initialScheduleData = initialData.schedule as EventScheduleUnion; // From props
+          const initialScheduleData = initialData.schedule as EventScheduleUnion // From props
 
-          const mapToFormHours = (hours: BjjEventHoursDto[] | undefined, type: ScheduleType): FormBjjEventHoursDto[] => {
-            return hours?.map((h) => ({
-              ...h,
-              _formKey: generateTempKey(),
-              dayOfWeek: type === ScheduleType.Recurring ? (h.dayOfWeek ?? null) : null,
-              date: type === ScheduleType.FixedDate ? (h.date ?? null) : null,
-            })) || [];
-          };
+          const mapToFormHours = (
+            hours: BjjEventHoursDto[] | undefined,
+            type: ScheduleType
+          ): FormBjjEventHoursDto[] => {
+            return (
+              hours?.map((h) => ({
+                ...h,
+                _formKey: generateTempKey(),
+                dayOfWeek: type === ScheduleType.Recurring ? (h.dayOfWeek ?? null) : null,
+                date: type === ScheduleType.FixedDate ? (h.date ?? null) : null,
+              })) || []
+            )
+          }
 
           if (initialScheduleData.scheduleType === ScheduleType.FixedDate) {
             effectiveSchedule = {
@@ -100,62 +105,62 @@ export const EventForm: React.FC<EventFormProps> = ({
               startDate: initialScheduleData.startDate || '',
               endDate: initialScheduleData.endDate,
               hours: mapToFormHours(initialScheduleData.hours, ScheduleType.FixedDate),
-            } as FormFixedDateSchedule;
-          } else { // RecurringSchedule
+            } as FormFixedDateSchedule
+          } else {
+            // RecurringSchedule
             effectiveSchedule = {
               scheduleType: ScheduleType.Recurring,
               startDate: initialScheduleData.startDate,
               endDate: initialScheduleData.endDate,
               hours: mapToFormHours(initialScheduleData.hours, ScheduleType.Recurring),
-            } as FormRecurringSchedule;
+            } as FormRecurringSchedule
           }
         } else {
-          effectiveSchedule = defaultState.schedule;
+          effectiveSchedule = defaultState.schedule
         }
 
         setFormData({
           ...defaultState,
           ...(initialData as Partial<Omit<EventFormData, 'schedule'>>), // Overlay non-schedule initialData
           schedule: effectiveSchedule,
-        });
+        })
       } else {
-        setFormData(getDefaultFormData());
+        setFormData(getDefaultFormData())
       }
     }
-  }, [initialData, isOpen]);
-
+  }, [initialData, isOpen])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       [name]:
         name === 'type'
-          ? Number(value) as BjjEventType
+          ? (Number(value) as BjjEventType)
           : name === 'city'
-          ? (value as City)
-          : value,
-    }));
-  };
+            ? (value as City)
+            : value,
+    }))
+  }
 
   const handlePricingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    const field = name.split('.')[1];
+    const { name, value } = e.target
+    const field = name.split('.')[1]
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       pricing: {
         ...prev.pricing,
-        [field]: field === 'type' ? Number(value) as PricingType : (value ? Number(value) : 0),
-      }
-    }));
-  };
+        [field]: field === 'type' ? (Number(value) as PricingType) : value ? Number(value) : 0,
+      },
+    }))
+  }
 
   const handleScheduleTypeChange = (newScheduleType: ScheduleType) => {
     setFormData((prev) => {
-      const existingStartDate = (prev.schedule as any).startDate;
-      const existingEndDate = (prev.schedule as any).endDate;
-      let newScheduleObject: FormEventScheduleUnion;
+      const existingStartDate = (prev.schedule as any).startDate
+      const existingEndDate = (prev.schedule as any).endDate
+      let newScheduleObject: FormEventScheduleUnion
 
       if (newScheduleType === ScheduleType.FixedDate) {
         newScheduleObject = {
@@ -163,45 +168,52 @@ export const EventForm: React.FC<EventFormProps> = ({
           startDate: typeof existingStartDate === 'string' ? existingStartDate : '',
           endDate: existingEndDate,
           hours: [],
-        } as FormFixedDateSchedule;
-      } else { 
+        } as FormFixedDateSchedule
+      } else {
         newScheduleObject = {
           scheduleType: ScheduleType.Recurring,
           startDate: existingStartDate,
           endDate: existingEndDate,
           hours: [],
-        } as FormRecurringSchedule;
+        } as FormRecurringSchedule
       }
-      return { ...prev, schedule: newScheduleObject };
-    });
-  };
+      return { ...prev, schedule: newScheduleObject }
+    })
+  }
 
   const handleScheduleDetailsChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
       schedule: {
         ...prev.schedule,
         [name]: value || undefined,
       } as FormEventScheduleUnion,
-    }));
-  };
+    }))
+  }
 
-  const handleHourChange = (index: number, field: keyof BjjEventHoursDto, value: string | number | null) => {
+  const handleHourChange = (
+    index: number,
+    field: keyof BjjEventHoursDto,
+    value: string | number | null
+  ) => {
     setFormData((prev) => ({
       ...prev,
       schedule: {
         ...prev.schedule,
         hours: prev.schedule.hours.map((hour, i) =>
           i === index
-            ? { ...hour, [field]: value === '' && (field === 'date' || field === 'dayOfWeek') ? null : value }
+            ? {
+                ...hour,
+                [field]: value === '' && (field === 'date' || field === 'dayOfWeek') ? null : value,
+              }
             : hour
         ),
       } as FormEventScheduleUnion,
-    }));
-  };
+    }))
+  }
 
   const addHourEntry = () => {
     setFormData((prev) => {
@@ -211,13 +223,13 @@ export const EventForm: React.FC<EventFormProps> = ({
         closeTime: '11:00',
         dayOfWeek: null,
         date: null,
-      };
-      const currentSchedule = prev.schedule;
+      }
+      const currentSchedule = prev.schedule
 
       if (currentSchedule.scheduleType === ScheduleType.FixedDate) {
-        newHour.date = currentSchedule.startDate || '';
+        newHour.date = currentSchedule.startDate || ''
       } else {
-        newHour.dayOfWeek = DAYS_OF_WEEK[0]?.value ?? 0;
+        newHour.dayOfWeek = DAYS_OF_WEEK[0]?.value ?? 0
       }
       return {
         ...prev,
@@ -225,9 +237,9 @@ export const EventForm: React.FC<EventFormProps> = ({
           ...currentSchedule,
           hours: [...currentSchedule.hours, newHour],
         } as FormEventScheduleUnion,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const removeHourEntry = (index: number) => {
     setFormData((prev) => ({
@@ -236,48 +248,57 @@ export const EventForm: React.FC<EventFormProps> = ({
         ...prev.schedule,
         hours: prev.schedule.hours.filter((_, i) => i !== index),
       } as FormEventScheduleUnion,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const currentFormSchedule = formData.schedule;
+    e.preventDefault()
+    const currentFormSchedule = formData.schedule
 
     const finalHours: BjjEventHoursDto[] = currentFormSchedule.hours.map((formHour) => {
-      const { ...dtoHour } = formHour;
+      const { ...dtoHour } = formHour
       if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
-        return { openTime: dtoHour.openTime, closeTime: dtoHour.closeTime, date: dtoHour.date ?? null, dayOfWeek: null };
-      } else { 
-        return { openTime: dtoHour.openTime, closeTime: dtoHour.closeTime, dayOfWeek: dtoHour.dayOfWeek ?? null, date: null };
+        return {
+          openTime: dtoHour.openTime,
+          closeTime: dtoHour.closeTime,
+          date: dtoHour.date ?? null,
+          dayOfWeek: null,
+        }
+      } else {
+        return {
+          openTime: dtoHour.openTime,
+          closeTime: dtoHour.closeTime,
+          dayOfWeek: dtoHour.dayOfWeek ?? null,
+          date: null,
+        }
       }
-    });
+    })
 
-    let finalSchedulePayload: EventScheduleUnion;
+    let finalSchedulePayload: EventScheduleUnion
     if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
       finalSchedulePayload = {
         scheduleType: ScheduleType.FixedDate,
         startDate: currentFormSchedule.startDate,
         endDate: currentFormSchedule.endDate,
         hours: finalHours,
-      } as FixedDateSchedule;
-    } else { 
+      } as FixedDateSchedule
+    } else {
       finalSchedulePayload = {
         scheduleType: ScheduleType.Recurring,
         startDate: currentFormSchedule.startDate,
         endDate: currentFormSchedule.endDate,
         hours: finalHours,
-      } as RecurringSchedule;
+      } as RecurringSchedule
     }
 
     const payload: EventFormData = {
       ...(formData as Omit<EventFormData, 'schedule'>),
       schedule: finalSchedulePayload,
-    };
-    await onSubmit(payload);
-  };
+    }
+    await onSubmit(payload)
+  }
 
-
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -286,16 +307,33 @@ export const EventForm: React.FC<EventFormProps> = ({
           <h2 className="text-2xl font-bold text-slate-800">
             {initialData?.name ? 'Edit Event' : 'Submit New Event'}
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-700" aria-label="Close form">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+          <button
+            onClick={onClose}
+            className="text-slate-500 hover:text-slate-700"
+            aria-label="Close form"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
             </svg>
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Event Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700">Event Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+              Event Name
+            </label>
             <input
               id="name"
               type="text"
@@ -309,7 +347,9 @@ export const EventForm: React.FC<EventFormProps> = ({
           </div>
           {/* Event Type */}
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-slate-700">Event Type</label>
+            <label htmlFor="type" className="block text-sm font-medium text-slate-700">
+              Event Type
+            </label>
             <select
               id="type"
               name="type"
@@ -320,13 +360,17 @@ export const EventForm: React.FC<EventFormProps> = ({
               required
             >
               {BJJ_EVENT_TYPES.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           {/* City */}
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-slate-700">City</label>
+            <label htmlFor="city" className="block text-sm font-medium text-slate-700">
+              City
+            </label>
             <select
               id="city"
               name="city"
@@ -337,13 +381,17 @@ export const EventForm: React.FC<EventFormProps> = ({
               required
             >
               {CITIES.map((city) => (
-                <option key={city.value} value={city.value}>{city.label}</option>
+                <option key={city.value} value={city.value}>
+                  {city.label}
+                </option>
               ))}
             </select>
           </div>
           {/* Address */}
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-slate-700">Address</label>
+            <label htmlFor="address" className="block text-sm font-medium text-slate-700">
+              Address
+            </label>
             <input
               id="address"
               type="text"
@@ -356,7 +404,9 @@ export const EventForm: React.FC<EventFormProps> = ({
           </div>
           {/* Pricing Type */}
           <div>
-            <label htmlFor="pricing.type" className="block text-sm font-medium text-slate-700">Pricing Type</label>
+            <label htmlFor="pricing.type" className="block text-sm font-medium text-slate-700">
+              Pricing Type
+            </label>
             <select
               id="pricing.type"
               name="pricing.type"
@@ -375,7 +425,9 @@ export const EventForm: React.FC<EventFormProps> = ({
           {/* Pricing Amount */}
           {formData.pricing.type !== PricingType.Free && (
             <div>
-              <label htmlFor="pricing.amount" className="block text-sm font-medium text-slate-700">Cost (EUR)</label>
+              <label htmlFor="pricing.amount" className="block text-sm font-medium text-slate-700">
+                Cost (EUR)
+              </label>
               <input
                 id="pricing.amount"
                 type="number"
@@ -397,7 +449,12 @@ export const EventForm: React.FC<EventFormProps> = ({
             <h3 className="text-lg font-medium text-slate-900">Schedule Details</h3>
             {/* Schedule Type Select */}
             <div>
-              <label htmlFor="scheduleTypeSelect" className="block text-sm font-medium text-slate-700">Schedule Type</label>
+              <label
+                htmlFor="scheduleTypeSelect"
+                className="block text-sm font-medium text-slate-700"
+              >
+                Schedule Type
+              </label>
               <select
                 id="scheduleTypeSelect"
                 name="scheduleType"
@@ -407,14 +464,21 @@ export const EventForm: React.FC<EventFormProps> = ({
                 disabled={isSubmitting}
                 required
               >
-                <option value={ScheduleType.FixedDate}>Fixed Date (e.g., Seminar, Competition)</option>
+                <option value={ScheduleType.FixedDate}>
+                  Fixed Date (e.g., Seminar, Competition)
+                </option>
                 <option value={ScheduleType.Recurring}>Recurring (e.g., Regular Class)</option>
               </select>
             </div>
             {/* Start Date */}
             <div>
-              <label htmlFor="schedule.startDate" className="block text-sm font-medium text-slate-700">
-                {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Event Start Date' : 'Effective Start Date (Optional)'}
+              <label
+                htmlFor="schedule.startDate"
+                className="block text-sm font-medium text-slate-700"
+              >
+                {formData.schedule.scheduleType === ScheduleType.FixedDate
+                  ? 'Event Start Date'
+                  : 'Effective Start Date (Optional)'}
               </label>
               <input
                 id="schedule.startDate"
@@ -429,8 +493,13 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
             {/* End Date */}
             <div>
-              <label htmlFor="schedule.endDate" className="block text-sm font-medium text-slate-700">
-                {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Event End Date (Optional)' : 'Effective End Date (Optional)'}
+              <label
+                htmlFor="schedule.endDate"
+                className="block text-sm font-medium text-slate-700"
+              >
+                {formData.schedule.scheduleType === ScheduleType.FixedDate
+                  ? 'Event End Date (Optional)'
+                  : 'Effective End Date (Optional)'}
               </label>
               <input
                 id="schedule.endDate"
@@ -447,15 +516,27 @@ export const EventForm: React.FC<EventFormProps> = ({
             {/* Hours Configuration */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
-                {formData.schedule.scheduleType === ScheduleType.FixedDate ? 'Daily Hours' : 'Weekly Hours'}
-                {formData.schedule.hours.length === 0 && <span className="text-xs text-slate-500"> (At least one time slot is required)</span>}
+                {formData.schedule.scheduleType === ScheduleType.FixedDate
+                  ? 'Daily Hours'
+                  : 'Weekly Hours'}
+                {formData.schedule.hours.length === 0 && (
+                  <span className="text-xs text-slate-500">
+                    {' '}
+                    (At least one time slot is required)
+                  </span>
+                )}
               </label>
               {formData.schedule.hours.map((hourEntry, index) => (
-                <div key={hourEntry._formKey} className="grid grid-cols-1 gap-3 rounded-md border border-emerald-200 p-3 sm:grid-cols-[1fr_auto_auto_auto]">
+                <div
+                  key={hourEntry._formKey}
+                  className="grid grid-cols-1 gap-3 rounded-md border border-emerald-200 p-3 sm:grid-cols-[1fr_auto_auto_auto]"
+                >
                   {/* Date Input for FixedDate */}
                   {formData.schedule.scheduleType === ScheduleType.FixedDate && (
                     <div>
-                      <label htmlFor={`hourDate-${index}`} className="sr-only">Date</label>
+                      <label htmlFor={`hourDate-${index}`} className="sr-only">
+                        Date
+                      </label>
                       <input
                         type="date"
                         id={`hourDate-${index}`}
@@ -472,25 +553,39 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {/* DayOfWeek Select for Recurring */}
                   {formData.schedule.scheduleType === ScheduleType.Recurring && (
                     <div>
-                      <label htmlFor={`dayOfWeek-${index}`} className="sr-only">Day of Week</label>
+                      <label htmlFor={`dayOfWeek-${index}`} className="sr-only">
+                        Day of Week
+                      </label>
                       <select
                         id={`dayOfWeek-${index}`}
                         value={hourEntry.dayOfWeek ?? ''}
-                        onChange={(e) => handleHourChange(index, 'dayOfWeek', e.target.value === '' ? null : Number(e.target.value))}
+                        onChange={(e) =>
+                          handleHourChange(
+                            index,
+                            'dayOfWeek',
+                            e.target.value === '' ? null : Number(e.target.value)
+                          )
+                        }
                         className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                         disabled={isSubmitting}
                         required
                       >
-                        <option value="" disabled>Select Day</option>
+                        <option value="" disabled>
+                          Select Day
+                        </option>
                         {DAYS_OF_WEEK.map((day) => (
-                          <option key={day.value} value={day.value}>{day.label}</option>
+                          <option key={day.value} value={day.value}>
+                            {day.label}
+                          </option>
                         ))}
                       </select>
                     </div>
                   )}
                   {/* Open Time */}
                   <div>
-                    <label htmlFor={`openTime-${index}`} className="sr-only">Open Time</label>
+                    <label htmlFor={`openTime-${index}`} className="sr-only">
+                      Open Time
+                    </label>
                     <input
                       type="time"
                       id={`openTime-${index}`}
@@ -503,7 +598,9 @@ export const EventForm: React.FC<EventFormProps> = ({
                   </div>
                   {/* Close Time */}
                   <div>
-                    <label htmlFor={`closeTime-${index}`} className="sr-only">Close Time</label>
+                    <label htmlFor={`closeTime-${index}`} className="sr-only">
+                      Close Time
+                    </label>
                     <input
                       type="time"
                       id={`closeTime-${index}`}
@@ -523,8 +620,17 @@ export const EventForm: React.FC<EventFormProps> = ({
                     aria-label="Remove time slot"
                     disabled={isSubmitting}
                   >
-                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    <svg
+                      className="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -539,7 +645,12 @@ export const EventForm: React.FC<EventFormProps> = ({
                 className="mt-2 flex items-center gap-2 rounded-md border border-dashed border-emerald-400 px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
                 disabled={isSubmitting}
               >
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  className="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
                 </svg>
                 Add Time Slot
@@ -562,11 +673,11 @@ export const EventForm: React.FC<EventFormProps> = ({
               className="rounded-md bg-gradient-to-r from-emerald-700 to-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
               disabled={isSubmitting || formData.schedule.hours.length === 0}
             >
-              {isSubmitting ? 'Submitting...' : (initialData?.name ? 'Save Changes' : 'Submit Event')}
+              {isSubmitting ? 'Submitting...' : initialData?.name ? 'Save Changes' : 'Submit Event'}
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}

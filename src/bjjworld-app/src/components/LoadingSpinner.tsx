@@ -1,4 +1,3 @@
-// src/components/LoadingSpinner.tsx
 import React from 'react'
 
 interface LoadingSpinnerProps {
@@ -6,6 +5,7 @@ interface LoadingSpinnerProps {
   color?: string
   text?: string
   className?: string
+  'data-testid'?: string
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
@@ -13,6 +13,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   color = 'text-blue-600',
   text,
   className = '',
+  'data-testid': baseTestId = 'spinner',
 }) => {
   const sizeClasses = {
     sm: 'w-5 h-5 border-2',
@@ -22,15 +23,24 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div
+      data-testid={baseTestId}
       className={`flex flex-col items-center justify-center p-4 ${className}`}
       role="status"
       aria-live="polite"
     >
       <div
+        data-testid={`${baseTestId}-icon`}
         className={`animate-spin rounded-full ${sizeClasses[size]} ${color} border-t-transparent border-solid`}
         aria-hidden="true"
       ></div>
-      {text && <p className={`mt-3 text-sm font-medium text-gray-600 ${color}`}>{text}</p>}
+      {text && (
+        <p
+          data-testid={`${baseTestId}-text`}
+          className={`mt-3 text-sm font-medium text-gray-600 ${color}`}
+        >
+          {text}
+        </p>
+      )}
       <span className="sr-only">{text || 'Loading...'}</span>
     </div>
   )

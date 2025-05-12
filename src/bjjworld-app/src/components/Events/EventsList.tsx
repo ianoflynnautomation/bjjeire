@@ -1,17 +1,31 @@
-import React from 'react';
-import { EventCard } from './EventCard/EventCard';
-import { BjjEventDto } from '../../types/event'; 
+import React from 'react'
+import { EventCard } from './EventCard/EventCard'
+import { BjjEventDto } from '../../types/event'
 
 interface EventsListProps {
-  events: BjjEventDto[];
+  events: BjjEventDto[]
+  'data-testid'?: string
 }
 
-const EventsList: React.FC<EventsListProps> = ({ events }) => (
-  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    {events.map((event) => (
-      <EventCard key={event.id || `event-<span class="math-inline">{event.name}-</span>{Math.random()}`} event={event} />
-    ))}
-  </div>
-);
+const EventsList: React.FC<EventsListProps> = ({
+  events,
+  'data-testid': baseTestId = 'events-list',
+}) => {
+  if (!events || events.length === 0) {
+    return null
+  }
 
-export default React.memo(EventsList);
+  return (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid={baseTestId}>
+      {events.map((event, index) => (
+        <EventCard
+          key={event.id || `event-card-${index}`}
+          event={event}
+          data-testid={`${baseTestId}-item-${event.id || index}`}
+        />
+      ))}
+    </div>
+  )
+}
+
+export default React.memo(EventsList)

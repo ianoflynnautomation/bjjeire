@@ -1,5 +1,5 @@
 import { City } from '../constants/cities';
-import {HateoasPagination} from  './common'; // Assuming HateoasPagination is correctly defined in './common'
+import {HateoasPagination} from  './common'; 
 
 export enum BjjEventType {
   OpenMat = 0,
@@ -29,40 +29,31 @@ export interface BjjEventPricingModelDto {
 }
 
 export interface BjjEventHoursDto {
-  dayOfWeek?: number | null; // 0 = Sunday, ..., 6 = Saturday. Crucial for RecurringSchedule.
-  date?: string | null;      // ISO date string. Can be used by FixedDateSchedule for specific day's hours in a multi-day event.
-  openTime: string;          // e.g., "09:00"
-  closeTime: string;         // e.g., "11:00"
+  dayOfWeek?: number | null; 
+  date?: string | null;      
+  openTime: string;        
+  closeTime: string;
 }
 
-// --- New Schedule Structure ---
-
-// Base interface for all schedule types
 export interface BaseSchedule {
   scheduleType: ScheduleType;
 }
 
-// Specific interface for Fixed Date Schedules
 export interface FixedDateSchedule extends BaseSchedule {
   scheduleType: ScheduleType.FixedDate;
-  startDate: string;           // ISO date string, mandatory for fixed date events
-  endDate?: string;          // ISO date string, optional (e.g., for single-day events)
-  hours: BjjEventHoursDto[];   // Kept mandatory to align with original BjjEventScheduleDto
+  startDate: string;         
+  endDate?: string;        
+  hours: BjjEventHoursDto[];
 }
 
-// Specific interface for Recurring Schedules
 export interface RecurringSchedule extends BaseSchedule {
   scheduleType: ScheduleType.Recurring;
-  hours: BjjEventHoursDto[];   // Mandatory. Entries should utilize 'dayOfWeek'.
-  startDate?: string;          // ISO date string, optional: when the recurrence begins
-  endDate?: string;            // ISO date string, optional: when the recurrence ends
+  hours: BjjEventHoursDto[];   
+  startDate?: string;        
+  endDate?: string; 
 }
 
-// Union of all possible schedule types
 export type EventScheduleUnion = FixedDateSchedule | RecurringSchedule;
-
-// --- End of New Schedule Structure ---
-
 
 export interface BjjEventDto {
   id?: string;
@@ -71,7 +62,7 @@ export interface BjjEventDto {
   address?: string;
   city: City;
   isActive: boolean;
-  schedule: EventScheduleUnion; // Updated to use the new union type
+  schedule: EventScheduleUnion;
   pricing: BjjEventPricingModelDto;
   contact?: {
     contactPerson?: string;
@@ -94,7 +85,7 @@ export interface EventFormData {
   city: City;
   address?: string;
   pricing: BjjEventPricingModelDto;
-  schedule: EventScheduleUnion; // Updated to use the new union type
+  schedule: EventScheduleUnion;
   contact?: {
     contactPerson?: string;
     phone?: string;
@@ -112,14 +103,14 @@ export interface EventFormData {
 export interface BackendBjjEventDto {
   id?: string;
   name: string;
-  type: string; // Note: This is 'string', consider aligning with BjjEventType if it's a direct mapping
+  type: string; 
   eventUrl?: string | null;
   organiser?: string | null;
   isActive: boolean;
   statusReason?: string | null;
   address?: string;
   city: City;
-  schedule: EventScheduleUnion; // Updated to use the new union type
+  schedule: EventScheduleUnion;
   pricing: BjjEventPricingModelDto;
   contact?: {
     contactPerson?: string;
@@ -148,7 +139,3 @@ export interface BackendBjjEventsResponse {
   data: BackendBjjEventDto[];
   pagination: HateoasPagination;
 }
-
-// The old BjjEventScheduleDto is now removed.
-// The BaseSchedule, FixedDateSchedule, RecurringSchedule, and EventScheduleUnion
-// definitions you added at the bottom are now integrated above and used.
