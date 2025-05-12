@@ -1,6 +1,6 @@
 // src/components/EventDetails/EventDetails.tsx
 import React, { memo, useMemo } from 'react'
-import { MapPinIcon, CurrencyDollarIcon } from '@heroicons/react/20/solid'
+import { MapPinIcon, CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/20/solid'
 import { BjjEventDto, PricingType } from '../../../types/event'
 import { getGoogleMapsUrl } from '../../../utils/mapUtils'
 import { calculateEventPrice } from '../../../utils/priceCalculator'
@@ -39,15 +39,28 @@ const formatPricingDisplay = (
       break
     case 'FlatRate':
     default:
-      unitText = 'total costß'
+      unitText = ''
       break
   }
   return `${currencyDisplay ? currencyDisplay + ' ' : ''}${formattedTotal}${unitText ? ' ' + unitText : ''}`.trim()
 }
 
+const formatOrganiserDisplay = (url: string): string => {
+  try {
+      const parsedUrl = new URL(url);
+      // Remove 'www.' and path/query for cleaner display
+      return parsedUrl.hostname.replace(/^www\./, '');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+  } catch (error) {
+    // If URL is invalid, return it as is
+      return url;
+  }
+};
+
+
 export const EventDetails: React.FC<EventDetailsProps> = memo(
   ({ event, 'data-testid': baseTestId = 'event-details' }) => {
-    const { name, address, contact, pricing, schedule } = event
+    const { name, address, contact, pricing, schedule, organiser } = event
 
     const calculatedPrice = useMemo(
       () => calculateEventPrice(schedule, pricing),
@@ -58,6 +71,12 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
       () => formatPricingDisplay(calculatedPrice, pricing?.type),
       [calculatedPrice, pricing?.type]
     )
+
+      const organiserDisplay = useMemo(() =>
+          organiser ? formatOrganiserDisplay(organiser) : null,
+        [organiser]
+      );
+    
 
     const hasSocialMedia =
       contact?.socialMedia &&
@@ -90,6 +109,26 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
               aria-label={`View ${name || 'event'} location on Google Maps`}
             >
               {address}
+            </a>
+          </DetailItem>
+        )}
+
+          {/* Organiser */}
+          {organiser && organiserDisplay && (
+          <DetailItem
+            icon={<UserCircleIcon />} // Icon for organiser
+            ariaLabel={`Organised by: ${organiserDisplay}`}
+            data-testid={`${baseTestId}-organiser`}
+          >
+            <a
+              href={organiser} // Link to the organiser's website
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid={`${baseTestId}-organiser-link`}
+              className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
+              aria-label={`Visit organiser website for ${name || 'this event'}`}
+            >
+              Organised by: {organiserDisplay}
             </a>
           </DetailItem>
         )}

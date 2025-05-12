@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ScheduleType,
   BjjEventType,
@@ -9,62 +9,31 @@ import {
   FixedDateSchedule,
   RecurringSchedule,
   EventScheduleUnion,
-} from '../../../types/event'
-import { City, CITIES } from '../../../constants/cities'
-import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes'
-import { DAYS_OF_WEEK } from '../../../constants/common'
-
-// --- Helper: Unique ID Generator ---
-const generateTempKey = () => Date.now().toString(36) + Math.random().toString(36).substring(2)
-
-// --- Local Form-Specific Types ---
-interface FormBjjEventHoursDto extends BjjEventHoursDto {
-  _formKey: string // For React list key
-}
-
-// Define form-specific schedule types that use FormBjjEventHoursDto
-interface FormFixedDateSchedule extends Omit<FixedDateSchedule, 'hours'> {
-  hours: FormBjjEventHoursDto[]
-}
-interface FormRecurringSchedule extends Omit<RecurringSchedule, 'hours'> {
-  hours: FormBjjEventHoursDto[]
-}
-type FormEventScheduleUnion = FormFixedDateSchedule | FormRecurringSchedule
-
-// This is the type for our component's internal state
-interface FormDataTypeForState extends Omit<EventFormData, 'schedule'> {
-  schedule: FormEventScheduleUnion
-}
-// --- End Local Form-Specific Types ---
-
-const getDefaultFormData = (): FormDataTypeForState => ({
-  name: '',
-  type: BJJ_EVENT_TYPES[0]?.value ?? BjjEventType.OpenMat,
-  city: CITIES[0]?.value ?? City.Dublin,
-  address: '',
-  pricing: {
-    type: PricingType.Free,
-    amount: 0,
-    durationDays: null,
-    currency: 'EUR',
-  },
-  schedule: {
-    scheduleType: ScheduleType.FixedDate,
-    startDate: '',
-    endDate: undefined,
-    hours: [],
-  } as FormFixedDateSchedule,
-  contact: undefined,
-  coordinates: undefined,
-  eventUrl: undefined,
-})
+} from '../../../types/event'; // Adjust path
+import {
+  FormDataTypeForState,
+  FormEventScheduleUnion,
+  FormBjjEventHoursDto,
+} from './eventForm.types'; // Adjust path
+import {
+  getDefaultFormData,
+  generateTempKey,
+  mapFormHoursToDtoHours,
+} from './eventForm.utils';
+import { EventFormTestIds } from './eventForm.testIds'; // Adjust path
+import { BasicInfoSection } from './BasicInfoSection'; // Adjust path
+import { PricingSection } from './PricingSection'; // Adjust path
+import { ScheduleSection } from './ScheduleSection'; // Adjust path
+import { FormActions } from './FormActions'; // Adjust path
+import { City } from '../../../constants/cities'; 
+import { CloseIcon } from '../../shared/icons/CloseIcon';
 
 interface EventFormProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (formData: EventFormData) => Promise<void>
-  isSubmitting: boolean
-  initialData?: Partial<EventFormData>
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (formData: EventFormData) => Promise<void>; // Expects promise for async handling
+  isSubmitting: boolean;
+  initialData?: Partial<EventFormData>; // For editing existing events
 }
 
 export const EventForm: React.FC<EventFormProps> = ({
@@ -74,610 +43,373 @@ export const EventForm: React.FC<EventFormProps> = ({
   isSubmitting,
   initialData,
 }) => {
-  const [formData, setFormData] = useState<FormDataTypeForState>(getDefaultFormData())
+  const [formData, setFormData] = useState<FormDataTypeForState>(getDefaultFormData());
+  const isEditMode = useMemo(() => !!initialData?.name, [initialData]); // Simple check for edit mode
 
+  // Effect to initialize or reset form data when modal opens or initialData changes
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        const defaultState = getDefaultFormData()
-        let effectiveSchedule: FormEventScheduleUnion
+        // --- Logic to merge initialData with default state ---
+        const defaultState = getDefaultFormData();
+        let effectiveSchedule: FormEventScheduleUnion;
 
-        if (initialData.schedule) {
-          const initialScheduleData = initialData.schedule as EventScheduleUnion // From props
+        // Helper to map DTO hours to Form hours
+        const mapToFormHours = (
+          hours: BjjEventHoursDto[] | undefined,
+          type: ScheduleType
+        ): FormBjjEventHoursDto[] => {
+          return (
+            hours?.map((h) => ({
+              ...h,
+              _formKey: generateTempKey(), // Add temporary key
+              // Ensure correct fields based on type, defaulting to null if missing
+              dayOfWeek: type === ScheduleType.Recurring ? (h.dayOfWeek ?? null) : null,
+              date: type === ScheduleType.FixedDate ? (h.date ?? null) : null,
+            })) || []
+          );
+        };
 
-          const mapToFormHours = (
-            hours: BjjEventHoursDto[] | undefined,
-            type: ScheduleType
-          ): FormBjjEventHoursDto[] => {
-            return (
-              hours?.map((h) => ({
-                ...h,
-                _formKey: generateTempKey(),
-                dayOfWeek: type === ScheduleType.Recurring ? (h.dayOfWeek ?? null) : null,
-                date: type === ScheduleType.FixedDate ? (h.date ?? null) : null,
-              })) || []
-            )
-          }
-
-          if (initialScheduleData.scheduleType === ScheduleType.FixedDate) {
-            effectiveSchedule = {
-              scheduleType: ScheduleType.FixedDate,
-              startDate: initialScheduleData.startDate || '',
-              endDate: initialScheduleData.endDate,
-              hours: mapToFormHours(initialScheduleData.hours, ScheduleType.FixedDate),
-            } as FormFixedDateSchedule
-          } else {
-            // RecurringSchedule
-            effectiveSchedule = {
-              scheduleType: ScheduleType.Recurring,
-              startDate: initialScheduleData.startDate,
-              endDate: initialScheduleData.endDate,
-              hours: mapToFormHours(initialScheduleData.hours, ScheduleType.Recurring),
-            } as FormRecurringSchedule
-          }
+        // Determine initial schedule type and map hours
+        if (initialData.schedule?.scheduleType === ScheduleType.FixedDate) {
+          const initialScheduleData = initialData.schedule as FixedDateSchedule;
+          effectiveSchedule = {
+            ...initialScheduleData, // Spread existing fixed date fields
+            scheduleType: ScheduleType.FixedDate, // Ensure type literal
+            startDate: initialScheduleData.startDate || '', // Default if missing
+            hours: mapToFormHours(initialScheduleData.hours, ScheduleType.FixedDate),
+          };
+        } else if (initialData.schedule?.scheduleType === ScheduleType.Recurring) {
+          const initialScheduleData = initialData.schedule as RecurringSchedule;
+          effectiveSchedule = {
+            ...initialScheduleData, // Spread existing recurring fields
+            scheduleType: ScheduleType.Recurring, // Ensure type literal
+            hours: mapToFormHours(initialScheduleData.hours, ScheduleType.Recurring),
+          };
         } else {
-          effectiveSchedule = defaultState.schedule
+          // If initialData has no schedule or unknown type, use default
+          effectiveSchedule = defaultState.schedule;
         }
 
+        // Set the form state by merging defaults, initialData (excluding schedule), and the processed schedule
         setFormData({
           ...defaultState,
           ...(initialData as Partial<Omit<EventFormData, 'schedule'>>), // Overlay non-schedule initialData
-          schedule: effectiveSchedule,
-        })
+          schedule: effectiveSchedule, // Set the processed schedule
+        });
+        // --- End of merge logic ---
       } else {
-        setFormData(getDefaultFormData())
+        // Reset to default if no initialData (creating new event)
+        setFormData(getDefaultFormData());
       }
     }
-  }, [initialData, isOpen])
+  }, [initialData, isOpen]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === 'type'
-          ? (Number(value) as BjjEventType)
-          : name === 'city'
-            ? (value as City)
-            : value,
-    }))
-  }
+  // --- Input Handlers ---
 
-  const handlePricingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    const field = name.split('.')[1]
+  const handleBasicInfoChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        // Handle specific type conversions if necessary (e.g., for enums)
+        [name]:
+          name === 'type'
+            ? (Number(value) as BjjEventType) // Assuming type is numeric enum
+            : name === 'city'
+              ? (value as City) // Assuming city is string enum/type
+              : value,
+      }));
+    },
+    []
+  );
 
-    setFormData((prev) => ({
-      ...prev,
-      pricing: {
-        ...prev.pricing,
-        [field]: field === 'type' ? (Number(value) as PricingType) : value ? Number(value) : 0,
-      },
-    }))
-  }
+  const handlePricingChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      const field = name.split('.')[1]; // Get field name like 'type' or 'amount'
 
-  const handleScheduleTypeChange = (newScheduleType: ScheduleType) => {
+      setFormData((prev) => {
+        const newPricing = { ...prev.pricing };
+
+        if (field === 'type') {
+          newPricing.type = Number(value) as PricingType;
+          // Reset amount to 0 if switching to Free
+          if (newPricing.type === PricingType.Free) {
+            newPricing.amount = 0;
+          }
+        } else if (field === 'amount') {
+          // Allow empty string temporarily, parse to number or 0
+          newPricing.amount = value === '' ? 0 : parseFloat(value) || 0;
+        } else {
+          // Handle other potential pricing fields like currency if added
+          (newPricing as any)[field] = value;
+        }
+
+        return { ...prev, pricing: newPricing };
+      });
+    },
+    []
+  );
+
+  const handleScheduleTypeChange = useCallback((newScheduleType: ScheduleType) => {
     setFormData((prev) => {
-      const existingStartDate = (prev.schedule as any).startDate
-      const existingEndDate = (prev.schedule as any).endDate
-      let newScheduleObject: FormEventScheduleUnion
+      // Preserve existing dates if possible when switching types
+      const existingStartDate = (prev.schedule as any).startDate;
+      const existingEndDate = (prev.schedule as any).endDate;
+      let newScheduleObject: FormEventScheduleUnion;
 
       if (newScheduleType === ScheduleType.FixedDate) {
         newScheduleObject = {
           scheduleType: ScheduleType.FixedDate,
           startDate: typeof existingStartDate === 'string' ? existingStartDate : '',
           endDate: existingEndDate,
-          hours: [],
-        } as FormFixedDateSchedule
+          hours: [], // Reset hours when type changes
+        };
       } else {
+        // Recurring
         newScheduleObject = {
           scheduleType: ScheduleType.Recurring,
           startDate: existingStartDate,
           endDate: existingEndDate,
-          hours: [],
-        } as FormRecurringSchedule
+          hours: [], // Reset hours when type changes
+        };
       }
-      return { ...prev, schedule: newScheduleObject }
-    })
-  }
+      return { ...prev, schedule: newScheduleObject };
+    });
+  }, []);
 
-  const handleScheduleDetailsChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [name]: value || undefined,
-      } as FormEventScheduleUnion,
-    }))
-  }
+  const handleScheduleDetailsChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target; // name will be 'startDate' or 'endDate'
+      setFormData((prev) => ({
+        ...prev,
+        schedule: {
+          ...prev.schedule,
+          [name]: value || undefined, // Store as string or undefined if empty
+        } as FormEventScheduleUnion, // Type assertion needed here
+      }));
+    },
+    []
+  );
 
-  const handleHourChange = (
-    index: number,
-    field: keyof BjjEventHoursDto,
-    value: string | number | null
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        hours: prev.schedule.hours.map((hour, i) =>
-          i === index
-            ? {
-                ...hour,
-                [field]: value === '' && (field === 'date' || field === 'dayOfWeek') ? null : value,
-              }
-            : hour
-        ),
-      } as FormEventScheduleUnion,
-    }))
-  }
+  // --- Hour Entry Handlers ---
 
-  const addHourEntry = () => {
+  const handleHourChange = useCallback(
+    (index: number, field: keyof BjjEventHoursDto, value: string | number | null) => {
+      setFormData((prev) => {
+        const updatedHours = prev.schedule.hours.map((hour, i) => {
+          if (i === index) {
+            // Handle specific conversions or null assignment
+            let processedValue = value;
+            if ((field === 'date' || field === 'dayOfWeek') && value === '') {
+              processedValue = null;
+            }
+            return { ...hour, [field]: processedValue };
+          }
+          return hour;
+        });
+
+        return {
+          ...prev,
+          schedule: {
+            ...prev.schedule,
+            hours: updatedHours,
+          } as FormEventScheduleUnion,
+        };
+      });
+    },
+    []
+  );
+
+  const addHourEntry = useCallback(() => {
     setFormData((prev) => {
       const newHour: FormBjjEventHoursDto = {
         _formKey: generateTempKey(),
-        openTime: '09:00',
+        openTime: '09:00', // Sensible defaults
         closeTime: '11:00',
-        dayOfWeek: null,
-        date: null,
-      }
-      const currentSchedule = prev.schedule
+        dayOfWeek: null, // Default to null
+        date: null, // Default to null
+      };
+      const currentSchedule = prev.schedule;
 
+      // Pre-fill date or day based on schedule type
       if (currentSchedule.scheduleType === ScheduleType.FixedDate) {
-        newHour.date = currentSchedule.startDate || ''
+        newHour.date = currentSchedule.startDate || ''; // Use start date if available
       } else {
-        newHour.dayOfWeek = DAYS_OF_WEEK[0]?.value ?? 0
+        // Recurring: default to first day of week maybe? Or require selection.
+        newHour.dayOfWeek = 0; // Default to Sunday/Monday (depending on DAYS_OF_WEEK)
       }
+
       return {
         ...prev,
         schedule: {
           ...currentSchedule,
           hours: [...currentSchedule.hours, newHour],
         } as FormEventScheduleUnion,
-      }
-    })
-  }
+      };
+    });
+  }, []);
 
-  const removeHourEntry = (index: number) => {
+  const removeHourEntry = useCallback((indexToRemove: number) => {
     setFormData((prev) => ({
       ...prev,
       schedule: {
         ...prev.schedule,
-        hours: prev.schedule.hours.filter((_, i) => i !== index),
+        hours: prev.schedule.hours.filter((_, i) => i !== indexToRemove),
       } as FormEventScheduleUnion,
-    }))
-  }
+    }));
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const currentFormSchedule = formData.schedule
+  // --- Form Submission ---
 
-    const finalHours: BjjEventHoursDto[] = currentFormSchedule.hours.map((formHour) => {
-      const { ...dtoHour } = formHour
-      if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
-        return {
-          openTime: dtoHour.openTime,
-          closeTime: dtoHour.closeTime,
-          date: dtoHour.date ?? null,
-          dayOfWeek: null,
-        }
-      } else {
-        return {
-          openTime: dtoHour.openTime,
-          closeTime: dtoHour.closeTime,
-          dayOfWeek: dtoHour.dayOfWeek ?? null,
-          date: null,
-        }
+  const handleFormSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (formData.schedule.hours.length === 0) {
+        // Basic validation feedback - consider a more robust validation library (e.g., Zod, react-hook-form)
+        alert('Please add at least one time slot to the schedule.');
+        return;
       }
-    })
 
-    let finalSchedulePayload: EventScheduleUnion
-    if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
-      finalSchedulePayload = {
-        scheduleType: ScheduleType.FixedDate,
-        startDate: currentFormSchedule.startDate,
-        endDate: currentFormSchedule.endDate,
-        hours: finalHours,
-      } as FixedDateSchedule
-    } else {
-      finalSchedulePayload = {
-        scheduleType: ScheduleType.Recurring,
-        startDate: currentFormSchedule.startDate,
-        endDate: currentFormSchedule.endDate,
-        hours: finalHours,
-      } as RecurringSchedule
-    }
+      // Prepare final payload for submission
+      const currentFormSchedule = formData.schedule;
+      const finalHours = mapFormHoursToDtoHours(
+        currentFormSchedule.hours,
+        currentFormSchedule.scheduleType
+      );
 
-    const payload: EventFormData = {
-      ...(formData as Omit<EventFormData, 'schedule'>),
-      schedule: finalSchedulePayload,
-    }
-    await onSubmit(payload)
-  }
+      let finalSchedulePayload: EventScheduleUnion;
+      if (currentFormSchedule.scheduleType === ScheduleType.FixedDate) {
+        finalSchedulePayload = {
+          scheduleType: ScheduleType.FixedDate,
+          startDate: currentFormSchedule.startDate,
+          endDate: currentFormSchedule.endDate || undefined, // Ensure undefined if empty
+          hours: finalHours,
+        };
+      } else {
+        // Recurring
+        finalSchedulePayload = {
+          scheduleType: ScheduleType.Recurring,
+          startDate: currentFormSchedule.startDate || undefined, // Ensure undefined if empty
+          endDate: currentFormSchedule.endDate || undefined, // Ensure undefined if empty
+          hours: finalHours,
+        };
+      }
 
-  if (!isOpen) return null
+      // Construct the final EventFormData object
+      const payload: EventFormData = {
+        name: formData.name,
+        type: formData.type,
+        city: formData.city,
+        address: formData.address || undefined,
+        pricing: {
+            ...formData.pricing,
+            // Ensure amount is a number, default to 0 if somehow invalid
+            amount: Number(formData.pricing.amount) || 0,
+        },
+        schedule: finalSchedulePayload,
+        contact: formData.contact, // Pass along contact, coordinates, eventUrl if collected
+        coordinates: formData.coordinates,
+        eventUrl: formData.eventUrl || undefined,
+      };
+
+      try {
+        await onSubmit(payload); // Call the passed onSubmit prop
+        // onClose(); // Optionally close modal on success (often handled by parent via isSubmitting change)
+      } catch (error) {
+        console.error('Submission error in form:', error);
+        // Error handling might be done in the parent component's onSubmit handler
+      }
+    },
+    [formData, onSubmit]
+  );
+
+  // --- Render Logic ---
+
+  if (!isOpen) return null;
+
+  const canSubmitForm = formData.schedule.hours.length > 0; // Basic validation check
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-emerald-100 p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">
-            {initialData?.name ? 'Edit Event' : 'Submit New Event'}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/75 p-4 transition-opacity duration-300 ease-in-out animate-fadeIn"
+      data-testid={EventFormTestIds.MODAL_OVERLAY}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-form-title"
+    >
+      <div
+        className="w-full max-w-lg rounded-lg bg-white dark:bg-slate-800 shadow-xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalShow"
+        data-testid={EventFormTestIds.MODAL_CONTENT}
+      >
+        {/* Form Header */}
+        <div className="sticky top-0 z-10 flex justify-between items-center p-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+          <h2
+            id="event-form-title"
+            className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white"
+            data-testid={EventFormTestIds.MODAL_TITLE}
+          >
+            {isEditMode ? 'Edit Event' : 'Submit New Event'}
           </h2>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-700"
+            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-label="Close form"
+            data-testid={EventFormTestIds.CLOSE_BUTTON}
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
+            <CloseIcon className="w-6 h-6" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Event Name */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700">
-              Event Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-              disabled={isSubmitting}
-              required
-            />
-          </div>
-          {/* Event Type */}
-          <div>
-            <label htmlFor="type" className="block text-sm font-medium text-slate-700">
-              Event Type
-            </label>
-            <select
-              id="type"
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-              disabled={isSubmitting}
-              required
-            >
-              {BJJ_EVENT_TYPES.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* City */}
-          <div>
-            <label htmlFor="city" className="block text-sm font-medium text-slate-700">
-              City
-            </label>
-            <select
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-              disabled={isSubmitting}
-              required
-            >
-              {CITIES.map((city) => (
-                <option key={city.value} value={city.value}>
-                  {city.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Address */}
-          <div>
-            <label htmlFor="address" className="block text-sm font-medium text-slate-700">
-              Address
-            </label>
-            <input
-              id="address"
-              type="text"
-              name="address"
-              value={formData.address || ''}
-              onChange={handleInputChange}
-              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-              disabled={isSubmitting}
-            />
-          </div>
-          {/* Pricing Type */}
-          <div>
-            <label htmlFor="pricing.type" className="block text-sm font-medium text-slate-700">
-              Pricing Type
-            </label>
-            <select
-              id="pricing.type"
-              name="pricing.type"
-              value={formData.pricing.type}
-              onChange={handlePricingChange}
-              className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-              disabled={isSubmitting}
-              required
-            >
-              <option value={PricingType.Free}>Free</option>
-              <option value={PricingType.FlatRate}>Flat Rate</option>
-              <option value={PricingType.PerSession}>Per Session</option>
-              <option value={PricingType.PerDay}>Per Day</option>
-            </select>
-          </div>
-          {/* Pricing Amount */}
-          {formData.pricing.type !== PricingType.Free && (
-            <div>
-              <label htmlFor="pricing.amount" className="block text-sm font-medium text-slate-700">
-                Cost (EUR)
-              </label>
-              <input
-                id="pricing.amount"
-                type="number"
-                name="pricing.amount"
-                value={formData.pricing.amount}
-                onChange={handlePricingChange}
-                placeholder="e.g., 20"
-                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                disabled={isSubmitting}
-                min="0"
-                step="any"
-                required
-              />
-            </div>
-          )}
 
-          {/* Schedule Section */}
-          <div className="space-y-4 rounded-md border border-emerald-200 p-4">
-            <h3 className="text-lg font-medium text-slate-900">Schedule Details</h3>
-            {/* Schedule Type Select */}
-            <div>
-              <label
-                htmlFor="scheduleTypeSelect"
-                className="block text-sm font-medium text-slate-700"
-              >
-                Schedule Type
-              </label>
-              <select
-                id="scheduleTypeSelect"
-                name="scheduleType"
-                value={formData.schedule.scheduleType}
-                onChange={(e) => handleScheduleTypeChange(e.target.value as ScheduleType)}
-                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                disabled={isSubmitting}
-                required
-              >
-                <option value={ScheduleType.FixedDate}>
-                  Fixed Date (e.g., Seminar, Competition)
-                </option>
-                <option value={ScheduleType.Recurring}>Recurring (e.g., Regular Class)</option>
-              </select>
-            </div>
-            {/* Start Date */}
-            <div>
-              <label
-                htmlFor="schedule.startDate"
-                className="block text-sm font-medium text-slate-700"
-              >
-                {formData.schedule.scheduleType === ScheduleType.FixedDate
-                  ? 'Event Start Date'
-                  : 'Effective Start Date (Optional)'}
-              </label>
-              <input
-                id="schedule.startDate"
-                type="date"
-                name="startDate"
-                value={formData.schedule.startDate || ''}
-                onChange={handleScheduleDetailsChange}
-                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                disabled={isSubmitting}
-                required={formData.schedule.scheduleType === ScheduleType.FixedDate}
-              />
-            </div>
-            {/* End Date */}
-            <div>
-              <label
-                htmlFor="schedule.endDate"
-                className="block text-sm font-medium text-slate-700"
-              >
-                {formData.schedule.scheduleType === ScheduleType.FixedDate
-                  ? 'Event End Date (Optional)'
-                  : 'Effective End Date (Optional)'}
-              </label>
-              <input
-                id="schedule.endDate"
-                type="date"
-                name="endDate"
-                value={formData.schedule.endDate || ''}
-                onChange={handleScheduleDetailsChange}
-                className="mt-1 w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                disabled={isSubmitting}
-                min={formData.schedule.startDate || undefined}
-              />
-            </div>
+        {/* Form Body */}
+        <form
+          onSubmit={handleFormSubmit}
+          className="space-y-6 p-6"
+          data-testid={EventFormTestIds.FORM_ELEMENT}
+        >
+          <BasicInfoSection
+            name={formData.name}
+            type={formData.type}
+            city={formData.city}
+            address={formData.address}
+            isSubmitting={isSubmitting}
+            onInputChange={handleBasicInfoChange}
+          />
 
-            {/* Hours Configuration */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-slate-700">
-                {formData.schedule.scheduleType === ScheduleType.FixedDate
-                  ? 'Daily Hours'
-                  : 'Weekly Hours'}
-                {formData.schedule.hours.length === 0 && (
-                  <span className="text-xs text-slate-500">
-                    {' '}
-                    (At least one time slot is required)
-                  </span>
-                )}
-              </label>
-              {formData.schedule.hours.map((hourEntry, index) => (
-                <div
-                  key={hourEntry._formKey}
-                  className="grid grid-cols-1 gap-3 rounded-md border border-emerald-200 p-3 sm:grid-cols-[1fr_auto_auto_auto]"
-                >
-                  {/* Date Input for FixedDate */}
-                  {formData.schedule.scheduleType === ScheduleType.FixedDate && (
-                    <div>
-                      <label htmlFor={`hourDate-${index}`} className="sr-only">
-                        Date
-                      </label>
-                      <input
-                        type="date"
-                        id={`hourDate-${index}`}
-                        value={hourEntry.date || ''}
-                        onChange={(e) => handleHourChange(index, 'date', e.target.value)}
-                        className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                        disabled={isSubmitting}
-                        required
-                        min={(formData.schedule as FixedDateSchedule).startDate || undefined}
-                        max={(formData.schedule as FixedDateSchedule).endDate || undefined}
-                      />
-                    </div>
-                  )}
-                  {/* DayOfWeek Select for Recurring */}
-                  {formData.schedule.scheduleType === ScheduleType.Recurring && (
-                    <div>
-                      <label htmlFor={`dayOfWeek-${index}`} className="sr-only">
-                        Day of Week
-                      </label>
-                      <select
-                        id={`dayOfWeek-${index}`}
-                        value={hourEntry.dayOfWeek ?? ''}
-                        onChange={(e) =>
-                          handleHourChange(
-                            index,
-                            'dayOfWeek',
-                            e.target.value === '' ? null : Number(e.target.value)
-                          )
-                        }
-                        className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                        disabled={isSubmitting}
-                        required
-                      >
-                        <option value="" disabled>
-                          Select Day
-                        </option>
-                        {DAYS_OF_WEEK.map((day) => (
-                          <option key={day.value} value={day.value}>
-                            {day.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  {/* Open Time */}
-                  <div>
-                    <label htmlFor={`openTime-${index}`} className="sr-only">
-                      Open Time
-                    </label>
-                    <input
-                      type="time"
-                      id={`openTime-${index}`}
-                      value={hourEntry.openTime}
-                      onChange={(e) => handleHourChange(index, 'openTime', e.target.value)}
-                      className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                      disabled={isSubmitting}
-                      required
-                    />
-                  </div>
-                  {/* Close Time */}
-                  <div>
-                    <label htmlFor={`closeTime-${index}`} className="sr-only">
-                      Close Time
-                    </label>
-                    <input
-                      type="time"
-                      id={`closeTime-${index}`}
-                      value={hourEntry.closeTime}
-                      onChange={(e) => handleHourChange(index, 'closeTime', e.target.value)}
-                      className="w-full rounded-md border-emerald-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
-                      disabled={isSubmitting}
-                      required
-                      min={hourEntry.openTime || undefined}
-                    />
-                  </div>
-                  {/* Remove Button */}
-                  <button
-                    type="button"
-                    onClick={() => removeHourEntry(index)}
-                    className="flex items-center justify-center rounded-md bg-orange-50 p-2 text-orange-500 hover:bg-orange-100"
-                    aria-label="Remove time slot"
-                    disabled={isSubmitting}
-                  >
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-              {formData.schedule.hours.length === 0 && (
-                <p className="text-sm text-slate-500">At least one time slot is required.</p>
-              )}
-              {/* Add Time Slot Button */}
-              <button
-                type="button"
-                onClick={addHourEntry}
-                className="mt-2 flex items-center gap-2 rounded-md border border-dashed border-emerald-400 px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
-                disabled={isSubmitting}
-              >
-                <svg
-                  className="h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                </svg>
-                Add Time Slot
-              </button>
-            </div>
-          </div>
+          <PricingSection
+            pricing={formData.pricing}
+            isSubmitting={isSubmitting}
+            onPricingChange={handlePricingChange}
+          />
 
-          {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="rounded-md bg-gradient-to-r from-emerald-700 to-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
-              disabled={isSubmitting || formData.schedule.hours.length === 0}
-            >
-              {isSubmitting ? 'Submitting...' : initialData?.name ? 'Save Changes' : 'Submit Event'}
-            </button>
-          </div>
+          <ScheduleSection
+            schedule={formData.schedule}
+            isSubmitting={isSubmitting}
+            onScheduleTypeChange={handleScheduleTypeChange}
+            onScheduleDetailsChange={handleScheduleDetailsChange}
+            onHourChange={handleHourChange}
+            onAddHour={addHourEntry}
+            onRemoveHour={removeHourEntry}
+          />
+
+          {/* Optional: Add ContactSection, UrlSection etc. here */}
+
+          <FormActions
+            onClose={onClose}
+            isSubmitting={isSubmitting}
+            isEditMode={isEditMode}
+            canSubmit={canSubmitForm}
+          />
         </form>
       </div>
+      {/* Basic CSS for modal animation */}
+      <style>{`
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes modalShow { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        .animate-modalShow { animation: modalShow 0.3s ease-out 0.1s forwards; } /* Delay modal animation slightly */
+      `}</style>
     </div>
-  )
-}
+  );
+};
