@@ -3,7 +3,7 @@ import React from 'react';
 
 interface ScheduleSectionProps {
   title: string;
-  icon: React.ReactNode; 
+  icon: React.ReactNode; // Expecting icon component, e.g., <CalendarDaysIcon />
   children: React.ReactNode;
   'data-testid'?: string;
 }
@@ -15,27 +15,25 @@ export const ScheduleSection: React.FC<ScheduleSectionProps> = ({
   'data-testid': dataTestId,
 }) => (
   <div
-    className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/60" // Subtle bg for grouping
+    className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/60" // p-4 still applies
     data-testid={dataTestId}
   >
-    <div className="mb-3 flex items-center gap-x-2.5"> {/* Consistent gap */}
-      <span className="h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400" aria-hidden="true"> {/* Icon color set here */}
-        {icon} {/* Pass the icon component itself, e.g., <CalendarDaysIcon /> */}
+    <div className="mb-3 flex items-center gap-x-2">
+      <span className="h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400" aria-hidden="true">
+        {icon}
       </span>
       <h3
-        className="text-base font-semibold text-slate-800 dark:text-slate-100" // Slightly smaller title if it's within a card
+        className="text-base font-semibold text-slate-800 dark:text-slate-100"
         data-testid={dataTestId ? `${dataTestId}-title` : undefined}
       >
         {title}
       </h3>
     </div>
-    {/* Content area: Children will be rendered here directly */}
-    {/* The pl for children will be handled by individual child components if needed or globally for text */}
-    <div className="space-y-2 pl-[calc(theme(spacing.5)_+_theme(spacing[2.5]))]"> 
-      {/* Indent content to align with title text: icon width (w-5 = 1.25rem) + gap-x-2.5 (0.625rem) = 1.875rem. This is pl-7.5, so pl-7 or pl-8.
-          Let's use h-5/w-5 (1.25rem) and gap-x-2 (0.5rem) -> 1.75rem (pl-7) for precise alignment.
-          Adjusting gap to gap-x-2 above. Icon h-5 w-5.
-      */}
+    {/* Reduced indentation from pl-7 to pl-6 */}
+    <div className="space-y-2 pl-6"> {/* w-5 icon (1.25rem) + gap-x-2 (0.5rem) = 1.75rem. pl-6 (1.5rem) means content starts slightly before title text ends.
+                                       This is a trade-off. For perfect alignment with text, it would be pl-7.
+                                       Let's prioritize width for content as requested.
+                                    */}
       {children}
     </div>
   </div>

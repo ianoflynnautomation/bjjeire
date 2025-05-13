@@ -25,11 +25,8 @@ public class BjjEvent : BaseEntity
     [BsonElement("socialMedia")]
     public SocialMedia SocialMedia { get; set; } = new();
 
-    [BsonElement("region")]
-    public string Region { get; set; } = string.Empty;
-
-    [BsonElement("city")]
-    public string City { get; set; } = string.Empty;
+    [BsonElement("county")]
+    public string County { get; set; } = string.Empty;
 
     [BsonElement("location")]
     public Location Location { get; set; } = new();

@@ -2,10 +2,10 @@
 import React from 'react';
 import { ScheduleType, FixedDateSchedule } from '../../../types/event';
 import { formatDate } from '../../../utils/dateUtils';
-import { CalendarDaysIcon, ClockIcon as SolidClockIcon } from '@heroicons/react/20/solid'; // Matched to v20
+import { CalendarDaysIcon, ClockIcon as SolidClockIcon } from '@heroicons/react/20/solid';
 import { ScheduleSection } from './ScheduleSection';
 import { HoursList } from './HoursList';
-import { EmptyScheduleMessage } from './EmptyScheduleMessage'; // For consistency in "no timings"
+import { EmptyScheduleMessage } from './EmptyScheduleMessage';
 
 interface FixedDateScheduleViewProps {
   schedule: FixedDateSchedule;
@@ -20,7 +20,7 @@ export const FixedDateScheduleView: React.FC<FixedDateScheduleViewProps> = ({
 
   let dateString = 'Date to be announced';
   if (schedule.startDate) {
-    dateString = formatDate(schedule.startDate);
+    dateString = formatDate(schedule.startDate); // Ensure formatDate doesn't produce overly verbose dates
     if (schedule.endDate && schedule.endDate !== schedule.startDate) {
       dateString += ` - ${formatDate(schedule.endDate)}`;
     }
@@ -29,10 +29,10 @@ export const FixedDateScheduleView: React.FC<FixedDateScheduleViewProps> = ({
   return (
     <ScheduleSection
       title="Event Dates & Times"
-      icon={<CalendarDaysIcon />} // Pass component, color handled by ScheduleSection
+      icon={<CalendarDaysIcon />}
       data-testid={baseTestId}
     >
-      {/* Date Information - will be indented by pl-7 from ScheduleSection */}
+      {/* This paragraph now has more width due to pl-6 in ScheduleSection */}
       <p
         className="text-sm font-medium text-slate-700 dark:text-slate-200"
         data-testid={`${baseTestId}-dates`}
@@ -40,9 +40,8 @@ export const FixedDateScheduleView: React.FC<FixedDateScheduleViewProps> = ({
         {dateString}
       </p>
 
-      {/* Time Information / Fallback Message */}
       {hasHours ? (
-        <div className="mt-1"> {/* Add a little space above the HoursList */}
+        <div className="mt-1">
           <HoursList
             hours={schedule.hours}
             scheduleType={ScheduleType.FixedDate}
@@ -50,23 +49,11 @@ export const FixedDateScheduleView: React.FC<FixedDateScheduleViewProps> = ({
           />
         </div>
       ) : (
-        // Using EmptyScheduleMessage for consistency, or a custom div like before
         <EmptyScheduleMessage
             message="Timings not specified. Check event page for details."
             icon={<SolidClockIcon className="h-5 w-5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />}
             data-testid={`${baseTestId}-no-timings-message`}
         />
-        // Original alternative:
-        // <div
-        //   className="mt-2 flex items-center gap-x-2 text-sm text-slate-500 dark:text-slate-400"
-        //   data-testid={`${baseTestId}-no-timings-message`}
-        // >
-        //   <SolidClockIcon
-        //     className="h-4 w-4 flex-shrink-0"
-        //     aria-hidden="true"
-        //   />
-        //   <span>Timings not specified. Check event page for details.</span>
-        // </div>
       )}
     </ScheduleSection>
   );

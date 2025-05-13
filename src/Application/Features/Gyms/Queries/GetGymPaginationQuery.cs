@@ -4,7 +4,7 @@ namespace BjjWorld.Application.Features.Gyms.Queries;
 public record GetGymPaginationQuery : IRequest<GetGymPaginatedResponse>
 {
     private const int DefaultPage = 1;
-    private const int DefaultPageSize = 10;
+    private const int DefaultPageSize = 12;
     private const int MaxPageSize = 100;
 
     private int _page = DefaultPage;
@@ -21,5 +21,5 @@ public record GetGymPaginationQuery : IRequest<GetGymPaginatedResponse>
         set => _pageSize = (value > 0 && value <= MaxPageSize) ? value : DefaultPageSize;
     }
 
-    public string? City { get; set; }
+    public string? County { get; set; }
 }

@@ -10,21 +10,26 @@ public class Gym : BaseEntity
     public string Name { get; set; } = string.Empty;
     [BsonElement("description")]
     public string? Description { get; set; } = string.Empty;
-    [BsonElement("city")]
-    public string City { get; set; } = string.Empty;
-    [BsonElement("address")]
-    public string Address { get; set; } = string.Empty;
-    [BsonElement("isActive")]
-    public bool IsActive { get; set; } = true;
-    [BsonElement("statusReason")]
-    public string? StatusReason { get; set; }
+    [BsonElement("status")]
+    public GymStatus Status {get; set;}
+    [BsonElement("county")]
+    public string County { get; set; } = string.Empty;
+    [BsonElement("affiliation")]
+    public Affiliation? Affiliation { get; set; } = new();
+    [BsonElement("trialOffer")]
+    public TrialOffer TrialOffer { get; set; } = new();
+    [BsonElement("location")]
+    public Location Location { get; set; } = new();
+    [BsonElement("socialMedia")]
+    public SocialMedia SocialMedia { get; set; } = new();
+
     [BsonElement("offeredClasses")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public List<ClassCategory> OfferedClasses { get; set; } = [];
-    [BsonElement("coordinates")]
-    public GeoCoordinates Coordinates { get; set; } = new();
-    // [BsonElement("contact")]
-    // public Contact Contact { get; set; } = new();
+    [BsonElement("website")]
+    public string? Website { get; set; }
+    [BsonElement("timetableUrl")]
+    public string? TimetableUrl { get; set; }
     [BsonElement("imageUrl")]
     public string? ImageUrl { get; set; }
+
 }

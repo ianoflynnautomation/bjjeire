@@ -1,6 +1,6 @@
 import { BjjEventType, PricingType, ScheduleType, BjjEventHoursDto, EventStatus } from '../../../types/event';
-import { City } from '../../../constants/cities';
-import { CITIES } from '../../../constants/cities';
+import { COUNTIES } from '../../../constants/counties';
+import { County } from '../../../constants/counties';
 import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes';
 import { FormDataTypeForState, FormBjjEventHoursDto, FormFixedDateSchedule } from './eventForm.types';
 
@@ -23,8 +23,7 @@ export const getDefaultFormData = (): FormDataTypeForState => ({
     x: '',
     youTube: '',
   },
-  region: '',
-  city: CITIES[0]?.value ?? City.Dublin,
+  county: COUNTIES[0]?.value ?? County.Dublin,
   location: {
     address: '',
     venue: '',

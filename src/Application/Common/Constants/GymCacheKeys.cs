@@ -9,7 +9,7 @@ public static partial class CacheKey
         
         public static string GYM_PATTERN_KEY => "Gym.";
         public static string GYM_BY_ID_KEY => "Gym.id-{0}";
-        public static string GYM_ALL => "Gym.all-{0}-{1}-{2}-{3}";
+        public static string GYM_ALL => "Gym.all-{0}-{1}-{2}";
 
 //     private const string BjjEventPrefix = "BjjEvent";
 //     public static string BjjEventPattern => $"{BjjEventPrefix}:*";

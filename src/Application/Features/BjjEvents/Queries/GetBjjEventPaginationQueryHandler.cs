@@ -22,15 +22,15 @@ ICacheBase cacheBase, ILinkService linkService)
 
     public async Task<GetBjjEventPaginatedResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.City, request.Type);
+        var cacheKey = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.County, request.Type);
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-            if (!string.IsNullOrWhiteSpace(request.City))
+            if (!string.IsNullOrWhiteSpace(request.County))
             {
-                query = query.Where(x => x.City.Equals(request.City, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
             }
 
             if (request.Type.HasValue)
@@ -45,9 +45,9 @@ ICacheBase cacheBase, ILinkService linkService)
                 .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
 
             var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.City))
+            if (!string.IsNullOrWhiteSpace(request.County))
             {
-                additionalRouteValues["city"] = request.City;
+                additionalRouteValues["county"] = request.County;
             }
             if (request.Type.HasValue)
             {

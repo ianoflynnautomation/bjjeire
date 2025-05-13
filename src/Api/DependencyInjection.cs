@@ -21,8 +21,7 @@ public static class DependencyInjection
             .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // options.JsonSerializerOptions.Converters.Add(new ScheduleTypeConverter());
-        // options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
         builder.ConfigureCors();
         builder.Services.AddEndpointsApiExplorer();

@@ -1,6 +1,6 @@
 import React from 'react';
-import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config';
-import { SocialMediaDto } from '../../../types/event';
+import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config'; // Assuming config is in the same folder
+import { SocialMediaDto } from '../../../types/gyms'; // Or a common DTO path
 
 interface SocialLinkProps {
   platform: KnownPlatform;
@@ -11,7 +11,7 @@ interface SocialLinkProps {
 const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': dataTestId }) => {
   const config = platformConfig[platform];
   if (!config) {
-    console.warn(`No configuration found for social media platform: ${platform}`);
+    // console.warn(`No configuration found for social media platform: ${platform}`); // Keep if useful
     return null;
   }
   const { IconComponent, label, hoverTextColorClass } = config;
@@ -21,13 +21,13 @@ const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': d
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`View event on ${label}`}
+      aria-label={`View on ${label}`}
       title={`View on ${label}`}
       data-testid={dataTestId}
       className={`
         group rounded-full p-1.5 transition-all duration-200 ease-in-out
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
-        focus-visible:ring-indigo-500 focus-visible:ring-offset-white
+        focus-visible:ring-emerald-500 focus-visible:ring-offset-white
         dark:focus-visible:ring-offset-slate-900
       `}
     >
@@ -43,15 +43,19 @@ const SocialLink: React.FC<SocialLinkProps> = ({ platform, url, 'data-testid': d
   );
 };
 
-interface EventSocialMediaProps {
-  socialMedia: SocialMediaDto;
+interface SocialMediaLinksProps {
+  socialMedia?: SocialMediaDto; // Make socialMedia prop optional
   'data-testid'?: string;
 }
 
-export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
+export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   socialMedia,
-  'data-testid': baseTestId = 'event-social-media',
+  'data-testid': baseTestId = 'social-media-links',
 }) => {
+  if (!socialMedia) {
+    return null;
+  }
+
   const validSocialLinks = Object.entries(socialMedia)
     .filter(([platform, url]) => {
       return isKnownPlatform(platform) && url && typeof url === 'string' && url.trim() !== '';
@@ -67,7 +71,7 @@ export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
 
   return (
     <div
-      className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2"
+      className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1" // Adjusted gap
       data-testid={baseTestId}
     >
       {validSocialLinks.map(({ platform, url }) => (
@@ -75,7 +79,7 @@ export const EventSocialMedia: React.FC<EventSocialMediaProps> = ({
           key={platform}
           platform={platform}
           url={url}
-          data-testid={`${baseTestId}-link-${platform.toLowerCase()}`}
+          data-testid={`<span class="math-inline">{baseTestId}-link-</span>{platform.toLowerCase()}`}
         />
       ))}
     </div>
