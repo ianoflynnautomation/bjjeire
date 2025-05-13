@@ -19,17 +19,14 @@ public class PricingModelDtoValidator : AbstractValidator<BjjEventPricingModelDt
             .ApplyPositiveOrNullValidator("Duration Days", "PerSession or PerDay pricing")
             .When(x => x.Type == PricingType.PerSession || x.Type == PricingType.PerDay);
 
-        When(x => x.Type == PricingType.FlatRate, () =>
-        {
-            RuleFor(x => x.DurationDays)
+        When(x => x.Type == PricingType.FlatRate, () => RuleFor(x => x.DurationDays)
                 .NotNull()
                     .WithName("Duration Days")
                     .WithMessage(ValidationMessages.ConditionalRequired.Message("Duration days", "FlatRate pricing type"))
                     .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode)
                 .GreaterThan(0)
                     .WithMessage(ValidationMessages.GreaterThan.Message("Duration days", "zero"))
-                    .WithErrorCode(ValidationMessages.GreaterThan.ErrorCode);
-        });
+                    .WithErrorCode(ValidationMessages.GreaterThan.ErrorCode));
 
         RuleFor(x => x.Currency)
             .ApplyRequiredValidator("Currency")

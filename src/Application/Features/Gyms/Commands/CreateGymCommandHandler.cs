@@ -1,5 +1,3 @@
-
-
 using BjjWorld.Application.Common.Interfaces;
 using BjjWorld.Application.Features.Gyms.DTOs;
 using BjjWorld.Domain.Entities.Gyms;

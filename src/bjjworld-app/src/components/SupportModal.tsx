@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import clsx from 'clsx';
+import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg';
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -7,21 +8,7 @@ interface SupportModalProps {
   'data-testid'?: string;
 }
 
-const BitcoinLogoIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg
-    className={className || 'w-8 h-8'}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="11.5" fill="#F7931A" stroke="#E67E00" strokeWidth="1" />
-    <path
-      d="M17.0921 10.1344C17.0921 6.80063 14.4006 5.40063 11.4006 5.40063H7.20063V18.6006H11.4006C14.4006 18.6006 17.0921 17.2006 17.0921 13.8669C17.0921 12.2672 16.2006 10.9344 17.0921 10.1344ZM11.4006 7.20063C13.2006 7.20063 14.4006 7.80063 14.4006 9.60063C14.4006 11.4006 13.2006 12.0006 11.4006 12.0006H9.60063V7.20063H11.4006ZM11.4006 16.8006H9.60063V12.0006H11.4006C13.2006 12.0006 14.4006 12.6006 14.4006 14.4006C14.4006 16.2006 13.2006 16.8006 11.4006 16.8006Z"
-      fill="white"
-    />
-  </svg>
-);
+// The inline BitcoinLogoIcon definition will be removed.
 
 const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
@@ -42,23 +29,19 @@ const SupportModal: React.FC<SupportModalProps> = ({
   'data-testid': baseTestId = 'support-modal',
 }) => {
   const [copied, setCopied] = useState(false);
-  // It's good practice to keep sensitive or configurable data like addresses in a more managed place,
-  // but for a simple component, this is acceptable.
-  const bitcoinAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+  const bitcoinAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'; // Example address
 
   const copyToClipboard = useCallback(async () => {
     if (!navigator.clipboard) {
       console.warn('Clipboard API not available.');
-      // Optionally, implement a fallback for older browsers or non-secure contexts
       return;
     }
     try {
       await navigator.clipboard.writeText(bitcoinAddress);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000); 
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy text: ', err);
-      // Optionally, provide user feedback about the copy failure
     }
   }, [bitcoinAddress]);
 
@@ -66,35 +49,36 @@ const SupportModal: React.FC<SupportModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-60 dark:bg-opacity-75 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-in-out dark:bg-opacity-75"
       data-testid={`${baseTestId}-overlay`}
-      role="dialog" // For accessibility
-      aria-modal="true" // For accessibility
-      aria-labelledby={`${baseTestId}-title`} // For accessibility
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={`${baseTestId}-title`}
     >
       <div
-        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full p-6 sm:p-8 transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-modalShow"
+        className="w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-modalShow dark:bg-slate-800 sm:p-8"
         data-testid={`${baseTestId}-content`}
       >
         {/* Modal Header */}
-        <header className="flex justify-between items-center mb-6">
+        <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BitcoinLogoIcon className="w-8 h-8" />
+            {/* Use the imported BitcoinIcon from the SVG file */}
+            <BitcoinIcon className="h-8 w-8" /> {/* You can adjust size here if needed */}
             <h2
-              id={`${baseTestId}-title`} // For aria-labelledby
+              id={`${baseTestId}-title`}
               className="text-2xl font-bold text-slate-900 dark:text-white"
               data-testid={`${baseTestId}-main-title`}
             >
-              Support BJJ World
+              Support Bjj Éire
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800 transition-colors"
+            className="rounded-full p-1 text-slate-500 transition-colors hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-800"
             aria-label="Close support modal"
             data-testid={`${baseTestId}-close-button`}
           >
-            <CloseIcon className="w-6 h-6" />
+            <CloseIcon className="h-6 w-6" />
           </button>
         </header>
 
@@ -107,13 +91,13 @@ const SupportModal: React.FC<SupportModalProps> = ({
 
           {/* Bitcoin Address Section */}
           <div
-            className="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg shadow-inner"
+            className="rounded-lg bg-slate-50 p-4 shadow-inner dark:bg-slate-700"
             data-testid={`${baseTestId}-address-section`}
           >
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Bitcoin Address:</p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">Bitcoin Address:</p>
+            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
               <code
-                className="flex-1 bg-white dark:bg-slate-800 p-3 rounded border border-slate-200 dark:border-slate-600 text-sm break-all text-slate-700 dark:text-slate-200"
+                className="flex-1 rounded border border-slate-200 bg-white p-3 text-sm text-slate-700 break-all dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
                 data-testid={`${baseTestId}-btc-address`}
               >
                 {bitcoinAddress}
@@ -121,10 +105,10 @@ const SupportModal: React.FC<SupportModalProps> = ({
               <button
                 onClick={copyToClipboard}
                 className={clsx(
-                  'px-4 py-2.5 text-sm font-semibold text-white rounded-md transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-700 shadow-sm w-full sm:w-auto',
+                  'w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-700 sm:w-auto',
                   copied
-                    ? 'bg-emerald-600 dark:bg-emerald-500 focus-visible:ring-emerald-500'
-                    : 'bg-[#F7931A] hover:bg-[#E67E00] dark:bg-orange-500 dark:hover:bg-orange-600 focus-visible:ring-orange-500 border border-orange-600 dark:border-orange-700'
+                    ? 'bg-emerald-600 focus-visible:ring-emerald-500 dark:bg-emerald-500'
+                    : 'border border-orange-600 bg-[#F7931A] hover:bg-[#E67E00] focus-visible:ring-orange-500 dark:border-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600'
                 )}
                 data-testid={`${baseTestId}-copy-button`}
               >
@@ -133,7 +117,7 @@ const SupportModal: React.FC<SupportModalProps> = ({
             </div>
             {copied && (
               <p
-                className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 text-center sm:text-right"
+                className="mt-2 text-center text-xs text-emerald-600 dark:text-emerald-400 sm:text-right"
                 data-testid={`${baseTestId}-copied-confirmation`}
               >
                 Address copied to clipboard!
@@ -143,12 +127,12 @@ const SupportModal: React.FC<SupportModalProps> = ({
 
           {/* Warning Section */}
           <div
-            className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 p-4 rounded-lg"
+            className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30"
             data-testid={`${baseTestId}-warning-message`}
           >
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 flex items-start gap-2">
+            <p className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
               <svg // Warning Icon
-                className="w-5 h-5 flex-shrink-0 text-yellow-500 dark:text-yellow-400"
+                className="h-5 w-5 flex-shrink-0 text-yellow-500 dark:text-yellow-400"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"

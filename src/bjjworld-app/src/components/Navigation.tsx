@@ -1,38 +1,8 @@
-import { Link, NavLink } from 'react-router-dom';
-import { useState } from 'react';
-import SupportModal from './SupportModal';
-import clsx from 'clsx';
-
-interface NavItem {
-  to: string;
-  label: string;
-}
-
-const navItems: NavItem[] = [
-  { to: '/events', label: 'Events' },
-  { to: '/gyms', label: 'Gyms' },
-  { to: '/about', label: 'About' },
-];
-
-const BitcoinIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className || 'w-5 h-5'}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <path
-      d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z"
-      fill="currentColor"
-      opacity="0.3"
-    />
-    <path
-      d="M17.0921 10.1344C17.0921 6.80063 14.4006 5.40063 11.4006 5.40063H7.20063V18.6006H11.4006C14.4006 18.6006 17.0921 17.2006 17.0921 13.8669C17.0921 12.2672 16.2006 10.9344 17.0921 10.1344ZM11.4006 7.20063C13.2006 7.20063 14.4006 7.80063 14.4006 9.60063C14.4006 11.4006 13.2006 12.0006 11.4006 12.0006H9.60063V7.20063H11.4006ZM11.4006 16.8006H9.60063V12.0006H11.4006C13.2006 12.0006 14.4006 12.6006 14.4006 14.4006C14.4006 16.2006 13.2006 16.8006 11.4006 16.8006Z"
-      fill="#F59E0B"
-    />
-  </svg>
-);
+import { Link, NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import SupportModal from './SupportModal'
+import clsx from 'clsx'
+import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg'
 
 const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
@@ -50,18 +20,30 @@ const HamburgerIcon = ({ className }: { className?: string }) => (
       d="M4 6h16M4 12h16m-7 6h7"
     ></path>
   </svg>
-);
+)
 // --- End of Icons ---
 
+interface NavItem {
+  to: string
+  label: string
+}
+
+const navItems: NavItem[] = [
+  { to: '/events', label: 'Events' },
+  { to: '/gyms', label: 'Gyms' },
+  { to: '/about', label: 'About' },
+]
+
 const Navigation = () => {
-  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const activeClassName = 'border-b-2 border-emerald-500 text-slate-800 dark:text-white dark:border-emerald-400';
+  const activeClassName =
+    'border-b-2 border-emerald-500 text-slate-800 dark:text-white dark:border-emerald-400'
   const inactiveClassName =
-    'border-b-2 border-transparent text-emerald-700 hover:border-emerald-300 hover:text-emerald-600 dark:text-emerald-300 dark:hover:border-emerald-400 dark:hover:text-emerald-200';
+    'border-b-2 border-transparent text-emerald-700 hover:border-emerald-300 hover:text-emerald-600 dark:text-emerald-300 dark:hover:border-emerald-400 dark:hover:text-emerald-200'
 
-  const baseTestId = 'main-navigation';
+  const baseTestId = 'main-navigation'
 
   return (
     <>
@@ -69,14 +51,14 @@ const Navigation = () => {
         className="bg-emerald-50 dark:bg-slate-800 shadow-md sticky top-0 z-40"
         data-testid={baseTestId}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 justify-between">
             {/* Logo and Desktop Nav Links */}
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
+              <div className="flex flex-shrink-0 items-center">
                 <Link
                   to="/"
-                  className="text-2xl font-bold text-slate-800 hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400 transition-colors"
+                  className="text-2xl font-bold text-slate-800 transition-colors hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400"
                   data-testid={`${baseTestId}-logo-link`}
                 >
                   BJJ Éire
@@ -85,7 +67,7 @@ const Navigation = () => {
               {/* Desktop Nav Links Container */}
               <div
                 className="hidden sm:ml-6 sm:flex sm:space-x-8"
-                data-testid={`${baseTestId}-desktop-links`} 
+                data-testid={`${baseTestId}-desktop-links`}
               >
                 {navItems.map((item) => (
                   <NavLink
@@ -110,18 +92,21 @@ const Navigation = () => {
               {/* Support Button */}
               <button
                 onClick={() => setIsSupportModalOpen(true)}
-                className="ml-4 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-md text-sm font-medium hover:from-emerald-700 hover:to-emerald-800 transition-colors flex items-center gap-2 border border-emerald-600 shadow-sm dark:border-emerald-700 dark:from-emerald-500 dark:to-emerald-600 dark:hover:from-emerald-600 dark:hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
-                data-testid={`${baseTestId}-support-button`} // Test ID for support button
+                // Increased padding, gap, and text size for better balance with a larger icon
+                className="ml-4 flex items-center gap-3 rounded-md border border-emerald-600 bg-gradient-to-r from-emerald-600 to-emerald-700 px-5 py-3 text-base font-medium text-white shadow-sm transition-colors hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-700 dark:from-emerald-500 dark:to-emerald-600 dark:hover:from-emerald-600 dark:hover:to-emerald-700 dark:focus:ring-offset-slate-800"
+                data-testid={`${baseTestId}-support-button`}
               >
-                <BitcoinIcon className="w-5 h-5" />
-                Support Project
+                {/* Increased icon size */}
+                <BitcoinIcon className="h-6 w-6" aria-hidden="true" />
+                {/* Shortened text for better balance */}
+                Support
               </button>
 
               {/* Mobile Menu Button */}
-              <div className="ml-2 sm:hidden flex items-center">
+              <div className="ml-2 flex items-center sm:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center p-2 rounded-md text-emerald-700 hover:text-emerald-600 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:text-emerald-300 dark:hover:text-emerald-200 dark:hover:bg-slate-700 dark:focus:ring-emerald-400"
+                  className="inline-flex items-center justify-center rounded-md p-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:text-emerald-300 dark:hover:bg-slate-700 dark:hover:text-emerald-200 dark:focus:ring-emerald-400"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
                   data-testid={`${baseTestId}-mobile-menu-toggle`}
@@ -138,21 +123,21 @@ const Navigation = () => {
         {isMobileMenuOpen && (
           <div
             id="mobile-menu-panel"
-            className="sm:hidden bg-white dark:bg-slate-800 shadow-lg absolute w-full z-30"
+            className="absolute z-30 w-full bg-white shadow-lg dark:bg-slate-800 sm:hidden"
             data-testid={`${baseTestId}-mobile-menu-panel`}
           >
-            <div className="pt-2 pb-3 space-y-1 px-2">
+            <div className="space-y-1 px-2 pb-3 pt-2">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => setIsMobileMenuOpen(false)} // Close menu on item click
                   className={({ isActive }) =>
                     clsx(
-                      'block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors',
+                      'block rounded-md border-l-4 px-3 py-2 text-base font-medium transition-colors', // Added rounded-md for consistency
                       isActive
-                        ? 'bg-emerald-100 border-emerald-500 text-emerald-700 dark:bg-emerald-900/50 dark:border-emerald-400 dark:text-emerald-200'
-                        : 'border-transparent text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 dark:text-emerald-300 dark:hover:bg-slate-700 dark:hover:border-emerald-400 dark:hover:text-emerald-200'
+                        ? 'border-emerald-500 bg-emerald-100 text-emerald-700 dark:border-emerald-400 dark:bg-emerald-900/50 dark:text-emerald-200'
+                        : 'border-transparent text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600 dark:text-emerald-300 dark:hover:border-emerald-400 dark:hover:bg-slate-700 dark:hover:text-emerald-200'
                     )
                   }
                   data-testid={`${baseTestId}-mobile-link-${item.label.toLowerCase()}`}
@@ -165,14 +150,9 @@ const Navigation = () => {
         )}
       </nav>
       {/* Support Modal */}
-      <SupportModal
-        isOpen={isSupportModalOpen}
-        onClose={() => setIsSupportModalOpen(false)}
-        // Pass a test ID to the modal if it accepts one
-        // data-testid="support-modal"
-      />
+      <SupportModal isOpen={isSupportModalOpen} onClose={() => setIsSupportModalOpen(false)} />
     </>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation
