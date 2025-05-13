@@ -1,17 +1,15 @@
+// src/features/events/components/EventCard/EventDetails.tsx
 import React, { memo, useMemo } from 'react';
 import { MapPinIcon, CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/20/solid';
-import { BjjEventDto, PricingType, OrganizerDto } from '../../../types/event';
-import { getGoogleMapsUrl } from '../../../utils/mapUtils';
-import { calculateEventPrice } from '../../../utils/priceCalculator';
-import { CalculatedPrice } from '../../../utils/calculateEventPrice';
-import { EventSocialMedia } from '../EventSocialMedia/EventSocialMedia';
-import { DetailItem } from './DetailItem';
+import { BjjEventDto, PricingType, OrganizerDto } from '../../../types/event'; // Adjusted path
+import { calculateEventPrice } from '../../../utils/priceCalculator'; // Adjusted path
+import { CalculatedPrice } from '../../../utils/calculateEventPrice'; // Adjusted path assuming it's co-located or in utils
+import { SocialMediaLinks } from '../../../components/common/SocialLinks/SocialLinks';
+import { DetailItem } from './DetailItem'; // Assuming DetailItem is in the same folder
+import { getGoogleMapsUrl } from '../../../utils/mapUtils'; // Adjusted path
+import { ensureExternalUrlScheme } from '../../../utils/formattingUtils'; // Assuming this util exists
 
-interface EventDetailsProps {
-  event: BjjEventDto;
-  'data-testid'?: string;
-}
-
+// ... (formatPricingDisplay and formatOrganiserDisplay remain the same) ...
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
   originalPricingType?: PricingType
@@ -20,9 +18,10 @@ const formatPricingDisplay = (
     return 'Free';
   }
 
-  if (calculatedPrice.total === 0) {
+  if (calculatedPrice.total === 0 && originalPricingType === undefined) { // If type is undefined and total is 0
     return 'Pricing details unavailable';
   }
+
 
   const formattedTotal = calculatedPrice.total.toFixed(2);
   const currencyDisplay = calculatedPrice.currency || '';
@@ -43,25 +42,35 @@ const formatPricingDisplay = (
   return `${currencyDisplay ? currencyDisplay + ' ' : ''}${formattedTotal}${unitText ? ' ' + unitText : ''}`.trim();
 };
 
-const formatOrganiserDisplay = (organiser: OrganizerDto): string => {
+const formatOrganiserDisplay = (organiser?: OrganizerDto): string | undefined => {
+  if (!organiser || (!organiser.name && !organiser.website)) return undefined;
   const url = organiser.website;
-  try {
-    const parsedUrl = new URL(url);
-    // Remove 'www.' and path/query for cleaner display
-    return parsedUrl.hostname.replace(/^www\./, '');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (error) {
-    // If URL is invalid, return organiser name as fallback
-    return organiser.name || url;
+  if (url) {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.hostname.replace(/^www\./, '');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Fallback if URL is invalid but exists
+      return organiser.name || url.replace(/^https?:\/\//, '').replace(/^www\./, '');
+    }
   }
+  return organiser.name; // Fallback to name if no website
 };
 
+
+interface EventDetailsProps {
+  event: BjjEventDto;
+  'data-testid'?: string;
+}
+
+
 export const EventDetails: React.FC<EventDetailsProps> = memo(
-  ({ event, 'data-testid': baseTestId = 'event-details' }) => {
+  ({ event, 'data-testid': baseTestId = 'event-details-content' }) => { // Changed default testId for clarity
     const { name, location, socialMedia, pricing, schedule, organiser } = event;
 
     const calculatedPrice = useMemo(
-      () => calculateEventPrice(schedule, pricing),
+      () => calculateEventPrice(schedule, pricing), // Ensure this util is robust
       [schedule, pricing]
     );
 
@@ -72,38 +81,31 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
 
     const organiserDisplay = useMemo(() => formatOrganiserDisplay(organiser), [organiser]);
 
-    const hasSocialMedia = useMemo(
-      () =>
-        socialMedia &&
-        Object.values(socialMedia).some((link) => typeof link === 'string' && link.trim() !== ''),
-      [socialMedia]
-    );
 
     return (
       <section
-        className="space-y-3 text-sm text-slate-700"
-        aria-labelledby="event-details-heading"
+        className="space-y-2.5 text-sm" // UPDATED: Rely on DetailItem for text colors, adjusted spacing
+        aria-labelledby={`event-details-heading-${event.id || event.name}`}
         data-testid={baseTestId}
       >
-        <h2 id="event-details-heading" className="sr-only">
+        <h2 id={`event-details-heading-${event.id || event.name}`} className="sr-only">
           Event Details for {name || 'this event'}
         </h2>
 
-        {location?.address && (
+        {location && ( // Ensure location object exists
           <DetailItem
             icon={<MapPinIcon />}
-            ariaLabel={`Location: ${location.address}`}
+            ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
             data-testid={`${baseTestId}-address`}
           >
             <a
-              href={getGoogleMapsUrl(event)}
+              href={getGoogleMapsUrl(location)} // Pass location object
               target="_blank"
               rel="noopener noreferrer"
-              data-testid={`${baseTestId}-address-link`}
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
               aria-label={`View ${name || 'event'} location on Google Maps`}
             >
-              {location.address}
+              {location.address || location.venue || 'View on map'}
             </a>
           </DetailItem>
         )}
@@ -115,10 +117,9 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             data-testid={`${baseTestId}-organiser`}
           >
             <a
-              href={organiser.website}
+              href={ensureExternalUrlScheme(organiser.website)} // Ensure scheme for external link
               target="_blank"
               rel="noopener noreferrer"
-              data-testid={`${baseTestId}-organiser-link`}
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
               aria-label={`Visit organiser website for ${name || 'this event'}`}
             >
@@ -127,17 +128,20 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           </DetailItem>
         )}
 
-        <DetailItem
-          icon={<CurrencyDollarIcon />}
-          ariaLabel={`Event pricing: ${pricingDisplay}`}
-          data-testid={`${baseTestId}-pricing`}
-        >
-          {pricingDisplay}
-        </DetailItem>
+        {pricingDisplay && ( // Only render if there's something to display
+             <DetailItem
+                icon={<CurrencyDollarIcon />}
+                ariaLabel={`Event pricing: ${pricingDisplay}`}
+                data-testid={`${baseTestId}-pricing`}
+             >
+                {pricingDisplay}
+             </DetailItem>
+        )}
 
-        {hasSocialMedia && socialMedia && (
-          <div className="pt-2">
-            <EventSocialMedia
+
+        {socialMedia && ( // Check if socialMedia object exists
+          <div className="pt-1"> {/* Adjusted padding */}
+            <SocialMediaLinks
               socialMedia={socialMedia}
               data-testid={`${baseTestId}-social-media`}
             />

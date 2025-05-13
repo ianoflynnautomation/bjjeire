@@ -1,44 +1,98 @@
-// import { BaseApiEntityModel } from "./common";
 
-//   export interface GymOpeningHoursDto {
-//     day: string;
-//     openTime: string;
-//     closeTime: string; 
-//   }
+// Enum for ClassCategory
+export enum ClassCategory {
+    Uncategorized = 'Uncategorized',
+    BJJGiAllLevels = 'BJJGiAllLevels',
+    BJJNoGiAllLevels = 'BJJNoGiAllLevels',
+    WomensOnly = 'WomensOnly',
+    Wrestling = 'Wrestling',
+    MuayThai = 'MuayThai',
+    Boxing = 'Boxing',
+    StrengthTraining = 'StrengthTraining',
+    YogaOrPilates = 'YogaOrPilates',
+    KidsBJJ = 'KidsBJJ',
+    BJJGiFundamentals = 'BJJGiFundamentals',
+    BJJGiAdvanced = 'BJJGiAdvanced',
+    BJJNoGiFundamentals = 'BJJNoGiFundamentals',
+    BJJNoGiAdvanced = 'BJJNoGiAdvanced',
+    CompetitionTraining = 'CompetitionTraining',
+    ProTraining = 'ProTraining',
+    Other = 'Other',
+  }
   
-//   export interface GymLocationDto {
-//     address: string;
-//     city: string;
-//     country: string;
-//     postalCode?: string;
-//   }
+  // Enum for GymStatus
+  export enum GymStatus {
+    Active = 'Active',
+    PendingApproval = 'PendingApproval',
+    TemporarilyClosed = 'TemporarilyClosed',
+    PermanentlyClosed = 'PermanentlyClosed',
+    OpeningSoon = 'OpeningSoon',
+    Draft = 'Draft',
+    Rejected = 'Rejected',
+  }
   
-//   export interface GeoCoordinatesDto {
-//     type: string;
-//     coordinates?: [number, number];
-//   }
+  export interface BaseApiEntityModel {
+    id?: string;
+    createdAt?: string; // ISO date string (e.g., "2025-05-13T14:03:00Z")
+    updatedAt?: string;
+  }
   
-//   export interface ContactDto {
-//     contactPerson: string; 
-//     phone?: string;
-//     email?: string;
-//     website?: string;
-//     socialMedia?: Record<string, string>; 
-//   }
+  // GeoCoordinatesDto
+  export interface GeoCoordinatesDto {
+    type: string; // e.g., "Point"
+    latitude: number;
+    longitude: number;
+    placeName?: string;
+    placeId?: string;
+  }
   
-//   export interface GymDto extends BaseApiEntityModel {
-//     name: string;
-//     description: string;
-//     openingHours: GymOpeningHoursDto[];
-//     address: GymLocationDto;
-//     coordinates?: GeoCoordinatesDto;
-//     contact: ContactDto;
-//     imageUrl?: string;
-//   }
+  // LocationDto
+  export interface LocationDto {
+    address: string;
+    venue: string;
+    coordinates: GeoCoordinatesDto;
+  }
+  
+  // TrialOfferDto
+  export interface TrialOfferDto {
+    isAvailable: boolean;
+    freeClasses?: number;
+    freeDays?: number;
+    notes?: string;
+  }
+  
+  // AffiliationDto
+  export interface AffiliationDto {
+    name: string;
+    website?: string;
+  }
+  
+  // SocialMediaDto
+  export interface SocialMediaDto {
+    instagram: string;
+    facebook: string;
+    x: string;
+    youTube: string;
+  }
+  
+  // GymDto
+  export interface GymDto extends BaseApiEntityModel {
+    name: string;
+    description?: string;
+    status: GymStatus;
+    county: string;
+    affiliation?: AffiliationDto;
+    trialOffer: TrialOfferDto;
+    location: LocationDto;
+    socialMedia: SocialMediaDto;
+    offeredClasses: ClassCategory[];
+    website?: string;
+    timetableUrl?: string;
+    imageUrl?: string;
+  }
 
-//   export interface GetGymsByCityPaginationQuery {
-//     city: string;
-//     page?: number; 
-//     pageSize?: number;
-//   }
-  
+    export interface GetGymsByCityPaginationQuery {
+    county: string;
+    page?: number; 
+    pageSize?: number;
+  }

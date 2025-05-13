@@ -23,6 +23,6 @@ public record GetBjjEventPaginationQuery : IRequest<GetBjjEventPaginatedResponse
         set => _pageSize = (value > 0 && value <= MaxPageSize) ? value : DefaultPageSize;
     }
 
-    public string? City { get; set; }
+    public string? County { get; set; }
     public BjjEventType? Type { get; set; }
 }

@@ -12,6 +12,7 @@ export const ScheduleItem: React.FC<ScheduleItemProps> = ({
   className = '',
   'data-testid': dataTestId,
 }) => (
+  // Using flex here to allow children to manage their own layout better
   <li className={`text-sm ${className}`} data-testid={dataTestId}>
     {children}
   </li>

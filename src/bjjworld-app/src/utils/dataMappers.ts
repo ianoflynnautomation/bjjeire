@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { City } from '../constants/cities';
+import { County } from '../constants/counties';
 import {
   BjjEventDto,
   EventFormData,
@@ -85,8 +85,7 @@ export const normalizeEvent = (backendEvent: any): BjjEventDto => {
       x: backendEvent.socialMedia?.x ?? '',
       youTube: backendEvent.socialMedia?.youTube ?? '',
     },
-    region: backendEvent.region ?? '',
-    city: backendEvent.city as City,
+    county: backendEvent.county as County,
     location: {
       address: backendEvent.location?.address ?? '',
       venue: backendEvent.location?.venue ?? '',
@@ -142,8 +141,7 @@ export const mapEventFormDataToDto = (formData: EventFormData): any => {
       x: formData.socialMedia.x,
       youTube: formData.socialMedia.youTube,
     },
-    region: formData.region,
-    city: formData.city,
+    county: formData.county,
     location: {
       address: formData.location.address,
       venue: formData.location.venue,

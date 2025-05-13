@@ -1,21 +1,21 @@
-import React, { memo } from 'react'
+import React, { memo } from 'react';
 
 interface DetailItemProps {
-  icon: React.ReactNode
-  children: React.ReactNode
-  className?: string
-  ariaLabel?: string
-  'data-testid'?: string
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  ariaLabel?: string;
+  'data-testid'?: string;
 }
 
 export const DetailItem: React.FC<DetailItemProps> = memo(
   ({ icon, children, className, ariaLabel, 'data-testid': dataTestId }) => (
     <div
-      className={`flex items-start gap-x-2 text-slate-600 ${className || ''}`}
+      className={`flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300 ${className || ''}`} // Updated gap & added dark text
       data-testid={dataTestId}
     >
       <span
-        className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500 dark:text-orange-400"
+        className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" // CHANGED: Icon color to emerald
         aria-hidden="true"
       >
         {icon}
@@ -23,11 +23,9 @@ export const DetailItem: React.FC<DetailItemProps> = memo(
       <div
         className="flex-grow"
         {...(ariaLabel && { 'aria-label': ariaLabel })}
-        // If children are simple text and you need a testid on the text container specifically:
-        // data-testid={dataTestId ? `${dataTestId}-content` : undefined}
       >
         {children}
       </div>
     </div>
   )
-)
+);

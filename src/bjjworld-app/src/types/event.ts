@@ -1,4 +1,4 @@
-import { City } from '../constants/cities'
+import { County } from '../constants/counties'
 import { HateoasPagination } from './common'
 
 export enum BjjEventType {
@@ -105,8 +105,7 @@ export interface BjjEventDto extends BaseApiEntityModel {
   status: EventStatus
   statusReason?: string | null
   socialMedia: SocialMediaDto
-  region: string
-  city: City
+  county: County
   location: LocationDto
   schedule: EventScheduleUnion
   pricing: BjjEventPricingModelDto
@@ -122,8 +121,7 @@ export interface EventFormData {
   status: EventStatus
   statusReason?: string | null
   socialMedia: SocialMediaDto
-  region: string
-  city: City
+  county: County
   location: LocationDto
   schedule: EventScheduleUnion
   pricing: BjjEventPricingModelDto
@@ -132,7 +130,7 @@ export interface EventFormData {
 }
 
 export interface GetBjjEventsPaginationQuery {
-  city: City | 'all'
+  county: County | 'all'
   type?: BjjEventType
   page: number
   pageSize: number

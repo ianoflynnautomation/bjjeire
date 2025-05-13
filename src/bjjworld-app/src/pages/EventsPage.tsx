@@ -1,5 +1,5 @@
 import React, { useCallback, useState, memo, useMemo } from 'react';
-import { City } from '../constants/cities'; 
+import { County } from '../constants/counties'; 
 import { EventForm } from '../components/Events/EventForm/EventForm'; 
 import EventFilters from '../components/Events/EventFilters/EventFilters'; 
 import Pagination from '../components/Pagination'; 
@@ -19,7 +19,7 @@ const DEFAULT_PAGE_SIZE = 12;
 const EventsPage: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<GetBjjEventsPaginationQuery>({
-    city: 'all',
+    county: 'all',
     type: undefined,
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -50,10 +50,10 @@ const EventsPage: React.FC = () => {
   }, []);
 
   const handleFilterChange = useCallback(
-    (key: keyof Omit<GetBjjEventsPaginationQuery, 'page' | 'pageSize'>, value: City | BjjEventType | 'all' | undefined) => {
+    (key: keyof Omit<GetBjjEventsPaginationQuery, 'page' | 'pageSize'>, value: County | BjjEventType | 'all' | undefined) => {
       const newFilterUpdate: Partial<GetBjjEventsPaginationQuery> = { page: 1 }; // Reset to page 1 on filter change
-      if (key === 'city') {
-        newFilterUpdate.city = value as City | 'all';
+      if (key === 'county') {
+        newFilterUpdate.county = value as County | 'all';
       } else if (key === 'type') {
         newFilterUpdate.type = value === 'all' ? undefined : (value as BjjEventType | undefined);
       }
@@ -130,7 +130,7 @@ const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8  sm:py-12">
+    <div className="min-h-screen  dark:bg-slate-900  sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <EventsPageHeader
           onOpenForm={() => setIsFormOpen(true)}
@@ -140,9 +140,9 @@ const EventsPage: React.FC = () => {
 
         <div className="mb-8">
           <EventFilters
-            selectedCity={activeFilters.city}
+            selectedCity={activeFilters.county}
             selectedType={activeFilters.type}
-            onCityChange={(city) => handleFilterChange('city', city)}
+            onCityChange={(city) => handleFilterChange('county', city)}
             onTypeChange={(type) => handleFilterChange('type', type)}
             disabled={isFetching || isLoading}
           />

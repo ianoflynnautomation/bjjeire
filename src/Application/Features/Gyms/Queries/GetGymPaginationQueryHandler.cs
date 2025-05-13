@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using BjjWorld.Application.Common.DTOs;
 using BjjWorld.Domain.Entities.Gyms;
 using BjjWorld.Application.Features.Gyms.DTOs;
+using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.Gyms.Queries;
 
@@ -21,15 +22,15 @@ ICacheBase cacheBase, ILinkService linkService)
 
     public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKey.GYM_ALL, request.Page, request.PageSize, request.City);
+        var cacheKey = string.Format(CacheKey.GYM_ALL, request.Page, request.PageSize, request.County);
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            var query = _gymRepository.Table.Where(x => x.IsActive);
+            var query = _gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-            if (!string.IsNullOrWhiteSpace(request.City))
+            if (!string.IsNullOrWhiteSpace(request.County))
             {
-                query = query.Where(x => x.City.Equals(request.City, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
             }
 
             query = query.OrderBy(x => x.Name);
@@ -39,9 +40,9 @@ ICacheBase cacheBase, ILinkService linkService)
                 .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
 
             var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.City))
+            if (!string.IsNullOrWhiteSpace(request.County))
             {
-                additionalRouteValues["city"] = request.City;
+                additionalRouteValues["county"] = request.County;
             }
     
 

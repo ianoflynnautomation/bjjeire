@@ -28,7 +28,7 @@ const ButtonGroupFilter = <T extends string | number>({
 }: ButtonGroupFilterProps<T>) => {
   return (
     <div className={clsx('flex-1', className)} data-testid={baseTestId}>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-50 mb-1.5">
         {label}
       </label>
       <div className="flex flex-wrap gap-2">

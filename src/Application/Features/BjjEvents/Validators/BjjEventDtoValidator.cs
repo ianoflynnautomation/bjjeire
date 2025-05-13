@@ -41,11 +41,8 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
           .ApplyNotNullValidator("Social Media")
             .SetValidator(socialMediaDtoValidator);
 
-        RuleFor(x => x.Region)
-            .ApplyRequiredString("Address", 100);
-
-        RuleFor(x => x.City)
-            .ApplyRequiredString("City", 100);
+        RuleFor(x => x.County)
+            .ApplyRequiredString("County", 100);
 
         RuleFor(x => x.Location)
             .ApplyNotNullValidator("Location")

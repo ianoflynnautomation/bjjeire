@@ -20,7 +20,7 @@ const EventsPageHeader: React.FC<EventsPageHeaderProps> = ({
     data-testid={baseTestId}
   >
     <h1
-      className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl"
+      className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl"
       data-testid={`${baseTestId}-title`}
     >
       BJJ Events

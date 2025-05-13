@@ -1,4 +1,4 @@
-export enum City {
+export enum County {
   Dublin = 'Dublin',
   Cork = 'Cork',
   Galway = 'Galway',
@@ -27,7 +27,7 @@ export enum City {
   Monaghan = 'Monaghan',
 }
 
-export const CITIES: { value: City; label: string }[] = Object.values(City).map((city) => ({
+export const COUNTIES: { value: County; label: string }[] = Object.values(County).map((city) => ({
   value: city,
   label: city,
 }));

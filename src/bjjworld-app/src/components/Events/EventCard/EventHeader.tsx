@@ -1,23 +1,23 @@
-import React, { memo } from 'react'
-import { BjjEventType } from '../../../types/event'
-import { getEventTypeLabel, getEventTypeColorClasses } from '../../../utils/eventUtils'
+// src/features/events/components/EventCard/EventHeader.tsx
+import React, { memo } from 'react';
+import { BjjEventType } from '../../../types/event'; // Adjusted path
+import { getEventTypeLabel, getEventTypeColorClasses } from '../../../utils/eventUtils'; // Adjusted path
 
 interface EventHeaderProps {
-  name: string
-  type: BjjEventType
+  name: string;
+  type: BjjEventType;
 }
 
 export const EventHeader: React.FC<EventHeaderProps> = memo(({ name, type }) => {
-  const eventTypeLabel = getEventTypeLabel(type)
-  const displayName = name || 'Unnamed Event'
+  const eventTypeLabel = getEventTypeLabel(type);
+  const displayName = name || 'Unnamed Event';
 
   return (
     <header className="mb-4">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-        {/* Event Name Display */}
         <h3
           data-testid="event-header-name"
-          className="text-xl font-semibold leading-tight text-slate-800 transition-colors"
+          className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100 transition-colors" // UPDATED: Added dark mode text
           aria-label={`Event name: ${displayName}`}
         >
           {displayName}
@@ -35,5 +35,5 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(({ name, type }) => 
         )}
       </div>
     </header>
-  )
-})
+  );
+});

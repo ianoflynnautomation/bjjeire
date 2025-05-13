@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useEffect } from 'react';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
-import Home from './pages/Home';
-import Events from './pages/Events';
+import EventsPage from './pages/EventsPage';
+import AboutPage from './pages/AboutPage'
 import { initGA, trackPageView } from './utils/telemetry';
 import './index.css';
+import { GymsPage } from './pages/GymsPage';
 
 // Initialize analytics
 initGA('G-XXXXXXXXXX'); // Replace with your Google Analytics measurement ID
@@ -29,8 +30,11 @@ function App() {
         <Navigation />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/events" element={<Events />} />
+            <Route path="/" element={<EventsPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/gyms" element={<GymsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+
             {/* Add more routes as needed */}
           </Routes>
         </main>

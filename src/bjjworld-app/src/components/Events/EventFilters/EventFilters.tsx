@@ -1,5 +1,5 @@
 import React from 'react'
-import { City, CITIES } from '../../../constants/cities'
+import { County, COUNTIES } from '../../../constants/counties'
 import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes'
 import { BjjEventType } from '../../../types/event'
 import SelectFilter from '../../Filters/SelectFilter'
@@ -7,9 +7,9 @@ import ButtonGroupFilter from '../../Filters/ButtonGroupFilter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 
 interface EventFiltersProps {
-  selectedCity: City | 'all'
+  selectedCity: County | 'all'
   selectedType: BjjEventType | undefined
-  onCityChange: (city: City | 'all') => void
+  onCityChange: (city: County | 'all') => void
   onTypeChange: (type: BjjEventType | 'all') => void
   disabled: boolean
   'data-testid'?: string
@@ -23,7 +23,7 @@ const EventFilters: React.FC<EventFiltersProps> = ({
   disabled,
   'data-testid': baseTestId = 'event-filters',
 }) => {
-  const cityOptions = CITIES.map((city) => ({ value: city.value, label: city.label }))
+  const cityOptions = COUNTIES.map((city) => ({ value: city.value, label: city.label }))
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row sm:gap-4"

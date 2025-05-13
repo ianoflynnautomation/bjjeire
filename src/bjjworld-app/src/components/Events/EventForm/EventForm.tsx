@@ -27,8 +27,8 @@ import { BasicInfoSection } from './BasicInfoSection';
 import { PricingSection } from './PricingSection';
 import { ScheduleSection } from './ScheduleSection';
 import { FormActions } from './FormActions';
-import { City } from '../../../constants/cities';
-import { CloseIcon } from '../../shared/icons/CloseIcon';
+import { County } from '../../../constants/counties';
+import { CloseIcon } from '../../common/CloseIcon';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -101,8 +101,7 @@ export const EventForm: React.FC<EventFormProps> = ({
           status: initialData.status ?? defaultState.status,
           statusReason: initialData.statusReason ?? defaultState.statusReason,
           socialMedia: initialData.socialMedia ?? defaultState.socialMedia,
-          region: initialData.region ?? defaultState.region,
-          city: initialData.city ?? defaultState.city,
+          county: initialData.county ?? defaultState.county,
           location: initialData.location ?? defaultState.location,
           pricing: initialData.pricing ?? defaultState.pricing,
           eventUrl: initialData.eventUrl ?? defaultState.eventUrl,
@@ -162,7 +161,7 @@ export const EventForm: React.FC<EventFormProps> = ({
             name === 'type'
               ? (Number(value) as BjjEventType)
               : name === 'city'
-              ? (value as City)
+              ? (value as County)
               : name === 'status'
               ? (Number(value) as EventStatus)
               : value,
@@ -347,8 +346,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         status: formData.status,
         statusReason: formData.statusReason,
         socialMedia: formData.socialMedia,
-        region: formData.region,
-        city: formData.city,
+        county: formData.county,
         location: formData.location,
         pricing: {
           ...formData.pricing,
@@ -414,8 +412,7 @@ export const EventForm: React.FC<EventFormProps> = ({
           <BasicInfoSection
             name={formData.name}
             type={formData.type}
-            city={formData.city}
-            region={formData.region}
+            county={formData.county}
             organiser={formData.organiser}
             location={formData.location}
             socialMedia={formData.socialMedia}

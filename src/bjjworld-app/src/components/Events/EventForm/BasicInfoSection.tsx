@@ -1,14 +1,13 @@
 import React from 'react';
 import { BjjEventType, EventStatus, OrganizerDto, LocationDto, SocialMediaDto } from '../../../types/event';
-import { CITIES, City } from '../../../constants/cities';
+import { County, COUNTIES } from '../../../constants/counties';
 import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes';
 import { EventFormTestIds } from './eventForm.testIds';
 
 interface BasicInfoSectionProps {
   name: string;
   type: BjjEventType;
-  city: City;
-  region: string;
+  county: County;
   organiser: OrganizerDto;
   location: LocationDto;
   socialMedia: SocialMediaDto;
@@ -20,8 +19,7 @@ interface BasicInfoSectionProps {
 export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   name,
   type,
-  city,
-  region,
+  county,
   organiser,
   location,
   socialMedia,
@@ -82,7 +80,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         <select
           id="city"
           name="city"
-          value={city}
+          value={county}
           onChange={onInputChange}
           className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
           disabled={isSubmitting}
@@ -90,9 +88,9 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           data-testid={EventFormTestIds.CITY_SELECT}
           aria-required="true"
         >
-          {CITIES.map((cityOption) => (
-            <option key={cityOption.value} value={cityOption.value}>
-              {cityOption.label}
+          {COUNTIES.map((countyOption) => (
+            <option key={countyOption.value} value={countyOption.value}>
+              {countyOption.label}
             </option>
           ))}
         </select>
@@ -107,7 +105,6 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
           id="region"
           type="text"
           name="region"
-          value={region}
           onChange={onInputChange}
           placeholder="e.g., Berlin"
           className="mt-1 block w-full rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
