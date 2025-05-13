@@ -1,64 +1,49 @@
-import React from 'react'
-import { ScheduleType, RecurringSchedule } from '../../../types/event'
-import { formatDate } from '../../../utils/dateUtils'
-import { ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
-import { ScheduleSection } from './ScheduleSection'
-import { EmptyScheduleMessage } from './EmptyScheduleMessage'
-import { HoursList } from './HoursList'
+// src/components/Schedule/RecurringScheduleView.tsx
+import React from 'react';
+import { ScheduleType, RecurringSchedule } from '../../../types/event';
+import { formatDate } from '../../../utils/dateUtils';
+import { ClipboardDocumentListIcon, CalendarIcon } from '@heroicons/react/20/solid'; // Matched to v20
+import { ScheduleSection } from './ScheduleSection';
+import { EmptyScheduleMessage } from './EmptyScheduleMessage';
+import { HoursList } from './HoursList';
 
 interface RecurringScheduleViewProps {
-  schedule: RecurringSchedule
-  'data-testid'?: string
+  schedule: RecurringSchedule;
+  'data-testid'?: string;
 }
 
 export const RecurringScheduleView: React.FC<RecurringScheduleViewProps> = ({
   schedule,
   'data-testid': baseTestId = 'recurring-schedule-view',
 }) => {
-  if (!schedule.hours?.length) {
-    return (
-      <ScheduleSection
-        title="Weekly Schedule"
-        icon={<ClipboardDocumentListIcon className="text-orange-500 dark:text-orange-400" />}
-        data-testid={baseTestId}
-      >
-        <div className="pl-7">
-          <EmptyScheduleMessage
-            message="Recurring schedule hours not specified."
-            data-testid={`${baseTestId}-empty-hours-message`}
-          />
-          {schedule.endDate && (
-            <p
-              className="mt-1.5 text-xs text-slate-600 dark:text-slate-400"
-              data-testid={`${baseTestId}-end-date`}
-            >
-              Ends: {formatDate(schedule.endDate)}
-            </p>
-          )}
-        </div>
-      </ScheduleSection>
-    )
-  }
+  const hasHours = schedule.hours && schedule.hours.length > 0;
 
   return (
     <ScheduleSection
       title="Weekly Schedule"
-      icon={<ClipboardDocumentListIcon className="text-orange-500 dark:text-orange-400" />}
+      icon={<ClipboardDocumentListIcon />} // Pass the component, color is handled by ScheduleSection
       data-testid={baseTestId}
     >
-      <HoursList
-        hours={schedule.hours}
-        scheduleType={ScheduleType.Recurring}
-        data-testid={`${baseTestId}-hours-list`}
-      />
+      {!hasHours ? (
+        <EmptyScheduleMessage
+          message="Recurring schedule hours not yet specified."
+          data-testid={`${baseTestId}-empty-hours-message`}
+        />
+      ) : (
+        <HoursList
+          hours={schedule.hours}
+          scheduleType={ScheduleType.Recurring}
+          data-testid={`${baseTestId}-hours-list`}
+        />
+      )}
       {schedule.endDate && (
-        <p
-          className="mt-1.5 pl-7 text-xs text-slate-600"
-          data-testid={`${baseTestId}-end-date`}
-        >
-          Ends: {formatDate(schedule.endDate)}
-        </p>
+        // This text will also be indented by pl-7 from ScheduleSection's child wrapper
+        <div className="mt-2 flex items-center gap-x-1.5 pt-1 text-xs text-slate-500 dark:text-slate-400"
+             data-testid={`${baseTestId}-end-date-info`}>
+          <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+          <span>Ends: {formatDate(schedule.endDate)}</span>
+        </div>
       )}
     </ScheduleSection>
-  )
-}
+  );
+};
