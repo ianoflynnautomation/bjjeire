@@ -14,7 +14,7 @@ public class TrialOfferDtoMapping : Profile
 {
     public TrialOfferDtoMapping()
     {
-        CreateMap<TrialOffer, TrialOfferDto>();
-        CreateMap<TrialOfferDto, TrialOffer>();
+        _ = CreateMap<TrialOffer, TrialOfferDto>();
+        _ = CreateMap<TrialOfferDto, TrialOffer>();
     }
 }

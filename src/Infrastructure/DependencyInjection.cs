@@ -10,34 +10,34 @@ using MongoDB.Bson.Serialization.Serializers;
 using Microsoft.Extensions.Options;
 using BjjWorld.Infrastructure.Caching;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection
-{
+public static class DependencyInjection {
     private const string MongoDbConnectionStringName = "Mongodb";
 
-    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder)
-    {
-        builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
-        builder.Services.AddOptions<BackendAPIOptions>().Bind(builder.Configuration.GetSection(BackendAPIOptions.SectionName)).ValidateOnStart();
-        builder.Services.AddOptions<CacheOptions>().Bind(builder.Configuration.GetSection(CacheOptions.SectionName)).ValidateOnStart();
+    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder) {
+        ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<DatabaseOptions>>().Value);
+        _ = builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
+        _ = builder.Services.AddOptions<BackendAPIOptions>().Bind(builder.Configuration.GetSection(BackendAPIOptions.SectionName)).ValidateOnStart();
+        _ = builder.Services.AddOptions<CacheOptions>().Bind(builder.Configuration.GetSection(CacheOptions.SectionName)).ValidateOnStart();
 
-        builder.Services.AddSingleton<IAuditInfoProvider, AuditInfoProvider>();
-        builder.Services.AddHttpContextAccessor();
+        _ = builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<DatabaseOptions>>().Value);
+
+        _ = builder.Services.AddSingleton<IAuditInfoProvider, AuditInfoProvider>();
+        _ = builder.Services.AddHttpContextAccessor();
 
         var dbConfig = builder.Configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
                          ?? new DatabaseOptions { UseLiteDb = false };
 
-        if (!dbConfig.UseLiteDb)
-        {
+        if (!dbConfig.UseLiteDb) {
             ConfigureMongoDb(builder.Services, builder.Configuration);
-            builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+            _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
+            _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
         }
-        else
-        {
+        else {
             // Configure LiteDB services (Example - implement ConfigureLiteDb similarly)
             // ConfigureLiteDb(builder.Services, builder.Configuration);
 
@@ -47,33 +47,26 @@ public static class DependencyInjection
             // throw new NotImplementedException("LiteDB configuration is not yet implemented.");
         }
 
-        builder.Services.AddMemoryCache(options =>
-        {
-            options.SizeLimit = 1024; // Optional: Limit cache to 1024 entries
-        });
-        builder.Services.AddSingleton<CacheOptions>(new CacheOptions { DefaultCacheTimeMinutes = 5 });
+        _ = builder.Services.AddMemoryCache(options => options.SizeLimit = 1024);
+        _ = builder.Services.AddSingleton<CacheOptions>(new CacheOptions { DefaultCacheTimeMinutes = 5 });
         builder.Services.RegisterCache();
 
         return builder;
     }
 
-    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
-    {
+    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration) {
         var connectionString = configuration.GetConnectionString(MongoDbConnectionStringName);
 
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
+        if (string.IsNullOrWhiteSpace(connectionString)) {
             throw new InvalidOperationException($"Connection string '{MongoDbConnectionStringName}' not found or is empty in ConnectionStrings.");
         }
 
-        services.AddSingleton<IMongoClient>(sp =>
-        {
+        _ = services.AddSingleton<IMongoClient>(sp => {
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
             return new MongoClient(clientSettings);
         });
 
-        services.AddScoped<IMongoDatabase>(sp =>
-        {
+        _ = services.AddScoped<IMongoDatabase>(sp => {
             var client = sp.GetRequiredService<IMongoClient>();
             var mongoUrl = MongoUrl.Create(connectionString);
             var databaseName = mongoUrl.DatabaseName;
@@ -86,8 +79,7 @@ public static class DependencyInjection
         RegisterMongoDbSerializationConventions();
     }
 
-    private static void RegisterMongoDbSerializationConventions()
-    {
+    private static void RegisterMongoDbSerializationConventions() {
 
         BsonSerializer.RegisterSerializer(new DictionaryInterfaceImplementerSerializer<Dictionary<int, int>>(DictionaryRepresentation.ArrayOfArrays));
 
@@ -97,13 +89,9 @@ public static class DependencyInjection
             new CamelCaseElementNameConvention(),
             // new EnumRepresentationConvention(BsonType.Int32)
         };
-         ConventionRegistry.Register("AppConventions", conventionPack, t => true);
+        ConventionRegistry.Register("AppConventions", conventionPack, t => true);
     }
 
-    private static void RegisterCache(this IServiceCollection serviceCollection)
-    {
-
-        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
-    }
+    private static void RegisterCache(this IServiceCollection serviceCollection) => _ = serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
 
 }

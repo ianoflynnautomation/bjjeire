@@ -1,8 +1,7 @@
 
 namespace BjjWorld.Infrastructure.Configuration;
 
-public class BackendAPIOptions
-{
+public class BackendAPIOptions {
     public const string SectionName = "BackendApiOptions";
     public bool Enabled { get; set; }
     public string SecretKey { get; set; } = string.Empty;

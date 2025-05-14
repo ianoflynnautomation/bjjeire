@@ -1,18 +1,13 @@
 namespace BjjWorld.Web.AcceptanceTests.StepDefinitions;
 
 [Binding]
-public sealed class LoginStepDefinitions
-{
-    private readonly LoginPage _loginPage;
-
-    public LoginStepDefinitions(LoginPage loginPage)
-    {
-        _loginPage = loginPage;
-    }
+public sealed class LoginStepDefinitions(LoginPage loginPage) {
+    private readonly LoginPage _loginPage = loginPage;
 
     [BeforeFeature("Login")]
     public static async Task BeforeLoginScenario(IObjectContainer container)
     {
+        ArgumentNullException.ThrowIfNull(container);
         var playwright = await Playwright.CreateAsync();
 
         var options = new BrowserTypeLaunchOptions();
@@ -30,10 +25,7 @@ public sealed class LoginStepDefinitions
     }
 
     [Given("a logged out user")]
-    public async Task GivenALoggedOutUser()
-    {
-        await _loginPage.GotoAsync();
-    }
+    public async Task GivenALoggedOutUser() => await _loginPage.GotoAsync();
 
     [When("the user logs in with valid credentials")]
     public async Task TheUserLogsInWithValidCredentials()
@@ -48,8 +40,8 @@ public sealed class LoginStepDefinitions
     {
         var profileLinkText = await _loginPage.ProfileLinkText();
 
-        profileLinkText.Should().NotBeNull();
-        profileLinkText.Should().Be("Account");
+        _ = profileLinkText.Should().NotBeNull();
+        _ = profileLinkText.Should().Be("Account");
     }
 
     [When("the user logs in with invalid credentials")]
@@ -65,12 +57,13 @@ public sealed class LoginStepDefinitions
     {
         var errorVisible = await _loginPage.InvalidLoginAttemptMessageVisible();
 
-        errorVisible.Should().BeTrue();
+        _ = errorVisible.Should().BeTrue();
     }
 
     [AfterFeature]
     public static async Task AfterScenario(IObjectContainer container)
     {
+        ArgumentNullException.ThrowIfNull(container);
         var browser = container.Resolve<IBrowser>();
         var playright = container.Resolve<IPlaywright>();
 

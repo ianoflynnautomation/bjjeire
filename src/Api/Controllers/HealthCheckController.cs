@@ -30,11 +30,8 @@ public class HealthCheckController(HealthCheckService healthCheckService) : Base
             duration = report.TotalDuration
         };
 
-        if (report.Status == HealthStatus.Healthy || report.Status == HealthStatus.Degraded)
-        {
-            return Ok(response);
-        }
-
-        return StatusCode(StatusCodes.Status503ServiceUnavailable, response);
+        return report.Status is HealthStatus.Healthy or HealthStatus.Degraded
+            ? Ok(response)
+            : (IActionResult)StatusCode(StatusCodes.Status503ServiceUnavailable, response);
     }
 }

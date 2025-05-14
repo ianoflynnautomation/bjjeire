@@ -2,12 +2,10 @@
 using SharedKernel.Attributes;
 
 namespace BjjWorld.Domain.Entities;
-public abstract class ParentEntity
-{
+public abstract class ParentEntity {
     private string _id;
 
-    protected ParentEntity()
-    {
+    protected ParentEntity() {
         _id = UniqueIdentifier.New;
     }
 
@@ -17,5 +15,5 @@ public abstract class ParentEntity
     public string Id {
         get => _id;
         set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;
-    }   
+    }
 }

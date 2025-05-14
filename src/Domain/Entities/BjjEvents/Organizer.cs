@@ -1,8 +1,7 @@
 
 namespace BjjWorld.Domain.Entities.BjjEvents;
 
-public class Organizer
-{
+public class Organizer {
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
     [BsonElement("website")]

@@ -5,9 +5,9 @@ namespace BjjWorld.Application.Common.Interfaces;
 
 public interface IGymService
 {
-    Task<Gym> GetById(string id);
-    Task<List<Gym>> GetAll();
-    Task Insert(Gym gym);
-    Task Update(Gym gym);
-    Task Delete(Gym gym);
+    public Task<Gym> GetById(string id);
+    public Task<List<Gym>> GetAll();
+    public Task Insert(Gym gym);
+    public Task Update(Gym gym);
+    public Task Delete(Gym gym);
 }

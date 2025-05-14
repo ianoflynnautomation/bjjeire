@@ -1,7 +1,6 @@
 namespace BjjWorld.Domain.Enums;
 
-public enum EventStatus
-{
+public enum EventStatus {
   Upcoming = 1,
   RegistrationOpen = 2,
   RegistrationClosed = 3,

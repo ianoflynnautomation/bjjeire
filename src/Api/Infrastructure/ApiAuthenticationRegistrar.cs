@@ -7,12 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BjjWorld.Api.Infrastructure;
 
-public class ApiAuthenticationRegistrar
-{
-    public void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration)
-    {
-        builder.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-        {
+public class ApiAuthenticationRegistrar {
+    public void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration) {
+        _ = builder.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => {
             var config = new BackendAPIOptions();
             configuration.GetSection("BackendAPI").Bind(config);
             options.TokenValidationParameters = new TokenValidationParameters {
@@ -26,31 +23,26 @@ public class ApiAuthenticationRegistrar
             };
 
             options.Events = new JwtBearerEvents {
-                OnAuthenticationFailed = async context =>
-                {
+                OnAuthenticationFailed = async context => {
                     context.NoResult();
                     context.Response.StatusCode = 401;
                     context.Response.ContentType = "text/plain";
                     await context.Response.WriteAsync(context.Exception.Message);
-                },                
-                OnTokenValidated = async context =>
-                {
-                    try
-                    {
-                        if (config.Enabled)
-                        {
+                },
+                OnTokenValidated = async context => {
+                    try {
+                        if (config.Enabled) {
                             var jwtAuthentication = context.HttpContext.RequestServices
                                 .GetRequiredService<IJwtBearerAuthenticationService>();
-                            if (!await jwtAuthentication.Valid(context))
+                            if (!await jwtAuthentication.Valid(context)) {
                                 throw new Exception(await jwtAuthentication.ErrorMessage());
+                            }
                         }
-                        else
-                        {
+                        else {
                             throw new Exception("API is disabled");
                         }
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         throw new Exception(ex.Message);
                     }
                 }

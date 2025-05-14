@@ -1,10 +1,9 @@
 ﻿namespace BjjWorld.Domain.Entities;
-public interface IPagedList<T> : IList<T>
-{
-    int PageIndex { get; }
-    int PageSize { get; }
-    int TotalCount { get; }
-    int TotalPages { get; }
-    bool HasPreviousPage { get; }
-    bool HasNextPage { get; }
+public interface IPagedList<T> : IList<T> {
+    public int PageIndex { get; }
+    public int PageSize { get; }
+    public int TotalCount { get; }
+    public int TotalPages { get; }
+    public bool HasPreviousPage { get; }
+    public bool HasNextPage { get; }
 }

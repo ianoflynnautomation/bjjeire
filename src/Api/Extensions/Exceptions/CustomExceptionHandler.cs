@@ -5,48 +5,24 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace BjjWorld.Api.Extensions.Exceptions;
 
-public class CustomExceptionHandler : IExceptionHandler
-{
-    private readonly ILogger<CustomExceptionHandler> _logger;
-    private readonly IHostEnvironment _environment;
+public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment) : IExceptionHandler {
+    private readonly ILogger<CustomExceptionHandler> _logger = logger;
+    private readonly IHostEnvironment _environment = environment;
 
-    public CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment)
-    {
-        _logger = logger;
-        _environment = environment;
-    }
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
+        ArgumentNullException.ThrowIfNull(httpContext);
 
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
-    {
-        var problemDetails = new ProblemDetails
-        {
+        _ = new ProblemDetails {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             Instance = httpContext.TraceIdentifier
         };
-
-        switch (exception)
-        {
-            case ValidationException validationException:
-                problemDetails = HandleValidationException(validationException, httpContext);
-                break;
-
-            case CustomException customException:
-                problemDetails = HandleCustomException(customException, httpContext);
-                break;
-
-            case UnauthorizedAccessException:
-                problemDetails = HandleUnauthorizedException(httpContext);
-                break;
-
-            case NotFoundException notFoundException:
-                problemDetails = HandleNotFoundException(notFoundException, httpContext);
-                break;
-
-            default:
-                problemDetails = HandleUnexpectedException(exception, httpContext);
-                break;
-        }
-
+        ProblemDetails? problemDetails = exception switch {
+            ValidationException validationException => HandleValidationException(validationException, httpContext),
+            CustomException customException => HandleCustomException(customException, httpContext),
+            UnauthorizedAccessException => HandleUnauthorizedException(httpContext),
+            NotFoundException notFoundException => HandleNotFoundException(notFoundException, httpContext),
+            _ => HandleUnexpectedException(exception, httpContext),
+        };
         LogException(exception, httpContext, problemDetails);
 
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
@@ -56,17 +32,14 @@ public class CustomExceptionHandler : IExceptionHandler
         return true;
     }
 
-    private static ProblemDetails HandleValidationException(ValidationException exception, HttpContext httpContext)
-    {
-        var validationErrors = exception.Errors.Select(e => new ValidationErrorResponse.ValidationError
-        {
+    private static ProblemDetails HandleValidationException(ValidationException exception, HttpContext httpContext) {
+        var validationErrors = exception.Errors.Select(e => new ValidationErrorResponse.ValidationError {
             Field = e.PropertyName,
             Message = e.ErrorMessage,
             ErrorCode = e.ErrorCode
         }).ToList();
 
-        return new ValidationErrorResponse
-        {
+        return new ValidationErrorResponse {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             Title = "Validation Failed",
             Status = StatusCodes.Status400BadRequest,
@@ -76,10 +49,8 @@ public class CustomExceptionHandler : IExceptionHandler
         };
     }
 
-    private static ProblemDetails HandleCustomException(CustomException exception, HttpContext httpContext)
-    {
-        var problemDetails = new ProblemDetails
-        {
+    private static ProblemDetails HandleCustomException(CustomException exception, HttpContext httpContext) {
+        var problemDetails = new ProblemDetails {
             Type = exception.Type ?? "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             Title = exception.Title ?? "Bad Request",
             Status = (int)exception.StatusCode,
@@ -87,18 +58,15 @@ public class CustomExceptionHandler : IExceptionHandler
             Instance = httpContext.TraceIdentifier
         };
 
-        if (exception.ErrorMessages?.Any() == true)
-        {
+        if (exception.ErrorMessages?.Any() == true) {
             problemDetails.Extensions["errors"] = exception.ErrorMessages;
         }
 
         return problemDetails;
     }
 
-    private static ProblemDetails HandleUnauthorizedException(HttpContext httpContext)
-    {
-        return new ProblemDetails
-        {
+    private static ProblemDetails HandleUnauthorizedException(HttpContext httpContext) {
+        return new ProblemDetails {
             Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
             Title = "Unauthorized",
             Status = StatusCodes.Status401Unauthorized,
@@ -107,10 +75,8 @@ public class CustomExceptionHandler : IExceptionHandler
         };
     }
 
-    private static ProblemDetails HandleNotFoundException(NotFoundException exception, HttpContext httpContext)
-    {
-        return new ProblemDetails
-        {
+    private static ProblemDetails HandleNotFoundException(NotFoundException exception, HttpContext httpContext) {
+        return new ProblemDetails {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
             Title = "Not Found",
             Status = StatusCodes.Status404NotFound,
@@ -119,15 +85,13 @@ public class CustomExceptionHandler : IExceptionHandler
         };
     }
 
-    private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext)
-    {
+    private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext) {
         var statusCode = StatusCodes.Status500InternalServerError;
         var detail = _environment.IsDevelopment()
             ? exception.ToString()
             : "An unexpected error occurred. Please try again later.";
 
-        return new ProblemDetails
-        {
+        return new ProblemDetails {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
             Title = "Internal Server Error",
             Status = statusCode,
@@ -136,8 +100,7 @@ public class CustomExceptionHandler : IExceptionHandler
         };
     }
 
-    private void LogException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails)
-    {
+    private void LogException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails) {
         var logLevel = exception is ValidationException or CustomException
             ? LogLevel.Warning
             : LogLevel.Error;

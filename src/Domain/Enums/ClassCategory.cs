@@ -1,7 +1,6 @@
 
 namespace BjjWorld.Domain.Enums;
-public enum ClassCategory
-{
+public enum ClassCategory {
     Uncategorized = 0,
     BJJGiAllLevels = 1,
     BJJNoGiAllLevels = 2,

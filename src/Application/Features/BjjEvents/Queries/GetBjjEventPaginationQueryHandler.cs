@@ -11,8 +11,7 @@ namespace BjjWorld.Application.Features.BjjEvents.Queries;
 
 public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bjjEventRepository, IMapper mapper,
 ICacheBase cacheBase, ILinkService linkService)
-: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponseDto>
-{
+: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponseDto> {
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
@@ -20,21 +19,18 @@ ICacheBase cacheBase, ILinkService linkService)
     private const string ControllerNameForLinks = "GetAllBjjEvents";
     private const string ActionNameForLinks = "GetAll";
 
-    public async Task<GetBjjEventPaginatedResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
-    {
+    public async Task<GetBjjEventPaginatedResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
+        ArgumentNullException.ThrowIfNull(request);
         var cacheKey = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.County, request.Type);
 
-        return await _cacheBase.GetAsync(cacheKey, async () =>
-        {
+        return await _cacheBase.GetAsync(cacheKey, async () => {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-            if (!string.IsNullOrWhiteSpace(request.County))
-            {
+            if (!string.IsNullOrWhiteSpace(request.County)) {
                 query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
             }
 
-            if (request.Type.HasValue)
-            {
+            if (request.Type.HasValue) {
                 query = query.Where(x => x.Type == request.Type.Value);
             }
 
@@ -45,12 +41,10 @@ ICacheBase cacheBase, ILinkService linkService)
                 .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
 
             var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.County))
-            {
+            if (!string.IsNullOrWhiteSpace(request.County)) {
                 additionalRouteValues["county"] = request.County;
             }
-            if (request.Type.HasValue)
-            {
+            if (request.Type.HasValue) {
                 additionalRouteValues["type"] = request.Type.Value.ToString();
             }
 
@@ -65,11 +59,9 @@ ICacheBase cacheBase, ILinkService linkService)
                 additionalRouteValues: additionalRouteValues
             );
 
-            return new GetBjjEventPaginatedResponseDto
-            {
+            return new GetBjjEventPaginatedResponseDto {
                 Data = [.. pagedBjjEventDtos],
-                Pagination = new PaginationMetadataDto
-                {
+                Pagination = new PaginationMetadataDto {
                     TotalItems = pagedBjjEventDtos.TotalCount,
                     CurrentPage = request.Page,
                     PageSize = pagedBjjEventDtos.PageSize,

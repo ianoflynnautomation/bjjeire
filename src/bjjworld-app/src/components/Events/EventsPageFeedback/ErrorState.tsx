@@ -3,39 +3,41 @@ import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 
 interface ErrorStateProps {
   message: string
+  title?: string 
   onRetry: () => void
   'data-testid'?: string
 }
 
 const ErrorState: React.FC<ErrorStateProps> = ({
   message,
+  title = 'Error Loading Data', 
   onRetry,
   'data-testid': baseTestId = 'error-state',
 }) => (
   <div
     role="alert"
-    className="my-10 rounded-md border border-orange-200 bg-orange-50 p-6 text-center shadow-sm "
+    className="my-10 rounded-md border border-red-200 bg-red-50 p-6 text-center shadow-sm dark:border-red-700/50 dark:bg-red-900/20" // UPDATED: Error color scheme
     data-testid={baseTestId}
   >
     <ExclamationTriangleIcon
-      className="mx-auto h-10 w-10 text-orange-500"
+      className="mx-auto h-10 w-10 text-red-500 dark:text-red-400" 
       aria-hidden="true"
     />
     <h3
-      className="mt-2 text-lg font-semibold text-slate-800 "
+      className="mt-3 text-lg font-semibold text-red-800 dark:text-red-200" 
       data-testid={`${baseTestId}-title`}
     >
-      Error Loading Events
+      {title}
     </h3>
     <p
-      className="mt-1 text-sm text-slate-600"
+      className="mt-1 text-sm text-red-700 dark:text-red-300"
       data-testid={`${baseTestId}-message`}
     >
       {message}
     </p>
     <button
       onClick={onRetry}
-      className="mt-4 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2 text-sm font-medium text-white hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm transition-colors dark:from-emerald-500 dark:to-emerald-600 dark:hover:from-emerald-600 dark:hover:to-emerald-700 dark:focus:ring-offset-slate-900"
+      className="mt-6 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:from-emerald-500 dark:to-emerald-600 dark:hover:from-emerald-600 dark:hover:to-emerald-700 dark:focus:ring-offset-red-50 dark:dark:focus:ring-offset-red-900/20" // Adjusted dark mode focus offset
       data-testid={`${baseTestId}-retry-button`}
     >
       Retry

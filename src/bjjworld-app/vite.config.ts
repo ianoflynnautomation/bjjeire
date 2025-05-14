@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       },
     }),
   ],
+
     server: {
       port: parseInt(env.PORT) || 80,
       proxy: {

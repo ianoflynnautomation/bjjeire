@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace BjjWorld.Api.Extensions;
+namespace BjjWorld.Api.Extensions.HealthChecks;
 
 public static class HealthChecksExtensions
 {
@@ -9,20 +9,16 @@ public static class HealthChecksExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        app.MapHealthChecks("/health", new HealthCheckOptions
-        {
-            ResponseWriter = static async (context, report) =>
-            {
+        _ = app.MapHealthChecks("/health", new HealthCheckOptions {
+            ResponseWriter = static async (context, report) => {
                 var options = new JsonSerializerOptions { WriteIndented = false };
                 context.Response.ContentType = "application/json";
-                var result = JsonSerializer.Serialize(new
-                {
+                var result = JsonSerializer.Serialize(new {
                     status = report.Status.ToString(),
-                    checks = report.Entries.Select(e => new
-                    {
+                    checks = report.Entries.Select(e => new {
                         name = e.Key,
                         status = e.Value.Status.ToString(),
-                        description = e.Value.Description, 
+                        description = e.Value.Description,
                         duration = e.Value.Duration.TotalMilliseconds
                     }),
                     totalDuration = report.TotalDuration.TotalMilliseconds

@@ -5,8 +5,6 @@ namespace BjjWorld.Api.Infrastructure;
 
 public static class JwtSecurityKey
 {
-    public static SymmetricSecurityKey Create(string secret)
-    {
-        return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
-    }
+    public static SymmetricSecurityKey Create(string secret) 
+    => new(Encoding.ASCII.GetBytes(secret));
 }

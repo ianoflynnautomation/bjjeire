@@ -65,10 +65,12 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         var bjjEvent = await _mediator.Send(new GetGenericQuery<BjjEventDto, BjjEvent>(key));
-        if (!bjjEvent.Any()) return NotFound();
+        if (!bjjEvent.Any()) {
+            return NotFound();
+        }
 
 #pragma warning disable CS8601 // Possible null reference assignment.
-        await _mediator.Send(new DeleteBjjEventCommand { Model = bjjEvent.FirstOrDefault() });
+        _ = await _mediator.Send(new DeleteBjjEventCommand { Model = bjjEvent.FirstOrDefault() });
 #pragma warning restore CS8601 // Possible null reference assignment.
         return NoContent();
     }

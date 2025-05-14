@@ -1,14 +1,11 @@
 ﻿using Serilog;
 using Serilog.Core;
 
-namespace BjjWorld.Api.Extensions;
+namespace BjjWorld.Api.Extensions.Logging.Serilog;
 
-public static class StaticLogger
-{
-    public static void EnsureInitialized()
-    {
-        if (Log.Logger is not Logger)
-        {
+public static class StaticLogger {
+    public static void EnsureInitialized() {
+        if (Log.Logger is not Logger) {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()

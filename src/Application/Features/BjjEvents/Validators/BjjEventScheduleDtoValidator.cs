@@ -5,43 +5,38 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.Validators;
 
-public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto>
-{
-    public BjjEventScheduleDtoValidator()
-    {
-        RuleFor(x => x.ScheduleType)
+public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto> {
+    public BjjEventScheduleDtoValidator() {
+        _ = RuleFor(x => x.ScheduleType)
         .ApplyEnumValidator("Schedule Type");
 
-        When(x => x.ScheduleType == ScheduleType.FixedDate, () =>
-        {
-            RuleFor(x => x.StartDate)
+        _ = When(x => x.ScheduleType == ScheduleType.FixedDate, () => {
+            _ = RuleFor(x => x.StartDate)
                      .NotNull()
                      .WithName("Start date")
                      .WithMessage(ValidationMessages.ConditionalRequired.Message("Start date", "schedule type is FixedDate"))
                      .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode);
 
-            RuleFor(x => x.EndDate)
+            _ = RuleFor(x => x.EndDate)
                 .NotNull()
                 .WithName("End date")
                 .WithMessage(ValidationMessages.ConditionalRequired.Message("End date", "schedule type is FixedDate"))
                 .WithErrorCode(ValidationMessages.ConditionalRequired.ErrorCode);
 
-            RuleFor(x => x.EndDate)
+            _ = RuleFor(x => x.EndDate)
                        .GreaterThanOrEqualTo(x => x.StartDate)
                        .When(x => x.StartDate.HasValue && x.EndDate.HasValue)
                        .WithMessage(ValidationMessages.GreaterThanOrEqual.Message("End date", "start date"))
                        .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode);
         });
 
-        When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, () =>
-        {
-            RuleFor(x => x.EndDate)
+        _ = When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, () 
+        => _ = RuleFor(x => x.EndDate)
                 .GreaterThanOrEqualTo(x => x.StartDate)
                 .WithMessage(ValidationMessages.GreaterThanOrEqual.Message("End date", "start date"))
-                .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode);
-        });
+                .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode));
 
-        RuleFor(x => x.Hours)
+        _ = RuleFor(x => x.Hours)
             .NotNull()
             .WithMessage(ValidationMessages.NotNull.Message("Hours"))
             .WithErrorCode(ValidationMessages.NotNull.ErrorCode)
@@ -50,8 +45,7 @@ public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDt
             .WithErrorCode(ValidationMessages.NoNullEntries.ErrorCode);
 
 
-
-        RuleForEach(x => x.Hours).SetValidator(new BjjEventHoursDtoValidator());
+        _ = RuleForEach(x => x.Hours).SetValidator(new BjjEventHoursDtoValidator());
     }
 
 }

@@ -4,43 +4,42 @@ using BjjWorld.Application.Features.Gyms.Commands;
 using BjjWorld.Application.Features.Gyms.DTOs;
 using BjjWorld.Application.Features.Gyms.Queries;
 
-namespace BjjWorld.Api.Controllers
+namespace BjjWorld.Api.Controllers;
+
+public class GymController(IMediator mediator) : BaseApiController
 {
-    public class GymController(IMediator mediator) : BaseApiController
+    private readonly IMediator _mediator = mediator;
+
+    [EndpointDescription("Get Gym entitys")]
+    [EndpointName("GetAllGyms")]
+    [HttpGet()]
+    [EnableQuery]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAll([FromQuery] GetGymPaginationQuery query)
     {
-        private readonly IMediator _mediator = mediator;
+        var response = await _mediator.Send(query);
 
-        [EndpointDescription("Get Gym entitys")]
-        [EndpointName("GetAllGyms")]
-        [HttpGet()]
-        [EnableQuery]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAll([FromQuery] GetGymPaginationQuery query)
-        {
-            var response = await _mediator.Send(query);
+        return Ok(response);
+    }
 
-            return Ok(response);
-        }
+    [EndpointDescription("Add new entity to Gym")]
+    [EndpointName("InsertGym")]
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GymDto))]
+    //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Post([FromBody] GymDto model)
+    {
+        model = await _mediator.Send(new CreateGymCommand { Model = model });
 
-        [EndpointDescription("Add new entity to Gym")]
-        [EndpointName("InsertGym")]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GymDto))]
-        //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Post([FromBody] GymDto model)
-        {
-            model = await _mediator.Send(new CreateGymCommand { Model = model });
-
-            // var location = Url.Action(nameof(Post), new { id = model.Id }) ?? $"/{model.Id}";
-            // return CreatedAtAction(location, model);
-            //return CreatedAtRoute("GetBjjEventById", new { id = model.Id }, model);
-            return Ok(model);
-
-        }
+        // var location = Url.Action(nameof(Post), new { id = model.Id }) ?? $"/{model.Id}";
+        // return CreatedAtAction(location, model);
+        //return CreatedAtRoute("GetBjjEventById", new { id = model.Id }, model);
+        return Ok(model);
 
     }
+
 }

@@ -4,29 +4,29 @@ namespace BjjWorld.Web.AcceptanceTests;
 
 public static class ConfigurationHelper
 {
-    private readonly static IConfiguration _configuration;
+    private static readonly IConfiguration Configuration;
 
     static ConfigurationHelper()
     {
-        _configuration = new ConfigurationBuilder()
+        Configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .AddEnvironmentVariables()
             .Build();
     }
 
-    private static string? _baseUrl;
+    private static string? s_baseUrl;
 
     public static string GetBaseUrl()
     {
-        if (_baseUrl == null)
+        if (s_baseUrl == null)
         {
-            _baseUrl = _configuration["BaseUrl"];
+            s_baseUrl = Configuration["BaseUrl"];
 
-            ArgumentNullException.ThrowIfNull(_baseUrl);
+            ArgumentNullException.ThrowIfNull(s_baseUrl);
 
-            _baseUrl = _baseUrl.TrimEnd('/');
+            s_baseUrl = s_baseUrl.TrimEnd('/');
         }
 
-        return _baseUrl;
+        return s_baseUrl;
     }
 }

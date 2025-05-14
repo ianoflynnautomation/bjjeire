@@ -1,58 +1,45 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace BjjWorld.Api.Extensions;
+namespace BjjWorld.Api.Extensions.SecurityHeaders;
 
-public static class SecurityHeadersExtensions
-{
-    internal static IServiceCollection AddSecurityHeaders(this IServiceCollection services, IConfiguration config)
-    {
-        services.Configure<SecurityHeaderOptions>(config.GetSection(nameof(SecurityHeaderOptions)));
+public static class SecurityHeadersExtensions {
+    internal static IServiceCollection AddSecurityHeaders(this IServiceCollection services, IConfiguration config) {
+        _ = services.Configure<SecurityHeaderOptions>(config.GetSection(nameof(SecurityHeaderOptions)));
 
         return services;
     }
 
-    internal static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app)
-    {
+    internal static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app) {
         var options = app.ApplicationServices.GetRequiredService<IOptions<SecurityHeaderOptions>>().Value;
 
-        if (options.Enable)
-        {
-            app.Use(async (context, next) =>
-            {
-                if (!context.Response.HasStarted)
-                {
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XFrameOptions))
-                    {
+        if (options.Enable) {
+            _ = app.Use(async (context, next) => {
+                if (!context.Response.HasStarted) {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.XFrameOptions)) {
                         context.Response.Headers.XFrameOptions = options.Headers.XFrameOptions;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XContentTypeOptions))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.XContentTypeOptions)) {
                         context.Response.Headers.XContentTypeOptions = options.Headers.XContentTypeOptions;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.ReferrerPolicy))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.ReferrerPolicy)) {
                         context.Response.Headers.Referer = options.Headers.ReferrerPolicy;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.PermissionsPolicy))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.PermissionsPolicy)) {
                         context.Response.Headers["Permissions-Policy"] = options.Headers.PermissionsPolicy;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XXSSProtection))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.XXSSProtection)) {
                         context.Response.Headers.XXSSProtection = options.Headers.XXSSProtection;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.ContentSecurityPolicy))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.ContentSecurityPolicy)) {
                         context.Response.Headers.ContentSecurityPolicy = options.Headers.ContentSecurityPolicy;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(options.Headers.StrictTransportSecurity))
-                    {
+                    if (!string.IsNullOrWhiteSpace(options.Headers.StrictTransportSecurity)) {
                         context.Response.Headers.StrictTransportSecurity = options.Headers.StrictTransportSecurity;
                     }
                 }

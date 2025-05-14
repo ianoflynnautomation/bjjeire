@@ -5,8 +5,7 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.BjjEvents.DTOs;
 
-public class BjjEventDto : BaseApiEntityModel
-{
+public class BjjEventDto : BaseApiEntityModel {
     public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; } = string.Empty;
@@ -35,14 +34,12 @@ public class BjjEventDto : BaseApiEntityModel
 
 }
 
-public class BjjEventMapping : Profile
-{
-    public BjjEventMapping()
-    {
-        CreateMap<BjjEvent, BjjEventDto>()
+public class BjjEventMapping : Profile {
+    public BjjEventMapping() {
+        _ = CreateMap<BjjEvent, BjjEventDto>()
           .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
           .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
-        CreateMap<BjjEventDto, BjjEvent>()
+        _ = CreateMap<BjjEventDto, BjjEvent>()
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
             .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
     }

@@ -6,9 +6,9 @@ namespace BjjWorld.Application.Common.Interfaces;
 
 public interface IBjjEventService
 {
-    Task<BjjEvent> GetById(string id);
-    Task<List<BjjEvent>> GetAll();
-    Task Insert(BjjEvent bbjEvent);
-    Task Update(BjjEvent bbjEvent);
-    Task Delete(BjjEvent bbjEvent);
+    public Task<BjjEvent> GetById(string id);
+    public Task<List<BjjEvent>> GetAll();
+    public Task Insert(BjjEvent bbjEvent);
+    public Task Update(BjjEvent bbjEvent);
+    public Task Delete(BjjEvent bbjEvent);
 }

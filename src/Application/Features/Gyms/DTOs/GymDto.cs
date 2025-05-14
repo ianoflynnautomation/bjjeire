@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using BjjWorld.Application.Common;
 using BjjWorld.Application.Common.DTOs;
 using BjjWorld.Domain.Entities.Gyms;
@@ -6,8 +5,7 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Application.Features.Gyms.DTOs;
 
-public class GymDto : BaseApiEntityModel
-{
+public class GymDto : BaseApiEntityModel {
     public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; } = string.Empty;
@@ -34,14 +32,13 @@ public class GymDto : BaseApiEntityModel
 
 }
 
-public class GymtDtoMapping : Profile
-{
-    public GymtDtoMapping()
-    {
-        CreateMap<Gym, GymDto>()
-          .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-          .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
-        CreateMap<GymDto, Gym>()
+public class GymtDtoMapping : Profile {
+    public GymtDtoMapping() {
+
+        _ = CreateMap<Gym, GymDto>()
+            .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+            .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
+        _ = CreateMap<GymDto, Gym>()
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
             .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
     }

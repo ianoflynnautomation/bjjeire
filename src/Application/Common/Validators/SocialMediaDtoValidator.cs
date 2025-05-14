@@ -2,12 +2,10 @@
 using BjjWorld.Application.Common.Extensions;
 using BjjWorld.Domain.Entities.Common;
 
-namespace BjjWorld.Application.Features.BjjEvents.Validators;
+namespace BjjWorld.Application.Common.Validators;
 
-public class SocialMediaDtoValidator : AbstractValidator<SocialMedia>
-{
-    public SocialMediaDtoValidator()
-    {
+public class SocialMediaDtoValidator : AbstractValidator<SocialMedia> {
+    public SocialMediaDtoValidator() {
         // RuleFor(x => x.Facebook);
         // When(x => x != null, () => RuleFor(x => x.Facebook).ApplyUrlValidator("Facebook URL"));
 
