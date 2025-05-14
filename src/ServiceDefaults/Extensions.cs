@@ -84,8 +84,7 @@ public static class Extensions {
         var resourceServiceVersion = versionAttribute?.InformationalVersion ?? entryAssemblyName?.Version?.ToString();
         var attributes = new Dictionary<string, object> {
             ["host.name"] = Environment.MachineName,
-            ["service.names"] =
-                "BjjWorld.Api", //builder.Configuration["OpenTelemetrySettings:ServiceName"]!, //It's a WA Fix because the service.name tag is not completed automatically by Resource.Builder()...AddService(serviceName) https://github.com/open-telemetry/opentelemetry-dotnet/issues/2027
+            ["service.names"] = "BjjEire.Api", //builder.Configuration["OpenTelemetrySettings:ServiceName"]!, //It's a WA Fix because the service.name tag is not completed automatically by Resource.Builder()...AddService(serviceName) https://github.com/open-telemetry/opentelemetry-dotnet/issues/2027
             ["os.description"] = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             ["deployment.environment"] = builder.Environment.EnvironmentName.ToLowerInvariant()
         };

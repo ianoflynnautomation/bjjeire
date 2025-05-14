@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Web.AcceptanceTests.Pages;
+﻿namespace BjjEire.Web.AcceptanceTests.Pages;
 
 public class LoginPage(IBrowser browser, IPage page) : BasePage
 {

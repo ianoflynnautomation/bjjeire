@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>BjjWorld.Domain.UnitTests</RootNamespace>
-        <AssemblyName>BjjWorld.Domain.UnitTests</AssemblyName>
+        <RootNamespace>BjjEire.Domain.UnitTests</RootNamespace>
+        <AssemblyName>BjjEire.Domain.UnitTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/Domain/BjjEire.Domain.csproj" />
+        <ProjectReference Include="../../src/BjjEire.Domain/BjjEire.Domain.csproj" />
     </ItemGroup>
 
 </Project>

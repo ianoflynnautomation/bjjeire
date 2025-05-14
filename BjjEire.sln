@@ -4,13 +4,13 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{313F8151-4915-C42A-1EB1-D9B832018ED3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.IntegrationTests", "tests\Infrastructure.IntegrationTests\Infrastructure.IntegrationTests.csproj", "{7725793B-239C-5879-963E-0758E8997B53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Infrastructure.IntegrationTests", "tests\BjjEire.Infrastructure.IntegrationTests\BjjEire.Infrastructure.IntegrationTests.csproj", "{7725793B-239C-5879-963E-0758E8997B53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "tests\Application.UnitTests\Application.UnitTests.csproj", "{7E16E5A8-68B4-7694-49AA-FFD3B6257213}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Application.UnitTests", "tests\BjjEire.Application.UnitTests\BjjEire.Application.UnitTests.csproj", "{7E16E5A8-68B4-7694-49AA-FFD3B6257213}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.AcceptanceTests", "tests\Web.AcceptanceTests\Web.AcceptanceTests.csproj", "{30502E32-E65C-19F2-0492-FE7D116FADFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Web.AcceptanceTests", "tests\BjjEire.Web.AcceptanceTests\BjjEire.Web.AcceptanceTests.csproj", "{30502E32-E65C-19F2-0492-FE7D116FADFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.UnitTests", "tests\Domain.UnitTests\Domain.UnitTests.csproj", "{666E1784-6A01-5269-9F6C-498C1292C0FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Domain.UnitTests", "tests\BjjEire.Domain.UnitTests\BjjEire.Domain.UnitTests.csproj", "{666E1784-6A01-5269-9F6C-498C1292C0FF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5296412D-B177-22F6-371A-F059D3B79B99}"
 EndProject

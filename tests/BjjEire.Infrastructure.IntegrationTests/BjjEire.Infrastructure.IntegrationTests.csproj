@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>BjjWorld.Infrastructure.IntegrationTests</RootNamespace>
-        <AssemblyName>BjjWorld.Infrastructure.IntegrationTests</AssemblyName>
+        <RootNamespace>BjjEire.Infrastructure.IntegrationTests</RootNamespace>
+        <AssemblyName>BjjEire.Infrastructure.IntegrationTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

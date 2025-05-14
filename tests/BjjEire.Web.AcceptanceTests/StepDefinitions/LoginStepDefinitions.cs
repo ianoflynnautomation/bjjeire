@@ -1,4 +1,4 @@
-namespace BjjWorld.Web.AcceptanceTests.StepDefinitions;
+namespace BjjEire.Web.AcceptanceTests.StepDefinitions;
 
 [Binding]
 public sealed class LoginStepDefinitions(LoginPage loginPage) {
