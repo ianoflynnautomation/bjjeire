@@ -17,6 +17,6 @@ updates:
       include: "scope"
     ignore:
       - dependency-name: "Microsoft.*"
-        versions: ["10.x"] # Ignore .NET 10.x previews
+        versions: ["10.x"]
       - dependency-name: "Aspire.*"
-        versions: ["10.x"] # Ignore Aspire 10.x previews
+        versions: ["10.x"] 
