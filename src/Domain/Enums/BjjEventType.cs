@@ -1,4 +1,4 @@
-namespace BjjWorld.Domain.Enums;
+namespace BjjEire.Domain.Enums;
 
 public enum BjjEventType {
     OpenMat = 0,

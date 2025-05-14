@@ -1,4 +1,4 @@
-namespace BjjWorld.Infrastructure.Configuration;
+namespace BjjEire.Infrastructure.Configuration;
 
 public class CacheOptions {
     public const string SectionName = "CacheOptions";

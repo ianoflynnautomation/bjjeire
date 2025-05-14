@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Common.Extensions;
+namespace BjjEire.Application.Common.Extensions;
 
 public static class ValidationExtension {
     public static bool IsValidUrl(string? url) {

@@ -1,4 +1,4 @@
-namespace BjjWorld.Application.Common.Exceptions;
+namespace BjjEire.Application.Common.Exceptions;
 
 public class NotFoundException(string message) : Exception(message) {
 }

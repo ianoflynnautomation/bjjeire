@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Common.DTOs;
+namespace BjjEire.Application.Common.DTOs;
 
 public class PaginationMetadataDto {
     public int TotalItems { get; set; }

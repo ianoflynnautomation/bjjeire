@@ -1,7 +1,7 @@
-using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Entities.Gyms;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.Gyms;
 
-namespace BjjWorld.Application.Common.Interfaces;
+namespace BjjEire.Application.Common.Interfaces;
 
 public interface IGymService
 {

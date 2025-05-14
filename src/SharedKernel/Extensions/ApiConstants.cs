@@ -1,4 +1,4 @@
-﻿namespace SharedKernel.Extensions;
+﻿namespace BjjEire.SharedKernel.Extensions;
 
 public static class ApiConstants {
     public const string ApiGroupNameV1 = "v1";

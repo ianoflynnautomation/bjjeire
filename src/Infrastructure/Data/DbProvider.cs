@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Infrastructure.Data;
+﻿namespace BjjEire.Infrastructure.Data;
 
 public enum DbProvider {
     MongoDB,

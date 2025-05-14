@@ -1,13 +1,13 @@
-using BjjWorld.Application.Common.Constants;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Common;
+using BjjEire.Application.Common.Constants;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common;
 using Microsoft.AspNetCore.Routing;
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Domain.Entities.Gyms;
-using BjjWorld.Application.Features.Gyms.DTOs;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Domain.Entities.Gyms;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.Gyms.Queries;
+namespace BjjEire.Application.Features.Gyms.Queries;
 
 public sealed class GetGymPaginationQueryHandler(IRepository<Gym> gymRepository, IMapper mapper,
 ICacheBase cacheBase, ILinkService linkService)

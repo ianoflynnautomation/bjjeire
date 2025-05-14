@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using FluentValidation;
 
-namespace BjjWorld.Application.Common.Extensions;
+namespace BjjEire.Application.Common.Extensions;
 
 public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty> ApplyRequiredValidator<T, TProperty>(

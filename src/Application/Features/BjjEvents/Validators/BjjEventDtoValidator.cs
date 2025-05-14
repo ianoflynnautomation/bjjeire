@@ -1,9 +1,9 @@
 
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Application.Common.Extensions;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Application.Common.Extensions;
+using BjjEire.Application.Features.BjjEvents.DTOs;
 
-namespace BjjWorld.Application.Features.BjjEvents.Validators;
+namespace BjjEire.Application.Features.BjjEvents.Validators;
 
 public class BjjEventDtoValidator : AbstractValidator<BjjEventDto> {
     public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,

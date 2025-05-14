@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RootNamespace>BjjEire.SharedKernel</RootNamespace>
+    <AssemblyName>BjjEire.SharedKernel</AssemblyName>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

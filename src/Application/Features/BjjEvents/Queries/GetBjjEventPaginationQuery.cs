@@ -1,7 +1,7 @@
 
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.BjjEvents.Queries;
+namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public record GetBjjEventPaginationQuery : IRequest<GetBjjEventPaginatedResponseDto> {
     private const int DefaultPage = 1;

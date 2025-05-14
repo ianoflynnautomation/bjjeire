@@ -1,4 +1,4 @@
-namespace BjjWorld.Domain.Enums;
+namespace BjjEire.Domain.Enums;
 
 public enum GymStatus {
     Active = 0,

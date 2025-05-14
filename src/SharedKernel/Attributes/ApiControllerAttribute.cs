@@ -1,4 +1,4 @@
-﻿namespace SharedKernel.Attributes;
+﻿namespace BjjEire.SharedKernel.Attributes;
 
 
 [AttributeUsage(AttributeTargets.Class)]

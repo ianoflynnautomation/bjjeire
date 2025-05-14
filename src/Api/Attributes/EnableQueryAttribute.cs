@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace BjjWorld.Api.Attributes;
+namespace BjjEire.Api.Attributes;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class EnableQueryAttribute : ActionFilterAttribute

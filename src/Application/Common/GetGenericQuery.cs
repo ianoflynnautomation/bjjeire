@@ -1,8 +1,8 @@
 ﻿
 
-using BjjWorld.Domain.Entities;
+using BjjEire.Domain.Entities;
 
-namespace BjjWorld.Application.Common;
+namespace BjjEire.Application.Common;
 
 public record GetGenericQuery<T, TC>(string Id) : IRequest<IQueryable<T>>
     where T : BaseApiEntityModel

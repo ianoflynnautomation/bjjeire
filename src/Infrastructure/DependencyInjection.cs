@@ -1,14 +1,14 @@
 ﻿
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Infrastructure;
-using BjjWorld.Infrastructure.Configuration;
-using BjjWorld.Infrastructure.Data.Mongo;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Infrastructure;
+using BjjEire.Infrastructure.Configuration;
+using BjjEire.Infrastructure.Data.Mongo;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using Microsoft.Extensions.Options;
-using BjjWorld.Infrastructure.Caching;
+using BjjEire.Infrastructure.Caching;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;

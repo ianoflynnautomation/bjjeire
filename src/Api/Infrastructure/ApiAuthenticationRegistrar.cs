@@ -1,11 +1,11 @@
 ﻿
-using BjjWorld.Application.Common.Interfaces.Authentication;
-using BjjWorld.Infrastructure.Configuration;
+using BjjEire.Application.Common.Interfaces.Authentication;
+using BjjEire.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace BjjWorld.Api.Infrastructure;
+namespace BjjEire.Api.Infrastructure;
 
 public class ApiAuthenticationRegistrar {
     public void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration) {

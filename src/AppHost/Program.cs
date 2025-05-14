@@ -39,7 +39,7 @@ var mongo = builder.AddMongoDB("mongo").WithLifetime(ContainerLifetime.Persisten
 var mongodb = mongo.AddDatabase("Mongodb");
 
 var bjjWordApi = builder
-    .AddProject<Projects.Api>("api")
+    .AddProject<Projects.BjjEire_Api>("api")
     .WithExternalHttpEndpoints()
     .WithReference(mongodb)
      .WaitFor(mongodb);

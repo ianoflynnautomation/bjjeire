@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace BjjWorld.Api.Extensions.HealthChecks;
+namespace BjjEire.Api.Extensions.HealthChecks;
 
 public static class HealthChecksExtensions
 {

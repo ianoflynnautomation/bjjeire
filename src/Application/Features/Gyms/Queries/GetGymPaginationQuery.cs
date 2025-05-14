@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Features.Gyms.Queries;
+namespace BjjEire.Application.Features.Gyms.Queries;
 
 public record GetGymPaginationQuery : IRequest<GetGymPaginatedResponse> {
     private const int DefaultPage = 1;

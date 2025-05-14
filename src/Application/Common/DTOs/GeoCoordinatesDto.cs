@@ -1,6 +1,6 @@
-using BjjWorld.Domain.Entities.Common;
+using BjjEire.Domain.Entities.Common;
 
-namespace BjjWorld.Application.Common.DTOs;
+namespace BjjEire.Application.Common.DTOs;
 
 public class GeoCoordinatesDto {
     public string Type { get; set; } = "Point";

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>BjjWorld.Domain</RootNamespace>
-    <AssemblyName>BjjWorld.Domain</AssemblyName>
+    <RootNamespace>BjjEire.Domain</RootNamespace>
+    <AssemblyName>BjjEire.Domain</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
     <ItemGroup>
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="../SharedKernel/BjjEire.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

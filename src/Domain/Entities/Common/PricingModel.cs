@@ -1,6 +1,6 @@
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Domain.Entities.Common;
+namespace BjjEire.Domain.Entities.Common;
 
 public class PricingModel {
     [BsonElement("type")]

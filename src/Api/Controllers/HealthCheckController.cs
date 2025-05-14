@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace BjjWorld.Api.Controllers;
+namespace BjjEire.Api.Controllers;
 
 public class HealthCheckController(HealthCheckService healthCheckService) : BaseApiController
 {

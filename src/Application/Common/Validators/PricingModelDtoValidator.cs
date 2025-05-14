@@ -1,9 +1,9 @@
 
-using BjjWorld.Application.Common.Extensions;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common.Extensions;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Common.Validators;
+namespace BjjEire.Application.Common.Validators;
 
 public class PricingModelDtoValidator : AbstractValidator<BjjEventPricingModelDto> {
     public PricingModelDtoValidator() {

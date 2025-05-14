@@ -1,15 +1,15 @@
 ﻿
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BjjWorld.Api.Extensions.Cors;
-using BjjWorld.Api.Extensions.Exceptions;
-using BjjWorld.Api.Extensions.HealthChecks;
-using BjjWorld.Api.Extensions.Logging.Serilog;
-using BjjWorld.Api.Extensions.OpenApi;
-using BjjWorld.Api.Extensions.RateLimit;
-using BjjWorld.Api.Extensions.SecurityHeaders;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Common.Services;
+using BjjEire.Api.Extensions.Cors;
+using BjjEire.Api.Extensions.Exceptions;
+using BjjEire.Api.Extensions.HealthChecks;
+using BjjEire.Api.Extensions.Logging.Serilog;
+using BjjEire.Api.Extensions.OpenApi;
+using BjjEire.Api.Extensions.RateLimit;
+using BjjEire.Api.Extensions.SecurityHeaders;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common.Services;
 using Prometheus;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure

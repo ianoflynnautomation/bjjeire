@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
 
-namespace BjjWorld.Api.Extensions.RateLimit;
+namespace BjjEire.Api.Extensions.RateLimit;
 
 public static class RateLimitExtensions {
     internal static IServiceCollection ConfigureRateLimit(this IServiceCollection services, IConfiguration config) {

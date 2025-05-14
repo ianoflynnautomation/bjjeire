@@ -1,10 +1,10 @@
 
-using BjjWorld.Application.Common.Interfaces;
+using BjjEire.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 
-namespace BjjWorld.Application.Common.Services;
+namespace BjjEire.Application.Common.Services;
 
 public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccessor httpContextAccessor, ILogger<LinkService> logger) : ILinkService {
     private readonly LinkGenerator _linkGenerator = linkGenerator;

@@ -1,8 +1,8 @@
 
-using BjjWorld.Application.Common.Extensions;
-using BjjWorld.Domain.Entities.Common;
+using BjjEire.Application.Common.Extensions;
+using BjjEire.Domain.Entities.Common;
 
-namespace BjjWorld.Application.Common.Validators;
+namespace BjjEire.Application.Common.Validators;
 
 public class SocialMediaDtoValidator : AbstractValidator<SocialMedia> {
     public SocialMediaDtoValidator() {

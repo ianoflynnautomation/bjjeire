@@ -1,9 +1,9 @@
-using BjjWorld.Application.Common;
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Domain.Entities.Gyms;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Domain.Entities.Gyms;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.Gyms.DTOs;
+namespace BjjEire.Application.Features.Gyms.DTOs;
 
 public class GymDto : BaseApiEntityModel {
     public string Name { get; set; } = string.Empty;

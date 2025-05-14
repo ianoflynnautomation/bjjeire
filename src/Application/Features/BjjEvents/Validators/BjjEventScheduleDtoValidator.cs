@@ -1,9 +1,9 @@
 
-using BjjWorld.Application.Common.Extensions;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common.Extensions;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.BjjEvents.Validators;
+namespace BjjEire.Application.Features.BjjEvents.Validators;
 
 public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto> {
     public BjjEventScheduleDtoValidator() {

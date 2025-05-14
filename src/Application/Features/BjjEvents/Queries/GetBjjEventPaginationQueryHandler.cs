@@ -1,13 +1,13 @@
-using BjjWorld.Application.Common.Constants;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Application.Common;
+using BjjEire.Application.Common.Constants;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Application.Common;
 using Microsoft.AspNetCore.Routing;
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.BjjEvents.Queries;
+namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bjjEventRepository, IMapper mapper,
 ICacheBase cacheBase, ILinkService linkService)

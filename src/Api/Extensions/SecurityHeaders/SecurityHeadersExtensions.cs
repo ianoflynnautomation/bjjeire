@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace BjjWorld.Api.Extensions.SecurityHeaders;
+namespace BjjEire.Api.Extensions.SecurityHeaders;
 
 public static class SecurityHeadersExtensions {
     internal static IServiceCollection AddSecurityHeaders(this IServiceCollection services, IConfiguration config) {

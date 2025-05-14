@@ -1,7 +1,7 @@
 
-using BjjWorld.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Features.Gyms.DTOs;
 
-namespace BjjWorld.Application.Features.Gyms.Validators;
+namespace BjjEire.Application.Features.Gyms.Validators;
 
 public class TrialOfferDtoValidator : AbstractValidator<TrialOfferDto> {
     public TrialOfferDtoValidator() {

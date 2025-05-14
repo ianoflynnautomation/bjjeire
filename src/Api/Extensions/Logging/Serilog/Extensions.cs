@@ -1,6 +1,6 @@
 ﻿using Serilog;
 
-namespace BjjWorld.Api.Extensions.Logging.Serilog;
+namespace BjjEire.Api.Extensions.Logging.Serilog;
 
 public static class Extensions {
     public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder) {

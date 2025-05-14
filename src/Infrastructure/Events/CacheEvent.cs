@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Infrastructure.Events;
+﻿namespace BjjEire.Infrastructure.Events;
 
 public enum CacheEvent {
     RemoveKey = 0,

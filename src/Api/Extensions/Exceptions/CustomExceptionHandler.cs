@@ -1,9 +1,9 @@
 ﻿
-using BjjWorld.Application.Common.Exceptions;
+using BjjEire.Application.Common.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace BjjWorld.Api.Extensions.Exceptions;
+namespace BjjEire.Api.Extensions.Exceptions;
 
 public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment) : IExceptionHandler {
     private readonly ILogger<CustomExceptionHandler> _logger = logger;

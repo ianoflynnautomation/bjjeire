@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using MongoDB.Driver;
 
-namespace BjjWorld.Application.Common;
+namespace BjjEire.Application.Common;
 
 public class UpdateBuilder<T> {
     private readonly List<ExpressionFieldDefinition<T, object>> _expressionFieldDefinitions = [];

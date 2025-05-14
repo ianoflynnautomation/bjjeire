@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Domain.Entities.BjjEvents;
+namespace BjjEire.Domain.Entities.BjjEvents;
 
 public class BjjEventHours {
     [BsonElement("day")]

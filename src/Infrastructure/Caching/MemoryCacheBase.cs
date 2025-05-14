@@ -1,12 +1,12 @@
 
 using System.Collections.Concurrent;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Infrastructure.Configuration;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Infrastructure.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 
-namespace BjjWorld.Infrastructure.Caching;
+namespace BjjEire.Infrastructure.Caching;
 
 public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILogger<MemoryCacheBase> logger) : ICacheBase {
     private readonly IMemoryCache _cache = cache; private readonly CacheOptions _cacheOptions = cacheOptions;

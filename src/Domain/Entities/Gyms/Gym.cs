@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
-using BjjWorld.Domain.Entities.Common;
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Entities.Common;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Domain.Entities.Gyms;
+namespace BjjEire.Domain.Entities.Gyms;
 
 public class Gym : BaseEntity {
     [BsonElement("name")]

@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Common.Constants;
+namespace BjjEire.Application.Common.Constants;
 
 public static partial class CacheKey {
         public static string BJJ_EVENT_PATTERN_KEY => "BjjEvent.";

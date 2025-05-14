@@ -1,7 +1,7 @@
-using BjjWorld.Domain.Entities.Common;
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Entities.Common;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
 public class BjjEventPricingModelDto {
     public PricingType Type { get; set; }

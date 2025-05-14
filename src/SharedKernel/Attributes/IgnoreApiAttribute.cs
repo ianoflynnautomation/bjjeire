@@ -1,4 +1,4 @@
-﻿namespace SharedKernel.Attributes;
+﻿namespace BjjEire.SharedKernel.Attributes;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Property)]
 public class IgnoreApiAttribute : Attribute;

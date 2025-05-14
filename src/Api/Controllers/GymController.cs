@@ -1,10 +1,10 @@
 
-using BjjWorld.Api.Attributes;
-using BjjWorld.Application.Features.Gyms.Commands;
-using BjjWorld.Application.Features.Gyms.DTOs;
-using BjjWorld.Application.Features.Gyms.Queries;
+using BjjEire.Api.Attributes;
+using BjjEire.Application.Features.Gyms.Commands;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Features.Gyms.Queries;
 
-namespace BjjWorld.Api.Controllers;
+namespace BjjEire.Api.Controllers;
 
 public class GymController(IMediator mediator) : BaseApiController
 {

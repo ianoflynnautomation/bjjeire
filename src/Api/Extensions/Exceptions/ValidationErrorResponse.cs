@@ -1,4 +1,4 @@
-namespace BjjWorld.Api.Extensions.Exceptions;
+namespace BjjEire.Api.Extensions.Exceptions;
 
 public class ValidationErrorResponse : ProblemDetails
 {

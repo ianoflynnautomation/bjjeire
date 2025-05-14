@@ -1,8 +1,8 @@
 
 
-using BjjWorld.Api.Constants;
+using BjjEire.Api.Constants;
 
-namespace BjjWorld.Api.Controllers;
+namespace BjjEire.Api.Controllers;
 
     [Route($"{ConfigurationsConstants.RestRoutePrefix}/[controller]")]
     [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]

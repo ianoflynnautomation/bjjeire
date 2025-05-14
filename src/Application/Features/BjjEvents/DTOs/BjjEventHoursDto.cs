@@ -1,7 +1,7 @@
 
-using BjjWorld.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.BjjEvents;
 
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
 public class BjjEventHoursDto {
     public DayOfWeek Day { get; set; }

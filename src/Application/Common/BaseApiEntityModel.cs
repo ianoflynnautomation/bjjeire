@@ -1,7 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace BjjWorld.Application.Common;
+namespace BjjEire.Application.Common;
 
 public class BaseApiEntityModel {
     [Key] public required string Id { get; set; }

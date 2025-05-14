@@ -1,8 +1,8 @@
 
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Application.Features.Gyms.DTOs;
 
-namespace BjjWorld.Application.Features.Gyms.Queries;
+namespace BjjEire.Application.Features.Gyms.Queries;
 
 public record GetGymPaginatedResponse
 {

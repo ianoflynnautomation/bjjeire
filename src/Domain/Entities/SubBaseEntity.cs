@@ -1,3 +1,3 @@
-namespace BjjWorld.Domain.Entities;
+namespace BjjEire.Domain.Entities;
 
 public abstract class SubBaseEntity : ParentEntity;

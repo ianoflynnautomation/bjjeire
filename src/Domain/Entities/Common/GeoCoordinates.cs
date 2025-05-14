@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Domain.Entities.Common;
+namespace BjjEire.Domain.Entities.Common;
 
 public class GeoCoordinates {
 

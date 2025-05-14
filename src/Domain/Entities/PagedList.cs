@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Domain.Entities;
+﻿namespace BjjEire.Domain.Entities;
 
 
 [Serializable]

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace BjjWorld.Application.Common.Behaviours;
+namespace BjjEire.Application.Common.Behaviours;
 
 public class ValidationBehaviour<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators,

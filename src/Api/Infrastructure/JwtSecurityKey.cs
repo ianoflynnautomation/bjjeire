@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace BjjWorld.Api.Infrastructure;
+namespace BjjEire.Api.Infrastructure;
 
 public static class JwtSecurityKey
 {

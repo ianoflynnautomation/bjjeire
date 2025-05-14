@@ -1,4 +1,4 @@
-﻿namespace SharedKernel.Attributes;
+﻿namespace BjjEire.SharedKernel.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class DBFieldNameAttribute(string name) : Attribute {
