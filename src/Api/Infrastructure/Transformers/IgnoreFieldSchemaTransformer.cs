@@ -1,10 +1,10 @@
 ﻿
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
-using SharedKernel.Attributes;
+using BjjEire.SharedKernel.Attributes;
 using System.Reflection;
 
-namespace BjjWorld.Api.Infrastructure.Transformers;
+namespace BjjEire.Api.Infrastructure.Transformers;
 
 public class IgnoreFieldSchemaTransformer : IOpenApiSchemaTransformer {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken) {

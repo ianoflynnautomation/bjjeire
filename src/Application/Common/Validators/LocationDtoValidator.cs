@@ -1,8 +1,8 @@
 
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Application.Common.Extensions;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Application.Common.Extensions;
 
-namespace BjjWorld.Application.Common.Validators;
+namespace BjjEire.Application.Common.Validators;
 
 public class LocationDtoValidator : AbstractValidator<LocationDto> {
   public LocationDtoValidator(IValidator<GeoCoordinatesDto> geoCoordinatesDtoValidator) {

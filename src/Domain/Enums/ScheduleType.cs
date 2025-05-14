@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Domain.Enums;
+namespace BjjEire.Domain.Enums;
 
 public enum ScheduleType {
     Recurring = 0,

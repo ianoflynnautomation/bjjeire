@@ -1,7 +1,7 @@
 
-using SharedKernel.Attributes;
+using BjjEire.SharedKernel.Attributes;
 
-namespace BjjWorld.Domain.Entities;
+namespace BjjEire.Domain.Entities;
 public abstract class ParentEntity {
     private string _id;
 

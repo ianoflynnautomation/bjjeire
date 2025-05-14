@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Api.Extensions.RateLimit;
+namespace BjjEire.Api.Extensions.RateLimit;
 
 public class RateLimitOptions {
     public bool EnableRateLimiting { get; init; }

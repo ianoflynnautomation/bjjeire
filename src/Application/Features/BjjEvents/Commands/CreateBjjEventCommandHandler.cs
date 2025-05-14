@@ -1,10 +1,10 @@
 
 
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Domain.Entities.BjjEvents;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Domain.Entities.BjjEvents;
 
-namespace BjjWorld.Application.Features.BjjEvents.Commands;
+namespace BjjEire.Application.Features.BjjEvents.Commands;
 
 public sealed class CreateBjjEventCommandHandler(IBjjEventService bjjEventService, IMapper mapper)
     : IRequestHandler<CreateBjjEventCommand, BjjEventDto> {

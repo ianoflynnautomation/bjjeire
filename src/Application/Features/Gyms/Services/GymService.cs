@@ -1,8 +1,8 @@
-using BjjWorld.Application.Common.Constants;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Domain.Entities.Gyms;
+using BjjEire.Application.Common.Constants;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities.Gyms;
 
-namespace BjjWorld.Application.Features.Gyms.Services;
+namespace BjjEire.Application.Features.Gyms.Services;
 
 public class GymService(IRepository<Gym> gymRepository, ICacheBase cacheBase) : IGymService {
     private readonly IRepository<Gym> _gymRepository = gymRepository;

@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Application.Common.Exceptions;
+namespace BjjEire.Application.Common.Exceptions;
 
 [Serializable]
 public class BjjWorldException : Exception {

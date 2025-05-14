@@ -1,9 +1,9 @@
 
-using BjjWorld.Application.Common;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Domain.Entities;
+using BjjEire.Application.Common;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities;
 
-namespace BjjWorld.Infrastructure.Data.Mongo;
+namespace BjjEire.Infrastructure.Data.Mongo;
 public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     private readonly IAuditInfoProvider _auditInfoProvider;
 

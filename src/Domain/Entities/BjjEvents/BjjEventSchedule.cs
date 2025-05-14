@@ -1,7 +1,7 @@
 
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Domain.Entities.BjjEvents;
+namespace BjjEire.Domain.Entities.BjjEvents;
 
 public class BjjEventSchedule {
     [BsonElement("scheduleType")]

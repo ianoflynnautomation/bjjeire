@@ -1,8 +1,8 @@
 
 
-using BjjWorld.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.BjjEvents;
 
-namespace BjjWorld.Application.Common.Interfaces;
+namespace BjjEire.Application.Common.Interfaces;
 
 public interface IBjjEventService
 {

@@ -1,9 +1,9 @@
-using BjjWorld.Api.Attributes;
+using BjjEire.Api.Attributes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
-namespace BjjWorld.Api.Extensions.OpenApi;
+namespace BjjEire.Api.Extensions.OpenApi;
 
 public static class OpenApiOptionsExtensions {
     public static void AddOperationTransformer(this OpenApiOptions options) {
@@ -77,13 +77,13 @@ public static class OpenApiOptionsExtensions {
         ArgumentNullException.ThrowIfNull(options);
         _ = options.AddDocumentTransformer((document, context, cancellationToken) => {
             document.Info = new OpenApiInfo {
-                Description = "BjjWorld API",
+                Description = "BjjEire API",
                 Title = name,
                 Version = version,
                 Contact = new OpenApiContact {
                     Name = name,
-                    Email = "support@bjjworld.com",
-                    Url = new Uri("https://bjjworld.com")
+                    Email = "support@BjjEire.com",
+                    Url = new Uri("https://BjjEire.com")
                 }
             };
 

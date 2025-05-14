@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Routing;
 
-namespace BjjWorld.Application.Common.Interfaces;
+namespace BjjEire.Application.Common.Interfaces;
 
 public interface ILinkService {
     public (string? nextPageUrl, string? previousPageUrl) GeneratePaginationUrls(

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using BjjWorld.Domain.Entities;
+using BjjEire.Domain.Entities;
 
-namespace BjjWorld.Application.Common.Interfaces;
+namespace BjjEire.Application.Common.Interfaces;
 
 public interface IRepository<T> where T : BaseEntity {
     public IQueryable<T> Table { get; }

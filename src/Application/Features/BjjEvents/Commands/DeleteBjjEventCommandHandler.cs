@@ -1,6 +1,6 @@
-using BjjWorld.Application.Common.Interfaces;
+using BjjEire.Application.Common.Interfaces;
 
-namespace BjjWorld.Application.Features.BjjEvents.Commands;
+namespace BjjEire.Application.Features.BjjEvents.Commands;
 
 public sealed class DeleteBjjEventCommandHandler(IBjjEventService bjjEventService) : IRequestHandler<DeleteBjjEventCommand, bool> {
     private readonly IBjjEventService _bjjEventService = bjjEventService;

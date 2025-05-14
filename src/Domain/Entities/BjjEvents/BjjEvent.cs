@@ -1,8 +1,8 @@
 
-using BjjWorld.Domain.Entities.Common;
-using BjjWorld.Domain.Enums;
+using BjjEire.Domain.Entities.Common;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Domain.Entities.BjjEvents;
+namespace BjjEire.Domain.Entities.BjjEvents;
 
 public class BjjEvent : BaseEntity {
     [BsonElement("name")]

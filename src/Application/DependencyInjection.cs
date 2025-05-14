@@ -1,13 +1,13 @@
 ﻿using System.Reflection;
-using BjjWorld.Application.Common;
-using BjjWorld.Application.Common.Behaviours;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Application.Features.BjjEvents.Services;
-using BjjWorld.Application.Features.Gyms.DTOs;
-using BjjWorld.Application.Features.Gyms.Services;
-using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Entities.Gyms;
+using BjjEire.Application.Common;
+using BjjEire.Application.Common.Behaviours;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Features.BjjEvents.Services;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Features.Gyms.Services;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.Gyms;
 using Microsoft.Extensions.Hosting;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure

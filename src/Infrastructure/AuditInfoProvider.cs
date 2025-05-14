@@ -1,6 +1,6 @@
-﻿using BjjWorld.Application.Common.Interfaces;
+﻿using BjjEire.Application.Common.Interfaces;
 
-namespace BjjWorld.Infrastructure;
+namespace BjjEire.Infrastructure;
 
 public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider {
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;

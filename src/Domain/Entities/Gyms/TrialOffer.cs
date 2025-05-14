@@ -1,4 +1,4 @@
-namespace BjjWorld.Domain.Entities.Gyms;
+namespace BjjEire.Domain.Entities.Gyms;
 
 public class TrialOffer
 {

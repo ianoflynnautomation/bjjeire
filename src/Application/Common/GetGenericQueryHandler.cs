@@ -1,8 +1,8 @@
 ﻿
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Domain.Entities;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities;
 
-namespace BjjWorld.Application.Common;
+namespace BjjEire.Application.Common;
 
 public class GetGenericQueryHandler<T, TC>(IRepository<TC> repository) : IRequestHandler<GetGenericQuery<T, TC>, IQueryable<T>>
     where T : BaseApiEntityModel

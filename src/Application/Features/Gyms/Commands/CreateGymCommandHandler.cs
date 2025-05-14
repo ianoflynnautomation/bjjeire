@@ -1,8 +1,8 @@
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Application.Features.Gyms.DTOs;
-using BjjWorld.Domain.Entities.Gyms;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Domain.Entities.Gyms;
 
-namespace BjjWorld.Application.Features.Gyms.Commands;
+namespace BjjEire.Application.Features.Gyms.Commands;
 
 public sealed class CreateGymCommandHandler(IGymService gymService, IMapper mapper)
     : IRequestHandler<CreateGymCommand, GymDto> {

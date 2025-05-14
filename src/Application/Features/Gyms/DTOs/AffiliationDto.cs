@@ -1,7 +1,7 @@
 
-using BjjWorld.Domain.Entities.Gyms;
+using BjjEire.Domain.Entities.Gyms;
 
-namespace BjjWorld.Application.Features.Gyms.DTOs;
+namespace BjjEire.Application.Features.Gyms.DTOs;
 
 public class AffiliationDto {
     public string Name { get; set; } = string.Empty;

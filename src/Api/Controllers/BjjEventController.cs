@@ -1,11 +1,11 @@
-using BjjWorld.Api.Attributes;
-using BjjWorld.Application.Common;
-using BjjWorld.Application.Features.BjjEvents.Commands;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
-using BjjWorld.Application.Features.BjjEvents.Queries;
-using BjjWorld.Domain.Entities.BjjEvents;
+using BjjEire.Api.Attributes;
+using BjjEire.Application.Common;
+using BjjEire.Application.Features.BjjEvents.Commands;
+using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Features.BjjEvents.Queries;
+using BjjEire.Domain.Entities.BjjEvents;
 
-namespace BjjWorld.Api.Controllers;
+namespace BjjEire.Api.Controllers;
 
 public class BjjEventController(IMediator mediator) : BaseApiController
 {

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace BjjWorld.Application.Common.Exceptions;
+namespace BjjEire.Application.Common.Exceptions;
 
 public class CustomException(
     string message,

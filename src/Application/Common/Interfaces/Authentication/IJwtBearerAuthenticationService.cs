@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace BjjWorld.Application.Common.Interfaces.Authentication;
+namespace BjjEire.Application.Common.Interfaces.Authentication;
 
 public interface IJwtBearerAuthenticationService {
     public Task<bool> Valid(TokenValidatedContext context);

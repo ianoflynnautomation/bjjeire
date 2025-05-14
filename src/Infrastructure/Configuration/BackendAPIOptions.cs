@@ -1,5 +1,5 @@
 
-namespace BjjWorld.Infrastructure.Configuration;
+namespace BjjEire.Infrastructure.Configuration;
 
 public class BackendAPIOptions {
     public const string SectionName = "BackendApiOptions";

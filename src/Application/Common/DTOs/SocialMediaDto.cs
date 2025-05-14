@@ -1,6 +1,6 @@
-using BjjWorld.Domain.Entities.Common;
+using BjjEire.Domain.Entities.Common;
 
-namespace BjjWorld.Application.Common.DTOs;
+namespace BjjEire.Application.Common.DTOs;
 
 public class SocialMediaDto {
     public string Instagram { get; set; } = string.Empty;

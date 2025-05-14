@@ -1,9 +1,9 @@
-using BjjWorld.Application.Common;
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Domain.Entities.BjjEvents;
-using BjjWorld.Domain.Enums;
+using BjjEire.Application.Common;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Enums;
 
-namespace BjjWorld.Application.Features.BjjEvents.DTOs;
+namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
 public class BjjEventDto : BaseApiEntityModel {
     public string Name { get; set; } = string.Empty;

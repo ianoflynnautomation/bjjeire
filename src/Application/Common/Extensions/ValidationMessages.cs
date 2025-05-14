@@ -1,4 +1,4 @@
-namespace BjjWorld.Application.Common.Extensions;
+namespace BjjEire.Application.Common.Extensions;
 
 public static class ValidationMessages {
     public static class Common {

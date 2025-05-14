@@ -1,9 +1,9 @@
 
-using BjjWorld.Application.Common.Constants;
-using BjjWorld.Application.Common.Interfaces;
-using BjjWorld.Domain.Entities.BjjEvents;
+using BjjEire.Application.Common.Constants;
+using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities.BjjEvents;
 
-namespace BjjWorld.Application.Features.BjjEvents.Services;
+namespace BjjEire.Application.Features.BjjEvents.Services;
 
 public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBase cacheBase) : IBjjEventService {
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;

@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Application.Common.Interfaces;
+﻿namespace BjjEire.Application.Common.Interfaces;
 
 public interface IAuditInfoProvider
 {

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace BjjWorld.Application.Common;
+namespace BjjEire.Application.Common;
 
 public class OrderBuilder<T> {
     private readonly List<(Expression<Func<T, object>> selector, bool value, string fieldName)> _list = [];

@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Api.Constants;
+﻿namespace BjjEire.Api.Constants;
 
 public static class ConfigurationsConstants
 {

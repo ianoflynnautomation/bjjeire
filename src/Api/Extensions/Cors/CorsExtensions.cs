@@ -1,6 +1,6 @@
-﻿using BjjWorld.Api.Constants;
+﻿using BjjEire.Api.Constants;
 
-namespace BjjWorld.Api.Extensions.Cors;
+namespace BjjEire.Api.Extensions.Cors;
 
 public static class CorsExtensions
 {

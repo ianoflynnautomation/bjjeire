@@ -1,8 +1,8 @@
 
-using BjjWorld.Application.Common.DTOs;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Application.Features.BjjEvents.DTOs;
 
-namespace BjjWorld.Application.Features.BjjEvents.Queries;
+namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public class GetBjjEventPaginatedResponseDto {
     public List<BjjEventDto> Data { get; set; } = [];

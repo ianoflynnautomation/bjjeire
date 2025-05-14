@@ -1,7 +1,7 @@
-using BjjWorld.Application.Common.Extensions;
-using BjjWorld.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Common.Extensions;
+using BjjEire.Application.Features.BjjEvents.DTOs;
 
-namespace BjjWorld.Application.Features.BjjEvents.Validators;
+namespace BjjEire.Application.Features.BjjEvents.Validators;
 
 public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto> {
     public BjjEventHoursDtoValidator() {
