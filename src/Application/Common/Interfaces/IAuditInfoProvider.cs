@@ -2,6 +2,6 @@
 
 public interface IAuditInfoProvider
 {
-    string GetCurrentUser();
-    DateTime GetCurrentDateTime();
+    public string GetCurrentUser();
+    public DateTime GetCurrentDateTime();
 }

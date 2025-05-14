@@ -1,28 +1,23 @@
 ﻿using Serilog;
 
-namespace BjjWorld.Api.Extensions;
+namespace BjjWorld.Api.Extensions.Logging.Serilog;
 
-public static class Extensions
-{
-    public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder)
-    {
+public static class Extensions {
+    public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Host.UseSerilog((context, loggerConfiguration) => loggerConfiguration
+        _ = builder.Host.UseSerilog((context, loggerConfiguration) => loggerConfiguration
                 .ReadFrom.Configuration(context.Configuration));
 
         return builder;
     }
 
-    public static WebApplication UseCustomSerilogRequestLogging(this WebApplication app)
-    {
+    public static WebApplication UseCustomSerilogRequestLogging(this WebApplication app) {
         ArgumentNullException.ThrowIfNull(app);
 
-        app.UseSerilogRequestLogging(options =>
-        {
+        _ = app.UseSerilogRequestLogging(options => {
             options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-            {
+            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) => {
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown");
                 diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown");
                 // Add other request-specific properties if needed

@@ -1,16 +1,14 @@
 ﻿using BjjWorld.Api.Constants;
 
-namespace BjjWorld.Api.Extensions;
+namespace BjjWorld.Api.Extensions.Cors;
 
 public static class CorsExtensions
 {
-
     internal static IHostApplicationBuilder ConfigureCors(this IHostApplicationBuilder builder)
     {
         var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>() ?? [];
 
-        builder.Services.AddCors(options =>
-        {
+        _ = builder.Services.AddCors(options => {
             options.AddPolicy(ConfigurationsConstants.DevelopmentCorsPolicyName,
                 builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             options.AddPolicy(ConfigurationsConstants.ProductionCorsPolicyName,
@@ -22,10 +20,9 @@ public static class CorsExtensions
 
     internal static WebApplication UseCors(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-            app.UseCors(ConfigurationsConstants.DevelopmentCorsPolicyName);
-        else
-            app.UseCors(ConfigurationsConstants.ProductionCorsPolicyName);
+        _ = app.Environment.IsDevelopment()
+            ? app.UseCors(ConfigurationsConstants.DevelopmentCorsPolicyName)
+            : app.UseCors(ConfigurationsConstants.ProductionCorsPolicyName);
 
         return app;
 

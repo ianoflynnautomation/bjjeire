@@ -1,8 +1,7 @@
 
 namespace BjjWorld.Domain.Entities.Common;
 
-public class GeoCoordinates
-{
+public class GeoCoordinates {
 
   [BsonElement("type")]
   public string Type { get; private set; } = "Point";

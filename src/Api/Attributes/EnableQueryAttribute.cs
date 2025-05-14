@@ -7,37 +7,47 @@ public class EnableQueryAttribute : ActionFilterAttribute
 {
     public override void OnActionExecuted(ActionExecutedContext context)
     {
-        if (context.Result is not ObjectResult result || result.Value == null)
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (context.Result is not ObjectResult result || result.Value == null) {
             return;
+        }
 
         if (result.Value is IQueryable queryable)
         {
-            queryable = ApplyQueryOptions(queryable, context.HttpContext.Request.Query, context.HttpContext.Response);
+            queryable = ApplyQueryOptions(queryable, context.HttpContext.Request.Query);
+            //queryable = ApplyQueryOptions(queryable, context.HttpContext.Request.Query, context.HttpContext.Response);
             result.Value = queryable;
         }
     }
 
-    private static IQueryable ApplyQueryOptions(IQueryable queryable, IQueryCollection query, HttpResponse response)
+    //private static IQueryable ApplyQueryOptions(IQueryable queryable, IQueryCollection query, HttpResponse response)
+    private static IQueryable ApplyQueryOptions(IQueryable queryable, IQueryCollection query)
     {
-        if (query.TryGetValue("$filter", out var filter))
+        if (query.TryGetValue("$filter", out var filter)) {
             queryable = queryable.Where(filter.ToString());
+        }
 
-        if (query.TryGetValue("$orderby", out var orderBy))
+        if (query.TryGetValue("$orderby", out var orderBy)) {
             queryable = queryable.OrderBy(orderBy.ToString());
+        }
 
-        if (query.TryGetValue("$select", out var select))
+        if (query.TryGetValue("$select", out var select)) {
             queryable = queryable.Select($"new({select})");
+        }
 
-        if (query.TryGetValue("$skip", out var skipValue) && int.TryParse(skipValue, out var skip))
+        if (query.TryGetValue("$skip", out var skipValue) && int.TryParse(skipValue, out var skip)) {
             queryable = queryable.Skip(skip);
+        }
 
         if (query.TryGetValue("$top", out var topValue) && int.TryParse(topValue, out var top))
         {
             top = Math.Min(top, 100);
             queryable = queryable.Take(top);
         }
-        else
+        else {
             queryable = queryable.Take(100);
+        }
 
         return queryable;
     }

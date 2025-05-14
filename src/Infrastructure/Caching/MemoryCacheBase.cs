@@ -8,26 +8,23 @@ using Microsoft.Extensions.Primitives;
 
 namespace BjjWorld.Infrastructure.Caching;
 
-public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILogger<MemoryCacheBase> logger) : ICacheBase
-{
-    private readonly IMemoryCache _cache = cache;    private readonly CacheOptions _cacheOptions = cacheOptions;
+public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILogger<MemoryCacheBase> logger) : ICacheBase {
+    private readonly IMemoryCache _cache = cache; private readonly CacheOptions _cacheOptions = cacheOptions;
     private readonly ILogger<MemoryCacheBase> _logger = logger;
-    private static CancellationTokenSource _resetCacheToken = new();
+    private static CancellationTokenSource s_resetCacheToken = new();
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
 
-    public Task Clear(bool publisher = true)
-    {
+    public Task Clear(bool publisher = true) {
         _logger.LogInformation("Attempting to clear the entire cache.");
 
-        foreach (var cacheEntry in _cacheEntries.Keys.ToList())
-        {
+        foreach (var cacheEntry in _cacheEntries.Keys.ToList()) {
             _cache.Remove(cacheEntry);
         }
 
-        _resetCacheToken.Cancel();
+        s_resetCacheToken.Cancel();
         _logger.LogDebug("Cancellation token signaled for cache reset.");
-        _resetCacheToken.Dispose();
-        _resetCacheToken = new CancellationTokenSource();
+        s_resetCacheToken.Dispose();
+        s_resetCacheToken = new CancellationTokenSource();
         _logger.LogDebug("New cancellation token source created.");
         _cacheEntries.Clear();
         _logger.LogInformation("Cache Clear operation completed. Signaled reset token and cleared internal tracking dictionary (tracked keys).");
@@ -36,59 +33,50 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
 
     }
 
-    public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
-    {
-        return GetAsync(key, acquire, _cacheOptions.DefaultCacheTimeMinutes);
-    }
+    public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire) => GetAsync(key, acquire, _cacheOptions.DefaultCacheTimeMinutes);
 
-    public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
-    {
+    public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime) {
         _logger.LogDebug("Attempting to get item with key {CacheKey}", key);
 
-        if (_cache.TryGetValue(key, out T? cacheEntry))
-        {
+        if (_cache.TryGetValue(key, out T? cacheEntry)) {
             _logger.LogInformation("Cache hit for key {CacheKey}", key);
             return cacheEntry!;
         }
 
         _logger.LogInformation("Cache miss for key {CacheKey}. Attempting to acquire data.", key);
         // Cache Stampede Protection
-        var semaphore = _cacheEntries.GetOrAdd(key, k =>
-        {
+        var semaphore = _cacheEntries.GetOrAdd(key, k => {
             _logger.LogDebug("Creating new semaphore for key {CacheKey}", k);
             return new SemaphoreSlim(1, 1);
         });
 
         await semaphore.WaitAsync();
-        try
-        {
-            if (!_cache.TryGetValue(key, out cacheEntry))
-            {
+        try {
+            if (!_cache.TryGetValue(key, out cacheEntry)) {
                 _logger.LogInformation("Cache hit after wait for key {CacheKey}. Another thread added the item.", key);
+                ArgumentNullException.ThrowIfNull(acquire);
                 cacheEntry = await acquire();
                 var options = GetMemoryCacheEntryOptions(cacheTime);
-                _cache.Set(key, cacheEntry, options);
+                _ = _cache.Set(key, cacheEntry, options);
                 _logger.LogInformation("Stored item with key {CacheKey} in cache. Expiration: {ExpirationType} in {CacheTimeMinutes} minutes.",
                     key,
                     options.SlidingExpiration.HasValue ? "Sliding" : "Absolute",
                     cacheTime);
             }
         }
-        finally
-        {
-            semaphore.Release();
+        finally {
+            _ = semaphore.Release();
             _logger.LogDebug("Released semaphore for key {CacheKey}", key);
         }
 
         return cacheEntry!;
     }
 
-    public Task RemoveAsync(string key, bool publisher = true)
-    {
+    public Task RemoveAsync(string key, bool publisher = true) {
         _logger.LogInformation("Attempting to remove item with key {CacheKey}", key);
         _cache.Remove(key);
 
-        _cacheEntries.TryRemove(key, out _);
+        _ = _cacheEntries.TryRemove(key, out _);
 
         _logger.LogInformation("Removal complete for key {CacheKey}.", key);
 
@@ -97,16 +85,14 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
         return Task.CompletedTask;
     }
 
-    public Task RemoveByPrefix(string prefix, bool publisher = true)
-    {
+    public Task RemoveByPrefix(string prefix, bool publisher = true) {
         _logger.LogInformation("Attempting to remove items with prefix {CachePrefix}", prefix);
 
         var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-        foreach (var cacheEntries in entriesToRemove)
-        {
+        foreach (var cacheEntries in entriesToRemove) {
             _logger.LogDebug("Removing item with key {CacheKey}", cacheEntries.Key);
             _cache.Remove(cacheEntries.Key);
-            _cacheEntries.TryRemove(cacheEntries.Key, out _);
+            _ = _cacheEntries.TryRemove(cacheEntries.Key, out _);
 
             _logger.LogInformation("Removed items with prefix {CachePrefix}.", prefix);
         }
@@ -116,27 +102,22 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
         return Task.CompletedTask;
     }
 
-    public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire)
-    {
-        return SetAsync(key, acquire, _cacheOptions.DefaultCacheTimeMinutes);
-    }
+    public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire) => SetAsync(key, acquire, _cacheOptions.DefaultCacheTimeMinutes);
 
-    public async Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
-    {
+    public async Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime) {
         _logger.LogInformation("Attempting to set/overwrite item with key {CacheKey}", key);
 
-        var semaphore = _cacheEntries.GetOrAdd(key, k =>
-        {
+        var semaphore = _cacheEntries.GetOrAdd(key, k => {
             _logger.LogDebug("Creating new semaphore for key {CacheKey} during SetAsync.", k);
             return new SemaphoreSlim(1, 1);
         });
 
         await semaphore.WaitAsync();
-        try
-        {
+        try {
+            ArgumentNullException.ThrowIfNull(acquire);
             var cacheEntry = await acquire();
             var options = GetMemoryCacheEntryOptions(cacheTime);
-            _cache.Set(key, cacheEntry, options);
+            _ = _cache.Set(key, cacheEntry, options);
             _logger.LogInformation("Stored item with key {CacheKey} in cache via SetAsync. Expiration: {ExpirationType} in {CacheTimeMinutes} minutes.",
                 key,
                 options.SlidingExpiration.HasValue ? "Sliding" : "Absolute",
@@ -144,33 +125,34 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
             _logger.LogInformation("Stored item with key {CacheKey} in cache via SetAsync", key);
             return cacheEntry;
         }
-        finally
-        {
-            semaphore.Release();
+        finally {
+            _ = semaphore.Release();
             _logger.LogDebug("Released semaphore for key {CacheKey} in SetAsync.", key);
         }
 
     }
 
-    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime, bool useSliding = false)
-    {
-        var options = new MemoryCacheEntryOptions
-        {
+    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime, bool useSliding = false) {
+        var options = new MemoryCacheEntryOptions {
             Size = 1
         };
-        if (useSliding)
+        if (useSliding) {
             options.SlidingExpiration = TimeSpan.FromMinutes(cacheTime);
-        else
+        }
+        else {
             options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime);
-        options.AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
+        }
+
+        _ = options.AddExpirationToken(new CancellationChangeToken(s_resetCacheToken.Token))
                .RegisterPostEvictionCallback(PostEvictionCallback);
         return options;
     }
 
-    private void PostEvictionCallback(object? key, object? value, EvictionReason reason, object? state)
-    {
-        if (reason != EvictionReason.Replaced && key != null)
-            _cacheEntries.TryRemove(key.ToString()!, out var _);
+    private void PostEvictionCallback(object? key, object? value, EvictionReason reason, object? state) {
+        if (reason != EvictionReason.Replaced && key != null) {
+            _ = _cacheEntries.TryRemove(key.ToString()!, out _);
+        }
+
         _logger.LogDebug("Cache item evicted. Key: {CacheKey}, Reason: {reason}", key, reason);
     }
 }

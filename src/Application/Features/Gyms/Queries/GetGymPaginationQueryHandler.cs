@@ -11,8 +11,7 @@ namespace BjjWorld.Application.Features.Gyms.Queries;
 
 public sealed class GetGymPaginationQueryHandler(IRepository<Gym> gymRepository, IMapper mapper,
 ICacheBase cacheBase, ILinkService linkService)
-: IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse>
-{
+: IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse> {
     private readonly IRepository<Gym> _gymRepository = gymRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
@@ -20,16 +19,14 @@ ICacheBase cacheBase, ILinkService linkService)
     private const string ControllerNameForLinks = "GetAllGyms";
     private const string ActionNameForLinks = "GetAll";
 
-    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken)
-    {
+    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken) {
+        ArgumentNullException.ThrowIfNull(request);
         var cacheKey = string.Format(CacheKey.GYM_ALL, request.Page, request.PageSize, request.County);
 
-        return await _cacheBase.GetAsync(cacheKey, async () =>
-        {
+        return await _cacheBase.GetAsync(cacheKey, async () => {
             var query = _gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-            if (!string.IsNullOrWhiteSpace(request.County))
-            {
+            if (!string.IsNullOrWhiteSpace(request.County)) {
                 query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
             }
 
@@ -40,11 +37,10 @@ ICacheBase cacheBase, ILinkService linkService)
                 .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
 
             var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.County))
-            {
+            if (!string.IsNullOrWhiteSpace(request.County)) {
                 additionalRouteValues["county"] = request.County;
             }
-    
+
 
             var (nextPageUrl, previousPageUrl) = _linkService.GeneratePaginationUrls(
                 controllerName: ControllerNameForLinks,
@@ -57,11 +53,9 @@ ICacheBase cacheBase, ILinkService linkService)
                 additionalRouteValues: additionalRouteValues
             );
 
-            return new GetGymPaginatedResponse
-            {
+            return new GetGymPaginatedResponse {
                 Data = [.. pagedGymDtos],
-                Pagination = new PaginationMetadataDto
-                {
+                Pagination = new PaginationMetadataDto {
                     TotalItems = pagedGymDtos.TotalCount,
                     CurrentPage = request.Page,
                     PageSize = pagedGymDtos.PageSize,

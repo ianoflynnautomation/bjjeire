@@ -4,8 +4,7 @@ using MongoDB.Driver;
 
 namespace BjjWorld.Application.Common;
 
-public class UpdateBuilder<T>
-{
+public class UpdateBuilder<T> {
     private readonly List<ExpressionFieldDefinition<T, object>> _expressionFieldDefinitions = [];
     private readonly List<UpdateDefinition<T>> _list = [];
 
@@ -15,13 +14,9 @@ public class UpdateBuilder<T>
 
     public IEnumerable<ExpressionFieldDefinition<T, object>> ExpressionFields => _expressionFieldDefinitions;
 
-    public static UpdateBuilder<T> Create()
-    {
-        return new UpdateBuilder<T>();
-    }
+    public static UpdateBuilder<T> Create() => new();
 
-    public UpdateBuilder<T> Set<TProperty>(Expression<Func<T, TProperty>> selector, TProperty value)
-    {
+    public UpdateBuilder<T> Set<TProperty>(Expression<Func<T, TProperty>> selector, TProperty value) {
         //for mongodb
         _list.Add(Builders<T>.Update.Set(selector, value));
 

@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BjjWorld.Application.Common.Services;
 
-public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccessor httpContextAccessor, ILogger<LinkService> logger) : ILinkService
-{
+public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccessor httpContextAccessor, ILogger<LinkService> logger) : ILinkService {
     private readonly LinkGenerator _linkGenerator = linkGenerator;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly ILogger<LinkService> _logger = logger;
@@ -20,11 +19,9 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
           int totalPages,
           bool hasNextPage,
           bool hasPreviousPage,
-          RouteValueDictionary? additionalRouteValues = null)
-    {
+          RouteValueDictionary? additionalRouteValues = null) {
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null)
-        {
+        if (httpContext == null) {
             _logger.LogWarning("HttpContext is null. Cannot generate pagination URLs outside of a request context.");
             return (null, null);
         }
@@ -33,8 +30,7 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
             ? new RouteValueDictionary(additionalRouteValues)
             : [];
 
-        if (!baseRouteValues.ContainsKey("pageSize"))
-        {
+        if (!baseRouteValues.ContainsKey("pageSize")) {
             baseRouteValues["pageSize"] = pageSize;
         }
         // else // Optional: you could enforce the passed pageSize matches any existing one
@@ -46,19 +42,15 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
         string? nextPageUrl = null;
         string? previousPageUrl = null;
 
-        if (hasNextPage && currentPage < totalPages)
-        {
-            var nextRouteValues = new RouteValueDictionary(baseRouteValues)
-            {
+        if (hasNextPage && currentPage < totalPages) {
+            var nextRouteValues = new RouteValueDictionary(baseRouteValues) {
                 ["page"] = currentPage + 1
             };
             nextPageUrl = GenerateAbsoluteUrl(httpContext, controllerName, actionName, nextRouteValues);
         }
 
-        if (hasPreviousPage && currentPage > 1) 
-        {
-            var prevRouteValues = new RouteValueDictionary(baseRouteValues)
-            {
+        if (hasPreviousPage && currentPage > 1) {
+            var prevRouteValues = new RouteValueDictionary(baseRouteValues) {
                 ["page"] = currentPage - 1
             };
             previousPageUrl = GenerateAbsoluteUrl(httpContext, controllerName, actionName, prevRouteValues);
@@ -67,8 +59,7 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
         return (nextPageUrl, previousPageUrl);
     }
 
-    private string? GenerateAbsoluteUrl(HttpContext httpContext, string controllerName, string actionName, RouteValueDictionary routeValues)
-    {
+    private string? GenerateAbsoluteUrl(HttpContext httpContext, string controllerName, string actionName, RouteValueDictionary routeValues) {
         var uri = _linkGenerator.GetUriByAction(
             httpContext,
             action: actionName,
@@ -78,8 +69,7 @@ public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccesso
             // host: httpContext.Request.Host
             );
 
-        if (uri == null)
-        {
+        if (uri == null) {
             _logger.LogWarning("Link generation failed for Action: {Action}, Controller: {Controller}, RouteValues: {@RouteValues}",
                 actionName, controllerName, routeValues);
         }

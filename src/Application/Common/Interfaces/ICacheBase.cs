@@ -2,11 +2,11 @@ namespace BjjWorld.Application.Common.Interfaces;
 
 public interface ICacheBase
 {
-    Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);
-    Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);
-    Task<T> SetAsync<T>(string key, Func<Task<T>> acquire);
-    Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);
-    Task RemoveAsync(string key, bool publisher = true);
-    Task RemoveByPrefix(string prefix, bool publisher = true);
-    Task Clear(bool publisher = true);
+    public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);
+    public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);
+    public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire);
+    public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);
+    public Task RemoveAsync(string key, bool publisher = true);
+    public Task RemoveByPrefix(string prefix, bool publisher = true);
+    public Task Clear(bool publisher = true);
 }

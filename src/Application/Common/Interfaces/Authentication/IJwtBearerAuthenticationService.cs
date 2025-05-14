@@ -2,8 +2,7 @@
 
 namespace BjjWorld.Application.Common.Interfaces.Authentication;
 
-public interface IJwtBearerAuthenticationService
-{
-    Task<bool> Valid(TokenValidatedContext context);
-    Task<string> ErrorMessage();
+public interface IJwtBearerAuthenticationService {
+    public Task<bool> Valid(TokenValidatedContext context);
+    public Task<string> ErrorMessage();
 }

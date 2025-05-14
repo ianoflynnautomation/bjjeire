@@ -9,7 +9,7 @@ import { useEventSubmission } from '../hooks/useEventSubmission';
 import { EventFormData, BjjEventType, BjjEventDto, GetBjjEventsPaginationQuery } from '../types/event';
 import LoadingState from '../components/Events/EventsPageFeedback/LoadingState';
 import ErrorState from '../components/Events/EventsPageFeedback/ErrorState';
-import NoEventsState from '../components/Events/EventsPageFeedback/NoEventsState';
+import NoDataState from '../components/Events/EventsPageFeedback/NoDataState';
 import BackgroundFetchingIndicator from '../components/Events/EventsPageFeedback/BackgroundFetchingIndicator';
 import EventsPageHeader from '../components/Events/EventsPageHeader';
 import EventsList from '../components/Events/EventsList';
@@ -124,7 +124,16 @@ const EventsPage: React.FC = () => {
   const renderMainContent = () => {
     if (isInitialLoading) return <LoadingState />;
     if (hasError) return <ErrorState message={errorMessage} onRetry={handleRetryFetch} />;
-    if (noEventsFound) return <NoEventsState onOpenForm={() => setIsFormOpen(true)} />;
+    if (noEventsFound) return (
+      <NoDataState
+        title="No Events Found" // You can customize this or let the default apply
+        // messageLine1 and messageLine2 have defaults, but you can override them:
+        // messageLine1="No events match your current filters."
+        // messageLine2="Why not try a different filter or submit one?"
+        actionText="Submit a new event" // This text will appear on the button
+        onActionClick={() => setIsFormOpen(true)} // This is the correct prop for the action
+      />
+    );
     if (events.length > 0) return <EventsList events={events} />;
     return null;
   };

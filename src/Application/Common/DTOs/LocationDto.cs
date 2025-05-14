@@ -3,8 +3,7 @@ using BjjWorld.Domain.Entities.Common;
 
 namespace BjjWorld.Application.Common.DTOs;
 
-public class LocationDto
-{
+public class LocationDto {
     public string Address { get; set; } = string.Empty;
 
     public string Venue { get; set; } = string.Empty;
@@ -13,11 +12,9 @@ public class LocationDto
 
 }
 
-public class LocationMapping : Profile
-{
-    public LocationMapping()
-    {
-        CreateMap<Location, LocationDto>();
-        CreateMap<LocationDto, Location>();
+public class LocationMapping : Profile {
+    public LocationMapping() {
+        _ = CreateMap<Location, LocationDto>();
+        _ = CreateMap<LocationDto, Location>();
     }
 }

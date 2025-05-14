@@ -97,7 +97,7 @@ const Navigation = () => {
                 data-testid={`${baseTestId}-support-button`}
               >
                 {/* Increased icon size */}
-                <BitcoinIcon className="h-6 w-6" aria-hidden="true" />
+                <BitcoinIcon className="h-5 w-5" aria-hidden="true" />
                 {/* Shortened text for better balance */}
                 Support
               </button>

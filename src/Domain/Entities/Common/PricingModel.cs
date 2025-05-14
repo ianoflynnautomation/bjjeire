@@ -2,8 +2,7 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Domain.Entities.Common;
 
-public class PricingModel
-{
+public class PricingModel {
     [BsonElement("type")]
     public PricingType Type { get; set; }
     [BsonElement("amount")]

@@ -2,12 +2,6 @@
 
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-public sealed class ApiGroupAttribute : Attribute
-{
-    public string GroupName { get; }
-
-    public ApiGroupAttribute(string groupName)
-    {
-        GroupName = groupName;
-    }
+public sealed class ApiGroupAttribute(string groupName) : Attribute {
+    public string GroupName { get; } = groupName;
 }

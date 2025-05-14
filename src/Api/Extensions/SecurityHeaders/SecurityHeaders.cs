@@ -1,4 +1,4 @@
-﻿namespace BjjWorld.Api.Extensions;
+﻿namespace BjjWorld.Api.Extensions.SecurityHeaders;
 
 public class SecurityHeaders
 {

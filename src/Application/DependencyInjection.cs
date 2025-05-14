@@ -10,19 +10,22 @@ using BjjWorld.Domain.Entities.BjjEvents;
 using BjjWorld.Domain.Entities.Gyms;
 using Microsoft.Extensions.Hosting;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 public static class DependencyInjection
 {
     public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+        _ = builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+        _ = builder.Services.AddMediatR(cfg => {
+            _ = cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
+            _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         });
 
         builder.Services.RegisterOpenMatService();
@@ -34,8 +37,8 @@ public static class DependencyInjection
 
     private static void RegisterOpenMatService(this IServiceCollection services)
     {
-        services.AddScoped<IBjjEventService, BjjEventService>();
-        services.AddScoped<IGymService, GymService>();
+        _ = services.AddScoped<IBjjEventService, BjjEventService>();
+        _ = services.AddScoped<IGymService, GymService>();
     }
 
     public static void RegisterRequestHandler(this IServiceCollection services)
@@ -47,14 +50,14 @@ public static class DependencyInjection
 
         };
 
-        foreach (var (dto, entity) in handlerTypes)
+        foreach ((Type dto, Type entity) in handlerTypes)
         {
-            var requestHandlerType = typeof(IRequestHandler<,>).MakeGenericType(
+            Type requestHandlerType = typeof(IRequestHandler<,>).MakeGenericType(
                 typeof(GetGenericQuery<,>).MakeGenericType(dto, entity),
                 typeof(IQueryable<>).MakeGenericType(dto)
             );
-            var handlerImplementationType = typeof(GetGenericQueryHandler<,>).MakeGenericType(dto, entity);
-            services.AddScoped(requestHandlerType, handlerImplementationType);
+            Type handlerImplementationType = typeof(GetGenericQueryHandler<,>).MakeGenericType(dto, entity);
+            _ = services.AddScoped(requestHandlerType, handlerImplementationType);
         }
     }
 

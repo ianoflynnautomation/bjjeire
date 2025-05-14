@@ -4,14 +4,13 @@ using BjjWorld.Domain.Enums;
 
 namespace BjjWorld.Domain.Entities.Gyms;
 
-public class Gym : BaseEntity
-{
+public class Gym : BaseEntity {
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
     [BsonElement("description")]
     public string? Description { get; set; } = string.Empty;
     [BsonElement("status")]
-    public GymStatus Status {get; set;}
+    public GymStatus Status { get; set; }
     [BsonElement("county")]
     public string County { get; set; } = string.Empty;
     [BsonElement("affiliation")]

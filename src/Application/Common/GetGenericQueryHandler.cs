@@ -4,18 +4,18 @@ using BjjWorld.Domain.Entities;
 
 namespace BjjWorld.Application.Common;
 
-public class GetGenericQueryHandler<T, C>(IRepository<C> repository) : IRequestHandler<GetGenericQuery<T, C>, IQueryable<T>>
+public class GetGenericQueryHandler<T, TC>(IRepository<TC> repository) : IRequestHandler<GetGenericQuery<T, TC>, IQueryable<T>>
     where T : BaseApiEntityModel
-    where C : BaseEntity
-{
-    private readonly IRepository<C> _repository = repository;
+    where TC : BaseEntity {
+    private readonly IRepository<TC> _repository = repository;
 
-    public async Task<IQueryable<T>> Handle(GetGenericQuery<T, C> request, CancellationToken cancellationToken)
-    {
+    public async Task<IQueryable<T>> Handle(GetGenericQuery<T, TC> request, CancellationToken cancellationToken) {
+        ArgumentNullException.ThrowIfNull(request);
+
         var query = _repository.TableCollection<T>();
 
-        return string.IsNullOrEmpty(request.Id) ? 
-        query : 
+        return string.IsNullOrEmpty(request.Id) ?
+        query :
         await Task.FromResult(query.Where(x => x.Id == request.Id));
     }
 }
