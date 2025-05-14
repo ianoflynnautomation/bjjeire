@@ -11,12 +11,11 @@ updates:
     labels:
       - "dependencies"
       - "nuget"
-    versioning-strategy: auto
     commit-message:
       prefix: "chore"
       include: "scope"
     ignore:
       - dependency-name: "Microsoft.*"
-        versions: ["10.x"]
+        versions: ["10.x"] # Be careful with wildcards in versions here, usually specific versions or ranges
       - dependency-name: "Aspire.*"
-        versions: ["10.x"] 
+        versions: ["10.x"] # Same as above
