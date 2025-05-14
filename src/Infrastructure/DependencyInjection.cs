@@ -87,7 +87,6 @@ public static class DependencyInjection {
         {
             new IgnoreExtraElementsConvention(true),
             new CamelCaseElementNameConvention(),
-            // new EnumRepresentationConvention(BsonType.Int32)
         };
         ConventionRegistry.Register("AppConventions", conventionPack, t => true);
     }

@@ -2,6 +2,7 @@
 bin/
 obj/
 *.csproj.user
+.stylecop.cache
 *.suo
 *.user
 *.pubxml
@@ -61,6 +62,7 @@ yarn-error.log
 # docker-compose*.yml
 # docker-compose.dcproj
 # *.dcproj
+
 
 # General IDE and Editor Files
 *.code-workspace

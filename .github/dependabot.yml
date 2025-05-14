@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "main"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ianoflynnautomation"
+    labels:
+      - "dependencies"
+      - "nuget"
+    versioning-strategy: auto
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      - dependency-name: "Microsoft.*"
+        versions: ["10.x"] # Ignore .NET 10.x previews
+      - dependency-name: "Aspire.*"
+        versions: ["10.x"] # Ignore Aspire 10.x previews
