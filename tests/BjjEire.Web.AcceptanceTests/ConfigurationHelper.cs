@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace BjjWorld.Web.AcceptanceTests;
+namespace BjjEire.Web.AcceptanceTests;
 
 public static class ConfigurationHelper
 {

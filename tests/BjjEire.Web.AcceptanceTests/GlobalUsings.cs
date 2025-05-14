@@ -1,4 +1,4 @@
-﻿global using BjjWorld.Web.AcceptanceTests.Pages;
+﻿global using BjjEire.Web.AcceptanceTests.Pages;
 global using BoDi;
 global using FluentAssertions;
 global using Microsoft.Playwright;

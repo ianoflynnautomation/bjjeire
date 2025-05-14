@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>BjjWorld.Web.AcceptanceTests</RootNamespace>
-        <AssemblyName>BjjWorld.Web.AcceptanceTests</AssemblyName>
+        <RootNamespace>BjjEire.Web.AcceptanceTests</RootNamespace>
+        <AssemblyName>BjjEire.Web.AcceptanceTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
