@@ -2,7 +2,7 @@
 import React, { memo } from 'react';
 import { BjjEventDto } from '../../../types/event';
 import { EventSchedule } from '../EventSchedule/EventSchedule'; // Assuming relative path
-import { EventDetails } from './../EventDetails/EventDetails'; // Assuming relative path
+import { EventDetails } from '../EventDetails/EventDetails'; // Assuming relative path
 import { EventHeader } from './EventHeader';
 import { EventFooter } from './EventFooter';
 

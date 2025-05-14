@@ -2,10 +2,10 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY src/bjjworld-app/package.json src/bjjworld-app/package-lock.json ./
+COPY src/bjjeire-app/package.json src/bjjeire-app/package-lock.json ./
 RUN npm ci --production=false
 
-COPY src/bjjworld-app/ .
+COPY src/bjjeire-app/ .
 RUN npm run build
 
 # Nginx stage

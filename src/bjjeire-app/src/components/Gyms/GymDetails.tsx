@@ -8,7 +8,7 @@ import {
 } from '@heroicons/react/20/solid';
 import { GymDto } from '../../types/gyms';
 import { formatDisplayUrl, ensureExternalUrlScheme } from '../../utils/formattingUtils';
-import { DetailItem } from '../../components/common/DetailItem';
+import { DetailItem } from '../common/DetailItem';
 import { SocialMediaLinks } from '../common/SocialLinks/SocialLinks';
 import { GymOfferedClasses } from './GymOfferedClasses';
 import { GymTrialOffer } from './GymTrialOffer';

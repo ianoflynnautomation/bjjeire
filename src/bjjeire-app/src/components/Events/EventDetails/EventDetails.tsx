@@ -4,7 +4,7 @@ import { MapPinIcon, CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react
 import { BjjEventDto, PricingType, OrganizerDto } from '../../../types/event'; // Adjusted path
 import { calculateEventPrice } from '../../../utils/priceCalculator'; // Adjusted path
 import { CalculatedPrice } from '../../../utils/calculateEventPrice'; // Adjusted path assuming it's co-located or in utils
-import { SocialMediaLinks } from '../../../components/common/SocialLinks/SocialLinks';
+import { SocialMediaLinks } from '../../common/SocialLinks/SocialLinks';
 import { DetailItem } from './DetailItem'; // Assuming DetailItem is in the same folder
 import { getGoogleMapsUrl } from '../../../utils/mapUtils'; // Adjusted path
 import { ensureExternalUrlScheme } from '../../../utils/formattingUtils'; // Assuming this util exists

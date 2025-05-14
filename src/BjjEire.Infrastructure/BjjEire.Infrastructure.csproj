@@ -13,8 +13,8 @@
     </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Application/BjjEire.Application.csproj" />
-    <ProjectReference Include="../SharedKernel/BjjEire.SharedKernel.csproj" />
+    <ProjectReference Include="../BjjEire.Application/BjjEire.Application.csproj" />
+    <ProjectReference Include="../BjjEire.SharedKernel/BjjEire.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>
