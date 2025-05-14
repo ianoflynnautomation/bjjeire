@@ -10,11 +10,15 @@ import svgr from 'vite-plugin-svgr';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
+  if (!env.SERVICES_API_HTTPS_0 && !env.SERVICES_API_HTTP_0) {
+    throw new Error('Missing SERVICES_API_HTTPS_0 or SERVICES_API_HTTP_0 environment variable');
+  }
+
   return {
     base: './',
     plugins: [react(), viteTsconfigPaths(), tailwindcss(), svgr({
       include: '**/*.svg',
-      exclude: undefined,
+      // exclude: undefined,
       svgrOptions: {
         exportType: 'named',
         prettier: false,
@@ -24,9 +28,7 @@ export default defineConfig(({ mode }) => {
             {
               name: 'preset-default',
               params: {
-                overrides: {
-                  removeViewBox: false,
-                },
+                overrides: { removeViewBox: false },
               },
             },
           ],
@@ -42,7 +44,9 @@ export default defineConfig(({ mode }) => {
           target:
           process.env.SERVICES_API_HTTPS_0 || process.env.SERVICES_API_HTTP_0,
           changeOrigin: true,
-          secure: false,
+          secure: env.SERVICES_API_HTTPS_0 ? true : false,
+          //rewrite: (path) => path.replace(/^\/api/, ''),
+
         },
       },
     },
@@ -50,9 +54,12 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/testing/setup-tests.ts',
-      exclude: ['**/node_modules/**', '**/e2e/**'],
+      exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
       coverage: {
-        include: ['src/**'],
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: ['src/**/*.d.ts', 'src/testing/**'],
+        reporter: ['text', 'json', 'html'],
+        all: true,
       },
     },
     optimizeDeps: {
@@ -60,13 +67,17 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
+      sourcemap: true,
+      minify: 'esbuild',
       rollupOptions: {
         input: './index.html',
         external: ['fs/promises'],
         output: {
-          experimentalMinChunkSize: 3500,
-        },
+          manualChunks: {
+            vendor: ['react', 'react-dom', '@tanstack/react-query', 'react-router-dom'],
+          },
       },
+    },
     },
   };
 });
