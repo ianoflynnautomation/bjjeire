@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Application/BjjEire.Application.csproj" />
-    <ProjectReference Include="../Infrastructure/BjjEire.Infrastructure.csproj" />
+    <ProjectReference Include="../BjjEire.Application/BjjEire.Application.csproj" />
+    <ProjectReference Include="../BjjEire.Infrastructure/BjjEire.Infrastructure.csproj" />
     <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
   </ItemGroup>
 

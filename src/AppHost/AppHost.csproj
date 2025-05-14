@@ -38,7 +38,7 @@
   </Target>
 
   	<ItemGroup>
-		<ProjectReference Include="../Api/BjjEire.Api.csproj" />
+		<ProjectReference Include="../BjjEire.Api/BjjEire.Api.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 import React, { memo } from 'react';
 import { SparklesIcon } from '@heroicons/react/20/solid';
 import { TrialOfferDto } from '../../types/gyms'; // Adjusted path
-import { DetailItem } from '../../components/common/DetailItem';
+import { DetailItem } from '../common/DetailItem';
 
 interface GymTrialOfferProps {
   trialOffer?: TrialOfferDto;

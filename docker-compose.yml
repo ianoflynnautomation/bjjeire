@@ -4,7 +4,7 @@ services:
     container_name: api
     build:
       context: .
-      dockerfile: ./src/Api/Dockerfile
+      dockerfile: ./src/BjjEire.Api/Dockerfile
     ports:
       - "5003:80"
       - "5001:443"
@@ -42,7 +42,7 @@ services:
     container_name: web
     build:
       context: .
-      dockerfile: src/bjjworld-app/Dockerfile
+      dockerfile: src/bjjeire-app/Dockerfile
     ports:
       - "60742:80"
       - "60743:443" 
