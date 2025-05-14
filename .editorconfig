@@ -16,8 +16,7 @@ end_of_line = lf
 indent_size = 2
 tab_width = 2
 
-# JavaScript files
-[*.js]
+[*.{ts,tsx,js,jsx}]
 indent_size = 2
 tab_width = 2
 
@@ -389,28 +388,3 @@ dotnet_diagnostic.CA1822.severity = warning # Mark members as static
 # dotnet_diagnostic.CA2007.severity = warning # Do not directly await a Task
 dotnet_diagnostic.CA5394.severity = warning # Do not use insecure randomness
 
-
-root = true
-
-[*]
-indent_style = space
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-end_of_line = lf
-
-[*.{xml,csproj,props,targets,ruleset,nuspec,resx}]
-indent_size = 2
-tab_width = 2
-
-[*.{json,config,nswag}]
-indent_size = 2
-tab_width = 2
-
-[*.{ts,tsx,js,jsx}]
-indent_size = 2
-tab_width = 2
-
-[*.cs]
-indent_size = 4
-tab_width = 4
