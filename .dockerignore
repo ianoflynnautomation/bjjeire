@@ -3,7 +3,7 @@ bin/
 obj/
 *.csproj.user
 *.suo
-*.user即便是
+*.user
 *.pubxml
 *.nupkg
 *.vsconfig

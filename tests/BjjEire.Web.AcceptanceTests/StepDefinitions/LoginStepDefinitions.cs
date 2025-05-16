@@ -1,3 +1,5 @@
+using Shouldly;
+
 namespace BjjEire.Web.AcceptanceTests.StepDefinitions;
 
 [Binding]
@@ -11,7 +13,6 @@ public sealed class LoginStepDefinitions(LoginPage loginPage) {
         var playwright = await Playwright.CreateAsync();
 
         var options = new BrowserTypeLaunchOptions();
-
 
         var browser = await playwright.Chromium.LaunchAsync(options);
 
@@ -40,8 +41,8 @@ public sealed class LoginStepDefinitions(LoginPage loginPage) {
     {
         var profileLinkText = await _loginPage.ProfileLinkText();
 
-        _ = profileLinkText.Should().NotBeNull();
-        _ = profileLinkText.Should().Be("Account");
+        _ = profileLinkText.ShouldNotBeNull();
+        profileLinkText.ShouldBe("Account");
     }
 
     [When("the user logs in with invalid credentials")]
@@ -57,7 +58,7 @@ public sealed class LoginStepDefinitions(LoginPage loginPage) {
     {
         var errorVisible = await _loginPage.InvalidLoginAttemptMessageVisible();
 
-        _ = errorVisible.Should().BeTrue();
+        errorVisible.ShouldBeTrue();
     }
 
     [AfterFeature]

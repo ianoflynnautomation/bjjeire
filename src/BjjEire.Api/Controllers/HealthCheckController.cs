@@ -2,8 +2,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BjjEire.Api.Controllers;
 
-public class HealthCheckController(HealthCheckService healthCheckService) : BaseApiController
-{
+public class HealthCheckController(HealthCheckService healthCheckService) : BaseApiController {
     private readonly HealthCheckService _healthCheckService = healthCheckService;
 
 
@@ -13,15 +12,12 @@ public class HealthCheckController(HealthCheckService healthCheckService) : Base
     //[AllowAnonymous] // Keep commented or uncomment based on your security needs
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status503ServiceUnavailable)]
-    public async Task<IActionResult> GetHealth()
-    {
+    public async Task<IActionResult> GetHealth() {
         var report = await _healthCheckService.CheckHealthAsync();
 
-        var response = new
-        {
+        var response = new {
             status = report.Status.ToString(),
-            checks = report.Entries.Select(entry => new
-            {
+            checks = report.Entries.Select(entry => new {
                 name = entry.Key,
                 status = entry.Value.Status.ToString(),
                 description = entry.Value.Description,

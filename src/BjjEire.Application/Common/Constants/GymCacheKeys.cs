@@ -1,25 +1,38 @@
 
+using BjjEire.Domain.Enums;
+
 namespace BjjEire.Application.Common.Constants;
 
 public static partial class CacheKey {
-        public static string BJJ_EVENT_PATTERN_KEY => "BjjEvent.";
-        public static string BJJ_EVENT_BY_ID_KEY => "BjjEvent.id-{0}";
-        public static string BJJ_EVENT_ALL => "BjjEvent.all-{0}-{1}-{2}-{3}";
 
-        public static string GYM_PATTERN_KEY => "Gym.";
-        public static string GYM_BY_ID_KEY => "Gym.id-{0}";
-        public static string GYM_ALL => "Gym.all-{0}-{1}-{2}";
+        private const string GymPatternKey = "Gyms_";
+        private const string GymAllFormat = "Gyms_All_Page{0}_PageSize{1}_County{2}";
+        private const string GymByIdFormat = "Gym_Id{0}";
+        private const string BjjEventsKey = "BjjEvents_";
+        private const string BjjEventsAllFormat = "BjjEvents_All_Page{0}_PageSize{1}_County{2}_Type{3}";
+        private const string BjjEventsByIdFormat = "BjjEvents_Id{0}";
 
-        //     private const string BjjEventPrefix = "BjjEvent";
-        //     public static string BjjEventPattern => $"{BjjEventPrefix}:*";
-        //     public static string GetBjjEventByIdKey(string id) => $"{BjjEventPrefix}:Id:{id}";
 
-        //     public static string GetAllBjjEventsKey(int page, int pageSize, string? city, string? type)
-        //     {
-        //         // Normalize inputs for consistent cache keys
-        //         var cityKeyPart = string.IsNullOrWhiteSpace(city) ? "all" : city.ToLowerInvariant();
-        //         var typeKeyPart = type?.ToString().ToLowerInvariant() ?? "all";
-        //         return $"{BjjEventPrefix}:All:P{page}-PS{pageSize}-C{cityKeyPart}-T{typeKeyPart}";
-        //     }
+        public static string AllBjjEvents(int page, int pageSize, string? county, BjjEventType? type) {
+                string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
+                var typeToString = type.ToString();
+                string typeCachePart = string.IsNullOrWhiteSpace(typeToString) ? "None" : typeToString.Trim().ToLowerInvariant();
+                return string.Format(BjjEventsAllFormat, page, pageSize, countyCachePart, typeCachePart);
+        }
+
+        public static string BjjEventsById(string id) => string.Format(BjjEventsByIdFormat, id);
+
+        public static string BjjEventsByPatternKey() => string.Format(BjjEventsKey);
+
+
+
+        public static string AllGyms(int page, int pageSize, string? county) {
+                string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
+                return string.Format(GymAllFormat, page, pageSize, countyCachePart);
+        }
+
+        public static string GymById(string id) => string.Format(GymByIdFormat, id);
+
+        public static string GymByPatternKey() => string.Format(GymPatternKey);
 
 }

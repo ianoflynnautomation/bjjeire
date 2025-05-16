@@ -24,7 +24,7 @@
         <PackageReference Include="SpecFlow.NUnit" />
         <PackageReference Include="nunit" />
         <PackageReference Include="NUnit3TestAdapter" />
-        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Shouldly" />
     </ItemGroup>
 
 </Project>

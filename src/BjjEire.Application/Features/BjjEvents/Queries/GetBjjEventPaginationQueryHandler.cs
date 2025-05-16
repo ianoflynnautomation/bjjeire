@@ -2,26 +2,25 @@ using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Entities.BjjEvents;
-using BjjEire.Application.Common;
-using Microsoft.AspNetCore.Routing;
-using BjjEire.Application.Common.DTOs;
 using BjjEire.Domain.Enums;
+using BjjEire.Application.Features.BjjEvents.Constants;
+using BjjEire.Application.Common.Models;
+using BjjEire.Application.Common;
 
 namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bjjEventRepository, IMapper mapper,
-ICacheBase cacheBase, ILinkService linkService)
-: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponseDto> {
+ICacheBase cacheBase, IUriService uriService)
+: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse> {
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
-    private readonly ILinkService _linkService = linkService;
-    private const string ControllerNameForLinks = "GetAllBjjEvents";
-    private const string ActionNameForLinks = "GetAll";
+    private readonly IUriService _uriService = uriService;
 
-    public async Task<GetBjjEventPaginatedResponseDto> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
+    public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
-        var cacheKey = string.Format(CacheKey.BJJ_EVENT_ALL, request.Page, request.PageSize, request.County, request.Type);
+
+        var cacheKey = CacheKey.AllBjjEvents(request.Page, request.PageSize, request.County, request.Type);
 
         return await _cacheBase.GetAsync(cacheKey, async () => {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
@@ -36,42 +35,13 @@ ICacheBase cacheBase, ILinkService linkService)
 
             query = query.OrderBy(x => x.CreatedOnUtc);
 
-            var pagedBjjEventDtos = await query
-                .ProjectTo<BjjEventDto>(_mapper.ConfigurationProvider)
-                .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
+            IQueryable<BjjEventDto> dtoQuery = query.ProjectTo<BjjEventDto>(_mapper.ConfigurationProvider);
 
-            var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.County)) {
-                additionalRouteValues["county"] = request.County;
-            }
-            if (request.Type.HasValue) {
-                additionalRouteValues["type"] = request.Type.Value.ToString();
-            }
+            var filter = new PaginationFilter(request.Page, request.PageSize);
 
-            var (nextPageUrl, previousPageUrl) = _linkService.GeneratePaginationUrls(
-                controllerName: ControllerNameForLinks,
-                actionName: ActionNameForLinks,
-                currentPage: request.Page,
-                pageSize: pagedBjjEventDtos.PageSize,
-                totalPages: pagedBjjEventDtos.TotalPages,
-                hasNextPage: pagedBjjEventDtos.HasNextPage,
-                hasPreviousPage: pagedBjjEventDtos.HasPreviousPage,
-                additionalRouteValues: additionalRouteValues
-            );
+            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, BjjEventsApiConstants.ControllerName, BjjEventsApiConstants.GetAllActionName, _uriService, cancellationToken);
 
-            return new GetBjjEventPaginatedResponseDto {
-                Data = [.. pagedBjjEventDtos],
-                Pagination = new PaginationMetadataDto {
-                    TotalItems = pagedBjjEventDtos.TotalCount,
-                    CurrentPage = request.Page,
-                    PageSize = pagedBjjEventDtos.PageSize,
-                    TotalPages = pagedBjjEventDtos.TotalPages,
-                    HasNextPage = pagedBjjEventDtos.HasNextPage,
-                    HasPreviousPage = pagedBjjEventDtos.HasPreviousPage,
-                    NextPageUrl = nextPageUrl,
-                    PreviousPageUrl = previousPageUrl
-                }
-            };
+            return new GetBjjEventPaginatedResponse { Data = pagedResponse.Data, Pagination = pagedResponse.Pagination };
 
         });
     }

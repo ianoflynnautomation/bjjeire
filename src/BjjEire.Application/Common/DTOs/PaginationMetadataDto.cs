@@ -2,12 +2,15 @@
 namespace BjjEire.Application.Common.DTOs;
 
 public class PaginationMetadataDto {
-    public int TotalItems { get; set; }
-    public int CurrentPage { get; set; }
-    public int PageSize { get; set; }
-    public int TotalPages { get; set; }
-    public bool HasNextPage { get; set; }
-    public bool HasPreviousPage { get; set; }
-    public string? NextPageUrl { get; set; }
-    public string? PreviousPageUrl { get; set; }
+
+     public PaginationMetadataDto() { }
+     
+    public int TotalItems { get; init; }
+    public int CurrentPage { get; init; }
+    public int PageSize { get; init; }
+    public int TotalPages { get; init; }
+    public bool HasNextPage { get; init; }
+    public bool HasPreviousPage { get; init; }
+    public string? NextPageUrl { get; init; }
+    public string? PreviousPageUrl { get; init; }
 }
