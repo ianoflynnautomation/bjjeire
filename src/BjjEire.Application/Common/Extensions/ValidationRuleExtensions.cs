@@ -28,9 +28,9 @@ public static class ValidationRuleExtensions {
     string friendlyName,
     int maxLength) {
         return ruleBuilder
-            .MaximumLength(maxLength) // FluentValidation's MaxLength handles null/empty strings gracefully
+            .MaximumLength(maxLength)
             .WithName(friendlyName)
-            .WithMessage(ValidationMessages.MaxLength.Message(friendlyName, maxLength)) // Assumes this overload exists
+            .WithMessage(ValidationMessages.MaxLength.Message(friendlyName, maxLength))
             .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
     }
 

@@ -3,7 +3,7 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Common.Constants;
 
-public static partial class CacheKey {
+public static class CacheKey {
 
         private const string GymPatternKey = "Gyms_";
         private const string GymAllFormat = "Gyms_All_Page{0}_PageSize{1}_County{2}";
@@ -13,7 +13,7 @@ public static partial class CacheKey {
         private const string BjjEventsByIdFormat = "BjjEvents_Id{0}";
 
 
-        public static string AllBjjEvents(int page, int pageSize, string? county, BjjEventType? type) {
+        public static string BjjEventsAll(int page, int pageSize, string? county, BjjEventType? type) {
                 string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
                 var typeToString = type.ToString();
                 string typeCachePart = string.IsNullOrWhiteSpace(typeToString) ? "None" : typeToString.Trim().ToLowerInvariant();
@@ -26,7 +26,7 @@ public static partial class CacheKey {
 
 
 
-        public static string AllGyms(int page, int pageSize, string? county) {
+        public static string GymsAll(int page, int pageSize, string? county) {
                 string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
                 return string.Format(GymAllFormat, page, pageSize, countyCachePart);
         }

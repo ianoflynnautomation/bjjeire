@@ -20,7 +20,7 @@ ICacheBase cacheBase, IUriService uriService)
     public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.AllGyms(request.Page, request.PageSize, request.County);
+        var cacheKey = CacheKey.GymsAll(request.Page, request.PageSize, request.County);
 
         return await _cacheBase.GetAsync(cacheKey, async () => {
 
