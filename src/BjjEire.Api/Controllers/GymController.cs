@@ -1,8 +1,10 @@
 
-using BjjEire.Api.Attributes;
+using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.Features.Gyms.Queries;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BjjEire.Api.Controllers;
 
@@ -12,7 +14,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [EndpointDescription("Get Gym entitys")]
     [EndpointName("GetAllGyms")]
     [HttpGet()]
-    [EnableQuery]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -24,7 +26,9 @@ public class GymController(IMediator mediator) : BaseApiController {
 
     [EndpointDescription("Add new entity to Gym")]
     [EndpointName("InsertGym")]
-    [HttpPost]
+    [HttpPost] 
+    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GymDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

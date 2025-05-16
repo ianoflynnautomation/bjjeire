@@ -12,9 +12,9 @@ export const getGyms = ({
   const params: Record<string, string | number> = {
     page,
     pageSize,
-  };
+  }
   if (county && county !== 'all') {
-    params.county = county;
+    params.county = county
   }
   return api.get('api/gym', {
     params: {
@@ -25,23 +25,32 @@ export const getGyms = ({
   })
 }
 
-export const getGymsQueryOptions = ({ county, page, pageSize }: GetGymsByCityPaginationQuery) => {
+export const getGymsQueryOptions = ({
+  county,
+  page,
+  pageSize,
+}: GetGymsByCityPaginationQuery) => {
   return queryOptions({
     queryKey: ['gym', { county, page, pageSize }],
     queryFn: () => getGyms({ county, page, pageSize }),
-    placeholderData: (previousData) => previousData,
+    placeholderData: previousData => previousData,
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
   })
 }
 
 export interface UseGymsOptions {
-  county?: string | 'all' | undefined;
-  page: number;
-  pageSize: number;
-  queryConfig?: QueryConfig<typeof getGymsQueryOptions>;
+  county?: string | 'all' | undefined
+  page: number
+  pageSize: number
+  queryConfig?: QueryConfig<typeof getGymsQueryOptions>
 }
 
-export const useGyms = ({ county, page, pageSize, queryConfig }: UseGymsOptions) => {
+export const useGyms = ({
+  county,
+  page,
+  pageSize,
+  queryConfig,
+}: UseGymsOptions) => {
   return useQuery({
     ...getGymsQueryOptions({ county, page, pageSize }),
     ...queryConfig,

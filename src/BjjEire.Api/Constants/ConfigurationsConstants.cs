@@ -1,7 +1,6 @@
 ﻿namespace BjjEire.Api.Constants;
 
-public static class ConfigurationsConstants
-{
+public static class ConfigurationsConstants {
     public const string RestRoutePrefix = "api";
     public const string DevelopmentCorsPolicyName = "DevelopmentCorsPolicy";
     public const string ProductionCorsPolicyName = "ProductionCorsPolicy";

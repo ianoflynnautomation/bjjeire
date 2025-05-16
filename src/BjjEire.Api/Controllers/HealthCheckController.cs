@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BjjEire.Api.Controllers;
@@ -9,7 +10,7 @@ public class HealthCheckController(HealthCheckService healthCheckService) : Base
     [EndpointDescription("Provides detailed health check")]
     [EndpointName("HealthCheck")]
     [HttpGet]
-    //[AllowAnonymous] // Keep commented or uncomment based on your security needs
+    [AllowAnonymous]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status503ServiceUnavailable)]
     public async Task<IActionResult> GetHealth() {
