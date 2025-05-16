@@ -1,9 +1,11 @@
-using BjjEire.Api.Attributes;
+using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Application.Common;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Queries;
 using BjjEire.Domain.Entities.BjjEvents;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BjjEire.Api.Controllers;
 
@@ -13,7 +15,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [EndpointDescription("Get Bjj Event entitys")]
     [EndpointName("GetAllBjjEvents")]
     [HttpGet()]
-    [EnableQuery]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetBjjEventPaginatedResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -26,6 +28,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [EndpointDescription("Add new entity to Bjj Event")]
     [EndpointName("InsertBjjEvent")]
     [HttpPost]
+    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,6 +41,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [EndpointDescription("Update entity in Bjj Event")]
     [EndpointName("UpdateBjjEvent")]
     [HttpPut]
+    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BjjEventDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,6 +54,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [EndpointDescription("Delete entity in Bjj Event")]
     [EndpointName("DeleteBjjEvent")]
     [HttpDelete("{key}")]
+    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

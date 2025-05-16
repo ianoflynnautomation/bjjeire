@@ -20,7 +20,7 @@ ICacheBase cacheBase, IUriService uriService)
     public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.AllBjjEvents(request.Page, request.PageSize, request.County, request.Type);
+        var cacheKey = CacheKey.BjjEventsAll(request.Page, request.PageSize, request.County, request.Type);
 
         return await _cacheBase.GetAsync(cacheKey, async () => {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
