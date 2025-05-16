@@ -8,8 +8,6 @@ using BjjEire.Api.Extensions.Logging.Serilog;
 using BjjEire.Api.Extensions.OpenApi;
 using BjjEire.Api.Extensions.RateLimit;
 using BjjEire.Api.Extensions.SecurityHeaders;
-using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Common.Services;
 using Prometheus;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -39,7 +37,6 @@ public static class DependencyInjection
         _ = builder.Services.AddHttpClient();
         _ = builder.Services.AddMetrics();
         _ = builder.Services.ConfigureRateLimit(builder.Configuration);
-        _ = builder.Services.AddScoped<ILinkService, LinkService>();
         _ = builder.Services.AddSecurityHeaders(builder.Configuration);
 
         return builder;

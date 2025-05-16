@@ -1,16 +1,13 @@
 
-using Microsoft.AspNetCore.Routing;
+using BjjEire.Application.Common.Models;
 
 namespace BjjEire.Application.Common.Interfaces;
 
-public interface ILinkService {
-    public (string? nextPageUrl, string? previousPageUrl) GeneratePaginationUrls(
-        string controllerName,
-        string actionName,
-        int currentPage,
-        int pageSize,
-        int totalPages,
-        bool hasNextPage,
-        bool hasPreviousPage,
-        RouteValueDictionary? additionalRouteValues = null);
+public interface IUriService {
+    public string GetPageUri(
+           PaginationFilter filter,
+           string controllerName,
+           string actionName,
+           IDictionary<string, object?>? additionalRouteValues = null
+       );
 }

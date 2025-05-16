@@ -1,29 +1,29 @@
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common;
-using Microsoft.AspNetCore.Routing;
-using BjjEire.Application.Common.DTOs;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Domain.Enums;
+using BjjEire.Application.Features.Gyms.Constants;
+using BjjEire.Application.Common.Models;
 
 namespace BjjEire.Application.Features.Gyms.Queries;
 
 public sealed class GetGymPaginationQueryHandler(IRepository<Gym> gymRepository, IMapper mapper,
-ICacheBase cacheBase, ILinkService linkService)
+ICacheBase cacheBase, IUriService uriService)
 : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse> {
     private readonly IRepository<Gym> _gymRepository = gymRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
-    private readonly ILinkService _linkService = linkService;
-    private const string ControllerNameForLinks = "GetAllGyms";
-    private const string ActionNameForLinks = "GetAll";
+    private readonly IUriService _uriService = uriService;
 
     public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
-        var cacheKey = string.Format(CacheKey.GYM_ALL, request.Page, request.PageSize, request.County);
+
+        var cacheKey = CacheKey.AllGyms(request.Page, request.PageSize, request.County);
 
         return await _cacheBase.GetAsync(cacheKey, async () => {
+
             var query = _gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
             if (!string.IsNullOrWhiteSpace(request.County)) {
@@ -32,40 +32,13 @@ ICacheBase cacheBase, ILinkService linkService)
 
             query = query.OrderBy(x => x.Name);
 
-            var pagedGymDtos = await query
-                .ProjectTo<GymDto>(_mapper.ConfigurationProvider)
-                .ToPagedListAsync(request.Page - 1, request.PageSize, cancellationToken);
+            IQueryable<GymDto> dtoQuery = query.ProjectTo<GymDto>(_mapper.ConfigurationProvider);
 
-            var additionalRouteValues = new RouteValueDictionary();
-            if (!string.IsNullOrWhiteSpace(request.County)) {
-                additionalRouteValues["county"] = request.County;
-            }
+            var filter = new PaginationFilter(request.Page, request.PageSize);
 
+            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, GymsApiConstants.ControllerName, GymsApiConstants.GetAllActionName, _uriService, cancellationToken);
 
-            var (nextPageUrl, previousPageUrl) = _linkService.GeneratePaginationUrls(
-                controllerName: ControllerNameForLinks,
-                actionName: ActionNameForLinks,
-                currentPage: request.Page,
-                pageSize: pagedGymDtos.PageSize,
-                totalPages: pagedGymDtos.TotalPages,
-                hasNextPage: pagedGymDtos.HasNextPage,
-                hasPreviousPage: pagedGymDtos.HasPreviousPage,
-                additionalRouteValues: additionalRouteValues
-            );
-
-            return new GetGymPaginatedResponse {
-                Data = [.. pagedGymDtos],
-                Pagination = new PaginationMetadataDto {
-                    TotalItems = pagedGymDtos.TotalCount,
-                    CurrentPage = request.Page,
-                    PageSize = pagedGymDtos.PageSize,
-                    TotalPages = pagedGymDtos.TotalPages,
-                    HasNextPage = pagedGymDtos.HasNextPage,
-                    HasPreviousPage = pagedGymDtos.HasPreviousPage,
-                    NextPageUrl = nextPageUrl,
-                    PreviousPageUrl = previousPageUrl
-                }
-            };
+            return new GetGymPaginatedResponse { Data = pagedResponse.Data, Pagination = pagedResponse.Pagination };
 
         });
     }

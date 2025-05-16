@@ -3,6 +3,8 @@
     <PropertyGroup>
         <RootNamespace>BjjEire.Application.UnitTests</RootNamespace>
         <AssemblyName>BjjEire.Application.UnitTests</AssemblyName>
+                <!-- Suppress SA1600 and other rules -->
+    <NoWarn>$(NoWarn);CS8600,NUnit1001,CS8625</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,7 +20,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Shouldly" />
         <PackageReference Include="Moq" />
     </ItemGroup>
 
