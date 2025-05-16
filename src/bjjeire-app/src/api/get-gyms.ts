@@ -9,6 +9,13 @@ export const getGyms = ({
   page = 1,
   pageSize = 12,
 }: GetGymsByCityPaginationQuery): Promise<PaginatedResponse<GymDto>> => {
+  const params: Record<string, string | number> = {
+    page,
+    pageSize,
+  };
+  if (county && county !== 'all') {
+    params.county = county;
+  }
   return api.get('api/gym', {
     params: {
       county,
@@ -27,11 +34,11 @@ export const getGymsQueryOptions = ({ county, page, pageSize }: GetGymsByCityPag
   })
 }
 
-type UseGymsOptions = {
-  county: string
-  page?: number
-  pageSize?: number
-  queryConfig?: QueryConfig<typeof getGymsQueryOptions>
+export interface UseGymsOptions {
+  county?: string | 'all' | undefined;
+  page: number;
+  pageSize: number;
+  queryConfig?: QueryConfig<typeof getGymsQueryOptions>;
 }
 
 export const useGyms = ({ county, page, pageSize, queryConfig }: UseGymsOptions) => {

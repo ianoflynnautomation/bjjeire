@@ -51,7 +51,6 @@ export default defineConfig(({ mode }) => {
             process.env.SERVICES_API_HTTPS_0 || process.env.SERVICES_API_HTTP_0,
           changeOrigin: true,
           secure: env.SERVICES_API_HTTPS_0 ? true : false,
-          //rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },
