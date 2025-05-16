@@ -1,6 +1,4 @@
-﻿
-
-using BjjEire.Domain.Entities;
+﻿using BjjEire.Domain.Entities;
 
 namespace BjjEire.Application.Common;
 

@@ -44,12 +44,8 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
             controller: controllerName,
             values: routeValues);
 
-        if (string.IsNullOrEmpty(uriString))
-        {
-            // It's helpful to log the parameters that failed if you have a logger here
-            throw new InvalidOperationException($"Could not generate URI for Controller: '{controllerName}', Action: '{actionName}'. Ensure these names are correct, the route exists, and parameters match the action signature.");
-        }
-
-        return uriString;
+        return string.IsNullOrEmpty(uriString)
+            ? throw new InvalidOperationException($"Could not generate URI for Controller: '{controllerName}', Action: '{actionName}'. Ensure these names are correct, the route exists, and parameters match the action signature.")
+            : uriString;
     }
 }
