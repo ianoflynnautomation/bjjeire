@@ -4,18 +4,17 @@ import { MapPinIcon } from '@heroicons/react/20/solid'
 import clsx from 'clsx'
 
 interface SelectFilterProps<T> {
-  id: string
-  label: string
-  value: T | 'all'
-  onChange: (value: T | 'all') => void
-  options: { value: T; label: string }[]
-  disabled?: boolean
-  placeholderOptionLabel?: string
-  Icon?: React.ComponentType<{ className?: string }>
-  'data-testid'?: string
-  className?: string
+  id: string;
+  label: string;
+  value: T | 'all' | undefined; // Add undefined to the type
+  onChange: (value: T | 'all' | undefined) => void; // Update onChange to accept undefined
+  options: { value: T; label: string }[];
+  disabled?: boolean;
+  placeholderOptionLabel?: string;
+  Icon?: React.ComponentType<{ className?: string }>;
+  'data-testid'?: string;
+  className?: string;
 }
-
 function SelectFilter<T extends string | number>({
   id,
   label,
@@ -29,11 +28,11 @@ function SelectFilter<T extends string | number>({
   className,
 }: SelectFilterProps<T>) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value
-    onChange(selectedValue as T | 'all')
-  }
+    const selectedValue = event.target.value;
+    onChange(selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined);
+  };
 
-  const iconPresent = Icon ? 'pl-10' : 'pl-4'
+  const iconPresent = Icon ? 'pl-10' : 'pl-4';
 
   return (
     <div className={clsx('flex flex-col', className)} data-testid={`${dataTestId}-wrapper`}>
@@ -49,7 +48,7 @@ function SelectFilter<T extends string | number>({
         )}
         <select
           id={id}
-          value={value as string}
+          value={value ?? 'all'} // Convert undefined to 'all' for the select element
           onChange={handleChange}
           disabled={disabled}
           data-testid={dataTestId}
@@ -60,7 +59,6 @@ function SelectFilter<T extends string | number>({
           )}
         >
           {placeholderOptionLabel && (
-            // The value "all" is conventional for "select all" type placeholders
             <option value="all" data-testid={`${dataTestId}-placeholder-option`}>
               {placeholderOptionLabel}
             </option>
@@ -77,7 +75,6 @@ function SelectFilter<T extends string | number>({
         </select>
       </div>
     </div>
-  )
+  );
 }
-
 export default SelectFilter

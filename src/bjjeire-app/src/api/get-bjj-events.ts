@@ -1,63 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 import { api } from '../lib/api-client'
-import { PaginatedResponse, HateoasPagination } from '../types/common'
-import { EventFormData, BjjEventDto, GetBjjEventsPaginationQuery } from '../types/event'
-import { normalizeEvent, mapEventFormDataToDto } from '../utils/dataMappers'
+import {County} from '../constants/counties';
+import { PaginatedResponse } from '../types/common'
+import { QueryConfig } from '../lib/react-query'
+import { BjjEventDto, GetBjjEventsPaginationQuery, BjjEventType , EventFormData} from '../types/event'
+import { queryConfig } from '@/lib/react-query'
 
-// Interface for backend API response (replaces BackendBjjEventsResponse)
-interface BjjEventsApiResponse {
-  data: any[] // Raw backend BjjEventDto
-  pagination: HateoasPagination
-}
-
-export const getBjjEvents = async ({
+export const getBjjEvents = ({
   county,
   type,
   page = 1,
   pageSize = 12,
-  url,
-}: GetBjjEventsPaginationQuery & { url?: string | null }): Promise<
-  PaginatedResponse<BjjEventDto>
-> => {
-  if (url) {
-    const response = await api.get<BjjEventsApiResponse>(url)
-    return {
-      data: response.data.map(normalizeEvent),
-      pagination: response.pagination,
-    }
+}: GetBjjEventsPaginationQuery): Promise<PaginatedResponse<BjjEventDto>> => {
+  const params: Record<string, string | number> = {
+    page,
+    pageSize,
+  };
+
+  if (county && county !== 'all') {
+    params.county = county;
   }
 
-  const params: Record<string, string | number> = { page, pageSize }
-  if (county && county !== 'all') params.county = county
-  if (type !== undefined) params.type = type
-
-  const response = await api.get<BjjEventsApiResponse>('/api/bjjevent', { params })
-  return {
-    data: response.data.map(normalizeEvent),
-    pagination: response.pagination,
+  if (type !== undefined && type !== null) {
+    params.type = type;
   }
-}
 
-export const getBjjEventsQueryOptions = ({
-  county,
-  type,
-  page,
-  pageSize,
-  url,
-}: GetBjjEventsPaginationQuery & { url?: string | null }) =>
-  queryOptions({
-    queryKey: [
-      'bjjEvents',
-      { county: county || 'all', type, page: page || 1, pageSize: pageSize || 12, url },
-    ],
-    queryFn: () => getBjjEvents({ county, type, page, pageSize, url }),
+  return api.get('api/bjjevent', {
+    params: {
+      county,
+      type,
+      page,
+      pageSize,
+    },
+    })
+  }
+
+export const getBjjEventsQueryOptions = ({ county, type, page, pageSize }: GetBjjEventsPaginationQuery) => {
+  return queryOptions({
+    queryKey: ['bjjevent', { county, type, page, pageSize }],
+    queryFn: () => getBjjEvents({ county, type, page, pageSize }),
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60 * 1000,
   })
-
-export const postEvent = async (formData: EventFormData): Promise<BjjEventDto> => {
-  const apiPayload = mapEventFormDataToDto(formData)
-  const response = await api.post<any>('/api/bjjevent', apiPayload)
-  return normalizeEvent(response)
 }
+
+
+type UseBjjEventsOptions = {
+  county?: County | 'all'
+  type?: BjjEventType
+  page: number
+  pageSize: number
+  queryConfig?: QueryConfig<typeof getBjjEventsQueryOptions>
+}
+
+export const useBjjEvents = ({county, type, page, pageSize} : UseBjjEventsOptions) => {
+  return useQuery({
+    ...getBjjEventsQueryOptions({county, type, page, pageSize}),
+    ...queryConfig,
+  })
+}
+
+export const postEvent = (newEvent: EventFormData): Promise<BjjEventDto> => {
+  // Assuming your API returns the created event DTO upon successful POST
+  return api.post<BjjEventDto>('api/bjjevent', newEvent); // Ensure this endpoint is correct for POSTing events
+};

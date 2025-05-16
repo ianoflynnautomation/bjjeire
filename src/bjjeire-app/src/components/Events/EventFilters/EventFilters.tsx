@@ -7,12 +7,12 @@ import ButtonGroupFilter from '../../Filters/ButtonGroupFilter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 
 interface EventFiltersProps {
-  selectedCity: County | 'all'
-  selectedType: BjjEventType | undefined
-  onCityChange: (city: County | 'all') => void
-  onTypeChange: (type: BjjEventType | 'all') => void
-  disabled: boolean
-  'data-testid'?: string
+  selectedCity: County | 'all' | undefined; // Add undefined to the type
+  selectedType: BjjEventType | undefined;
+  onCityChange: (city: County | 'all' | undefined) => void; // Update onCityChange to accept undefined
+  onTypeChange: (type: BjjEventType | 'all') => void;
+  disabled: boolean;
+  'data-testid'?: string;
 }
 
 const EventFilters: React.FC<EventFiltersProps> = ({

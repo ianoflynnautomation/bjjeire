@@ -130,7 +130,7 @@ export interface EventFormData {
 }
 
 export interface GetBjjEventsPaginationQuery {
-  county: County | 'all'
+  county?: County | 'all'
   type?: BjjEventType
   page: number
   pageSize: number

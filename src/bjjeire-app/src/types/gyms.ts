@@ -92,7 +92,7 @@ export enum ClassCategory {
   }
 
     export interface GetGymsByCityPaginationQuery {
-    county: string;
-    page?: number; 
-    pageSize?: number;
+    county?: string;
+    page: number; 
+    pageSize: number;
   }

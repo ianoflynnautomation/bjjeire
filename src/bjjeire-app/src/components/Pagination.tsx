@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { HateoasPagination } from '../types/common';
+import clsx from 'clsx';
 
 interface PaginationProps {
   currentPage: number;
@@ -20,17 +21,31 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
 
   if (totalPages <= 1) return null;
 
-  const buttonBaseClasses =
-    'px-3 py-1.5 text-sm font-medium border border-emerald-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1';
-  const inactiveClasses = 'bg-white text-emerald-700 hover:bg-emerald-50';
-  const disabledClasses = 'opacity-60 cursor-not-allowed bg-emerald-50 text-emerald-400';
+  const buttonBaseClasses = clsx(
+    'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
+    'dark:focus-visible:ring-offset-slate-900'
+  );
 
-  const fallbackNextUrl = hasNextPage
-    ? `/api/bjjevent?page=${currentPage + 1}&pageSize=${pageSize}`
-    : null;
-  const fallbackPrevUrl = hasPreviousPage
-    ? `/api/bjjevent?page=${currentPage - 1}&pageSize=${pageSize}`
-    : null;
+  const activeClasses = clsx(
+    'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-600',
+    'dark:from-emerald-500 dark:to-emerald-600 dark:border-emerald-500',
+    'hover:bg-gradient-to-r hover:from-emerald-700 hover:to-emerald-800',
+    'dark:hover:from-emerald-600 dark:hover:to-emerald-700'
+  );
+
+  const inactiveClasses = clsx(
+    'bg-white text-slate-700 border-slate-300',
+    'hover:bg-emerald-50 hover:border-emerald-400',
+    'dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600',
+    'dark:hover:bg-slate-600 dark:hover:border-emerald-500'
+  );
+
+  const disabledClasses = clsx(
+    'opacity-50 cursor-not-allowed',
+    'bg-white border-slate-300',
+    'dark:bg-slate-700 dark:border-slate-600'
+  );
 
   const itemsStart = totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null;
   const itemsEnd = totalItems && pageSize ? Math.min(currentPage * pageSize, totalItems) : null;
@@ -42,13 +57,13 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
   return (
     <nav
       data-testid="pagination"
-      className="flex flex-col items-center justify-center gap-3 py-6 bg-emerald-50 rounded-md"
+      className="flex flex-col items-center justify-center gap-3 py-6 bg-emerald-50 dark:bg-slate-800 rounded-md shadow-sm"
       aria-label="Pagination navigation"
     >
       {itemsText && (
         <div
           data-testid="pagination-items-text"
-          className="mb-2 text-sm text-slate-600"
+          className="mb-2 text-sm text-slate-600 dark:text-slate-300"
           aria-live="polite"
         >
           {itemsText}
@@ -58,10 +73,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
         {/* Previous Page */}
         <button
           data-testid="pagination-prev-button"
-          className={`${buttonBaseClasses} ${inactiveClasses} ${!hasPreviousPage ? disabledClasses : ''}`}
-          onClick={() =>
-            hasPreviousPage && onPageChange(previousPageUrl || fallbackPrevUrl, currentPage - 1)
-          }
+          className={clsx(
+            buttonBaseClasses,
+            hasPreviousPage ? inactiveClasses : disabledClasses
+          )}
+          onClick={() => hasPreviousPage && onPageChange(previousPageUrl, currentPage - 1)}
           disabled={!hasPreviousPage}
           aria-label="Previous page"
         >
@@ -71,7 +87,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
         {/* Current Page Indicator */}
         <span
           data-testid="pagination-page-indicator"
-          className="px-3 py-1.5 text-sm font-medium text-slate-800"
+          className={clsx(
+            'px-3 py-1.5 text-sm font-medium rounded-md border',
+            activeClasses // Treat current page as "active" to match selected button styles
+          )}
           aria-current="page"
         >
           Page {currentPage} of {totalPages}
@@ -80,10 +99,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
         {/* Next Page */}
         <button
           data-testid="pagination-next-button"
-          className={`${buttonBaseClasses} ${inactiveClasses} ${!hasNextPage ? disabledClasses : ''}`}
-          onClick={() =>
-            hasNextPage && onPageChange(nextPageUrl || fallbackNextUrl, currentPage + 1)
-          }
+          className={clsx(
+            buttonBaseClasses,
+            hasNextPage ? inactiveClasses : disabledClasses
+          )}
+          onClick={() => hasNextPage && onPageChange(nextPageUrl, currentPage + 1)}
           disabled={!hasNextPage}
           aria-label="Next page"
         >

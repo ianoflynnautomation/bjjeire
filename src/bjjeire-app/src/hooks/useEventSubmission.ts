@@ -13,4 +13,4 @@ export const useEventSubmission = () => {
       console.error('Event submission failed:', error);
     },
   });
-};
+};  
