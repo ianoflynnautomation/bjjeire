@@ -1,7 +1,6 @@
 import React from 'react';
 
 type CloseIconProps = React.SVGProps<SVGSVGElement>
-//interface CloseIconProps extends React.SVGProps<SVGSVGElement> {}
 
 export const CloseIcon: React.FC<CloseIconProps> = ({ className, ...props }) => (
   <svg

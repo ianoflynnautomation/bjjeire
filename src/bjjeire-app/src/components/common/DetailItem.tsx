@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
-import { IconWrapper } from './IconWrapper'; // Import IconWrapper
+import { IconWrapper } from './IconWrapper'; 
 
 interface DetailItemProps {
-  icon: React.ReactNode; // Icon component itself, e.g., <MapPinIcon />
+  icon: React.ReactNode; 
   children: React.ReactNode;
   className?: string;
-  iconClassName?: string; // To customize icon styling if needed
+  iconClassName?: string;
   ariaLabel?: string;
   'data-testid'?: string;
 }
@@ -13,7 +13,7 @@ interface DetailItemProps {
 export const DetailItem: React.FC<DetailItemProps> = memo(
   ({ icon, children, className, iconClassName, ariaLabel, 'data-testid': dataTestId }) => (
     <div
-      className={`flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300 ${className || ''}`} // Adjusted gap and text color
+      className={`flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300 ${className || ''}`}
       data-testid={dataTestId}
     >
       <IconWrapper className={iconClassName}>{icon}</IconWrapper>

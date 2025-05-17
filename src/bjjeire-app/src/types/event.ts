@@ -1,5 +1,5 @@
 import { County } from '../constants/counties'
-import { HateoasPagination } from './common'
+import { HateoasPagination, BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum BjjEventType {
   OpenMat = 0,
@@ -30,28 +30,6 @@ export enum EventStatus {
   Postponed = 7,
 }
 
-// Base entity model
-export interface BaseApiEntityModel {
-  id?: string
-  createdOnUtc?: string | null
-  updatedOnUtc?: string | null
-}
-
-export interface GeoCoordinatesDto {
-  type: 'Point'
-  latitude: number
-  longitude: number
-  placeName?: string | null
-  placeId?: string | null
-}
-
-export interface SocialMediaDto {
-  instagram: string
-  facebook: string
-  x: string
-  youTube: string
-}
-
 export interface OrganizerDto {
   name: string
   website: string
@@ -69,12 +47,6 @@ export interface BjjEventHoursDto {
   date?: string | null
   openTime: string
   closeTime: string
-}
-
-export interface LocationDto {
-  address: string
-  venue: string
-  coordinates: GeoCoordinatesDto
 }
 
 export interface BaseSchedule {
@@ -98,22 +70,6 @@ export interface RecurringSchedule extends BaseSchedule {
 export type EventScheduleUnion = FixedDateSchedule | RecurringSchedule
 
 export interface BjjEventDto extends BaseApiEntityModel {
-  name: string
-  description?: string | null
-  type: BjjEventType
-  organiser: OrganizerDto
-  status: EventStatus
-  statusReason?: string | null
-  socialMedia: SocialMediaDto
-  county: County
-  location: LocationDto
-  schedule: EventScheduleUnion
-  pricing: BjjEventPricingModelDto
-  eventUrl: string
-  imageUrl: string
-}
-
-export interface EventFormData {
   name: string
   description?: string | null
   type: BjjEventType

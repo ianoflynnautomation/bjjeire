@@ -4,19 +4,15 @@ import { api } from '../lib/api-client'
 import { County } from '../constants/counties'
 import { PaginatedResponse } from '../types/common'
 import { QueryConfig } from '../lib/react-query'
-import {
-  BjjEventDto,
-  GetBjjEventsPaginationQuery,
-  BjjEventType,
-  EventFormData,
-} from '../types/event'
+import { BjjEventDto, GetBjjEventsPaginationQuery, BjjEventType } from '../types/event'
 import { queryConfig } from '@/lib/react-query'
+import { env } from '../config/env'
 
 export const getBjjEvents = ({
   county,
   type,
-  page = 1,
-  pageSize = 12,
+  page = env.PAGE_NUMBER,
+  pageSize = env.PAGE_SIZE,
 }: GetBjjEventsPaginationQuery): Promise<PaginatedResponse<BjjEventDto>> => {
   const params: Record<string, string | number> = {
     page,
@@ -73,8 +69,4 @@ export const useBjjEvents = ({
     ...getBjjEventsQueryOptions({ county, type, page, pageSize }),
     ...queryConfig,
   })
-}
-
-export const postEvent = (newEvent: EventFormData): Promise<BjjEventDto> => {
-  return api.post<BjjEventDto>('api/bjjevent', newEvent)
 }

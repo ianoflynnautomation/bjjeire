@@ -1,5 +1,5 @@
+import { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
-// Enum for ClassCategory
 export enum ClassCategory {
     Uncategorized = 'Uncategorized',
     BJJGiAllLevels = 'BJJGiAllLevels',
@@ -20,7 +20,6 @@ export enum ClassCategory {
     Other = 'Other',
   }
   
-  // Enum for GymStatus
   export enum GymStatus {
     Active = 'Active',
     PendingApproval = 'PendingApproval',
@@ -31,51 +30,18 @@ export enum ClassCategory {
     Rejected = 'Rejected',
   }
   
-  export interface BaseApiEntityModel {
-    id?: string;
-    createdAt?: string; // ISO date string (e.g., "2025-05-13T14:03:00Z")
-    updatedAt?: string;
-  }
-  
-  // GeoCoordinatesDto
-  export interface GeoCoordinatesDto {
-    type: string; // e.g., "Point"
-    latitude: number;
-    longitude: number;
-    placeName?: string;
-    placeId?: string;
-  }
-  
-  // LocationDto
-  export interface LocationDto {
-    address: string;
-    venue: string;
-    coordinates: GeoCoordinatesDto;
-  }
-  
-  // TrialOfferDto
   export interface TrialOfferDto {
     isAvailable: boolean;
     freeClasses?: number;
     freeDays?: number;
     notes?: string;
   }
-  
-  // AffiliationDto
+
   export interface AffiliationDto {
     name: string;
     website?: string;
   }
   
-  // SocialMediaDto
-  export interface SocialMediaDto {
-    instagram: string;
-    facebook: string;
-    x: string;
-    youTube: string;
-  }
-  
-  // GymDto
   export interface GymDto extends BaseApiEntityModel {
     name: string;
     description?: string;

@@ -12,7 +12,8 @@ const createEnv = () => {
       .default('false'),
     APP_URL: z.string().optional().default('https://localhost:60743'),
     APP_MOCK_API_PORT: z.string().optional().default('443'),
-    PAGE_SIZE: z.string().transform((s) => parseInt(s)).optional().default('12'),
+    PAGE_SIZE: z.string().transform((s) => parseInt(s)).optional().default('20'),
+    PAGE_NUMBER: z.string().transform((s) => parseInt(s)).optional().default('1'),
   });
 
   const envVars = Object.entries(import.meta.env).reduce<Record<string, string>>(
