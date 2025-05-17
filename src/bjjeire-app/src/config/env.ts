@@ -1,44 +1,48 @@
+import * as z from 'zod'
 
-import * as z from 'zod';
+const EnvSchema = z.object({
+  API_URL: z.string().default('/api'),
+  ENABLE_API_MOCKING: z
+    .enum(['true', 'false'])
+    .transform(val => val === 'true')
+    .optional()
+    .default('false'),
+  APP_URL: z.string().url().optional().default('http://localhost:60743'),
+  APP_MOCK_API_PORT: z.string().regex(/^\d+$/).optional().default('443'),
+  PAGE_SIZE: z.string().regex(/^\d+$/).transform(Number).optional().default('20'),
+  PAGE_NUMBER: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
+  BITCOIN_ADDRESS: z.string().optional().default('not_provided'),
+})
 
-const createEnv = () => {
-  const EnvSchema = z.object({
-    API_URL: z.string().default('/api'),
-    ENABLE_API_MOCKING: z
-      .string()
-      .refine((s) => s === 'true' || s === 'false')
-      .transform((s) => s === 'true')
-      .optional()
-      .default('false'),
-    APP_URL: z.string().optional().default('https://localhost:60743'),
-    APP_MOCK_API_PORT: z.string().optional().default('443'),
-    PAGE_SIZE: z.string().transform((s) => parseInt(s)).optional().default('20'),
-    PAGE_NUMBER: z.string().transform((s) => parseInt(s)).optional().default('1'),
-  });
+export type Env = z.infer<typeof EnvSchema>
 
-  const envVars = Object.entries(import.meta.env).reduce<Record<string, string>>(
-    (acc, [key, value]) => {
-      if (key.startsWith('VITE_APP_')) {
-        acc[key.replace('VITE_APP_', '')] = value;
-      }
-      return acc;
-    },
-    {}
-  );
+const createEnv = (): Env => {
+  const viteEnv = import.meta.env
+  const relevantEnvVars: Record<string, string | undefined> = {}
 
-  const parsedEnv = EnvSchema.safeParse(envVars);
-
-  if (!parsedEnv.success) {
-    throw new Error(
-      `Invalid env provided.\nThe following variables are missing or invalid:\n${Object.entries(
-        parsedEnv.error.flatten().fieldErrors
-      )
-        .map(([k, v]) => `- ${k}: ${v}`)
-        .join('\n')}`
-    );
+  for (const key in viteEnv) {
+    if (key.startsWith('VITE_APP_')) {
+      relevantEnvVars[key.replace('VITE_APP_', '')] = viteEnv[key]
+    }
   }
 
-  return parsedEnv.data;
-};
+  const parsedEnv = EnvSchema.safeParse(relevantEnvVars)
 
-export const env = createEnv();
+  if (!parsedEnv.success) {
+    console.error(
+      '❌ Invalid environment variables:',
+      parsedEnv.error.flatten().fieldErrors
+    )
+    throw new Error(
+      `Invalid environment variables provided.\nThe following variables are missing or invalid:\n${Object.entries(
+        parsedEnv.error.flatten().fieldErrors
+      )
+        .map(([k, v]) => `- ${k}: ${v?.join(', ')}`)
+        .join('\n')}`
+    )
+  }
+
+  return parsedEnv.data
+}
+
+export const env: Env = createEnv()
