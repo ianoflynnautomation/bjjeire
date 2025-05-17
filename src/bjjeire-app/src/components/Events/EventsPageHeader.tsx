@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
 
 interface EventsPageHeaderProps {
-  'data-testid'?: string;
+  'data-testid'?: string
 }
 
 const EventsPageHeader: React.FC<EventsPageHeaderProps> = ({
@@ -18,6 +18,6 @@ const EventsPageHeader: React.FC<EventsPageHeaderProps> = ({
       BJJ Events
     </h1>
   </header>
-);
+)
 
-export default React.memo(EventsPageHeader);
+export default React.memo(EventsPageHeader)

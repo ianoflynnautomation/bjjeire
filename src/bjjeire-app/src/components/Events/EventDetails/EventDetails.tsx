@@ -1,105 +1,113 @@
-// src/features/events/components/EventCard/EventDetails.tsx
-import React, { memo, useMemo } from 'react';
-import { MapPinIcon, CurrencyDollarIcon, UserCircleIcon } from '@heroicons/react/20/solid';
-import { BjjEventDto, PricingType, OrganizerDto } from '../../../types/event'; // Adjusted path
-import { calculateEventPrice } from '../../../utils/priceCalculator'; // Adjusted path
-import { CalculatedPrice } from '../../../utils/calculateEventPrice'; // Adjusted path assuming it's co-located or in utils
-import { SocialMediaLinks } from '../../common/SocialLinks/SocialLinks';
-import { DetailItem } from './DetailItem'; // Assuming DetailItem is in the same folder
-import { getGoogleMapsUrl } from '../../../utils/mapUtils'; // Adjusted path
-import { ensureExternalUrlScheme } from '../../../utils/formattingUtils'; // Assuming this util exists
+import React, { memo, useMemo } from 'react'
+import {
+  MapPinIcon,
+  CurrencyDollarIcon,
+  UserCircleIcon,
+} from '@heroicons/react/20/solid'
+import { BjjEventDto, PricingType, OrganizerDto } from '../../../types/event'
+import { calculateEventPrice } from '../../../utils/priceCalculator'
+import { CalculatedPrice } from '../../../utils/calculateEventPrice'
+import { SocialMediaLinks } from '../../common/SocialLinks/SocialLinks'
+import { DetailItem } from './DetailItem'
+import { getGoogleMapsUrl } from '../../../utils/mapUtils'
+import { ensureExternalUrlScheme } from '../../../utils/formattingUtils'
 
-// ... (formatPricingDisplay and formatOrganiserDisplay remain the same) ...
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
   originalPricingType?: PricingType
 ): string => {
   if (originalPricingType === PricingType.Free) {
-    return 'Free';
+    return 'Free'
   }
 
-  if (calculatedPrice.total === 0 && originalPricingType === undefined) { // If type is undefined and total is 0
-    return 'Pricing details unavailable';
+  if (calculatedPrice.total === 0 && originalPricingType === undefined) {
+    return 'Pricing details unavailable'
   }
 
+  const formattedTotal = calculatedPrice.total.toFixed(2)
+  const currencyDisplay = calculatedPrice.currency || ''
 
-  const formattedTotal = calculatedPrice.total.toFixed(2);
-  const currencyDisplay = calculatedPrice.currency || '';
-
-  let unitText = '';
+  let unitText = ''
   switch (calculatedPrice.unit) {
     case 'PerDay':
-      unitText = 'per day';
-      break;
+      unitText = 'per day'
+      break
     case 'PerSession':
-      unitText = 'per session';
-      break;
+      unitText = 'per session'
+      break
     case 'FlatRate':
     default:
-      unitText = '';
-      break;
+      unitText = ''
+      break
   }
-  return `${currencyDisplay ? currencyDisplay + ' ' : ''}${formattedTotal}${unitText ? ' ' + unitText : ''}`.trim();
-};
-
-const formatOrganiserDisplay = (organiser?: OrganizerDto): string | undefined => {
-  if (!organiser || (!organiser.name && !organiser.website)) return undefined;
-  const url = organiser.website;
-  if (url) {
-    try {
-      const parsedUrl = new URL(url);
-      return parsedUrl.hostname.replace(/^www\./, '');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // Fallback if URL is invalid but exists
-      return organiser.name || url.replace(/^https?:\/\//, '').replace(/^www\./, '');
-    }
-  }
-  return organiser.name; // Fallback to name if no website
-};
-
-
-interface EventDetailsProps {
-  event: BjjEventDto;
-  'data-testid'?: string;
+  return `${currencyDisplay ? currencyDisplay + ' ' : ''}${formattedTotal}${unitText ? ' ' + unitText : ''}`.trim()
 }
 
+const formatOrganiserDisplay = (
+  organiser?: OrganizerDto
+): string | undefined => {
+  if (!organiser || (!organiser.name && !organiser.website)) return undefined
+  const url = organiser.website
+  if (url) {
+    try {
+      const parsedUrl = new URL(url)
+      return parsedUrl.hostname.replace(/^www\./, '')
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Fallback if URL is invalid but exists
+      return (
+        organiser.name || url.replace(/^https?:\/\//, '').replace(/^www\./, '')
+      )
+    }
+  }
+  return organiser.name // Fallback to name if no website
+}
+
+interface EventDetailsProps {
+  event: BjjEventDto
+  'data-testid'?: string
+}
 
 export const EventDetails: React.FC<EventDetailsProps> = memo(
-  ({ event, 'data-testid': baseTestId = 'event-details-content' }) => { // Changed default testId for clarity
-    const { name, location, socialMedia, pricing, schedule, organiser } = event;
+  ({ event, 'data-testid': baseTestId = 'event-details-content' }) => {
+    const { name, location, socialMedia, pricing, schedule, organiser } = event
 
     const calculatedPrice = useMemo(
-      () => calculateEventPrice(schedule, pricing), // Ensure this util is robust
+      () => calculateEventPrice(schedule, pricing),
       [schedule, pricing]
-    );
+    )
 
     const pricingDisplay = useMemo(
       () => formatPricingDisplay(calculatedPrice, pricing?.type),
       [calculatedPrice, pricing?.type]
-    );
+    )
 
-    const organiserDisplay = useMemo(() => formatOrganiserDisplay(organiser), [organiser]);
-
+    const organiserDisplay = useMemo(
+      () => formatOrganiserDisplay(organiser),
+      [organiser]
+    )
 
     return (
       <section
-        className="space-y-2.5 text-sm" // UPDATED: Rely on DetailItem for text colors, adjusted spacing
+        className="space-y-2.5 text-sm"
         aria-labelledby={`event-details-heading-${event.id || event.name}`}
         data-testid={baseTestId}
       >
-        <h2 id={`event-details-heading-${event.id || event.name}`} className="sr-only">
+        <h2
+          id={`event-details-heading-${event.id || event.name}`}
+          className="sr-only"
+        >
           Event Details for {name || 'this event'}
         </h2>
 
-        {location && ( // Ensure location object exists
+        {location && (
           <DetailItem
             icon={<MapPinIcon />}
             ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
             data-testid={`${baseTestId}-address`}
           >
             <a
-              href={getGoogleMapsUrl(location)} // Pass location object
+              href={getGoogleMapsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
@@ -117,7 +125,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             data-testid={`${baseTestId}-organiser`}
           >
             <a
-              href={ensureExternalUrlScheme(organiser.website)} // Ensure scheme for external link
+              href={ensureExternalUrlScheme(organiser.website)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
@@ -128,19 +136,18 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           </DetailItem>
         )}
 
-        {pricingDisplay && ( // Only render if there's something to display
-             <DetailItem
-                icon={<CurrencyDollarIcon />}
-                ariaLabel={`Event pricing: ${pricingDisplay}`}
-                data-testid={`${baseTestId}-pricing`}
-             >
-                {pricingDisplay}
-             </DetailItem>
+        {pricingDisplay && (
+          <DetailItem
+            icon={<CurrencyDollarIcon />}
+            ariaLabel={`Event pricing: ${pricingDisplay}`}
+            data-testid={`${baseTestId}-pricing`}
+          >
+            {pricingDisplay}
+          </DetailItem>
         )}
 
-
-        {socialMedia && ( // Check if socialMedia object exists
-          <div className="pt-1"> {/* Adjusted padding */}
+        {socialMedia && (
+          <div className="pt-1">
             <SocialMediaLinks
               socialMedia={socialMedia}
               data-testid={`${baseTestId}-social-media`}
@@ -148,6 +155,6 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           </div>
         )}
       </section>
-    );
+    )
   }
-);
+)

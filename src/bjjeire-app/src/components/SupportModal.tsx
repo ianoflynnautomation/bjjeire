@@ -8,8 +8,6 @@ interface SupportModalProps {
   'data-testid'?: string;
 }
 
-// The inline BitcoinLogoIcon definition will be removed.
-
 const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg
     className={className || 'w-6 h-6'}
