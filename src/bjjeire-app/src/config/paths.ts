@@ -1,25 +1,22 @@
 export const paths = {
   home: {
-    path: "/",
-    getHref: () => "/",
+    path: '/',
+    label: "Home", 
+    getHref: () => '/',
   },
-
-  app: {
-    root: {
-      path: "/app",
-      getHref: () => "/app",
-    },
     events: {
-      path: 'events',
-      getHref: () => '/app/events',
+      path: "/events",
+      label: "Events",
+      getHref: () => '/events',
     },
     gyms: {
-      path: 'gyms',
-      getHref: () => '/app/gyms',
+      path: '/gyms',
+      label: 'Gyms',
+      getHref: () => '/gyms',
     },
-    contact: {
-      path: 'contact',
-      getHref: () => '/app/contact',
-    }
-  },
-} as const;
+    about: {
+      path: "/about",
+      label: "About",
+      getHref: () => "/about",
+    },
+  } as const

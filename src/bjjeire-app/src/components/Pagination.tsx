@@ -89,7 +89,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, pagination, onPage
           data-testid="pagination-page-indicator"
           className={clsx(
             'px-3 py-1.5 text-sm font-medium rounded-md border',
-            activeClasses // Treat current page as "active" to match selected button styles
+            activeClasses
           )}
           aria-current="page"
         >

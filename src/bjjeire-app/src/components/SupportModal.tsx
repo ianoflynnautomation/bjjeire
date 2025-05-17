@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react';
-import clsx from 'clsx';
-import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg';
+import React, { useState, useCallback } from 'react'
+import clsx from 'clsx'
+import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg'
+import { env } from '../config/env'
 
 interface SupportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  'data-testid'?: string;
+  isOpen: boolean
+  onClose: () => void
+  'data-testid'?: string
 }
 
 const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -17,33 +18,38 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className }) => (
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M6 18L18 6M6 6l12 12"
+    />
   </svg>
-);
+)
 
 const SupportModal: React.FC<SupportModalProps> = ({
   isOpen,
   onClose,
   'data-testid': baseTestId = 'support-modal',
 }) => {
-  const [copied, setCopied] = useState(false);
-  const bitcoinAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'; // Example address
+  const [copied, setCopied] = useState(false)
+  const bitcoinAddress = env.BITCOIN_ADDRESS
 
   const copyToClipboard = useCallback(async () => {
     if (!navigator.clipboard) {
-      console.warn('Clipboard API not available.');
-      return;
+      console.warn('Clipboard API not available.')
+      return
     }
     try {
-      await navigator.clipboard.writeText(bitcoinAddress);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(bitcoinAddress)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error('Failed to copy text: ', err)
     }
-  }, [bitcoinAddress]);
+  }, [bitcoinAddress])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div
@@ -57,11 +63,9 @@ const SupportModal: React.FC<SupportModalProps> = ({
         className="w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-modalShow dark:bg-slate-800 sm:p-8"
         data-testid={`${baseTestId}-content`}
       >
-        {/* Modal Header */}
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Use the imported BitcoinIcon from the SVG file */}
-            <BitcoinIcon className="h-8 w-8" /> {/* You can adjust size here if needed */}
+            <BitcoinIcon className="h-8 w-8" />
             <h2
               id={`${baseTestId}-title`}
               className="text-2xl font-bold text-slate-900 dark:text-white"
@@ -79,20 +83,18 @@ const SupportModal: React.FC<SupportModalProps> = ({
             <CloseIcon className="h-6 w-6" />
           </button>
         </header>
-
-        {/* Modal Body */}
         <div className="space-y-6">
           <p className="text-slate-600 dark:text-slate-300">
-            Support the BJJ Éire project by donating Bitcoin. Your contribution helps us maintain
-            and improve the platform.
+            Support the BJJ Éire project by donating Bitcoin. Your contribution
+            helps us maintain and improve the platform.
           </p>
-
-          {/* Bitcoin Address Section */}
           <div
             className="rounded-lg bg-slate-50 p-4 shadow-inner dark:bg-slate-700"
             data-testid={`${baseTestId}-address-section`}
           >
-            <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">Bitcoin Address:</p>
+            <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
+              Bitcoin Address:
+            </p>
             <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
               <code
                 className="flex-1 rounded border border-slate-200 bg-white p-3 text-sm text-slate-700 break-all dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
@@ -122,14 +124,12 @@ const SupportModal: React.FC<SupportModalProps> = ({
               </p>
             )}
           </div>
-
-          {/* Warning Section */}
           <div
             className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30"
             data-testid={`${baseTestId}-warning-message`}
           >
             <p className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
-              <svg // Warning Icon
+              <svg
                 className="h-5 w-5 flex-shrink-0 text-yellow-500 dark:text-yellow-400"
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -142,14 +142,13 @@ const SupportModal: React.FC<SupportModalProps> = ({
                 />
               </svg>
               <span>
-                Please double-check the address before sending any funds. We cannot recover funds
-                sent to incorrect addresses.
+                Please double-check the address before sending any funds. We
+                cannot recover funds sent to incorrect addresses.
               </span>
             </p>
           </div>
         </div>
       </div>
-      {/* Basic CSS for modal animation */}
       <style>{`
         @keyframes modalShow {
           0% { opacity: 0; transform: scale(0.95); }
@@ -160,7 +159,7 @@ const SupportModal: React.FC<SupportModalProps> = ({
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default SupportModal;
+export default SupportModal
