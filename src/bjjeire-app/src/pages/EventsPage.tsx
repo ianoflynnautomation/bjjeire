@@ -1,34 +1,30 @@
 import React, { useCallback, useState, memo, useMemo } from 'react';
 import { useBjjEvents } from '../api/get-bjj-events';
 import { County } from '../constants/counties';
-import { useEventSubmission } from '../hooks/useEventSubmission';
-import { EventFormData, BjjEventType, GetBjjEventsPaginationQuery } from '../types/event';
-import { EventForm } from '../components/Events/EventForm/EventForm';
+import { GetBjjEventsPaginationQuery, BjjEventType } from '../types/event';
 import EventFilters from '../components/Events/EventFilters/EventFilters';
 import Pagination from '../components/Pagination';
-import LoadingState from '../components/Events/EventsPageFeedback/LoadingState';
-import ErrorState from '../components/Events/EventsPageFeedback/ErrorState';
-import NoDataState from '../components/Events/EventsPageFeedback/NoDataState';
-import BackgroundFetchingIndicator from '../components/Events/EventsPageFeedback/BackgroundFetchingIndicator';
+import LoadingState from '../components/common/LoadingState';
+import ErrorState from '../components/common/ErrorState';
+import NoDataState from '../components/common/NoDataState';
+import BackgroundFetchingIndicator from '../components/common/BackgroundFetchingIndicator';
 import EventsPageHeader from '../components/Events/EventsPageHeader';
 import EventsList from '../components/Events/EventsList';
-
-const DEFAULT_PAGE_SIZE = 12;
+import { env } from '../config/env'
 
 const EventsPage: React.FC = () => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<GetBjjEventsPaginationQuery>({
-    county:'all',
+    county: 'all',
     type: undefined,
-    page: 1,
-    pageSize: DEFAULT_PAGE_SIZE,
+  page: env.PAGE_NUMBER,
+  pageSize: env.PAGE_SIZE,
   });
 
   const {
     data: bjjEventsResponse,
     isLoading,
     isFetching,
-    error: fetchError, // Renamed to avoid conflict with submission error
+    error: fetchError,
     refetch,
   } = useBjjEvents({
     county: activeFilters.county,
@@ -36,9 +32,6 @@ const EventsPage: React.FC = () => {
     page: activeFilters.page,
     pageSize: activeFilters.pageSize,
   });
-
-  // Use the NEW useEventSubmission hook
-  const { mutate: submitEvent, isPending: isSubmittingEvent } = useEventSubmission();
 
   const events = useMemo(() => bjjEventsResponse?.data ?? [], [bjjEventsResponse?.data]);
   const paginationInfo = useMemo(() => bjjEventsResponse?.pagination, [bjjEventsResponse?.pagination]);
@@ -57,7 +50,7 @@ const EventsPage: React.FC = () => {
       setActiveFilters((prevFilters) => {
         const newFilters: Partial<GetBjjEventsPaginationQuery> = { page: 1 };
         if (key === 'county') {
-          newFilters.county = value as County | 'all' | undefined; // Explicitly allow undefined
+          newFilters.county = value as County | 'all' | undefined;
         } else if (key === 'type') {
           newFilters.type = value === 'all' ? undefined : (value as BjjEventType | undefined);
         }
@@ -76,29 +69,6 @@ const EventsPage: React.FC = () => {
       }
     },
     [activeFilters.page, scrollToTop]
-  );
-
-  const handleSubmitEvent = useCallback(
-    (formData: EventFormData): Promise<void> =>
-      new Promise((resolve, reject) => {
-        submitEvent(formData, { // Pass variables and component-specific callbacks
-          onSuccess: (data) => { // data is the response from postEvent
-            setIsFormOpen(false);
-            // Toast message for success can be handled here or globally in the hook
-            // e.g., toast.success('Event submitted successfully for review!');
-            // Query invalidation is handled by the useEventSubmission hook, so no manual refetch needed.
-            console.log('Event submission successful (component level):', data);
-            resolve();
-          },
-          onError: (error) => { // error is the submission error
-            console.error('Event submission failed (component level):', error);
-            // Consider user-facing notification for submission error (e.g., toast)
-            // The global error log is in useEventSubmission hook
-            reject(error);
-          },
-        });
-      }),
-    [submitEvent] // submitEvent (mutate function from useMutation) is stable
   );
 
   const handleRetryFetch = useCallback(() => {
@@ -120,9 +90,6 @@ const EventsPage: React.FC = () => {
     return 'An unexpected error occurred.';
   }, [fetchError]);
 
-  // You might want a similar message for submissionError if you display it directly
-  // const submissionErrorMessage = useMemo(() => { ... }, [submissionError]);
-
   const renderMainContent = () => {
     if (isInitialLoading) return <LoadingState />;
     if (hasFetchError) return <ErrorState message={fetchErrorMessage} onRetry={handleRetryFetch} />;
@@ -130,9 +97,7 @@ const EventsPage: React.FC = () => {
       <NoDataState
         title="No Events Found"
         messageLine1="No events match your current filters."
-        messageLine2="Why not try a different filter or submit a new event?"
-        actionText="Submit a new event"
-        onActionClick={() => setIsFormOpen(true)}
+        messageLine2="Try a different filter to find events."
       />
     );
     if (events.length > 0) return <EventsList events={events} />;
@@ -142,11 +107,7 @@ const EventsPage: React.FC = () => {
   return (
     <div className="min-h-screen dark:bg-slate-900 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <EventsPageHeader
-          onOpenForm={() => setIsFormOpen(true)}
-          isSubmittingEvent={isSubmittingEvent} // from new useEventSubmission
-          isFormOpen={isFormOpen}
-        />
+        <EventsPageHeader />
 
         <div className="mb-8">
           <EventFilters
@@ -154,11 +115,11 @@ const EventsPage: React.FC = () => {
             selectedType={activeFilters.type}
             onCityChange={(city) => handleFilterChange('county', city)}
             onTypeChange={(type) => handleFilterChange('type', type)}
-            disabled={isFetching || isLoading || isSubmittingEvent} // Disable if any operation is ongoing
+            disabled={isFetching || isLoading}
           />
         </div>
 
-        <main className="relative" aria-live="polite" aria-busy={isFetching || isSubmittingEvent}>
+        <main className="relative" aria-live="polite" aria-busy={isFetching}>
           {isBackgroundFetching && events.length > 0 && <BackgroundFetchingIndicator />}
           {renderMainContent()}
         </main>
@@ -171,16 +132,6 @@ const EventsPage: React.FC = () => {
               onPageChange={onPageChange}
             />
           </div>
-        )}
-
-        {isFormOpen && (
-          <EventForm
-            isOpen={isFormOpen}
-            onClose={() => setIsFormOpen(false)}
-            onSubmit={handleSubmitEvent}
-            isSubmitting={isSubmittingEvent} // from new useEventSubmission
-            // submissionError={submissionError} // Optionally pass submission error to form
-          />
         )}
       </div>
     </div>

@@ -28,7 +28,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
     if (isLoading) {
       return (
         <div
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
           data-testid={`${baseTestId}-loading`}
         >
           {Array.from({ length: 8 }).map((_, index) => ( // Show 8 skeletons or based on pageSize
@@ -64,7 +64,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
 
     return (
       <div
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3" // Consider 3 columns for lg
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4" // Consider 3 columns for lg
         data-testid={baseTestId}
       >
         {gyms.map((gym) => (

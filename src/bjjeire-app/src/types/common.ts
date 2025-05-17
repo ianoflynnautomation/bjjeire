@@ -24,16 +24,36 @@ export interface BaseApiEntityModel
 
 }
 
-// You can place this in a shared types file, e.g., src/types/common.ts or src/types/location.ts
 export interface MapLocationCoordinates {
   latitude?: number | null;
   longitude?: number | null;
-  // placeId?: string; // You might want to use this in the future for more precise linking
+  // placeId?: string;
 }
 
 export interface MapLocationData {
   address?: string | null;
   venue?: string | null;
   coordinates?: MapLocationCoordinates | null;
-  // You could also add placeName here if it's consistently available and useful for the query
+  //placeName?: string;
+}
+
+export interface GeoCoordinatesDto {
+  type: 'Point'
+  latitude: number
+  longitude: number
+  placeName?: string | null
+  placeId?: string | null
+}
+
+export interface SocialMediaDto {
+  instagram: string;
+  facebook: string;
+  x: string;
+  youTube: string;
+}
+
+export interface LocationDto {
+  address: string
+  venue: string
+  coordinates: GeoCoordinatesDto
 }

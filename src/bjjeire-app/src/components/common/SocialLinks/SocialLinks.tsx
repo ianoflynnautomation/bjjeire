@@ -1,6 +1,6 @@
 import React from 'react';
 import { platformConfig, KnownPlatform, isKnownPlatform } from './socialMedia.config'; // Assuming config is in the same folder
-import { SocialMediaDto } from '../../../types/gyms'; // Or a common DTO path
+import { SocialMediaDto } from '../../../types/common'; // Or a common DTO path
 
 interface SocialLinkProps {
   platform: KnownPlatform;

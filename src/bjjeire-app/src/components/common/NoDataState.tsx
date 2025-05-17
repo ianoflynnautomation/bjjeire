@@ -1,12 +1,12 @@
 import React from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
 
-interface NoDataStateProps { // Renamed for potential broader use
+interface NoDataStateProps {
   title?: string;
   messageLine1?: string;
   messageLine2?: string;
   actionText?: string;
-  onActionClick?: () => void; // Make action optional
+  onActionClick?: () => void;
   'data-testid'?: string;
 }
 
@@ -19,27 +19,27 @@ const NoDataState: React.FC<NoDataStateProps> = ({
   'data-testid': baseTestId = 'no-data-state',
 }) => (
   <div
-    className="my-10 rounded-md border border-slate-200 bg-slate-50 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800" // UPDATED: Neutral scheme
+    className="my-10 rounded-md border border-slate-200 bg-slate-50 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800" 
     data-testid={baseTestId}
   >
     <InformationCircleIcon
-      className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400" // UPDATED: Icon color
+      className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400" 
       aria-hidden="true"
     />
     <p
-      className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100" // UPDATED: Text color
+      className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100"
       data-testid={`${baseTestId}-title`}
     >
       {title}
     </p>
     <p
-      className="mt-1 text-sm text-slate-600 dark:text-slate-300" // UPDATED: Text color
+      className="mt-1 text-sm text-slate-600 dark:text-slate-300"
       data-testid={`${baseTestId}-message-line1`}
     >
       {messageLine1}
     </p>
     <p
-      className="mt-0.5 text-sm text-slate-600 dark:text-slate-300" // UPDATED: Text color
+      className="mt-0.5 text-sm text-slate-600 dark:text-slate-300"
       data-testid={`${baseTestId}-message-line2`}
     >
       {messageLine2}

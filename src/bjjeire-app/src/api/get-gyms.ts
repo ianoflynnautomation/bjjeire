@@ -3,11 +3,12 @@ import { api } from '../lib/api-client'
 import { QueryConfig } from '../lib/react-query'
 import { PaginatedResponse } from '../types/common'
 import { GymDto, GetGymsByCityPaginationQuery } from '../types/gyms'
+import { env } from '../config/env'
 
 export const getGyms = ({
   county,
-  page = 1,
-  pageSize = 12,
+  page = env.PAGE_NUMBER,
+  pageSize = env.PAGE_SIZE,
 }: GetGymsByCityPaginationQuery): Promise<PaginatedResponse<GymDto>> => {
   const params: Record<string, string | number> = {
     page,
