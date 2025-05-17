@@ -7,12 +7,12 @@ import ButtonGroupFilter from '../../Filters/ButtonGroupFilter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 
 interface EventFiltersProps {
-  selectedCity: County | 'all' | undefined; // Add undefined to the type
-  selectedType: BjjEventType | undefined;
-  onCityChange: (city: County | 'all' | undefined) => void; // Update onCityChange to accept undefined
-  onTypeChange: (type: BjjEventType | 'all') => void;
-  disabled: boolean;
-  'data-testid'?: string;
+  selectedCity: County | 'all' | undefined 
+  selectedType: BjjEventType | undefined
+  onCityChange: (city: County | 'all' | undefined) => void
+  onTypeChange: (type: BjjEventType | 'all') => void
+  disabled: boolean
+  'data-testid'?: string
 }
 
 const EventFilters: React.FC<EventFiltersProps> = ({
@@ -23,10 +23,14 @@ const EventFilters: React.FC<EventFiltersProps> = ({
   disabled,
   'data-testid': baseTestId = 'event-filters',
 }) => {
-  const cityOptions = COUNTIES.map((city) => ({ value: city.value, label: city.label }))
+  const cityOptions = COUNTIES.map(city => ({
+    value: city.value,
+    label: city.label,
+  }))
 
   return (
-    <div className="flex flex-col gap-6 sm:flex-row sm:gap-4"
+    <div
+      className="flex flex-col gap-6 sm:flex-row sm:gap-4"
       data-testid={baseTestId}
     >
       <SelectFilter

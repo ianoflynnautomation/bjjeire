@@ -1,19 +1,18 @@
-// src/components/Filters/SelectFilter.tsx
 import React from 'react'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import clsx from 'clsx'
 
 interface SelectFilterProps<T> {
-  id: string;
-  label: string;
-  value: T | 'all' | undefined; // Add undefined to the type
-  onChange: (value: T | 'all' | undefined) => void; // Update onChange to accept undefined
-  options: { value: T; label: string }[];
-  disabled?: boolean;
-  placeholderOptionLabel?: string;
-  Icon?: React.ComponentType<{ className?: string }>;
-  'data-testid'?: string;
-  className?: string;
+  id: string
+  label: string
+  value: T | 'all' | undefined
+  onChange: (value: T | 'all' | undefined) => void
+  options: { value: T; label: string }[]
+  disabled?: boolean
+  placeholderOptionLabel?: string
+  Icon?: React.ComponentType<{ className?: string }>
+  'data-testid'?: string
+  className?: string
 }
 function SelectFilter<T extends string | number>({
   id,
@@ -28,15 +27,23 @@ function SelectFilter<T extends string | number>({
   className,
 }: SelectFilterProps<T>) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-    onChange(selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined);
-  };
+    const selectedValue = event.target.value
+    onChange(
+      selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined
+    )
+  }
 
-  const iconPresent = Icon ? 'pl-10' : 'pl-4';
+  const iconPresent = Icon ? 'pl-10' : 'pl-4'
 
   return (
-    <div className={clsx('flex flex-col', className)} data-testid={`${dataTestId}-wrapper`}>
-      <label htmlFor={id} className="text-sm font-medium text-slate-70 dark:text-slate-50">
+    <div
+      className={clsx('flex flex-col', className)}
+      data-testid={`${dataTestId}-wrapper`}
+    >
+      <label
+        htmlFor={id}
+        className="text-sm font-medium text-slate-70 dark:text-slate-50"
+      >
         {label}
       </label>
       <div className="relative mt-1">
@@ -48,22 +55,27 @@ function SelectFilter<T extends string | number>({
         )}
         <select
           id={id}
-          value={value ?? 'all'} // Convert undefined to 'all' for the select element
+          value={value ?? 'all'}
           onChange={handleChange}
           disabled={disabled}
           data-testid={dataTestId}
           className={clsx(
             'block w-full rounded-md border-slate-300 pr-4 py-2 text-base focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-slate-50 dark:focus:border-emerald-500 dark:focus:ring-emerald-500',
             iconPresent,
-            disabled ? 'opacity-70 cursor-not-allowed bg-slate-100 dark:bg-slate-800' : ''
+            disabled
+              ? 'opacity-70 cursor-not-allowed bg-slate-100 dark:bg-slate-800'
+              : ''
           )}
         >
           {placeholderOptionLabel && (
-            <option value="all" data-testid={`${dataTestId}-placeholder-option`}>
+            <option
+              value="all"
+              data-testid={`${dataTestId}-placeholder-option`}
+            >
               {placeholderOptionLabel}
             </option>
           )}
-          {options.map((option) => (
+          {options.map(option => (
             <option
               key={String(option.value)}
               value={String(option.value)}
@@ -75,6 +87,6 @@ function SelectFilter<T extends string | number>({
         </select>
       </div>
     </div>
-  );
+  )
 }
 export default SelectFilter

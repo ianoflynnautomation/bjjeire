@@ -52,7 +52,7 @@ const ButtonGroupFilter = <T extends string | number>({
         </button>
 
         {/* Buttons for each option */}
-        {options.map((option) => (
+        {options.map(option => (
           <button
             key={String(option.value)}
             type="button"

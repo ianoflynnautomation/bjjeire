@@ -1,20 +1,23 @@
-import React, { memo } from 'react';
-import { GymStatus } from '../../types/gyms';
-import { Badge } from '../common/Badge';
-import { getGymStatusLabel, getGymStatusColorScheme } from '../../utils/gymDisplayUtils';
+import React, { memo } from 'react'
+import { GymStatus } from '../../types/gyms'
+import { Badge } from '../common/Badge'
+import {
+  getGymStatusLabel,
+  getGymStatusColorScheme,
+} from '../../utils/gymDisplayUtils'
 
 interface GymHeaderProps {
-  name: string;
-  county: string;
-  status: GymStatus;
-  imageUrl?: string;
+  name: string
+  county: string
+  status: GymStatus
+  imageUrl?: string
 }
 
 export const GymHeader: React.FC<GymHeaderProps> = memo(
   ({ name, county, status, imageUrl }) => {
-    const statusLabel = getGymStatusLabel(status);
-    const statusColorScheme = getGymStatusColorScheme(status);
-    const displayName = name || 'Unnamed Gym';
+    const statusLabel = getGymStatusLabel(status)
+    const statusColorScheme = getGymStatusColorScheme(status)
+    const displayName = name || 'Unnamed Gym'
 
     return (
       <header className="relative">
@@ -36,11 +39,17 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
             >
               {displayName}
             </h3>
-            <Badge text={statusLabel} colorScheme={statusColorScheme} data-testid="gym-status-badge" />
+            <Badge
+              text={statusLabel}
+              colorScheme={statusColorScheme}
+              data-testid="gym-status-badge"
+            />
           </div>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{county} County</p>
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            {county} County
+          </p>
         </div>
       </header>
-    );
+    )
   }
-);
+)

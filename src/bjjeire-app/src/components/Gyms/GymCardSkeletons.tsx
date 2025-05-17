@@ -1,11 +1,13 @@
-import React from 'react';
+import React from 'react'
 
 interface GymCardSkeletonsProps {
-  count?: number;
-  'data-testid'?: string;
+  count?: number
+  'data-testid'?: string
 }
 
-const GymCardSkeleton: React.FC<{ 'data-testid'?: string }> = ({ 'data-testid': dataTestId }) => (
+const GymCardSkeleton: React.FC<{ 'data-testid'?: string }> = ({
+  'data-testid': dataTestId,
+}) => (
   <div
     data-testid={dataTestId}
     className="h-full rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg p-5 animate-pulse"
@@ -18,7 +20,7 @@ const GymCardSkeleton: React.FC<{ 'data-testid'?: string }> = ({ 'data-testid': 
       <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
     </div>
   </div>
-);
+)
 
 export const GymCardSkeletons: React.FC<GymCardSkeletonsProps> = ({
   count = 8,
@@ -35,6 +37,6 @@ export const GymCardSkeletons: React.FC<GymCardSkeletonsProps> = ({
       />
     ))}
   </div>
-);
+)
 
-export default React.memo(GymCardSkeletons);
+export default React.memo(GymCardSkeletons)

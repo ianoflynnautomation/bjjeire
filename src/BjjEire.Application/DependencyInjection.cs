@@ -32,7 +32,6 @@ public static class DependencyInjection {
         builder.Services.RegisterRequestHandler();
 
         return builder;
-
     }
 
     private static void RegisterService(this IServiceCollection services) {

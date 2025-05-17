@@ -1,23 +1,16 @@
-import React, { memo } from 'react';
-import {
-  MapPinIcon,
-  BuildingLibraryIcon, // For affiliation
-  // GlobeAltIcon,      // For website
-  ClipboardDocumentListIcon, // For timetable
-//   InformationCircleIcon, // For description
-} from '@heroicons/react/20/solid';
-import { GymDto } from '../../types/gyms';
-import { formatDisplayUrl, ensureExternalUrlScheme } from '../../utils/formattingUtils';
-import { DetailItem } from '../common/DetailItem';
-import { SocialMediaLinks } from '../common/SocialLinks/SocialLinks';
-import { GymOfferedClasses } from './GymOfferedClasses';
-import { GymTrialOffer } from './GymTrialOffer';
-import { getGoogleMapsUrl } from '../../utils/mapUtils'; // Adjust path
-// ...
+import React, { memo } from 'react'
+import { MapPinIcon, BuildingLibraryIcon, ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
+import { GymDto } from '../../types/gyms'
+import { formatDisplayUrl, ensureExternalUrlScheme } from '../../utils/formattingUtils'
+import { DetailItem } from '../common/DetailItem'
+import { SocialMediaLinks } from '../common/SocialLinks/SocialLinks'
+import { GymOfferedClasses } from './GymOfferedClasses'
+import { GymTrialOffer } from './GymTrialOffer'
+import { getGoogleMapsUrl } from '../../utils/mapUtils'
 
 interface GymDetailsProps {
-  gym: GymDto;
-  'data-testid'?: string;
+  gym: GymDto
+  'data-testid'?: string
 }
 
 export const GymDetails: React.FC<GymDetailsProps> = memo(
@@ -25,35 +18,24 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
     const {
       location,
       affiliation,
-      // website,
       timetableUrl,
       socialMedia,
-      // description,
       offeredClasses,
       trialOffer,
-    } = gym;
+    } = gym
 
     return (
       <section
-        className="space-y-2.5 text-sm" // Adjusted spacing
+        className="space-y-2.5 text-sm"
         aria-labelledby={`gym-details-heading-${gym.id || gym.name}`}
         data-testid={baseTestId}
       >
-        <h2 id={`gym-details-heading-${gym.id || gym.name}`} className="sr-only">
+        <h2
+          id={`gym-details-heading-${gym.id || gym.name}`}
+          className="sr-only"
+        >
           Details for {gym.name || 'this gym'}
         </h2>
-
-        {/* {description && (
-            <DetailItem
-                icon={<InformationCircleIcon />}
-                ariaLabel={`Description: ${description.substring(0, 100)}...`}
-                data-testid={`${baseTestId}-description`}
-                className="text-slate-600 dark:text-slate-300"
-            >
-                <p>{description}</p>
-            </DetailItem>
-        )} */}
-
         {location?.address && (
           <DetailItem
             icon={<MapPinIcon />}
@@ -91,24 +73,6 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
             )}
           </DetailItem>
         )}
-
-        {/* {website && (
-          <DetailItem
-            icon={<GlobeAltIcon />}
-            ariaLabel={`Website: ${formatDisplayUrl(website)}`}
-            data-testid={`${baseTestId}-website`}
-          >
-            <a
-              href={ensureExternalUrlScheme(website)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
-            >
-              {formatDisplayUrl(website)}
-            </a>
-          </DetailItem>
-        )} */}
-
         {timetableUrl && (
           <DetailItem
             icon={<ClipboardDocumentListIcon />}
@@ -126,15 +90,26 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           </DetailItem>
         )}
 
-        <GymOfferedClasses classes={offeredClasses} data-testid={`${baseTestId}-classes`} />
-        <GymTrialOffer trialOffer={trialOffer} data-testid={`${baseTestId}-trial`} />
+        <GymOfferedClasses
+          classes={offeredClasses}
+          data-testid={`${baseTestId}-classes`}
+        />
+        <GymTrialOffer
+          trialOffer={trialOffer}
+          data-testid={`${baseTestId}-trial`}
+        />
 
         {socialMedia && (
-          <div className="pt-1"> {/* Adjusted padding */}
-            <SocialMediaLinks socialMedia={socialMedia} data-testid={`${baseTestId}-social-media`} />
+          <div className="pt-1">
+            {' '}
+            {/* Adjusted padding */}
+            <SocialMediaLinks
+              socialMedia={socialMedia}
+              data-testid={`${baseTestId}-social-media`}
+            />
           </div>
         )}
       </section>
-    );
+    )
   }
-);
+)
