@@ -1,11 +1,10 @@
 using BjjEire.Api.Extensions.Authentication;
-using BjjEire.Application.Common;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Queries;
-using BjjEire.Domain.Entities.BjjEvents;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BjjEire.Api.Controllers;
 
@@ -30,12 +29,13 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [HttpPost]
     [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BjjEventDto))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] BjjEventDto model) {
-        model = await _mediator.Send(new CreateBjjEventCommand { Model = model });
 
-        return Created(string.Empty, model);
+        var response = await _mediator.Send(new CreateBjjEventCommand { Model = model });
+
+        return Created(string.Empty, response.Model!.Id);
     }
 
     [EndpointDescription("Update entity in Bjj Event")]
@@ -43,31 +43,27 @@ public class BjjEventController(IMediator mediator) : BaseApiController {
     [HttpPut]
     [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BjjEventDto))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] BjjEventDto model) {
-        model = await _mediator.Send(new UpdateBjjEventCommand { Model = model });
 
-        return Ok(model);
+        var response = await _mediator.Send(new UpdateBjjEventCommand { Model = model });
+
+        return Ok(response);
     }
 
     [EndpointDescription("Delete entity in Bjj Event")]
     [EndpointName("DeleteBjjEvent")]
-    [HttpDelete("{key}")]
+    [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(DeleteBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete([FromRoute] string key) {
-        var bjjEvent = await _mediator.Send(new GetGenericQuery<BjjEventDto, BjjEvent>(key));
+    public async Task<NoContent> Delete([FromRoute] string id) {
 
-        if (!bjjEvent.Any()) {
-            return NotFound();
-        }
+        _ = await _mediator.Send(new DeleteBjjEventCommand { Id = id });
 
-        var eventToDelete = bjjEvent.First();
-        _ = await _mediator.Send(new DeleteBjjEventCommand { Model = eventToDelete });
-        return NoContent();
+        return TypedResults.NoContent();
     }
 }
 

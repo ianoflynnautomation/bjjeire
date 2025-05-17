@@ -10,8 +10,8 @@ namespace BjjEire.Api.Extensions.OpenApi;
 public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeProvider) : IOpenApiOperationTransformer
 {
     private readonly IAuthenticationSchemeProvider _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
-    private const string OpenApiBearerSchemeId = "BearerAuth"; // Must match ID in OpenApiExtensions
-    private const string OpenApiApiKeySchemeId = "ApiKeyAuth";   // Must match ID in OpenApiExtensions
+    private const string OpenApiBearerSchemeId = "BearerAuth";
+    private const string OpenApiApiKeySchemeId = "ApiKeyAuth";
 
     public async Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
 
         if (allowAnonymous || authorizeData.Count == 0)
         {
-            operation.Security = []; // Explicitly clear for anonymous
+            operation.Security = [];
             return;
         }
 

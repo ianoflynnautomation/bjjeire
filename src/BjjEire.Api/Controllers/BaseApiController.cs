@@ -1,4 +1,5 @@
 using BjjEire.Api.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace BjjEire.Api.Controllers;
 
@@ -7,5 +8,6 @@ namespace BjjEire.Api.Controllers;
 [Produces("application/json")]
 [ApiController]
 public abstract class BaseApiController : ControllerBase {
+    public override ForbidResult Forbid() => new(JwtBearerDefaults.AuthenticationScheme);
 }
 

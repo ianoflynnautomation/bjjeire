@@ -1,32 +1,51 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace BjjEire.Api.Extensions.HealthChecks;
 
-public static class HealthChecksExtensions
-{
-    internal static WebApplication UseHealthChecks(this WebApplication app)
-    {
+public static class HealthChecksExtensions {
+    private static readonly JsonSerializerOptions HealthCheckSerializerOptions = new() {
+        WriteIndented = false,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    public static WebApplication UseAppHealthChecks(this WebApplication app) {
         ArgumentNullException.ThrowIfNull(app);
 
         _ = app.MapHealthChecks("/health", new HealthCheckOptions {
             ResponseWriter = static async (context, report) => {
-                var options = new JsonSerializerOptions { WriteIndented = false };
                 context.Response.ContentType = "application/json";
-                var result = JsonSerializer.Serialize(new {
-                    status = report.Status.ToString(),
-                    checks = report.Entries.Select(e => new {
-                        name = e.Key,
-                        status = e.Value.Status.ToString(),
-                        description = e.Value.Description,
-                        duration = e.Value.Duration.TotalMilliseconds
+
+                var response = new {
+                    Status = report.Status.ToString(),
+                    Checks = report.Entries.Select(entry => new {
+                        Name = entry.Key,
+                        Status = entry.Value.Status.ToString(),
+                        entry.Value.Description,
+                        DurationMs = entry.Value.Duration.TotalMilliseconds,
+                        entry.Value.Tags,
                     }),
-                    totalDuration = report.TotalDuration.TotalMilliseconds
-                }, options);
-                await context.Response.WriteAsync(result);
-            }
+                    TotalDurationMs = report.TotalDuration.TotalMilliseconds
+                };
+
+                await context.Response.WriteAsJsonAsync(response, HealthCheckSerializerOptions);
+            },
+            ResultStatusCodes =
+            {
+                [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+            },
+            AllowCachingResponses = false
         });
         return app;
+    }
+
+
+    public static IServiceCollection AddAppHealthChecks(this IServiceCollection services) {
+        _ = services.AddHealthChecks();
+        return services;
     }
 
 }

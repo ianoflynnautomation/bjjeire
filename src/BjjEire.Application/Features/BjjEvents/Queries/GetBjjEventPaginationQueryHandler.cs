@@ -39,7 +39,7 @@ ICacheBase cacheBase, IUriService uriService)
 
             var filter = new PaginationFilter(request.Page, request.PageSize);
 
-            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, BjjEventsApiConstants.ControllerName, BjjEventsApiConstants.GetAllActionName, _uriService, cancellationToken);
+            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, BjjEventsApiConstants.ControllerName, BjjEventsApiConstants.GetAllActionName, _uriService, null, cancellationToken);
 
             return new GetBjjEventPaginatedResponse { Data = pagedResponse.Data, Pagination = pagedResponse.Pagination };
 

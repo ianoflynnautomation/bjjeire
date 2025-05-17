@@ -21,7 +21,6 @@ public static class DependencyInjection {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
-        _ = builder.Services.AddOptions<BackendAPIOptions>().Bind(builder.Configuration.GetSection(BackendAPIOptions.SectionName)).ValidateOnStart();
         _ = builder.Services.AddOptions<CacheOptions>().Bind(builder.Configuration.GetSection(CacheOptions.SectionName)).ValidateOnStart();
         _ = builder.Services.AddOptions<JwtOptions>().Bind(builder.Configuration.GetSection(JwtOptions.SectionName)).ValidateOnStart();
 
