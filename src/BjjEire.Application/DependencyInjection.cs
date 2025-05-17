@@ -9,7 +9,6 @@ using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.Features.Gyms.Services;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Entities.Gyms;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure

@@ -1,6 +1,4 @@
 
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace BjjEire.Domain.Entities;
 
 public abstract class BaseEntity : ParentEntity, IAuditableEntity {

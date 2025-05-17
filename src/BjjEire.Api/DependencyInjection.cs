@@ -9,8 +9,7 @@ using BjjEire.Api.Extensions.Logging.Serilog;
 using BjjEire.Api.Extensions.OpenApi;
 using BjjEire.Api.Extensions.RateLimit;
 using BjjEire.Api.Extensions.SecurityHeaders;
-using BjjEire.Infrastructure.Configuration;
-using Microsoft.OpenApi.Models;
+using BjjEire.Api.Infrastructure;
 using Prometheus;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -20,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection {
     public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
+        var env = builder.Environment;
 
         _ = builder.AddCustomSerilog();
         _ = builder.Services.AddHttpContextAccessor();
@@ -27,47 +27,17 @@ public static class DependencyInjection {
             .AddJsonOptions(options => {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            });
+            })
+            .ConfigureApplicationPartManager(manager =>
+                manager.FeatureProviders.Add(new DevelopmentOnlyControllerFeatureProvider(env)))
+                ;
         _ = builder.ConfigureCors();
         _ = builder.Services.AddEndpointsApiExplorer();
         _ = builder.Services.AddAppOpenApiServices();
-        _ = builder.Services.AddSwaggerGen(options => {
-            options.SwaggerDoc("v1", new OpenApiInfo {
-                Version = "v1",
-                Title = "BjjEire API",
-                Description = "API for BjjEire services (with Auth)"
-            });
-
-            // 1. Define Security Schemes
-            // --- JWT Bearer Scheme ---
-            options.AddSecurityDefinition("BearerAuth", new OpenApiSecurityScheme {
-                Name = "Authorization", // Standard header name for Bearer token
-                Type = SecuritySchemeType.Http, // Http type for Bearer
-                Scheme = "bearer", // Scheme name ("bearer")
-                BearerFormat = "JWT", // Format of the bearer token
-                In = ParameterLocation.Header,
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
-            });
-
-            // --- API Key Scheme ---
-            // Fetch ApiKeyOptions to get the configured header name
-            var apiKeyOptions = builder.Configuration.GetSection(ApiKeyOptions.SectionName).Get<ApiKeyOptions>();
-            var apiKeyHeaderName = apiKeyOptions?.HeaderName ?? "X-API-KEY"; // Use configured or a default
-
-            options.AddSecurityDefinition("ApiKeyAuth", new OpenApiSecurityScheme {
-                Type = SecuritySchemeType.ApiKey,
-                In = ParameterLocation.Header,
-                Name = apiKeyHeaderName, // The actual header name for your API key
-                Description = $"API Key Authentication using the '{apiKeyHeaderName}' header."
-            });
-
-            // 2. Apply Security Requirements to Operations using an IOperationFilter
-            // This filter will add the lock icon and security context to endpoints with [Authorize]
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
-        });
+        _ = builder.ConfigureSwaggerGenWithDoc();
         _ = builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         _ = builder.Services.AddProblemDetails();
-        _ = builder.Services.AddHealthChecks();
+        _ = builder.Services.AddAppHealthChecks();
         _ = builder.Services.AddHttpClient();
         _ = builder.Services.AddMetrics();
         _ = builder.Services.ConfigureRateLimit(builder.Configuration);
@@ -77,7 +47,7 @@ public static class DependencyInjection {
         return builder;
     }
 
-    public static WebApplication UseBjjWorldApp(this WebApplication app) {
+    public static WebApplication UseBjjEiredApp(this WebApplication app) {
         ArgumentNullException.ThrowIfNull(app);
 
         // NOTE: Middleware Order is IMPORTANT!
@@ -90,11 +60,10 @@ public static class DependencyInjection {
         _ = app.UseAuthentication();
         _ = app.UseAuthorization();
         _ = app.UseAppOpenApi(); ;
-        _ = app.UseHealthChecks();
+        _ = app.UseAppHealthChecks();
         _ = app.UseHttpMetrics();
         _ = app.MapMetrics();
         _ = app.MapControllers();
-
 
         return app;
     }

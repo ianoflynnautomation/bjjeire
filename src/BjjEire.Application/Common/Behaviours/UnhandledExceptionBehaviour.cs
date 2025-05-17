@@ -24,7 +24,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> 
         CancellationToken cancellationToken) {
         try {
             ArgumentNullException.ThrowIfNull(next);
-            return await next();
+            return await next(cancellationToken);
         }
         catch (Exception ex) {
             var requestName = typeof(TRequest).Name;

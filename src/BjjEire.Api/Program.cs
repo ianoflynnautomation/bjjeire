@@ -6,7 +6,7 @@ builder.AddApplicationServices();
 builder.AddApiServices();
 
 var app = builder.Build();
-app.UseBjjWorldApp();
+app.UseBjjEiredApp();
 app.Run();
 
 public partial class Program { }

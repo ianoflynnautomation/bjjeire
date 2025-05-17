@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using BjjEire.Domain.Entities.Common;
 using BjjEire.Domain.Enums;
 
@@ -21,7 +20,6 @@ public class Gym : BaseEntity {
     public Location Location { get; set; } = new();
     [BsonElement("socialMedia")]
     public SocialMedia SocialMedia { get; set; } = new();
-
     [BsonElement("offeredClasses")]
     public List<ClassCategory> OfferedClasses { get; set; } = [];
     [BsonElement("website")]

@@ -36,7 +36,7 @@ ICacheBase cacheBase, IUriService uriService)
 
             var filter = new PaginationFilter(request.Page, request.PageSize);
 
-            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, GymsApiConstants.ControllerName, GymsApiConstants.GetAllActionName, _uriService, cancellationToken);
+            var pagedResponse = await PaginationHelper.CreatePagedResponseAsync(dtoQuery, filter, GymsApiConstants.ControllerName, GymsApiConstants.GetAllActionName, _uriService, null, cancellationToken);
 
             return new GetGymPaginatedResponse { Data = pagedResponse.Data, Pagination = pagedResponse.Pagination };
 

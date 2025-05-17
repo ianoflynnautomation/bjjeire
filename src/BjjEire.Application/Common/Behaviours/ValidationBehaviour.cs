@@ -18,7 +18,7 @@ public class ValidationBehaviour<TRequest, TResponse>(
         CancellationToken cancellationToken) {
         if (!_validators.Any()) {
             ArgumentNullException.ThrowIfNull(next);
-            return await next();
+            return await next(cancellationToken);
         }
 
         var httpContext = _httpContextAccessor.HttpContext;

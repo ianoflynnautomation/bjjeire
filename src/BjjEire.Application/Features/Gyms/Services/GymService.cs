@@ -1,9 +1,6 @@
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Features.Gyms.DTOs;
-using BjjEire.Domain.Entities;
 using BjjEire.Domain.Entities.Gyms;
-using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.Gyms.Services;
 

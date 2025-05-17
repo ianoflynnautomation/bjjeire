@@ -2,6 +2,7 @@
 using Microsoft.OpenApi.Models;
 using BjjEire.Api.Attributes;
 using Microsoft.Extensions.Options;
+using BjjEire.Api.Extensions.Authentication;
 
 namespace BjjEire.Api.Extensions.OpenApi;
 
@@ -15,11 +16,11 @@ public static class OpenApiExtensions {
         ArgumentNullException.ThrowIfNull(services);
         var logger = services.BuildServiceProvider().GetService<ILoggerFactory>()?.CreateLogger(nameof(OpenApiExtensions));
 
-        _ = services.AddEndpointsApiExplorer(); // Essential for Open API with controllers or minimal APIs
+        _ = services.AddEndpointsApiExplorer();
 
         _ = services.AddTransient<AuthSecuritySchemeTransformer>();
         _ = services.AddTransient<EndpointMetadataTransformer>();
-        _ = services.AddTransient<EnumSchemaTransformer>(); // Assuming this is correct
+        _ = services.AddTransient<EnumSchemaTransformer>(); 
 
         _ = services.AddOpenApi(ApiGroupNameV1, options => {
             options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
@@ -29,7 +30,6 @@ public static class OpenApiExtensions {
                 document.Components ??= new OpenApiComponents();
                 document.Components.SecuritySchemes ??= new Dictionary<string, OpenApiSecurityScheme>(StringComparer.OrdinalIgnoreCase);
 
-                // JWT Bearer Scheme
                 if (!document.Components.SecuritySchemes.ContainsKey(BearerAuthSchemeId)) {
                     document.Components.SecuritySchemes.Add(BearerAuthSchemeId, new OpenApiSecurityScheme {
                         Type = SecuritySchemeType.Http,
@@ -39,13 +39,12 @@ public static class OpenApiExtensions {
                     });
                 }
 
-                // API Key Scheme
                 var apiKeyOptions = context.ApplicationServices.GetRequiredService<IOptions<ApiKeyOptions>>()?.Value;
                 var apiKeyHeaderName = apiKeyOptions?.HeaderName;
 
                 if (string.IsNullOrWhiteSpace(apiKeyHeaderName)) {
                     logger?.LogWarning("ApiKeyOptions.HeaderName is not configured. Using default 'X-API-KEY' for OpenAPI documentation. Actual authentication may fail if not properly configured.");
-                    apiKeyHeaderName = "X-API-KEY"; // Fallback for documentation only
+                    apiKeyHeaderName = "X-API-KEY";
                 }
 
                 if (!document.Components.SecuritySchemes.ContainsKey(ApiKeyAuthSchemeId)) {
@@ -66,30 +65,55 @@ public static class OpenApiExtensions {
         return services;
     }
 
-    public static WebApplication UseAppOpenApi(this WebApplication app)
-    {
+    internal static IHostApplicationBuilder ConfigureSwaggerGenWithDoc(this IHostApplicationBuilder builder) {
+
+        _ = builder.Services.AddSwaggerGen(options => {
+            options.SwaggerDoc("v1", new OpenApiInfo {
+                Version = "v1",
+                Title = "BjjEire API",
+                Description = "API for BjjEire services (with Auth)"
+            });
+
+            options.AddSecurityDefinition("BearerAuth", new OpenApiSecurityScheme {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer", 
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+            });
+
+            var apiKeyOptions = builder.Configuration.GetSection(ApiKeyOptions.SectionName).Get<ApiKeyOptions>();
+            var apiKeyHeaderName = apiKeyOptions?.HeaderName ?? "X-API-KEY";
+
+            options.AddSecurityDefinition("ApiKeyAuth", new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.ApiKey,
+                In = ParameterLocation.Header,
+                Name = apiKeyHeaderName,
+                Description = $"API Key Authentication using the '{apiKeyHeaderName}' header."
+            });
+            // This filter will add the lock icon and security context to endpoints with [Authorize]
+            options.OperationFilter<SecurityRequirementsOperationFilter>();
+        });
+
+         return builder;
+    }
+
+    public static WebApplication UseAppOpenApi(this WebApplication app) {
         ArgumentNullException.ThrowIfNull(app);
 
-        // Serve OpenAPI/Swagger JSON and UI only in non-production environments for security.
-        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker") || app.Environment.IsEnvironment("Local"))
-        {
-            // This UseSwagger is from Microsoft.AspNetCore.OpenApi if you're using that.
-            // It typically exposes endpoints like /openapi/v1.json
-            _ = app.UseSwagger(); // This is a Swashbuckle method. For Microsoft.AspNetCore.OpenApi, endpoints are mapped via app.MapOpenApi();
-
-            // If using Microsoft.AspNetCore.OpenApi, you might need app.MapOpenApi() instead of app.UseSwagger() to expose the JSON doc.
-            // However, UseSwaggerUI() is often compatible.
-
-            //_ = app.UseSwaggerUI();
-            _ = app.UseSwaggerUI(options => {
-                // The path to swagger.json depends on AddOpenApi vs AddSwaggerGen
-                // For AddOpenApi("v1",...), it's usually /openapi/v1.json
-                options.SwaggerEndpoint($"/openapi/{ApiGroupNameV1}.json", $"BjjEire API {ApiGroupNameV1}");
-                // If you were using Swashbuckle:
-                // options.SwaggerEndpoint($"/swagger/{ApiGroupNameV1}/swagger.json", $"BjjEire API {ApiGroupNameV1}");
-                options.RoutePrefix = string.Empty; // Serve Swagger UI at the application root
-                options.DisplayRequestDuration();
-            });
+        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker")) {
+            _ = app.UseSwagger();
+            _ = app.UseSwaggerUI();
+            // _ = app.UseSwaggerUI(options => {
+            //     // The path to swagger.json depends on AddOpenApi vs AddSwaggerGen
+            //     // For AddOpenApi("v1",...), it's usually /openapi/v1.json
+            //     options.SwaggerEndpoint($"/openapi/{ApiGroupNameV1}.json", $"BjjEire API {ApiGroupNameV1}");
+            //     // If you were using Swashbuckle:
+            //     // options.SwaggerEndpoint($"/swagger/{ApiGroupNameV1}/swagger.json", $"BjjEire API {ApiGroupNameV1}");
+            //     options.RoutePrefix = string.Empty; // Serve Swagger UI at the application root
+            //     options.DisplayRequestDuration();
+            // });
         }
         return app;
     }
