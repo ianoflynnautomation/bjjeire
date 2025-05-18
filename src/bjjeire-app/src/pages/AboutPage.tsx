@@ -1,9 +1,5 @@
-// src/features/static/AboutPage.tsx
-// Or any other path you prefer, e.g., src/pages/AboutPage.tsx
 
 import React from 'react';
-// You might want to import a common PageHeader or Layout component if you have one.
-// import { SocialMediaLinks } from '../../components/common/SocialMediaLinks/SocialMediaLinks'; // Optional: If you want to reuse for contact
 
 const AboutPage: React.FC = () => {
   return (

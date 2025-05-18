@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-escape */
 import React, { memo } from 'react'
 import { SparklesIcon } from '@heroicons/react/20/solid'
-import { TrialOfferDto } from '../../types/gyms'
-import { DetailItem } from '../common/DetailItem'
+import { TrialOfferDto } from '../../../types/gyms'
+import { DetailItem } from '../../common/DetailItem'
 
 interface GymTrialOfferProps {
   trialOffer?: TrialOfferDto

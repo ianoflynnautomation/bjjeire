@@ -1,8 +1,8 @@
 import React, { memo } from 'react'
-import { ClassCategory } from '../../types/gyms'
-import { getClassCategoryLabel } from '../../utils/gymDisplayUtils'
+import { ClassCategory } from '../../../types/gyms'
+import { getClassCategoryLabel } from '../../../utils/gymDisplayUtils'
 import { TagIcon } from '@heroicons/react/20/solid'
-import { DetailItem } from '../common/DetailItem'
+import { DetailItem } from '../../common/DetailItem'
 
 interface GymOfferedClassesProps {
   classes?: ClassCategory[]

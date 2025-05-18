@@ -1,16 +1,16 @@
 import React, { useState, useCallback, useMemo, memo } from 'react';
-import { useGyms } from '../api/get-gyms';
-import { COUNTIES } from '../constants/counties';
-import { GymsList } from '../components/Gyms/GymsList';
-import { GymsPageHeader } from '../components/Gyms/GymsPageHeader';
-import SelectFilter from '../components/Filters/SelectFilter';
-import Pagination from '../components/Pagination';
-import LoadingState from '../components/common/LoadingState';
-import ErrorState from '../components/common/ErrorState';
-import NoDataState from '../components/common/NoDataState';
-import BackgroundFetchingIndicator from '../components/common/BackgroundFetchingIndicator';
-import GymCardSkeletons from '../components/Gyms/GymCardSkeletons';
-import { env } from '../config/env'
+import { useGyms } from '@/api/get-gyms';
+import { COUNTIES } from '@/constants/counties';
+import { GymsList } from '@/components/Gyms/GymsList';
+import { GymsPageHeader } from '@/components/Gyms/GymsPageHeader';
+import SelectFilter from '@/components/Filters/SelectFilter';
+import Pagination from '@/components/common/Pagination';
+import LoadingState from '@/components/common/LoadingState';
+import ErrorState from '@/components/common/ErrorState';
+import NoDataState from '@/components/common/NoDataState';
+import BackgroundFetchingIndicator from '@/components/common/BackgroundFetchingIndicator';
+import GymCardSkeletons from '@/components/Gyms/GymCardSkeletons';
+import { env } from '@/config/env'
 
 export const GymsPage: React.FC = () => {
   const [selectedCounty, setSelectedCounty] = useState<string | 'all' | undefined>('all');

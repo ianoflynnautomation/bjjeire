@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
-import { ensureExternalUrlScheme } from '../../utils/formattingUtils'
+import { ensureExternalUrlScheme } from '../../../utils/formattingUtils'
 
 interface GymFooterProps {
   websiteUrl?: string

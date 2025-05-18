@@ -1,4 +1,4 @@
-import { MapLocationData } from '../types/common';
+import { MapLocationData } from '@/types/common';
 
 // You can place this in a shared utils file, e.g., src/utils/mapUtils.ts
 

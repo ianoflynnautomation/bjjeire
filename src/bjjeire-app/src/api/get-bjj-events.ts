@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { api } from '../lib/api-client'
-import { County } from '../constants/counties'
-import { PaginatedResponse } from '../types/common'
-import { QueryConfig } from '../lib/react-query'
-import { BjjEventDto, GetBjjEventsPaginationQuery, BjjEventType } from '../types/event'
+import { api } from '@/lib/api-client'
+import { County } from '@/constants/counties'
+import { PaginatedResponse } from '@/types/common'
+import { QueryConfig } from '@/lib/react-query'
+import { BjjEventDto, GetBjjEventsPaginationQuery, BjjEventType } from '@/types/event'
 import { queryConfig } from '@/lib/react-query'
-import { env } from '../config/env'
+import { env } from '@/config/env'
 
 export const getBjjEvents = ({
   county,

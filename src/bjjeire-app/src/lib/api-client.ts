@@ -1,5 +1,5 @@
 import Axios, { AxiosRequestConfig } from 'axios'
-import { env } from '../config/env'
+import { env } from '@/config/env'
 
 const instance = Axios.create({
   baseURL: env.API_URL,

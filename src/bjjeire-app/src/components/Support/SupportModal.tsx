@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import clsx from 'clsx'
-import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg'
-import { env } from '../config/env'
+import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
+import { env } from '@/config/env'
 
 interface SupportModalProps {
   isOpen: boolean

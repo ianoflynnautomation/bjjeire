@@ -1,5 +1,5 @@
 import React from 'react'
-import { EventCard } from './EventCard/EventCard'
+import { EventCard } from './EventCard'
 import { BjjEventDto } from '../../types/event'
 
 interface EventsListProps {

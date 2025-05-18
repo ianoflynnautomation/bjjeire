@@ -1,16 +1,16 @@
 import React, { useCallback, useState, memo, useMemo } from 'react';
-import { useBjjEvents } from '../api/get-bjj-events';
-import { County } from '../constants/counties';
-import { GetBjjEventsPaginationQuery, BjjEventType } from '../types/event';
-import EventFilters from '../components/Events/EventFilters/EventFilters';
-import Pagination from '../components/Pagination';
-import LoadingState from '../components/common/LoadingState';
-import ErrorState from '../components/common/ErrorState';
-import NoDataState from '../components/common/NoDataState';
-import BackgroundFetchingIndicator from '../components/common/BackgroundFetchingIndicator';
-import EventsPageHeader from '../components/Events/EventsPageHeader';
-import EventsList from '../components/Events/EventsList';
-import { env } from '../config/env'
+import { useBjjEvents } from '@/api/get-bjj-events';
+import { County } from '@/constants/counties';
+import { GetBjjEventsPaginationQuery, BjjEventType } from '@/types/event';
+import EventFilters from '@/components/Events/EventFilters/EventFilters';
+import Pagination from '@/components/common/Pagination';
+import LoadingState from '@/components/common/LoadingState';
+import ErrorState from '@/components/common/ErrorState';
+import NoDataState from '@/components/common/NoDataState';
+import BackgroundFetchingIndicator from '@/components/common/BackgroundFetchingIndicator';
+import EventsPageHeader from '@/components/Events/EventsPageHeader';
+import EventsList from '@/components/Events/EventsList';
+import { env } from '@/config/env'
 
 const EventsPage: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<GetBjjEventsPaginationQuery>({

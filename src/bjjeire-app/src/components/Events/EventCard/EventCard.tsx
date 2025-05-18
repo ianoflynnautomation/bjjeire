@@ -1,9 +1,6 @@
 import React, { memo } from 'react'
 import { BjjEventDto } from '../../../types/event'
-import { EventSchedule } from '../EventSchedule/EventSchedule'
-import { EventDetails } from '../EventDetails/EventDetails'
-import { EventHeader } from './EventHeader'
-import { EventFooter } from './EventFooter'
+import { EventSchedule ,EventDetails, EventHeader, EventFooter} from '../EventCard';
 
 interface EventCardProps {
   event: BjjEventDto
