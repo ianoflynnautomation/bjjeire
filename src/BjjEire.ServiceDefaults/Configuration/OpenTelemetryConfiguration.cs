@@ -6,9 +6,9 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using ServiceDefaults.Constants;
+using BjjEire.ServiceDefaults.Constants;
 
-namespace ServiceDefaults.Configuration;
+namespace BjjEire.ServiceDefaults.Configuration;
 
 public static class OpenTelemetryConfiguration
 {

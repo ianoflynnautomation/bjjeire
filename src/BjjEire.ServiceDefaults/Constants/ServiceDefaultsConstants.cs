@@ -1,7 +1,7 @@
-namespace ServiceDefaults.Constants;
 
-public static class ServiceDefaultsConstants
-{
+namespace BjjEire.ServiceDefaults.Constants;
+
+public static class ServiceDefaultsConstants {
     public const string HealthCheckPath = "/health";
     public const string LivenessCheckPath = "/alive";
     public const string LivenessTag = "live";

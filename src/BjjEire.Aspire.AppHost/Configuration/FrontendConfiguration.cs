@@ -1,5 +1,5 @@
 
-namespace AppHost.Configuration;
+namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class FrontendConfiguration {
     public static IResourceBuilder<NodeAppResource> AddFrontend(

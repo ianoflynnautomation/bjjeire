@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using ServiceDefaults.Configuration;
+using BjjEire.ServiceDefaults.Configuration;
 
-namespace ServiceDefaults;
+namespace BjjEire.ServiceDefaults;
 
 public static class Extensions {
     public static TBuilder AddServiceDefaults<TBuilder>(

@@ -1,4 +1,4 @@
-using AppHost.Configuration;;
+using BjjEire.Aspire.AppHost.Configuration;;
 
 var builder = DistributedApplication.CreateBuilder(args);
 // Configure services
