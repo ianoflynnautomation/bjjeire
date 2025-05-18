@@ -7,6 +7,8 @@ ServiceConfiguration.ConfigureServices(builder);
 ObservabilityConfiguration.AddObservability(builder);
 // Add database
 var mongo = MongoDbConfiguration.AddMongoDb(builder);
+// Add Postgres
+PostgresConfiguration.AddPostgres(builder);
 // Add API
 var api = ApiConfiguration.AddApi(builder, mongo);
 // Add frontend
