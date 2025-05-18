@@ -97,8 +97,8 @@
     <PackageVersion Include="Respawn" Version="6.2.1" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.52.0" />
-    <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
-    <PackageVersion Include="SpecFlow.NUnit" Version="3.9.74" />
+    <PackageVersion Include="Reqnroll.NUnit" Version="2.4.1" />
+    <PackageVersion Include="Reqnroll" Version="2.4.1" />
   </ItemGroup>
 </Project>
 
