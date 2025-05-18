@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ServiceDiscovery;
 
-namespace ServiceDefaults.Configuration;
+namespace BjjEire.ServiceDefaults.Configuration;
 
 public static class ServiceDiscoveryConfiguration {
     public static void ConfigureServiceDiscovery(IHostApplicationBuilder builder, ServiceDefaultsOptions? options = null) {

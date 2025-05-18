@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using ServiceDefaults.Constants;
+using BjjEire.ServiceDefaults.Constants;
 
-namespace ServiceDefaults.Configuration;
+namespace BjjEire.ServiceDefaults.Configuration;
 
 public static class HealthCheckConfiguration {
 

@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 
-namespace AppHost.Configuration;
+namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class ServiceConfiguration {
     public static void ConfigureServices(IDistributedApplicationBuilder builder) {

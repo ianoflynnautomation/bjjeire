@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5296412D-B17
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Domain", "src\BjjEire.Domain\BjjEire.Domain.csproj", "{910C3DC9-A862-6447-F4D1-2444D487A19F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "src\AppHost\AppHost.csproj", "{CD0A3C41-5A29-BB0D-8735-09C33AA97177}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Aspire.AppHost", "src\BjjEire.Aspire.AppHost\BjjEire.Aspire.AppHost.csproj", "{CD0A3C41-5A29-BB0D-8735-09C33AA97177}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDefaults", "src\ServiceDefaults\ServiceDefaults.csproj", "{AC250CE5-A4B1-5985-45F9-04FF430E5140}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.ServiceDefaults", "src\BjjEire.ServiceDefaults\BjjEire.ServiceDefaults.csproj", "{AC250CE5-A4B1-5985-45F9-04FF430E5140}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Api", "src\BjjEire.Api\BjjEire.Api.csproj", "{EC7FC168-FFAC-4B5D-F900-BE5F63A7208B}"
 EndProject

@@ -1,4 +1,5 @@
-namespace ServiceDefaults.Configuration;
+
+namespace BjjEire.ServiceDefaults.Configuration;
 
 public class ServiceDefaultsOptions {
     public string? ServiceName { get; set; }

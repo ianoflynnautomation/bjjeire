@@ -1,5 +1,4 @@
-namespace AppHost.Configuration;
-
+namespace BjjEire.Aspire.AppHost.Configuration;
 public static class ObservabilityConfiguration {
     public static void AddObservability(IDistributedApplicationBuilder builder) {
         // Grafana
