@@ -4,7 +4,7 @@ import {
   ScheduleType,
   RecurringSchedule,
   FixedDateSchedule,
-} from '../../../types/event'
+} from '../../../../types/event'
 import { EmptyScheduleMessage } from './EmptyScheduleMessage'
 import { RecurringScheduleView } from './RecurringScheduleView'
 import { FixedDateScheduleView } from './FixedDateScheduleView'

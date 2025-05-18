@@ -1,4 +1,4 @@
-import { BjjEventType } from '../types/event';
+import { BjjEventType } from '@/types/event';
 
 export const BJJ_EVENT_TYPES: { value: BjjEventType; label: string }[] = [
   { value: BjjEventType.OpenMat, label: 'Open Mat' },

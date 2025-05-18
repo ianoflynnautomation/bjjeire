@@ -1,5 +1,5 @@
-import { BjjEventType } from '../types/event';
-import { BJJ_EVENT_TYPES } from '../constants/eventTypes';
+import { BjjEventType } from '@/types/event';
+import { BJJ_EVENT_TYPES } from '@/constants/eventTypes';
 
 export const getEventTypeLabel = (eventType: BjjEventType | string): string => {
   const typeValue = typeof eventType === 'string'

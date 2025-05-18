@@ -1,5 +1,5 @@
 // src/utils/priceCalculator.ts
-import { BjjEventDto, PricingType } from '../types/event'; // Adjust path
+import { BjjEventDto, PricingType } from '@/types/event'; // Adjust path
 
 // Define the return type for clarity and reusability
 export interface CalculatedPrice {

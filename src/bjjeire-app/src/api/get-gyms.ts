@@ -1,9 +1,9 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { api } from '../lib/api-client'
-import { QueryConfig } from '../lib/react-query'
-import { PaginatedResponse } from '../types/common'
-import { GymDto, GetGymsByCityPaginationQuery } from '../types/gyms'
-import { env } from '../config/env'
+import { api } from '@/lib/api-client'
+import { QueryConfig } from '@/lib/react-query'
+import { PaginatedResponse } from '@/types/common'
+import { GymDto, GetGymsByCityPaginationQuery } from '@/types/gyms'
+import { env } from '@/config/env'
 
 export const getGyms = ({
   county,
@@ -35,7 +35,7 @@ export const getGymsQueryOptions = ({
     queryKey: ['gym', { county, page, pageSize }],
     queryFn: () => getGyms({ county, page, pageSize }),
     placeholderData: previousData => previousData,
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 }
 

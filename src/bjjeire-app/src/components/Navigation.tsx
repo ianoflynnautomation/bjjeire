@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useState } from 'react'
-import SupportModal from './SupportModal'
+import SupportModal from './Support/SupportModal'
 import clsx from 'clsx'
 import { ReactComponent as BitcoinIcon } from '../assets/bitcoin.svg'
 import { paths } from '../config/paths'

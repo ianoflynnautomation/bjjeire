@@ -1,6 +1,6 @@
 import React from 'react'
-import { ScheduleType, RecurringSchedule } from '../../../types/event'
-import { formatDate } from '../../../utils/dateUtils'
+import { ScheduleType, RecurringSchedule } from '../../../../types/event'
+import { formatDate } from '../../../../utils/dateUtils'
 import {
   ClipboardDocumentListIcon,
   CalendarIcon,

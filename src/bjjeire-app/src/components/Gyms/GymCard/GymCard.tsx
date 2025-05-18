@@ -1,8 +1,7 @@
 import React, { memo } from 'react'
-import { GymDto } from '../../types/gyms'
-import { GymHeader } from './GymHeader'
-import { GymDetails } from './GymDetails'
-import { GymFooter } from './GymFooter'
+import { GymDto } from '../../../types/gyms';
+import { GymHeader, GymDetails, GymFooter } from '.';
+
 
 interface GymCardProps {
   gym: GymDto

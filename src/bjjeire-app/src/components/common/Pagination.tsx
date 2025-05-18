@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { HateoasPagination } from '../types/common';
+import { HateoasPagination } from '../../types/common';
 import clsx from 'clsx';
 
 interface PaginationProps {

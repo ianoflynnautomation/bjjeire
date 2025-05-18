@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { paths } from '../config/paths'
+import { paths } from '../../config/paths'
 
 const Footer = () => {
   return (

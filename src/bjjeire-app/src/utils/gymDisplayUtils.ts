@@ -1,4 +1,4 @@
-import { GymStatus, ClassCategory } from '../types/gyms'; // Adjust path as needed
+import { GymStatus, ClassCategory } from '@/types/gyms'; // Adjust path as needed
 
 export const getGymStatusLabel = (status: GymStatus): string => {
   const labels: Record<GymStatus, string> = {

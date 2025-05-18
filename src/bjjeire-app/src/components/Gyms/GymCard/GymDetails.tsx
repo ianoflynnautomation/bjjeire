@@ -1,12 +1,11 @@
 import React, { memo } from 'react'
 import { MapPinIcon, BuildingLibraryIcon, ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
-import { GymDto } from '../../types/gyms'
-import { formatDisplayUrl, ensureExternalUrlScheme } from '../../utils/formattingUtils'
-import { DetailItem } from '../common/DetailItem'
-import { SocialMediaLinks } from '../common/SocialLinks/SocialLinks'
-import { GymOfferedClasses } from './GymOfferedClasses'
-import { GymTrialOffer } from './GymTrialOffer'
-import { getGoogleMapsUrl } from '../../utils/mapUtils'
+import { GymDto } from '../../../types/gyms'
+import { formatDisplayUrl, ensureExternalUrlScheme } from '../../../utils/formattingUtils'
+import { DetailItem } from '../../common/DetailItem'
+import { SocialMediaLinks } from '../../common/SocialLinks/SocialLinks'
+import { GymOfferedClasses, GymTrialOffer } from '.'
+import { getGoogleMapsUrl } from '../../../utils/mapUtils'
 
 interface GymDetailsProps {
   gym: GymDto

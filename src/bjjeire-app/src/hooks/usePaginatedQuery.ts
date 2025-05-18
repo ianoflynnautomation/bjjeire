@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { useState, useCallback } from 'react'
-import { HateoasPagination, PaginatedResponse } from '../types/common'
+import { HateoasPagination, PaginatedResponse } from '@/types/common'
 
 interface PaginatedQueryParams<T, TParams> {
   queryKeyBase: string[]

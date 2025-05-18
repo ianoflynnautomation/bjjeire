@@ -6,7 +6,7 @@ import {
   useLocation,
 } from 'react-router-dom'
 import Navigation from './components/Navigation'
-import Footer from './components/Footer'
+import Footer from './components/common/Footer'
 import AboutPage from './pages/AboutPage'
 import { initGA, trackPageView } from './utils/telemetry'
 import './index.css'

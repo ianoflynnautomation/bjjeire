@@ -5,7 +5,7 @@ import {
   BjjEventPricingModelDto,
   PricingType,
   ScheduleType,
-} from '../types/event';
+} from '@/types/event';
 
 interface CalculatedPrice {
   total: number;
