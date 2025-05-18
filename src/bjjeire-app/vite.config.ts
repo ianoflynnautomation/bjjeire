@@ -75,7 +75,7 @@ export default defineConfig(({ mode }) => {
       minify: 'esbuild',
       rollupOptions: {
         input: './index.html',
-        external: ['fs/promises'],
+        // external: ['fs/promises'],
         output: {
           manualChunks: {
             vendor: [
