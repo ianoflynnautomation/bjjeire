@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using BjjEire.ServiceDefaults.Configuration;
 
+#pragma warning disable CA1724 // Namespace does not match folder structure
 namespace BjjEire.ServiceDefaults;
+#pragma warning restore CA1724 // Namespace does not match folder structure
 
 public static class Extensions {
     public static TBuilder AddServiceDefaults<TBuilder>(

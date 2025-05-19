@@ -43,7 +43,7 @@ public static class ObservabilityConfiguration {
             .WithEnvironment("GF_DATABASE_PASSWORD", builder.Configuration["POSTGRES_PASSWORD"] ?? "") // Assuming this is intentional, referencing POSTGRES_PASSWORD
             .WithEnvironment("GF_AUTH_SESSION_PROVIDER", builder.Configuration["GF_AUTH_SESSION_PROVIDER"] ?? "")
             .WithEnvironment("GF_AUTH_SESSION_PROVIDER_CONFIG", builder.Configuration["GF_AUTH_SESSION_PROVIDER_CONFIG"] ?? "")
-            .WithHealthCheck("/api/health")
+            //.WithHealthCheck("/api/health")
             .WaitFor(prometheus);
 
         return grafana;
@@ -56,9 +56,9 @@ public static class ObservabilityConfiguration {
         var alertmanager = builder.AddContainer("alertmanager", "prom/alertmanager")
             .WithBindMount($"{ServiceConstants.BasePath}infra/alertmanager/alertmanager.yml", "/etc/alertmanager/alertmanager.yml")
             .WithVolume("alertmanager-data", "/alertmanager") // Consider using ServiceConstants for volume name if applicable
-            .WithHttpEndpoint(port: 9093, targetPort: 9093, name: "http")
-            .WithArgs("--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager")
-            .WithHealthCheck("/-/healthy");
+                                                              // .WithHttpEndpoint(port: 9093, targetPort: 9093, name: "http")
+            .WithArgs("--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager");
+            //.WithHealthCheck("/-/healthy");
 
         return alertmanager;
     }
@@ -73,14 +73,14 @@ public static class ObservabilityConfiguration {
             .WithBindMount($"{ServiceConstants.BasePath}infra/prometheus/prometheus.yml", "/etc/prometheus/prometheus.yml")
             .WithBindMount($"{ServiceConstants.BasePath}infra/prometheus/rules", "/etc/prometheus/rules")
             .WithVolume(ServiceConstants.PrometheusVolume, "/prometheus")
-            .WithHttpEndpoint(port: ServiceConstants.PrometheusPort, targetPort: 9090, name: "http")
+            // .WithHttpEndpoint(port: ServiceConstants.PrometheusPort, targetPort: 9090, name: "http")
             .WithArgs(
                 "--config.file=/etc/prometheus/prometheus.yml",
                 "--storage.tsdb.path=/prometheus",
                 "--web.console.libraries=/usr/share/prometheus/console_libraries",
                 "--web.console.templates=/usr/share/prometheus/consoles",
                 "--web.enable-lifecycle")
-            .WithHealthCheck("/-/healthy")
+            //.WithHealthCheck("/-/healthy")
             .WaitFor(alertManager);
 
         return prometheus;
@@ -94,9 +94,9 @@ public static class ObservabilityConfiguration {
             .WithVolume("loki-index", "/loki/index")     // Consider using ServiceConstants for volume names
             .WithVolume("loki-chunks", "/loki/chunks")
             .WithVolume("loki-rules", "/loki/rules")
-            .WithHttpEndpoint(port: ServiceConstants.LokiPort, targetPort: 3100, name: "http")
-            .WithArgs("-config.file=/mnt/config/loki-config.yml")
-            .WithHealthCheck("/ready");
+            // .WithHttpEndpoint(port: ServiceConstants.LokiPort, targetPort: 3100, name: "http")
+            .WithArgs("-config.file=/mnt/config/loki-config.yml");
+            //.WithHealthCheck("/ready");
 
         return loki;
     }
@@ -112,10 +112,10 @@ public static class ObservabilityConfiguration {
             .WithEnvironment("METRICS_STORAGE_TYPE", "prometheus")
             .WithEnvironment("PROMETHEUS_SERVER_URL", $"http://prometheus:{ServiceConstants.PrometheusPort.ToString()}") // Ensure prometheus container name matches here
             .WithEnvironment("COLLECTOR_OTLP_ENABLED", "true")
-            .WithHttpEndpoint(port: ServiceConstants.JaegerUiPort, targetPort: 16686, name: "ui")
-            .WithHttpEndpoint(port: ServiceConstants.JaegerOtlpPort, targetPort: 4317, name: "otlp")
+            // .WithHttpEndpoint(port: ServiceConstants.JaegerUiPort, targetPort: 16686, name: "ui")
+            // .WithHttpEndpoint(port: ServiceConstants.JaegerOtlpPort, targetPort: 4317, name: "otlp")
             .WithArgs("--query.ui-config=/etc/jaeger/jaeger-ui.json")
-            .WithHealthCheck("/")
+            //.WithHealthCheck("/")
             .WaitFor(prometheus);
 
         return jaeger;
@@ -135,12 +135,12 @@ public static class ObservabilityConfiguration {
             .WithBindMount($"{ServiceConstants.BasePath}infra/otel-collector/otel-config.yaml", "/etc/otel/config.yaml")
             .WithVolume("otel-logs", "/log/otel") // Consider ServiceConstants
             .WithHttpEndpoint(port: ServiceConstants.OtelCollectorMetricsPort, targetPort: 8889, name: "metrics")
-            .WithHttpEndpoint(port: ServiceConstants.OtelCollectorOtlpGrpcPort, targetPort: 4317, name: "otlp-grpc") // OTLP gRPC receiver
-            .WithHttpEndpoint(port: ServiceConstants.OtelCollectorOtlpHttpPort, targetPort: 4318, name: "otlp-http") // OTLP HTTP receiver
+            // .WithHttpEndpoint(port: ServiceConstants.OtelCollectorOtlpGrpcPort, targetPort: 4317, name: "otlp-grpc") // OTLP gRPC receiver
+            // .WithHttpEndpoint(port: ServiceConstants.OtelCollectorOtlpHttpPort, targetPort: 4318, name: "otlp-http") // OTLP HTTP receiver
             .WithEnvironment("JAEGER_ENDPOINT", builder.Configuration["JAEGER_ENDPOINT"] ?? $"jaeger:{ServiceConstants.JaegerOtlpPort}")
             .WithEnvironment("LOKI_ENDPOINT", builder.Configuration["LOKI_ENDPOINT"] ?? $"http://loki:{ServiceConstants.LokiPort}/loki/api/v1/push")
             .WithArgs("--config=/etc/otel/config.yaml")
-            .WithHealthCheck("/metrics") // This might not be the health check endpoint; often it's a dedicated health check path like /health or similar. Check collector docs.
+            //.WithHealthCheck("http://localhost:13133") // This might not be the health check endpoint; often it's a dedicated health check path like /health or similar. Check collector docs.
             .WaitFor(prometheus)
             .WaitFor(loki)
             .WaitFor(jaeger);

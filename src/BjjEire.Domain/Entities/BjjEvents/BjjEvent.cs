@@ -33,7 +33,6 @@ public class BjjEvent : BaseEntity {
     public BjjEventSchedule Schedule { get; set; } = null!;
     [BsonElement("pricing")]
     public PricingModel? Pricing { get; set; }
-
     [BsonElement("eventUrl")]
     public string EventUrl { get; set; } = string.Empty;
     [BsonElement("imageUrl")]

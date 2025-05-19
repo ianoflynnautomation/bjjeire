@@ -1,12 +1,15 @@
 namespace BjjEire.Domain.Enums;
 
-public enum GymStatus {
-    Active = 0,
-    PendingApproval = 1,
-    TemporarilyClosed = 2,
-    PermanentlyClosed = 3,
-    OpeningSoon = 4,
-    Draft = 7,
-    Rejected = 8
+[FlagsAttribute]
+public enum GymStatus
+{
+    None = 0,
+    Active = 1,
+    PendingApproval = 2,
+    TemporarilyClosed = 3,
+    PermanentlyClosed = 4,
+    OpeningSoon = 5,
+    Draft = 6,
+    Rejected = 7,
 
 }

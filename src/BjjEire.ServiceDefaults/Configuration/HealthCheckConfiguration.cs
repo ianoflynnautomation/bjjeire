@@ -13,7 +13,7 @@ public static class HealthCheckConfiguration {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), [ServiceDefaultsConstants.LivenessTag]);
+        .AddCheck("self", () => HealthCheckResult.Healthy(), [ServiceDefaultsConstants.LivenessTag]);
 
         return builder;
     }

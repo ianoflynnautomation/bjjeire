@@ -1,11 +1,49 @@
 ﻿<!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
 <Project>
   <PropertyGroup>
+
+     <!-- Target framework -->
     <TargetFramework>net9.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
-    <!-- <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath> -->
+
+    <!-- Enable latest C# features and diagnostics -->
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- Code quality & analysis -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+    <!-- Docs -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn> <!-- Suppress warning about missing XML docs -->
+
+    <!-- Container tags (if using container builds) -->
+    <ContainerImageTags>1.0.0-alpha;latest</ContainerImageTags>
+
+    <!-- Prevent MSBuild from excluding common folders (optional) -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
   </PropertyGroup>
+
+    <!-- Sonar Analyzer for deep static analysis -->
+  <ItemGroup>
+    <PackageReference Include="SonarAnalyzer.CSharp">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+     <PropertyGroup>
+	    <!-- Default NuGet metadata -->
+	    <Authors></Authors>
+	    <Company>BjjEire</Company>
+	    <Version>1.0.0</Version>
+	    <RepositoryUrl></RepositoryUrl>
+	    <PackageTags></PackageTags>
+	    <!-- Enable NuGet pack globally -->
+	    <!-- <IsPackable>true</IsPackable> -->
+    </PropertyGroup>
 </Project>
