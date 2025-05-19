@@ -5,12 +5,12 @@ using Microsoft.OpenApi.Models;
 namespace BjjEire.Api.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class EndpointDescriptionAttribute(string description) : Attribute {
+public  sealed class EndpointDescriptionAttribute(string description) : Attribute {
     public string Description { get; } = description;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public class EndpointNameAttribute(string name) : Attribute {
+public sealed class EndpointNameAttribute(string name) : Attribute {
     public string Name { get; } = name;
 }
 

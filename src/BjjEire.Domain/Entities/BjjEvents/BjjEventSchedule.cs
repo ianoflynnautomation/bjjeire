@@ -14,5 +14,5 @@ public class BjjEventSchedule {
     public DateTime? EndDate { get; set; }
 
     [BsonElement("hours")]
-    public List<BjjEventHours>? Hours { get; set; }
+    public List<BjjEventHours>? Hours { get; init; }
 }

@@ -31,7 +31,7 @@ public static class OpenTelemetryConfiguration {
             .AddAttributes(new Dictionary<string, object> {
                 ["host.name"] = Environment.MachineName,
                 ["os.description"] = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
-                ["deployment.environment"] = builder.Environment.EnvironmentName.ToLowerInvariant()
+                ["deployment.environment"] = builder.Environment.EnvironmentName
             });
 
         // Configure logging
@@ -49,7 +49,7 @@ public static class OpenTelemetryConfiguration {
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
-                .AddMeter(["gyms, bjjevents"]))
+                .AddMeter("gyms, bjjevents"))
             .WithTracing(tracing => tracing
                 .SetResourceBuilder(resourceBuilder)
                 .AddAspNetCoreInstrumentation(o => o.RecordException = true)

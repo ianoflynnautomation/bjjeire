@@ -1,7 +1,6 @@
 
-using BjjEire.SharedKernel.Attributes;
-
 namespace BjjEire.Domain.Entities;
+
 public abstract class ParentEntity {
     private string _id;
 
@@ -9,9 +8,8 @@ public abstract class ParentEntity {
         _id = UniqueIdentifier.New;
     }
 
-    // [BsonId]
-    // [BsonRepresentation(BsonType.ObjectId)]
-    [DBFieldName("_id")]
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
     public string Id {
         get => _id;
         set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;

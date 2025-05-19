@@ -4,18 +4,18 @@ using Microsoft.Extensions.Configuration;
 namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class MongoDbConfiguration {
-    public static IResourceBuilder<MongoDBServerResource> AddMongoDb(IDistributedApplicationBuilder builder) {
+    public static IResourceBuilder<MongoDBDatabaseResource> AddMongoDb(IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var mongo = builder.AddMongoDB("mongodb")
+        var mongo = builder.AddMongoDB("mongo")
             .WithLifetime(ContainerLifetime.Persistent)
             .WithVolume(ServiceConstants.MongoDbVolume, "/data/db")
             .WithHttpEndpoint(port: ServiceConstants.MongoDbPort, targetPort: 27017, name: "mongodb")
             .WithEnvironment("MONGO_INITDB_ROOT_USERNAME", builder.Configuration["MONGODB_USER"] ?? "admin")
-            .WithEnvironment("MONGO_INITDB_ROOT_PASSWORD", builder.Configuration["MONGODB_PASSWORD"] ?? "password")
-            .WithHealthCheck("echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet");
+            .WithEnvironment("MONGO_INITDB_ROOT_PASSWORD", builder.Configuration["MONGODB_PASSWORD"] ?? "password");
+            //.WithHealthCheck("echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet");
 
-        _ = mongo.AddDatabase("Mongodb");
+       var mongodb = mongo.AddDatabase("Mongodb");
 
         // Add MongoDB Exporter
         _ = builder.AddContainer("mongo-exporter", "percona/mongodb_exporter:0.44")
@@ -24,7 +24,7 @@ public static class MongoDbConfiguration {
             .WithReference(mongo)
             .WaitFor(mongo);
 
-        return mongo;
+        return mongodb;
     }
 
     private static string BuildMongoConnectionString(ConfigurationManager configuration) {
