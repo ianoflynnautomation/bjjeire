@@ -11,39 +11,103 @@
     <Nullable>enable</Nullable>
 
     <!-- Code quality & analysis -->
+    <NullableContextOptions>enable</NullableContextOptions>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+    <!-- Enable runtime code contracts for critical projects -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- Ensure consistent code style across the team -->
+    <EditorConfigFiles>.editorconfig</EditorConfigFiles>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet>
 
-    <!-- Docs -->
+    <!-- Documentation -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>1591</NoWarn> <!-- Suppress warning about missing XML docs -->
+    <!-- <NoWarn>CS1591</NoWarn> -->
+    <!-- Warn on missing XML docs only in Release builds -->
+    <NoWarn Condition="'$(Configuration)' == 'Debug'">CS1591</NoWarn>
 
-    <!-- Container tags (if using container builds) -->
-    <ContainerImageTags>1.0.0-alpha;latest</ContainerImageTags>
+    <!-- Deterministic builds for reproducibility -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+    <EmbedAllSources>true</EmbedAllSources>
+
+    <!-- Security and performance -->
+    <PublishAot>true</PublishAot> <!-- Enable AOT for performance (if applicable) -->
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks> <!-- Disable unsafe code unless required -->
+    <CheckEolTargetFramework>true</CheckEolTargetFramework> <!-- Warn on deprecated frameworks -->
+
+
+    <!-- Container settings -->
+    <ContainerImageTags Condition="'$(Configuration)' == 'Release'">$(Version);latest</ContainerImageTags>
+    <ContainerImageTags Condition="'$(Configuration)' == 'Debug'">$(Version)-debug</ContainerImageTags>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage>
+
+    <!-- Optimize for production -->
+    <Optimize>true</Optimize>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPgo>true</TieredPgo> <!-- Enable profile-guided optimization -->
 
     <!-- Prevent MSBuild from excluding common folders (optional) -->
     <NoDefaultExcludes>true</NoDefaultExcludes>
   </PropertyGroup>
 
-    <!-- Sonar Analyzer for deep static analysis -->
+    <!-- Package References for Analyzers and Tools -->
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <!-- SonarAnalyzer for static analysis (unchanged) -->
+    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <!-- StyleCop for consistent code style -->
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <!-- Security analysis -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <!-- Performance and reliability analyzers -->
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
   </ItemGroup>
 
-     <PropertyGroup>
-	    <!-- Default NuGet metadata -->
-	    <Authors></Authors>
-	    <Company>BjjEire</Company>
-	    <Version>1.0.0</Version>
-	    <RepositoryUrl></RepositoryUrl>
-	    <PackageTags></PackageTags>
-	    <!-- Enable NuGet pack globally -->
-	    <!-- <IsPackable>true</IsPackable> -->
+  <!-- NuGet Package Metadata -->
+  <PropertyGroup>
+    <Authors>Team BjjEire</Authors>
+    <Company>BjjEire</Company>
+    <Version>1.0.0</Version>
+    <RepositoryUrl>https://github.com/ianoflynnautomation/BjjEire</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet;api;microservices</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <!-- Include symbols for debugging -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+    <!-- Source Control Integration -->
+  <PropertyGroup>
+    <!-- Embed SCM info for traceability -->
+    <GenerateGitMetadata>true</GenerateGitMetadata>
+    <SourceLinkEnabled>true</SourceLinkEnabled>
+  </PropertyGroup>
+
+    <!-- Conditional Compilation for CI/CD -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn></NoWarn> <!-- Enforce all warnings in CI -->
+  </PropertyGroup>
+
+  <!-- Custom MSBuild Tasks for Team Productivity -->
+  <Target Name="GenerateVersion" BeforeTargets="Build">
+    <PropertyGroup>
+      <Version Condition="'$(GITHUB_RUN_NUMBER)' != ''">1.0.$(GITHUB_RUN_NUMBER)</Version>
+      <Version Condition="'$(Version)' == ''">1.0.0-local</Version>
     </PropertyGroup>
+  </Target>
+
+  <!-- Enforce EditorConfig and Code Style -->
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+  </ItemGroup>
 </Project>
