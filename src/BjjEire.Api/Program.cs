@@ -1,6 +1,5 @@
 using BjjEire.ServiceDefaults;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(options =>

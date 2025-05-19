@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities;
 
-public abstract class BaseEntity : ParentEntity, IAuditableEntity {
+public abstract class BaseEntity : ParentEntity, IAuditableEntity
+{
 
         [BsonElement("createdAt")]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]

@@ -1,32 +1,36 @@
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
 
 namespace BjjEire.Api.Attributes;
 
 [AttributeUsage(AttributeTargets.Method)]
-public  sealed class EndpointDescriptionAttribute(string description) : Attribute {
+public sealed class EndpointDescriptionAttribute(string description) : Attribute
+{
     public string Description { get; } = description;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class EndpointNameAttribute(string name) : Attribute {
+public sealed class EndpointNameAttribute(string name) : Attribute
+{
     public string Name { get; } = name;
 }
 
-public class EndpointMetadataTransformer : IOpenApiOperationTransformer {
-    public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken) {
+public class EndpointMetadataTransformer : IOpenApiOperationTransformer
+{
+    public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(operation);
-        if (context.Description.ActionDescriptor is ControllerActionDescriptor actionDescriptor) {
+        if (context.Description.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
+        {
             var descriptionAttr = actionDescriptor.EndpointMetadata.OfType<EndpointDescriptionAttribute>().FirstOrDefault();
-            if (descriptionAttr != null) {
+            if (descriptionAttr != null)
+            {
                 operation.Description = descriptionAttr.Description;
                 operation.Summary = descriptionAttr.Description;
             }
 
             var nameAttr = actionDescriptor.EndpointMetadata.OfType<EndpointNameAttribute>().FirstOrDefault();
-            if (nameAttr != null) {
+            if (nameAttr != null)
+            {
                 operation.OperationId = nameAttr.Name;
             }
         }

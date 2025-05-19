@@ -11,25 +11,30 @@ namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public sealed class GetBjjEventByPaginationQueryHandler(IRepository<BjjEvent> bjjEventRepository, IMapper mapper,
 ICacheBase cacheBase, IUriService uriService)
-: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse> {
+: IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse>
+{
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
     private readonly IUriService _uriService = uriService;
 
-    public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
+    public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
 
         var cacheKey = CacheKey.BjjEventsAll(request.Page, request.PageSize, request.County, request.Type);
 
-        return await _cacheBase.GetAsync(cacheKey, async () => {
+        return await _cacheBase.GetAsync(cacheKey, async () =>
+        {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-            if (!string.IsNullOrWhiteSpace(request.County)) {
+            if (!string.IsNullOrWhiteSpace(request.County))
+            {
                 query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
             }
 
-            if (request.Type.HasValue) {
+            if (request.Type.HasValue)
+            {
                 query = query.Where(x => x.Type == request.Type.Value);
             }
 

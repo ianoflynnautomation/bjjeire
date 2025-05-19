@@ -1,6 +1,4 @@
 ﻿
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Api.Extensions.Cors;
 using BjjEire.Api.Extensions.Exceptions;
@@ -10,21 +8,23 @@ using BjjEire.Api.Extensions.OpenApi;
 using BjjEire.Api.Extensions.RateLimit;
 using BjjEire.Api.Extensions.SecurityHeaders;
 using BjjEire.Api.Infrastructure;
-using Prometheus;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection {
-    public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder) {
+public static class DependencyInjection
+{
+    public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         var env = builder.Environment;
 
         _ = builder.AddCustomSerilog();
         _ = builder.Services.AddHttpContextAccessor();
         _ = builder.Services.AddControllers()
-            .AddJsonOptions(options => {
+            .AddJsonOptions(options =>
+            {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             })
@@ -47,7 +47,8 @@ public static class DependencyInjection {
         return builder;
     }
 
-    public static WebApplication UseBjjEiredApp(this WebApplication app) {
+    public static WebApplication UseBjjEiredApp(this WebApplication app)
+    {
         ArgumentNullException.ThrowIfNull(app);
 
         // NOTE: Middleware Order is IMPORTANT!

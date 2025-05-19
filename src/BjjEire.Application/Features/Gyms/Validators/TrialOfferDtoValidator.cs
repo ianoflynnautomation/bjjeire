@@ -3,9 +3,12 @@ using BjjEire.Application.Features.Gyms.DTOs;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class TrialOfferDtoValidator : AbstractValidator<TrialOfferDto> {
-    public TrialOfferDtoValidator() {
-        _ = When(dto => dto.IsAvailable, () => {
+public class TrialOfferDtoValidator : AbstractValidator<TrialOfferDto>
+{
+    public TrialOfferDtoValidator()
+    {
+        _ = When(dto => dto.IsAvailable, () =>
+        {
             _ = RuleFor(dto => dto)
                 .Must(dto => dto.FreeClasses.HasValue || dto.FreeDays.HasValue)
                 .WithMessage("At least one of FreeClasses or FreeDays must be provided when IsAvailable is true.");

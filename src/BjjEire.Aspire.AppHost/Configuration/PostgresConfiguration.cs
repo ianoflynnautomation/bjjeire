@@ -2,9 +2,11 @@ using BjjEire.Aspire.AppHost.Constants;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class PostgresConfiguration {
+public static class PostgresConfiguration
+{
     public static IResourceBuilder<ContainerResource> AddPostgres(
-        IDistributedApplicationBuilder builder) {
+        IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
 
@@ -20,7 +22,7 @@ public static class PostgresConfiguration {
             .WithEnvironment("GRAFANA_DB_NAME", builder.Configuration["POSTGRES_USER"] ?? "grafana")
             .WithEnvironment("GRAFANA_DB_USER", builder.Configuration["GF_DATABASE_USER"] ?? "grafana")
             .WithEnvironment("GRAFANA_DB_PASSWORD", builder.Configuration["GF_DATABASE_USER"] ?? "Grafana.12345");
-            //.WithHealthCheck("/health");
+        //.WithHealthCheck("/health");
 
         return postgres;
     }

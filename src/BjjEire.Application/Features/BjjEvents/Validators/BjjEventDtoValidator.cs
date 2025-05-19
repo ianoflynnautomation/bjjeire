@@ -5,12 +5,14 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventDtoValidator : AbstractValidator<BjjEventDto> {
+public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
+{
     public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,
                                 IValidator<SocialMediaDto> socialMediaDtoValidator,
                                 IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
                                 IValidator<BjjEventPricingModelDto> pricingModelDtoValidator,
-                                IValidator<LocationDto> locationDtoValidator) {
+                                IValidator<LocationDto> locationDtoValidator)
+    {
         _ = RuleFor(x => x.Name)
           .ApplyRequiredString("Event name", 100);
 

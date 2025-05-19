@@ -15,14 +15,17 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.Extensions.DependencyInjection;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection {
-    public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder) {
+public static class DependencyInjection
+{
+    public static IHostApplicationBuilder AddApplicationServices(this IHostApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         _ = builder.Services.AddScoped<IUriService, UriService>();
 
-        _ = builder.Services.AddMediatR(cfg => {
+        _ = builder.Services.AddMediatR(cfg =>
+        {
             _ = cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
@@ -34,12 +37,14 @@ public static class DependencyInjection {
         return builder;
     }
 
-    private static void RegisterService(this IServiceCollection services) {
+    private static void RegisterService(this IServiceCollection services)
+    {
         _ = services.AddScoped<IBjjEventService, BjjEventService>();
         _ = services.AddScoped<IGymService, GymService>();
     }
 
-    public static void RegisterRequestHandler(this IServiceCollection services) {
+    public static void RegisterRequestHandler(this IServiceCollection services)
+    {
         var handlerTypes = new (Type dto, Type entity)[]
         {
             (typeof(BjjEventDto), typeof(BjjEvent)),
@@ -47,7 +52,8 @@ public static class DependencyInjection {
 
         };
 
-        foreach ((Type dto, Type entity) in handlerTypes) {
+        foreach ((Type dto, Type entity) in handlerTypes)
+        {
             Type requestHandlerType = typeof(IRequestHandler<,>).MakeGenericType(
                 typeof(GetGenericQuery<,>).MakeGenericType(dto, entity),
                 typeof(IQueryable<>).MakeGenericType(dto)

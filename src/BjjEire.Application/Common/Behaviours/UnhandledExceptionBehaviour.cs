@@ -8,8 +8,10 @@ namespace BjjEire.Application.Common.Behaviours;
 
 public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> logger, IHttpContextAccessor httpContextAccessor)
 : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull {
-    private static readonly JsonSerializerOptions SerializerOptions = new() {
+    where TRequest : notnull
+{
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -21,12 +23,15 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> 
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken) {
-        try {
+        CancellationToken cancellationToken)
+    {
+        try
+        {
             ArgumentNullException.ThrowIfNull(next);
             return await next(cancellationToken);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             var requestName = typeof(TRequest).Name;
             var httpContext = _httpContextAccessor.HttpContext;
             var traceId = httpContext?.TraceIdentifier ?? Guid.NewGuid().ToString();
@@ -51,11 +56,14 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> 
         }
     }
 
-    private string SanitizeRequest(TRequest request) {
-        try {
+    private string SanitizeRequest(TRequest request)
+    {
+        try
+        {
             return JsonSerializer.Serialize(request, SerializerOptions);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             _logger.LogWarning(ex, "Failed to serialize request for logging.");
             return "{ \"error\": \"Failed to serialize request\" }";
         }

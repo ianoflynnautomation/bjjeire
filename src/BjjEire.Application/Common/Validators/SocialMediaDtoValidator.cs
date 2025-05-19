@@ -4,8 +4,10 @@ using BjjEire.Domain.Entities.Common;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class SocialMediaDtoValidator : AbstractValidator<SocialMedia> {
-    public SocialMediaDtoValidator() {
+public class SocialMediaDtoValidator : AbstractValidator<SocialMedia>
+{
+    public SocialMediaDtoValidator()
+    {
         // RuleFor(x => x.Facebook);
         // When(x => x != null, () => RuleFor(x => x.Facebook).ApplyUrlValidator("Facebook URL"));
 

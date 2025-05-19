@@ -6,8 +6,8 @@ public class TrialOfferDto
 {
     public bool IsAvailable { get; set; } = false;
     public int? FreeClasses { get; set; }
-    public int? FreeDays { get; set; } 
-    public string? Notes { get; set; } 
+    public int? FreeDays { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class TrialOfferDtoMapping : Profile

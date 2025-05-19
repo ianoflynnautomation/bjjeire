@@ -7,7 +7,8 @@ public class ValidationBehaviour<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators,
     ILogger<ValidationBehaviour<TRequest, TResponse>> logger,
     IHttpContextAccessor httpContextAccessor) : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull {
+    where TRequest : notnull
+{
     private readonly IEnumerable<IValidator<TRequest>> _validators = validators;
     private readonly ILogger<ValidationBehaviour<TRequest, TResponse>> _logger = logger;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -15,8 +16,10 @@ public class ValidationBehaviour<TRequest, TResponse>(
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken) {
-        if (!_validators.Any()) {
+        CancellationToken cancellationToken)
+    {
+        if (!_validators.Any())
+        {
             ArgumentNullException.ThrowIfNull(next);
             return await next(cancellationToken);
         }
@@ -35,7 +38,8 @@ public class ValidationBehaviour<TRequest, TResponse>(
             .SelectMany(r => r.Errors)
             .ToList();
 
-        if (failures.Count != 0) {
+        if (failures.Count != 0)
+        {
             // Log validation failures
             _logger.LogWarning(
                 "Validation failed for request {RequestName}. TraceId: {TraceId}, UserId: {UserId}, Errors: {Errors}",

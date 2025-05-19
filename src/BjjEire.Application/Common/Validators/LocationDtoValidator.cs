@@ -4,8 +4,10 @@ using BjjEire.Application.Common.Extensions;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class LocationDtoValidator : AbstractValidator<LocationDto> {
-  public LocationDtoValidator(IValidator<GeoCoordinatesDto> geoCoordinatesDtoValidator) {
+public class LocationDtoValidator : AbstractValidator<LocationDto>
+{
+  public LocationDtoValidator(IValidator<GeoCoordinatesDto> geoCoordinatesDtoValidator)
+  {
     _ = RuleFor(x => x.Address)
     .ApplyRequiredString("Event address", 100);
 

@@ -2,8 +2,10 @@ using BjjEire.Aspire.AppHost.Constants;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class ObservabilityConfiguration {
-    public static void AddObservability(IDistributedApplicationBuilder builder) {
+public static class ObservabilityConfiguration
+{
+    public static void AddObservability(IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var alertManager = AddAlertManager(builder);
@@ -17,7 +19,8 @@ public static class ObservabilityConfiguration {
 
     private static IResourceBuilder<ContainerResource> AddGrafana(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> prometheus) {
+        IResourceBuilder<ContainerResource> prometheus)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
 
@@ -27,22 +30,22 @@ public static class ObservabilityConfiguration {
             .WithBindMount($"{ServiceConstants.BasePath}infra/grafana/config/provisioning/dashboards", "/var/lib/grafana/dashboards", true)
             .WithVolume(ServiceConstants.GrafanaVolume, "/var/lib/grafana")
             .WithHttpEndpoint(port: ServiceConstants.GrafanaPort, targetPort: 3000, name: "http")
-            .WithEnvironment("GF_SERVER_ROOT_URL", builder.Configuration["GF_SERVER_ROOT_URL"] ?? "")
-            .WithEnvironment("GF_SECURITY_ADMIN_USER", builder.Configuration["GF_SECURITY_ADMIN_USER"] ?? "")
-            .WithEnvironment("GF_SECURITY_ADMIN_PASSWORD", builder.Configuration["GF_SECURITY_ADMIN_PASSWORD"] ?? "")
-            .WithEnvironment("GF_AUTH_ANONYMOUS_ENABLED", builder.Configuration["GF_AUTH_ANONYMOUS_ENABLED"] ?? "")
-            .WithEnvironment("GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH", builder.Configuration["GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH"] ?? "")
-            .WithEnvironment("GF_DASHBOARDS_MIN_REFRESH_INTERVAL", builder.Configuration["GF_DASHBOARDS_MIN_REFRESH_INTERVAL"] ?? "")
-            .WithEnvironment("GF_INSTALL_PLUGINS", builder.Configuration["GF_INSTALL_PLUGINS"] ?? "")
-            .WithEnvironment("GF_LOG_LEVEL", builder.Configuration["GF_LOG_LEVEL"] ?? "")
-            .WithEnvironment("GF_LOG_MODE", builder.Configuration["GF_LOG_MODE"] ?? "")
-            .WithEnvironment("GF_DATABASE_TYPE", builder.Configuration["GF_DATABASE_TYPE"] ?? "")
-            .WithEnvironment("GF_DATABASE_HOST", builder.Configuration["GF_DATABASE_HOST"] ?? "")
-            .WithEnvironment("GF_DATABASE_NAME", builder.Configuration["GF_DATABASE_NAME"] ?? "")
-            .WithEnvironment("GF_DATABASE_USER", builder.Configuration["GF_DATABASE_USER"] ?? "")
-            .WithEnvironment("GF_DATABASE_PASSWORD", builder.Configuration["POSTGRES_PASSWORD"] ?? "") // Assuming this is intentional, referencing POSTGRES_PASSWORD
-            .WithEnvironment("GF_AUTH_SESSION_PROVIDER", builder.Configuration["GF_AUTH_SESSION_PROVIDER"] ?? "")
-            .WithEnvironment("GF_AUTH_SESSION_PROVIDER_CONFIG", builder.Configuration["GF_AUTH_SESSION_PROVIDER_CONFIG"] ?? "")
+            .WithEnvironment("GF_SERVER_ROOT_URL", builder.Configuration["GF_SERVER_ROOT_URL"] ?? string.Empty)
+            .WithEnvironment("GF_SECURITY_ADMIN_USER", builder.Configuration["GF_SECURITY_ADMIN_USER"] ?? string.Empty)
+            .WithEnvironment("GF_SECURITY_ADMIN_PASSWORD", builder.Configuration["GF_SECURITY_ADMIN_PASSWORD"] ?? string.Empty)
+            .WithEnvironment("GF_AUTH_ANONYMOUS_ENABLED", builder.Configuration["GF_AUTH_ANONYMOUS_ENABLED"] ?? string.Empty)
+            .WithEnvironment("GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH", builder.Configuration["GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH"] ?? string.Empty)
+            .WithEnvironment("GF_DASHBOARDS_MIN_REFRESH_INTERVAL", builder.Configuration["GF_DASHBOARDS_MIN_REFRESH_INTERVAL"] ?? string.Empty)
+            .WithEnvironment("GF_INSTALL_PLUGINS", builder.Configuration["GF_INSTALL_PLUGINS"] ?? string.Empty)
+            .WithEnvironment("GF_LOG_LEVEL", builder.Configuration["GF_LOG_LEVEL"] ?? string.Empty)
+            .WithEnvironment("GF_LOG_MODE", builder.Configuration["GF_LOG_MODE"] ?? string.Empty)
+            .WithEnvironment("GF_DATABASE_TYPE", builder.Configuration["GF_DATABASE_TYPE"] ?? string.Empty)
+            .WithEnvironment("GF_DATABASE_HOST", builder.Configuration["GF_DATABASE_HOST"] ?? string.Empty)
+            .WithEnvironment("GF_DATABASE_NAME", builder.Configuration["GF_DATABASE_NAME"] ?? string.Empty)
+            .WithEnvironment("GF_DATABASE_USER", builder.Configuration["GF_DATABASE_USER"] ?? string.Empty)
+            .WithEnvironment("GF_DATABASE_PASSWORD", builder.Configuration["POSTGRES_PASSWORD"] ?? string.Empty) // Assuming this is intentional, referencing POSTGRES_PASSWORD
+            .WithEnvironment("GF_AUTH_SESSION_PROVIDER", builder.Configuration["GF_AUTH_SESSION_PROVIDER"] ?? string.Empty)
+            .WithEnvironment("GF_AUTH_SESSION_PROVIDER_CONFIG", builder.Configuration["GF_AUTH_SESSION_PROVIDER_CONFIG"] ?? string.Empty)
             //.WithHealthCheck("/api/health")
             .WaitFor(prometheus);
 
@@ -50,7 +53,8 @@ public static class ObservabilityConfiguration {
     }
 
     private static IResourceBuilder<ContainerResource> AddAlertManager(
-        IDistributedApplicationBuilder builder) {
+        IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var alertmanager = builder.AddContainer("alertmanager", "prom/alertmanager")
@@ -58,14 +62,15 @@ public static class ObservabilityConfiguration {
             .WithVolume("alertmanager-data", "/alertmanager") // Consider using ServiceConstants for volume name if applicable
                                                               // .WithHttpEndpoint(port: 9093, targetPort: 9093, name: "http")
             .WithArgs("--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager");
-            //.WithHealthCheck("/-/healthy");
+        //.WithHealthCheck("/-/healthy");
 
         return alertmanager;
     }
 
     private static IResourceBuilder<ContainerResource> AddPrometheus(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> alertManager) {
+        IResourceBuilder<ContainerResource> alertManager)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(alertManager);
 
@@ -86,7 +91,8 @@ public static class ObservabilityConfiguration {
         return prometheus;
     }
 
-    private static IResourceBuilder<ContainerResource> AddLoki(IDistributedApplicationBuilder builder) {
+    private static IResourceBuilder<ContainerResource> AddLoki(IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var loki = builder.AddContainer("loki", "grafana/loki")
@@ -96,14 +102,15 @@ public static class ObservabilityConfiguration {
             .WithVolume("loki-rules", "/loki/rules")
             // .WithHttpEndpoint(port: ServiceConstants.LokiPort, targetPort: 3100, name: "http")
             .WithArgs("-config.file=/mnt/config/loki-config.yml");
-            //.WithHealthCheck("/ready");
+        //.WithHealthCheck("/ready");
 
         return loki;
     }
 
     private static IResourceBuilder<ContainerResource> AddJaeger(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> prometheus) {
+        IResourceBuilder<ContainerResource> prometheus)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
 
@@ -125,7 +132,8 @@ public static class ObservabilityConfiguration {
         IDistributedApplicationBuilder builder,
         IResourceBuilder<ContainerResource> prometheus,
         IResourceBuilder<ContainerResource> loki,
-        IResourceBuilder<ContainerResource> jaeger) {
+        IResourceBuilder<ContainerResource> jaeger)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
         ArgumentNullException.ThrowIfNull(loki);
@@ -148,7 +156,8 @@ public static class ObservabilityConfiguration {
         return otelCollector;
     }
 
-    private static IResourceBuilder<ContainerResource> AddNodeExporter(IDistributedApplicationBuilder builder) {
+    private static IResourceBuilder<ContainerResource> AddNodeExporter(IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var nodeExporter = builder.AddContainer("node-exporter", "quay.io/prometheus/node-exporter")
