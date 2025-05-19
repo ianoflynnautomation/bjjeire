@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities.Gyms;
 
-public class Affiliation {
+public class Affiliation
+{
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
 

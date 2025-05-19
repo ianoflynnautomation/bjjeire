@@ -2,7 +2,8 @@
 
 namespace BjjEire.Infrastructure;
 
-public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider {
+public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider
+{
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
 
     public string GetCurrentUser() =>

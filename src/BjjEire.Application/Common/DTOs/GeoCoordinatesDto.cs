@@ -2,7 +2,8 @@ using BjjEire.Domain.Entities.Common;
 
 namespace BjjEire.Application.Common.DTOs;
 
-public class GeoCoordinatesDto {
+public class GeoCoordinatesDto
+{
     public string Type { get; set; } = "Point";
 
     public double Latitude { get; set; }
@@ -14,8 +15,10 @@ public class GeoCoordinatesDto {
     public string? PlaceId { get; set; }
 }
 
-public class GeoCoordinatesMapping : Profile {
-    public GeoCoordinatesMapping() {
+public class GeoCoordinatesMapping : Profile
+{
+    public GeoCoordinatesMapping()
+    {
         _ = CreateMap<GeoCoordinates, GeoCoordinatesDto>();
         _ = CreateMap<GeoCoordinatesDto, GeoCoordinates>();
     }

@@ -4,10 +4,12 @@ using BjjEire.Application.Features.Gyms.DTOs;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class GymDtoValidator : AbstractValidator<GymDto> {
+public class GymDtoValidator : AbstractValidator<GymDto>
+{
     public GymDtoValidator(IValidator<SocialMediaDto> socialMediaDtoValidator,
                                 IValidator<LocationDto> locationDtoValidator,
-                                IValidator<TrialOfferDto> trialOfferDtoValidator) {
+                                IValidator<TrialOfferDto> trialOfferDtoValidator)
+    {
         _ = RuleFor(x => x.Name)
             .ApplyRequiredString("Gym name", 100);
 

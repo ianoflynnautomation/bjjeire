@@ -14,10 +14,12 @@ using BjjEire.Infrastructure.Caching;
 namespace Microsoft.Extensions.DependencyInjection;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection {
+public static class DependencyInjection
+{
     private const string MongoDbConnectionStringName = "Mongodb";
 
-    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder) {
+    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
@@ -32,12 +34,14 @@ public static class DependencyInjection {
         var dbConfig = builder.Configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
                          ?? new DatabaseOptions { UseLiteDb = false };
 
-        if (!dbConfig.UseLiteDb) {
+        if (!dbConfig.UseLiteDb)
+        {
             ConfigureMongoDb(builder.Services, builder.Configuration);
             _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
             _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
         }
-        else {
+        else
+        {
             // Configure LiteDB services (Example - implement ConfigureLiteDb similarly)
             // ConfigureLiteDb(builder.Services, builder.Configuration);
 
@@ -54,19 +58,23 @@ public static class DependencyInjection {
         return builder;
     }
 
-    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration) {
+    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
+    {
         var connectionString = configuration.GetConnectionString(MongoDbConnectionStringName);
 
-        if (string.IsNullOrWhiteSpace(connectionString)) {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
             throw new InvalidOperationException($"Connection string '{MongoDbConnectionStringName}' not found or is empty in ConnectionStrings.");
         }
 
-        _ = services.AddSingleton<IMongoClient>(sp => {
+        _ = services.AddSingleton<IMongoClient>(sp =>
+        {
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
             return new MongoClient(clientSettings);
         });
 
-        _ = services.AddScoped<IMongoDatabase>(sp => {
+        _ = services.AddScoped<IMongoDatabase>(sp =>
+        {
             var client = sp.GetRequiredService<IMongoClient>();
             var mongoUrl = MongoUrl.Create(connectionString);
             var databaseName = mongoUrl.DatabaseName;
@@ -79,7 +87,8 @@ public static class DependencyInjection {
         RegisterMongoDbSerializationConventions();
     }
 
-    private static void RegisterMongoDbSerializationConventions() {
+    private static void RegisterMongoDbSerializationConventions()
+    {
 
         BsonSerializer.RegisterSerializer(new DictionaryInterfaceImplementerSerializer<Dictionary<int, int>>(DictionaryRepresentation.ArrayOfArrays));
 

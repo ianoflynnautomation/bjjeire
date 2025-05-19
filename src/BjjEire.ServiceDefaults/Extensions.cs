@@ -6,11 +6,13 @@ using BjjEire.ServiceDefaults.Configuration;
 namespace BjjEire.ServiceDefaults;
 #pragma warning restore CA1724 // Namespace does not match folder structure
 
-public static class Extensions {
+public static class Extensions
+{
     public static TBuilder AddServiceDefaults<TBuilder>(
         this TBuilder builder,
         Action<ServiceDefaultsOptions>? options = null)
-        where TBuilder : IHostApplicationBuilder {
+        where TBuilder : IHostApplicationBuilder
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var defaultsOptions = new ServiceDefaultsOptions();

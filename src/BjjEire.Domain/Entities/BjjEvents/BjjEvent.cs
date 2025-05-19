@@ -4,9 +4,11 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Domain.Entities.BjjEvents;
 
-public class BjjEvent : BaseEntity {
+public class BjjEvent : BaseEntity
+{
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
+
     [BsonElement("description")]
     public string? Description { get; set; } = string.Empty;
 
@@ -29,12 +31,16 @@ public class BjjEvent : BaseEntity {
 
     [BsonElement("location")]
     public Location Location { get; set; } = new();
+
     [BsonElement("schedule")]
     public BjjEventSchedule Schedule { get; set; } = null!;
+
     [BsonElement("pricing")]
     public PricingModel? Pricing { get; set; }
+
     [BsonElement("eventUrl")]
     public string EventUrl { get; set; } = string.Empty;
+    
     [BsonElement("imageUrl")]
     public string ImageUrl { get; set; } = string.Empty;
 

@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+
 using BjjEire.Api.Extensions.Authentication;
 
 namespace BjjEire.Api.Extensions.OpenApi;
@@ -79,14 +75,15 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
 
             if (!string.IsNullOrEmpty(schemeToApply))
             {
-                 if (schemeToApply.Equals(JwtBearerDefaults.AuthenticationScheme, StringComparison.OrdinalIgnoreCase)) {
+                if (schemeToApply.Equals(JwtBearerDefaults.AuthenticationScheme, StringComparison.OrdinalIgnoreCase))
+                {
                     securityRequirement.Add(
                         new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = OpenApiBearerSchemeId, Type = ReferenceType.SecurityScheme } },
                         Array.Empty<string>()
                     );
                     schemeAddedToRequirement = true;
-                 }
-                 // Could add similar logic for ApiKey if it could be a default
+                }
+                // Could add similar logic for ApiKey if it could be a default
             }
         }
         // Note: If [Authorize(Policy="MyPolicy")] is used, this transformer currently won't add schemes
@@ -98,7 +95,7 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
             // Check if this exact requirement already exists to prevent duplicates
             if (!operation.Security.Any(sr => sr.Keys.Count == securityRequirement.Keys.Count && sr.Keys.All(k => securityRequirement.ContainsKey(k))))
             {
-                 operation.Security.Add(securityRequirement);
+                operation.Security.Add(securityRequirement);
             }
         }
     }

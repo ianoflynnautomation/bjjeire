@@ -7,11 +7,13 @@ using ZstdSharp.Unsafe;
 
 namespace BjjEire.Application.Features.BjjEvents.Services;
 
-public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBase cacheBase) : IBjjEventService {
+public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBase cacheBase) : IBjjEventService
+{
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly ICacheBase _cacheBase = cacheBase;
 
-    public virtual Task<BjjEvent> GetById(string id) {
+    public virtual Task<BjjEvent> GetById(string id)
+    {
         ArgumentNullException.ThrowIfNull(id);
         var key = CacheKey.BjjEventsById(id);
         return _cacheBase.GetAsync(key, () => _bjjEventRepository.GetByIdAsync(id));
@@ -39,7 +41,8 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
     //     });
     // }
 
-    public virtual async Task Insert(BjjEvent bjjEvent) {
+    public virtual async Task Insert(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         _ = await _bjjEventRepository.InsertAsync(bjjEvent);
@@ -47,7 +50,8 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
         await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());
     }
 
-    public virtual async Task Update(BjjEvent bjjEvent) {
+    public virtual async Task Update(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         _ = await _bjjEventRepository.UpdateAsync(bjjEvent);
@@ -55,7 +59,8 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
         await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());
     }
 
-    public virtual async Task Delete(BjjEvent bjjEvent) {
+    public virtual async Task Delete(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());

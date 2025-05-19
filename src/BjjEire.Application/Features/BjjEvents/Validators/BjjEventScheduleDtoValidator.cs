@@ -5,12 +5,15 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto> {
-    public BjjEventScheduleDtoValidator() {
+public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto>
+{
+    public BjjEventScheduleDtoValidator()
+    {
         _ = RuleFor(x => x.ScheduleType)
         .ApplyEnumValidator("Schedule Type");
 
-        _ = When(x => x.ScheduleType == ScheduleType.FixedDate, () => {
+        _ = When(x => x.ScheduleType == ScheduleType.FixedDate, () =>
+        {
             _ = RuleFor(x => x.StartDate)
                      .NotNull()
                      .WithName("Start date")
@@ -30,7 +33,7 @@ public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDt
                        .WithErrorCode(ValidationMessages.GreaterThanOrEqual.ErrorCode);
         });
 
-        _ = When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, () 
+        _ = When(x => x.ScheduleType == ScheduleType.Recurring && x.StartDate.HasValue && x.EndDate.HasValue, ()
         => _ = RuleFor(x => x.EndDate)
                 .GreaterThanOrEqualTo(x => x.StartDate)
                 .WithMessage(ValidationMessages.GreaterThanOrEqual.Message("End date", "start date"))

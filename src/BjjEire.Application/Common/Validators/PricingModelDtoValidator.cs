@@ -5,8 +5,10 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class PricingModelDtoValidator : AbstractValidator<BjjEventPricingModelDto> {
-    public PricingModelDtoValidator() {
+public class PricingModelDtoValidator : AbstractValidator<BjjEventPricingModelDto>
+{
+    public PricingModelDtoValidator()
+    {
         _ = RuleFor(x => x.Type)
               .ApplyEnumValidator("Pricing Type");
 
@@ -30,7 +32,8 @@ public class PricingModelDtoValidator : AbstractValidator<BjjEventPricingModelDt
             .ApplyRequiredValidator("Currency")
             .ApplyMustBeInSetValidator("Currency", ValidCurrencies, "valid ISO 4217 currency code (e.g., EUR, USD)");
 
-        _ = When(x => x.Type == PricingType.Free, () => {
+        _ = When(x => x.Type == PricingType.Free, () =>
+        {
             _ = RuleFor(x => x.Amount)
                 .Null()
                 .WithMessage(ValidationMessages.MustBeNull.Message("Amount", "pricing type is Free"))
