@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>BjjEire.Api.AcceptanceTests</RootNamespace>
+        <AssemblyName>BjjEire.Api.AcceptanceTests</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="appsettings.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+
+  <ItemGroup>
+        <PackageReference Include="Autofac" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.Playwright" />
+        <PackageReference Include="Microsoft.Playwright.NUnit" />
+        <PackageReference Include="Microsoft.Playwright.TestAdapter" />
+        <PackageReference Include="Reqnroll.NUnit"/>
+        <PackageReference Include="Reqnroll" />
+        <PackageReference Include="Reqnroll.Autofac" />
+        <PackageReference Include="NUnit" />
+        <PackageReference Include="NUnit3TestAdapter" />
+        <PackageReference Include="NUnit.Analyzers" />
+        <PackageReference Include="Shouldly" />
+  </ItemGroup>
+
+</Project>
