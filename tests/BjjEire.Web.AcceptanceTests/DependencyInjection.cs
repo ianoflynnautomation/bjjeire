@@ -31,7 +31,7 @@ public static class DependencyInjection
             .SingleInstance();
     }
 
-    private static void RegisterTestOptions(this ContainerBuilder builder)
+    private static void RegisterTestOptions(this Autofac.ContainerBuilder builder)
     {
         builder.Register(c =>
         {
@@ -50,7 +50,7 @@ public static class DependencyInjection
     {
         builder.Register(async _ =>
         {
-            var playwright = await Playwright.CreateAsync().ConfigureAwait(false);
+            var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
             var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
                 Headless = false,
