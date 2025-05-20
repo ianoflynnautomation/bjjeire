@@ -1,0 +1,96 @@
+{
+    "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+    "settings": {
+      "indentation": {
+        "indentationSize": 4,
+        "tabSize": 4,
+        "useTabs": false
+      },
+      "documentationRules": {
+        "companyName": "BjjWorld",
+        "copyrightText": "Copyright (c) {companyName} BjjWorld. All rights reserved.\nLicensed under the MIT License.",
+        "xmlHeader": true,
+        "documentInterfaces": true,
+        "documentExposedElements": true,
+        "documentInternalElements": false,
+        "documentPrivateElements": false,
+        "documentPrivateFields": false,
+        "documentationCulture": "en-US",
+        "fileNamingConvention": "metadata",
+        "excludeFromDocumentation": [
+          "Test",
+          "Tests",
+          "tests",
+          "Spec",
+          "Specs"
+        ]
+      },
+      "maintainabilityRules": {
+        "topLevelTypes": [
+          "class",
+          "interface",
+          "struct",
+          "enum",
+          "delegate",
+          "record"
+        ]
+      },
+      "namingRules": {
+        "allowCommonHungarianPrefixes": false,
+        "allowedHungarianPrefixes": [],
+        "tupleElementNameCasing": "PascalCase",
+        "includeInferredTupleElementNames": true
+      },
+      "orderingRules": {
+        "usingDirectivesPlacement": "outsideNamespace",
+        "systemUsingDirectivesFirst": true,
+        "blankLinesBetweenUsingGroups": "require",
+        "elementOrder": [
+          "const",
+          "static readonly",
+          "static",
+          "readonly",
+          "field",
+          "event",
+          "constructor",
+          "finalizer",
+          "property",
+          "indexer",
+          "method",
+          "operator",
+          "nested type"
+        ],
+        "accessibilityOrder": [
+          "public",
+          "internal",
+          "protected internal",
+          "protected",
+          "private protected",
+          "private"
+        ]
+      },
+      "layoutRules": {
+        "newlineAtEndOfFile": "require",
+        "allowConsecutiveUsings": false,
+        "allowDoWhileOnClosingBrace": false
+      },
+      "spacingRules": {
+        "spacingAfterMethodDeclarationName": false,
+        "spacingAfterMethodCallName": false,
+        "spacingAfterPropertyName": false
+      },
+      "readabilityRules": {
+        "allowBuiltInTypeAliases": false
+      }
+    },
+    "rules": {
+      "SA1101": { "enabled": false },
+      "SA1124": { "enabled": false },
+      "SA1200": { "enabled": true, "severity": "error" },
+      "SA1300": { "enabled": true, "severity": "error" },
+      "SA1309": { "enabled": true, "severity": "error" },
+      "SA1516": { "enabled": true, "severity": "error" },
+      "SA1649": { "enabled": true, "severity": "error" },
+      "SA1652": { "enabled": true, "severity": "error" }
+    }
+  }

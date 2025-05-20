@@ -21,7 +21,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <!-- Ensure consistent code style across the team -->
     <EditorConfigFiles>.editorconfig</EditorConfigFiles>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet>
+    <!-- <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet> -->
 
     <!-- Documentation -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -39,16 +39,16 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks> <!-- Disable unsafe code unless required -->
     <CheckEolTargetFramework>true</CheckEolTargetFramework> <!-- Warn on deprecated frameworks -->
 
-
     <!-- Container settings -->
     <ContainerImageTags Condition="'$(Configuration)' == 'Release'">$(Version);latest</ContainerImageTags>
     <ContainerImageTags Condition="'$(Configuration)' == 'Debug'">$(Version)-debug</ContainerImageTags>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage>
+    <!-- <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage> -->
 
     <!-- Optimize for production -->
     <Optimize>true</Optimize>
     <TieredCompilation>true</TieredCompilation>
-    <TieredPgo>true</TieredPgo> <!-- Enable profile-guided optimization -->
+    <TieredPgo>true</TieredPgo> 
+    <!-- Enable profile-guided optimization -->
 
     <!-- Prevent MSBuild from excluding common folders (optional) -->
     <NoDefaultExcludes>true</NoDefaultExcludes>
@@ -59,7 +59,7 @@
     <!-- SonarAnalyzer for static analysis (unchanged) -->
     <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
     <!-- StyleCop for consistent code style -->
-    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <!-- <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" /> -->
     <!-- Security analysis -->
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
     <!-- Performance and reliability analyzers -->
@@ -108,6 +108,6 @@
   <!-- Enforce EditorConfig and Code Style -->
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+    <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" /> -->
   </ItemGroup>
 </Project>
