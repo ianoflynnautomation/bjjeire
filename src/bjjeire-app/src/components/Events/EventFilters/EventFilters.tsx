@@ -1,62 +1,87 @@
-import React from 'react'
+import React, { memo, useMemo } from 'react'
 import { County, COUNTIES } from '../../../constants/counties'
 import { BJJ_EVENT_TYPES } from '../../../constants/eventTypes'
 import { BjjEventType } from '../../../types/event'
 import SelectFilter from '../../Filters/SelectFilter'
 import ButtonGroupFilter from '../../Filters/ButtonGroupFilter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
+import { EventFiltersTestIds } from '../../../constants/eventDataTestIds'
 
 interface EventFiltersProps {
-  selectedCity: County | 'all' | undefined 
-  selectedType: BjjEventType | undefined
+  selectedCity: County | 'all' | undefined
+  selectedType: BjjEventType | 'all' | undefined
   onCityChange: (city: County | 'all' | undefined) => void
-  onTypeChange: (type: BjjEventType | 'all') => void
+  onTypeChange: (type: BjjEventType | 'all' | undefined) => void
   disabled: boolean
-  'data-testid'?: string
+  dataTestId?: string
+  testIdInstanceSuffix?: string
 }
 
-const EventFilters: React.FC<EventFiltersProps> = ({
-  selectedCity,
-  selectedType,
-  onCityChange,
-  onTypeChange,
-  disabled,
-  'data-testid': baseTestId = 'event-filters',
-}) => {
-  const cityOptions = COUNTIES.map(city => ({
-    value: city.value,
-    label: city.label,
-  }))
+const EventFilters: React.FC<EventFiltersProps> = memo(
+  ({
+    selectedCity,
+    selectedType,
+    onCityChange,
+    onTypeChange,
+    disabled,
+    dataTestId,
+    testIdInstanceSuffix = '',
+  }) => {
+    const cityOptions = useMemo(
+      () => [
+        { value: 'all' as const, label: 'All Counties' },
+        ...COUNTIES.map(city => ({
+          value: city.value as County,
+          label: city.label,
+        })),
+      ],
+      []
+    )
 
-  return (
-    <div
-      className="flex flex-col gap-6 sm:flex-row sm:gap-4"
-      data-testid={baseTestId}
-    >
-      <SelectFilter
-        id="city-filter"
-        label="City"
-        value={selectedCity}
-        onChange={onCityChange}
-        options={cityOptions}
-        disabled={disabled}
-        placeholderOptionLabel="All Cities"
-        Icon={MapPinIcon}
-        data-testid={`${baseTestId}-city-select`}
-        className="flex-1"
-      />
-      <ButtonGroupFilter<BjjEventType>
-        label="Event Type"
-        options={BJJ_EVENT_TYPES}
-        selectedValue={selectedType}
-        onValueChange={onTypeChange}
-        disabled={disabled}
-        allOptionLabel="All Types"
-        data-testid={`${baseTestId}-type-group`}
-        className="flex-1 sm:flex-none"
-      />
-    </div>
-  )
-}
+    const eventTypeOptions = useMemo(
+      () => [
+        { value: 'all' as const, label: 'All Types' },
+        ...BJJ_EVENT_TYPES.map(type => ({
+          value: type.value as BjjEventType,
+          label: type.label as string,
+        })),
+      ],
+      []
+    )
+
+    const rootTestId =
+      dataTestId || EventFiltersTestIds.ROOT(testIdInstanceSuffix)
+
+    return (
+      <div
+        className="flex flex-col gap-6 sm:flex-row sm:gap-4"
+        data-testid={rootTestId}
+      >
+        <SelectFilter
+          id="city-filter"
+          label="Select County"
+          value={selectedCity ?? 'all'}
+          onChange={onCityChange}
+          options={cityOptions}
+          disabled={disabled}
+          Icon={MapPinIcon}
+          data-testid={EventFiltersTestIds.CITY_SELECT(testIdInstanceSuffix)}
+          testIdInstanceSuffix={testIdInstanceSuffix}
+          className="flex-1"
+        />
+        <ButtonGroupFilter<BjjEventType | 'all'>
+          label="Event Type"
+          options={eventTypeOptions}
+          selectedValue={selectedType ?? 'all'}
+          onValueChange={onTypeChange}
+          disabled={disabled}
+          data-testid={EventFiltersTestIds.TYPE_GROUP(testIdInstanceSuffix)}
+          testIdInstanceSuffix={testIdInstanceSuffix}
+          className="flex-1 sm:flex-none"
+        />
+      </div>
+    )
+  }
+)
 
 export default EventFilters

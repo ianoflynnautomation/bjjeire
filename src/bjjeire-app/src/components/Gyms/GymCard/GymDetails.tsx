@@ -1,19 +1,33 @@
 import React, { memo } from 'react'
-import { MapPinIcon, BuildingLibraryIcon, ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
+import {
+  MapPinIcon,
+  BuildingLibraryIcon,
+  ClipboardDocumentListIcon,
+} from '@heroicons/react/20/solid'
 import { GymDto } from '../../../types/gyms'
-import { formatDisplayUrl, ensureExternalUrlScheme } from '../../../utils/formattingUtils'
+import {
+  formatDisplayUrl,
+  ensureExternalUrlScheme,
+} from '../../../utils/formattingUtils'
 import { DetailItem } from '../../common/DetailItem'
 import { SocialMediaLinks } from '../../common/SocialLinks/SocialLinks'
 import { GymOfferedClasses, GymTrialOffer } from '.'
 import { getGoogleMapsUrl } from '../../../utils/mapUtils'
+import { GymCardTestIds } from '../../../constants/gymDataTestIds'
 
 interface GymDetailsProps {
   gym: GymDto
   'data-testid'?: string
+  testIdInstanceSuffix?: string
 }
 
 export const GymDetails: React.FC<GymDetailsProps> = memo(
-  ({ gym, 'data-testid': baseTestId = 'gym-details' }) => {
+  ({
+    gym,
+    'data-testid': rootDataTestId,
+    testIdInstanceSuffix = gym.id ||
+      gym.name.replace(/\s+/g, '-').toLowerCase(),
+  }) => {
     const {
       location,
       affiliation,
@@ -23,11 +37,14 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
       trialOffer,
     } = gym
 
+    const actualRootDataTestId =
+      rootDataTestId || GymCardTestIds.DETAILS.ROOT(testIdInstanceSuffix)
+
     return (
       <section
         className="space-y-2.5 text-sm"
         aria-labelledby={`gym-details-heading-${gym.id || gym.name}`}
-        data-testid={baseTestId}
+        data-testid={actualRootDataTestId}
       >
         <h2
           id={`gym-details-heading-${gym.id || gym.name}`}
@@ -38,8 +55,9 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
         {location?.address && (
           <DetailItem
             icon={<MapPinIcon />}
-            ariaLabel={`Location: ${location.address}, ${location.venue}`}
-            data-testid={`${baseTestId}-address`}
+            ariaLabel={`Location: ${location.address}, ${location.venue || ''}`}
+            data-testid={GymCardTestIds.DETAILS.ADDRESS(testIdInstanceSuffix)}
+            testIdInstanceSuffix={testIdInstanceSuffix}
           >
             <a
               href={getGoogleMapsUrl(gym.location)}
@@ -56,7 +74,10 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<BuildingLibraryIcon />}
             ariaLabel={`Affiliation: ${affiliation.name}`}
-            data-testid={`${baseTestId}-affiliation`}
+            data-testid={GymCardTestIds.DETAILS.AFFILIATION(
+              testIdInstanceSuffix
+            )}
+            testIdInstanceSuffix={testIdInstanceSuffix}
           >
             {affiliation.website ? (
               <a
@@ -76,7 +97,8 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<ClipboardDocumentListIcon />}
             ariaLabel={`Timetable: ${formatDisplayUrl(timetableUrl)}`}
-            data-testid={`${baseTestId}-timetable`}
+            data-testid={GymCardTestIds.DETAILS.TIMETABLE(testIdInstanceSuffix)}
+            testIdInstanceSuffix={testIdInstanceSuffix}
           >
             <a
               href={ensureExternalUrlScheme(timetableUrl)}
@@ -91,20 +113,23 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
 
         <GymOfferedClasses
           classes={offeredClasses}
-          data-testid={`${baseTestId}-classes`}
+          data-testid={GymCardTestIds.DETAILS.CLASSES(testIdInstanceSuffix)}
+          testIdInstanceSuffix={testIdInstanceSuffix}
         />
         <GymTrialOffer
           trialOffer={trialOffer}
-          data-testid={`${baseTestId}-trial`}
+          data-testid={GymCardTestIds.DETAILS.TRIAL(testIdInstanceSuffix)}
+          testIdInstanceSuffix={testIdInstanceSuffix}
         />
 
         {socialMedia && (
           <div className="pt-1">
-            {' '}
-            {/* Adjusted padding */}
             <SocialMediaLinks
               socialMedia={socialMedia}
-              data-testid={`${baseTestId}-social-media`}
+              data-testid={GymCardTestIds.DETAILS.SOCIAL_MEDIA(
+                testIdInstanceSuffix
+              )}
+              testIdInstanceSuffix={testIdInstanceSuffix}
             />
           </div>
         )}

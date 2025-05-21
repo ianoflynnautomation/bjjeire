@@ -1,4 +1,4 @@
-import { BjjEventType } from '@/types/event';
+import { BjjEventType } from '@/types/event'
 
 export const BJJ_EVENT_TYPES: { value: BjjEventType; label: string }[] = [
   { value: BjjEventType.OpenMat, label: 'Open Mat' },
@@ -6,10 +6,10 @@ export const BJJ_EVENT_TYPES: { value: BjjEventType; label: string }[] = [
   { value: BjjEventType.Tournament, label: 'Tournament' },
   { value: BjjEventType.Camp, label: 'Camp' },
   { value: BjjEventType.Other, label: 'Other' },
-];
+]
 
 export const getBjjEventTypeFromString = (typeString: string): BjjEventType => {
-  const normalized = typeString.toLowerCase();
+  const normalized = typeString.toLowerCase()
   const typeMap: { [key: string]: BjjEventType } = {
     'open mat': BjjEventType.OpenMat,
     openmat: BjjEventType.OpenMat,
@@ -17,6 +17,6 @@ export const getBjjEventTypeFromString = (typeString: string): BjjEventType => {
     tournament: BjjEventType.Tournament,
     camp: BjjEventType.Camp,
     other: BjjEventType.Other,
-  };
-  return typeMap[normalized] ?? BjjEventType.Other;
-};
+  }
+  return typeMap[normalized] ?? BjjEventType.Other
+}
