@@ -35,7 +35,7 @@
     <EmbedAllSources>true</EmbedAllSources>
 
     <!-- Security and performance -->
-    <PublishAot>true</PublishAot> <!-- Enable AOT for performance (if applicable) -->
+    <PublishAot>false</PublishAot> <!-- Enable AOT for performance (if applicable) -->
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks> <!-- Disable unsafe code unless required -->
     <CheckEolTargetFramework>true</CheckEolTargetFramework> <!-- Warn on deprecated frameworks -->
 
@@ -76,7 +76,7 @@
     <PackageTags>dotnet;api;microservices</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <!-- <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild> -->
     <!-- Include symbols for debugging -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

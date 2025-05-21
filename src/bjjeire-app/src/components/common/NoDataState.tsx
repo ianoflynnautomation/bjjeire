@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
+import {
+  NoDataStateTestIds,
+  withTestIdSuffix,
+} from '../../constants/commonDataTestIds'
 
 interface NoDataStateProps {
-  title?: string;
-  messageLine1?: string;
-  messageLine2?: string;
-  actionText?: string;
-  onActionClick?: () => void;
-  'data-testid'?: string;
+  title?: string
+  messageLine1?: string
+  messageLine2?: string
+  actionText?: string
+  onActionClick?: () => void
+  'data-testid'?: string
+  testIdInstanceSuffix?: string 
 }
 
 const NoDataState: React.FC<NoDataStateProps> = ({
@@ -16,48 +21,71 @@ const NoDataState: React.FC<NoDataStateProps> = ({
   messageLine2 = 'Try adjusting your filters or check back later.',
   actionText,
   onActionClick,
-  'data-testid': baseTestId = 'no-data-state',
-}) => (
-  <div
-    className="my-10 rounded-md border border-slate-200 bg-slate-50 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800" 
-    data-testid={baseTestId}
-  >
-    <InformationCircleIcon
-      className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400" 
-      aria-hidden="true"
-    />
-    <p
-      className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100"
-      data-testid={`${baseTestId}-title`}
-    >
-      {title}
-    </p>
-    <p
-      className="mt-1 text-sm text-slate-600 dark:text-slate-300"
-      data-testid={`${baseTestId}-message-line1`}
-    >
-      {messageLine1}
-    </p>
-    <p
-      className="mt-0.5 text-sm text-slate-600 dark:text-slate-300"
-      data-testid={`${baseTestId}-message-line2`}
-    >
-      {messageLine2}
-      {onActionClick && actionText && (
-        <>
-          {' '}Or{' '}
-          <button
-            onClick={onActionClick}
-            className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 focus:underline focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300" // UPDATED: Link color
-            data-testid={`${baseTestId}-action-button`}
-          >
-            {actionText}
-          </button>
-          .
-        </>
-      )}
-    </p>
-  </div>
-)
+  'data-testid': dataTestIdFromProp,
+  testIdInstanceSuffix = '',
+}) => {
+  const rootTestId =
+    dataTestIdFromProp || NoDataStateTestIds.ROOT(testIdInstanceSuffix)
 
-export default React.memo(NoDataState)
+  return (
+    <div
+      className="my-10 rounded-md border border-slate-200 bg-slate-50 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800"
+      data-testid={rootTestId}
+    >
+      <InformationCircleIcon
+        className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400"
+        aria-hidden="true"
+        data-testid={withTestIdSuffix(
+          NoDataStateTestIds.ICON,
+          testIdInstanceSuffix
+        )}
+      />
+      <p
+        className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100"
+        data-testid={withTestIdSuffix(
+          NoDataStateTestIds.TITLE,
+          testIdInstanceSuffix
+        )}
+      >
+        {title}
+      </p>
+      <p
+        className="mt-1 text-sm text-slate-600 dark:text-slate-300"
+        data-testid={withTestIdSuffix(
+          NoDataStateTestIds.MESSAGE_LINE1,
+          testIdInstanceSuffix 
+        )}
+      >
+        {messageLine1}
+      </p>
+      <p
+        className="mt-0.5 text-sm text-slate-600 dark:text-slate-300"
+        data-testid={withTestIdSuffix(
+          NoDataStateTestIds.MESSAGE_LINE2,
+          testIdInstanceSuffix
+        )}
+      >
+        {messageLine2}
+        {onActionClick && actionText && (
+          <>
+            {' '}
+            Or{' '}
+            <button
+              onClick={onActionClick}
+              className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 focus:underline focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300"
+              data-testid={withTestIdSuffix(
+                NoDataStateTestIds.ACTION_BUTTON,
+                testIdInstanceSuffix 
+              )}
+            >
+              {actionText}
+            </button>
+            .
+          </>
+        )}
+      </p>
+    </div>
+  )
+}
+
+export default memo(NoDataState)

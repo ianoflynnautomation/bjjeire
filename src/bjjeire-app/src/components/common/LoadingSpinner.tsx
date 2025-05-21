@@ -1,4 +1,8 @@
-import React from 'react'
+import React, { memo } from 'react'
+import {
+  LoadingSpinnerTestIds,
+  withTestIdSuffix,
+} from '../../constants/commonDataTestIds'
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'
@@ -6,6 +10,7 @@ interface LoadingSpinnerProps {
   text?: string
   className?: string
   'data-testid'?: string
+  testIdInstanceSuffix?: string
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
@@ -13,8 +18,12 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   color = 'text-blue-600',
   text,
   className = '',
-  'data-testid': baseTestId = 'spinner',
+  'data-testid': dataTestIdFromProp,
+  testIdInstanceSuffix = '',
 }) => {
+  const rootTestId =
+    dataTestIdFromProp || LoadingSpinnerTestIds.ROOT(testIdInstanceSuffix)
+
   const sizeClasses = {
     sm: 'w-5 h-5 border-2',
     md: 'w-8 h-8 border-[3px]',
@@ -23,19 +32,25 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div
-      data-testid={baseTestId}
+      data-testid={rootTestId}
       className={`flex flex-col items-center justify-center p-4 ${className}`}
       role="status"
       aria-live="polite"
     >
       <div
-        data-testid={`${baseTestId}-icon`}
+        data-testid={withTestIdSuffix(
+          LoadingSpinnerTestIds.ICON,
+          testIdInstanceSuffix
+        )}
         className={`animate-spin rounded-full ${sizeClasses[size]} ${color} border-t-transparent border-solid`}
         aria-hidden="true"
       ></div>
       {text && (
         <p
-          data-testid={`${baseTestId}-text`}
+          data-testid={withTestIdSuffix(
+            LoadingSpinnerTestIds.TEXT,
+            testIdInstanceSuffix
+          )}
           className={`mt-3 text-sm font-medium text-gray-600 ${color}`}
         >
           {text}
@@ -46,4 +61,4 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   )
 }
 
-export default LoadingSpinner
+export default memo(LoadingSpinner)
