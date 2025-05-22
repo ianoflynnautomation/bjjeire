@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { GymDto } from '../../../types/gyms';
 import { GymCard } from './gym-card';
-import { GymsListTestIds } from '../../../constants/gymDataTestIds';
+import { GymsListTestIds, } from '../../../constants/gymDataTestIds';
 
 interface GymsListProps {
   gyms?: GymDto[];
@@ -67,7 +67,6 @@ export const GymsList: React.FC<GymsListProps> = memo(
               key={gym.id || gym.name}
               gym={gym}
               data-testid={gymCardRootId}
-              //testIdInstanceSuffix={gymCardInstanceSuffix}
             />
           );
         })}
