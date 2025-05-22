@@ -1,123 +1,85 @@
-import React, { useState, useCallback, useMemo, memo } from 'react'
-import { useGyms } from '@/api/get-gyms'
+import React, { useCallback, useMemo, memo } from 'react'
 import { COUNTIES } from '@/constants/counties'
-import { GymsList } from '@/components/Gyms/GymsList'
-import { GymsPageHeader } from '@/components/Gyms/GymsPageHeader'
-import SelectFilter from '@/components/Filters/SelectFilter'
-import Pagination from '@/components/common/Pagination'
-import LoadingState from '@/components/common/LoadingState'
-import ErrorState from '@/components/common/ErrorState'
-import NoDataState from '@/components/common/NoDataState'
-import BackgroundFetchingIndicator from '@/components/common/BackgroundFetchingIndicator'
+import { GymsList } from '@/features/gyms/components/gym-list'
+import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
+import SelectFilter from '@/components/ui/filters/select-filter'
+import Pagination from '@/components/ui/grid/pagination'
 import { env } from '@/config/env'
+import { GymDto, GetGymsByCountyPaginationQuery } from '@/types/gyms'
+import PageErrorBoundary from '@/components/error/page-error-boundary'
+import PageLayout from '@/components/layout/page-layout'
+import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
+import { useScrollToTop } from '@/utils/scrollUtils'
+import { formatFetchError } from '@/utils/errorUtils'
+import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
+import { getGyms } from '@/features/gyms/api/get-gyms'
 
-export const GymsPage: React.FC = () => {
-  const [selectedCounty, setSelectedCounty] = useState<
-    string | 'all' | undefined
-  >('all')
-  const [currentPage, setCurrentPage] = useState(1)
+const GymsPage: React.FC = () => {
+  const scrollToTop = useScrollToTop()
+
+  const initialGymFilters: GetGymsByCountyPaginationQuery = {
+    county: 'all',
+    page: env.PAGE_NUMBER,
+    pageSize: env.PAGE_SIZE,
+  }
 
   const {
-    data: paginatedGyms,
+    data: paginatedGymsData,
+    pagination: paginationInfo,
     isLoading,
     isFetching,
     error: fetchError,
+    params: activeFilters,
+    currentPage,
+    handlePageChange: rawHandlePageChange,
+    updateFilters,
     refetch,
-  } = useGyms({
-    county: selectedCounty === 'all' ? undefined : selectedCounty,
-    page: currentPage,
-    pageSize: env.PAGE_SIZE,
-    queryConfig: {
-      placeholderData: previousData => previousData,
-    },
+  } = usePaginatedQuery<GymDto, GetGymsByCountyPaginationQuery>({
+    queryKeyBase: ['gyms'],
+    fetchFn: getGyms,
+    initialParams: initialGymFilters,
   })
 
-  const gyms = useMemo(() => paginatedGyms?.data ?? [], [paginatedGyms?.data])
-  const paginationInfo = useMemo(
-    () => paginatedGyms?.pagination,
-    [paginatedGyms?.pagination]
-  )
-
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [])
+  const gyms = useMemo(() => paginatedGymsData ?? [], [paginatedGymsData])
 
   const handleCountyChange = useCallback(
     (countyValue: string | 'all' | undefined) => {
-      setSelectedCounty(countyValue === 'all' ? 'all' : countyValue)
-      setCurrentPage(1)
+      const newCounty = countyValue === 'all' ? 'all' : countyValue
+      updateFilters({
+        county: newCounty,
+      } as Partial<GetGymsByCountyPaginationQuery>)
       scrollToTop()
     },
-    [scrollToTop]
+    [updateFilters, scrollToTop]
   )
 
-  const handlePageChange = useCallback(
-    (_url: string | null, page?: number) => {
-      if (page && page !== currentPage) {
-        setCurrentPage(page)
-        scrollToTop()
-      }
+  const onPageChange = useCallback(
+    (url: string | null, page?: number) => {
+      rawHandlePageChange(url, page)
+      scrollToTop()
     },
-    [currentPage, scrollToTop]
+    [rawHandlePageChange, scrollToTop]
   )
 
   const handleRetryFetch = useCallback(() => {
     refetch()
   }, [refetch])
 
-  const countyLabel = useMemo(
-    () =>
-      COUNTIES.find(c => c.value === selectedCounty)?.label ||
-      selectedCounty ||
-      'All Counties',
-    [selectedCounty]
-  )
+  const countyLabel = useMemo(() => {
+    const selectedCountyValue = activeFilters.county
+    return (
+      COUNTIES.find(c => c.value === selectedCountyValue)?.label ||
+      (selectedCountyValue === 'all' ? 'All Counties' : selectedCountyValue) ||
+      'All Counties'
+    )
+  }, [activeFilters.county])
 
+  const formattedErrorMessage = formatFetchError(fetchError)
   const isInitialLoading = isLoading && gyms.length === 0
-  const isBackgroundFetching = isFetching && !isLoading
-  const hasFetchError = !!fetchError
-  const noGymsFound =
-    !isInitialLoading && !hasFetchError && gyms.length === 0 && !isFetching
-
-  const fetchErrorMessage = useMemo(() => {
-    if (!fetchError) return ''
-    if (fetchError instanceof Error) {
-      return fetchError.message?.includes('failed to fetch') ||
-        fetchError.message?.includes('NetworkError')
-        ? 'Could not connect to the server. Please check your internet connection and try again.'
-        : fetchError.message ||
-            'An unexpected error occurred while loading gyms. Please try again.'
-    }
-    return 'An unexpected error occurred.'
-  }, [fetchError])
-
-  const renderMainContent = () => {
-    if (isInitialLoading) {
-      return <LoadingState />
-    }
-    if (hasFetchError) {
-      return (
-        <ErrorState message={fetchErrorMessage} onRetry={handleRetryFetch} />
-      )
-    }
-    if (noGymsFound) {
-      return (
-        <NoDataState
-          title="No Gyms Found"
-          messageLine1="No gyms match your current filters."
-          messageLine2="Try a different county or check back later."
-        />
-      )
-    }
-    if (gyms.length > 0) {
-      return <GymsList gyms={gyms} />
-    }
-    return null
-  }
 
   return (
-    <div className="min-h-screen dark:bg-slate-900 sm:py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <PageErrorBoundary errorMessage="Failed to load gyms. Please try again.">
+      <PageLayout>
         <GymsPageHeader
           countyName={countyLabel}
           totalGyms={paginationInfo?.totalItems}
@@ -127,7 +89,7 @@ export const GymsPage: React.FC = () => {
           <SelectFilter
             id="county-filter"
             label="Select County"
-            value={selectedCounty}
+            value={activeFilters.county}
             onChange={handleCountyChange}
             options={COUNTIES}
             placeholderOptionLabel="All Counties"
@@ -136,26 +98,36 @@ export const GymsPage: React.FC = () => {
         </div>
 
         <main className="relative" aria-live="polite" aria-busy={isFetching}>
-          {isBackgroundFetching && gyms.length > 0 && (
-            <BackgroundFetchingIndicator />
-          )}
-          {renderMainContent()}
+          <ContentRenderer
+            isLoading={isLoading}
+            isFetching={isFetching}
+            fetchError={fetchError}
+            formattedErrorMessage={formattedErrorMessage}
+            onRetry={handleRetryFetch}
+            data={gyms}
+            renderDataComponent={data => <GymsList gyms={data} />}
+            noDataTitle="No Gyms Found"
+            noDataMessageLine1="No gyms match your current filters."
+            noDataMessageLine2="Try a different county or check back later."
+            isInitialLoad={isInitialLoading}
+            showBackgroundFetchingIndicator={gyms.length > 0}
+          />
         </main>
 
         {paginationInfo &&
           paginationInfo.totalPages > 1 &&
-          !hasFetchError &&
+          !fetchError &&
           gyms.length > 0 && (
             <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}
-                onPageChange={handlePageChange}
+                onPageChange={onPageChange}
               />
             </div>
           )}
-      </div>
-    </div>
+      </PageLayout>
+    </PageErrorBoundary>
   )
 }
 

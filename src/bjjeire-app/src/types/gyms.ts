@@ -57,7 +57,7 @@ export enum ClassCategory {
     imageUrl?: string;
   }
 
-    export interface GetGymsByCityPaginationQuery {
+    export interface GetGymsByCountyPaginationQuery {
     county?: string;
     page: number; 
     pageSize: number;

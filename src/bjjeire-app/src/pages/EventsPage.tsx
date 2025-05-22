@@ -1,199 +1,133 @@
-import React, {
-  useCallback,
-  useState,
-  memo,
-  useMemo,
-  Component,
-  ReactNode,
-} from 'react'
-import { useBjjEvents } from '@/api/get-bjj-events'
+import React, { useCallback, useMemo, memo } from 'react'
 import { County } from '@/constants/counties'
-import { GetBjjEventsPaginationQuery, BjjEventType } from '@/types/event'
-import EventFilters from '@/components/Events/EventFilters/EventFilters'
-import Pagination from '@/components/common/Pagination'
-import LoadingState from '@/components/common/LoadingState'
-import ErrorState from '@/components/common/ErrorState'
-import NoDataState from '@/components/common/NoDataState'
-import BackgroundFetchingIndicator from '@/components/common/BackgroundFetchingIndicator'
-import { EventsPageHeader } from '@/components/Events/EventsPageHeader'
-import EventsList from '@/components/Events/EventsList'
+import {
+  GetBjjEventsPaginationQuery,
+  BjjEventType,
+  BjjEventDto,
+} from '@/types/event'
+import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
+import Pagination from '@/components/ui/grid/pagination';
+import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header';
+import EventsList from '@/features/bjjevents/components/event-list'
 import { env } from '@/config/env'
-import { EventsPageHeaderTestIds } from '@/constants/eventDataTestIds'
-import { EventFiltersTestIds } from '@/constants/eventDataTestIds'
-
-// Error Boundary Component
-class EventsPageErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean }
-> {
-  state = { hasError: false }
-
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <ErrorState
-          message="Something went wrong while loading the events page. Please try again later."
-          onRetry={() => window.location.reload()}
-        />
-      )
-    }
-    return this.props.children
-  }
-}
+import {
+  EventsPageHeaderTestIds,
+  EventFiltersTestIds,
+} from '@/constants/eventDataTestIds'
+import PageErrorBoundary from '@/components/error/page-error-boundary'
+import PageLayout from '@/components/layout/page-layout'
+import { ContentRenderer } from '@/components/ui/state/content-renderer-state';
+import { useScrollToTop } from '@/utils/scrollUtils'
+import { formatFetchError } from '@/utils/errorUtils'
+import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
+import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 
 const EventsPage: React.FC = () => {
-  const [activeFilters, setActiveFilters] =
-    useState<GetBjjEventsPaginationQuery>({
-      county: 'all',
-      type: 'all',
-      page: env.PAGE_NUMBER,
-      pageSize: env.PAGE_SIZE,
-    })
+  const scrollToTop = useScrollToTop()
+
+  const initialEventFilters: GetBjjEventsPaginationQuery = {
+    county: 'all',
+    type: 'all',
+    page: env.PAGE_NUMBER,
+    pageSize: env.PAGE_SIZE,
+  }
 
   const {
-    data: bjjEventsResponse,
+    data: paginatedEventsData,
+    pagination: paginationInfo,
     isLoading,
     isFetching,
     error: fetchError,
+    params: activeFilters,
+    currentPage,
+    handlePageChange: rawHandlePageChange,
+    updateFilters,
     refetch,
-  } = useBjjEvents({
-    county: activeFilters.county === 'all' ? undefined : activeFilters.county,
-    type: activeFilters.type === 'all' ? undefined : activeFilters.type,
-    page: activeFilters.page,
-    pageSize: activeFilters.pageSize,
+  } = usePaginatedQuery<BjjEventDto, GetBjjEventsPaginationQuery>({
+    queryKeyBase: ['bjjevents'],
+    fetchFn: getBjjEvents,
+    initialParams: initialEventFilters,
   })
 
-  const events = useMemo(
-    () => bjjEventsResponse?.data ?? [],
-    [bjjEventsResponse?.data]
-  )
-  const paginationInfo = useMemo(
-    () => bjjEventsResponse?.pagination,
-    [bjjEventsResponse?.pagination]
-  )
-
-  const scrollToTop = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [])
+  const events = useMemo(() => paginatedEventsData ?? [], [paginatedEventsData])
 
   const handleFilterChange = useCallback(
     (
       key: keyof Omit<GetBjjEventsPaginationQuery, 'page' | 'pageSize'>,
       value: County | BjjEventType | 'all' | undefined
     ) => {
-      setActiveFilters(prevFilters => {
-        const newFilters: Partial<GetBjjEventsPaginationQuery> = { page: 1 }
-        if (key === 'county') {
-          newFilters.county = value as County | 'all' | undefined
-        } else if (key === 'type') {
-          newFilters.type = value as BjjEventType | 'all' | undefined
-        }
-        return { ...prevFilters, ...newFilters }
-      })
+      updateFilters({ [key]: value } as Partial<GetBjjEventsPaginationQuery>)
       scrollToTop()
     },
-    [scrollToTop]
+    [updateFilters, scrollToTop]
   )
 
   const onPageChange = useCallback(
-    (_url: string | null, page?: number) => {
-      if (page && page !== activeFilters.page) {
-        setActiveFilters(prevFilters => ({ ...prevFilters, page }))
-        scrollToTop()
-      }
+    (url: string | null, page?: number) => {
+      rawHandlePageChange(url, page)
+      scrollToTop()
     },
-    [activeFilters.page, scrollToTop]
+    [rawHandlePageChange, scrollToTop]
   )
 
   const handleRetryFetch = useCallback(() => {
     refetch()
   }, [refetch])
 
+  const formattedErrorMessage = formatFetchError(fetchError)
   const isInitialLoading = isLoading && events.length === 0
-  const isBackgroundFetching = isFetching && !isLoading
-  const hasFetchError = !!fetchError
-  const noEventsFound =
-    !isInitialLoading && !hasFetchError && events.length === 0 && !isFetching
-
-  const fetchErrorMessage = useMemo(() => {
-    if (!fetchError) return ''
-    if (fetchError instanceof Error) {
-      return fetchError.message?.includes('failed to fetch') ||
-        fetchError.message?.includes('NetworkError')
-        ? 'Could not connect to the server. Please check your internet connection and try again.'
-        : fetchError.message ||
-            'An unexpected error occurred while loading events. Please try again.'
-    }
-    return 'An unexpected error occurred.'
-  }, [fetchError])
-
-  const renderMainContent = () => {
-    if (isInitialLoading) return <LoadingState />
-    if (hasFetchError)
-      return (
-        <ErrorState message={fetchErrorMessage} onRetry={handleRetryFetch} />
-      )
-    if (noEventsFound)
-      return (
-        <NoDataState
-          title="No Events Found"
-          messageLine1="No events match your current filters."
-          messageLine2="Try a different filter to find events."
-        />
-      )
-    if (events.length > 0) return <EventsList events={events} />
-    return null
-  }
 
   return (
-    <EventsPageErrorBoundary>
-      <div className="min-h-screen dark:bg-slate-900 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <EventsPageHeader
-            countyName={activeFilters.county}
-            totalEvents={paginationInfo?.totalItems}
-            dataTestId={EventsPageHeaderTestIds.ROOT()}
+    <PageErrorBoundary errorMessage="Failed to load events. Please try again.">
+      <PageLayout>
+        <EventsPageHeader
+          countyName={activeFilters.county}
+          totalEvents={paginationInfo?.totalItems}
+          dataTestId={EventsPageHeaderTestIds.ROOT()}
+        />
+
+        <div className="mb-8">
+          <EventFilters
+            selectedCity={activeFilters.county}
+            selectedType={activeFilters.type}
+            onCityChange={city => handleFilterChange('county', city)}
+            onTypeChange={type => handleFilterChange('type', type)}
+            disabled={isFetching || isLoading}
+            dataTestId={EventFiltersTestIds.ROOT()}
           />
-
-          <div className="mb-8">
-            <EventFilters
-              selectedCity={activeFilters.county}
-              selectedType={activeFilters.type}
-              onCityChange={city => handleFilterChange('county', city)}
-              onTypeChange={type => handleFilterChange('type', type)}
-              disabled={isFetching || isLoading}
-              dataTestId={EventFiltersTestIds.ROOT()}
-            />
-          </div>
-
-          <main className="relative" aria-live="polite" aria-busy={isFetching}>
-            {isBackgroundFetching && events.length > 0 && (
-              <BackgroundFetchingIndicator />
-            )}
-            {renderMainContent()}
-          </main>
-
-          {paginationInfo &&
-            paginationInfo.totalPages > 1 &&
-            !hasFetchError &&
-            events.length > 0 && (
-              <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
-                <Pagination
-                  currentPage={activeFilters.page}
-                  pagination={paginationInfo}
-                  onPageChange={onPageChange}
-                />
-              </div>
-            )}
         </div>
-      </div>
-    </EventsPageErrorBoundary>
+
+        <main className="relative" aria-live="polite" aria-busy={isFetching}>
+          <ContentRenderer
+            isLoading={isLoading}
+            isFetching={isFetching}
+            fetchError={fetchError}
+            formattedErrorMessage={formattedErrorMessage}
+            onRetry={handleRetryFetch}
+            data={events}
+            renderDataComponent={data => <EventsList events={data} />}
+            noDataTitle="No Events Found"
+            noDataMessageLine1="No events match your current filters."
+            noDataMessageLine2="Try a different filter to find events."
+            isInitialLoad={isInitialLoading}
+            showBackgroundFetchingIndicator={events.length > 0}
+          />
+        </main>
+
+        {paginationInfo &&
+          paginationInfo.totalPages > 1 &&
+          !fetchError &&
+          events.length > 0 && (
+            <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
+              <Pagination
+                currentPage={currentPage}
+                pagination={paginationInfo}
+                onPageChange={onPageChange}
+              />
+            </div>
+          )}
+      </PageLayout>
+    </PageErrorBoundary>
   )
 }
 

@@ -5,7 +5,7 @@ import { HateoasPagination, PaginatedResponse } from '@/types/common'
 interface PaginatedQueryParams<T, TParams> {
   queryKeyBase: string[]
   fetchFn: (
-    params: TParams & { url?: string | null }
+    params: TParams & { url?: string | null; page?: number }
   ) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
@@ -17,6 +17,7 @@ interface PaginatedQueryResult<T, TParams> {
   isFetching: boolean
   error: Error | null
   currentPage: number
+  params: TParams
   handlePageChange: (url: string | null, page?: number) => void
   updateFilters: (newFilters: Partial<TParams>) => void
   refetch: () => Promise<UseQueryResult<PaginatedResponse<T>>>
@@ -71,7 +72,7 @@ export const usePaginatedQuery = <T, TParams extends object>({
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
     const resetPage = 1
-    setParams(prev => ({ ...prev, ...newFilters }))
+    setParams(prev => ({ ...prev, ...newFilters, page: resetPage }))
     setCurrentPage(resetPage)
     setCurrentUrl(undefined)
   }, [])
@@ -86,6 +87,7 @@ export const usePaginatedQuery = <T, TParams extends object>({
     isLoading,
     isFetching,
     error,
+    params,
     currentPage,
     handlePageChange,
     updateFilters,
