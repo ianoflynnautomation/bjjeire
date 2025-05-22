@@ -1,4 +1,4 @@
-import { GymStatus, ClassCategory } from '@/types/gyms'; // Adjust path as needed
+import { GymStatus, ClassCategory } from '@/types/gyms'
 
 export const getGymStatusLabel = (status: GymStatus): string => {
   const labels: Record<GymStatus, string> = {
@@ -9,10 +9,9 @@ export const getGymStatusLabel = (status: GymStatus): string => {
     [GymStatus.OpeningSoon]: 'Opening Soon',
     [GymStatus.Draft]: 'Draft',
     [GymStatus.Rejected]: 'Rejected',
-    // Add Unlisted and NeedsAttention if you add them to the enum
-  };
-  return labels[status] || 'Unknown Status';
-};
+  }
+  return labels[status] || 'Unknown Status'
+}
 
 export const getGymStatusColorScheme = (
   status: GymStatus
@@ -20,19 +19,20 @@ export const getGymStatusColorScheme = (
   switch (status) {
     case GymStatus.Active:
     case GymStatus.OpeningSoon:
-      return 'emerald';
+      return 'emerald'
     case GymStatus.PendingApproval:
     case GymStatus.Draft:
-      return 'amber';
+      return 'amber'
     case GymStatus.TemporarilyClosed:
-      return 'blue';
+      return 'blue'
     case GymStatus.PermanentlyClosed:
     case GymStatus.Rejected:
-      return 'red';
+      return 'red'
     default:
-      return 'slate';
+      return 'slate'
   }
-};
+}
+
 
 export const getClassCategoryLabel = (category: ClassCategory): string => {
   const labels: Record<ClassCategory, string> = {
@@ -54,5 +54,5 @@ export const getClassCategoryLabel = (category: ClassCategory): string => {
     [ClassCategory.ProTraining]: 'Pro Training',
     [ClassCategory.Other]: 'Other',
   };
-  return labels[category] || category;
+  return labels[category] || category.toString();
 };

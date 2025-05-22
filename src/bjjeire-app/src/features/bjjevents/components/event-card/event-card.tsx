@@ -67,8 +67,6 @@ export const EventCard: React.FC<EventCardProps> = memo(
                   EventCardTestIds.SCHEDULE.CONTENT,
                   uniqueInstanceSuffix
                 )}
-                // If EventSchedule has internal parts needing specific IDs:
-                //testIdInstanceSuffix={uniqueInstanceSuffix}
               />
             </div>
           )}

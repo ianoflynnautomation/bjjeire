@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { BjjEventDto, PricingType, OrganizerDto } from '../../../../types/event'
 import { calculateEventPrice } from '../../../../utils/priceCalculator'
-import { CalculatedPrice } from '../../../../utils/calculateEventPrice'
+import { CalculatedPrice } from '../../../../utils/priceCalculator'
 import { SocialMediaLinks } from '../../../../components/ui/social-media/social-media-links'
 import { DetailItem } from './detail-item'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'

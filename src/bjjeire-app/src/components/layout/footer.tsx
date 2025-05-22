@@ -1,13 +1,13 @@
-import React, { memo } from 'react'
-import { Link } from 'react-router-dom'
-import { paths } from '../../config/paths'
-import { FooterTestIds } from '../../constants/commonDataTestIds'
+import React, { memo } from 'react';
+import { Link } from 'react-router-dom';
+import { paths } from '../../config/paths';
+import { FooterTestIds } from '../../constants/commonDataTestIds';
 
-const footerPathKeys = ['events', 'gyms'] as const
+const footerPathKeys = ['events', 'gyms'] as const;
 
 interface FooterProps {
-  'data-testid'?: string
-  testIdInstanceSuffix?: string
+  'data-testid'?: string;
+  testIdInstanceSuffix?: string;
 }
 
 const Footer: React.FC<FooterProps> = ({
@@ -15,13 +15,21 @@ const Footer: React.FC<FooterProps> = ({
   testIdInstanceSuffix = '',
 }) => {
   const rootTestId =
-    dataTestIdFromProp || FooterTestIds.ROOT(testIdInstanceSuffix)
+    dataTestIdFromProp || FooterTestIds.ROOT(testIdInstanceSuffix);
+
+  const quickLinksSectionMinHeight = 'min-h-[120px]';
 
   return (
-    <footer className="bg-slate-100 dark:bg-slate-900" data-testid={rootTestId}>
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        {footerPathKeys.length > 0 && (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+
+    <footer
+      className="bg-slate-100 dark:bg-slate-900 min-h-[280px]"
+      data-testid={rootTestId}
+    >
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 min-w-[320px]">
+        <div
+          className={`grid grid-cols-1 gap-8 md:grid-cols-3 ${quickLinksSectionMinHeight}`}
+        >
+          {footerPathKeys.length > 0 ? (
             <div
               data-testid={FooterTestIds.QUICK_LINKS_SECTION(
                 testIdInstanceSuffix
@@ -37,18 +45,15 @@ const Footer: React.FC<FooterProps> = ({
               </h3>
               <ul className="space-y-2">
                 {footerPathKeys.map(pathKey => {
-                  const pathConfig = paths[pathKey as keyof typeof paths]
+                  const pathConfig = paths[pathKey as keyof typeof paths];
                   if (!pathConfig) {
                     console.warn(
                       `Path configuration for key "${pathKey}" not found.`
-                    )
-                    return null
+                    );
+                    return null;
                   }
-
                   return (
                     <li key={pathKey}>
-                      {' '}
-                      {/* Use the object key (e.g., "events") as the React key */}
                       <Link
                         to={pathConfig.getHref()}
                         className="text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
@@ -60,13 +65,14 @@ const Footer: React.FC<FooterProps> = ({
                         {pathConfig.label}
                       </Link>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             </div>
-            {/* You can add more sections here in the grid, e.g., Contact, Social Media */}
-          </div>
-        )}
+          ) : (
+            <div className="animate-pulse bg-gray-200 h-10 w-full rounded"></div>
+          )}
+        </div>
 
         <div className="mt-8 border-t border-slate-300 pt-8 text-center dark:border-slate-700">
           <p
@@ -78,7 +84,7 @@ const Footer: React.FC<FooterProps> = ({
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default memo(Footer)
+export default memo(Footer);

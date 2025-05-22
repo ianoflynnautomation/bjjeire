@@ -1,19 +1,19 @@
-import React, { memo } from 'react';
-import { GymDto } from '../../../../types/gyms';
-import { GymHeader, GymDetails, GymFooter } from '.';
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds';
+import React, { memo } from 'react'
+import { GymDto } from '../../../../types/gyms'
+import { GymHeader, GymDetails, GymFooter } from '.'
+import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
 
 interface GymCardProps {
-  gym: GymDto;
-  'data-testid'?: string;
+  gym: GymDto
+  'data-testid'?: string
 }
 
 export const GymCard: React.FC<GymCardProps> = memo(
   ({ gym, 'data-testid': dataTestId }) => {
-    const { name, county, status, imageUrl, website } = gym;
+    const { name, county, status, imageUrl, website } = gym
 
-    const gymInstanceSuffix = gym.id || name.replace(/\s+/g, '-').toLowerCase();
-    const rootTestId = dataTestId || GymCardTestIds.ROOT(gymInstanceSuffix);
+    const gymInstanceSuffix = gym.id || name.replace(/\s+/g, '-').toLowerCase()
+    const rootTestId = dataTestId || GymCardTestIds.ROOT(gymInstanceSuffix)
 
     return (
       <article
@@ -25,7 +25,6 @@ export const GymCard: React.FC<GymCardProps> = memo(
           hover:shadow-emerald-200/50 dark:hover:shadow-emerald-700/30 hover:-translate-y-1
           overflow-hidden group"
       >
-        {/* Gym Header Section */}
         <GymHeader
           name={name}
           county={county}
@@ -36,7 +35,6 @@ export const GymCard: React.FC<GymCardProps> = memo(
         />
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          {/* Gym Details Section */}
           <div className="mb-4">
             <GymDetails
               gym={gym}
@@ -44,19 +42,15 @@ export const GymCard: React.FC<GymCardProps> = memo(
               testIdInstanceSuffix={gymInstanceSuffix}
             />
           </div>
-          {/* Spacer to push footer down */}
           <div className="flex-grow" />
-          {/* Gym Footer Section */}
-          {website && (
-            <GymFooter
-              websiteUrl={website}
-              gymName={name}
-              data-testid={GymCardTestIds.FOOTER.ROOT(gymInstanceSuffix)}
-              testIdInstanceSuffix={gymInstanceSuffix}
-            />
-          )}
+          <GymFooter
+            websiteUrl={website}
+            gymName={name}
+            data-testid={GymCardTestIds.FOOTER.ROOT(gymInstanceSuffix)}
+            testIdInstanceSuffix={gymInstanceSuffix}
+          />
         </div>
       </article>
-    );
+    )
   }
-);
+)
