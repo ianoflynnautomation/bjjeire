@@ -6,7 +6,6 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="LiteDB" />
         <PackageReference Include="MongoDB.Bson" />
         <PackageReference Include="MongoDB.Driver" />
          <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
