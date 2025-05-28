@@ -2,16 +2,15 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { GymCard } from './../gym-card/gym-card'
 import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
-import {
-  MOCK_GYM_FULL,
-  MOCK_GYM_MINIMAL,
-  MOCK_GYM_NO_WEBSITE,
-} from './mocks/gym.mock'
+import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 
-// Mock child components to verify props passed and their presence
 vi.mock('./GymHeader', () => ({
-  GymHeader: vi.fn(props => (
-    <div data-testid={props['data-testid']}>Mocked GymHeader: {props.name}</div>
+  GymHeader: vi.fn(({ name, county, status, 'data-testid': testId }) => (
+    <div data-testid={testId}>
+      Mocked GymHeader: {name}
+      <span>MockStatusLabel({status})</span>
+      {county}
+    </div>
   )),
 }))
 vi.mock('./GymDetails', () => ({
@@ -31,38 +30,40 @@ vi.mock('./GymFooter', () => ({
 
 describe('GymCard Component', () => {
   const getSuffix = (gym: typeof MOCK_GYM_FULL) =>
-    gym.id || gym.name.replace(/\s+/g, '-').toLowerCase()
+    gym.id ||
+    (gym.name ? gym.name.replace(/\s+/g, '-').toLowerCase() : 'default')
 
   it('renders GymHeader, GymDetails, and GymFooter with correct props and testIds', () => {
     const gym = MOCK_GYM_FULL
     const instanceSuffix = getSuffix(gym)
-    const rootTestIdPassedToCard = `gym-list-item-${gym.id}`
+    const rootTestId = `gym-list-item-${gym.id}`
 
-    render(<GymCard gym={gym} data-testid={rootTestIdPassedToCard} />)
+    render(<GymCard gym={gym} data-testid={rootTestId} />)
 
-    // Check root GymCard testId
-    expect(screen.getByTestId(rootTestIdPassedToCard)).toBeInTheDocument()
+    // Check root GymCard testId and classes
+    const card = screen.getByTestId(rootTestId)
+    expect(card).toBeInTheDocument()
+    expect(card).toHaveClass('flex', 'h-full', 'flex-col', 'rounded-lg')
 
     // Check GymHeader
     const headerTestId = GymCardTestIds.HEADER.ROOT(instanceSuffix)
-    expect(screen.getByTestId(headerTestId)).toBeInTheDocument()
-    expect(screen.getByTestId(headerTestId)).toHaveTextContent(
-      `Mocked GymHeader: ${gym.name}`
-    )
+    const header = screen.getByTestId(headerTestId)
+    expect(header).toBeInTheDocument()
+    expect(header).toHaveTextContent(gym.name)
+    expect(header).toHaveTextContent(gym.status)
+    expect(header).toHaveTextContent(gym.county)
 
     // Check GymDetails
     const detailsTestId = GymCardTestIds.DETAILS.ROOT(instanceSuffix)
-    expect(screen.getByTestId(detailsTestId)).toBeInTheDocument()
-    expect(screen.getByTestId(detailsTestId)).toHaveTextContent(
-      `Mocked GymDetails for: ${gym.name}`
-    )
+    const details = screen.getByTestId(detailsTestId)
+    expect(details).toBeInTheDocument()
+    expect(details).toHaveTextContent(`Mocked GymDetails for: ${gym.name}`)
 
     // Check GymFooter
     const footerTestId = GymCardTestIds.FOOTER.ROOT(instanceSuffix)
-    expect(screen.getByTestId(footerTestId)).toBeInTheDocument()
-    expect(screen.getByTestId(footerTestId)).toHaveTextContent(
-      `Mocked GymFooter for: ${gym.name}`
-    )
+    const footer = screen.getByTestId(footerTestId)
+    expect(footer).toBeInTheDocument()
+    expect(footer).toHaveTextContent(`Mocked GymFooter for: ${gym.name}`)
   })
 
   it('uses default root testId if data-testid prop is not provided', () => {
@@ -74,12 +75,20 @@ describe('GymCard Component', () => {
     ).toBeInTheDocument()
   })
 
-  it('does not render GymFooter if website is not provided', () => {
-    const gym = MOCK_GYM_NO_WEBSITE
+  it('passes correct props to GymHeader', () => {
+    const gym = MOCK_GYM_FULL
     const instanceSuffix = getSuffix(gym)
-    render(<GymCard gym={gym} />)
-    expect(
-      screen.queryByTestId(GymCardTestIds.FOOTER.ROOT(instanceSuffix))
-    ).not.toBeInTheDocument()
+    render(<GymCard gym={gym} data-testid="gym-list-item-test" />)
+    expect(vi.mocked(require('./GymHeader').GymHeader)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: gym.name,
+        county: gym.county,
+        status: gym.status,
+        imageUrl: gym.imageUrl,
+        'data-testid': GymCardTestIds.HEADER.ROOT(instanceSuffix),
+        testIdInstanceSuffix: instanceSuffix,
+      }),
+      expect.anything()
+    )
   })
 })

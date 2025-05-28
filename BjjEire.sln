@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Web.AcceptanceTests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Domain.UnitTests", "tests\BjjEire.Domain.UnitTests\BjjEire.Domain.UnitTests.csproj", "{666E1784-6A01-5269-9F6C-498C1292C0FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Api.AcceptanceTests", "tests\BjjEire.Api.AcceptanceTests\BjjEire.Api.AcceptanceTests.csproj", "{05904AFC-1CA0-4BD9-A442-EA264D98032A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Api.IntegrationTests", "tests\BjjEire.Api.IntegrationTests\BjjEire.Api.IntegrationTests.csproj", "{05904AFC-1CA0-4BD9-A442-EA264D98032A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5296412D-B177-22F6-371A-F059D3B79B99}"
 EndProject
