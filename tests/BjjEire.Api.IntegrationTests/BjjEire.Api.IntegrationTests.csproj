@@ -12,7 +12,7 @@
   <ItemGroup>
         <PackageReference Include="Shouldly" />
         <PackageReference Include="Bogus" />
-        <PackageReference Include="DotNet.Testcontainers" />
+        <PackageReference Include="Testcontainers" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="xunit" />
