@@ -1,16 +1,13 @@
 using Microsoft.Extensions.Configuration;
-using BjjEire.Aspire.AppHost.Configuration;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class ApiConfiguration
-{
+public static class ApiConfiguration {
 
     //public static IResourceBuilder<ContainerResource> AddApi(
     public static IResourceBuilder<ProjectResource> AddApi(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<MongoDBDatabaseResource> mongo)
-    {
+        IResourceBuilder<MongoDBDatabaseResource> mongo) {
         ArgumentNullException.ThrowIfNull(builder);
 
         // var contextPath = Path.Combine("");
@@ -41,8 +38,7 @@ public static class ApiConfiguration
         return api;
     }
 
-    private static string BuildMongoConnectionString(ConfigurationManager configuration)
-    {
+    private static string BuildMongoConnectionString(ConfigurationManager configuration) {
         var user = configuration["MONGODB_USER"] ?? "admin";
         var password = configuration["MONGODB_PASSWORD"] ?? "password";
         var host = configuration["MONGODB_HOST"] ?? "mongodb";

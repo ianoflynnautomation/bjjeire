@@ -67,7 +67,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         return entity;
     }
 
-    public virtual async Task UpdateField<TU>(string id, Expression<Func<T, TU>> expression, TU value)
+    public virtual async Task UpdateFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
     {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
@@ -79,7 +79,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateOneAsync(filter, update);
     }
 
-    public virtual async Task IncField<TU>(string id, Expression<Func<T, TU>> expression, TU value)
+    public virtual async Task IncFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
     {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
@@ -109,7 +109,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateManyAsync(filterExpression, update);
     }
 
-    public virtual async Task AddToSet<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value)
+    public virtual async Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value)
     {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
@@ -121,7 +121,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task UpdateToSet<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
+    public virtual async Task UpdateToSetAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch, TU value)
     {
         var filter = Builders<T>.Filter.Eq(x => x.Id, id)
@@ -138,7 +138,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task UpdateToSet<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
+    public virtual async Task UpdateToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, bool>> elemFieldMatch, TU value)
     {
         var filter = string.IsNullOrEmpty(id)
@@ -159,7 +159,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task UpdateToSet<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value)
+    public virtual async Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value)
     {
         ArgumentNullException.ThrowIfNull(field);
         var me = (MemberExpression)field.Body;
@@ -180,7 +180,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateManyAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task PullFilter<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
+    public virtual async Task PullFilterAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch)
     {
         var filter = string.IsNullOrEmpty(id)
@@ -197,7 +197,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task PullFilter<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
+    public virtual async Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, bool>> elemFieldMatch)
     {
         var filter = Builders<T>.Filter.Eq(x => x.Id, id);
@@ -210,7 +210,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
+    public virtual async Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
     {
         var update = Builders<T>.Update.Pull(field, element);
 

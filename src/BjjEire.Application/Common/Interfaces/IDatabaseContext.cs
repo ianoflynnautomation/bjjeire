@@ -5,10 +5,10 @@ namespace BjjEire.Application.Common.Interfaces;
 
 public interface IDatabaseContext
 {
-    public Task<bool> DatabaseExist();
-    public Task CreateCollection(string name, string collation);
-    public Task DeleteCollection(string name);
-    public Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false)
+    public Task<bool> DatabaseExistAsync();
+    public Task CreateCollectionAsync(string name, string collation);
+    public Task DeleteCollectionAsync(string name);
+    public Task CreateIndexAsync<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false)
         where T : BaseEntity;
-    public Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity;
+    public Task DeleteIndexAsync<T>(IRepository<T> repository, string indexName) where T : BaseEntity;
 }

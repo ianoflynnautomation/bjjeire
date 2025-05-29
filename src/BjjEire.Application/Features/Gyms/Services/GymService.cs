@@ -9,7 +9,7 @@ public class GymService(IRepository<Gym> gymRepository, ICacheBase cacheBase) : 
     private readonly IRepository<Gym> _gymRepository = gymRepository;
     private readonly ICacheBase _cacheBase = cacheBase;
 
-    public virtual Task<Gym> GetById(string id)
+    public virtual Task<Gym> GetByIdAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
@@ -17,29 +17,29 @@ public class GymService(IRepository<Gym> gymRepository, ICacheBase cacheBase) : 
         return _cacheBase.GetAsync(key, () => _gymRepository.GetByIdAsync(id));
     }
 
-    public virtual async Task Insert(Gym gym)
+    public virtual async Task InsertAsync(Gym gym)
     {
         ArgumentNullException.ThrowIfNull(gym);
 
         _ = await _gymRepository.InsertAsync(gym);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.GymByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
     }
 
-    public virtual async Task Update(Gym gym)
+    public virtual async Task UpdateAsync(Gym gym)
     {
         ArgumentNullException.ThrowIfNull(gym);
 
         _ = await _gymRepository.UpdateAsync(gym);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.GymByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
     }
 
-    public virtual async Task Delete(Gym gym)
+    public virtual async Task DeleteAsync(Gym gym)
     {
         ArgumentNullException.ThrowIfNull(gym);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.GymByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
 
         _ = await _gymRepository.DeleteAsync(gym);
     }

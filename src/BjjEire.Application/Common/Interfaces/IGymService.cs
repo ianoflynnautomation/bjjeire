@@ -4,8 +4,8 @@ namespace BjjEire.Application.Common.Interfaces;
 
 public interface IGymService
 {
-    public Task<Gym> GetById(string id);
-    public Task Insert(Gym gym);
-    public Task Update(Gym gym);
-    public Task Delete(Gym gym);
+    public Task<Gym> GetByIdAsync(string id);
+    public Task InsertAsync(Gym gym);
+    public Task UpdateAsync(Gym gym);
+    public Task DeleteAsync(Gym gym);
 }

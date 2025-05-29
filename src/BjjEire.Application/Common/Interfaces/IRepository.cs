@@ -21,30 +21,30 @@ public interface IRepository<T> where T : BaseEntity
 
     public Task<T> UpdateAsync(T entity);
 
-    public Task UpdateField<TU>(string id, Expression<Func<T, TU>> expression, TU value);
+    public Task UpdateFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value);
 
-    public Task IncField<TU>(string id, Expression<Func<T, TU>> expression, TU value);
+    public Task IncFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value);
 
     public Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
 
     public Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
 
-    public Task AddToSet<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value);
+    public Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value);
 
-    public Task UpdateToSet<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, TZ>> elemFieldMatch,
+    public Task UpdateToSetAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, TZ>> elemFieldMatch,
         TZ elemMatch, TU value);
 
-    public Task UpdateToSet<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, bool>> elemFieldMatch,
+    public Task UpdateToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, bool>> elemFieldMatch,
         TU value);
 
-    public Task UpdateToSet<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value);
+    public Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value);
 
-    public Task PullFilter<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, TZ>> elemFieldMatch,
+    public Task PullFilterAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, TZ>> elemFieldMatch,
         TZ elemMatch);
 
-    public Task PullFilter<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, bool>> elemFieldMatch);
+    public Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, bool>> elemFieldMatch);
 
-    public Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
+    public Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
 
     public void Delete(T entity);
 

@@ -11,7 +11,7 @@ public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor,
     private readonly IWebHostEnvironment _env = env;
 
     [DevelopmentOnly]
-    [HttpGet("generate-token")]
+    [HttpGet("/generate-token")]
     //[ApiExplorerSettings(IgnoreApi = true)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

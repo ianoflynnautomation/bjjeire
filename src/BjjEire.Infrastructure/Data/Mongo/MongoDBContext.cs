@@ -9,14 +9,14 @@ public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext
 {
     private readonly IMongoDatabase _database = mongodatabase;
 
-    public async Task<bool> DatabaseExist()
+    public async Task<bool> DatabaseExistAsync()
     {
         var filter = new BsonDocument("name", "BjjWorldVersion");
         var found = await _database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
         return await found.AnyAsync();
     }
 
-    public async Task CreateCollection(string name, string collation)
+    public async Task CreateCollectionAsync(string name, string collation)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
@@ -34,13 +34,13 @@ public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext
         }
     }
 
-    public async Task DeleteCollection(string name)
+    public async Task DeleteCollectionAsync(string name)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(name);
         await _database.DropCollectionAsync(name);
     }
 
-    public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
+    public async Task CreateIndexAsync<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
         bool unique = false) where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
@@ -73,7 +73,7 @@ public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext
         catch { }
     }
 
-    public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    public async Task DeleteIndexAsync<T>(IRepository<T> repository, string indexName) where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
         try

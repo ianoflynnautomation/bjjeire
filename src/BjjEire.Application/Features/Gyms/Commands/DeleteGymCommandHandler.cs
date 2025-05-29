@@ -9,11 +9,11 @@ public sealed class DeleteGymCommandHandler(IGymService gymService) : IRequestHa
     public async Task<DeleteGymResponse> Handle(DeleteGymCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var gymEntity = await _gymService.GetById(request.Id);
+        var gymEntity = await _gymService.GetByIdAsync(request.Id);
 
         _ = Guard.Against.NotFound(request.Id, gymEntity);
 
-        await _gymService.Delete(gymEntity);
+        await _gymService.DeleteAsync(gymEntity);
         return new DeleteGymResponse() { IsSuccess = true };
     }
 }

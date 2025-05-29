@@ -14,7 +14,7 @@ public sealed class CreateGymCommandHandler(IGymService gymService, IMapper mapp
     {
         ArgumentNullException.ThrowIfNull(request);
         var gymEntity = _mapper.Map<Gym>(request.Model);
-        await _gymService.Insert(gymEntity);
+        await _gymService.InsertAsync(gymEntity);
         var resultDto = _mapper.Map<GymDto>(gymEntity);
         return new CreateGymResponse() { Model = resultDto };
     }

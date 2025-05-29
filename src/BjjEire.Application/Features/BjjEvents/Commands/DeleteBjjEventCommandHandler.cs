@@ -9,11 +9,11 @@ public sealed class DeleteBjjEventCommandHandler(IBjjEventService bjjEventServic
     public async Task<DeleteBjjEventResponse> Handle(DeleteBjjEventCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var bjjEventEntity = await _bjjEventService.GetById(request.Id);
+        var bjjEventEntity = await _bjjEventService.GetByIdAsync(request.Id);
 
         _ = Guard.Against.NotFound(request.Id, bjjEventEntity);
 
-        await _bjjEventService.Delete(bjjEventEntity);
+        await _bjjEventService.DeleteAsync(bjjEventEntity);
         return new DeleteBjjEventResponse() { IsSuccess = true };
     }
 }

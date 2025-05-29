@@ -15,7 +15,7 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
     private static CancellationTokenSource s_resetCacheToken = new();
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
 
-    public Task Clear(bool publisher = true)
+    public Task ClearAsync(bool publisher = true)
     {
         _logger.LogInformation("Attempting to clear the entire cache.");
 
@@ -95,7 +95,7 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
         return Task.CompletedTask;
     }
 
-    public Task RemoveByPrefix(string prefix, bool publisher = true)
+    public Task RemoveByPrefixAsync(string prefix, bool publisher = true)
     {
         _logger.LogInformation("Attempting to remove items with prefix {CachePrefix}", prefix);
 
