@@ -16,7 +16,7 @@ public sealed class CreateBjjEventCommandHandler(IBjjEventService bjjEventServic
     {
         ArgumentNullException.ThrowIfNull(request);
         var bjjEventEntity = _mapper.Map<BjjEvent>(request.Model);
-        await _bjjEventService.Insert(bjjEventEntity);
+        await _bjjEventService.InsertAsync(bjjEventEntity);
         var resultDto = _mapper.Map<BjjEventDto>(bjjEventEntity);
         return new CreateBjjEventResponse() { Model = resultDto };
     }

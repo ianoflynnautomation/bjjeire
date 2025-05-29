@@ -8,6 +8,6 @@ public class RateLimitOptions
     public int PermitLimit { get; init; }
 
     public int WindowInSeconds { get; init; }
-    
+
     public int RejectionStatusCode { get; init; }
 }

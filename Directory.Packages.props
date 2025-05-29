@@ -52,6 +52,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Net.Http.Headers" Version="$(MicrosoftExtensionsVersion)" />
   </ItemGroup>
   <ItemGroup Label="MongoDB">
     <PackageVersion Include="MongoDB.Bson" Version="3.4.0" />
@@ -115,15 +116,17 @@
     <PackageVersion Include="Microsoft.Playwright" Version="1.52.0" />
     <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.52.0" />
     <PackageVersion Include="Microsoft.Playwright.TestAdapter" Version="1.52.0" />
-    <PackageVersion Include="Azure.Developer.MicrosoftPlaywrightTesting.NUnit" Version="1.52.0" />
     <PackageVersion Include="Reqnroll.NUnit" Version="2.4.1" />
     <PackageVersion Include="Reqnroll" Version="2.4.1" />
     <PackageVersion Include="Reqnroll.Autofac" Version="2.4.1" />
-    <PackageVersion Include="Bogus" Version="34.6.3" />
+    <PackageVersion Include="Bogus" Version="35.0.1" />
     <PackageVersion Include="Testcontainers" Version="4.4.0" />
+    <PackageVersion Include="Testcontainers.MongoDb" Version="4.4.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Autofac" Version="8.3.0" />
   </ItemGroup>
 </Project>
+
+

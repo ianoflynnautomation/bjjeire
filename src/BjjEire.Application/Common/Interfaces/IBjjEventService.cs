@@ -6,8 +6,8 @@ namespace BjjEire.Application.Common.Interfaces;
 
 public interface IBjjEventService
 {
-    public Task<BjjEvent> GetById(string id);
-    public Task Insert(BjjEvent bbjEvent);
-    public Task Update(BjjEvent bbjEvent);
-    public Task Delete(BjjEvent bbjEvent);
+    public Task<BjjEvent> GetByIdAsync(string id);
+    public Task InsertAsync(BjjEvent bbjEvent);
+    public Task UpdateAsync(BjjEvent bbjEvent);
+    public Task DeleteAsync(BjjEvent bbjEvent);
 }

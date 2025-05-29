@@ -10,6 +10,7 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 end_of_line = lf
+dotnet_diagnostic.CS1591.severity = none
 
 # XML, csproj, props, targets, ruleset, nuspec, resx files
 [*.{xml,csproj,props,targets,ruleset,nuspec,resx}]

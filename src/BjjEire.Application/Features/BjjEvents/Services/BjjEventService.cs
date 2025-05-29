@@ -12,7 +12,7 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
     private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
     private readonly ICacheBase _cacheBase = cacheBase;
 
-    public virtual Task<BjjEvent> GetById(string id)
+    public virtual Task<BjjEvent> GetByIdAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
         var key = CacheKey.BjjEventsById(id);
@@ -41,29 +41,29 @@ public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBas
     //     });
     // }
 
-    public virtual async Task Insert(BjjEvent bjjEvent)
+    public virtual async Task InsertAsync(BjjEvent bjjEvent)
     {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         _ = await _bjjEventRepository.InsertAsync(bjjEvent);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
     }
 
-    public virtual async Task Update(BjjEvent bjjEvent)
+    public virtual async Task UpdateAsync(BjjEvent bjjEvent)
     {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         _ = await _bjjEventRepository.UpdateAsync(bjjEvent);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
     }
 
-    public virtual async Task Delete(BjjEvent bjjEvent)
+    public virtual async Task DeleteAsync(BjjEvent bjjEvent)
     {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.BjjEventsByPatternKey());
+        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
 
         _ = await _bjjEventRepository.DeleteAsync(bjjEvent);
     }

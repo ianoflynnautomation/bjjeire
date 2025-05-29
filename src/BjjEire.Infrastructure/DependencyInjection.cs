@@ -13,6 +13,9 @@ public static class DependencyInjection
 {
   private const string MongoDbConnectionStringName = "Mongodb";
 
+  private static bool _mongoDbConventionsRegistered = false;
+  private static readonly object _mongoDbRegistrationLock = new object();
+
   public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder)
   {
     ArgumentNullException.ThrowIfNull(builder);
@@ -78,15 +81,30 @@ public static class DependencyInjection
 
   private static void RegisterMongoDbSerializationConventions()
   {
+      lock (_mongoDbRegistrationLock) // Ensures thread-safety
+      {
+          if (_mongoDbConventionsRegistered)
+          {
+              // Conventions and serializers have already been registered, so skip.
+              return;
+          }
 
-    BsonSerializer.RegisterSerializer(new DictionaryInterfaceImplementerSerializer<Dictionary<int, int>>(DictionaryRepresentation.ArrayOfArrays));
+          BsonSerializer.RegisterSerializer(
+              new DictionaryInterfaceImplementerSerializer<Dictionary<int, int>>(
+                  DictionaryRepresentation.ArrayOfArrays
+              )
+          );
 
-    var conventionPack = new ConventionPack
-        {
-            new IgnoreExtraElementsConvention(true),
-            new CamelCaseElementNameConvention(),
-        };
-    ConventionRegistry.Register("AppConventions", conventionPack, t => true);
+          var conventionPack = new ConventionPack
+          {
+              new IgnoreExtraElementsConvention(true),
+              new CamelCaseElementNameConvention(),
+              new EnumRepresentationConvention(BsonType.String)
+          };
+          ConventionRegistry.Register("AppConventions", conventionPack, t => true);
+
+          _mongoDbConventionsRegistered = true;
+      }
   }
 
   private static void RegisterCache(this IServiceCollection serviceCollection) => _ = serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();

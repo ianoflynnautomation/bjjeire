@@ -8,7 +8,7 @@
       },
       "documentationRules": {
         "companyName": "BjjWorld",
-        "copyrightText": "Copyright (c) {companyName} BjjWorld. All rights reserved.\nLicensed under the MIT License.",
+        "copyrightText": "Copyright (c) BjjWorld. All rights reserved.\nLicensed under the MIT License.",
         "xmlHeader": true,
         "documentInterfaces": true,
         "documentExposedElements": true,
@@ -16,14 +16,7 @@
         "documentPrivateElements": false,
         "documentPrivateFields": false,
         "documentationCulture": "en-US",
-        "fileNamingConvention": "metadata",
-        "excludeFromDocumentation": [
-          "Test",
-          "Tests",
-          "tests",
-          "Spec",
-          "Specs"
-        ]
+        "fileNamingConvention": "metadata"
       },
       "maintainabilityRules": {
         "topLevelTypes": [
@@ -31,8 +24,7 @@
           "interface",
           "struct",
           "enum",
-          "delegate",
-          "record"
+          "delegate"
         ]
       },
       "namingRules": {
@@ -46,27 +38,8 @@
         "systemUsingDirectivesFirst": true,
         "blankLinesBetweenUsingGroups": "require",
         "elementOrder": [
-          "const",
-          "static readonly",
           "static",
-          "readonly",
-          "field",
-          "event",
-          "constructor",
-          "finalizer",
-          "property",
-          "indexer",
-          "method",
-          "operator",
-          "nested type"
-        ],
-        "accessibilityOrder": [
-          "public",
-          "internal",
-          "protected internal",
-          "protected",
-          "private protected",
-          "private"
+          "readonly"
         ]
       },
       "layoutRules": {
@@ -75,9 +48,6 @@
         "allowDoWhileOnClosingBrace": false
       },
       "spacingRules": {
-        "spacingAfterMethodDeclarationName": false,
-        "spacingAfterMethodCallName": false,
-        "spacingAfterPropertyName": false
       },
       "readabilityRules": {
         "allowBuiltInTypeAliases": false

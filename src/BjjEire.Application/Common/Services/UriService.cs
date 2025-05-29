@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace BjjEire.Application.Common.Services;
 
-public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator) : IUriService
-{
+public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator) : IUriService {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     private readonly LinkGenerator _linkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));
     private HttpContext GetCurrentHttpContext() => _httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is not available. This service requires an active HTTP request context to generate absolute URIs.");
@@ -16,11 +15,10 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
         PaginationFilter filter,
         string controllerName,
         string actionName,
-        IDictionary<string, object?>? additionalRouteValues = null)
-    {
-        ArgumentNullException.ThrowIfNull(filter, nameof(filter));
-        ArgumentException.ThrowIfNullOrWhiteSpace(controllerName, nameof(controllerName));
-        ArgumentException.ThrowIfNullOrWhiteSpace(actionName, nameof(actionName));
+        IDictionary<string, object?>? additionalRouteValues = null) {
+        ArgumentNullException.ThrowIfNull(filter);
+        ArgumentException.ThrowIfNullOrWhiteSpace(controllerName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
 
         var httpContext = GetCurrentHttpContext();
 
@@ -30,10 +28,8 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
             { "pageSize", filter.PageSize }
         };
 
-        if (additionalRouteValues != null)
-        {
-            foreach (var param in additionalRouteValues)
-            {
+        if (additionalRouteValues != null) {
+            foreach (var param in additionalRouteValues) {
                 routeValues[param.Key] = param.Value;
             }
         }

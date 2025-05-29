@@ -27,7 +27,8 @@ public class GymController(IMediator mediator) : BaseApiController
     [EndpointDescription("Add new entity to Gym")]
     [EndpointName("InsertGym")]
     [HttpPost]
-    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
+    [Authorize(AuthenticationSchemes =
+        $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
@@ -37,7 +38,9 @@ public class GymController(IMediator mediator) : BaseApiController
 
         var response = await _mediator.Send(new CreateGymCommand { Model = model });
 
-        return Created(string.Empty, response.Model!.Id);
+        return Created(string.Empty, response);
+
+        //return Created(string.Empty, new { response.Model!.Id });
     }
 
     [EndpointDescription("Update entity in Gym")]
