@@ -31,12 +31,11 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Post([FromBody] BjjEventDto model)
+    public async Task<IActionResult> Post([FromBody] CreateBjjEventCommand command)
     {
+        var response = await _mediator.Send(command);
 
-        var response = await _mediator.Send(new CreateBjjEventCommand { Model = model });
-
-        return Created(string.Empty, response.Model!.Id);
+        return Created(string.Empty, response.Data!.Id);
     }
 
     [EndpointDescription("Update entity in Bjj Event")]
@@ -46,10 +45,9 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Put([FromBody] BjjEventDto model)
+    public async Task<IActionResult> Put([FromBody] UpdateBjjEventCommand command)
     {
-
-        var response = await _mediator.Send(new UpdateBjjEventCommand { Model = model });
+        var response = await _mediator.Send(command);
 
         return Ok(response);
     }
@@ -61,10 +59,9 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(DeleteBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<NoContent> Delete([FromRoute] string id)
+    public async Task<NoContent> Delete([FromRoute] DeleteBjjEventCommand command)
     {
-
-        _ = await _mediator.Send(new DeleteBjjEventCommand { Id = id });
+        _ = await _mediator.Send(command);
 
         return TypedResults.NoContent();
     }

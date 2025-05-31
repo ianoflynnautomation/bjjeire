@@ -1,24 +1,27 @@
 
-using BjjEire.Application.Common.Extensions;
-using BjjEire.Domain.Entities.Common;
+using BjjEire.Application.Common.DTOs;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class SocialMediaDtoValidator : AbstractValidator<SocialMedia>
+public class SocialMediaDtoValidator : AbstractValidator<SocialMediaDto>
 {
     public SocialMediaDtoValidator()
     {
-        // RuleFor(x => x.Facebook);
-        // When(x => x != null, () => RuleFor(x => x.Facebook).ApplyUrlValidator("Facebook URL"));
+        _ =RuleFor(x => x.Facebook)
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrEmpty(x.Facebook));
 
-        // RuleFor(x => x.Instagram);
-        // When(x => x != null, () => RuleFor(x => x.Instagram).ApplyUrlValidator("Instagram URL"));
+        _ =RuleFor(x => x.Instagram)
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrEmpty(x.Instagram));
 
-        // RuleFor(x => x.X);
-        // When(x => x != null, () => RuleFor(x => x.X).ApplyUrlValidator("X URL"));
+        _ =RuleFor(x => x.X)
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrEmpty(x.X));
 
-        // RuleFor(x => x.YouTube);
-        // When(x => x != null, () => RuleFor(x => x.YouTube).ApplyUrlValidator("YouTube URL"));
-
+        _ =RuleFor(x => x.YouTube)
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrEmpty(x.YouTube));
     }
+
 }

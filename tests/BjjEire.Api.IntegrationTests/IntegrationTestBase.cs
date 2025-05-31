@@ -4,7 +4,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using BjjEire.Api.Extensions.Exceptions;
 using BjjEire.Api.IntegrationTests.Common;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 using Shouldly;
@@ -65,8 +68,6 @@ public abstract class IntegrationTestBase<TFactory> : IClassFixture<TFactory>
         SetAuthToken(token);
     }
 
-    // This DTO is specific to the token generation endpoint used in tests.
-    // If it's a shared DTO, it could be moved to a more general location.
     private class TokenResponse
     {
         public string Token { get; set; } = string.Empty;
@@ -74,4 +75,75 @@ public abstract class IntegrationTestBase<TFactory> : IClassFixture<TFactory>
         public string UserId { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
     }
+
+protected async Task AssertValidationErrorAsync(
+    HttpResponseMessage response,
+    (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors)
+{
+    // Verify status code
+    response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, $"Expected 400 Bad Request, but got {response.StatusCode}");
+
+    // Capture and log raw JSON response
+    string rawJsonResponse = await response.Content.ReadAsStringAsync();
+    Console.WriteLine($"[DEBUG] Raw JSON Response for Validation Error: {rawJsonResponse}");
+
+    // Deserialize response
+    ValidationErrorResponse? errorResponse = null;
+    try
+    {
+        errorResponse = JsonSerializer.Deserialize<ValidationErrorResponse>(
+            rawJsonResponse, TestJsonHelper.SerializerOptions);
+    }
+    catch (JsonException jsonEx)
+    {
+        Console.WriteLine($"[DEBUG] JSON Deserialization Failed: {jsonEx.Message}");
+        Console.WriteLine($"[DEBUG] Path: {jsonEx.Path}, Line: {jsonEx.LineNumber}, BytePos: {jsonEx.BytePositionInLine}");
+        throw new InvalidOperationException("Failed to deserialize validation error response.", jsonEx);
+    }
+
+    // Validate response structure
+    errorResponse.ShouldNotBeNull("Deserialized validation error response was null.");
+    errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest, "Expected status code 400 in response body.");
+    errorResponse.Title.ShouldBe("Validation Failed", "Expected title 'Validation Failed'.");
+    errorResponse.Type.ShouldBe("urn:bjjeire:validation-error", "Expected type 'urn:bjjeire:validation-error'.");
+    errorResponse.Detail.ShouldBe(
+        "One or more validation errors occurred. Please see the 'errors' property for details.",
+        "Expected detail message mismatch.");
+    errorResponse.Errors.ShouldNotBeNull("Errors array should not be null.");
+    errorResponse.Errors.ShouldNotBeEmpty($"Expected at least one error, but none were found. Raw response: {rawJsonResponse}");
+
+    // Validate each expected error
+    foreach (var expectedError in expectedErrors)
+    {
+        var fieldError = errorResponse.Errors.FirstOrDefault(e =>
+            string.Equals(e.Field, expectedError.Field, StringComparison.OrdinalIgnoreCase));
+
+        fieldError.ShouldNotBeNull(
+            $"Expected an error for field '{expectedError.Field}'. " +
+            $"Actual errors: [{string.Join(", ", errorResponse.Errors.Select(err => $"'{err.Field}': {err.Message} (Code: {err.ErrorCode})"))}]");
+
+        if (!string.IsNullOrEmpty(expectedError.ErrorCode))
+        {
+            fieldError.ErrorCode.ShouldBe(
+                expectedError.ErrorCode,
+                $"Error code for field '{expectedError.Field}' did not match. Expected '{expectedError.ErrorCode}', got '{fieldError.ErrorCode}'.");
+        }
+
+        if (!string.IsNullOrEmpty(expectedError.MessageContains))
+        {
+            fieldError.Message.ShouldContain(
+                expectedError.MessageContains,
+                Case.Insensitive,
+                $"Error message for field '{expectedError.Field}' did not contain expected text '{expectedError.MessageContains}'. Actual: '{fieldError.Message}'.");
+        }
+    }
+
+    var expectedFields = expectedErrors.Select(e => e.Field.ToLowerInvariant()).ToHashSet();
+    var unexpectedErrors = errorResponse.Errors
+        .Where(e => !expectedFields.Contains(e.Field.ToLowerInvariant()))
+        .ToList();
+    unexpectedErrors.ShouldBeEmpty(
+        $"Found unexpected errors: [{string.Join(", ", unexpectedErrors.Select(err => $"'{err.Field}': {err.Message} (Code: {err.ErrorCode})"))}]");
+}
+
 }

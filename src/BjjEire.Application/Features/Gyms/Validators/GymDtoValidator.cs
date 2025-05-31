@@ -14,8 +14,8 @@ public class GymDtoValidator : AbstractValidator<GymDto>
             .ApplyRequiredString("Gym name", 100);
 
         _ = RuleFor(x => x.Description)
-            .MaximumLength(100)
-             .WithMessage(ValidationMessages.MaxLength.Message("Description", 500))
+            .MaximumLength(200)
+             .WithMessage(ValidationMessages.MaxLength.Message("Description", 200))
             .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
 
         _ = RuleFor(x => x.Status)
@@ -39,7 +39,6 @@ public class GymDtoValidator : AbstractValidator<GymDto>
         _ = RuleFor(x => x.Location)
         .ApplyNotNullValidator("Location")
         .SetValidator(locationDtoValidator);
-
 
         _ = RuleFor(x => x.Website)
             .Must(ValidationExtension.IsValidUrl)

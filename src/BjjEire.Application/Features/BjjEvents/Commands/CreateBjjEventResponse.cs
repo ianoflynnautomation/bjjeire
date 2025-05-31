@@ -5,5 +5,5 @@ namespace BjjEire.Application.Features.BjjEvents.Commands;
 
 public sealed record CreateBjjEventResponse()
 {
-    public required BjjEventDto Model { get; init; }
+    public required BjjEventDto Data { get; init; }
 }

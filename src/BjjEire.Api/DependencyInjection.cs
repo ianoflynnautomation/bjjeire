@@ -22,15 +22,28 @@ public static class DependencyInjection
 
         _ = builder.AddCustomSerilog();
         _ = builder.Services.AddHttpContextAccessor();
-        _ = builder.Services.AddControllers()
-            .AddJsonOptions(options =>
+
+        _ = builder.Services.Configure<RouteOptions>(options =>
+        {
+            options.LowercaseUrls = true;
+            options.LowercaseQueryStrings = true;
+        });
+
+        _ = builder.Services.AddControllers(options =>
             {
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.Conventions.Add(new GlobalProducesResponseTypeConvention());
+            })
+            .AddJsonOptions(jsonOptions =>
+            {
+                jsonOptions.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             })
             .ConfigureApplicationPartManager(manager =>
-                manager.FeatureProviders.Add(new DevelopmentOnlyControllerFeatureProvider(env)))
-                ;
+                manager.FeatureProviders.Add(new DevelopmentOnlyControllerFeatureProvider(env)));
+
+        _ = builder.Services.Configure<ApiBehaviorOptions>(options =>
+            options.SuppressModelStateInvalidFilter = true);
+
         _ = builder.ConfigureCors();
         _ = builder.Services.AddEndpointsApiExplorer();
         _ = builder.Services.AddAppOpenApiServices();
@@ -60,7 +73,7 @@ public static class DependencyInjection
         _ = app.UseRateLimit();
         _ = app.UseAuthentication();
         _ = app.UseAuthorization();
-        _ = app.UseAppOpenApi(); ;
+        _ = app.UseAppOpenApi();
         _ = app.UseAppHealthChecks();
         _ = app.UseHttpMetrics();
         _ = app.MapMetrics();
