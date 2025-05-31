@@ -14,14 +14,14 @@ public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapp
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var gymEntity = await _gymService.GetByIdAsync(request.Model.Id);
+        var gymEntity = await _gymService.GetByIdAsync(request.Data.Id);
 
-        _ = Guard.Against.NotFound(request.Model!.Id, gymEntity);
+        _ = Guard.Against.NotFound(request.Data!.Id, gymEntity);
 
         gymEntity = _mapper.Map<Gym>(gymEntity);
         await _gymService.UpdateAsync(gymEntity);
         var resultDto = _mapper.Map<GymDto>(gymEntity);
 
-        return new UpdateGymResponse() { Model = resultDto };
+        return new UpdateGymResponse() { Data = resultDto };
     }
 }

@@ -17,8 +17,8 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
           .ApplyRequiredString("Event name", 100);
 
         _ = RuleFor(x => x.Description)
-            .MaximumLength(100)
-             .WithMessage(ValidationMessages.MaxLength.Message("Description", 500))
+            .MaximumLength(200)
+             .WithMessage(ValidationMessages.MaxLength.Message("Description", 200))
             .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
 
         _ = RuleFor(x => x.Type)

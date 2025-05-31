@@ -33,10 +33,9 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Post([FromBody] GymDto model)
+    public async Task<IActionResult> Post([FromBody] CreateGymCommand command)
     {
-
-        var response = await _mediator.Send(new CreateGymCommand { Model = model });
+        var response = await _mediator.Send(command);
 
         return Created(string.Empty, response);
 
@@ -50,10 +49,9 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateGymResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Put([FromBody] GymDto model)
+    public async Task<IActionResult> Put([FromBody] UpdateGymCommand command)
     {
-
-        var response = await _mediator.Send(new UpdateGymCommand() { Model = model });
+        var response = await _mediator.Send(command);
 
         return Ok(response);
     }
@@ -65,10 +63,9 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(DeleteGymResponse))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete([FromRoute] string id)
+    public async Task<IActionResult> Delete([FromRoute] DeleteGymCommand command)
     {
-
-        _ = await _mediator.Send(new DeleteGymCommand { Id = id });
+        _ = await _mediator.Send(command);
 
         return NoContent();
     }

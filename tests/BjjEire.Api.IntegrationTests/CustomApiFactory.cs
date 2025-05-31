@@ -1,21 +1,13 @@
-// Copyright (c) BjjWorld. All rights reserved.
-// Licensed under the MIT License.
-
-using BjjEire.Api.Extensions.RateLimit;
-using BjjEire.Api.IntegrationTests.GymController;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure.Data.Mongo;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Testcontainers.MongoDb;
 using Xunit;
@@ -34,7 +26,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         .WithImage(MongoImage)
         .WithUsername(MongoUsername)
         .WithPassword(MongoPassword)
-        // Consider adding a wait strategy if startup is sometimes problematic
+        // add a wait strategy if startup is sometimes problematic
         // .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
         .Build();
 
@@ -51,7 +43,8 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                { MongoConnectionStringKey, _dbContainer.GetConnectionString() }
+                { MongoConnectionStringKey, _dbContainer.GetConnectionString() },
+                {"RateLimitOptions:EnableRateLimiting", "false" },
             });
 
         });
@@ -90,7 +83,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         });
     }
 
-    public async Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         await _dbContainer.StartAsync().ConfigureAwait(false);
         // Optional: If you need to ensure indexes or perform one-time DB setup for tests
@@ -100,7 +93,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         // await dbContext.EnsureSchemaCreatedAndMigratedAsync(); // Or similar setup method
     }
 
-    public new async Task DisposeAsync()
+    public virtual async Task DisposeAsync()
     {
         await _dbContainer.StopAsync().ConfigureAwait(false);
         await _dbContainer.DisposeAsync().ConfigureAwait(false);

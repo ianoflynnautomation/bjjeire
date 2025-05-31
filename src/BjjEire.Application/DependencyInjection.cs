@@ -24,6 +24,8 @@ public static class DependencyInjection
         _ = builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         _ = builder.Services.AddScoped<IUriService, UriService>();
 
+        _ = builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
         _ = builder.Services.AddMediatR(cfg =>
         {
             _ = cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

@@ -3,12 +3,10 @@
 
 using System.Net;
 using System.Net.Http.Json;
-using BjjEire.Api.Extensions.Exceptions;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Data;
 using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
-using Microsoft.AspNetCore.Http;
 using Shouldly;
 using Xunit;
 
@@ -22,87 +20,70 @@ public class CreateGymControllerTests(CustomApiFactory apiFactory)
         {
             // Arrange
             await SetDefaultUserAuthTokenAsync();
-
             var gymCommand = GymTestDataFactory.CreateGymCommandGenerator.Generate();
-            var gymDto = gymCommand.Model;
 
             // Act
-            var response = await HttpClient.PostAsJsonAsync("api/gym", gymDto, TestJsonHelper.SerializerOptions);
+            var response = await HttpClient.PostAsJsonAsync("api/gym", gymCommand, TestJsonHelper.SerializerOptions);
 
             // Assert
             response.StatusCode.ShouldBe(HttpStatusCode.Created);
 
-            var createdGymResponse =
-                await response.Content.ReadFromJsonAsync<CreateGymResponse>(TestJsonHelper.SerializerOptions);
+            var createdGymResponse = await response.Content.ReadFromJsonAsync<CreateGymResponse>(TestJsonHelper.SerializerOptions);
             createdGymResponse.ShouldNotBeNull();
-            createdGymResponse.Model.ShouldNotBeNull();
-            createdGymResponse.Model.Id.ShouldBe(gymDto.Id);
-            createdGymResponse.Model.Name.ShouldBe(gymDto.Name);
-    }
+            createdGymResponse.Data.ShouldNotBeNull();
+            createdGymResponse.Data.ShouldBeEquivalentTo(gymCommand.Data);
+        }
 
     [Fact]
     public async Task CreateGym_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
         var gymCommand = GymTestDataFactory.CreateGymCommandGenerator.Generate();
-        var gymDto = gymCommand.Model;
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", gymDto, TestJsonHelper.SerializerOptions);
+        var response = await HttpClient.PostAsJsonAsync("api/gym", gymCommand, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
+    [Theory]
+    [InlineData(null, "FIELD_REQUIRED", "Gym name is required.")]
+    [InlineData("", "FIELD_REQUIRED", "Gym name is required.")]
+    [InlineData("   ", "FIELD_REQUIRED", "Gym name is required.")]
+    public async Task CreateGym_WithInvalidName_ShouldReturnBadRequest(string? invalidName, string expectedErrorCode, string expectedMessageContains)
+    {
+        // Arrange
+        await SetDefaultUserAuthTokenAsync();
+        var gymCommand = GymTestDataFactory.CreateGymCommandGenerator.Generate();
+        gymCommand.Data.Name = invalidName!;
 
-    // [Theory]
-    // [InlineData("invalid-url")]
-    // [InlineData("http:/missing-slash.com")]
-    // [InlineData("www.missing-scheme.com")]
-    // public async Task CreateGym_WithInvalidWebsiteUrl_ShouldReturnBadRequest(string invalidUrl)
-    // {
-    //     // Arrange
-    //     var gymCommand = GymTestDataFactory.CreateGymCommandGenerator.Generate();
-    //     var gymDto = gymCommand.Model;
-    //     gymDto.Website = invalidUrl;
-    //
-    //     // Act
-    //     var response = await HttpClient.PostAsJsonAsync("api/gym", gymDto, TestJsonHelper.SerializerOptions);
-    //
-    //     // Assert
-    //     await AssertValidationErrorAsync(response, nameof(GymDto.Website), expectedMessageContains: "must be a valid URL");
-    // }
-    //
-    // private async Task AssertValidationErrorAsync(HttpResponseMessage response, string expectedField, string? expectedErrorCode = null, string? expectedMessageContains = null)
-    // {
-    //     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    //     var errorResponse = await response.Content.ReadFromJsonAsync<ValidationErrorResponse>(TestJsonHelper.SerializerOptions);
-    //
-    //     errorResponse.ShouldNotBeNull();
-    //     errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest);
-    //     errorResponse.Title.ShouldBe("Validation Failed");
-    //     errorResponse.Type.ShouldBe("urn:bjjeire:validation-error");
-    //     errorResponse.Errors.ShouldNotBeNull();
-    //     errorResponse.Errors.ShouldNotBeEmpty();
-    //
-    //     var fieldError = errorResponse.Errors.FirstOrDefault(e =>
-    //             string.Equals(e.Field, expectedField, StringComparison.OrdinalIgnoreCase) // Match field name (likely PascalCase from PropertyName)
-    //     );
-    //
-    //     fieldError.ShouldNotBeNull($"Expected an error for field '{expectedField}'. " +
-    //                                $"Actual errors: [{string.Join(", ", errorResponse.Errors.Select(err => $"'{err.Field}': {err.Message}"))}]");
-    //
-    //     if (!string.IsNullOrEmpty(expectedErrorCode))
-    //     {
-    //         fieldError.ErrorCode.ShouldBe(expectedErrorCode, $"Error code for field '{expectedField}' did not match.");
-    //     }
-    //
-    //     if (!string.IsNullOrEmpty(expectedMessageContains))
-    //     {
-    //         fieldError.Message.ShouldContain(expectedMessageContains, Case.Insensitive, $"Error message for field '{expectedField}' did not contain expected text.");
-    //     }
-    //}
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("api/gym", gymCommand, TestJsonHelper.SerializerOptions);
+
+        // Assert
+        await AssertValidationErrorAsync(response, [
+            (Field: "Data.Name", ErrorCode: expectedErrorCode, MessageContains: expectedMessageContains)
+        ]);
+    }
+
+    [Fact]
+    public async Task CreateGym_WithMaximumLengthExceededDescription_ShouldReturnBadRequest()
+    {
+        // Arrange
+        await SetDefaultUserAuthTokenAsync();
+        var gymCommand = GymTestDataFactory.CreateGymCommandGenerator.Generate();
+        gymCommand.Data.Description = "Team Apex BJJ offers elite training in Brazilian Jiu-Jitsu, Muay Thai, and MMA. Our Dublin facility provides expert coaching, a supportive community, and flexible classes for all skill levels and ages.";
+
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("api/gym", gymCommand, TestJsonHelper.SerializerOptions);
+
+        // Assert
+        await AssertValidationErrorAsync(response, [
+            (Field: "Data.Description", ErrorCode: "MAX_LENGTH_EXCEEDED", MessageContains: "Description cannot exceed 200 characters.")
+        ]);
+    }
 
 }
 

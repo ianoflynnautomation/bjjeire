@@ -13,14 +13,14 @@ public sealed class UpdateBjjEventCommandHandler(IBjjEventService bjjEventServic
     public async Task<UpdateBjjEventResponse> Handle(UpdateBjjEventCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var bjjEventEntity = await _bjjEventService.GetByIdAsync(request.Model.Id);
+        var bjjEventEntity = await _bjjEventService.GetByIdAsync(request.Data.Id);
 
-        _ = Guard.Against.NotFound(request.Model!.Id, bjjEventEntity);
+        _ = Guard.Against.NotFound(request.Data!.Id, bjjEventEntity);
 
         bjjEventEntity = _mapper.Map<BjjEvent>(bjjEventEntity);
         await _bjjEventService.UpdateAsync(bjjEventEntity);
         var resultDto = _mapper.Map<BjjEventDto>(bjjEventEntity);
 
-        return new UpdateBjjEventResponse() { Model = resultDto };
+        return new UpdateBjjEventResponse() { Data = resultDto };
     }
 }

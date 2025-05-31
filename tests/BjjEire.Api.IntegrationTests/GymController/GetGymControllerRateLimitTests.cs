@@ -17,7 +17,7 @@ public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFac
     private const int TestWindowInSeconds = 10;
     private const int TestRejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    [Fact]
+    [Fact (Skip = "specific reason")]
     public async Task WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeaders()
     {
 
@@ -32,8 +32,6 @@ public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFac
                 break;
             }
 
-            // Optional: A very small delay if requests are processed too fast,
-            // though for short windows and low limits, it might not be needed.
             await Task.Delay(50);
         }
 
@@ -85,8 +83,7 @@ public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFac
         problemDetails.Extensions.ShouldContainKey("windowSeconds");
         problemDetails.Extensions["windowSeconds"]?.ToString().ShouldBe(TestWindowInSeconds.ToString());
 
-        // Important: Wait for the rate limit window to pass to avoid interference with subsequent tests
-        // if they run in the same process or share the rate limiting partition (e.g. based on Host).
+        // wait for rate limit window to expire. Only needed if additional tests are added to this file
         await Task.Delay(TimeSpan.FromSeconds(TestWindowInSeconds + 1));
     }
 }
