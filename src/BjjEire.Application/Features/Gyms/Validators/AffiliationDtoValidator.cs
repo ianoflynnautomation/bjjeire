@@ -6,14 +6,13 @@ namespace BjjEire.Application.Features.Gyms.Validators;
 
 public class AffiliationDtoValidator : AbstractValidator<AffiliationDto>
 {
-    public AffiliationDtoValidator()
-    {
-        _ = RuleFor(x => x.Name)
-            .ApplyRequiredString("Gym name", 100);
+  public AffiliationDtoValidator()
+  {
+    _ = RuleFor(x => x.Name)
+        .ApplyMaxLengthValidator("Name", 100);
 
-        _ = RuleFor(x => x.Website)
-            .Must(ValidationExtension.IsValidUrl)
-            .When(x => !string.IsNullOrEmpty(x.Website))
-            .WithMessage("{PropertyName} must be a valid URL.");
-    }
+    _ = RuleFor(x => x.Website!)
+        .ApplyUrlValidator("Website")
+        .When(x => !string.IsNullOrEmpty(x.Website));
+  }
 }

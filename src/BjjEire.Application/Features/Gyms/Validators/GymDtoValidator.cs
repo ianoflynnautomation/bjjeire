@@ -6,54 +6,48 @@ namespace BjjEire.Application.Features.Gyms.Validators;
 
 public class GymDtoValidator : AbstractValidator<GymDto>
 {
-    public GymDtoValidator(IValidator<SocialMediaDto> socialMediaDtoValidator,
-                                IValidator<LocationDto> locationDtoValidator,
-                                IValidator<TrialOfferDto> trialOfferDtoValidator)
-    {
-        _ = RuleFor(x => x.Name)
-            .ApplyRequiredString("Gym name", 100);
+  public GymDtoValidator(IValidator<SocialMediaDto> socialMediaDtoValidator,
+                              IValidator<LocationDto> locationDtoValidator,
+                              IValidator<AffiliationDto?> affiliationDtoValidator,
+                              IValidator<TrialOfferDto> trialOfferDtoValidator)
+  {
+    _ = RuleFor(x => x.Name)
+        .ApplyRequiredString("Name", 100);
 
-        _ = RuleFor(x => x.Description)
-            .MaximumLength(200)
-             .WithMessage(ValidationMessages.MaxLength.Message("Description", 200))
-            .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
+    _ = RuleFor(x => x.Description!)
+        .ApplyMaxLengthValidator("Description", 200);
 
-        _ = RuleFor(x => x.Status)
-        .ApplyEnumValidator("Gym status");
+    _ = RuleFor(x => x.Status)
+        .ApplyEnumValidator("Status");
 
-        _ = RuleFor(x => x.County)
-        .ApplyRequiredString("County", 100);
+    _ = RuleFor(x => x.County)
+        .ApplyEnumValidator("County");
 
-        // RuleFor(x => x.Affiliation)
-        //   .ApplyNotNullValidator("Affiliation")
-        //     .SetValidator(affiliationDtoValidator);
+    _ = RuleFor(x => x.Affiliation)
+         .SetValidator(affiliationDtoValidator);
 
-        _ = RuleFor(x => x.TrialOffer)
-         .ApplyNotNullValidator("TrialOffer")
-           .SetValidator(trialOfferDtoValidator);
+    _ = RuleFor(x => x.TrialOffer)
+        .ApplyNotNullValidator("Trial Offer")
+       .SetValidator(trialOfferDtoValidator);
 
-        _ = RuleFor(x => x.SocialMedia)
-          .ApplyNotNullValidator("Social Media")
-            .SetValidator(socialMediaDtoValidator);
+    _ = RuleFor(x => x.SocialMedia)
+        .ApplyNotNullValidator("Social Media")
+        .SetValidator(socialMediaDtoValidator);
 
-        _ = RuleFor(x => x.Location)
+    _ = RuleFor(x => x.Location)
         .ApplyNotNullValidator("Location")
         .SetValidator(locationDtoValidator);
 
-        _ = RuleFor(x => x.Website)
-            .Must(ValidationExtension.IsValidUrl)
-            .When(x => !string.IsNullOrEmpty(x.Website))
-            .WithMessage("{PropertyName} must be a valid URL.");
+    _ = RuleFor(x => x.Website!)
+        .ApplyUrlValidator("Website")
+        .When(x => !string.IsNullOrEmpty(x.Website));
 
-        _ = RuleFor(x => x.TimetableUrl)
-            .Must(ValidationExtension.IsValidUrl)
-            .When(x => !string.IsNullOrEmpty(x.TimetableUrl))
-            .WithMessage("{PropertyName} must be a valid URL.");
+    _ = RuleFor(x => x.TimetableUrl!)
+        .ApplyUrlValidator("Timetable URL")
+        .When(x => !string.IsNullOrEmpty(x.TimetableUrl));
 
-
-        _ = RuleFor(x => x.ImageUrl)
-            .Must(ValidationExtension.IsValidUrl)
-            .When(x => !string.IsNullOrEmpty(x.ImageUrl))
-            .WithMessage("{PropertyName} must be a valid URL.");
-    }
+    _ = RuleFor(x => x.ImageUrl!)
+        .ApplyUrlValidator("Image URL")
+        .When(x => !string.IsNullOrEmpty(x.ImageUrl));
+  }
 }

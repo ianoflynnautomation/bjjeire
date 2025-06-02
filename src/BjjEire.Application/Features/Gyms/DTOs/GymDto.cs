@@ -13,7 +13,7 @@ public class GymDto : BaseApiEntityModel
 
     public GymStatus Status { get; set; }
 
-    public string County { get; set; } = string.Empty;
+    public County County { get; set; }
 
     public AffiliationDto? Affiliation { get; set; } = new();
 

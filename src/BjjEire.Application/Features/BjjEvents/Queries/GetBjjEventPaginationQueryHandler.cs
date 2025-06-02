@@ -28,9 +28,9 @@ ICacheBase cacheBase, IUriService uriService)
         {
             var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-            if (!string.IsNullOrWhiteSpace(request.County))
+            if (request.County.HasValue)
             {
-                query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(x => x.County == request.County.Value);
             }
 
             if (request.Type.HasValue)

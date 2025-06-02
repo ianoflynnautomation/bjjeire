@@ -14,9 +14,10 @@ public static class CacheKey
         private const string BjjEventsByIdFormat = "BjjEvents_Id{0}";
 
 
-        public static string BjjEventsAll(int page, int pageSize, string? county, BjjEventType? type)
+        public static string BjjEventsAll(int page, int pageSize, County? county, BjjEventType? type)
         {
-                string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
+                var countyToString = county.HasValue ? county.Value.ToString() : "None";
+                string countyCachePart = string.IsNullOrWhiteSpace(countyToString) ? "None" : countyToString.Trim().ToLowerInvariant();
                 var typeToString = type.ToString();
                 string typeCachePart = string.IsNullOrWhiteSpace(typeToString) ? "None" : typeToString.Trim().ToLowerInvariant();
                 return string.Format(BjjEventsAllFormat, page, pageSize, countyCachePart, typeCachePart);
@@ -28,9 +29,10 @@ public static class CacheKey
 
 
 
-        public static string GymsAll(int page, int pageSize, string? county)
+        public static string GymsAll(int page, int pageSize, County? county)
         {
-                string countyCachePart = string.IsNullOrWhiteSpace(county) ? "None" : county.Trim().ToLowerInvariant();
+                var countyToString = county.HasValue ? county.Value.ToString() : "None";
+                string countyCachePart = string.IsNullOrWhiteSpace(countyToString) ? "None" : countyToString.Trim().ToLowerInvariant();
                 return string.Format(GymAllFormat, page, pageSize, countyCachePart);
         }
 

@@ -21,7 +21,7 @@ public class BjjEventDto : BaseApiEntityModel
 
     public SocialMediaDto SocialMedia { get; set; } = new();
 
-    public string County { get; set; } = string.Empty;
+    public County County { get; set; }
 
     public LocationDto Location { get; set; } = new();
 
