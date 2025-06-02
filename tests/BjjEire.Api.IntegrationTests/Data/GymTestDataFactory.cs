@@ -30,7 +30,7 @@ public static class GymTestDataFactory
     return $"https://www.{sanitizedDomainPrefix}{randomWord}.com{path}";
   }
 
-  private static string GenerateCityBasedUrl(Faker faker, string prefix, string? city, string path = "", string extension = ".ie")
+  private static string GenerateCityBasedUrl(string prefix, string? city, string path = "", string extension = ".ie")
   {
     var sanitizedCity = SanitizeForUrlComponent(city, "defaultcity");
     var sanitizedPrefix = SanitizeForUrlComponent(prefix, "defaultprefix");
@@ -75,9 +75,9 @@ public static class GymTestDataFactory
       .RuleFor(x => x.TrialOffer, faker => TrialOfferDtoGenerator.Generate())
       .RuleFor(x => x.Location, faker => LocationDtoGenerator.Generate())
       .RuleFor(x => x.SocialMedia, faker => SocialMediaDtoGenerator.Generate())
-      .RuleFor(x => x.Website, (f, u) => GenerateCityBasedUrl(f, "gym", f.Address.City(), "/home"))
-      .RuleFor(x => x.TimetableUrl, (f, u) => GenerateCityBasedUrl(f, "gym", f.Address.City(), "/schedule"))
-      .RuleFor(x => x.ImageUrl, (f, u) => GenerateCityBasedUrl(f, "gym", f.Address.City(), "/images/main.jpg"))
+      .RuleFor(x => x.Website, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/home"))
+      .RuleFor(x => x.TimetableUrl, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/schedule"))
+      .RuleFor(x => x.ImageUrl, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/images/main.jpg"))
       .RuleFor(x => x.OfferedClasses, faker =>
       {
         var availableClasses = Enum.GetValues<ClassCategory>().ToList();

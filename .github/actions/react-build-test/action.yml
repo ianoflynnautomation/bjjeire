@@ -1,0 +1,71 @@
+# .github/actions/react-build-test/action.yml
+name: 'Build and Test React Application'
+description: 'Installs dependencies, builds, and tests a React application'
+inputs:
+  node-version:
+    description: 'Node.js version'
+    required: true
+  working-directory:
+    description: 'Directory of the React application (where package.json is)'
+    required: true
+  install-command:
+    description: 'Command to install dependencies'
+    required: false
+    default: 'npm ci' # 'npm ci' is generally preferred for CI
+  build-command:
+    description: 'Command to build the application'
+    required: false
+    default: 'npm run build'
+  test-command:
+    description: 'Command to run tests'
+    required: false
+    default: 'npm test -- --watchAll=false' # Ensure tests are not in watch mode
+  build-output-path: # Relative to working-directory
+    description: 'Path to the built React app (e.g., build, dist)'
+    required: false
+    default: 'build'
+  build-artifact-name:
+    description: 'Name for the uploaded build artifact (if any)'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js and Cache
+      uses: ./.github/actions/setup-node
+      with:
+        node-version: ${{ inputs.node-version }}
+        working-directory: ${{ inputs.working-directory }}
+
+    - name: Install Dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.install-command }}
+
+    - name: Run Linter (Conceptual - Add if you have one)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if (grep -q '"lint":' package.json); then
+          npm run lint
+        else
+          echo "No lint script found in package.json. Skipping."
+        fi
+
+    - name: Build Application
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.build-command }}
+
+    - name: Run Tests
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: ${{ inputs.test-command }}
+      # Add test result upload if your test runner produces standard reports (e.g., JUnit XML)
+
+    - name: Upload React Build Artifact
+      if: ${{ inputs.build-artifact-name != '' && inputs.build-output-path != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.build-artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ inputs.build-output-path }}
+        retention-days: 7

@@ -1,0 +1,59 @@
+name: 'Run .NET Tests from Published Artifact'
+description: 'Downloads a published test artifact and runs .NET tests'
+inputs:
+  dotnet-version:
+    description: '.NET SDK version'
+    required: true
+  test-artifact-name:
+    description: 'Name of the test artifact to download'
+    required: true
+  test-assembly-pattern:
+    description: 'Pattern for test DLLs within the artifact (e.g., *Tests.dll)'
+    required: true
+    default: '*Tests.dll'
+  test-results-name-prefix:
+    description: 'Prefix for the TRX test results file and artifact name'
+    required: true
+  test-filter-criteria:
+    description: 'Filter criteria for dotnet test'
+    required: false
+  download-path:
+    description: 'Path to download the artifact'
+    required: false
+    default: './test_artifacts/${{ inputs.test-artifact-name }}'
+runs:
+  using: "composite"
+  steps:
+    - name: Setup .NET
+      uses: ./.github/actions/setup-dotnet
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Download Test Artifact - ${{ inputs.test-artifact-name }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.test-artifact-name }}
+        path: ${{ inputs.download-path }}
+
+    - name: Run Tests
+      shell: bash
+      working-directory: ${{ inputs.download-path }}
+      run: dotnet test ${{ inputs.test-assembly-pattern }} --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" --results-directory "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}" ${{ inputs.test-filter-criteria }}
+
+    - name: Publish Test Results Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test_results_${{ inputs.test-results-name-prefix }}
+        path: "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}"
+        retention-days: 7
+
+    - name: Report Test Results
+      if: always()
+      uses: dorny/test-reporter@v1
+      with:
+        artifact: test_results_${{ inputs.test-results-name-prefix }}
+        name: Test Results - ${{ inputs.test-results-name-prefix }}
+        path: "*.trx"
+        reporter: dotnet-trx
+        fail-on-error: true
