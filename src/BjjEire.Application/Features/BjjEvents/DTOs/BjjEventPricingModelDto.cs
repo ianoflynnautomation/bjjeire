@@ -10,8 +10,8 @@ public class BjjEventPricingModelDto
     public decimal Amount { get; set; }
 
     public int? DurationDays { get; set; }
-    
-    public string Currency { get; set; } = "EUR";
+
+    public string? Currency { get; set; } = "EUR";
 }
 
 public class PricingModelMapping : Profile

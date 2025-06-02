@@ -27,7 +27,7 @@ public class BjjEvent : BaseEntity
     public SocialMedia SocialMedia { get; set; } = new();
 
     [BsonElement("county")]
-    public string County { get; set; } = string.Empty;
+    public County County { get; set; }
 
     [BsonElement("location")]
     public Location Location { get; set; } = new();
@@ -40,7 +40,7 @@ public class BjjEvent : BaseEntity
 
     [BsonElement("eventUrl")]
     public string EventUrl { get; set; } = string.Empty;
-    
+
     [BsonElement("imageUrl")]
     public string ImageUrl { get; set; } = string.Empty;
 

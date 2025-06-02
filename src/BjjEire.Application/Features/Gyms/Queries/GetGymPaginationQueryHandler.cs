@@ -29,9 +29,9 @@ ICacheBase cacheBase, IUriService uriService)
 
             var query = _gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-            if (!string.IsNullOrWhiteSpace(request.County))
+            if (request.County.HasValue)
             {
-                query = query.Where(x => x.County.Equals(request.County, StringComparison.CurrentCultureIgnoreCase));
+                query = query.Where(x => x.County == request.County.Value);
             }
 
             query = query.OrderBy(x => x.Name);

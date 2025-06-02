@@ -7,59 +7,54 @@ namespace BjjEire.Application.Features.BjjEvents.Validators;
 
 public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
 {
-    public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,
-                                IValidator<SocialMediaDto> socialMediaDtoValidator,
-                                IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
-                                IValidator<BjjEventPricingModelDto> pricingModelDtoValidator,
-                                IValidator<LocationDto> locationDtoValidator)
-    {
-        _ = RuleFor(x => x.Name)
-          .ApplyRequiredString("Event name", 100);
+  public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,
+                              IValidator<SocialMediaDto> socialMediaDtoValidator,
+                              IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
+                              IValidator<BjjEventPricingModelDto> pricingModelDtoValidator,
+                              IValidator<LocationDto> locationDtoValidator)
+  {
+    _ = RuleFor(x => x.Name)
+        .ApplyRequiredString("Event Name", 100);
 
-        _ = RuleFor(x => x.Description)
-            .MaximumLength(200)
-             .WithMessage(ValidationMessages.MaxLength.Message("Description", 200))
-            .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
+    _ = RuleFor(x => x.Description!)
+        .ApplyMaxLengthValidator("Description", 200);
 
-        _ = RuleFor(x => x.Type)
-            .ApplyEnumValidator("Event type");
+    _ = RuleFor(x => x.Type)
+        .ApplyEnumValidator("Event Type");
 
-        _ = RuleFor(x => x.Organiser)
-            .ApplyNotNullValidator("Event organiser")
-            .SetValidator(organizerDtoValidator);
+    _ = RuleFor(x => x.Organiser)
+        .ApplyNotNullValidator("Organiser")
+        .SetValidator(organizerDtoValidator);
 
-        _ = RuleFor(x => x.Status)
-           .ApplyEnumValidator("Event staus");
+    _ = RuleFor(x => x.Status)
+        .ApplyEnumValidator("Event Status");
 
-        _ = RuleFor(x => x.StatusReason)
-            .MaximumLength(100)
-            .WithName("Status Reason")
-                .WithMessage(ValidationMessages.MaxLength.Message("Status reason", 500))
-                .WithErrorCode(ValidationMessages.MaxLength.ErrorCode);
+    _ = RuleFor(x => x.StatusReason!)
+        .ApplyMaxLengthValidator("Status Reason", 100);
 
-        _ = RuleFor(x => x.SocialMedia)
-          .ApplyNotNullValidator("Social Media")
-            .SetValidator(socialMediaDtoValidator);
+    _ = RuleFor(x => x.SocialMedia)
+        .ApplyNotNullValidator("Social Media")
+        .SetValidator(socialMediaDtoValidator);
 
-        _ = RuleFor(x => x.County)
-            .ApplyRequiredString("County", 100);
+    _ = RuleFor(x => x.County)
+        .ApplyEnumValidator("County");
 
-        _ = RuleFor(x => x.Location)
-            .ApplyNotNullValidator("Location")
-            .SetValidator(locationDtoValidator);
+    _ = RuleFor(x => x.Location)
+        .ApplyNotNullValidator("Location")
+        .SetValidator(locationDtoValidator);
 
-        _ = RuleFor(x => x.Schedule)
-            .ApplyNotNullValidator("Schedule")
-            .SetValidator(bjjEventScheduleDtoValidator);
+    _ = RuleFor(x => x.Schedule)
+        .ApplyNotNullValidator("Schedule")
+        .SetValidator(bjjEventScheduleDtoValidator);
 
-        _ = RuleFor(x => x.Pricing)
-            .ApplyNotNullValidator("Pricing")
-            .SetValidator(pricingModelDtoValidator);
+    _ = RuleFor(x => x.Pricing)
+        .ApplyNotNullValidator("Pricing")
+        .SetValidator(pricingModelDtoValidator);
 
-        _ = RuleFor(x => x.EventUrl)
-            .ApplyUrlValidator("Event URL");
+    _ = RuleFor(x => x.EventUrl)
+        .ApplyUrlValidator("Event URL");
 
-        _ = RuleFor(x => x.ImageUrl)
-            .ApplyUrlValidator("Image URL");
-    }
+    _ = RuleFor(x => x.ImageUrl)
+        .ApplyUrlValidator("Image URL");
+  }
 }

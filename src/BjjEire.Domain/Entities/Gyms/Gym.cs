@@ -15,7 +15,7 @@ public class Gym : BaseEntity
     public GymStatus Status { get; set; }
 
     [BsonElement("county")]
-    public string County { get; set; } = string.Empty;
+    public County County { get; set; }
 
     [BsonElement("affiliation")]
     public Affiliation? Affiliation { get; set; } = new();
@@ -37,7 +37,7 @@ public class Gym : BaseEntity
 
     [BsonElement("timetableUrl")]
     public string? TimetableUrl { get; set; }
-    
+
     [BsonElement("imageUrl")]
     public string? ImageUrl { get; set; }
 

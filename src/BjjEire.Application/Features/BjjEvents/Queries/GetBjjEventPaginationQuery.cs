@@ -6,8 +6,6 @@ namespace BjjEire.Application.Features.BjjEvents.Queries;
 
 public record GetBjjEventPaginationQuery : BasePaginationQuery, IRequest<GetBjjEventPaginatedResponse>
 {
-
-    public string? County { get; set; }
-    
+    public County? County { get; set; }
     public BjjEventType? Type { get; set; }
 }

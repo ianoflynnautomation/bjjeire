@@ -9,13 +9,13 @@ public class LocationDtoValidator : AbstractValidator<LocationDto>
   public LocationDtoValidator(IValidator<GeoCoordinatesDto> geoCoordinatesDtoValidator)
   {
     _ = RuleFor(x => x.Address)
-    .ApplyRequiredString("Event address", 100);
+        .ApplyRequiredString("Address", 100);
 
     _ = RuleFor(x => x.Venue)
-    .ApplyRequiredString("Event venue", 100);
+        .ApplyRequiredString("Venue", 100);
 
     _ = RuleFor(x => x.Coordinates)
-      .ApplyNotNullValidator("Coordinates")
+        .ApplyNotNullValidator("Coordinates")
         .SetValidator(geoCoordinatesDtoValidator);
   }
 

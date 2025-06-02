@@ -9,6 +9,6 @@ namespace BjjEire.Api.Controllers;
 [ApiController]
 public abstract class BaseApiController : ControllerBase
 {
-    public override ForbidResult Forbid() => new(JwtBearerDefaults.AuthenticationScheme);
+  public override ForbidResult Forbid() => new(JwtBearerDefaults.AuthenticationScheme);
 }
 

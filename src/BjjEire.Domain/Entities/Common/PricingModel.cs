@@ -12,7 +12,7 @@ public class PricingModel
 
     [BsonElement("durationDays")]
     public int? DurationDays { get; set; }
-    
+
     [BsonElement("urrency")]
-    public string Currency { get; set; } = "EUR";
+    public string? Currency { get; set; } = "EUR";
 }
