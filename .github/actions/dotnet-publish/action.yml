@@ -1,0 +1,44 @@
+name: 'Publish .NET Project'
+description: 'Publishes a .NET project and optionally uploads it as an artifact'
+inputs:
+  dotnet-version:
+    description: '.NET SDK version'
+    required: true
+  project-path:
+    description: 'Path to the .NET project file (csproj)'
+    required: true
+  configuration:
+    description: 'Build configuration'
+    required: false
+    default: 'Release'
+  output-path:
+    description: 'Directory where the project will be published'
+    required: true
+  artifact-name:
+    description: 'Name of the artifact to upload'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Setup .NET
+      uses: ./.github/actions/setup-dotnet
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Restore Project Dependencies
+      shell: bash
+      run: dotnet restore "${{ inputs.project-path }}"
+
+    - name: Publish Project
+      shell: bash
+      run: dotnet publish "${{ inputs.project-path }}" --configuration ${{ inputs.configuration }} --no-restore --output "${{ inputs.output-path }}"
+      # Consider --no-build if a separate build step for this specific project is guaranteed to have run with the exact same parameters.
+      # For self-contained publish actions, letting publish trigger build if needed is safer. Or add --no-build and ensure build job ran.
+
+    - name: Upload Published Project Artifact
+      if: ${{ inputs.artifact-name != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.output-path }}
+        retention-days: 7

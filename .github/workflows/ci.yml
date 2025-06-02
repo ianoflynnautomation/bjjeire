@@ -1,0 +1,109 @@
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore: # Optional: ignore changes to certain files to prevent unnecessary runs
+      - '**.md'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'logs/'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'logs/'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.gitignore'
+
+env:
+  DOTNET_VERSION: '9.x'
+  NODE_VERSION: '20.x' 
+  SOLUTION_PATH: 'BjjEire.sln'
+  REACT_APP_PATH: 'src/bjjeire-app'
+  
+  permissions:
+  contents: read
+  actions: read 
+  checks: write 
+  # id-token: write # Only if you need to authenticate to cloud services using OIDC
+
+jobs:
+  build_dotnet_solution:
+    name: Build .NET Solution
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      build_successful: ${{ steps.build_step.outcome == 'success' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build .NET Solution
+        id: build_step
+        uses: ./.github/actions/dotnet-build
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          path: ${{ env.SOLUTION_PATH }}
+          configuration: Release
+
+  publish_dotnet_test_projects:
+    name: Publish .NET Test Projects
+    runs-on: ubuntu-latest
+    needs: build_dotnet_solution
+    if: needs.build_dotnet_solution.outputs.build_successful == 'true'
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test-type: ApiIntegrationTests
+            artifact-name: published_ApiIntegrationTests
+            project-path: 'tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Publish .NET Test Project - ${{ matrix.test-type }}
+        uses: ./.github/actions/dotnet-publish
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          project-path: ${{ matrix.project-path }}
+          configuration: Release
+          output-path: ${{ github.workspace }}/published_tests/${{ matrix.artifact-name }}
+          artifact-name: ${{ matrix.artifact-name }}
+
+  run_dotnet_tests:
+    name: Run .NET Tests
+    runs-on: ubuntu-latest
+    needs: publish_dotnet_test_projects
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test-type: IntegrationTests
+            test-artifact-name: published_IntegrationTests
+            test-assembly-pattern: '*IntegrationTests.dll'
+            test-filter-criteria: ""
+
+    steps:
+      - name: Checkout Repository (if needed by tests)
+        uses: actions/checkout@v4
+
+      - name: Run .NET Tests - ${{ matrix.test-type }}
+        uses: ./.github/actions/dotnet-run-tests
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          test-artifact-name: ${{ matrix.test-artifact-name }}
+          test-assembly-pattern: ${{ matrix.test-assembly-pattern }}
+          test-results-name-prefix: ${{ matrix.test-type }} 
+          test-filter-criteria: ${{ matrix.test-filter-criteria }}

@@ -68,14 +68,6 @@ public abstract class IntegrationTestBase<TFactory> : IClassFixture<TFactory>
     SetAuthToken(token);
   }
 
-  private class TokenResponse
-  {
-    public string Token { get; set; } = string.Empty;
-    public DateTime ExpiresUtc { get; set; }
-    public string UserId { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
-  }
-
   protected async Task AssertValidationErrorAsync(
       HttpResponseMessage response,
       (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors)
@@ -146,4 +138,11 @@ public abstract class IntegrationTestBase<TFactory> : IClassFixture<TFactory>
         $"Found unexpected errors: [{string.Join(", ", unexpectedErrors.Select(err => $"'{err.Field}': {err.Message} (Code: {err.ErrorCode})"))}]");
   }
 
+  private sealed class TokenResponse
+  {
+    public string Token { get; set; } = string.Empty;
+    public DateTime ExpiresUtc { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+  }
 }

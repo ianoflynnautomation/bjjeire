@@ -1,0 +1,26 @@
+name: 'Setup Node.js Environment'
+description: 'Sets up Node.js and caches npm/yarn packages'
+inputs:
+  node-version:
+    description: 'The version of Node.js to use'
+    required: true
+  working-directory: # Optional, for more specific caching if needed
+    description: 'Working directory for node commands and caching key'
+    required: false
+    default: '.'
+runs:
+  using: "composite"
+  steps:
+    - name: 'Setup Node.js ${{ inputs.node-version }}'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Cache Node modules
+      uses: actions/cache@v4
+      id: node_cache # Give an id to check cache hit status
+      with:
+        path: ${{ inputs.working-directory }}/node_modules
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory), format('{0}/yarn.lock', inputs.working-directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.node-version }}-
