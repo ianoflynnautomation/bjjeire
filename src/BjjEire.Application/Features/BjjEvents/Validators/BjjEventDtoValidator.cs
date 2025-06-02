@@ -10,7 +10,7 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
   public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,
                               IValidator<SocialMediaDto> socialMediaDtoValidator,
                               IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
-                              IValidator<BjjEventPricingModelDto> pricingModelDtoValidator,
+                              IValidator<PricingModelDto> pricingModelDtoValidator,
                               IValidator<LocationDto> locationDtoValidator)
   {
     _ = RuleFor(x => x.Name)

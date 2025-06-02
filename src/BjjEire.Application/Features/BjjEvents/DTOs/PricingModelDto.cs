@@ -3,7 +3,7 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
-public class BjjEventPricingModelDto
+public class PricingModelDto
 {
     public PricingType Type { get; set; }
 
@@ -18,7 +18,7 @@ public class PricingModelMapping : Profile
 {
     public PricingModelMapping()
     {
-        _ = CreateMap<PricingModel, BjjEventPricingModelDto>();
-        _ = CreateMap<BjjEventPricingModelDto, PricingModel>();
+        _ = CreateMap<PricingModel, PricingModelDto>();
+        _ = CreateMap<PricingModelDto, PricingModel>();
     }
 }

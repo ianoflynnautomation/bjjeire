@@ -89,10 +89,7 @@ public static class GymTestDataFactory
   public static Faker<CreateGymCommand> BogusCreateGymCommandGenerator { get; } = new Faker<CreateGymCommand>()
       .RuleFor(x => x.Data, (faker, cmd) => GymDtoGenerator.Generate());
 
-  public static CreateGymCommand GetValidCreateGymCommand()
-  {
-    return new CreateGymCommand { Data = GetValidGymDto() };
-  }
+  public static CreateGymCommand GetValidCreateGymCommand() => new() { Data = GetValidGymDto() };
 
   public static GymDto GetValidGymDto()
   {

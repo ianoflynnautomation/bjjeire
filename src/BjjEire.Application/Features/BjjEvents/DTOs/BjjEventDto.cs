@@ -27,7 +27,7 @@ public class BjjEventDto : BaseApiEntityModel
 
     public BjjEventScheduleDto Schedule { get; set; } = null!;
 
-    public BjjEventPricingModelDto Pricing { get; set; } = new();
+    public PricingModelDto Pricing { get; set; } = new();
 
     public string EventUrl { get; set; } = string.Empty;
 
