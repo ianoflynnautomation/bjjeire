@@ -5,16 +5,14 @@
         <AssemblyName>BjjEire.Web.AcceptanceTests</AssemblyName>
     </PropertyGroup>
 
-    <ItemGroup>
-        <None Remove="appsettings.json" />
+     <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
+    
     <ItemGroup>
          <PackageReference Include="Autofac" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" />

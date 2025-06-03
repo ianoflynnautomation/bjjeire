@@ -9,11 +9,12 @@ using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.Gyms.Commands;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.GymController;
 
-public class CreateGymControllerTests(CustomApiFactory apiFactory)
-    : IntegrationTestBase<CustomApiFactory>(apiFactory)
+public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
+    : IntegrationTestBase<CustomApiFactory>(apiFactory, outputHelper)
 {
 
   [Fact]

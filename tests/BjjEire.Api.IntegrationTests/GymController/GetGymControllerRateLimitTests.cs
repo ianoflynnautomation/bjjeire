@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.GymController;
 
-public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFactory)
-    : IntegrationTestBase<StrictRateLimitTestApiFactory>(apiFactory)
+public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFactory, ITestOutputHelper outputHelper)
+    : IntegrationTestBase<StrictRateLimitTestApiFactory>(apiFactory, outputHelper)
 {
   private const int TestPermitLimit = 2;
   private const int TestWindowInSeconds = 10;

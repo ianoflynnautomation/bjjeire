@@ -1,3 +1,5 @@
+using System.Reflection;
+using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure.Data.Mongo;
 using Microsoft.AspNetCore.Hosting;
@@ -16,87 +18,105 @@ namespace BjjEire.Api.IntegrationTests;
 
 public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-  private const string MongoImage = "mongo:6.0";
-  private const string MongoUsername = "testUserMongo";
-  private const string MongoPassword = "testPassMongo";
-  private const string MongoConnectionStringKey = "ConnectionStrings:Mongodb";
-  private const string DefaultTestDatabaseName = "bjjworld_it";
+    private const string MongoImage = "mongo:6.0";
+    private const string MongoUsername = "testUserMongo";
+    private const string MongoPassword = "testPassMongo";
+    private const string MongoConnectionStringKey = "ConnectionStrings:Mongodb";
+    private const string DefaultTestDatabaseName = "bjjworld_it";
 
-  private readonly MongoDbContainer _dbContainer = new MongoDbBuilder()
-      .WithImage(MongoImage)
-      .WithUsername(MongoUsername)
-      .WithPassword(MongoPassword)
-      // add a wait strategy if startup is sometimes problematic
-      // .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(27017))
-      .Build();
+    private readonly ILogger<CustomApiFactory> _fixtureLogger;
 
-  protected override void ConfigureWebHost(IWebHostBuilder builder)
-  {
-    builder.UseEnvironment("Development");
-
-    builder.ConfigureLogging(logging =>
+    private readonly MongoDbContainer _dbContainer = new MongoDbBuilder()
+        .WithImage(MongoImage)
+        .WithUsername(MongoUsername)
+        .WithPassword(MongoPassword)
+        .Build();
+  public CustomApiFactory()
     {
-      logging.ClearProviders();
-    });
-
-    builder.ConfigureAppConfiguration((context, config) =>
-    {
-      config.AddInMemoryCollection(new Dictionary<string, string?>
+        var loggerFactory = LoggerFactory.Create(builder =>
         {
-                { MongoConnectionStringKey, _dbContainer.GetConnectionString() },
+            _ =builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddFilter(typeof(CustomApiFactory).FullName, LogLevel.Information)
+                .AddDebug()
+                .AddSimpleConsole(options =>
+                {
+                    options.IncludeScopes = false;
+                    options.SingleLine = true;
+                    options.TimestampFormat = "[FIXTURE HH:mm:ss] ";
+                });
+        });
+        _fixtureLogger = loggerFactory.CreateLogger<CustomApiFactory>();
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.SetupStarting, "CustomApiFactory instance created.");
+    }
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        _fixtureLogger.LogInformation("Configuring WebHost for integration tests...");
+        _ = builder.UseEnvironment("Development");
+
+
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.AppConfigurationModifying, "Modifying app configuration for tests (MongoDB ConnectionString, RateLimiting).");
+       _ = builder.ConfigureAppConfiguration((context, config) =>
+        {
+            var mongoConnectionString = _dbContainer.GetConnectionString();
+            _fixtureLogger.LogInformation("Overriding MongoDB connection string with Testcontainer: {MongoConnectionString}", mongoConnectionString);
+            _ = config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { MongoConnectionStringKey, mongoConnectionString },
                 {"RateLimitOptions:EnableRateLimiting", "false" },
+            });
         });
 
-    });
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.TestServicesConfiguring, "Configuring test services (replacing MongoDB services, removing IHostedService instances).");
+        _ =builder.ConfigureTestServices(services =>
+        {
+            _ = services.RemoveAll<IMongoClient>();
+            _ = services.RemoveAll<IMongoDatabase>();
+            _ = services.RemoveAll<IDatabaseContext>();
+            _ = services.RemoveAll(typeof(IRepository<>));
 
-    builder.ConfigureTestServices(services =>
+            _ = services.AddSingleton<IMongoClient>(sp =>
+            {
+                var clientSettings = MongoClientSettings.FromConnectionString(_dbContainer.GetConnectionString());
+                return new MongoClient(clientSettings);
+            });
+
+            _ = services.AddScoped<IMongoDatabase>(sp =>
+            {
+                var client = sp.GetRequiredService<IMongoClient>();
+                var mongoUrl = MongoUrl.Create(_dbContainer.GetConnectionString());
+                var databaseName = string.IsNullOrWhiteSpace(mongoUrl.DatabaseName) ? DefaultTestDatabaseName : mongoUrl.DatabaseName;
+                _fixtureLogger.LogDebug("Providing IMongoDatabase: {DatabaseName} from Testcontainer.", databaseName);
+                return client.GetDatabase(databaseName);
+            });
+
+            _ = services.AddScoped<IDatabaseContext, MongoDBContext>();
+            _ = services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+
+            _fixtureLogger.LogInformation("Removing all IHostedService implementations for test run.");
+            _ = services.RemoveAll<IHostedService>();
+        });
+        _fixtureLogger.LogInformation("WebHost configuration for integration tests complete.");
+    }
+
+    public virtual async Task InitializeAsync()
     {
-      services.RemoveAll<IMongoClient>();
-      services.RemoveAll<IMongoDatabase>();
-      services.RemoveAll<IDatabaseContext>();
-      services.RemoveAll(typeof(IRepository<>));
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.ContainerStarting, "Starting MongoDB Testcontainer ({MongoImage})...", MongoImage);
+        await _dbContainer.StartAsync().ConfigureAwait(false);
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.ContainerStarted, "MongoDB Testcontainer started. ConnectionString (check logs if sensitive): {MongoConnectionString}", _dbContainer.GetConnectionString());
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.SetupComplete, "CustomApiFactory InitializeAsync complete.");
+    }
 
-      // Register services using the Testcontainer's MongoDB instance
-      services.AddSingleton<IMongoClient>(sp =>
-          {
-            var clientSettings = MongoClientSettings.FromConnectionString(_dbContainer.GetConnectionString());
-            // Add any specific client configurations if needed (e.g., command logging for debugging)
-            return new MongoClient(clientSettings);
-          });
-
-      services.AddScoped<IMongoDatabase>(sp =>
-          {
-            var client = sp.GetRequiredService<IMongoClient>();
-            var mongoUrl = MongoUrl.Create(_dbContainer.GetConnectionString());
-            var databaseName = string.IsNullOrWhiteSpace(mongoUrl.DatabaseName) ? DefaultTestDatabaseName : mongoUrl.DatabaseName;
-            return client.GetDatabase(databaseName);
-          });
-
-      // Re-register your application's DB context and repositories pointing to the test database
-      // Ensure MongoDBContext is designed to take IMongoDatabase via DI
-      services.AddScoped<IDatabaseContext, MongoDBContext>();
-      services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
-
-      // Remove any IHostedService implementations that might run during tests
-      // (e.g., background workers, message queue listeners)
-      services.RemoveAll<IHostedService>();
-    });
-  }
-
-  public virtual async Task InitializeAsync()
-  {
-    await _dbContainer.StartAsync().ConfigureAwait(false);
-    // Optional: If you need to ensure indexes or perform one-time DB setup for tests
-    // var serviceProvider = Services;
-    // using var scope = serviceProvider.CreateScope();
-    // var dbContext = scope.ServiceProvider.GetRequiredService<IDatabaseContext>();
-    // await dbContext.EnsureSchemaCreatedAndMigratedAsync(); // Or similar setup method
-  }
-
-  public virtual async Task DisposeAsync()
-  {
-    await _dbContainer.StopAsync().ConfigureAwait(false);
-    await _dbContainer.DisposeAsync().ConfigureAwait(false);
-    await base.DisposeAsync().ConfigureAwait(false);
-  }
+    public virtual async Task DisposeAsync()
+    {
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.TeardownStarting, "CustomApiFactory DisposeAsync starting...");
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.ContainerStopping, "Stopping MongoDB Testcontainer...");
+        await _dbContainer.StopAsync().ConfigureAwait(false);
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.ContainerStopped, "MongoDB Testcontainer stopped.");
+        await _dbContainer.DisposeAsync().ConfigureAwait(false);
+        _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.TeardownComplete, "CustomApiFactory DisposeAsync complete.");
+        await base.DisposeAsync();
+    }
 }
