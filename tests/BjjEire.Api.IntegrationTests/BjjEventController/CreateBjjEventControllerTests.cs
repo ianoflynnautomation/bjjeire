@@ -11,11 +11,12 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Enums;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventController;
 
-public class CreateBjjEventControllerTests(CustomApiFactory apiFactory)
-    : IntegrationTestBase<CustomApiFactory>(apiFactory)
+public class CreateBjjEventControllerTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
+    : IntegrationTestBase<CustomApiFactory>(apiFactory, outputHelper)
 {
 
   [Fact]

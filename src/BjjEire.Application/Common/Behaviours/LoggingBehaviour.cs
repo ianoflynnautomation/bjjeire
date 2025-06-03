@@ -23,7 +23,6 @@ public class LoggingBehaviour<TRequest, TResponse>(
   {
     var requestName = typeof(TRequest).Name;
     var responseName = typeof(TResponse).Name;
-
     var traceId = httpContextAccessor?.HttpContext?.TraceIdentifier ?? "N/A";
     var userId = httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)
                     ?? httpContextAccessor?.HttpContext?.User?.Identity?.Name

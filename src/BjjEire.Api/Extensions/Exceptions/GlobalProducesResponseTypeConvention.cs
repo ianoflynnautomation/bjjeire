@@ -5,14 +5,10 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace BjjEire.Api.Extensions.Exceptions;
 
-public class GlobalProducesResponseTypeConvention : IApplicationModelConvention
-{
-    public void Apply(ApplicationModel application)
-    {
-        foreach (var controller in application.Controllers)
-        {
-            foreach (var action in controller.Actions)
-            {
+public class GlobalProducesResponseTypeConvention : IApplicationModelConvention {
+    public void Apply(ApplicationModel application) {
+        foreach (var controller in application.Controllers) {
+            foreach (var action in controller.Actions) {
                 // Add global response types
                 action.Filters.Add(
                     new ProducesResponseTypeAttribute(
