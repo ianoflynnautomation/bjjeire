@@ -30,6 +30,7 @@ public static class DependencyInjection
     {
       _ = cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
       _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
+      _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
       _ = cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
     });
 

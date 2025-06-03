@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using Serilog.Debugging;
+using Serilog.Events;
 
 namespace BjjEire.Api.Extensions.Logging.Serilog;
 
@@ -8,8 +10,18 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        _ = builder.Host.UseSerilog((context, loggerConfiguration) => loggerConfiguration
-                .ReadFrom.Configuration(context.Configuration));
+        if (builder.Environment.IsDevelopment())
+        {
+            SelfLog.Enable(Console.Error);
+        }
+
+        _ = builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("ApplicationName", context.HostingEnvironment.ApplicationName)
+                .Enrich.WithProperty("EnvironmentName", context.HostingEnvironment.EnvironmentName)
+        );
 
         return builder;
     }
@@ -20,14 +32,38 @@ public static class Extensions
 
         _ = app.UseSerilogRequestLogging(options =>
         {
-            options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+            options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms for TraceId {TraceId}";
             options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
             {
+                diagnosticContext.Set("RequestMethod", httpContext.Request.Method);
+                diagnosticContext.Set("RequestPath", httpContext.Request.Path.Value ?? string.Empty);
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown");
                 diagnosticContext.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString() ?? "Unknown");
-                // Add other request-specific properties if needed
-                //diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+                diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value!);
                 diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+                diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
+
+                var userId = httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    diagnosticContext.Set("UserId", userId);
+                }
+            };
+            options.GetLevel = (httpContext, elapsed, ex) =>
+            {
+                if (ex != null || httpContext.Response.StatusCode >= 500)
+                {
+                    return LogEventLevel.Error;
+                }
+                if (httpContext.Response.StatusCode >= 400)
+                {
+                    return LogEventLevel.Warning;
+                }
+
+                return httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
+                       httpContext.Response.StatusCode < 400
+                    ? LogEventLevel.Verbose
+                    : LogEventLevel.Information;
             };
         });
 

@@ -1,10 +1,12 @@
 ﻿
 using BjjEire.Application.Common.Exceptions;
+using BjjEire.SharedKernel.Logging;
 
 
 namespace BjjEire.Api.Extensions.Exceptions;
 
-public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment) : IExceptionHandler
+public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment)
+    : IExceptionHandler
 {
     private readonly ILogger<CustomExceptionHandler> _logger = logger;
     private readonly IHostEnvironment _environment = environment;
@@ -14,16 +16,18 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         ArgumentNullException.ThrowIfNull(httpContext);
         ArgumentNullException.ThrowIfNull(exception);
 
-        ProblemDetails problemDetails = exception switch
+        var userId = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
+
+        var problemDetails = exception switch
         {
             ValidationException validationEx => HandleValidationException(validationEx, httpContext),
             CustomException customEx => HandleCustomException(customEx, httpContext),
             UnauthorizedAccessException => HandleUnauthorizedAccessException(httpContext),
             NotFoundException notFoundEx => HandleNotFoundException(notFoundEx, httpContext),
-            _ => HandleUnexpectedException(exception, httpContext),
+            _ => HandleUnexpectedException(exception, httpContext, userId),
         };
 
-        LogException(exception, httpContext, problemDetails);
+        LogHandledException(exception, httpContext, problemDetails, userId);
 
         httpContext.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/problem+json";
@@ -34,14 +38,12 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ValidationErrorResponse HandleValidationException(ValidationException exception, HttpContext httpContext)
     {
-#pragma warning disable CS8601 // Possible null reference assignment.
         var validationErrors = exception.Errors.Select(e => new ValidationErrorResponse.ValidationErrorDetail
         {
-            Field = string.IsNullOrWhiteSpace(e.PropertyName) ? null : e.PropertyName,
-            Message = e.ErrorMessage,
-            ErrorCode = e.ErrorCode
+            Field = e.PropertyName ?? string.Empty,
+            Message = e.ErrorMessage ?? string.Empty,
+            ErrorCode = e.ErrorCode ?? string.Empty
         }).ToList();
-#pragma warning restore CS8601 // Possible null reference assignment.
 
         return new ValidationErrorResponse
         {
@@ -74,7 +76,6 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ProblemDetails HandleUnauthorizedAccessException(HttpContext httpContext)
     {
-
         var status = StatusCodes.Status401Unauthorized;
         var title = "Unauthorized";
         var detail = "Authentication is required and has failed or has not yet been provided.";
@@ -110,14 +111,23 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         };
     }
 
-    private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext)
+    private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext, string userId)
     {
         var errorId = Guid.NewGuid().ToString();
-        var title = "Internal Server Error";
-        string detail = _environment.IsDevelopment() || _environment.IsEnvironment("Docker")
-            ? $"Unhandled Exception ({errorId}): {exception}"
+        const string title = "Internal Server Error";
+        var detail = _environment.IsDevelopment() || _environment.IsEnvironment("Docker")
+            ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
             : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
-        var problemDetails = new ProblemDetails
+
+        _logger.LogError(ApplicationLogEvents.ExceptionHandling.UnexpectedExceptionOccurred, exception,
+            "Unexpected error occurred. ErrorId: {ErrorId}, Request: {RequestMethod} {RequestPath}, ASPNetTraceId: {ASPNetTraceId}, UserId: {UserId}",
+            errorId,
+            httpContext.Request.Method,
+            httpContext.Request.Path,
+            httpContext.TraceIdentifier,
+            userId);
+
+        return new ProblemDetails
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
             Title = title,
@@ -125,26 +135,24 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             Detail = detail,
             Instance = httpContext.TraceIdentifier
         };
-        _logger.LogError(exception, "Unexpected error occurred. Error ID: {ErrorId} for TraceId: {TraceId}", errorId, httpContext.TraceIdentifier);
-
-
-        return problemDetails;
     }
 
-    private void LogException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails)
+    private void LogHandledException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails, string userId)
     {
         var logLevel = problemDetails.Status >= 500 ? LogLevel.Error : LogLevel.Warning;
-        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
 
-        _logger.Log(logLevel, exception,
-            "ExceptionHandler handled error: User: {UserId}, Request: {RequestMethod} {RequestPath}, Status: {StatusCode}, TraceId: {TraceId}, Title: {ErrorTitle}, ClientDetail: {ErrorClientDetail}",
+        _logger.Log(logLevel, ApplicationLogEvents.ExceptionHandling.ExceptionHandled, exception,
+            "ExceptionHandler handled an error. ExceptionType: {ExceptionType}, OriginalExceptionMessage: \"{OriginalExceptionMessage}\", UserId: {UserId}, Request: {RequestMethod} {RequestPath}, ResponseStatus: {ResponseStatusCode}, ResponseTitle: \"{ResponseErrorTitle}\", ClientFacingDetail: \"{ClientFacingDetail}\", ASPNetTraceId: {ASPNetTraceId}",
+            exception.GetType().FullName,
+            exception.Message,
             userId,
             httpContext.Request.Method,
             httpContext.Request.Path,
             problemDetails.Status,
-            httpContext.TraceIdentifier,
             problemDetails.Title,
-            problemDetails.Detail);
+            problemDetails.Detail,
+            httpContext.TraceIdentifier
+        );
     }
 }
 

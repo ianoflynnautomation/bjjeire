@@ -1,70 +1,114 @@
+// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Licensed under the MIT License.
 
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
-using ZstdSharp.Unsafe;
+using BjjEire.SharedKernel.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Features.BjjEvents.Services;
 
-public class BjjEventService(IRepository<BjjEvent> bjjEventRepository, ICacheBase cacheBase) : IBjjEventService
+public sealed class BjjEventService(
+    IRepository<BjjEvent> bjjEventRepository,
+    ICacheBase cacheBase,
+    ILogger<BjjEventService> logger) : IBjjEventService
 {
-    private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
-    private readonly ICacheBase _cacheBase = cacheBase;
+  private readonly IRepository<BjjEvent> _bjjEventRepository = bjjEventRepository;
+  private readonly ICacheBase _cacheBase = cacheBase;
+  private readonly ILogger<BjjEventService> _logger = logger;
 
-    public virtual Task<BjjEvent> GetByIdAsync(string id)
+  public async Task<BjjEvent> GetByIdAsync(string id)
+  {
+    ArgumentNullException.ThrowIfNull(id);
+    var key = CacheKey.BjjEventsById(id);
+
+    _logger.LogInformation(ApplicationLogEvents.BjjEvent.GetByIdAttempt, "Attempting to get BjjEvent by ID {BjjEventId} using cache key {CacheKey}", id, key);
+
+    var bjjEvent = await _cacheBase.GetAsync(key, () =>
     {
-        ArgumentNullException.ThrowIfNull(id);
-        var key = CacheKey.BjjEventsById(id);
-        return _cacheBase.GetAsync(key, () => _bjjEventRepository.GetByIdAsync(id));
-    }
+      _logger.LogInformation("Cache miss for BjjEvent ID {BjjEventId}. Fetching from repository.", id);
+      return _bjjEventRepository.GetByIdAsync(id);
+    });
 
+    return bjjEvent;
+  }
 
-    // public virtual async Task<BjjEvent> GetAll(int page, int pageSize, string? county, BjjEventType? type) {
+  public async Task InsertAsync(BjjEvent bjjEvent)
+  {
+    ArgumentNullException.ThrowIfNull(bjjEvent);
 
-    //        var cacheKey = CacheKey.AllBjjEvents(page, pageSize, county, type);
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.InsertAttempt,
+        "Attempting to insert BjjEvent. EventName: {BjjEventName}",
+        bjjEvent.Name);
 
-    //     return await _cacheBase.GetAsync(cacheKey, async () => {
-    //         var query = _bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
+    var insertedEvent = await _bjjEventRepository.InsertAsync(bjjEvent);
 
-    //         if (!string.IsNullOrWhiteSpace(county)) {
-    //             query = query.Where(x => x.County.Equals(county, StringComparison.CurrentCultureIgnoreCase));
-    //         }
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.InsertSuccess,
+        "Successfully inserted BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
+        insertedEvent.Id,
+        insertedEvent.Name);
 
-    //         if (type.HasValue) {
-    //             query = query.Where(x => x.Type == type.Value);
-    //         }
+    _logger.LogInformation(
+        ApplicationLogEvents.Cache.InvalidationInitiated,
+        "Initiating cache invalidation for BjjEvents pattern {CachePatternKey} due to insertion of BjjEvent ID {BjjEventId}",
+        CacheKey.BjjEventsByPatternKey(),
+        insertedEvent.Id);
+    await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
+  }
 
-    //         query = query.OrderBy(x => x.CreatedOnUtc);
+  public async Task UpdateAsync(BjjEvent bjjEvent)
+  {
+    ArgumentNullException.ThrowIfNull(bjjEvent);
 
-    //         return await Task.FromResult(query);
-    //     });
-    // }
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.UpdateAttempt,
+        "Attempting to update BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
+        bjjEvent.Id,
+        bjjEvent.Name);
 
-    public virtual async Task InsertAsync(BjjEvent bjjEvent)
-    {
-        ArgumentNullException.ThrowIfNull(bjjEvent);
+    var updatedEvent = await _bjjEventRepository.UpdateAsync(bjjEvent);
 
-        _ = await _bjjEventRepository.InsertAsync(bjjEvent);
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.UpdateSuccess,
+        "Successfully updated BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
+        updatedEvent.Id,
+        updatedEvent.Name);
 
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
-    }
+    _logger.LogInformation(
+        ApplicationLogEvents.Cache.InvalidationInitiated,
+        "Initiating cache invalidation for BjjEvents pattern {CachePatternKey} due to update of BjjEvent ID {BjjEventId}",
+        CacheKey.BjjEventsByPatternKey(),
+        updatedEvent.Id);
+    await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
+  }
 
-    public virtual async Task UpdateAsync(BjjEvent bjjEvent)
-    {
-        ArgumentNullException.ThrowIfNull(bjjEvent);
+  public async Task DeleteAsync(BjjEvent bjjEvent)
+  {
+    ArgumentNullException.ThrowIfNull(bjjEvent);
 
-        _ = await _bjjEventRepository.UpdateAsync(bjjEvent);
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.DeleteAttempt,
+        "Attempting to delete BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
+        bjjEvent.Id,
+        bjjEvent.Name);
 
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
-    }
+    await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
+    _logger.LogInformation(
+        ApplicationLogEvents.Cache.InvalidationInitiated,
+        "Cache invalidation for BjjEvents pattern {CachePatternKey} initiated prior to deleting BjjEvent ID {BjjEventId}",
+        CacheKey.BjjEventsByPatternKey(),
+        bjjEvent.Id);
 
-    public virtual async Task DeleteAsync(BjjEvent bjjEvent)
-    {
-        ArgumentNullException.ThrowIfNull(bjjEvent);
+    var deletedEvent = await _bjjEventRepository.DeleteAsync(bjjEvent);
 
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
-
-        _ = await _bjjEventRepository.DeleteAsync(bjjEvent);
-    }
+    _logger.LogInformation(
+        ApplicationLogEvents.BjjEvent.DeleteSuccess,
+        "Successfully deleted BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
+        deletedEvent.Id,
+        deletedEvent.Name);
+  }
 }
