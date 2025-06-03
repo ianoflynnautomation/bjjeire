@@ -26,14 +26,14 @@ public static class DependencyInjection
             .AddJsonFile("appsettings.json", false, true)
             .Build();
 
-        builder.RegisterInstance(configuration)
+        _ = builder.RegisterInstance(configuration)
             .As<IConfiguration>()
             .SingleInstance();
     }
 
     private static void RegisterTestOptions(this Autofac.ContainerBuilder builder)
     {
-        builder.Register(c =>
+        _ = builder.Register(c =>
         {
             var configuration = c.Resolve<IConfiguration>();
             var appSettings = new TestOptions();
@@ -41,14 +41,14 @@ public static class DependencyInjection
             return appSettings;
         }).As<TestOptions>().SingleInstance();
 
-        builder.Register(c => new OptionsWrapper<TestOptions>(c.Resolve<TestOptions>()))
+        _ =builder.Register(c => new OptionsWrapper<TestOptions>(c.Resolve<TestOptions>()))
             .As<IOptions<TestOptions>>()
             .SingleInstance();
     }
 
     private static void RegisterPlaywright(this Autofac.ContainerBuilder builder)
     {
-        builder.Register(async _ =>
+        _ = builder.Register(async _ =>
         {
             var playwright = await Microsoft.Playwright.Playwright.CreateAsync().ConfigureAwait(false);
             var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions

@@ -2,18 +2,11 @@ using Microsoft.Playwright;
 
 namespace BjjEire.Web.Playwright.Core;
 
-public class WebPage(IPage _page)
+public class WebPage(IPage page)
 {
-    protected IPage Page { get; } = _page;
+    private IPage Page { get; } = page;
 
-    protected IPageAssertions Expect()
-    {
-        return Assertions.Expect(Page);
-    }
+    protected IPageAssertions Expect() => Assertions.Expect(Page);
 
-    protected ILocatorAssertions Expect(ILocator locator)
-    {
-        return Assertions.Expect(locator);
-    }
-
+    protected static ILocatorAssertions Expect(ILocator locator) => Assertions.Expect(locator);
 }

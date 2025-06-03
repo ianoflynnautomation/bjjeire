@@ -1,23 +1,18 @@
-﻿using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Security.Claims;
+using BjjEire.SharedKernel.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Common.Behaviours;
 
-public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> logger, IHttpContextAccessor httpContextAccessor)
-: IPipelineBehavior<TRequest, TResponse>
+public class UnhandledExceptionBehaviour<TRequest, TResponse>(
+    ILogger<UnhandledExceptionBehaviour<TRequest, TResponse>> logger,
+    IHttpContextAccessor httpContextAccessor)
+    : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-  private static readonly JsonSerializerOptions SerializerOptions = new()
-  {
-    WriteIndented = true,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-  };
-
-  private readonly ILogger<TRequest> _logger = logger;
+  private readonly ILogger<UnhandledExceptionBehaviour<TRequest, TResponse>> _logger = logger;
   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
   public async Task<TResponse> Handle(
@@ -25,47 +20,47 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> 
       RequestHandlerDelegate<TResponse> next,
       CancellationToken cancellationToken)
   {
+    ArgumentNullException.ThrowIfNull(next);
+
+    var stopwatch = Stopwatch.StartNew();
+    var requestName = typeof(TRequest).Name;
+
+    var httpContext = _httpContextAccessor.HttpContext;
+    var aspNetCoreTraceId = httpContext?.TraceIdentifier ?? "N/A";
+    var requestPath = httpContext?.Request.Path.Value ?? "Unknown";
+    var requestMethod = httpContext?.Request.Method ?? "Unknown";
+    var userId = httpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)
+                 ?? httpContext?.User?.Identity?.Name
+                 ?? "Anonymous";
+
+    _logger.LogInformation(
+        ApplicationLogEvents.UnhandledExceptions.PipelineProcessingStartInfo,
+        "Starting MediatR request pipeline for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}, ASP.NET Core TraceId: {AspNetCoreTraceId}, UserId: {UserId}",
+        requestName, requestPath, requestMethod, aspNetCoreTraceId, userId);
+
     try
     {
-      ArgumentNullException.ThrowIfNull(next);
       return await next(cancellationToken);
     }
     catch (Exception ex)
     {
-      var requestName = typeof(TRequest).Name;
-      var httpContext = _httpContextAccessor.HttpContext;
-      var traceId = httpContext?.TraceIdentifier ?? Guid.NewGuid().ToString();
-      //var userId = httpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Anonymous";
-      var requestPath = httpContext?.Request.Path.Value ?? "Unknown";
-      var method = httpContext?.Request.Method ?? "Unknown";
-
-      _logger.LogError(
-          ex,
-          "Unhandled exception for request {RequestName}. TraceId: {TraceId}, UserId: {UserId}, Path: {Path}, Method: {Method}",
+      _logger.LogError(ApplicationLogEvents.UnhandledExceptions.HandleExceptionError, ex,
+          "Unhandled exception for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}, ASP.NET Core TraceId: {AspNetCoreTraceId}, UserId: {UserId}",
           requestName,
-          traceId,
-          "",//userId,
           requestPath,
-          method);
+          requestMethod,
+          aspNetCoreTraceId,
+          userId);
 
-      var requestJson = SanitizeRequest(request);
-      _logger.LogDebug("Request details: {RequestJson}", requestJson);
-
-      // Rethrow to allow global exception handler to process
       throw;
     }
-  }
-
-  private string SanitizeRequest(TRequest request)
-  {
-    try
+    finally
     {
-      return JsonSerializer.Serialize(request, SerializerOptions);
-    }
-    catch (Exception ex)
-    {
-      _logger.LogWarning(ex, "Failed to serialize request for logging.");
-      return "{ \"error\": \"Failed to serialize request\" }";
+      stopwatch.Stop();
+      _logger.LogInformation(
+          ApplicationLogEvents.UnhandledExceptions.PipelineProcessingEndInfo,
+          "Finished MediatR request pipeline for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}, ASP.NET Core TraceId: {AspNetCoreTraceId}, UserId: {UserId}, DurationMs: {DurationMs}",
+          requestName, requestPath, requestMethod, aspNetCoreTraceId, userId, stopwatch.ElapsedMilliseconds);
     }
   }
 }
