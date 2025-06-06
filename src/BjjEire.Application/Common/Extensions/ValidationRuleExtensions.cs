@@ -287,8 +287,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .Must(value => !value.HasValue || Comparer<TProperty>.Default.Compare(value.Value, default(TProperty)) > 0)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be positive when {conditionDescription}.")
-        .WithErrorCode("POSITIVE_OR_NULL");
+        .WithMessage(ValidationMessages.PositiveOrNull.Message(conditionDescription))
+        .WithErrorCode(ValidationMessages.PositiveOrNull.ErrorCode);
   }
 
   public static IRuleBuilderOptions<T, TProperty?> ApplyPositiveOrNullValidator<T, TProperty>(
@@ -300,8 +300,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .Must(value => !value.HasValue || Comparer<TProperty>.Default.Compare(value.Value, default(TProperty)) > 0)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be positive when {conditionDescription}.")
-        .WithErrorCode("POSITIVE_OR_NULL");
+        .WithMessage(ValidationMessages.PositiveOrNull.Message(conditionDescription))
+        .WithErrorCode(ValidationMessages.PositiveOrNull.ErrorCode);
   }
 
   public static IRuleBuilderOptions<T, string> ApplyMustBeInSetValidator<T>(
@@ -370,8 +370,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .InclusiveBetween(from, to)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be between {from} and {to} inclusive, if specified.")
-        .WithErrorCode("InclusiveBetweenValue");
+        .WithMessage(ValidationMessages.InclusiveBetweenValue.Message(from, to))
+        .WithErrorCode(ValidationMessages.InclusiveBetweenValue.ErrorCode);
   }
 
   public static IRuleBuilderOptions<T, TProperty?> ApplyInclusiveBetweenValidator<T, TProperty>(
@@ -384,8 +384,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .InclusiveBetween(from, to)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be between {from} and {to} inclusive, if specified.")
-        .WithErrorCode("InclusiveBetweenValue");
+        .WithMessage(ValidationMessages.InclusiveBetweenValue.Message(from, to))
+        .WithErrorCode(ValidationMessages.InclusiveBetweenValue.ErrorCode);
   }
 
   public static IRuleBuilderOptions<T, TProperty> ApplyInclusiveBetweenValidator<T, TProperty>(
@@ -398,8 +398,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .InclusiveBetween(from, to)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be between {from} and {to} inclusive.")
-        .WithErrorCode("InclusiveBetweenValue");
+        .WithMessage(ValidationMessages.InclusiveBetweenValue.Message(from, to))
+        .WithErrorCode(ValidationMessages.InclusiveBetweenValue.ErrorCode);
   }
 
   public static IRuleBuilderOptions<T, TProperty> ApplyInclusiveBetweenValidator<T, TProperty>(
@@ -412,8 +412,8 @@ public static class ValidationRuleExtensions
     return ruleBuilder
         .InclusiveBetween(from, to)
         .WithName(fieldName)
-        .WithMessage($"{{PropertyName}} must be between {from} and {to} inclusive.")
-        .WithErrorCode("InclusiveBetweenValue");
+        .WithMessage(ValidationMessages.InclusiveBetweenValue.Message(from, to))
+        .WithErrorCode(ValidationMessages.InclusiveBetweenValue.ErrorCode);
   }
 
 

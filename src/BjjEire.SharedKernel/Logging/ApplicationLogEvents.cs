@@ -79,7 +79,7 @@ public static class ApplicationLogEvents
     public static readonly EventId Success = new(BaseId + 2, nameof(Success));
     public static readonly EventId Failure = new(BaseId + 3, nameof(Failure));
   }
-  public static class BjjEvent
+  public static class BjjEventService
   {
     private const int BaseId = 8000;
     public static readonly EventId GetByIdAttempt = new(BaseId + 1, nameof(GetByIdAttempt));
@@ -93,6 +93,23 @@ public static class ApplicationLogEvents
     public static readonly EventId DeleteSuccess = new(BaseId + 15, nameof(DeleteSuccess));
 
   }
+
+  public static class GymService
+  {
+      private const int BaseId = 15100;
+      public static readonly EventId GetByIdAttempt = new(BaseId + 1, nameof(GetByIdAttempt));
+      public static readonly EventId GetByIdCacheMissRepoLookup = new(BaseId + 2, nameof(GetByIdCacheMissRepoLookup));
+      public static readonly EventId GetByIdFound = new(BaseId + 3, nameof(GetByIdFound));
+      public static readonly EventId GetByIdNotFound = new(BaseId + 4, nameof(GetByIdNotFound));
+
+      public static readonly EventId InsertAttempt = new(BaseId + 10, nameof(InsertAttempt));
+      public static readonly EventId InsertSuccess = new(BaseId + 11, nameof(InsertSuccess));
+      public static readonly EventId UpdateAttempt = new(BaseId + 12, nameof(UpdateAttempt));
+      public static readonly EventId UpdateSuccess = new(BaseId + 13, nameof(UpdateSuccess));
+      public static readonly EventId DeleteAttempt = new(BaseId + 14, nameof(DeleteAttempt));
+      public static readonly EventId DeleteSuccess = new(BaseId + 15, nameof(DeleteSuccess));
+  }
+
 
   public static class QueryHandling
   {
@@ -119,11 +136,36 @@ public static class ApplicationLogEvents
         public static readonly EventId HeadersSetDebug = new(RejectedBaseId + 2, nameof(HeadersSetDebug));
         public static readonly EventId RetryAfterFound = new(RejectedBaseId + 3, nameof(RetryAfterFound));
         public static readonly EventId RetryAfterNotFoundWarning = new(RejectedBaseId + 4, nameof(RetryAfterNotFoundWarning));
-        public static readonly EventId ProblemDetailsSummary = new(RejectedBaseId + 5, nameof(ProblemDetailsSummary)); 
+        public static readonly EventId ProblemDetailsSummary = new(RejectedBaseId + 5, nameof(ProblemDetailsSummary));
         public static readonly EventId ProblemDetailsJsonDebug = new(RejectedBaseId + 6, nameof(ProblemDetailsJsonDebug));
         public static readonly EventId ResponseStartedWarning = new(RejectedBaseId + 7, nameof(ResponseStartedWarning));
         public static readonly EventId RejectionSent = new(RejectedBaseId + 8, nameof(RejectionSent));
         public static readonly EventId RejectionHandlerError = new(RejectedBaseId + 9, nameof(RejectionHandlerError));
         public static readonly EventId RejectionHandlerWriteError = new(RejectedBaseId + 10, nameof(RejectionHandlerWriteError));
+    }
+
+    public static class ApiKey
+    {
+        private const int BaseId = 14000;
+        public static readonly EventId AuthMisconfigured = new(BaseId + 1, nameof(AuthMisconfigured));
+        public static readonly EventId HeaderNotFound = new(BaseId + 2, nameof(HeaderNotFound));
+        public static readonly EventId HeaderEmpty = new(BaseId + 3, nameof(HeaderEmpty));
+        public static readonly EventId AuthSuccess = new(BaseId + 4, nameof(AuthSuccess));
+        public static readonly EventId AuthInvalid = new(BaseId + 5, nameof(AuthInvalid));
+        public static readonly EventId ChallengeIssued = new(BaseId + 6, nameof(ChallengeIssued));
+        public static readonly EventId ForbiddenIssued = new(BaseId + 7, nameof(ForbiddenIssued));
+    }
+
+    public static class Auth
+    {
+        private const int BaseId = 14100;
+        public static readonly EventId ConfigSectionNotFound = new(BaseId + 1, nameof(ConfigSectionNotFound));
+        public static readonly EventId OptionValidationFailed = new(BaseId + 2, nameof(OptionValidationFailed));
+
+        // JWT Bearer Events (14150 - 14199)
+        private const int JwtBaseId = 14150;
+        public static readonly EventId JwtAuthFailed = new(JwtBaseId + 1, nameof(JwtAuthFailed));
+        public static readonly EventId JwtTokenValidated = new(JwtBaseId + 2, nameof(JwtTokenValidated));
+        public static readonly EventId JwtChallengeIssued = new(JwtBaseId + 3, nameof(JwtChallengeIssued));
     }
 }

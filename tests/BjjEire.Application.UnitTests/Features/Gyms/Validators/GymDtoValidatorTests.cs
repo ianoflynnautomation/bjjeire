@@ -1,152 +1,164 @@
-// // BjjEire.Application.UnitTests/Features/Gyms/Validators/GymDtoValidatorTests.cs
-// using BjjEire.Application.Common.DTOs;
-// using BjjEire.Application.Features.Gyms.DTOs;
-// using BjjEire.Application.Features.Gyms.Validators;
-// using BjjEire.Domain.Enums;
-// using FluentValidation;
-// using FluentValidation.TestHelper;
-// using Moq;
-// using NUnit.Framework;
-
-// namespace BjjEire.Application.UnitTests.Features.Gyms.Validators;
-
-// [TestFixture]
-// public class GymDtoValidatorTests
-// {
-//     private GymDtoValidator _validator;
-//     private Mock<IValidator<SocialMediaDto>> _mockSocialMediaValidator;
-//     private Mock<IValidator<LocationDto>> _mockLocationValidator;
-//     private Mock<IValidator<TrialOfferDto>> _mockTrialOfferValidator;
-
-//     [SetUp]
-//     public void SetUp()
-//     {
-//         _mockSocialMediaValidator = new Mock<IValidator<SocialMediaDto>>();
-//         _mockLocationValidator = new Mock<IValidator<LocationDto>>();
-//         _mockTrialOfferValidator = new Mock<IValidator<TrialOfferDto>>();
-
-//         // Setup mocks to return valid result by default, so we only test GymDtoValidator rules
-//         _ = _mockSocialMediaValidator.Setup(v => v.Validate(It.IsAny<IValidationContext>()))
-//                                  .Returns(new FluentValidation.Results.ValidationResult());
-//         _ = _mockLocationValidator.Setup(v => v.Validate(It.IsAny<IValidationContext>()))
-//                               .Returns(new FluentValidation.Results.ValidationResult());
-//         _ = _mockTrialOfferValidator.Setup(v => v.Validate(It.IsAny<IValidationContext>()))
-//                                 .Returns(new FluentValidation.Results.ValidationResult());
 
 
-//         _validator = new GymDtoValidator(
-//             _mockSocialMediaValidator.Object,
-//             _mockLocationValidator.Object,
-//             _mockTrialOfferValidator.Object);
-//     }
+using BjjEire.Application.Common.DTOs;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Features.Gyms.Validators;
+using BjjEire.Domain.Enums;
+using Bogus;
+using DnsClient.Protocol;
+using FluentValidation;
+using FluentValidation.TestHelper;
+using Moq;
+using Xunit;
 
-//     [Test]
-//     public void Name_WhenNullOrEmpty_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Name = null };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Name)
-//               .WithErrorMessage("'Gym name' must not be empty."); // Or your specific message from ApplyRequiredString
-//     }
+namespace BjjEire.Application.UnitTests.Features.Gyms.Validators;
 
-//     [Test]
-//     public void Name_WhenExceedsMaxLength_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Name = new string('a', 101) };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Name);
-//         // .WithErrorMessage("The length of 'Gym name' must be 100 characters or fewer. You entered 101 characters."); // Check actual message
-//     }
+public class GymDtoValidatorTests
+{
+    private readonly Mock<IValidator<SocialMediaDto>> _socialMediaValidatorMock;
+    private readonly Mock<IValidator<LocationDto>> _locationValidatorMock;
+    private readonly Mock<IValidator<AffiliationDto?>> _affiliationValidatorMock;
+    private readonly Mock<IValidator<TrialOfferDto>> _trialOfferValidatorMock;
 
-//     [Test]
-//     public void Name_WhenValid_ShouldNotHaveValidationError()
-//     {
-//         var model = new GymDto { Name = "Valid Gym Name" };
-//         var result = _validator.TestValidate(model);
-//         result.ShouldNotHaveValidationErrorFor(x => x.Name);
-//     }
+    private readonly GymDtoValidator _validator;
 
-//     [Test]
-//     public void Description_WhenExceedsMaxLength_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Description = new string('a', 501) }; // As per your message
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Description)
-//               .WithErrorMessage("Description must be 500 characters or less.")
-//               .WithErrorCode("MaxLengthValidator");
-//     }
+    public GymDtoValidatorTests()
+    {
+        _socialMediaValidatorMock = new Mock<IValidator<SocialMediaDto>>();
+        _locationValidatorMock = new Mock<IValidator<LocationDto>>();
+        _affiliationValidatorMock = new Mock<IValidator<AffiliationDto?>>();
+        _trialOfferValidatorMock = new Mock<IValidator<TrialOfferDto>>();
+
+        _validator = new GymDtoValidator(
+            _socialMediaValidatorMock.Object,
+            _locationValidatorMock.Object,
+            _affiliationValidatorMock.Object,
+            _trialOfferValidatorMock.Object
+        );
+    }
+
+    private static GymDto GetValidGymDto()
+    {
+        var faker = new Faker();
+        return new GymDto
+        {
+            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Name = "Valid Gym Name",
+            Description = "Valid gym description, not too long.",
+            Status = GymStatus.Active,
+            County = County.Dublin,
+            Affiliation = new AffiliationDto
+            {
+                Name = "Valid Affiliation Name",
+                Website = "https://www.validaffiliation.com"
+            },
+            TrialOffer = new TrialOfferDto
+            {
+                IsAvailable = true,
+                FreeClasses = 3,
+                FreeDays = null,
+                Notes = "Valid trial notes, well within length limits."
+            },
+            Location = new LocationDto
+            {
+                Address = "123 Valid Street, Valid Town",
+                Venue = "Valid Venue Hall",
+                Coordinates = new GeoCoordinatesDto
+                {
+                    Type = "Point",
+                    Latitude = 53.349805,
+                    Longitude = -6.260273,
+                    PlaceName = "Central Dublin Point",
+                    PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
+                }
+            },
+            SocialMedia = new SocialMediaDto
+            {
+                Instagram = "https://www.instagram.com/validgymprofile",
+                Facebook = "https://www.facebook.com/validgympage",
+                X = "https://www.x.com/validgymhandle",
+                YouTube = "https://www.youtube.com/c/validgymchannel"
+            },
+            Website = "https://www.validgymsite.com",
+            TimetableUrl = "https://www.validgymsite.com/schedule",
+            ImageUrl = "https://www.validgymsite.com/images/main_logo.png",
+            OfferedClasses = [ClassCategory.BJJGiAllLevels, ClassCategory.BJJGiFundamentals]
+        };
+    }
+
+    [Fact]
+    public void GivenAllPropertiesAreValid_ShouldNotHaveAnyValidationErrors()
+    {
+        // Arrange
+        var model = GetValidGymDto();
+
+        // Act
+        var result = _validator.TestValidate(model);
+
+        // Assert
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void GivenNameIsTooLong_ShouldHaveValidationErrorForName()
+    {
+        // Arrange
+        var model = GetValidGymDto();
+        model.Name = new string('a', 101);
+
+        // Act
+        var result = _validator.TestValidate(model);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.Name)
+            .WithErrorCode("")
+            .WithErrorMessage("'Location' cannot be null.");
+    }
+
+    [Fact]
+    public void GivenLocationIsNull_ShouldHaveValidationErrorForLocation()
+    {
+        // Arrange
+        var model = GetValidGymDto();
+        model.Location = null!;
+
+        // Act
+        var result = _validator.TestValidate(model);
+
+        // Assert
+        _ = result.ShouldHaveValidationErrorFor(x => x.Location)
+            .WithErrorCode("")
+            .WithErrorMessage("'Location' cannot be null.");
+    }
 
 
-//     [Test]
-//     public void Status_WhenInvalidEnumValue_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Status = (GymStatus)999 }; // Invalid enum int value
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Status)
-//               .WithErrorMessage("'Gym status' has a range of values which does not include '999'."); // Check actual message from ApplyEnumValidator
-//     }
+    [Fact]
+    public void GivenWebsiteIsInvalid_ShouldHaveValidationErrorForWebsite()
+    {
+        // Arrange
+        var model = GetValidGymDto();
+        model.Website = "this is not a valid url";
 
-//     [Test]
-//     public void Status_WhenValidEnumValue_ShouldNotHaveValidationError()
-//     {
-//         var model = new GymDto { Status = GymStatus.Active };
-//         var result = _validator.TestValidate(model);
-//         result.ShouldNotHaveValidationErrorFor(x => x.Status);
-//     }
+        // Act
+        var result = _validator.TestValidate(model);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(x => x.Website);
+    }
+
+    [Fact]
+    public void GivenWebsiteIsEmpty_ShouldNotHaveValidationErrorForWebsite()
+    {
+        // Arrange
+        var model = GetValidGymDto();
+        model.Website = ""; // Empty string should be allowed due to the `.When()` clause
+
+        // Act
+        var result = _validator.TestValidate(model);
+
+        // Assert
+        result.ShouldNotHaveValidationErrorFor(x => x.Website);
+    }
 
 
-//     [Test]
-//     public void County_WhenNullOrEmpty_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { County = string.Empty };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.County);
-//     }
-
-//     [TestCase("http://valid.com")]
-//     [TestCase("https://valid.com/path")]
-//     [TestCase(null)] // Optional URLs are fine if null/empty
-//     [TestCase("")]
-//     public void Website_WhenValidOrOptional_ShouldNotHaveValidationError(string url)
-//     {
-//         var model = new GymDto { Website = url };
-//         var result = _validator.TestValidate(model);
-//         result.ShouldNotHaveValidationErrorFor(x => x.Website);
-//     }
-
-//     [Test]
-//     public void Website_WhenInvalidUrl_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Website = "invalid-url" };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Website)
-//               .WithErrorMessage("{PropertyName} must be a valid URL.");
-//     }
-
-//     [Test]
-//     public void TrialOffer_WhenNull_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { TrialOffer = null };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.TrialOffer)
-//               .WithErrorMessage("'TrialOffer' must not be empty."); // Check message from ApplyNotNullValidator
-//     }
-
-//     [Test]
-//     public void SocialMedia_WhenNull_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { SocialMedia = null };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.SocialMedia);
-//     }
-
-//     [Test]
-//     public void Location_WhenNull_ShouldHaveValidationError()
-//     {
-//         var model = new GymDto { Location = null };
-//         var result = _validator.TestValidate(model);
-//         _ = result.ShouldHaveValidationErrorFor(x => x.Location);
-//     }
-
-//     // Add similar tests for TimetableUrl and ImageUrl
-// }
+}

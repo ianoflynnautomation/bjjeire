@@ -48,7 +48,8 @@ public static class Extensions
           {
             diagnosticContext.Set("UserId", userId);
           }
-        };
+
+          };
       options.GetLevel = (httpContext, elapsed, ex) =>
           {
           if (ex != null || httpContext.Response.StatusCode >= 500)

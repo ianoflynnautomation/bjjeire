@@ -11,17 +11,17 @@ public class BjjEventDto : BaseApiEntityModel
 
     public string? Description { get; set; } = string.Empty;
 
-    public BjjEventType Type { get; set; }
+    public BjjEventType Type { get; init; }
 
     public OrganizerDto Organiser { get; set; } = new();
 
-    public EventStatus Status { get; set; }
+    public EventStatus Status { get; init; }
 
     public string? StatusReason { get; set; }
 
     public SocialMediaDto SocialMedia { get; set; } = new();
 
-    public County County { get; set; }
+    public County County { get; init; }
 
     public LocationDto Location { get; set; } = new();
 

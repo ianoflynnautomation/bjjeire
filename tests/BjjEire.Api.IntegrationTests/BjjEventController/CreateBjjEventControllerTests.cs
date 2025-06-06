@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http.Json;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Data;
+using BjjEire.Api.IntegrationTests.Fixtures;
+using BjjEire.Api.IntegrationTests.TestBases;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.DTOs;
@@ -15,9 +17,11 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventController;
 
-public class CreateBjjEventControllerTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
-    : IntegrationTestBase<CustomApiFactory>(apiFactory, outputHelper)
+public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
 {
+    public CreateBjjEventControllerTests(TestContainerFixture fixture, ITestOutputHelper output)
+        : base(fixture, output) { }
+
 
   [Fact]
   public async Task CreateBjjEvent_WithValidData_ShouldCreateBjjEvent()
@@ -31,8 +35,7 @@ public class CreateBjjEventControllerTests(CustomApiFactory apiFactory, ITestOut
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
-
-    var createdBjjEventResponse = await response.Content.ReadFromJsonAsync<CreateBjjEventResponse>(TestJsonHelper.SerializerOptions);
+    var createdBjjEventResponse = await HttpService.ReadAsJsonAsync<CreateBjjEventResponse>(response);
     createdBjjEventResponse.ShouldNotBeNull();
     createdBjjEventResponse.Data.ShouldNotBeNull();
     createdBjjEventResponse.Data.ShouldBeEquivalentTo(command.Data);
@@ -1027,7 +1030,7 @@ public class CreateBjjEventControllerTests(CustomApiFactory apiFactory, ITestOut
 
     // Assert
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Duration Days must be positive when provided for PerSession or PerDay pricing.")
+        (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Duration Days must be null or positive when provided for PerSession or PerDay pricing.")
     ]);
   }
 

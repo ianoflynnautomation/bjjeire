@@ -115,6 +115,12 @@ public static class ValidationMessages
     public static string Message(object value, string condition) => $"{{PropertyName}} must be {value} when {condition}.";
   }
 
+  public static class InclusiveBetweenValue
+  {
+      public const string ErrorCode = "INCLUSIVE_BETWEEN_VALUE";
+      public static string Message(object from, object to) => $"{{PropertyName}} must be between {from} and {to} inclusive.";
+  }
+
   public static class MustBePositiveValueWhen
   {
     public const string ErrorCode = "MUST_BE_POSITIVE_WHEN";

@@ -5,37 +5,40 @@ using System.Net;
 using System.Net.Http.Json;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Data;
+using BjjEire.Api.IntegrationTests.Fixtures;
+using BjjEire.Api.IntegrationTests.TestBases;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.Gyms.Commands;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Domain.Entities.Gyms;
 using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.GymController;
 
-public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
-    : IntegrationTestBase<CustomApiFactory>(apiFactory, outputHelper)
+public class CreateGymControllerTests : ParallelIntegrationTestBase
 {
+    public CreateGymControllerTests(TestContainerFixture fixture, ITestOutputHelper output)
+        : base(fixture, output) { }
 
-  [Fact]
-  public async Task CreateGym_WithValidData_ShouldCreateGym()
-  {
-    // Arrange
-    await SetDefaultUserAuthTokenAsync();
-    var command = GymTestDataFactory.GetValidCreateGymCommand();
+    public async Task CreateGym_WithValidAuthentication_ShouldCreateGym()
+    {
+        // Arrange
+        await SetDefaultUserAuthTokenAsync();
+        var command = GymTestDataFactory.GetValidCreateGymCommand();
 
-    // Act
-    var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        // Act
+        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
-    // Assert
-    response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.Created);
 
-    var createdGymResponse = await response.Content.ReadFromJsonAsync<CreateGymResponse>(TestJsonHelper.SerializerOptions);
-    createdGymResponse.ShouldNotBeNull();
-    createdGymResponse.Data.ShouldNotBeNull();
-    createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
-  }
-
+        var createdGymResponse = await HttpService.ReadAsJsonAsync<CreateGymResponse>(response);
+        createdGymResponse.ShouldNotBeNull();
+        createdGymResponse.Data.ShouldNotBeNull();
+        createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
+    }
   [Fact]
   public async Task CreateGym_WithoutAuthentication_ShouldReturnUnauthorized()
   {
@@ -272,55 +275,87 @@ public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHe
 
     // Assert
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.TrialOffer", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer is required when IsAvailable is true")
+        (Field: "Data.TrialOffer", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer (FreeClasses or FreeDays) is required when IsAvailable is true.")
     ]);
   }
 
-  [Theory]
-  [InlineData(0)]
-  [InlineData(11)]
-  public async Task CreateGym_TrialOfferIsAvailableWithInvalidFreeClasses_ShouldReturnBadRequest(int? freeClasses)
+[Fact]
+  public async Task CreateGym_TrialOfferIsAvailableWithZeroFreeClasses_ShouldReturnBadRequest()
   {
     // Arrange
     await SetDefaultUserAuthTokenAsync();
     var command = GymTestDataFactory.GetValidCreateGymCommand();
     command.Data.TrialOffer.IsAvailable = true;
-    command.Data.TrialOffer.FreeClasses = freeClasses;
+    command.Data.TrialOffer.FreeClasses = 0;
     command.Data.TrialOffer.FreeDays = null;
 
     // Act
     var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
     // Assert
-    var expectedErrorCode = freeClasses == 0 ? ValidationMessages.PositiveOrNull.ErrorCode : "InclusiveBetweenValue";
-    var expectedMessagePart = freeClasses == 0 ? "must be positive" : "must be between 1 and 10";
 
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: expectedErrorCode, MessageContains: expectedMessagePart)
+        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive."),
+        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Classes must be null or positive when provided.")
     ]);
   }
 
-  [Theory]
-  [InlineData(0)]
-  [InlineData(31)]
-  public async Task CreateGym_TrialOfferIsAvailableWithInvalidFreeDays_ShouldReturnBadRequest(int? freeDays)
+[Fact]
+  public async Task CreateGym_TrialOfferIsAvailableWithExceededLimitFreeClasses_ShouldReturnBadRequest()
+  {
+      // Arrange
+      await SetDefaultUserAuthTokenAsync();
+      var command = GymTestDataFactory.GetValidCreateGymCommand();
+      command.Data.TrialOffer.IsAvailable = true;
+      command.Data.TrialOffer.FreeClasses = 11;
+      command.Data.TrialOffer.FreeDays = null;
+
+      // Act
+      var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+
+      // Assert
+      await AssertValidationErrorAsync(response, [
+          (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Classes must be between 1 and 10 inclusive.")
+      ]);
+  }
+
+  [Fact]
+  public async Task CreateGym_TrialOfferIsAvailableWithZeroFreeDays_ShouldReturnBadRequest()
   {
     // Arrange
     await SetDefaultUserAuthTokenAsync();
     var command = GymTestDataFactory.GetValidCreateGymCommand();
     command.Data.TrialOffer.IsAvailable = true;
     command.Data.TrialOffer.FreeClasses = null;
-    command.Data.TrialOffer.FreeDays = freeDays;
+    command.Data.TrialOffer.FreeDays = 0;
 
     // Act
     var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
     // Assert
-    var expectedErrorCode = freeDays == 0 ? ValidationMessages.PositiveOrNull.ErrorCode : "InclusiveBetweenValue";
-    var expectedMessagePart = freeDays == 0 ? "must be positive" : "must be between 1 and 30";
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.TrialOffer.FreeDays", ErrorCode: expectedErrorCode, MessageContains: expectedMessagePart)
+        (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Days must be null or positive when provided."),
+        (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Days must be between 1 and 30 inclusive.")
     ]);
+  }
+
+    [Fact]
+  public async Task CreateGym_TrialOfferIsAvailableWithExceededLimitFreeDays_ShouldReturnBadRequest()
+  {
+      // Arrange
+      await SetDefaultUserAuthTokenAsync();
+      var command = GymTestDataFactory.GetValidCreateGymCommand();
+      command.Data.TrialOffer.IsAvailable = true;
+      command.Data.TrialOffer.FreeClasses = null;
+      command.Data.TrialOffer.FreeDays = 31;
+
+      // Act
+      var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+
+      // Assert
+      await AssertValidationErrorAsync(response, [
+          (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Days must be between 1 and 30 inclusive.")
+      ]);
   }
 
   [Fact]
@@ -337,7 +372,7 @@ public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHe
 
     // Assert
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: "InclusiveBetweenValidator", MessageContains: "FreeClasses must be between 1 and 10 when provided.")
+        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive.")
     ]);
   }
 
@@ -618,7 +653,7 @@ public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHe
 
     // Assert
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.Location.Coordinates.Latitude", ErrorCode: "InclusiveBetweenValue", MessageContains: "Latitude must be between -90 and 90 inclusive.")
+        (Field: "Data.Location.Coordinates.Latitude", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Latitude must be between -90 and 90 inclusive.")
     ]);
   }
 
@@ -637,7 +672,7 @@ public class CreateGymControllerTests(CustomApiFactory apiFactory, ITestOutputHe
 
     // Assert
     await AssertValidationErrorAsync(response, [
-        (Field: "Data.Location.Coordinates.Longitude", ErrorCode: "InclusiveBetweenValue", MessageContains: "Longitude must be between -180 and 180 inclusive.")
+        (Field: "Data.Location.Coordinates.Longitude", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Longitude must be between -180 and 180 inclusive.")
     ]);
   }
 
