@@ -3,26 +3,26 @@
     <PropertyGroup>
         <RootNamespace>BjjEire.Application.UnitTests</RootNamespace>
         <AssemblyName>BjjEire.Application.UnitTests</AssemblyName>
-                <!-- Suppress SA1600 and other rules -->
-    <NoWarn>$(NoWarn);CS8600,NUnit1001,CS8625</NoWarn>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Azure.Identity" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="nunit" />
-        <PackageReference Include="NUnit.Analyzers">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="NUnit3TestAdapter" />
-        <PackageReference Include="coverlet.collector">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+     <ItemGroup>
         <PackageReference Include="Shouldly" />
+        <PackageReference Include="Bogus" />
+        <PackageReference Include="Testcontainers" />
+        <PackageReference Include="Testcontainers.MongoDb" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
         <PackageReference Include="Moq" />
-    </ItemGroup>
+        <PackageReference Include="xunit.runner.visualstudio" >
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" >
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+  </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../src/BjjEire.Application/BjjEire.Application.csproj" />

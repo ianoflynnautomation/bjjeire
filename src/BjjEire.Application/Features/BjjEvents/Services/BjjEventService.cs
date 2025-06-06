@@ -24,7 +24,7 @@ public sealed class BjjEventService(
     ArgumentNullException.ThrowIfNull(id);
     var key = CacheKey.BjjEventsById(id);
 
-    _logger.LogInformation(ApplicationLogEvents.BjjEvent.GetByIdAttempt, "Attempting to get BjjEvent by ID {BjjEventId} using cache key {CacheKey}", id, key);
+    _logger.LogInformation(ApplicationLogEvents.BjjEventService.GetByIdAttempt, "Attempting to get BjjEvent by ID {BjjEventId} using cache key {CacheKey}", id, key);
 
     var bjjEvent = await _cacheBase.GetAsync(key, () =>
     {
@@ -40,14 +40,14 @@ public sealed class BjjEventService(
     ArgumentNullException.ThrowIfNull(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.InsertAttempt,
+        ApplicationLogEvents.BjjEventService.InsertAttempt,
         "Attempting to insert BjjEvent. EventName: {BjjEventName}",
         bjjEvent.Name);
 
     var insertedEvent = await _bjjEventRepository.InsertAsync(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.InsertSuccess,
+        ApplicationLogEvents.BjjEventService.InsertSuccess,
         "Successfully inserted BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
         insertedEvent.Id,
         insertedEvent.Name);
@@ -65,7 +65,7 @@ public sealed class BjjEventService(
     ArgumentNullException.ThrowIfNull(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.UpdateAttempt,
+        ApplicationLogEvents.BjjEventService.UpdateAttempt,
         "Attempting to update BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
         bjjEvent.Id,
         bjjEvent.Name);
@@ -73,7 +73,7 @@ public sealed class BjjEventService(
     var updatedEvent = await _bjjEventRepository.UpdateAsync(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.UpdateSuccess,
+        ApplicationLogEvents.BjjEventService.UpdateSuccess,
         "Successfully updated BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
         updatedEvent.Id,
         updatedEvent.Name);
@@ -91,7 +91,7 @@ public sealed class BjjEventService(
     ArgumentNullException.ThrowIfNull(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.DeleteAttempt,
+        ApplicationLogEvents.BjjEventService.DeleteAttempt,
         "Attempting to delete BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
         bjjEvent.Id,
         bjjEvent.Name);
@@ -106,7 +106,7 @@ public sealed class BjjEventService(
     var deletedEvent = await _bjjEventRepository.DeleteAsync(bjjEvent);
 
     _logger.LogInformation(
-        ApplicationLogEvents.BjjEvent.DeleteSuccess,
+        ApplicationLogEvents.BjjEventService.DeleteSuccess,
         "Successfully deleted BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
         deletedEvent.Id,
         deletedEvent.Name);

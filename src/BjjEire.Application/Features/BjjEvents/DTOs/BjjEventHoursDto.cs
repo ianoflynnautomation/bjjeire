@@ -5,10 +5,10 @@ namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
 public class BjjEventHoursDto
 {
-    public DayOfWeek Day { get; set; }
+    public DayOfWeek Day { get; init; }
 
     public TimeSpan OpenTime { get; set; }
-    
+
     public TimeSpan CloseTime { get; set; }
 }
 

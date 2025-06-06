@@ -3,7 +3,7 @@ namespace BjjEire.Application.Common;
 public abstract record BasePaginationQuery
 {
     protected const int DefaultPage = 1;
-    protected const int DefaultPageSize = 12;
+    protected const int DefaultPageSize = 20;
     protected const int MaxPageSize = 100;
 
     private int _page = DefaultPage;

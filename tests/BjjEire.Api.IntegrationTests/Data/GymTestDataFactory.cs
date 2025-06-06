@@ -2,6 +2,9 @@ using System.Globalization;
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Application.Features.Gyms.Queries;
+using BjjEire.Domain.Entities.Common;
+using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
 using Bogus;
 
@@ -89,6 +92,10 @@ public static class GymTestDataFactory
   public static Faker<CreateGymCommand> BogusCreateGymCommandGenerator { get; } = new Faker<CreateGymCommand>()
       .RuleFor(x => x.Data, (faker, cmd) => GymDtoGenerator.Generate());
 
+
+  public static GetGymPaginationQuery GetValidGymPaginationQuery() => new() {County = County.Cork, Page = 1, PageSize = 20};
+
+
   public static CreateGymCommand GetValidCreateGymCommand() => new() { Data = GetValidGymDto() };
 
   public static GymDto GetValidGymDto()
@@ -138,6 +145,107 @@ public static class GymTestDataFactory
       ImageUrl = "https://www.validgymsite.com/images/main_logo.png",
       OfferedClasses = [ClassCategory.BJJGiAllLevels, ClassCategory.BJJGiFundamentals]
     };
+  }
+
+  public static Gym GetValidGym()
+  {
+      var faker = new Faker();
+      return new Gym
+      {
+          Id = faker.Random.Hexadecimal(24, "").ToLower(),
+          Name = "Valid Gym Name",
+          Description = "Valid gym description, not too long.",
+          Status = GymStatus.Active,
+          County = County.Dublin,
+          Affiliation = new Affiliation
+          {
+              Name = "Valid Affiliation Name",
+              Website = "https://www.validaffiliation.com"
+          },
+          TrialOffer = new TrialOffer
+          {
+              IsAvailable = true,
+              FreeClasses = 3,
+              FreeDays = null,
+              Notes = "Valid trial notes, well within length limits."
+          },
+          Location = new Location
+          {
+              Address = "123 Valid Street, Valid Town",
+              Venue = "Valid Venue Hall",
+              Coordinates = new GeoCoordinates
+              {
+                  Latitude = 53.349805,
+                  Longitude = -6.260273,
+                  PlaceName = "Central Dublin Point",
+                  PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
+              }
+          },
+          SocialMedia = new SocialMedia
+          {
+              Instagram = "https://www.instagram.com/validgymprofile",
+              Facebook = "https://www.facebook.com/validgympage",
+              X = "https://www.x.com/validgymhandle",
+              YouTube = "https://www.youtube.com/c/validgymchannel"
+          },
+          Website = "https://www.validgymsite.com",
+          TimetableUrl = "https://www.validgymsite.com/schedule",
+          ImageUrl = "https://www.validgymsite.com/images/main_logo.png",
+          OfferedClasses = [ClassCategory.BJJGiAllLevels, ClassCategory.BJJGiFundamentals]
+      };
+  }
+
+  public static Gym CreateGym(Action<Gym>? configure = null)
+  {
+      var faker = new Faker();
+      var gym = new Gym
+      {
+          Id = faker.Random.Hexadecimal(24, "").ToLower(),
+          Name = "Default Valid Gym",
+          Description = "A valid default gym description.",
+          Status = GymStatus.Active,
+          County = County.Dublin,
+          Affiliation = new Affiliation
+          {
+              Name = "Valid Affiliation Name",
+              Website = "https://www.validaffiliation.com"
+          },
+          TrialOffer = new TrialOffer
+          {
+              IsAvailable = true,
+              FreeClasses = 3,
+              FreeDays = null,
+              Notes = "Valid trial notes, well within length limits."
+          },
+          Location = new Location
+          {
+              Address = "123 Valid Street, Valid Town",
+              Venue = "Valid Venue Hall",
+              Coordinates = new GeoCoordinates
+              {
+                  Latitude = 53.349805,
+                  Longitude = -6.260273,
+                  PlaceName = "Central Dublin Point",
+                  PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
+              }
+          },
+          SocialMedia = new SocialMedia
+          {
+              Instagram = "https://www.instagram.com/validgymprofile",
+              Facebook = "https://www.facebook.com/validgympage",
+              X = "https://www.x.com/validgymhandle",
+              YouTube = "https://www.youtube.com/c/validgymchannel"
+          },
+          Website = "https://www.defaultgym.com",
+          TimetableUrl = "https://www.defaultgym.com/schedule",
+          ImageUrl = "https://www.defaultgym.com/image.png",
+          OfferedClasses = [ClassCategory.BJJGiAllLevels, ClassCategory.BJJNoGiAllLevels]
+      };
+
+      // Apply the user's custom configuration, if provided.
+      configure?.Invoke(gym);
+
+      return gym;
   }
 
   private static string SetMinMaxLength(this string? str, int min, int max)

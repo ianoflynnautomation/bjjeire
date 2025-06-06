@@ -11,7 +11,7 @@ public class GymDto : BaseApiEntityModel
 
     public string? Description { get; set; } = string.Empty;
 
-    public GymStatus Status { get; set; }
+    public GymStatus Status { get; init; }
 
     public County County { get; set; }
 
@@ -23,7 +23,7 @@ public class GymDto : BaseApiEntityModel
 
     public SocialMediaDto SocialMedia { get; set; } = new();
 
-    public List<ClassCategory> OfferedClasses { get; set; } = [];
+    public List<ClassCategory> OfferedClasses { get; init; } = [];
 
     public string? Website { get; set; }
 

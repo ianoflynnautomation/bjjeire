@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace BjjEire.Api.IntegrationTests.Common;
+namespace BjjEire.Application.FunctionalTests.Common;
 
 public class TestLoggingEvents
 {
@@ -21,15 +21,5 @@ public class TestLoggingEvents
         public static readonly EventId ContainerStopped = new(BaseId + 8, nameof(ContainerStopped));
         public static readonly EventId SetupComplete = new(BaseId + 9, nameof(SetupComplete));
         public static readonly EventId TeardownComplete = new(BaseId + 10, nameof(TeardownComplete));
-    }
-
-    public static class TestLifecycle
-    {
-        private const int BaseId = 13000;
-        public static readonly EventId TestStarted = new(BaseId + 1, "TestExecutionStarted");
-        public static readonly EventId TestFinished = new(BaseId + 2, "TestExecutionFinished");
-        public static readonly EventId DatabaseResetting = new(BaseId + 3, "TestDatabaseResetting");
-        public static readonly EventId DatabaseResetComplete = new(BaseId + 4, "TestDatabaseResetComplete");
-        public static readonly EventId SeedingData = new(BaseId + 5, "TestSeedingData");
     }
 }
