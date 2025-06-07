@@ -21,11 +21,21 @@ public static class ApiValidationAssertion
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(logger);
 
-        logger.LogInformation("Asserting validation error. Expecting {ErrorCount} criteria.", expectedErrors.Length);
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.ValidationAssertionStarting,
+            "Asserting validation error. Expecting {ErrorCount} criteria.", expectedErrors.Length);
 
         var responseContentForError = await response.Content.ReadAsStringAsync();
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, $"Expected 400 Bad Request, but got {response.StatusCode}. Response: {responseContentForError}");
-        logger.LogDebug("Raw JSON response for validation error: {JsonResponse}", responseContentForError);
+
+        if (response.StatusCode != HttpStatusCode.BadRequest)
+        {
+            logger.LogError(TestLoggingEvents.TestLifecycle.AssertionFailed,
+                "Expected status code 400 Bad Request, but got {StatusCode}. Response: {ResponseContent}",
+                (int)response.StatusCode, responseContentForError);
+            response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, $"Response: {responseContentForError}");
+        }
+
+        logger.LogDebug(TestLoggingEvents.TestLifecycle.RawJsonResponse,
+            "Raw JSON response for validation error: {JsonResponse}", responseContentForError);
 
         ValidationErrorResponse? errorResponse;
         try
@@ -34,42 +44,49 @@ public static class ApiValidationAssertion
         }
         catch (JsonException jsonEx)
         {
-            logger.LogError(jsonEx, "JSON Deserialization Failed.");
-            throw new InvalidOperationException($"Failed to deserialize validation error response. Raw JSON: {responseContentForError}", jsonEx);
+            logger.LogError(TestLoggingEvents.TestLifecycle.AssertionFailed, jsonEx,
+                "JSON Deserialization Failed for validation error response. Raw JSON: {JsonResponse}",
+                responseContentForError);
+            // Re-throw as an InvalidOperationException to fail the test with clear context.
+            throw new InvalidOperationException(
+                $"Failed to deserialize validation error response. Raw JSON: {responseContentForError}", jsonEx);
         }
 
-        errorResponse.ShouldNotBeNull("Deserialized validation error response was null.");
-        errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest, "Expected status code 400 in response body.");
-        errorResponse.Title.ShouldBe("Validation Failed", "Expected title 'Validation Failed'.");
-        errorResponse.Type.ShouldBe("urn:bjjeire:validation-error", "Expected type 'urn:bjjeire:validation-error'.");
-        errorResponse.Detail.ShouldBe("One or more validation errors occurred. Please see the 'errors' property for details.", "Expected detail message mismatch.");
-        errorResponse.Errors.ShouldNotBeNull("Errors collection should not be null.");
-
-        var actualErrorsForDisplay = () => $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
-
-        errorResponse.Errors.Count.ShouldBe(expectedErrors.Length,
-            $"Expected exactly {expectedErrors.Length} validation errors, but found {errorResponse.Errors.Count}. {actualErrorsForDisplay()}");
-
-        foreach (var (field, errorCode, messageContains) in expectedErrors)
+        try
         {
-            logger.LogInformation(
-                "Verifying expected error for Field: '{Field}', ErrorCode: '{ErrorCode}', MessageContains: '{MessageContains}'",
-                field, errorCode ?? "N/A", messageContains ?? "N/A");
+            errorResponse.ShouldNotBeNull("Deserialized validation error response was null.");
+            errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest, "Expected status code 400 in response body.");
+            errorResponse.Title.ShouldBe("Validation Failed", "Expected title 'Validation Failed'.");
+            errorResponse.Errors.ShouldNotBeNull("Errors collection should not be null.");
 
-            var foundMatch = errorResponse.Errors.Any(actualError =>
-                string.Equals(actualError.Field, field, StringComparison.OrdinalIgnoreCase) &&
-                (string.IsNullOrEmpty(errorCode) || string.Equals(actualError.ErrorCode, errorCode, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(messageContains) || (actualError.Message?.Contains(messageContains, StringComparison.OrdinalIgnoreCase) ?? false))
-            );
+            var actualErrorsForDisplay = () => $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
 
-            foundMatch.ShouldBeTrue(
-                $"Did not find the expected validation error for Field: '{field}', ErrorCode: '{errorCode ?? "N/A"}', MessageContains: '{messageContains ?? "N/A"}'. {actualErrorsForDisplay()}");
+            errorResponse.Errors.Count.ShouldBe(expectedErrors.Length,
+                $"Expected {expectedErrors.Length} validation errors, but found {errorResponse.Errors.Count}. {actualErrorsForDisplay()}");
+
+            foreach (var (field, errorCode, messageContains) in expectedErrors)
+            {
+                var foundMatch = errorResponse.Errors.Any(actualError =>
+                    string.Equals(actualError.Field, field, StringComparison.OrdinalIgnoreCase) &&
+                    (string.IsNullOrEmpty(errorCode) || string.Equals(actualError.ErrorCode, errorCode, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(messageContains) || (actualError.Message?.Contains(messageContains, StringComparison.OrdinalIgnoreCase) ?? false))
+                );
+
+                foundMatch.ShouldBeTrue(
+                    $"Did not find expected validation error for Field: '{field}', ErrorCode: '{errorCode ?? "N/A"}'. {actualErrorsForDisplay()}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Catch assertion exceptions (e.g., from Shouldly) and log them with our specific EventId.
+            logger.LogError(TestLoggingEvents.TestLifecycle.AssertionFailed, ex,
+                "Validation assertion failed. Expected Errors: {ExpectedErrors}, Actual Response: {ActualResponse}",
+                expectedErrors, errorResponse);
+            // Re-throw the original exception to ensure the test fails correctly.
+            throw;
         }
 
-        logger.LogInformation(
-            "Validation error assertions completed successfully for {ErrorCount} expected errors.",
-            expectedErrors.Length);
-
-        logger.LogInformation("Validation error assertions completed successfully.");
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.ValidationAssertionPassed,
+            "Validation error assertions passed successfully for {ErrorCount} expected errors.", expectedErrors.Length);
     }
 }

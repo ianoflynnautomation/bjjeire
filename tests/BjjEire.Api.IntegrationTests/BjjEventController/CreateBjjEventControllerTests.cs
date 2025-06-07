@@ -17,11 +17,11 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventController;
 
-public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
+[Trait("Category", "Parallel")]
+[Trait("Category", "BjjEvent")]
+public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+    : ParallelTestBase(fixture, output)
 {
-    public CreateBjjEventControllerTests(TestContainerFixture fixture, ITestOutputHelper output)
-        : base(fixture, output) { }
-
 
   [Fact]
   public async Task CreateBjjEvent_WithValidData_ShouldCreateBjjEvent()
@@ -31,11 +31,11 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
-    var createdBjjEventResponse = await HttpService.ReadAsJsonAsync<CreateBjjEventResponse>(response);
+    var createdBjjEventResponse = await Http.ReadAsJsonAsync<CreateBjjEventResponse>(response);
     createdBjjEventResponse.ShouldNotBeNull();
     createdBjjEventResponse.Data.ShouldNotBeNull();
     createdBjjEventResponse.Data.ShouldBeEquivalentTo(command.Data);
@@ -49,7 +49,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     HttpClient.DefaultRequestHeaders.Authorization = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -64,12 +64,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
-    ]);
+    );
   }
 
   #region BjjEventDto - Top Level Field Validations
@@ -86,12 +86,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Name = invalidName!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Name", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Event Name is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -103,12 +103,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Name = new string('A', 101);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Event Name cannot exceed 100 characters.")
-    ]);
+  );
   }
 
   [Fact]
@@ -120,12 +120,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Description = new string('A', 201);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Description", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Description cannot exceed 200 characters.")
-    ]);
+    );
   }
 
 
@@ -142,7 +142,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
@@ -162,7 +162,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
@@ -179,12 +179,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.StatusReason = new string('A', 101);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.StatusReason", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Status Reason cannot exceed 100 characters.")
-    ]);
+    );
   }
 
   // [Fact]
@@ -199,7 +199,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
@@ -226,12 +226,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     }
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: fieldPath, ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
-    ]);
+    );
   }
 
   #endregion
@@ -247,12 +247,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Organiser = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Organiser", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Organiser cannot be null.")
-    ]);
+    );
   }
 
   [Theory]
@@ -267,12 +267,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Organiser.Name = invalidName!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Organiser.Name", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -284,12 +284,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Organiser.Name = new string('A', 101);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Organiser.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
-    ]);
+    );
   }
 
   [Fact]
@@ -301,12 +301,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Organiser.Website = "invalid-website-url";
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Organiser.Website", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
-    ]);
+    );
   }
 
   #endregion
@@ -321,12 +321,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.SocialMedia = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.SocialMedia", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
-    ]);
+    );
   }
 
   [Theory]
@@ -359,12 +359,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     }
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: $"Data.SocialMedia.{socialMediaField}", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
-    ]);
+    );
   }
 
   [Fact]
@@ -379,7 +379,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.SocialMedia.YouTube = string.Empty;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -396,7 +396,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.SocialMedia.YouTube = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -415,12 +415,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
-    ]);
+    );
   }
 
   [Theory]
@@ -435,12 +435,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location.Address = invalidAddress!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location.Address", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -452,12 +452,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location.Address = new string('a', 101);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location.Address", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
-    ]);
+    );
   }
 
   [Theory]
@@ -472,12 +472,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location.Venue = invalidVenue!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -489,12 +489,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location.Venue = new string('a', 101);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
-    ]);
+    );
   }
 
   [Fact]
@@ -506,12 +506,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Location.Coordinates = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Location.Coordinates", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
-    ]);
+    );
   }
 
   #endregion
@@ -527,12 +527,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Schedule cannot be null.")
-    ]);
+    );
   }
 
   // [Fact]
@@ -547,7 +547,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
@@ -566,12 +566,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.EndDate = DateTime.UtcNow.AddDays(1);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.StartDate", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Start Date is required when schedule type is FixedDate.")
-    ]);
+    );
   }
 
   [Fact]
@@ -585,12 +585,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.EndDate = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.EndDate", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "End Date is required when schedule type is FixedDate.")
-    ]);
+    );
   }
 
   [Fact]
@@ -604,12 +604,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.EndDate = DateTime.UtcNow;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.EndDate", ErrorCode: ValidationMessages.GreaterThanOrEqual.ErrorCode, MessageContains: "End Date must be on or after Start Date.")
-    ]);
+    );
   }
 
   [Fact]
@@ -621,12 +621,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.Hours = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Hours cannot be null.")
-    ]);
+    );
   }
 
   [Fact]
@@ -641,13 +641,13 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.Hours = null;
 
     // ACT
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Event Hours cannot be null.")
-    ]);
+    );
   }
 
   [Fact]
@@ -662,13 +662,13 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.Hours = [];
 
     // ACT
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Hours is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -689,13 +689,13 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     ];
 
     // ACT
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NoNullEntries.ErrorCode, MessageContains: "Event Hours cannot contain null entries.")
-    ]);
+    );
   }
 
   // [Fact]
@@ -718,7 +718,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
@@ -736,12 +736,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Schedule.Hours[0].CloseTime = new TimeSpan(10, 0, 0);
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Schedule.Hours[0].CloseTime", ErrorCode: ValidationMessages.GreaterThan.ErrorCode, MessageContains: "Close Time must be greater than Open Time.")
-    ]);
+    );
   }
 
   #endregion
@@ -757,12 +757,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing = null!;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Pricing cannot be null.")
-    ]);
+    );
   }
 
   // [Fact]
@@ -777,7 +777,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
   //
   //     // Act
   //     var content = new StringContent(rawCommand, System.Text.Encoding.UTF8, "application/json");
-  //     var response = await HttpClient.PostAsync("api/bjjevent", content);
+  //     var response = await Http.PostAsync("api/bjjevent", content);
   //
   //     // Assert
   //     // PricingModelDtoValidator applies ApplyEnumValidator("Pricing Type") to Type.
@@ -800,12 +800,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.Amount", ErrorCode: "MUST_BE_ZERO_WHEN_FREE", MessageContains: "Amount must be 0 when Pricing Type is Free.")
-    ]);
+    );
   }
 
   [Fact]
@@ -820,12 +820,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Currency must be null when Pricing Type is Free.")
-    ]);
+    );
   }
 
   [Fact]
@@ -840,12 +840,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = 1;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Duration Days must be null when Pricing Type is Free.")
-    ]);
+    );
   }
 
   [Fact]
@@ -860,7 +860,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -880,12 +880,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = 1;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.Amount", ErrorCode: "MUST_BE_POSITIVE_FOR_PAID", MessageContains: "Amount must be greater than 0.")
-    ]);
+    );
   }
 
   [Theory]
@@ -902,12 +902,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = 1;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Currency is required.")
-    ]);
+    );
   }
 
   [Fact]
@@ -922,12 +922,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = 1;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.InvalidFormat.ErrorCode, MessageContains: "Currency must be a valid ISO 4217 currency code (e.g., EUR, USD).")
-    ]);
+    );
   }
 
   [Fact]
@@ -942,12 +942,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Duration Days is required when FlatRate pricing type.")
-    ]);
+    );
   }
 
   [Theory]
@@ -964,12 +964,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = invalidDuration;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.DurationDays", ErrorCode: "MUST_BE_POSITIVE_FLAT_RATE_DURATION", MessageContains: "Duration Days must be greater than 0.")
-    ]);
+    );
   }
 
   [Theory]
@@ -986,7 +986,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = null;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -1006,7 +1006,7 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = validDuration;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -1026,12 +1026,12 @@ public class CreateBjjEventControllerTests: ParallelIntegrationTestBase
     command.Data.Pricing.DurationDays = invalidDuration;
 
     // Act
-    var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+    var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    await AssertValidationErrorAsync(response, [
+    await AssertValidationErrorAsync(response,
         (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Duration Days must be null or positive when provided for PerSession or PerDay pricing.")
-    ]);
+  );
   }
 
   #endregion

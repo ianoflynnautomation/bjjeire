@@ -1,6 +1,7 @@
 // // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // // Licensed under the MIT License.
 //
+// using BjjEire.Api.IntegrationTests.TestBases;
 // using Microsoft.AspNetCore.Http;
 // using Shouldly;
 // using Xunit;
@@ -8,24 +9,21 @@
 //
 // namespace BjjEire.Api.IntegrationTests.GymController;
 //
-// public class GetGymControllerRateLimitTests(StrictRateLimitTestApiFactory apiFactory, ITestOutputHelper outputhelper)
-//     : IntegrationTestBase<StrictRateLimitTestApiFactory>(apiFactory, outputhelper)
-// {
+// [Trait("Category", "Sequential")]
+// [Trait("Category", "Gym")]
+// public class GetGymControllerRateLimitTests(ITestOutputHelper output) : RateLimitSequentialIntegrationTestBase(output) {
 //     private const int ConfiguredPermitLimit = 2;
 //     private const int ConfiguredWindowInSeconds = 10;
 //     private const int ExpectedRejectionStatusCode = StatusCodes.Status429TooManyRequests;
 //
-// [Fact]
-//     public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeaders()
-//     {
+//     [Fact]
+//     public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeaders() {
 //         HttpResponseMessage? lastResponse = null;
 //
-//         for (var i = 0; i <= ConfiguredPermitLimit; i++)
-//         {
-//             lastResponse = await _httpClient.GetAsync("api/gym");
+//         for (var i = 0; i <= ConfiguredPermitLimit; i++) {
+//             lastResponse = await HttpClient.GetAsync("api/gym");
 //
-//             if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode)
-//             {
+//             if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode) {
 //                 break;
 //             }
 //             await Task.Delay(50);
