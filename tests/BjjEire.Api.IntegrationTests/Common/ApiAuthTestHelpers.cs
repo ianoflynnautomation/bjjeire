@@ -21,10 +21,10 @@ public static class ApiAuthTestHelpers
         var queryParams = new Dictionary<string, string> { { "userId", userId }, { "role", role } };
         var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
         var baseAddress = httpClient.BaseAddress?.ToString().TrimEnd('/') ?? throw new InvalidOperationException("HttpClient BaseAddress is not set.");
-        var tokenUrl = $"{baseAddress}/generate-token?{queryString}";
+        var tokenUrl = new Uri($"{baseAddress}/generate-token?{queryString}");
 
-        logger.LogInformation("Requesting auth token for UserId {UserId}", userId);
-
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.AuthTokenRequested,
+            "Requesting auth token for UserId {UserId} and Role {Role}", userId, role);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, tokenUrl);
         if (customHeaders != null)
@@ -32,34 +32,59 @@ public static class ApiAuthTestHelpers
             foreach (var header in customHeaders)
             {
                 request.Headers.TryAddWithoutValidation(header.Key, header.Value);
-                logger.LogDebug("Added custom header for token request: {HeaderKey}", header.Key);
             }
         }
 
-        using var response = await httpClient.SendAsync(request);
-        var responseContentForError = await response.Content.ReadAsStringAsync();
-        logger.LogDebug("Get token response status: {StatusCode}", response.StatusCode);
+        HttpResponseMessage response;
+        string responseContentForError;
+        try
+        {
+            logger.LogDebug(TestLoggingEvents.TestLifecycle.HttpRequestIssued, "Issuing HTTP GET to {TokenUrl}", tokenUrl);
+            response = await httpClient.SendAsync(request);
+            responseContentForError = await response.Content.ReadAsStringAsync();
+            logger.LogDebug(TestLoggingEvents.TestLifecycle.HttpResponseReceived,
+                "Received HTTP {StatusCode} response from {TokenUrl}. Response Body: {ResponseBody}",
+                (int)response.StatusCode, tokenUrl, responseContentForError);
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(TestLoggingEvents.TestLifecycle.HttpRequestFailed, ex,
+                "HTTP request to get auth token failed for URL {TokenUrl}", tokenUrl);
+            throw; // Re-throw to fail the test immediately
+        }
 
-        response.StatusCode.ShouldBe(HttpStatusCode.OK, $"Failed to get auth token. Status: {response.StatusCode}, Content: {responseContentForError}");
+        try
+        {
+            // Assert that the HTTP response was successful.
+            response.StatusCode.ShouldBe(HttpStatusCode.OK,
+                $"Failed to get auth token. Status: {response.StatusCode}, Content: {responseContentForError}");
 
-        var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(TestJsonHelper.SerializerOptions);
-        tokenResponse.ShouldNotBeNull("Token response from API should not be null.");
-        tokenResponse.Token.ShouldNotBeNullOrEmpty("Token from API should not be null or empty.");
+            // Assert that the response body can be deserialized and contains a valid token.
+            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(TestJsonHelper.SerializerOptions);
+            tokenResponse.ShouldNotBeNull("Token response from API should not be null.");
+            tokenResponse.Token.ShouldNotBeNullOrEmpty("Token from API should not be null or empty.");
 
-
-        logger.LogInformation("Successfully retrieved auth token.");
-        return tokenResponse.Token;
+            logger.LogInformation(TestLoggingEvents.TestLifecycle.AuthTokenRetrieved, "Successfully retrieved and parsed auth token for UserId {UserId}", userId);
+            return tokenResponse.Token;
+        }
+        catch (Exception ex)
+        {
+            // If any assertion fails, log it with a specific event ID before failing the test.
+            logger.LogError(TestLoggingEvents.TestLifecycle.AssertionFailed, ex,
+                "Assertion failed while validating the auth token response. Status was {StatusCode}. Body: {ResponseBody}",
+                (int)response.StatusCode, responseContentForError);
+            throw;
+        }
     }
 
     public static void SetHttpClientAuthToken(HttpClient httpClient, ILogger logger, string token)
     {
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        logger.LogInformation("Authorization header set on HttpClient.");
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.AuthHeaderSet, "Authorization header set on HttpClient.");
     }
 
     public static async Task SetDefaultUserAuthTokenOnClientAsync(HttpClient httpClient, ILogger logger)
     {
-        logger.LogInformation("Setting default user auth token...");
         var token = await GetApiTokenAsync(httpClient, logger);
         SetHttpClientAuthToken(httpClient, logger, token);
     }

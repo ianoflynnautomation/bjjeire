@@ -3,41 +3,88 @@
 
 using System.Reflection;
 using BjjEire.Api.IntegrationTests.Common;
+using BjjEire.Api.IntegrationTests.Fixtures;
+using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Api.IntegrationTests.Validations;
+using BjjEire.Application.Common.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using Serilog.Core.Enrichers;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.TestBases;
 
-public abstract class ApiIntegrationTestBase
+public abstract class ApiIntegrationTestBase: IAsyncLifetime
 {
-    protected HttpClient HttpClient { get; set; } = null!;
-    protected ILogger Logger { get; set; } = null!;
-    private IDisposable? _testLogScope;
+    private readonly MongoDbTestContainerFixture _fixture;
+    private readonly ITestOutputHelper _output;
+    private IServiceScope _scope = null!;
+    private IDisposable? _logContext;
 
-    /// <summary>
-    /// Sets up a logging scope for the duration of a single test.
-    /// Must be called by the inheriting class during test initialization.
-    /// </summary>
+    protected ILogger Logger { get; }
+    protected HttpClient HttpClient { get; }
+    protected ITestDatabaseService Database { get; private set; } = null!;
+    protected ITestHttpClientService Http { get; private set; } = null!;
+    protected ICacheBase Cache { get; private set; } = null!;
+
+    protected ApiIntegrationTestBase(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+    {
+        _fixture = fixture;
+        _output = output;
+        Logger = SerilogConfiguration.ConfigureTestLogger(output);
+        HttpClient = _fixture.Factory.CreateClient();
+    }
+
+    public virtual async Task InitializeAsync()
+    {
+        BeginTestScope(_output);
+        _scope = _fixture.Factory.Services.CreateScope();
+
+        Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
+        Http = new TestHttpClientService(HttpClient);
+        Cache = _scope.ServiceProvider.GetRequiredService<ICacheBase>();
+
+        Logger.LogInformation("Clearing database for test...");
+        await Database.ClearCollectionsAsync();
+        Logger.LogInformation("Database cleared. Test initialized.");
+
+        Logger.LogInformation("Clearing cache for test...");
+        await Cache.ClearAsync();
+        Logger.LogInformation("Cache cleared.");
+    }
+
+    public virtual Task DisposeAsync()
+    {
+        EndTestScope();
+        _scope?.Dispose();
+        HttpClient?.Dispose();
+        return Task.CompletedTask;
+    }
+
+
     protected void BeginTestScope(ITestOutputHelper output)
     {
-        // Using reflection to get the current test name for detailed logging
         var test = (ITest)output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(output)!;
-        _testLogScope = Logger.BeginScope("Test: {TestName}", test.DisplayName);
-        Logger.LogInformation("Test execution started.");
+        var testName = test.DisplayName;
+        var correlationId = Guid.NewGuid();
+
+        _logContext = LogContext.Push(
+            new PropertyEnricher("TestName", testName),
+            new PropertyEnricher("CorrelationId", correlationId)
+        );
+
+        Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestStarted,
+            "Test execution started: {TestName} | CorrelationId: {CorrelationId}", testName, correlationId);
     }
 
-    /// <summary>
-    /// Disposes the logging scope at the end of a test.
-    /// Must be called by the inheriting class during test disposal.
-    /// </summary>
     protected void EndTestScope()
     {
-        Logger.LogInformation("Test execution finished.");
-        _testLogScope?.Dispose();
+        Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestFinished, "Test execution scope finished.");
+        _logContext?.Dispose();
     }
 
-    // --- Authentication Helpers ---
     protected Task<string> GetAuthTokenAsync(string userId = "dev-user@example.com", string role = "Admin", Dictionary<string, string>? customHeaders = null) =>
         ApiAuthTestHelpers.GetApiTokenAsync(HttpClient, Logger, userId, role, customHeaders);
 
@@ -47,7 +94,6 @@ public abstract class ApiIntegrationTestBase
     protected Task SetDefaultUserAuthTokenAsync() =>
         ApiAuthTestHelpers.SetDefaultUserAuthTokenOnClientAsync(HttpClient, Logger);
 
-    // --- Custom Assertion Helpers ---
     protected Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>
         ApiValidationAssertion.AssertValidationErrorAsync(response, Logger, expectedErrors);
 

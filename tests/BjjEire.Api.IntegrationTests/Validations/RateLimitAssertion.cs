@@ -16,14 +16,14 @@ public static class RateLimitAssertion
         int expectedWindowInSeconds,
         string expectedRemaining = "0")
     {
-        logger.LogInformation("Asserting rate limit headers. Limit={Limit}, Window={Window}s", expectedPermitLimit, expectedWindowInSeconds);
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.RateLimitHeadersAsserting,
+            "Asserting rate limit headers. Expected PermitLimit: {PermitLimit}, Window: {WindowInSeconds}, Remaining: {Remaining}",
+            expectedPermitLimit, expectedWindowInSeconds, expectedRemaining);
 
         response.Headers.ShouldContain(h => h.Key == "X-RateLimit-Limit", "X-RateLimit-Limit header is missing.");
         response.Headers.GetValues("X-RateLimit-Limit").First().ShouldBe(expectedPermitLimit.ToString());
-
         response.Headers.ShouldContain(h => h.Key == "X-RateLimit-Remaining", "X-RateLimit-Remaining header is missing.");
         response.Headers.GetValues("X-RateLimit-Remaining").First().ShouldBe(expectedRemaining);
-
         response.Headers.ShouldContain(h => h.Key == "X-RateLimit-Reset", "X-RateLimit-Reset header is missing.");
         var resetHeaderValue = response.Headers.GetValues("X-RateLimit-Reset").First();
         long.TryParse(resetHeaderValue, out var resetTimestamp).ShouldBeTrue("X-RateLimit-Reset should be a parseable long (Unix epoch seconds).");
@@ -40,7 +40,10 @@ public static class RateLimitAssertion
         int expectedPermitLimit,
         int expectedWindowInSeconds)
     {
-        logger.LogInformation("Asserting rate limit problem details. Expected status {StatusCode}", expectedStatusCode);
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.RateLimitProblemDetailsAsserting,
+            "Asserting rate limit problem details. Expected Status: {StatusCode}, PermitLimit: {PermitLimit}, Window: {WindowInSeconds}",
+            expectedStatusCode, expectedPermitLimit, expectedWindowInSeconds);
+
         var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestJsonHelper.SerializerOptions);
         problemDetails.ShouldNotBeNull("ProblemDetails response body should not be null.");
         problemDetails.Status.ShouldBe(expectedStatusCode, $"ProblemDetails status should be {expectedStatusCode}.");
@@ -57,6 +60,7 @@ public static class RateLimitAssertion
         var windowSecondsValue = problemDetails.Extensions["windowSeconds"].ShouldNotBeNull("Extension 'windowSeconds' should not be null.");
         ((JsonElement)windowSecondsValue).Deserialize<int>(TestJsonHelper.SerializerOptions).ShouldBe(expectedWindowInSeconds);
 
-        logger.LogInformation("Rate limit problem details asserted successfully.");
+        logger.LogInformation(TestLoggingEvents.TestLifecycle.RateLimitProblemDetailsAsserted,
+            "Rate limit problem details asserted successfully");
     }
 }

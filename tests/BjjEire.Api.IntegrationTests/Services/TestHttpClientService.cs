@@ -3,8 +3,6 @@
 
 using System.Net.Http.Json;
 using BjjEire.Api.IntegrationTests.Common;
-using BjjEire.Application.Features.Gyms.Queries;
-using Shouldly;
 
 namespace BjjEire.Api.IntegrationTests.Services;
 
