@@ -1,7 +1,6 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure.Data.Mongo;
@@ -12,22 +11,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using BjjEire.Api.IntegrationTests.Interfaces;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public class TestApiFactory : WebApplicationFactory<Program> {
+public class RateLimitWebApplicationFactory : WebApplicationFactory<Program> {
     private readonly string _connectionString;
     private readonly ILogger _logger;
-    public readonly string DatabaseName = $"bjjeire_it_{Guid.NewGuid():N}";
+    private readonly string _databaseName = $"bjjeire_it_{Guid.NewGuid():N}";
 
-    public TestApiFactory(string connectionString, ILogger logger)
-    {
+    public RateLimitWebApplicationFactory(string connectionString, ILogger logger) {
         _connectionString = connectionString;
         _logger = logger;
-        _logger.LogInformation(TestLoggingEvents.Fixture.SetupStarting,
-            "TestApiFactory created for database: {DatabaseName}", DatabaseName);
+        _logger.LogInformation("TestApiFactory created for database: {DatabaseName}", _databaseName);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder) {
@@ -37,7 +35,10 @@ public class TestApiFactory : WebApplicationFactory<Program> {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 { "ConnectionStrings:Mongodb", _connectionString },
-                { "RateLimitOptions:EnableRateLimiting", "false" }
+                { "RateLimitOptions:EnableRateLimiting", "true" },
+                { "RateLimitOptions:PermitLimit", "2" },
+                { "RateLimitOptions:WindowInSeconds", "10" },
+                { "RateLimitOptions:RejectionStatusCode", "429" },
             });
         });
 
@@ -49,16 +50,12 @@ public class TestApiFactory : WebApplicationFactory<Program> {
             services.RemoveAll<IHostedService>();
 
             services.AddSingleton<IMongoClient>(_ => new MongoClient(_connectionString));
-            services.AddSingleton<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(DatabaseName));
+            services.AddSingleton<IMongoDatabase>(sp =>
+                sp.GetRequiredService<IMongoClient>().GetDatabase(_databaseName));
             services.AddScoped<IDatabaseContext, MongoDBContext>();
             services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+
             services.AddScoped<ITestDatabaseService, TestDatabaseService>();
-
-            SerilogConfiguration.ConfigureServices(services);
-
         });
     }
-
-
-
 }

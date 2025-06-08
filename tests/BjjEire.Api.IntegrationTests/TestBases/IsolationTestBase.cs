@@ -1,6 +1,7 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.Services;
@@ -12,7 +13,7 @@ using Xunit.Abstractions;
 namespace BjjEire.Api.IntegrationTests.TestBases;
 
 /// <summary>
-/// An "ultimate isolation" base class for sequential integration tests.
+/// An "isolation" base class for sequential integration tests.
 /// It creates and destroys a new database container for each individual TEST METHOD.
 /// Use this only for highly sensitive tests where performance is not a concern.
 /// </summary>
@@ -26,7 +27,7 @@ public abstract class IsolationTestBase : IAsyncLifetime
     protected readonly ITestOutputHelper _output;
     protected ITestDatabaseService Database = null!;
     protected ITestHttpClientService Http = null!;
-    private MongoDbTestContainerFixture _fixture = null!;
+    private ApiTestFixture _fixture = null!;
 
     public async Task InitializeAsync()
     {
@@ -34,7 +35,7 @@ public abstract class IsolationTestBase : IAsyncLifetime
 
         BeginTestScope();
 
-        _fixture = new MongoDbTestContainerFixture();
+        _fixture = new ApiTestFixture();
         await _fixture.InitializeAsync();
 
         HttpClient = _fixture.Factory.CreateClient();

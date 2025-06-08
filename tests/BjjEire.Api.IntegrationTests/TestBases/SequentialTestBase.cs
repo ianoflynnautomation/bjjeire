@@ -14,6 +14,6 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 /// </summary>
 [Collection("Sequential")]
 
-public class SequentialTestBase(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+public class SequentialTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     : ApiIntegrationTestBase(fixture, output);
 

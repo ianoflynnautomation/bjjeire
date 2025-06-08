@@ -16,50 +16,47 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 [Trait("Category", "Sequential")]
 [Trait("Category", "Gym")]
 [Trait("Category", "Test")]
-public class GetAllGymsControllerTests(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
-    : SequentialTestBase(fixture, output)
-{
+public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
+    : SequentialTestBase(fixture, output) {
+
     [Fact]
     public async Task GetAllGyms_WhenNoGymsExist_ShouldReturnOkAndEmptyList() {
+        // Arrange
 
-            // Arrange
+        // Act
+        var response = await Http.GetAsync("/api/gym");
 
-            // Act
-            var response = await Http.GetAsync("/api/gym");
-
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-            pagedResponse.ShouldNotBeNull();
-            pagedResponse.Data.ShouldBeEmpty();
-            pagedResponse.Pagination.TotalItems.ShouldBe(0);
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.ShouldNotBeNull();
+        pagedResponse.Data.ShouldBeEmpty();
+        pagedResponse.Pagination.TotalItems.ShouldBe(0);
 
     }
 
-        [Fact]
-        public async Task GetAllGyms_WhenGymsExist_ShouldReturnAllActiveGyms()
-        {
-            // Arrange
-            var inactiveGym = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.PermanentlyClosed);
-            var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
-            var gym2 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
-            await Database.SeedEntitiesAsync(gym1, gym2, inactiveGym);
+    [Fact]
+    public async Task GetAllGyms_WhenGymsExist_ShouldReturnAllActiveGyms() {
+        // Arrange
+        var inactiveGym = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.PermanentlyClosed);
+        var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
+        var gym2 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
+        await Database.SeedEntitiesAsync(gym1, gym2, inactiveGym);
 
-            // Act
-            var response = await Http.GetAsync("/api/gym");
+        // Act
+        var response = await Http.GetAsync("/api/gym");
 
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-            pagedResponse.Data.Count.ShouldBe(2);
-            pagedResponse.Pagination.TotalItems.ShouldBe(2);
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.Data.Count.ShouldBe(2);
+        pagedResponse.Pagination.TotalItems.ShouldBe(2);
 
-        }
+    }
 
 
     [Fact]
-    public async Task GetAllGyms_WithCountyFilter_ShouldReturnOnlyGymsFromThatCounty()
-    {
+    public async Task GetAllGyms_WithCountyFilter_ShouldReturnOnlyGymsFromThatCounty() {
         // Arrange
         var gym1 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
         var gym2 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
@@ -84,44 +81,44 @@ public class GetAllGymsControllerTests(MongoDbTestContainerFixture fixture, ITes
     [Fact]
     public async Task GetAllGyms_WithPagination_ShouldRespectPageSizeAndNumber() {
 
-            // Arrange
-            var gyms = Enumerable.Range(1, 5).Select(_ => GymTestDataFactory.GetValidGym()).ToArray();
-            await Database.SeedEntitiesAsync(gyms);
-            var query = new GetGymPaginationQuery { Page = 2, PageSize = 2 };
+        // Arrange
+        var gyms = Enumerable.Range(1, 5).Select(_ => GymTestDataFactory.GetValidGym()).ToArray();
+        await Database.SeedEntitiesAsync(gyms);
+        var query = new GetGymPaginationQuery { Page = 2, PageSize = 2 };
 
-            // Act
-            var response = await Http.GetAsync($"/api/gym?page={query.Page}&pageSize={query.PageSize}");
+        // Act
+        var response = await Http.GetAsync($"/api/gym?page={query.Page}&pageSize={query.PageSize}");
 
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-            pagedResponse.ShouldNotBeNull();
-            pagedResponse.Data.Count.ShouldBe(2);
-            pagedResponse.Pagination.TotalItems.ShouldBe(5);
-            pagedResponse.Pagination.CurrentPage.ShouldBe(2);
-            pagedResponse.Pagination.PageSize.ShouldBe(2);
-            pagedResponse.Pagination.HasNextPage.ShouldBeTrue();
-            pagedResponse.Pagination.HasPreviousPage.ShouldBeTrue();
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.ShouldNotBeNull();
+        pagedResponse.Data.Count.ShouldBe(2);
+        pagedResponse.Pagination.TotalItems.ShouldBe(5);
+        pagedResponse.Pagination.CurrentPage.ShouldBe(2);
+        pagedResponse.Pagination.PageSize.ShouldBe(2);
+        pagedResponse.Pagination.HasNextPage.ShouldBeTrue();
+        pagedResponse.Pagination.HasPreviousPage.ShouldBeTrue();
     }
 
     [Fact]
     public async Task GetAllGyms_WithPageSizeLargerThanTotalItems_ShouldReturnAllItems() {
 
-            // Arrange
-            var gym1 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
-            var gym2 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
-            await Database.SeedEntitiesAsync( gym1, gym2);
+        // Arrange
+        var gym1 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
+        var gym2 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
+        await Database.SeedEntitiesAsync(gym1, gym2);
 
-            // Act
-            var response = await Http.GetAsync("/api/gym?pageSize=10");
+        // Act
+        var response = await Http.GetAsync("/api/gym?pageSize=10");
 
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
 
-            pagedResponse.Data.Count.ShouldBe(2);
-            pagedResponse.Pagination.TotalItems.ShouldBe(2);
-            pagedResponse.Pagination.HasNextPage.ShouldBeFalse();
+        pagedResponse.Data.Count.ShouldBe(2);
+        pagedResponse.Pagination.TotalItems.ShouldBe(2);
+        pagedResponse.Pagination.HasNextPage.ShouldBeFalse();
 
     }
 
@@ -130,19 +127,17 @@ public class GetAllGymsControllerTests(MongoDbTestContainerFixture fixture, ITes
     [InlineData("page=-1")]
     public async Task GetAllGyms_WithInvalidPageNumber_ShouldUseDefaultPageNumber(string invalidPageQuery) {
 
+        // Arrange
+        await Database.SeedEntitiesAsync(GymTestDataFactory.GetValidGym());
 
-            // Arrange
-            await Database.SeedEntitiesAsync(GymTestDataFactory.GetValidGym());
+        // Act
+        var response = await Http.GetAsync($"/api/gym?{invalidPageQuery}");
 
-            // Act
-            var response = await Http.GetAsync($"/api/gym?{invalidPageQuery}");
-
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-            pagedResponse.ShouldNotBeNull();
-            pagedResponse.Pagination.CurrentPage.ShouldBe(1);
-
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.ShouldNotBeNull();
+        pagedResponse.Pagination.CurrentPage.ShouldBe(1);
 
     }
 
@@ -150,24 +145,23 @@ public class GetAllGymsControllerTests(MongoDbTestContainerFixture fixture, ITes
     [InlineData("pageSize=0")]
     [InlineData("pageSize=-1")]
     [InlineData("pageSize=101")]
-    public async Task GetAllGyms_WithInvalidPageSize_ShouldUseDefaultPageSize(string invalidPageSizeQuery)
-    {
-            // Arrange
-            var gymsToSeed = Enumerable.Range(1, 25)
-                .Select(_ => GymTestDataFactory.GetValidGym())
-                .ToArray();
-            await Database.SeedEntitiesAsync(gymsToSeed);
+    public async Task GetAllGyms_WithInvalidPageSize_ShouldUseDefaultPageSize(string invalidPageSizeQuery) {
+        // Arrange
+        var gymsToSeed = Enumerable.Range(1, 25)
+            .Select(_ => GymTestDataFactory.GetValidGym())
+            .ToArray();
+        await Database.SeedEntitiesAsync(gymsToSeed);
 
-            // Act
-            var response = await Http.GetAsync($"/api/gym?{invalidPageSizeQuery}");
+        // Act
+        var response = await Http.GetAsync($"/api/gym?{invalidPageSizeQuery}");
 
-            // Assert
-            response.StatusCode.ShouldBe(HttpStatusCode.OK);
-            var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
 
-            pagedResponse.ShouldNotBeNull();
-            pagedResponse.Pagination.PageSize.ShouldBe(20);
-            pagedResponse.Data.Count.ShouldBe(20);
+        pagedResponse.ShouldNotBeNull();
+        pagedResponse.Pagination.PageSize.ShouldBe(20);
+        pagedResponse.Data.Count.ShouldBe(20);
 
     }
 }

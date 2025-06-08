@@ -7,4 +7,4 @@ using Xunit;
 namespace BjjEire.Api.IntegrationTests.Attributes;
 
 [CollectionDefinition("Parallel", DisableParallelization = false)]
-public class ParallelCollectionDefinition : ICollectionFixture<MongoDbTestContainerFixture> { }
+public class ParallelCollectionDefinition : ICollectionFixture<ApiTestFixture> { }

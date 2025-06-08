@@ -3,7 +3,7 @@
 
 using BjjEire.Domain.Entities;
 
-namespace BjjEire.Api.IntegrationTests.Services;
+namespace BjjEire.Api.IntegrationTests.Interfaces;
 
 public interface ITestDatabaseService
 {

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using System.Net.Http.Json;
-using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Data;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.TestBases;
@@ -17,9 +15,8 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 
 [Trait("Category", "Parallel")]
 [Trait("Category", "Gym")]
-public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
-    : ParallelTestBase(fixture, output)
-{
+public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
+    : ParallelTestBase(fixture, output) {
     public async Task CreateGym_WithValidAuthentication_ShouldCreateGym() {
         // Arrange
         await SetDefaultUserAuthTokenAsync();
@@ -61,7 +58,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
+            (Field: "Data",ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
         ]);
 
     }
@@ -82,7 +79,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Name", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
+            (Field: "Data.Name",ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
         ]);
     }
 
@@ -98,7 +95,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
+            (Field: "Data.Name",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
         ]);
     }
     #endregion
@@ -116,7 +113,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Description", ErrorCode: ValidationMessages.MaxLength.ErrorCode , MessageContains: "Description cannot exceed 200 characters.")
+            (Field: "Data.Description",ValidationMessages.MaxLength.ErrorCode , MessageContains: "Description cannot exceed 200 characters.")
         ]);
     }
 
@@ -151,7 +148,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
     //
     //     // Assert
     //     await AssertValidationErrorAsync(response, [
-    //         (Field: "Data.Status", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Status.")
+    //         (Field: "Data.Status",ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Status.")
     //     ]);
     // }
     //
@@ -172,7 +169,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
     //
     //     // Assert
     //     await AssertValidationErrorAsync(response, [
-    //         (Field: "Data.County", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid County.")
+    //         (Field: "Data.County",ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid County.")
     //     ]);
     // }
     #endregion
@@ -205,7 +202,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Affiliation.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
+            (Field: "Data.Affiliation.Name",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
         ]);
     }
 
@@ -224,7 +221,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Affiliation.Website", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
+            (Field: "Data.Affiliation.Website",ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
         ]);
     }
 
@@ -243,7 +240,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Trial Offer cannot be null.")
+            (Field: "Data.TrialOffer",ValidationMessages.NotNull.ErrorCode, MessageContains: "Trial Offer cannot be null.")
         ]);
     }
 
@@ -261,7 +258,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer (FreeClasses or FreeDays) is required when IsAvailable is true.")
+            (Field: "Data.TrialOffer",ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer (FreeClasses or FreeDays) is required when IsAvailable is true.")
         ]);
     }
 
@@ -280,8 +277,8 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
         // Assert
 
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive."),
-        (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Classes must be null or positive when provided.")
+            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive."),
+        (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Classes must be null or positive when provided.")
         ]);
     }
 
@@ -299,7 +296,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Classes must be between 1 and 10 inclusive.")
+            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Classes must be between 1 and 10 inclusive.")
         ]);
     }
 
@@ -317,8 +314,8 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Days must be null or positive when provided."),
-        (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Days must be between 1 and 30 inclusive.")
+            (Field: "Data.TrialOffer.FreeDays",ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Days must be null or positive when provided."),
+        (Field: "Data.TrialOffer.FreeDays",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Days must be between 1 and 30 inclusive.")
         ]);
     }
 
@@ -336,7 +333,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeDays", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Days must be between 1 and 30 inclusive.")
+            (Field: "Data.TrialOffer.FreeDays",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Days must be between 1 and 30 inclusive.")
         ]);
     }
 
@@ -353,7 +350,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive.")
+            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive.")
         ]);
     }
 
@@ -369,7 +366,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.Notes", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Notes cannot exceed 200 characters.")
+            (Field: "Data.TrialOffer.Notes",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Notes cannot exceed 200 characters.")
         ]);
     }
 
@@ -388,7 +385,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.SocialMedia", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
+            (Field: "Data.SocialMedia",ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
         ]);
     }
 
@@ -424,7 +421,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: $"Data.SocialMedia.{socialMediaField}", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
+            (Field: $"Data.SocialMedia.{socialMediaField}",ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
         ]);
     }
 
@@ -477,7 +474,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Location", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
+            (Field: "Data.Location",ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
         ]);
     }
 
@@ -496,7 +493,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response, [
-            (Field: "Data.Location.Address", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
+            (Field: "Data.Location.Address",ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
         ]);
     }
 
@@ -512,7 +509,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Address", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
+            (Field: "Data.Location.Address",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
         );
     }
 
@@ -531,7 +528,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
+            (Field: "Data.Location.Venue",ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
         );
     }
 
@@ -547,7 +544,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
+            (Field: "Data.Location.Venue",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
         );
     }
 
@@ -563,7 +560,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
+            (Field: "Data.Location.Coordinates",ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
         );
     }
 
@@ -585,7 +582,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Type", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Type is required.")
+            (Field: "Data.Location.Coordinates.Type",ValidationMessages.Required.ErrorCode, MessageContains: "Type is required.")
       );
     }
 
@@ -601,7 +598,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Type", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Type cannot exceed 50 characters.")
+            (Field: "Data.Location.Coordinates.Type",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Type cannot exceed 50 characters.")
         );
     }
 
@@ -619,7 +616,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Latitude", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Latitude must be between -90 and 90 inclusive.")
+            (Field: "Data.Location.Coordinates.Latitude",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Latitude must be between -90 and 90 inclusive.")
       );
     }
 
@@ -637,7 +634,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Longitude", ErrorCode: ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Longitude must be between -180 and 180 inclusive.")
+            (Field: "Data.Location.Coordinates.Longitude",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Longitude must be between -180 and 180 inclusive.")
         );
     }
 
@@ -653,7 +650,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.PlaceName", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place Name cannot exceed 100 characters.")
+            (Field: "Data.Location.Coordinates.PlaceName",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place Name cannot exceed 100 characters.")
         );
     }
 
@@ -669,7 +666,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.PlaceId", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place ID cannot exceed 24 characters.")
+            (Field: "Data.Location.Coordinates.PlaceId",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place ID cannot exceed 24 characters.")
         );
     }
 
@@ -704,7 +701,7 @@ public class CreateGymControllerTests(MongoDbTestContainerFixture fixture, ITest
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: fieldName, ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
+            (Field: fieldName,ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
         );
     }
 
