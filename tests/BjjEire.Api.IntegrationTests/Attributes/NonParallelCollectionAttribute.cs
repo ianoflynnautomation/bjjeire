@@ -7,4 +7,4 @@ using Xunit;
 namespace BjjEire.Api.IntegrationTests.Attributes;
 
 [CollectionDefinition("Sequential", DisableParallelization = true)]
-public class SequentialCollectionDefinition : ICollectionFixture<MongoDbTestContainerFixture> { }
+public class SequentialCollectionDefinition : ICollectionFixture<ApiTestFixture> { }

@@ -19,8 +19,6 @@ public class BjjEventTestDataFactory
         return new BjjEventDto
         {
             Id = faker.Random.Hexadecimal(24, "").ToLower(),
-            // CreatedOnUtc = DateTime.UtcNow.AddDays(-30).ToString("O"),
-            // UpdatedOnUtc = DateTime.UtcNow.AddDays(-10).ToString("O"),
             Name = "Dublin BJJ Masterclass Series",
             Description = "Weekly BJJ seminars with Professor Maria Santos at Dublin Grappling Hub.",
             Type = BjjEventType.Seminar,

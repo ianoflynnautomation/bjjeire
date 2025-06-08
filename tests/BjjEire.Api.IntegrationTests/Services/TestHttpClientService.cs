@@ -3,6 +3,7 @@
 
 using System.Net.Http.Json;
 using BjjEire.Api.IntegrationTests.Common;
+using BjjEire.Api.IntegrationTests.Interfaces;
 
 namespace BjjEire.Api.IntegrationTests.Services;
 

@@ -12,5 +12,5 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 /// and uses IClassFixture for a shared database container per test class.
 /// </summary>
 [Collection("Parallel")]
-public class ParallelTestBase(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+public class ParallelTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     : ApiIntegrationTestBase(fixture, output);

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using System.Net.Http.Json;
-using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Data;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.TestBases;
@@ -19,7 +17,7 @@ namespace BjjEire.Api.IntegrationTests.BjjEventController;
 
 [Trait("Category", "Parallel")]
 [Trait("Category", "BjjEvent")]
-public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
     : ParallelTestBase(fixture, output)
 {
 
@@ -68,7 +66,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
+        (Field: "Data", ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
     );
   }
 
@@ -90,7 +88,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Name", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Event Name is required.")
+        (Field: "Data.Name", ValidationMessages.Required.ErrorCode, MessageContains: "Event Name is required.")
     );
   }
 
@@ -107,7 +105,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Event Name cannot exceed 100 characters.")
+        (Field: "Data.Name", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Event Name cannot exceed 100 characters.")
   );
   }
 
@@ -124,7 +122,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Description", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Description cannot exceed 200 characters.")
+        (Field: "Data.Description", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Description cannot exceed 200 characters.")
     );
   }
 
@@ -146,7 +144,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.Type", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Event Type.")
+  //         (Field: "Data.Type", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Event Type.")
   //     ]);
   // }
 
@@ -166,7 +164,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.Status", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Event Status.")
+  //         (Field: "Data.Status", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Event Status.")
   //     ]);
   // }
 
@@ -183,7 +181,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.StatusReason", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Status Reason cannot exceed 100 characters.")
+        (Field: "Data.StatusReason", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Status Reason cannot exceed 100 characters.")
     );
   }
 
@@ -203,7 +201,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.County", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid County.")
+  //         (Field: "Data.County", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid County.")
   //     ]);
   // }
 
@@ -230,7 +228,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: fieldPath, ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
+        (Field: fieldPath, ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
     );
   }
 
@@ -251,7 +249,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Organiser", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Organiser cannot be null.")
+        (Field: "Data.Organiser", ValidationMessages.NotNull.ErrorCode, MessageContains: "Organiser cannot be null.")
     );
   }
 
@@ -271,7 +269,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Organiser.Name", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
+        (Field: "Data.Organiser.Name", ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
     );
   }
 
@@ -288,7 +286,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Organiser.Name", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
+        (Field: "Data.Organiser.Name", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
     );
   }
 
@@ -305,7 +303,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Organiser.Website", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
+        (Field: "Data.Organiser.Website", ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
     );
   }
 
@@ -325,7 +323,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.SocialMedia", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
+        (Field: "Data.SocialMedia", ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
     );
   }
 
@@ -363,7 +361,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: $"Data.SocialMedia.{socialMediaField}", ErrorCode: ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
+        (Field: $"Data.SocialMedia.{socialMediaField}", ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
     );
   }
 
@@ -419,7 +417,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
+        (Field: "Data.Location", ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
     );
   }
 
@@ -439,7 +437,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location.Address", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
+        (Field: "Data.Location.Address", ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
     );
   }
 
@@ -456,7 +454,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location.Address", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
+        (Field: "Data.Location.Address", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
     );
   }
 
@@ -476,7 +474,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
+        (Field: "Data.Location.Venue", ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
     );
   }
 
@@ -493,7 +491,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location.Venue", ErrorCode: ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
+        (Field: "Data.Location.Venue", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
     );
   }
 
@@ -510,7 +508,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Location.Coordinates", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
+        (Field: "Data.Location.Coordinates", ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
     );
   }
 
@@ -531,7 +529,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Schedule cannot be null.")
+        (Field: "Data.Schedule", ValidationMessages.NotNull.ErrorCode, MessageContains: "Schedule cannot be null.")
     );
   }
 
@@ -551,7 +549,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.Schedule.ScheduleType", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Schedule Type.")
+  //         (Field: "Data.Schedule.ScheduleType", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Schedule Type.")
   //     ]);
   // }
 
@@ -570,7 +568,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.StartDate", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Start Date is required when schedule type is FixedDate.")
+        (Field: "Data.Schedule.StartDate", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Start Date is required when schedule type is FixedDate.")
     );
   }
 
@@ -589,7 +587,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.EndDate", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "End Date is required when schedule type is FixedDate.")
+        (Field: "Data.Schedule.EndDate", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "End Date is required when schedule type is FixedDate.")
     );
   }
 
@@ -608,7 +606,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.EndDate", ErrorCode: ValidationMessages.GreaterThanOrEqual.ErrorCode, MessageContains: "End Date must be on or after Start Date.")
+        (Field: "Data.Schedule.EndDate", ValidationMessages.GreaterThanOrEqual.ErrorCode, MessageContains: "End Date must be on or after Start Date.")
     );
   }
 
@@ -625,7 +623,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Hours cannot be null.")
+        (Field: "Data.Schedule.Hours", ValidationMessages.NotNull.ErrorCode, MessageContains: "Hours cannot be null.")
     );
   }
 
@@ -646,7 +644,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Event Hours cannot be null.")
+        (Field: "Data.Schedule.Hours", ValidationMessages.NotNull.ErrorCode, MessageContains: "Event Hours cannot be null.")
     );
   }
 
@@ -667,7 +665,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Hours is required.")
+        (Field: "Data.Schedule.Hours", ValidationMessages.Required.ErrorCode, MessageContains: "Hours is required.")
     );
   }
 
@@ -694,7 +692,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
     // ASSERT
     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.Hours", ErrorCode: ValidationMessages.NoNullEntries.ErrorCode, MessageContains: "Event Hours cannot contain null entries.")
+        (Field: "Data.Schedule.Hours", ValidationMessages.NoNullEntries.ErrorCode, MessageContains: "Event Hours cannot contain null entries.")
     );
   }
 
@@ -722,7 +720,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //
   //     // Assert
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.Schedule.Hours[0].Day", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Day.")
+  //         (Field: "Data.Schedule.Hours[0].Day", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Day.")
   //     ]);
   // }
 
@@ -740,7 +738,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Schedule.Hours[0].CloseTime", ErrorCode: ValidationMessages.GreaterThan.ErrorCode, MessageContains: "Close Time must be greater than Open Time.")
+        (Field: "Data.Schedule.Hours[0].CloseTime", ValidationMessages.GreaterThan.ErrorCode, MessageContains: "Close Time must be greater than Open Time.")
     );
   }
 
@@ -761,7 +759,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing", ErrorCode: ValidationMessages.NotNull.ErrorCode, MessageContains: "Pricing cannot be null.")
+        (Field: "Data.Pricing", ValidationMessages.NotNull.ErrorCode, MessageContains: "Pricing cannot be null.")
     );
   }
 
@@ -784,7 +782,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
   //     // ApplyEnumValidator uses ValidationMessages.Invalid.
   //     // PropertyName will be "Pricing Type".
   //     await AssertValidationErrorAsync(response, [
-  //         (Field: "Data.Pricing.Type", ErrorCode: ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Pricing Type.")
+  //         (Field: "Data.Pricing.Type", ValidationMessages.Invalid.ErrorCode, MessageContains: "Invalid Pricing Type.")
   //     ]);
   // }
 
@@ -804,7 +802,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.Amount", ErrorCode: "MUST_BE_ZERO_WHEN_FREE", MessageContains: "Amount must be 0 when Pricing Type is Free.")
+        (Field: "Data.Pricing.Amount", "MUST_BE_ZERO_WHEN_FREE", MessageContains: "Amount must be 0 when Pricing Type is Free.")
     );
   }
 
@@ -824,7 +822,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Currency must be null when Pricing Type is Free.")
+        (Field: "Data.Pricing.Currency", ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Currency must be null when Pricing Type is Free.")
     );
   }
 
@@ -844,7 +842,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Duration Days must be null when Pricing Type is Free.")
+        (Field: "Data.Pricing.DurationDays", ValidationMessages.MustBeNull.ErrorCode, MessageContains: "Duration Days must be null when Pricing Type is Free.")
     );
   }
 
@@ -884,7 +882,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.Amount", ErrorCode: "MUST_BE_POSITIVE_FOR_PAID", MessageContains: "Amount must be greater than 0.")
+        (Field: "Data.Pricing.Amount", "MUST_BE_POSITIVE_FOR_PAID", MessageContains: "Amount must be greater than 0.")
     );
   }
 
@@ -906,7 +904,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.Required.ErrorCode, MessageContains: "Currency is required.")
+        (Field: "Data.Pricing.Currency", ValidationMessages.Required.ErrorCode, MessageContains: "Currency is required.")
     );
   }
 
@@ -926,7 +924,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.Currency", ErrorCode: ValidationMessages.InvalidFormat.ErrorCode, MessageContains: "Currency must be a valid ISO 4217 currency code (e.g., EUR, USD).")
+        (Field: "Data.Pricing.Currency", ValidationMessages.InvalidFormat.ErrorCode, MessageContains: "Currency must be a valid ISO 4217 currency code (e.g., EUR, USD).")
     );
   }
 
@@ -946,7 +944,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Duration Days is required when FlatRate pricing type.")
+        (Field: "Data.Pricing.DurationDays", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Duration Days is required when FlatRate pricing type.")
     );
   }
 
@@ -968,7 +966,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.DurationDays", ErrorCode: "MUST_BE_POSITIVE_FLAT_RATE_DURATION", MessageContains: "Duration Days must be greater than 0.")
+        (Field: "Data.Pricing.DurationDays", "MUST_BE_POSITIVE_FLAT_RATE_DURATION", MessageContains: "Duration Days must be greater than 0.")
     );
   }
 
@@ -1030,7 +1028,7 @@ public class CreateBjjEventControllerTests(MongoDbTestContainerFixture fixture, 
 
     // Assert
     await AssertValidationErrorAsync(response,
-        (Field: "Data.Pricing.DurationDays", ErrorCode: ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Duration Days must be null or positive when provided for PerSession or PerDay pricing.")
+        (Field: "Data.Pricing.DurationDays", ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Duration Days must be null or positive when provided for PerSession or PerDay pricing.")
   );
   }
 

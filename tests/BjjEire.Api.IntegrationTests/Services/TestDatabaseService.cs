@@ -5,6 +5,7 @@ using BjjEire.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Shouldly;
+using BjjEire.Api.IntegrationTests.Interfaces;
 
 namespace BjjEire.Api.IntegrationTests.Services;
 

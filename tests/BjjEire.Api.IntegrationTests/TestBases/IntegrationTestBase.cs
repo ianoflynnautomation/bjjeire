@@ -6,7 +6,7 @@ using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Api.IntegrationTests.Validations;
-using BjjEire.Application.Common.Interfaces;
+using BjjEire.Api.IntegrationTests.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
@@ -18,18 +18,16 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 
 public abstract class ApiIntegrationTestBase: IAsyncLifetime
 {
-    private readonly MongoDbTestContainerFixture _fixture;
+    private readonly ApiTestFixture _fixture;
     private readonly ITestOutputHelper _output;
     private IServiceScope _scope = null!;
     private IDisposable? _logContext;
-
     protected ILogger Logger { get; }
     protected HttpClient HttpClient { get; }
     protected ITestDatabaseService Database { get; private set; } = null!;
     protected ITestHttpClientService Http { get; private set; } = null!;
-    protected ICacheBase Cache { get; private set; } = null!;
 
-    protected ApiIntegrationTestBase(MongoDbTestContainerFixture fixture, ITestOutputHelper output)
+    protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
         _fixture = fixture;
         _output = output;
@@ -44,15 +42,11 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
         Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
         Http = new TestHttpClientService(HttpClient);
-        Cache = _scope.ServiceProvider.GetRequiredService<ICacheBase>();
 
         Logger.LogInformation("Clearing database for test...");
         await Database.ClearCollectionsAsync();
         Logger.LogInformation("Database cleared. Test initialized.");
 
-        Logger.LogInformation("Clearing cache for test...");
-        await Cache.ClearAsync();
-        Logger.LogInformation("Cache cleared.");
     }
 
     public virtual Task DisposeAsync()
