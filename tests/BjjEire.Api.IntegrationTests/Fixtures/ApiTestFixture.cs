@@ -15,23 +15,17 @@ public class ApiTestFixture: IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _logger.LogInformation(TestLoggingEvents.Fixture.ContainerStarting, "Starting container for test class...");
         await _dbContainerFixture.StartContainerAsync();
-        _logger.LogInformation(TestLoggingEvents.Fixture.ContainerStarted,
-            "Container started for test class. Initializing API factory...");
-        Factory = new CustomWebApplicationFactory(_dbContainerFixture.ConnectionString, _logger);
+        Factory = new CustomWebApplicationFactory(_dbContainerFixture.ConnectionString);
         _logger.LogInformation("API Test Fixture initialized.");
     }
 
     public async Task DisposeAsync()
     {
         _logger.LogInformation("Disposing API Test Fixture...");
-        if (Factory != null)
-        {
-            await Factory.DisposeAsync();
-        }
+        await Factory.DisposeAsync();
+        _logger.LogInformation("API Test Fixture disposed.");
         await _dbContainerFixture.StopContainerAsync();
         await _dbContainerFixture.DisposeAsync();
-        _logger.LogInformation("API Test Fixture disposed.");
     }
 }

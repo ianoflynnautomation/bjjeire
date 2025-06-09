@@ -5,7 +5,6 @@ using System.Reflection;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.Services;
-using BjjEire.Api.IntegrationTests.Validations;
 using BjjEire.Api.IntegrationTests.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,6 +25,8 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
     protected HttpClient HttpClient { get; }
     protected ITestDatabaseService Database { get; private set; } = null!;
     protected ITestHttpClientService Http { get; private set; } = null!;
+    protected ITestAuthService Auth;
+    protected ITestAssertionService Assertions;
 
     protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
@@ -39,13 +40,17 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
     {
         BeginTestScope(_output);
         _scope = _fixture.Factory.Services.CreateScope();
+        var serviceProvider = _fixture.Factory.Services.CreateScope().ServiceProvider;
 
-        Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
+        Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
         Http = new TestHttpClientService(HttpClient);
 
         Logger.LogInformation("Clearing database for test...");
         await Database.ClearCollectionsAsync();
         Logger.LogInformation("Database cleared. Test initialized.");
+
+        Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
+        Assertions = serviceProvider.GetRequiredService<ITestAssertionService>();
 
     }
 
@@ -79,21 +84,12 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
         _logContext?.Dispose();
     }
 
-    protected Task<string> GetAuthTokenAsync(string userId = "dev-user@example.com", string role = "Admin", Dictionary<string, string>? customHeaders = null) =>
-        ApiAuthTestHelpers.GetApiTokenAsync(HttpClient, Logger, userId, role, customHeaders);
-
-    protected void SetAuthToken(string token) =>
-        ApiAuthTestHelpers.SetHttpClientAuthToken(HttpClient, Logger, token);
-
-    protected Task SetDefaultUserAuthTokenAsync() =>
-        ApiAuthTestHelpers.SetDefaultUserAuthTokenOnClientAsync(HttpClient, Logger);
-
     protected Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>
-        ApiValidationAssertion.AssertValidationErrorAsync(response, Logger, expectedErrors);
+        Assertions.AssertValidationErrorAsync(response, expectedErrors);
 
-    protected Task AssertRateLimitHeadersAsync(HttpResponseMessage response, int expectedPermitLimit, int expectedWindowInSeconds, string expectedRemaining = "0") =>
-        RateLimitAssertion.AssertRateLimitHeadersAsync(Logger, response, expectedPermitLimit, expectedWindowInSeconds, expectedRemaining);
-
-    protected Task AssertRateLimitProblemDetailsAsync(HttpResponseMessage response, int expectedStatusCode, int expectedPermitLimit, int expectedWindowInSeconds) =>
-        RateLimitAssertion.AssertRateLimitProblemDetailsAsync(Logger, response, expectedStatusCode, expectedPermitLimit, expectedWindowInSeconds);
+    // protected Task AssertRateLimitHeadersAsync(HttpResponseMessage response, int expectedPermitLimit, int expectedWindowInSeconds, string expectedRemaining = "0") =>
+    //     Assertions.AssertRateLimitHeadersAsync(response, expectedPermitLimit, expectedWindowInSeconds, expectedRemaining);
+    //
+    // protected Task AssertRateLimitProblemDetailsAsync(HttpResponseMessage response, int expectedStatusCode, int expectedPermitLimit, int expectedWindowInSeconds) =>
+    //     Assertions.AssertRateLimitProblemDetailsAsync(response, expectedStatusCode, expectedPermitLimit, expectedWindowInSeconds);
 }
