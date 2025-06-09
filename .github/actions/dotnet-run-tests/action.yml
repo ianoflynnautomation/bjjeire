@@ -38,7 +38,9 @@ runs:
     - name: Run Tests
       shell: bash
       working-directory: ${{ inputs.download-path }}/${{ inputs.test-artifact-name }}
-      run: dotnet test ${{ inputs.test-assembly-pattern }} --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" --results-directory "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}" ${{ inputs.test-filter-criteria }}
+      run: |
+        dotnet test ${{ inputs.test-assembly-pattern }} --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" --results-directory "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}" ${{ inputs.test-filter-criteria }}
+
 
     - name: Publish Test Results Artifact
       if: always()
