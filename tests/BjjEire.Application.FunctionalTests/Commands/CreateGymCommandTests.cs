@@ -11,8 +11,7 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Application.FunctionalTests.Commands;
 
-public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
-    : FunctionalTestBase(apiFactory, outputHelper)
+public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
 {
     [Fact]
     public async Task CreateGym_WithValidData_ShouldCreateGym()
