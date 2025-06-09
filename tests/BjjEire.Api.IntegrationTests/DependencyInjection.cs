@@ -1,7 +1,6 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Application.Common.Interfaces;
@@ -22,8 +21,6 @@ public static class DependencyInjection
         _ = services.AddScoped<ITestDatabaseService, TestDatabaseService>();
         _ = services.AddScoped<ITestAuthService, TestAuthService>();
         _ = services.AddScoped<ITestAssertionService, TestAssertionService>();
-
-        SerilogConfiguration.ConfigureServices(services);
 
         return services;
     }

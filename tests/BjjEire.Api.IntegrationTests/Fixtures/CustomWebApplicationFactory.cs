@@ -18,6 +18,8 @@ public class CustomWebApplicationFactory(string connectionString) : WebApplicati
 
         _ = builder.UseEnvironment("Development");
 
+        _ = builder.ConfigureCustomLogging();
+
         _ = builder.ConfigureAppConfiguration((_, config) =>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
