@@ -9,7 +9,6 @@ namespace BjjEire.Api.IntegrationTests.Extensions;
 
 public static class TestCacheExtension
 {
-
     public static IServiceCollection AddTestCacheServices(this IServiceCollection services)
     {
         _ = services.AddSingleton<ICacheBase, NoOpCache>();
@@ -24,7 +23,6 @@ public static class TestCacheExtension
 
         return services;
     }
-
 
     public class NoOpCache : ICacheBase
     {

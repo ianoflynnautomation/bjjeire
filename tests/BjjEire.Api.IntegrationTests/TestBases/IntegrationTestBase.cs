@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using BjjEire.Api.IntegrationTests.Common;
+using BjjEire.Api.IntegrationTests.Extensions;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Api.IntegrationTests.Interfaces;
@@ -17,55 +18,36 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 
 public abstract class ApiIntegrationTestBase: IAsyncLifetime
 {
-    private readonly ApiTestFixture _fixture;
-    private readonly ITestOutputHelper _output;
-    private IServiceScope _scope = null!;
+    private readonly IServiceScope _scope;
     private IDisposable? _logContext;
+    private readonly ITestOutputHelper _output;
     protected ILogger Logger { get; }
     protected HttpClient HttpClient { get; }
-    protected ITestDatabaseService Database { get; private set; } = null!;
-    protected ITestHttpClientService Http { get; private set; } = null!;
-    protected ITestAuthService Auth;
-    protected ITestAssertionService Assertions;
+    protected ITestDatabaseService Database { get; }
+    protected ITestHttpClientService Http { get; }
+    protected ITestAuthService Auth { get; }
+    protected ITestAssertionService Assertions { get; }
 
     protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
-        _fixture = fixture;
         _output = output;
-        Logger = SerilogConfiguration.ConfigureTestLogger(output);
-        HttpClient = _fixture.Factory.CreateClient();
+        HttpClient = fixture.Factory.CreateClient();
+        Logger = LoggingExtension.ConfigureTestLogger(_output);
+
+        _scope = fixture.Factory.Services.CreateScope();
+        var serviceProvider = _scope.ServiceProvider;
+
+        Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
+        Assertions = serviceProvider.GetRequiredService<ITestAssertionService>();
+
+        Http = new TestHttpClientService(HttpClient);
+        Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
     }
 
     public virtual async Task InitializeAsync()
     {
-        BeginTestScope(_output);
-        _scope = _fixture.Factory.Services.CreateScope();
-        var serviceProvider = _fixture.Factory.Services.CreateScope().ServiceProvider;
-
-        Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
-        Http = new TestHttpClientService(HttpClient);
-
-        Logger.LogInformation("Clearing database for test...");
-        await Database.ClearCollectionsAsync();
-        Logger.LogInformation("Database cleared. Test initialized.");
-
-        Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
-        Assertions = serviceProvider.GetRequiredService<ITestAssertionService>();
-
-    }
-
-    public virtual Task DisposeAsync()
-    {
-        EndTestScope();
-        _scope?.Dispose();
-        HttpClient?.Dispose();
-        return Task.CompletedTask;
-    }
-
-
-    protected void BeginTestScope(ITestOutputHelper output)
-    {
-        var test = (ITest)output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(output)!;
+        // Use reflection to get the test name for logging context.
+        var test = (ITest) _output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
         var correlationId = Guid.NewGuid();
 
@@ -76,12 +58,21 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
         Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestStarted,
             "Test execution started: {TestName} | CorrelationId: {CorrelationId}", testName, correlationId);
+
+        Logger.LogInformation("Clearing database for test...");
+        await Database.ClearCollectionsAsync();
+        Logger.LogInformation("Database cleared. Test initialized.");
     }
 
-    protected void EndTestScope()
+    public virtual Task DisposeAsync()
     {
         Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestFinished, "Test execution scope finished.");
+
         _logContext?.Dispose();
+        _scope.Dispose();
+        HttpClient.Dispose();
+
+        return Task.CompletedTask;
     }
 
     protected Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>

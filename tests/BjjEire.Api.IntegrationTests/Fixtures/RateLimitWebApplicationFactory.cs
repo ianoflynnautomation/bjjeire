@@ -1,6 +1,7 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using BjjEire.Api.IntegrationTests.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -16,6 +17,8 @@ public class RateLimitWebApplicationFactory(string connectionString) : WebApplic
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.UseEnvironment("Development");
+
+        _ = builder.ConfigureCustomLogging();
 
         _ = builder.ConfigureAppConfiguration((_, config) =>
             config.AddInMemoryCollection(new Dictionary<string, string?>
