@@ -17,9 +17,11 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 [Trait("Category", "Gym")]
 public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
     : ParallelTestBase(fixture, output) {
+
+    [Fact]
     public async Task CreateGym_WithValidAuthentication_ShouldCreateGym() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
         // Act
@@ -33,6 +35,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         createdGymResponse.Data.ShouldNotBeNull();
         createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
     }
+
     [Fact]
     public async Task CreateGym_WithoutAuthentication_ShouldReturnUnauthorized() {
         // Arrange
@@ -49,7 +52,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullData_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data = null!;
 
@@ -70,7 +73,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("   ")]
     public async Task CreateGym_WithInvalidName_ShouldReturnBadRequest(string? invalidName) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Name = invalidName!;
 
@@ -86,7 +89,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNameTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Name = new string('a', 101);
 
@@ -104,7 +107,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithDescriptionTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Description = new string('a', 201);
 
@@ -120,7 +123,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullDescription_ShouldBeAllowed() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Description = null;
 
@@ -138,7 +141,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     // public async Task CreateGym_WithInvalidStatus_ShouldReturnBadRequest()
     // {
     //     // Arrange
-    //     await SetDefaultUserAuthTokenAsync();
+    //     await Auth.SetDefaultUserAuthTokenAsync();
     //     var commandJson = GymTestDataFactory.CreateGymCommandAsJson(dataOverrides: new { Status = 99 }); // Assuming 99 is not a valid enum int value
     //
     //     // Act
@@ -156,7 +159,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     // public async Task CreateGym_WithInvalidCounty_ShouldReturnBadRequest()
     // {
     //     // Arrange
-    //     await SetDefaultUserAuthTokenAsync();
+    //     await Auth.SetDefaultUserAuthTokenAsync();
     //     // To test invalid enum, we often need to send an out-of-range integer or a non-matching string.
     //     // If your API binds enums from strings, test with an invalid string. If from integers, test with an invalid int.
     //     // The default ASP.NET Core behavior might convert an invalid integer to the enum's default (0) if not handled carefully by model binding or validation.
@@ -179,7 +182,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullAffiliation_ShouldBeAllowed() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Affiliation = null;
 
@@ -193,7 +196,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithAffiliationNameTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Affiliation!.Name = new string('a', 101);
 
@@ -212,7 +215,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("www.missing-scheme.com")]
     public async Task CreateGym_WithAffiliationWebsiteInvalidUrl_ShouldReturnBadRequest(string invalidUrl) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Affiliation!.Website = invalidUrl;
 
@@ -231,7 +234,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullTrialOffer_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer = null!;
 
@@ -247,7 +250,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsAvailableButNoDetails_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = true;
         command.Data.TrialOffer.FreeClasses = null;
@@ -265,7 +268,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsAvailableWithZeroFreeClasses_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = true;
         command.Data.TrialOffer.FreeClasses = 0;
@@ -285,7 +288,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsAvailableWithExceededLimitFreeClasses_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = true;
         command.Data.TrialOffer.FreeClasses = 11;
@@ -303,7 +306,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsAvailableWithZeroFreeDays_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = true;
         command.Data.TrialOffer.FreeClasses = null;
@@ -322,7 +325,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsAvailableWithExceededLimitFreeDays_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = true;
         command.Data.TrialOffer.FreeClasses = null;
@@ -340,7 +343,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferIsNotAvailableWithOutOfRangeFreeClasses_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.IsAvailable = false;
         command.Data.TrialOffer.FreeClasses = 11;
@@ -357,7 +360,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_TrialOfferNotesTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.TrialOffer.Notes = new string('a', 201);
 
@@ -376,7 +379,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullSocialMedia_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.SocialMedia = null!;
 
@@ -396,7 +399,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("YouTube", "www.youtube.com/missingScheme")]
     public async Task CreateGym_SocialMediaWithInvalidUrlField_ShouldReturnBadRequest(string socialMediaField, string invalidUrl) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
         switch (socialMediaField) {
@@ -428,7 +431,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_SocialMediaWithEmptyUrlFields_ShouldBeAllowed() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.SocialMedia.Facebook = string.Empty;
         command.Data.SocialMedia.Instagram = string.Empty;
@@ -444,7 +447,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
     public async Task CreateGym_SocialMediaWithNullUrlFields_ShouldBeAllowed() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.SocialMedia.Facebook = null!;
         command.Data.SocialMedia.Instagram = null!;
@@ -465,7 +468,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullLocation_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location = null!;
 
@@ -484,7 +487,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("   ")]
     public async Task CreateGym_LocationAddressInvalid_ShouldReturnBadRequest(string? invalidAddress) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Address = invalidAddress!;
 
@@ -500,7 +503,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_LocationAddressTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Address = new string('a', 101);
 
@@ -519,7 +522,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("   ")]
     public async Task CreateGym_LocationVenueInvalid_ShouldReturnBadRequest(string? invalidVenue) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Venue = invalidVenue!;
 
@@ -535,7 +538,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_LocationVenueTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Venue = new string('a', 101);
 
@@ -551,7 +554,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_LocationCoordinatesNull_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates = null!;
 
@@ -573,7 +576,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("   ")]
     public async Task CreateGym_CoordinatesTypeInvalid_ShouldReturnBadRequest(string? invalidType) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.Type = invalidType!;
 
@@ -589,7 +592,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_CoordinatesTypeTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.Type = new string('a', 51);
 
@@ -607,7 +610,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData(90.1)]
     public async Task CreateGym_CoordinatesLatitudeOutOfRange_ShouldReturnBadRequest(double invalidLatitude) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.Latitude = invalidLatitude;
 
@@ -625,7 +628,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData(180.1)]
     public async Task CreateGym_CoordinatesLongitudeOutOfRange_ShouldReturnBadRequest(double invalidLongitude) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.Longitude = invalidLongitude;
 
@@ -641,7 +644,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_CoordinatesPlaceNameTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.PlaceName = new string('a', 101);
 
@@ -657,7 +660,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_CoordinatesPlaceIdTooLong_ShouldReturnBadRequest() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Location.Coordinates.PlaceId = new string('a', 25);
 
@@ -681,7 +684,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("Data.ImageUrl", "www.no-scheme.com", "Image URL must be a valid URL.")]
     public async Task CreateGym_WithInvalidOptionalUrls_ShouldReturnBadRequest(string fieldName, string invalidUrl, string expectedMessage) {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
         switch (fieldName) {
@@ -708,7 +711,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task CreateGym_WithNullOptionalUrls_ShouldBeAllowed() {
         // Arrange
-        await SetDefaultUserAuthTokenAsync();
+        await Auth.SetDefaultUserAuthTokenAsync();
         var command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Website = null;
         command.Data.TimetableUrl = null;

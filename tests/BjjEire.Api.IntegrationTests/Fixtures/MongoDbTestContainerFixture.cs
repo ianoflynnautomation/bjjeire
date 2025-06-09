@@ -5,7 +5,6 @@ using BjjEire.Api.IntegrationTests.Common;
 using DotNet.Testcontainers.Builders;
 using Microsoft.Extensions.Logging;
 using Testcontainers.MongoDb;
-using Xunit;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
@@ -17,7 +16,6 @@ public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbTestContai
     public MongoDbTestContainerFixture() {
 
         _logger = SerilogConfiguration.ConfigureGlobalLogger().CreateLogger<MongoDbTestContainerFixture>();
-
         _logger.LogInformation(TestLoggingEvents.Fixture.SetupStarting, "Defining new DatabaseContainerFixture.");
 
         _dbContainer = new MongoDbBuilder()
