@@ -91,7 +91,7 @@ jobs:
       matrix:
         include:
           - test-type: IntegrationTests
-            test-artifact-name: published_IntegrationTests
+            test-artifact-name: published_ApiIntegrationTests
             test-assembly-pattern: '*IntegrationTests.dll'
             test-filter-criteria: ""
 
