@@ -87,7 +87,7 @@ jobs:
     needs: publish_dotnet_test_projects
     timeout-minutes: 20
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - test-type: IntegrationTests
@@ -104,6 +104,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           test-artifact-name: ${{ matrix.test-artifact-name }}
-          test-assembly-pattern: ${{ matrix.test-assembly-pattern }}
+          test-assembly-pattern: |
+            ${{ matrix.test-assembly-pattern }}
           test-results-name-prefix: ${{ matrix.test-type }} 
           test-filter-criteria: ${{ matrix.test-filter-criteria }}
