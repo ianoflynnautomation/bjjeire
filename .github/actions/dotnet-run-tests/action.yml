@@ -45,7 +45,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: test_results_${{ inputs.test-results-name-prefix }}
-        path: "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}"
+        path: "${{ github.workspace }}/TestResults"
         retention-days: 7
 
     - name: Report Test Results
