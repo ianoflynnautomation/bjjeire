@@ -1,8 +1,7 @@
 
 namespace BjjEire.Domain.Enums;
 
-public enum ClassCategory
-{
+public enum ClassCategory {
     Uncategorized = 0,
 
     BJJGiAllLevels = 1,
@@ -35,7 +34,7 @@ public enum ClassCategory
     CompetitionTraining = 14,
 
     ProTraining = 15,
-    
+
 
     Other = 99
 }

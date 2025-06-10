@@ -1,4 +1,4 @@
-﻿namespace BjjEire.SharedKernel.Attributes;
+namespace BjjEire.SharedKernel.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class ApiControllerAttribute : Attribute;

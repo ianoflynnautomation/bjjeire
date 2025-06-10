@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace BjjEire.Application.Common.Exceptions;
 
@@ -7,8 +7,7 @@ public class CustomException(
     HttpStatusCode statusCode = HttpStatusCode.BadRequest,
     string? type = null,
     string? title = null,
-    IEnumerable<string>? errorMessages = null) : Exception(message)
-{
+    IEnumerable<string>? errorMessages = null) : Exception(message) {
     public HttpStatusCode StatusCode { get; } = statusCode;
     public string? Type { get; } = type;
     public string? Title { get; } = title;

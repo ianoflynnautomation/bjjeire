@@ -2,10 +2,8 @@ using BjjEire.Aspire.AppHost.Constants;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class ObservabilityConfiguration
-{
-    public static void AddObservability(IDistributedApplicationBuilder builder)
-    {
+public static class ObservabilityConfiguration {
+    public static void AddObservability(IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
         var alertManager = AddAlertManager(builder);
@@ -19,8 +17,7 @@ public static class ObservabilityConfiguration
 
     private static IResourceBuilder<ContainerResource> AddGrafana(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> prometheus)
-    {
+        IResourceBuilder<ContainerResource> prometheus) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
 
@@ -53,8 +50,7 @@ public static class ObservabilityConfiguration
     }
 
     private static IResourceBuilder<ContainerResource> AddAlertManager(
-        IDistributedApplicationBuilder builder)
-    {
+        IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
         var alertmanager = builder.AddContainer("alertmanager", "prom/alertmanager")
@@ -69,8 +65,7 @@ public static class ObservabilityConfiguration
 
     private static IResourceBuilder<ContainerResource> AddPrometheus(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> alertManager)
-    {
+        IResourceBuilder<ContainerResource> alertManager) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(alertManager);
 
@@ -91,8 +86,7 @@ public static class ObservabilityConfiguration
         return prometheus;
     }
 
-    private static IResourceBuilder<ContainerResource> AddLoki(IDistributedApplicationBuilder builder)
-    {
+    private static IResourceBuilder<ContainerResource> AddLoki(IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
         var loki = builder.AddContainer("loki", "grafana/loki")
@@ -109,8 +103,7 @@ public static class ObservabilityConfiguration
 
     private static IResourceBuilder<ContainerResource> AddJaeger(
         IDistributedApplicationBuilder builder,
-        IResourceBuilder<ContainerResource> prometheus)
-    {
+        IResourceBuilder<ContainerResource> prometheus) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
 
@@ -132,8 +125,7 @@ public static class ObservabilityConfiguration
         IDistributedApplicationBuilder builder,
         IResourceBuilder<ContainerResource> prometheus,
         IResourceBuilder<ContainerResource> loki,
-        IResourceBuilder<ContainerResource> jaeger)
-    {
+        IResourceBuilder<ContainerResource> jaeger) {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(prometheus);
         ArgumentNullException.ThrowIfNull(loki);
@@ -156,8 +148,7 @@ public static class ObservabilityConfiguration
         return otelCollector;
     }
 
-    private static IResourceBuilder<ContainerResource> AddNodeExporter(IDistributedApplicationBuilder builder)
-    {
+    private static IResourceBuilder<ContainerResource> AddNodeExporter(IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
         var nodeExporter = builder.AddContainer("node-exporter", "quay.io/prometheus/node-exporter")

@@ -1,10 +1,8 @@
 
 namespace BjjEire.Api.Extensions.Authentication;
 
-public class SecurityRequirementsOperationFilter : IOperationFilter
-{
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
-    {
+public class SecurityRequirementsOperationFilter : IOperationFilter {
+    public void Apply(OpenApiOperation operation, OperationFilterContext context) {
         ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(context);
 
@@ -13,8 +11,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             .OfType<AllowAnonymousAttribute>()
             .Any();
 
-        if (hasAllowAnonymous)
-        {
+        if (hasAllowAnonymous) {
             operation.Security = []; // No security for AllowAnonymous
             return;
         }
@@ -29,8 +26,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             .OfType<AuthorizeAttribute>() ?? Enumerable.Empty<AuthorizeAttribute>());
 
 
-        if (authorizeAttributes.Any())
-        {
+        if (authorizeAttributes.Any()) {
             operation.Security ??= [];
 
             // Determine which schemes are applicable from the [Authorize] attributes
@@ -38,10 +34,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             bool usesJwt = false;
             bool usesApiKey = false;
 
-            foreach (var attr in authorizeAttributes)
-            {
-                if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes))
-                {
+            foreach (var attr in authorizeAttributes) {
+                if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes)) {
                     // If no specific schemes, assume all defined schemes might be applicable
                     // or default to your primary one (e.g., JWT).
                     // For this example, if any [Authorize] doesn't specify schemes,
@@ -57,32 +51,27 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
                                   .Select(s => s.Trim())
                                   .ToList();
 
-                if (schemes.Contains(JwtBearerDefaults.AuthenticationScheme))
-                {
+                if (schemes.Contains(JwtBearerDefaults.AuthenticationScheme)) {
                     usesJwt = true;
                 }
 
-                if (schemes.Contains(ApiKeyAuthenticationDefaults.AuthenticationScheme))
-                {
+                if (schemes.Contains(ApiKeyAuthenticationDefaults.AuthenticationScheme)) {
                     usesApiKey = true;
                 }
             }
 
             // If no schemes were explicitly found but [Authorize] is present,
             // you might default to adding your primary scheme (e.g., JWT).
-            if (!usesJwt && !usesApiKey && authorizeAttributes.Any())
-            {
+            if (!usesJwt && !usesApiKey && authorizeAttributes.Any()) {
                 usesJwt = true; // Fallback for a plain [Authorize]
             }
 
 
             var securityRequirement = new OpenApiSecurityRequirement();
 
-            if (usesJwt)
-            {
+            if (usesJwt) {
                 // Add JWT Bearer Authentication
-                securityRequirement.Add(new OpenApiSecurityScheme
-                {
+                securityRequirement.Add(new OpenApiSecurityScheme {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "BearerAuth" },
                     // Scheme = "oauth2", // Not strictly necessary here if type is http/bearer
                     // Name = "Bearer", // Not strictly necessary here
@@ -90,17 +79,14 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
                 }, []);
             }
 
-            if (usesApiKey)
-            {
+            if (usesApiKey) {
                 // Add API Key Authentication
-                securityRequirement.Add(new OpenApiSecurityScheme
-                {
+                securityRequirement.Add(new OpenApiSecurityScheme {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKeyAuth" }
                 }, []);
             }
 
-            if (securityRequirement.Any())
-            {
+            if (securityRequirement.Any()) {
                 operation.Security.Add(securityRequirement);
             }
         }

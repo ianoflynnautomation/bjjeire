@@ -3,14 +3,12 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class OrganizerDtoValidator : AbstractValidator<OrganizerDto>
-{
-  public OrganizerDtoValidator()
-  {
-    _ = RuleFor(x => x.Name)
-        .ApplyRequiredString("Name", 100);
+public class OrganizerDtoValidator : AbstractValidator<OrganizerDto> {
+    public OrganizerDtoValidator() {
+        _ = RuleFor(x => x.Name)
+            .ApplyRequiredString("Name", 100);
 
-    _ = RuleFor(x => x.Website)
-         .ApplyUrlValidator("Website");
-  }
+        _ = RuleFor(x => x.Website)
+             .ApplyUrlValidator("Website");
+    }
 }

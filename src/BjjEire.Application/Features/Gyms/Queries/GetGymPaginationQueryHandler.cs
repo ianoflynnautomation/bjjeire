@@ -1,13 +1,13 @@
+using BjjEire.Application.Common;
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Common;
-using BjjEire.Domain.Entities.Gyms;
-using BjjEire.Application.Features.Gyms.DTOs;
-using BjjEire.Domain.Enums;
-using BjjEire.Application.Features.Gyms.Constants;
 using BjjEire.Application.Common.Models;
-using Microsoft.Extensions.Logging;
+using BjjEire.Application.Features.Gyms.Constants;
+using BjjEire.Application.Features.Gyms.DTOs;
+using BjjEire.Domain.Entities.Gyms;
+using BjjEire.Domain.Enums;
 using BjjEire.SharedKernel.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Features.Gyms.Queries;
 
@@ -17,16 +17,14 @@ public sealed class GetGymPaginationQueryHandler(
     ICacheBase cacheBase,
     IUriService uriService,
     ILogger<GetGymPaginationQueryHandler> logger)
-    : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse>
-{
+    : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse> {
     private readonly IRepository<Gym> _gymRepository = gymRepository;
     private readonly IMapper _mapper = mapper;
     private readonly ICacheBase _cacheBase = cacheBase;
     private readonly IUriService _uriService = uriService;
     private readonly ILogger<GetGymPaginationQueryHandler> _logger = logger;
 
-    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken)
-    {
+    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
 
         var cacheKey = CacheKey.GymsAll(request.Page, request.PageSize, request.County);
@@ -41,8 +39,7 @@ public sealed class GetGymPaginationQueryHandler(
             countyLogValue,
             cacheKey);
 
-        var paginatedResponse = await _cacheBase.GetAsync(cacheKey, async () =>
-        {
+        var paginatedResponse = await _cacheBase.GetAsync(cacheKey, async () => {
             _logger.LogInformation(
                 ApplicationLogEvents.QueryHandling.FetchingFromRepositoryOnCacheMiss,
                 "Cache miss for key {CacheKey}. Fetching Gyms from repository. Page: {PageNumber}, PageSize: {PageSize}, County: {County}",
@@ -53,8 +50,7 @@ public sealed class GetGymPaginationQueryHandler(
 
             var query = _gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-            if (request.County.HasValue)
-            {
+            if (request.County.HasValue) {
                 query = query.Where(x => x.County == request.County.Value);
             }
 

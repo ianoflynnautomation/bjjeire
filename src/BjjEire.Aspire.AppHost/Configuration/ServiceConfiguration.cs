@@ -4,10 +4,8 @@ using OpenTelemetry.Logs;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class ServiceConfiguration
-{
-    public static void ConfigureServices(IDistributedApplicationBuilder builder)
-    {
+public static class ServiceConfiguration {
+    public static void ConfigureServices(IDistributedApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddLogging(logging =>

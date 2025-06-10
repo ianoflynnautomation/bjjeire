@@ -1,15 +1,13 @@
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class FrontendConfiguration
-{
+public static class FrontendConfiguration {
 
     //public static IResourceBuilder<ContainerResource> AddFrontend(
     public static IResourceBuilder<NodeAppResource> AddFrontend(
         IDistributedApplicationBuilder builder,
         //IResourceBuilder<ContainerResource> api) {
-        IResourceBuilder<ProjectResource> api)
-    {
+        IResourceBuilder<ProjectResource> api) {
 
         ArgumentNullException.ThrowIfNull(builder);
 

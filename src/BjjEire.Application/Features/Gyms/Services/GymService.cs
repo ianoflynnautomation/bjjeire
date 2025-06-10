@@ -1,29 +1,26 @@
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.Gyms;
-using Microsoft.Extensions.Logging;
 using BjjEire.SharedKernel.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Features.Gyms.Services;
 
 public class GymService(
     IRepository<Gym> gymRepository,
     ICacheBase cacheBase,
-    ILogger<GymService> logger) : IGymService
-{
+    ILogger<GymService> logger) : IGymService {
     private readonly IRepository<Gym> _gymRepository = gymRepository;
     private readonly ICacheBase _cacheBase = cacheBase;
     private readonly ILogger<GymService> _logger = logger;
 
-    public virtual async Task<Gym> GetByIdAsync(string id)
-    {
+    public virtual async Task<Gym> GetByIdAsync(string id) {
         ArgumentNullException.ThrowIfNull(id);
         var key = CacheKey.GymById(id);
 
         _logger.LogInformation(ApplicationLogEvents.GymService.GetByIdAttempt, "Attempting to get Gym by ID {GymId} using cache key {CacheKey}", id, key);
 
-        var gym = await _cacheBase.GetAsync(key, async () =>
-        {
+        var gym = await _cacheBase.GetAsync(key, async () => {
             _logger.LogInformation(ApplicationLogEvents.GymService.GetByIdCacheMissRepoLookup, "Cache miss for Gym ID {GymId} (cache key {CacheKey}). Fetching from repository.", id, key);
             return await _gymRepository.GetByIdAsync(id);
         });
@@ -31,8 +28,7 @@ public class GymService(
         return gym;
     }
 
-    public virtual async Task InsertAsync(Gym gym)
-    {
+    public virtual async Task InsertAsync(Gym gym) {
         ArgumentNullException.ThrowIfNull(gym);
 
         _logger.LogInformation(ApplicationLogEvents.GymService.InsertAttempt, "Attempting to insert Gym. GymName: {GymName}",
@@ -50,8 +46,7 @@ public class GymService(
         await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
     }
 
-    public virtual async Task UpdateAsync(Gym gym)
-    {
+    public virtual async Task UpdateAsync(Gym gym) {
         ArgumentNullException.ThrowIfNull(gym);
 
         _logger.LogInformation(ApplicationLogEvents.GymService.UpdateAttempt, "Attempting to update Gym with ID {GymId}. GymName: {GymName}",
@@ -70,8 +65,7 @@ public class GymService(
         await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
     }
 
-    public virtual async Task DeleteAsync(Gym gym)
-    {
+    public virtual async Task DeleteAsync(Gym gym) {
         ArgumentNullException.ThrowIfNull(gym);
 
         _logger.LogInformation(ApplicationLogEvents.GymService.DeleteAttempt, "Attempting to delete Gym with ID {GymId}. GymName: {GymName}",

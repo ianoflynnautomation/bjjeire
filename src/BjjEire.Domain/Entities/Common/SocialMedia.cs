@@ -1,8 +1,7 @@
 
 namespace BjjEire.Domain.Entities.Common;
 
-public class SocialMedia
-{
+public class SocialMedia {
     [BsonElement("instagram")]
     public string? Instagram { get; set; } = string.Empty;
 
@@ -11,7 +10,7 @@ public class SocialMedia
 
     [BsonElement("x")]
     public string? X { get; set; } = string.Empty;
-    
+
     [BsonElement("youTube")]
     public string? YouTube { get; set; } = string.Empty;
 }

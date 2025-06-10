@@ -1,10 +1,9 @@
-﻿
+
 using BjjEire.Domain.Entities;
 
 namespace BjjEire.Application.Common.Interfaces;
 
-public interface IDatabaseContext
-{
+public interface IDatabaseContext {
     public Task<bool> DatabaseExistAsync();
     public Task CreateCollectionAsync(string name, string collation);
     public Task DeleteCollectionAsync(string name);

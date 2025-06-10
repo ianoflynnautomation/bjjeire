@@ -5,13 +5,11 @@ using BjjEire.Domain.Entities.Gyms;
 
 namespace BjjEire.Application.Features.Gyms.Commands;
 
-public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapper) : IRequestHandler<UpdateGymCommand, UpdateGymResponse>
-{
+public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapper) : IRequestHandler<UpdateGymCommand, UpdateGymResponse> {
     private readonly IGymService _gymService = gymService;
     private readonly IMapper _mapper = mapper;
 
-    public async Task<UpdateGymResponse> Handle(UpdateGymCommand request, CancellationToken cancellationToken)
-    {
+    public async Task<UpdateGymResponse> Handle(UpdateGymCommand request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
 
         var gymEntity = await _gymService.GetByIdAsync(request.Data.Id);

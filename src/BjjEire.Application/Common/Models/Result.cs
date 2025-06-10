@@ -1,9 +1,7 @@
 namespace BjjEire.Application.Common.Models;
 
-public record Result
-{
-    internal Result(bool succeeded, IEnumerable<string> errors)
-    {
+public record Result {
+    internal Result(bool succeeded, IEnumerable<string> errors) {
         Succeeded = succeeded;
         Errors = [.. errors];
     }

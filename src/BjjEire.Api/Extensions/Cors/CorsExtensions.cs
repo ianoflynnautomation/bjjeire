@@ -1,4 +1,4 @@
-﻿using BjjEire.Api.Constants;
+using BjjEire.Api.Constants;
 
 namespace BjjEire.Api.Extensions.Cors;
 

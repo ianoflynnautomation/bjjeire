@@ -1,8 +1,7 @@
 
 namespace BjjEire.Domain.Entities.Common;
 
-public class Location
-{
+public class Location {
     [BsonElement("address")]
     public string Address { get; set; } = string.Empty;
 

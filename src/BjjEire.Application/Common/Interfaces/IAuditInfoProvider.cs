@@ -1,7 +1,6 @@
-﻿namespace BjjEire.Application.Common.Interfaces;
+namespace BjjEire.Application.Common.Interfaces;
 
-public interface IAuditInfoProvider
-{
+public interface IAuditInfoProvider {
     public string GetCurrentUser();
     public DateTime GetCurrentDateTime();
 }
