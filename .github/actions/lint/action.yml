@@ -23,6 +23,7 @@ runs:
         dotnet-version: ${{ inputs.dotnet-version }}
 
     - name: Check .NET Code Formatting
+      shell: bash
       run: dotnet format --verify-no-changes --verbosity diagnostic
 
     - name: Setup Node.js
@@ -33,6 +34,7 @@ runs:
         cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
 
     - name: Run React Linter
+      shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         npm ci
