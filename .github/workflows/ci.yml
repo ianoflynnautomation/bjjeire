@@ -51,7 +51,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          path: ${{ env.REACT_APP_PATH }}
+          working-directory: ${{ env.REACT_APP_PATH }}
 
   build_dotnet_solution:
     name: Build .NET Solution

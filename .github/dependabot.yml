@@ -16,6 +16,6 @@ updates:
       include: "scope"
     ignore:
       - dependency-name: "Microsoft.*"
-        versions: ["10.x"] # Be careful with wildcards in versions here, usually specific versions or ranges
+        versions: ["10.x"]
       - dependency-name: "Aspire.*"
-        versions: ["10.x"] # Same as above
+        versions: ["10.x"]
