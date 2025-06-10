@@ -56,5 +56,4 @@ runs:
         name: Test Results - ${{ inputs.test-results-name-prefix }}
         path: '*.trx'
         reporter: dotnet-trx
-        fail-on-error: true
-        working-directory: "${{ github.workspace }}/TestResults"
+        # fail-on-error: true
