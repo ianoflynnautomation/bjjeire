@@ -26,15 +26,33 @@ env:
   NODE_VERSION: '23.x' 
   SOLUTION_PATH: 'BjjEire.sln'
   REACT_APP_PATH: 'src/bjjeire-app'
-  ACTIONS_STEP_DEBUG: true
+  ACTIONS_STEP_DEBUG: false
+  CONFIGURATION: release
   
   permissions:
   contents: read
   actions: read 
   checks: write 
-  # id-token: write # Only if you need to authenticate to cloud services using OIDC
+  packages: write 
+  id-token: write
 
 jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Lint & Format Check
+        id: build_step
+        uses: ./.github/actions/lint
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          path: ${{ env.REACT_APP_PATH }}
+
   build_dotnet_solution:
     name: Build .NET Solution
     runs-on: ubuntu-latest
@@ -51,7 +69,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           path: ${{ env.SOLUTION_PATH }}
-          configuration: Release
+          configuration: ${{ env.CONFIGURATION }}
 
   publish_dotnet_test_projects:
     name: Publish .NET Test Projects
@@ -76,7 +94,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           project-path: ${{ matrix.project-path }}
-          configuration: Release
+          configuration: ${{ env.CONFIGURATION }}
           output-path: ${{ github.workspace }}/published_tests/${{ matrix.artifact-name }}
           artifact-name: ${{ matrix.artifact-name }}
 
