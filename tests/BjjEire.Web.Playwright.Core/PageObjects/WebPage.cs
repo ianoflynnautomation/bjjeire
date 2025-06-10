@@ -1,6 +1,6 @@
 using Microsoft.Playwright;
 
-namespace BjjEire.Web.Playwright.Core;
+namespace BjjEire.Web.Playwright.Core.PageObjects;
 
 public class WebPage(IPage page)
 {

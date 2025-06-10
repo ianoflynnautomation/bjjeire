@@ -50,9 +50,6 @@ public static class PaginationHelper {
                          actionName,
                          additionalRouteValues)
                      : null
-                // TODO: Optional - FirstPageUrl and LastPageUrl:
-                // FirstPageUrl = uriService.GetPageUri(new PaginationFilter(1, filter.PageSize), controllerName, actionName, additionalRouteValues),
-                // LastPageUrl = totalPages > 0 ? uriService.GetPageUri(new PaginationFilter(totalPages, filter.PageSize), controllerName, actionName, additionalRouteValues) : null
             }
         };
     }

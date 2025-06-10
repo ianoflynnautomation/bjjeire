@@ -43,8 +43,7 @@ public static class Extensions {
                 }
 
             };
-            options.GetLevel = (httpContext, elapsed, ex) => {
-                return ex != null || httpContext.Response.StatusCode >= 500
+            options.GetLevel = (httpContext, elapsed, ex) => ex != null || httpContext.Response.StatusCode >= 500
                     ? LogEventLevel.Error
                     : httpContext.Response.StatusCode >= 400
                     ? LogEventLevel.Warning
@@ -52,7 +51,6 @@ public static class Extensions {
                            httpContext.Response.StatusCode < 400
                         ? LogEventLevel.Verbose
                         : LogEventLevel.Information;
-            };
         });
 
         return app;

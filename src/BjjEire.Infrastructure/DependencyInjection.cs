@@ -1,4 +1,4 @@
-
+﻿
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure;
 using BjjEire.Infrastructure.Caching;
@@ -12,8 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class DependencyInjection {
     private const string MongoDbConnectionStringName = "Mongodb";
 
-    private static bool _mongoDbConventionsRegistered = false;
-    private static readonly object _mongoDbRegistrationLock = new();
+    private static bool s_mongoDbConventionsRegistered;
+    private static readonly Lock MongoDbRegistrationLock = new();
 
     public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
@@ -35,10 +35,6 @@ public static class DependencyInjection {
             _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
             _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
         }
-        else {
-            // TODO: add in-memory db if needed.
-        }
-
         _ = builder.Services.AddMemoryCache(options => options.SizeLimit = 1024);
         _ = builder.Services.AddSingleton<CacheOptions>(new CacheOptions { DefaultCacheTimeMinutes = 5 });
         builder.Services.RegisterCache();
@@ -72,9 +68,9 @@ public static class DependencyInjection {
     }
 
     private static void RegisterMongoDbSerializationConventions() {
-        lock (_mongoDbRegistrationLock) // Ensures thread-safety
+        lock (MongoDbRegistrationLock) // Ensures thread-safety
         {
-            if (_mongoDbConventionsRegistered) {
+            if (s_mongoDbConventionsRegistered) {
                 // Conventions and serializers have already been registered, so skip.
                 return;
             }
@@ -93,7 +89,7 @@ public static class DependencyInjection {
           };
             ConventionRegistry.Register("AppConventions", conventionPack, t => true);
 
-            _mongoDbConventionsRegistered = true;
+            s_mongoDbConventionsRegistered = true;
         }
     }
 
