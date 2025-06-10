@@ -4,12 +4,11 @@ name: CI Pipeline
 on:
   push:
     branches: [ "main" ]
-    paths-ignore: # Optional: ignore changes to certain files to prevent unnecessary runs
+    paths-ignore:
       - '**.md'
       - '.vscode/**'
       - '.idea/**'
       - 'logs/'
-      - '.editorconfig'
       - '.gitattributes'
       - '.gitignore'
   pull_request:
@@ -19,7 +18,6 @@ on:
       - '.vscode/**'
       - '.idea/**'
       - 'logs/'
-      - '.editorconfig'
       - '.gitattributes'
       - '.gitignore'
 
