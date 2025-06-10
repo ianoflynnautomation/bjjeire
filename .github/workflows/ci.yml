@@ -25,13 +25,14 @@ on:
 
 env:
   DOTNET_VERSION: '9.x'
-  NODE_VERSION: '20.x' 
+  NODE_VERSION: '23.x' 
   SOLUTION_PATH: 'BjjEire.sln'
   REACT_APP_PATH: 'src/bjjeire-app'
+  ACTIONS_STEP_DEBUG: true
   
   permissions:
   contents: read
-  actions: write 
+  actions: read 
   checks: write 
   # id-token: write # Only if you need to authenticate to cloud services using OIDC
 
