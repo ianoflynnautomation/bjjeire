@@ -56,6 +56,7 @@ jobs:
   build_dotnet_solution:
     name: Build .NET Solution
     runs-on: ubuntu-latest
+    # needs: lint
     timeout-minutes: 15
     outputs:
       build_successful: ${{ steps.build_step.outcome == 'success' }}
