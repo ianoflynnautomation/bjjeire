@@ -6,6 +6,7 @@
     </PropertyGroup>
 
   <ItemGroup>
+        <PackageReference Include="Serilog" />
         <PackageReference Include="Shouldly" />
         <PackageReference Include="Bogus" />
         <PackageReference Include="Testcontainers" />
@@ -15,11 +16,11 @@
         <PackageReference Include="xunit" />
         <PackageReference Include="Xunit.Extensions.Logging" />
         <PackageReference Include="Serilog.Sinks.XUnit" />
-        <PackageReference Include="xunit.runner.visualstudio" >
+        <PackageReference Include="xunit.runner.visualstudio">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" >
+        <PackageReference Include="coverlet.collector">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
