@@ -31,7 +31,7 @@ env:
   
   permissions:
   contents: read
-  actions: read 
+  actions: write 
   checks: write 
   # id-token: write # Only if you need to authenticate to cloud services using OIDC
 
