@@ -50,10 +50,11 @@ runs:
 
     - name: Report Test Results
       if: always()
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v2
       with:
         artifact: test_results_${{ inputs.test-results-name-prefix }}
         name: Test Results - ${{ inputs.test-results-name-prefix }}
-        path: "*.trx"
+        path: '*.trx'
         reporter: dotnet-trx
         fail-on-error: true
+        working-directory: "${{ github.workspace }}/TestResults"
