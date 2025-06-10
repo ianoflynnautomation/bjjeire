@@ -126,3 +126,19 @@ jobs:
             ${{ matrix.test-assembly-pattern }}
           test-results-name-prefix: ${{ matrix.test-type }} 
           test-filter-criteria: ${{ matrix.test-filter-criteria }}
+
+  publish_reports:
+    name: Publish Test & Coverage Reports
+    runs-on: ubuntu-latest
+    needs: [run_dotnet_tests]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Publish Test & Coverage Reports
+        uses: ./.github/actions/publish_reports
+          
+
+
+      

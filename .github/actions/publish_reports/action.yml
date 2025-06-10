@@ -1,0 +1,32 @@
+name: "Publish Reports"
+description: ""
+inputs:
+  download-path:
+    description: "Path to download the artifact"
+    required: false
+    default: "test_artifacts"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download all workflow artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ${{ inputs.download-path }}
+
+    - name: Publish Test Results Summary
+      uses: dorny/test-reporter@v1
+      with:
+        name: Test Results
+        path: "${{ inputs.download-path }}/**/*.trx"
+        reporter: dotnet-trx
+        fail-on-error: true
+
+    # - name: Publish Code Coverage
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }} # Add this secret to your repository
+    #       # Or use the new OIDC integration:
+    #       # token: ''
+    #       # fail_ci_if_error: true
+    #       # verbose: true
