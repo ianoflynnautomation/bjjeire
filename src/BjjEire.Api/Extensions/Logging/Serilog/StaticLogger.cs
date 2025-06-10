@@ -1,4 +1,4 @@
-﻿
+
 // namespace BjjEire.Api.Extensions.Logging.Serilog;
 
 // public static class StaticLogger

@@ -11,26 +11,22 @@ public class ApiKeyAuthenticationHandler(
     ILoggerFactory loggerFactory,
     UrlEncoder encoder,
     IOptions<ApiKeyOptions> apiKeyOptions)
-    : AuthenticationHandler<AuthenticationSchemeOptions>(options, loggerFactory, encoder)
-{
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, loggerFactory, encoder) {
     private readonly ApiKeyOptions _apiKeyOptions = apiKeyOptions.Value ?? throw new ArgumentNullException(nameof(apiKeyOptions), $"ApiKeyOptions cannot be null and its '{nameof(apiKeyOptions.Value)}' property cannot be null. Ensure it is configured.");
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger = loggerFactory.CreateLogger<ApiKeyAuthenticationHandler>();
 
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-    {
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync() {
         var traceId = Context.TraceIdentifier;
         var clientIp = Context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 
-        if (string.IsNullOrWhiteSpace(_apiKeyOptions.HeaderName) || string.IsNullOrWhiteSpace(_apiKeyOptions.ApiKeyValue))
-        {
+        if (string.IsNullOrWhiteSpace(_apiKeyOptions.HeaderName) || string.IsNullOrWhiteSpace(_apiKeyOptions.ApiKeyValue)) {
             _logger.LogCritical(ApplicationLogEvents.ApiKey.AuthMisconfigured,
                 "API Key authentication is critically misconfigured (HeaderName or ApiKeyValue is missing). This should have been validated at startup. TraceId: {TraceId}",
                 traceId);
             return Task.FromResult(AuthenticateResult.Fail("API Key authentication is not configured properly on the server."));
         }
 
-        if (!Request.Headers.TryGetValue(_apiKeyOptions.HeaderName, out var apiKeyHeaderValues))
-        {
+        if (!Request.Headers.TryGetValue(_apiKeyOptions.HeaderName, out var apiKeyHeaderValues)) {
             _logger.LogDebug(ApplicationLogEvents.ApiKey.HeaderNotFound,
                 "API Key header '{ApiKeyHeaderName}' not found. Scheme '{AuthenticationSchemeName}' will not authenticate. TraceId: {TraceId}, ClientIP: {ClientIP}",
                 _apiKeyOptions.HeaderName, Scheme.Name, traceId, clientIp);
@@ -38,16 +34,14 @@ public class ApiKeyAuthenticationHandler(
         }
 
         var providedApiKey = apiKeyHeaderValues.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(providedApiKey))
-        {
+        if (string.IsNullOrWhiteSpace(providedApiKey)) {
             _logger.LogWarning(ApplicationLogEvents.ApiKey.HeaderEmpty,
                 "API Key header '{ApiKeyHeaderName}' was present, but its value was empty or whitespace. Scheme: '{AuthenticationSchemeName}'. TraceId: {TraceId}, ClientIP: {ClientIP}",
                 _apiKeyOptions.HeaderName, Scheme.Name, traceId, clientIp);
             return Task.FromResult(AuthenticateResult.Fail($"The value for API Key header '{_apiKeyOptions.HeaderName}' cannot be empty."));
         }
 
-        if (SecureCompare(providedApiKey, _apiKeyOptions.ApiKeyValue))
-        {
+        if (SecureCompare(providedApiKey, _apiKeyOptions.ApiKeyValue)) {
             var principalName = "ApiKeyService";
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, "ApiKeyUser", ClaimValueTypes.String, Scheme.Name),
@@ -70,8 +64,7 @@ public class ApiKeyAuthenticationHandler(
         return Task.FromResult(AuthenticateResult.Fail("Invalid API Key."));
     }
 
-    protected override Task HandleChallengeAsync(AuthenticationProperties properties)
-    {
+    protected override Task HandleChallengeAsync(AuthenticationProperties properties) {
         _logger.LogDebug(ApplicationLogEvents.ApiKey.ChallengeIssued,
             "Challenge issued for API Key authentication Scheme '{AuthenticationSchemeName}'. Responding with 401 Unauthorized. TraceId: {TraceId}",
             Scheme.Name, Context.TraceIdentifier);
@@ -81,8 +74,7 @@ public class ApiKeyAuthenticationHandler(
         return Task.CompletedTask;
     }
 
-    protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
-    {
+    protected override Task HandleForbiddenAsync(AuthenticationProperties properties) {
         _logger.LogDebug(ApplicationLogEvents.ApiKey.ForbiddenIssued,
             "Forbidden (403) issued for API Key authentication Scheme '{AuthenticationSchemeName}'. API key was valid but not authorized. TraceId: {TraceId}",
             Scheme.Name, Context.TraceIdentifier);
@@ -90,16 +82,13 @@ public class ApiKeyAuthenticationHandler(
         return Task.CompletedTask;
     }
 
-    private static bool SecureCompare(string a, string b)
-    {
-        if (a == null || b == null)
-        {
+    private static bool SecureCompare(string a, string b) {
+        if (a == null || b == null) {
             return false;
         }
 
         int diff = a.Length ^ b.Length;
-        for (int i = 0; i < a.Length && i < b.Length; i++)
-        {
+        for (int i = 0; i < a.Length && i < b.Length; i++) {
             diff |= a[i] ^ b[i];
         }
         return diff == 0;

@@ -3,11 +3,9 @@ using BjjEire.Application.Common.Interfaces;
 
 namespace BjjEire.Application.Features.Gyms.Commands;
 
-public sealed class DeleteGymCommandHandler(IGymService gymService) : IRequestHandler<DeleteGymCommand, DeleteGymResponse>
-{
+public sealed class DeleteGymCommandHandler(IGymService gymService) : IRequestHandler<DeleteGymCommand, DeleteGymResponse> {
     private readonly IGymService _gymService = gymService;
-    public async Task<DeleteGymResponse> Handle(DeleteGymCommand request, CancellationToken cancellationToken)
-    {
+    public async Task<DeleteGymResponse> Handle(DeleteGymCommand request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
         var gymEntity = await _gymService.GetByIdAsync(request.Id);
 

@@ -1,10 +1,9 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using BjjEire.Domain.Entities;
 
 namespace BjjEire.Application.Common.Interfaces;
 
-public interface IRepository<T> where T : BaseEntity
-{
+public interface IRepository<T> where T : BaseEntity {
     public IQueryable<T> Table { get; }
 
     public T GetById(string id);
@@ -55,6 +54,6 @@ public interface IRepository<T> where T : BaseEntity
     public Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression);
 
     public Task ClearAsync();
-    
+
     public IQueryable<TC> TableCollection<TC>() where TC : class;
 }

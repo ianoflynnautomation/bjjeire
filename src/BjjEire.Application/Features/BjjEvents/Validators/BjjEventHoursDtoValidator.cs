@@ -3,14 +3,12 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto>
-{
-  public BjjEventHoursDtoValidator()
-  {
-    _ = RuleFor(x => x.Day)
-        .ApplyEnumValidator("Day");
+public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto> {
+    public BjjEventHoursDtoValidator() {
+        _ = RuleFor(x => x.Day)
+            .ApplyEnumValidator("Day");
 
-    _ = RuleFor(x => x.CloseTime)
-        .ApplyGreaterThanValidator(x => x.OpenTime, "Close Time", "Open Time");
-  }
+        _ = RuleFor(x => x.CloseTime)
+            .ApplyGreaterThanValidator(x => x.OpenTime, "Close Time", "Open Time");
+    }
 }

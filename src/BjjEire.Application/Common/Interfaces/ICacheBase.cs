@@ -1,7 +1,6 @@
 namespace BjjEire.Application.Common.Interfaces;
 
-public interface ICacheBase
-{
+public interface ICacheBase {
     public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);
     public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);
     public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire);

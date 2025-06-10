@@ -5,8 +5,7 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.Gyms.DTOs;
 
-public class GymDto : BaseApiEntityModel
-{
+public class GymDto : BaseApiEntityModel {
     public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; } = string.Empty;
@@ -33,10 +32,8 @@ public class GymDto : BaseApiEntityModel
 
 }
 
-public class GymtDtoMapping : Profile
-{
-    public GymtDtoMapping()
-    {
+public class GymtDtoMapping : Profile {
+    public GymtDtoMapping() {
 
         _ = CreateMap<Gym, GymDto>()
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())

@@ -1,7 +1,6 @@
-﻿namespace BjjEire.Api.Extensions.SecurityHeaders;
+namespace BjjEire.Api.Extensions.SecurityHeaders;
 
-public class SecurityHeaders
-{
+public class SecurityHeaders {
     public string? XContentTypeOptions { get; set; }
 
     public string? ReferrerPolicy { get; set; }
@@ -13,6 +12,6 @@ public class SecurityHeaders
     public string? ContentSecurityPolicy { get; set; }
 
     public string? PermissionsPolicy { get; set; }
-    
+
     public string? StrictTransportSecurity { get; set; }
 }

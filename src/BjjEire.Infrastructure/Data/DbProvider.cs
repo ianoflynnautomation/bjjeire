@@ -1,10 +1,9 @@
-﻿namespace BjjEire.Infrastructure.Data;
+namespace BjjEire.Infrastructure.Data;
 
-public enum DbProvider
-{
+public enum DbProvider {
     MongoDB,
 
     CosmosDB,
-    
+
     LiteDB
 }

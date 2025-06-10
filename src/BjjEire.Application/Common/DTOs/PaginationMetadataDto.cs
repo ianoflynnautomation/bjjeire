@@ -1,8 +1,7 @@
 
 namespace BjjEire.Application.Common.DTOs;
 
-public class PaginationMetadataDto
-{
+public class PaginationMetadataDto {
 
     public PaginationMetadataDto() { }
 
@@ -19,6 +18,6 @@ public class PaginationMetadataDto
     public bool HasPreviousPage { get; init; }
 
     public string? NextPageUrl { get; init; }
-    
+
     public string? PreviousPageUrl { get; init; }
 }

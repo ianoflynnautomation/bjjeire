@@ -1,10 +1,8 @@
-﻿using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common.Interfaces;
 
 namespace BjjEire.Infrastructure;
 
-public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider
-{
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
+public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider {
 
     public string GetCurrentUser() =>
         //return _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;

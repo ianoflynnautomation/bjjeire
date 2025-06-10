@@ -33,10 +33,8 @@ public class LoggingBehaviour<TRequest, TResponse>(
 
         var stopwatch = Stopwatch.StartNew();
         bool success = false;
-        TResponse response = default!;
-
         try {
-            response = await next();
+            TResponse response = await next();
             success = true;
             return response;
         }

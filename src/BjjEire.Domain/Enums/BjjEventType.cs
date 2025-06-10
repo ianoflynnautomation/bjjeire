@@ -1,7 +1,6 @@
 namespace BjjEire.Domain.Enums;
 
-public enum BjjEventType
-{
+public enum BjjEventType {
     OpenMat = 0,
 
     Seminar = 1,
@@ -9,6 +8,6 @@ public enum BjjEventType
     Tournament = 2,
 
     Camp = 3,
-    
+
     Other = 4
 }
