@@ -1,4 +1,3 @@
-# .github/actions/react-build-test/action.yml
 name: 'Build and Test React Application'
 description: 'Installs dependencies, builds, and tests a React application'
 inputs:
@@ -11,7 +10,7 @@ inputs:
   install-command:
     description: 'Command to install dependencies'
     required: false
-    default: 'npm ci' # 'npm ci' is generally preferred for CI
+    default: 'npm ci'
   build-command:
     description: 'Command to build the application'
     required: false
@@ -19,8 +18,8 @@ inputs:
   test-command:
     description: 'Command to run tests'
     required: false
-    default: 'npm test -- --watchAll=false' # Ensure tests are not in watch mode
-  build-output-path: # Relative to working-directory
+    default: 'npm test -- --watchAll=false'
+  build-output-path:
     description: 'Path to the built React app (e.g., build, dist)'
     required: false
     default: 'build'

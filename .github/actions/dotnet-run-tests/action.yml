@@ -38,7 +38,10 @@ runs:
     - name: Run Tests
       shell: bash
       working-directory: ${{ inputs.download-path }}/${{ inputs.test-artifact-name }}
-      run: dotnet test *Tests.dll --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" --results-directory ${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }} ${{ inputs.test-filter-criteria }}
+      run:  | 
+        dotnet test *Tests.dll \
+        --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" \
+        --results-directory ${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }} ${{ inputs.test-filter-criteria }}
 
     - name: Publish Test Results Artifact
       if: always()
@@ -48,12 +51,12 @@ runs:
         path: "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}"
         retention-days: 7
 
-    - name: Report Test Results
-      if: always()
-      uses: dorny/test-reporter@v2
-      with:
-        artifact: test_results_${{ inputs.test-results-name-prefix }}
-        name: Test Results - ${{ inputs.test-results-name-prefix }}
-        path: '*.trx'
-        reporter: dotnet-trx
-        # fail-on-error: true
+    # - name: Report Test Results
+    #   if: always()
+    #   uses: dorny/test-reporter@v2
+    #   with:
+    #     artifact: test_results_${{ inputs.test-results-name-prefix }}
+    #     name: Test Results - ${{ inputs.test-results-name-prefix }}
+    #     path: '*.trx'
+    #     reporter: dotnet-trx
+    #     fail-on-error: true
