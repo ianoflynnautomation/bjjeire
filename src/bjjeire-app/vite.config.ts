@@ -59,10 +59,12 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: './src/testing/setup-tests.ts',
       exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
+      reporters: ['default', 'junit'],
+      outputFile: 'junit.xml',
       coverage: {
         include: ['src/**/*.{ts,tsx}'],
         exclude: ['src/**/*.d.ts', 'src/testing/**'],
-        reporter: ['text', 'json', 'html'],
+        reporter: ['text', 'json', 'html', 'cobertura'],
         all: true,
       },
     },
