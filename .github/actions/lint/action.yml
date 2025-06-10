@@ -1,43 +1,39 @@
-name: 'Lint and Validate'
-description: ''
+name: "Lint and Validate"
+description: ""
 inputs:
   dotnet-version:
-    description: '.NET SDK version'
+    description: ".NET SDK version"
     required: true
   node-version:
-    description: 'The version of Node.js to use'
+    description: "The version of Node.js to use"
     required: true
   working-directory:
-    description: 'Directory of the React application (where package.json is)'
+    description: "Directory of the React application (where package.json is)"
     required: true
 
 runs:
   using: "composite"
   steps:
-    name: Lint & Format Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ inputs.dotnet-version }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
 
-      - name: Check .NET Code Formatting
-        run: dotnet format --verify-no-changes --verbosity diagnostic
+    - name: Check .NET Code Formatting
+      run: dotnet format --verify-no-changes --verbosity diagnostic
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ inputs.node-version }}
-          cache: 'npm'
-          cache-dependency-path: '${{ inputs.working-directory }}/package-lock.json'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: "npm"
+        cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
 
-      - name: Run React Linter
-        working-directory: ${{ inputs.working-directory }}
-        run: |
-          npm ci
-          npm run lint
+    - name: Run React Linter
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        npm ci
+        npm run lint
