@@ -37,22 +37,32 @@ public static class Extensions {
                 diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
                 diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
 
-                var userId = httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(userId)) {
                     diagnosticContext.Set("UserId", userId);
                 }
-
             };
-            options.GetLevel = (httpContext, elapsed, ex) => ex != null || httpContext.Response.StatusCode >= 500
-                    ? LogEventLevel.Error
-                    : httpContext.Response.StatusCode >= 400
-                    ? LogEventLevel.Warning
-                    : httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
-                           httpContext.Response.StatusCode < 400
-                        ? LogEventLevel.Verbose
-                        : LogEventLevel.Information;
+            options.GetLevel = GetRequestLogLevel;
         });
 
         return app;
+    }
+
+
+    private static LogEventLevel GetRequestLogLevel(HttpContext httpContext, double elapsed, Exception? ex) {
+        if (ex != null || httpContext.Response.StatusCode >= 500) {
+            return LogEventLevel.Error;
+        }
+
+        else if (httpContext.Response.StatusCode >= 400) {
+            return LogEventLevel.Warning;
+        }
+
+        else if (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
+            httpContext.Response.StatusCode < 400) {
+            return LogEventLevel.Verbose;
+        }
+
+        return LogEventLevel.Information;
     }
 }

@@ -1,6 +1,5 @@
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Application.Features.Gyms.Commands;
-using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.Features.Gyms.Queries;
 
 namespace BjjEire.Api.Controllers;

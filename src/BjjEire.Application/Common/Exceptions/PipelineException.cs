@@ -1,26 +1,17 @@
 
 namespace BjjEire.Application.Common.Exceptions;
 
-public class PipelineException : Exception {
-    public string RequestName { get; }
-    public string TraceId { get; }
-    public string UserId { get; }
-    public string RequestPath { get; }
-    public string RequestMethod { get; }
-
-    public PipelineException(
-        string message,
-        string requestName,
-        string traceId,
-        string userId,
-        string requestPath,
-        string requestMethod,
-        Exception innerException)
-        : base(message, innerException) {
-        RequestName = requestName;
-        TraceId = traceId;
-        UserId = userId;
-        RequestPath = requestPath;
-        RequestMethod = requestMethod;
-    }
+public class PipelineException(
+    string message,
+    string requestName,
+    string traceId,
+    string userId,
+    string requestPath,
+    string requestMethod,
+    Exception innerException) : Exception(message, innerException) {
+    public string RequestName { get; } = requestName;
+    public string TraceId { get; } = traceId;
+    public string UserId { get; } = userId;
+    public string RequestPath { get; } = requestPath;
+    public string RequestMethod { get; } = requestMethod;
 }

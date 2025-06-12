@@ -1,6 +1,5 @@
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Application.Features.BjjEvents.Commands;
-using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Queries;
 
 namespace BjjEire.Api.Controllers;

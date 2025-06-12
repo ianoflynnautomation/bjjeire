@@ -32,8 +32,6 @@ public static class AuthenticationExtensions {
         ValidateApiKeyOptions(apiKeyOptions, logger);
 
         _ = services.AddAuthentication(options => {
-            // No default scheme forces explicit scheme declaration on [Authorize] attributes or policies.
-            // logger?.LogInformation("Authentication configured without a default scheme.");
         })
         .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt => {
             opt.TokenValidationParameters = new TokenValidationParameters {
@@ -79,6 +77,8 @@ public static class AuthenticationExtensions {
     }
 
     private static void ValidateJwtOptions(JwtOptions options, ILogger? logger) {
+        ArgumentNullException.ThrowIfNull(options);
+
         var validationErrors = new List<string>();
         if (string.IsNullOrWhiteSpace(options.Issuer)) {
             validationErrors.Add($"{nameof(options.Issuer)} is missing.");
@@ -91,18 +91,23 @@ public static class AuthenticationExtensions {
         if (string.IsNullOrWhiteSpace(options.Key)) {
             validationErrors.Add($"{nameof(options.Key)} is missing.");
         }
-        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_")) {
+        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_", StringComparison.Ordinal)) {
             validationErrors.Add($"{nameof(options.Key)} must be at least 32 bytes (256 bits) and not a debug key in production.");
         }
 
-        if (validationErrors.Any()) {
+        if (validationErrors.Count > 0) {
             var errorMessage = $"Invalid JWT configuration: {string.Join(" ", validationErrors)}";
-            logger?.LogCritical(ApplicationLogEvents.Auth.OptionValidationFailed, errorMessage + " Source: JWT");
+            logger?.LogCritical(
+                ApplicationLogEvents.Auth.OptionValidationFailed,
+                "Invalid JWT configuration: {ErrorMessage}, Source: JWT",
+                errorMessage);
             throw new InvalidOperationException(errorMessage);
         }
     }
 
     private static void ValidateApiKeyOptions(ApiKeyOptions options, ILogger? logger) {
+        ArgumentNullException.ThrowIfNull(options);
+
         var validationErrors = new List<string>();
         if (string.IsNullOrWhiteSpace(options.HeaderName)) {
             validationErrors.Add($"{nameof(options.HeaderName)} is missing.");
@@ -112,9 +117,12 @@ public static class AuthenticationExtensions {
             validationErrors.Add($"{nameof(options.ApiKeyValue)} is missing.");
         }
 
-        if (validationErrors.Any()) {
+        if (validationErrors.Count > 0) {
             var errorMessage = $"Invalid API Key configuration: {string.Join(" ", validationErrors)}";
-            logger?.LogCritical(ApplicationLogEvents.Auth.OptionValidationFailed, errorMessage + " Source: APIKey");
+            logger?.LogCritical(
+                ApplicationLogEvents.Auth.OptionValidationFailed,
+                "Invalid API Key configuration: {ErrorMessage}, Source: APIKey",
+                errorMessage);
             throw new InvalidOperationException(errorMessage);
         }
     }
