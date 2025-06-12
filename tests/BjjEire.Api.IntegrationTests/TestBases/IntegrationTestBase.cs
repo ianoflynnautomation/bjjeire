@@ -46,7 +46,6 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
     public virtual async Task InitializeAsync()
     {
-        // Use reflection to get the test name for logging context.
         var test = (ITest) _output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
         var correlationId = Guid.NewGuid();

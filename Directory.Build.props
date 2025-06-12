@@ -107,7 +107,7 @@
 
   <!-- Enforce EditorConfig and Code Style -->
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" />
+    <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" /> -->
     <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" /> -->
   </ItemGroup>
 </Project>
