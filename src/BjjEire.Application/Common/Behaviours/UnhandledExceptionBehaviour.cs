@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Security.Claims;
-using BjjEire.Application.Common.Exceptions;
 using BjjEire.SharedKernel.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -41,6 +40,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
             return await next(cancellationToken);
         }
         catch (Exception ex) {
+
             _logger.LogError(ApplicationLogEvents.UnhandledExceptions.HandleExceptionError, ex,
                 "Unhandled exception for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}, ASP.NET Core TraceId: {AspNetCoreTraceId}, UserId: {UserId}",
                 requestName,
@@ -50,16 +50,8 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
                 userId);
 
             throw;
-
-            // throw new PipelineException(
-            //     message: $"Unhandled exception in MediatR pipeline for {requestName}",
-            //     requestName: requestName,
-            //     traceId: aspNetCoreTraceId,
-            //     userId: userId,
-            //     requestPath: requestPath,
-            //     requestMethod: requestMethod,
-            //     innerException: ex);
         }
+
         finally {
             stopwatch.Stop();
             _logger.LogInformation(
