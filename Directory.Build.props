@@ -20,7 +20,7 @@
     <!-- Enable runtime code contracts for critical projects -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <!-- Ensure consistent code style across the team -->
-    <EditorConfigFiles>.editorconfig</EditorConfigFiles>
+    <!-- <EditorConfigFiles>.editorconfig</EditorConfigFiles> -->
     <!-- <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet> -->
 
     <!-- Documentation -->
@@ -110,4 +110,9 @@
     <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" /> -->
     <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" /> -->
   </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateMSBuildEditorConfigFile>false</GenerateMSBuildEditorConfigFile>
+  </PropertyGroup>
+
 </Project>
