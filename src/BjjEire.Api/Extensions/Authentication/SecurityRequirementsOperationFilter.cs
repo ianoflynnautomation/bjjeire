@@ -26,7 +26,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
             .OfType<AuthorizeAttribute>() ?? Enumerable.Empty<AuthorizeAttribute>());
 
 
-        if (authorizeAttributes.Any()) {
+        if (authorizeAttributes.Count > 0) {
             operation.Security ??= [];
 
             // Determine which schemes are applicable from the [Authorize] attributes
@@ -36,15 +36,9 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
 
             foreach (var attr in authorizeAttributes) {
                 if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes)) {
-                    // If no specific schemes, assume all defined schemes might be applicable
-                    // or default to your primary one (e.g., JWT).
-                    // For this example, if any [Authorize] doesn't specify schemes,
-                    // we'll add both if they are defined globally.
-                    // A more robust approach might be to only add if a default scheme is configured
-                    // or if the attribute specifically lists them.
-                    usesJwt = true; // Default assumption
-                    usesApiKey = true; // Default assumption
-                    break; // One such attribute is enough to trigger adding all (for this simplified example)
+                    usesJwt = true; 
+                    usesApiKey = true;
+                    break;
                 }
 
                 var schemes = attr.AuthenticationSchemes.Split(',')
@@ -62,7 +56,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
 
             // If no schemes were explicitly found but [Authorize] is present,
             // you might default to adding your primary scheme (e.g., JWT).
-            if (!usesJwt && !usesApiKey && authorizeAttributes.Any()) {
+            if (!usesJwt && !usesApiKey && authorizeAttributes.Count > 0) {
                 usesJwt = true; // Fallback for a plain [Authorize]
             }
 
