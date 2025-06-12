@@ -103,15 +103,6 @@ public static class OpenApiExtensions {
         if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker")) {
             _ = app.UseSwagger();
             _ = app.UseSwaggerUI();
-            // _ = app.UseSwaggerUI(options => {
-            //     // The path to swagger.json depends on AddOpenApi vs AddSwaggerGen
-            //     // For AddOpenApi("v1",...), it's usually /openapi/v1.json
-            //     options.SwaggerEndpoint($"/openapi/{ApiGroupNameV1}.json", $"BjjEire API {ApiGroupNameV1}");
-            //     // If you were using Swashbuckle:
-            //     // options.SwaggerEndpoint($"/swagger/{ApiGroupNameV1}/swagger.json", $"BjjEire API {ApiGroupNameV1}");
-            //     options.RoutePrefix = string.Empty; // Serve Swagger UI at the application root
-            //     options.DisplayRequestDuration();
-            // });
         }
         return app;
     }

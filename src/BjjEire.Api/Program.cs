@@ -15,4 +15,4 @@ var app = builder.Build();
 app.UseBjjEiredApp();
 app.Run();
 
-public partial class Program { }
+public static partial class Program { }
