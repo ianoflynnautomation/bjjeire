@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using BjjEire.Application.Common.Exceptions;
 using BjjEire.SharedKernel.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -48,7 +49,14 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
                 aspNetCoreTraceId,
                 userId);
 
-            throw;
+            throw new PipelineException(
+                message: $"Unhandled exception in MediatR pipeline for {requestName}",
+                requestName: requestName,
+                traceId: aspNetCoreTraceId,
+                userId: userId,
+                requestPath: requestPath,
+                requestMethod: requestMethod,
+                innerException: ex);
         }
         finally {
             stopwatch.Stop();

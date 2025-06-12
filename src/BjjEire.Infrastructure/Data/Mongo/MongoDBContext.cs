@@ -2,11 +2,13 @@
 using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Infrastructure.Data.Mongo;
 
-public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext {
+public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext> logger) : IDatabaseContext {
     private readonly IMongoDatabase _database = mongodatabase;
+    private readonly ILogger<MongoDBContext> _logger = logger;
 
     public async Task<bool> DatabaseExistAsync() {
         var filter = new BsonDocument("name", "BjjWorldVersion");
@@ -58,7 +60,10 @@ public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext {
                 Builders<T>.IndexKeys.Combine(keys),
                 new CreateIndexOptions { Name = indexName, Unique = unique }));
         }
-        catch { }
+        catch (InvalidCastException ex) {
+            _logger.LogError(ex, "Invalid repository type for index creation {IndexName} on {CollectionName}", indexName, typeof(T).Name);
+            throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
+        }
     }
 
     public async Task DeleteIndexAsync<T>(IRepository<T> repository, string indexName) where T : BaseEntity {
@@ -67,6 +72,9 @@ public class MongoDBContext(IMongoDatabase mongodatabase) : IDatabaseContext {
             ArgumentNullException.ThrowIfNull(repository);
             await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
         }
-        catch { }
+        catch (MongoException ex) {
+            _logger.LogError(ex, "Failed to delete index {IndexName} from collection {CollectionName}", indexName, typeof(T).Name);
+            throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
+        }
     }
 }

@@ -13,8 +13,8 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
     private readonly IMemoryCache _cache = cache;
     private readonly CacheOptions _cacheOptions = cacheOptions;
     private readonly ILogger<MemoryCacheBase> _logger = logger;
-    private static CancellationTokenSource s_resetCacheToken = new();
-    protected readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
+    private static readonly CancellationTokenSource ResetCacheToken = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
 
     public async Task ClearAsync(bool publisher = true) {
         _logger.LogInformation(ApplicationLogEvents.Cache.ClearAttempt, "Attempting to clear the entire cache.");
@@ -23,15 +23,15 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
             _cache.Remove(cacheEntryKey);
         }
 
-        await s_resetCacheToken.CancelAsync();
+        await ResetCacheToken.CancelAsync();
         _logger.LogDebug(ApplicationLogEvents.Cache.ResetTokenSignaled, "Cancellation token signaled for cache reset.");
-        s_resetCacheToken.Dispose();
-        s_resetCacheToken = new CancellationTokenSource();
+        ResetCacheToken.Dispose();
         _logger.LogDebug(ApplicationLogEvents.Cache.NewResetToken, "New cache reset cancellation token source created.");
 
         _cacheEntries.Clear();
         _logger.LogInformation(ApplicationLogEvents.Cache.ClearSuccess, "Cache Clear operation completed. Signaled reset token and cleared internal key tracking.");
     }
+
 
     public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire) => GetAsync(key, acquire, _cacheOptions.DefaultCacheTimeMinutes);
 
@@ -92,22 +92,19 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
     public Task RemoveByPrefixAsync(string prefix, bool publisher = true) {
         _logger.LogInformation(ApplicationLogEvents.Cache.RemoveByPrefixAttempt, "Attempting to remove items with cache prefix {CachePrefix}", prefix);
         int itemsRemovedCount = 0;
-        var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList(); // ToList to avoid modification issues
+        var entriesToRemove = _cacheEntries
+            .Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.Key)
+            .ToList();
 
-        foreach (var cacheEntryPair in entriesToRemove) {
-            _logger.LogDebug(ApplicationLogEvents.Cache.RemoveByPrefixItem, "Removing item with key {CacheKey} matching prefix {CachePrefix}", cacheEntryPair.Key, prefix);
-            _cache.Remove(cacheEntryPair.Key);
-            if (_cacheEntries.TryRemove(cacheEntryPair.Key, out _)) {
+        foreach (var key in entriesToRemove) {
+            _logger.LogDebug(ApplicationLogEvents.Cache.RemoveByPrefixItem, "Removing item with key {CacheKey} matching prefix {CachePrefix}", key, prefix);
+            _cache.Remove(key);
+            if (_cacheEntries.TryRemove(key, out _)) {
                 itemsRemovedCount++;
             }
         }
-
-        if (itemsRemovedCount > 0) {
-            _logger.LogInformation(ApplicationLogEvents.Cache.RemoveByPrefixCompleted, "Removed {ItemsRemovedCount} items with prefix {CachePrefix}.", itemsRemovedCount, prefix);
-        }
-        else {
-            _logger.LogInformation(ApplicationLogEvents.Cache.RemoveByPrefixCompleted, "No cache items found or removed matching prefix {CachePrefix}.", prefix);
-        }
+        _logger.LogInformation(ApplicationLogEvents.Cache.RemoveByPrefixCompleted, "Removed {ItemsRemovedCount} items with prefix {CachePrefix}", itemsRemovedCount, prefix);
         return Task.CompletedTask;
     }
 
@@ -150,7 +147,7 @@ public class MemoryCacheBase(IMemoryCache cache, CacheOptions cacheOptions, ILog
             options.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime);
         }
 
-        _ = options.AddExpirationToken(new CancellationChangeToken(s_resetCacheToken.Token))
+        _ = options.AddExpirationToken(new CancellationChangeToken(ResetCacheToken.Token))
                .RegisterPostEvictionCallback(PostEvictionCallback);
         return options;
     }

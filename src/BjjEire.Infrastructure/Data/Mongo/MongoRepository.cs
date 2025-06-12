@@ -81,22 +81,22 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         _ = await Collection.UpdateOneAsync(filter, update);
     }
 
-    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterExpression,
+    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression,
         UpdateBuilder<T> updateBuilder) {
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        _ = await Collection.UpdateOneAsync(filterExpression, update);
+        _ = await Collection.UpdateOneAsync(filterexpression, update);
     }
 
-    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterExpression,
+    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression,
         UpdateBuilder<T> updateBuilder) {
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        _ = await Collection.UpdateManyAsync(filterExpression, update);
+        _ = await Collection.UpdateManyAsync(filterexpression, update);
     }
 
     public virtual async Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value) {
