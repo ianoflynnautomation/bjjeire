@@ -49,14 +49,16 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
                 aspNetCoreTraceId,
                 userId);
 
-            throw new PipelineException(
-                message: $"Unhandled exception in MediatR pipeline for {requestName}",
-                requestName: requestName,
-                traceId: aspNetCoreTraceId,
-                userId: userId,
-                requestPath: requestPath,
-                requestMethod: requestMethod,
-                innerException: ex);
+            throw;
+
+            // throw new PipelineException(
+            //     message: $"Unhandled exception in MediatR pipeline for {requestName}",
+            //     requestName: requestName,
+            //     traceId: aspNetCoreTraceId,
+            //     userId: userId,
+            //     requestPath: requestPath,
+            //     requestMethod: requestMethod,
+            //     innerException: ex);
         }
         finally {
             stopwatch.Stop();
