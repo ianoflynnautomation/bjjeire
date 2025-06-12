@@ -4,45 +4,40 @@
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.Common;
 using BjjEire.Domain.Enums;
 using Bogus;
 
 namespace BjjEire.Api.IntegrationTests.Data;
 
-public class BjjEventTestDataFactory
-{
+public static class BjjEventTestDataFactory {
     public static CreateBjjEventCommand GetValidBjjEventCommand() => new() { Data = GetValidBjjEventDto() };
 
-    public static BjjEventDto GetValidBjjEventDto()
-    {
+    public static BjjEventDto GetValidBjjEventDto() {
         var faker = new Faker();
-        return new BjjEventDto
-        {
+        return new BjjEventDto {
             Id = faker.Random.Hexadecimal(24, "").ToLower(),
             Name = "Dublin BJJ Masterclass Series",
             Description = "Weekly BJJ seminars with Professor Maria Santos at Dublin Grappling Hub.",
             Type = BjjEventType.Seminar,
-            Organiser = new OrganizerDto
-            {
+            Organiser = new OrganizerDto {
                 Name = "Dublin Grappling Hub",
                 Website = "https://www.dublingrappling.com"
             },
             Status = EventStatus.Upcoming,
             StatusReason = "Event is coming soon",
-            SocialMedia = new SocialMediaDto
-            {
+            SocialMedia = new SocialMediaDto {
                 Instagram = "https://www.instagram.com/dublingrappling",
                 Facebook = "https://www.facebook.com/dublingrappling",
                 X = "https://x.com/dublingrappling",
                 YouTube = "https://www.youtube.com/@dublingrappling"
             },
             County = County.Dublin,
-            Location = new LocationDto
-            {
+            Location = new LocationDto {
                 Address = "45 O'Connell Street, Dublin 1, Ireland",
                 Venue = "Dublin Grappling Hub",
-                Coordinates = new GeoCoordinatesDto
-                {
+                Coordinates = new GeoCoordinatesDto {
                     Type = "Point",
                     Latitude = 53.349805,
                     Longitude = -6.260273,
@@ -51,8 +46,7 @@ public class BjjEventTestDataFactory
                         $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
                 }
             },
-            Schedule = new BjjEventScheduleDto
-            {
+            Schedule = new BjjEventScheduleDto {
                 ScheduleType = ScheduleType.FixedDate,
                 StartDate = DateTime.UtcNow.Date.AddDays(14),
                 EndDate = DateTime.UtcNow.Date.AddDays(14),
@@ -66,8 +60,7 @@ public class BjjEventTestDataFactory
                     }
                 }
             },
-            Pricing = new PricingModelDto
-            {
+            Pricing = new PricingModelDto {
                 Type = PricingType.PerDay,
                 Amount = 45.00m,
                 DurationDays = 1,
@@ -76,5 +69,65 @@ public class BjjEventTestDataFactory
             EventUrl = "https://www.dublingrappling.com/events",
             ImageUrl = "https://www.dublingrappling.com/images/event_poster.jpg"
         };
+    }
+
+
+    public static BjjEvent CreateBjjEvent(Action<BjjEvent>? configure = null) {
+        var faker = new Faker();
+        var bjjevent = new BjjEvent {
+            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Name = "Dublin BJJ Masterclass Series",
+            Description = "Weekly BJJ seminars with Professor Maria Santos at Dublin Grappling Hub.",
+            Type = BjjEventType.Seminar,
+            Organiser = new Organizer {
+                Name = "Dublin Grappling Hub",
+                Website = "https://www.dublingrappling.com"
+            },
+            Status = EventStatus.Upcoming,
+            StatusReason = "Event is coming soon",
+            SocialMedia = new SocialMedia {
+                Instagram = "https://www.instagram.com/dublingrappling",
+                Facebook = "https://www.facebook.com/dublingrappling",
+                X = "https://x.com/dublingrappling",
+                YouTube = "https://www.youtube.com/@dublingrappling"
+            },
+            County = County.Dublin,
+            Location = new Location {
+                Address = "45 O'Connell Street, Dublin 1, Ireland",
+                Venue = "Dublin Grappling Hub",
+                Coordinates = new GeoCoordinates {
+                    Latitude = 53.349805,
+                    Longitude = -6.260273,
+                    PlaceName = "Dublin Grappling Hub",
+                    PlaceId =
+                        $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
+                }
+            },
+            Schedule = new BjjEventSchedule {
+                ScheduleType = ScheduleType.FixedDate,
+                StartDate = DateTime.UtcNow.Date.AddDays(14),
+                EndDate = DateTime.UtcNow.Date.AddDays(14),
+                Hours =
+                [
+                    new() {
+                        Day = DayOfWeek.Wednesday,
+                        OpenTime = TimeSpan.Parse("09:00:00"),
+                        CloseTime = TimeSpan.Parse("13:00:00")
+                    }
+                ]
+            },
+            Pricing = new PricingModel {
+                Type = PricingType.PerDay,
+                Amount = 45.00m,
+                DurationDays = 1,
+                Currency = "EUR"
+            },
+            EventUrl = "https://www.dublingrappling.com/events",
+            ImageUrl = "https://www.dublingrappling.com/images/event_poster.jpg"
+        };
+
+        configure?.Invoke(bjjevent);
+
+        return bjjevent;
     }
 }
