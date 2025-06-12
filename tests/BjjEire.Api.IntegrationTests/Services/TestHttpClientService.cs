@@ -9,6 +9,8 @@ namespace BjjEire.Api.IntegrationTests.Services;
 
 public class TestHttpClientService(HttpClient client) : ITestHttpClientService
 {
+    public Task<HttpResponseMessage> DeleteAsync(string requestUri) 
+        => client.DeleteAsync(requestUri);
     public Task<HttpResponseMessage> GetAsync(string requestUri) => client.GetAsync(requestUri);
 
     public Task<HttpResponseMessage> PostAsJsonAsync<T>(string requestUri, T value)

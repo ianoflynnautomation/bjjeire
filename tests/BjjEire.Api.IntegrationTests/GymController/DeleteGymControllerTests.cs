@@ -3,6 +3,7 @@ using System.Net;
 using BjjEire.Api.IntegrationTests.Data;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.TestBases;
+using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Domain.Enums;
 using Shouldly;
 using Xunit;
@@ -18,11 +19,12 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [Fact]
     public async Task DeleteGym_WithValidAuthentication_ShouldDeleteGym() {
         // Arrange
+        await Auth.SetDefaultUserAuthTokenAsync();
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
         await Database.SeedEntitiesAsync(gym1);
 
         // Act
-        var response = await Http.GetAsync($"/api/delete/{gym1.Id}");
+        var response = await Http.DeleteAsync($"/api/gym/{gym1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
