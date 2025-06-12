@@ -111,8 +111,4 @@
     <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" /> -->
   </ItemGroup>
 
-  <PropertyGroup>
-    <GenerateMSBuildEditorConfigFile>false</GenerateMSBuildEditorConfigFile>
-  </PropertyGroup>
-
 </Project>
