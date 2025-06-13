@@ -1,5 +1,6 @@
 
 using BjjEire.Application.Common;
+using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities;
 
@@ -209,8 +210,15 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     public virtual void Delete(T entity) => _ = Collection.FindOneAndDelete(e => e.Id == entity.Id);
 
     public virtual async Task<T> DeleteAsync(T entity) {
-        _ = await Collection.DeleteOneAsync(e => e.Id == entity.Id);
-        return entity;
+      
+        ArgumentNullException.ThrowIfNull(entity);
+
+        var filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
+        var result = await Collection.DeleteOneAsync(filter);
+
+        return result.IsAcknowledged && result.DeletedCount == 0
+        ? throw new ConcurrencyException($"Concurrency conflict for entity with ID {entity.Id}.")
+        : entity;
     }
 
     public virtual async Task DeleteAsync(IEnumerable<T> entities) {

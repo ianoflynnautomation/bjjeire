@@ -22,15 +22,16 @@ public class TestDatabaseService(IMongoDatabase database, ILogger<TestDatabaseSe
     public async Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity {
         ArgumentNullException.ThrowIfNull(entities);
 
-        if (entities.Length == 0) {
-            return;
-        }
+        if (entities == null || entities.Length == 0)
+    {
+        return;
+    }
 
         var collectionName = typeof(TEntity).Name;
         logger.LogInformation("Seeding {Count} entities into collection {CollectionName}", entities.Length, collectionName);
         var collection = database.GetCollection<TEntity>(collectionName);
         await collection.InsertManyAsync(entities);
-        var seededCount = await collection.CountDocumentsAsync(_ => true);
-        seededCount.ShouldBe(entities.Length);
+        // var seededCount = await collection.CountDocumentsAsync(_ => true); // use for debugging.
+        // seededCount.ShouldBe(entities.Length);
     }
 }

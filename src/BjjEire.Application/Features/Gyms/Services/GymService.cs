@@ -49,7 +49,9 @@ public class GymService(
     public virtual async Task UpdateAsync(Gym gym) {
         ArgumentNullException.ThrowIfNull(gym);
 
-        _logger.LogInformation(ApplicationLogEvents.GymService.UpdateAttempt, "Attempting to update Gym with ID {GymId}. GymName: {GymName}",
+        _logger.LogInformation(
+            ApplicationLogEvents.GymService.UpdateAttempt, 
+            "Attempting to update Gym with ID {GymId}. GymName: {GymName}",
             gym.Id,
             gym.Name);
 
@@ -59,29 +61,49 @@ public class GymService(
             updatedGym.Id,
             updatedGym.Name);
 
+        var specificCacheKey = CacheKey.BjjEventsById(gym.Id);
+        var patternCacheKey = CacheKey.BjjEventsByPatternKey();
+
         _logger.LogInformation(ApplicationLogEvents.Cache.InvalidationInitiated, "Initiating cache invalidation for Gyms pattern {GymCachePatternKey} due to update of Gym ID {GymId}",
             CacheKey.GymByPatternKey(),
             updatedGym.Id);
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
+
+        var removeSpecificTask = _cacheBase.RemoveAsync(specificCacheKey);
+        var removePatternTask = _cacheBase.RemoveByPrefixAsync(patternCacheKey);
+
+        await Task.WhenAll(removeSpecificTask, removePatternTask);
     }
 
     public virtual async Task DeleteAsync(Gym gym) {
         ArgumentNullException.ThrowIfNull(gym);
 
-        _logger.LogInformation(ApplicationLogEvents.GymService.DeleteAttempt, "Attempting to delete Gym with ID {GymId}. GymName: {GymName}",
+        _logger.LogInformation(
+          ApplicationLogEvents.GymService.DeleteAttempt,
+          "Attempting to delete Gym with ID {GymId}. GymName: {GymName}",
             gym.Id,
             gym.Name);
 
-        _logger.LogInformation(ApplicationLogEvents.Cache.InvalidationInitiated, "Initiating cache invalidation for Gyms pattern {GymCachePatternKey} prior to deleting Gym ID {GymId}",
-            CacheKey.GymByPatternKey(),
-            gym.Id);
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.GymByPatternKey());
-
-        var deletedGym = await _gymRepository.DeleteAsync(gym);
+        _ = await _gymRepository.DeleteAsync(gym);
 
         _logger.LogInformation(ApplicationLogEvents.GymService.DeleteSuccess,
-            "Successfully deleted Gym with ID {GymId}. GymName: {GymName}",
-            deletedGym.Id,
-            deletedGym.Name);
+          "Successfully deleted Gym with ID {GymId}",
+          gym.Id);
+
+        var specificCacheKey = CacheKey.GymById(gym.Id);
+        var patternCacheKey = CacheKey.GymByPatternKey();
+
+
+        _logger.LogInformation(
+          ApplicationLogEvents.Cache.InvalidationInitiated,
+          "Initiating cache invalidation for Gyms pattern {GymCachePatternKey} prior to deleting Gym ID {GymId}",
+            CacheKey.GymByPatternKey(),
+            gym.Id);
+
+        var removeSpecificTask = _cacheBase.RemoveAsync(specificCacheKey);
+        var removePatternTask = _cacheBase.RemoveByPrefixAsync(patternCacheKey);
+
+
+        await Task.WhenAll(removeSpecificTask, removePatternTask);
+
     }
 }

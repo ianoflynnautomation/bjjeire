@@ -164,4 +164,88 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         pagedResponse.Data.Count.ShouldBe(20);
 
     }
+
+    [Fact]
+    public async Task GetAllGyms_WithFilterAndPagination_ShouldReturnCorrectSubset() {
+        // Arrange
+        var gymsInCork = Enumerable.Range(1, 5).Select(i => GymTestDataFactory.CreateGym(g => {
+            g.Name = $"Cork Gym {i}";
+            g.County = County.Cork;
+        })).ToArray();
+        await Database.SeedEntitiesAsync(gymsInCork);
+        await Database.SeedEntitiesAsync(GymTestDataFactory.CreateGym(g => g.County = County.Dublin));
+        var query = new GetGymPaginationQuery { County = County.Cork, Page = 2, PageSize = 3 };
+
+        // Act
+        var response = await Http.GetAsync($"/api/gym?county={query.County}&page={query.Page}&pageSize={query.PageSize}");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.Data.Count.ShouldBe(2);
+        pagedResponse.Pagination.TotalItems.ShouldBe(5);
+        pagedResponse.Pagination.CurrentPage.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task GetAllGyms_ShouldReturnGymsSortedByName() {
+        // Arrange
+        var gymC = GymTestDataFactory.CreateGym(g => g.Name = "C-Team Gym");
+        var gymA = GymTestDataFactory.CreateGym(g => g.Name = "A-Team Gym");
+        var gymB = GymTestDataFactory.CreateGym(g => g.Name = "B-Team Gym");
+        await Database.SeedEntitiesAsync(gymC, gymA, gymB);
+
+        // Act
+        var response = await Http.GetAsync("/api/gym");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.Data.Select(g => g.Name).ShouldBe(["A-Team Gym", "B-Team Gym", "C-Team Gym"]);
+    }
+
+    // [Theory]
+    // [InlineData("county=InvalidValue")]
+    // [InlineData("county=99")]
+    // public async Task GetAllGyms_WithInvalidCountyValue_ShouldReturnBadRequest(string query) {
+    //     // Arrange & Act
+    //     var response = await Http.GetAsync($"/api/gym?{query}");
+
+    //     // Assert
+    //     response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    // }
+
+    [Fact]
+    public async Task GetAllGyms_WithFilterThatHasNoMatches_ShouldReturnOkAndEmptyList() {
+        // Arrange
+        await Database.SeedEntitiesAsync(GymTestDataFactory.CreateGym(g => g.County = County.Dublin));
+
+        // Act
+        var response = await Http.GetAsync("/api/gym?county=Cork");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.Data.ShouldBeEmpty();
+        pagedResponse.Pagination.TotalItems.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task GetAllGyms_WhenOnLastPage_ShouldHaveHasNextPageFalse() {
+        // Arrange
+        var gyms = Enumerable.Range(1, 4).Select(_ => GymTestDataFactory.GetValidGym()).ToArray();
+        await Database.SeedEntitiesAsync(gyms);
+        var query = new GetGymPaginationQuery { Page = 2, PageSize = 2 };
+
+        // Act
+        var response = await Http.GetAsync($"/api/gym?page={query.Page}&pageSize={query.PageSize}");
+
+        // Assert
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
+        pagedResponse.Data.Count.ShouldBe(2);
+        pagedResponse.Pagination.TotalPages.ShouldBe(2);
+        pagedResponse.Pagination.HasNextPage.ShouldBeFalse();
+        pagedResponse.Pagination.HasPreviousPage.ShouldBeTrue();
+    }
 }

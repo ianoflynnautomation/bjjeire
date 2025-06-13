@@ -12,8 +12,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [HttpGet()]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync([FromQuery] GetGymPaginationQuery query) {
         var response = await _mediator.Send(query);
 
@@ -28,6 +27,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [Authorize]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command) {
         var response = await _mediator.Send(command);
@@ -41,7 +41,9 @@ public class GymController(IMediator mediator) : BaseApiController {
     [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateGymResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)] 
     public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command) {
         var response = await _mediator.Send(command);
 
@@ -52,10 +54,18 @@ public class GymController(IMediator mediator) : BaseApiController {
     [EndpointName("DeleteGym")]
     [HttpDelete("{id}")]
     [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(DeleteGymResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] DeleteGymCommand command) {
+    [ProducesResponseType(StatusCodes.Status409Conflict)] 
+    public async Task<IActionResult> DeleteAsync([FromRoute] string id) {
+
+        if (string.IsNullOrWhiteSpace(id)) {
+            return BadRequest();
+        }
+
+        var command = new DeleteGymCommand { Id = id };
+
         _ = await _mediator.Send(command);
 
         return NoContent();

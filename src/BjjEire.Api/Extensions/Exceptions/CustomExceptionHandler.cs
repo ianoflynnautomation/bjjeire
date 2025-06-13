@@ -20,6 +20,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             ValidationException validationEx => HandleValidationException(validationEx, httpContext),
             CustomException customEx => HandleCustomException(customEx, httpContext),
             UnauthorizedAccessException => HandleUnauthorizedAccessException(httpContext),
+            ConcurrencyException concurrencyEx => HandleConcurrencyException(concurrencyEx, httpContext),
             NotFoundException notFoundEx => HandleNotFoundException(notFoundEx, httpContext),
             _ => HandleUnexpectedException(exception, httpContext, userId),
         };
@@ -137,6 +138,18 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             httpContext.TraceIdentifier
         );
     }
+
+    private static ProblemDetails HandleConcurrencyException(ConcurrencyException exception, HttpContext httpContext)
+{
+    return new ProblemDetails
+    {
+        Type = "urn:bjjeire:conflict",
+        Title = "Conflict",
+        Status = StatusCodes.Status409Conflict,
+        Detail = exception.Message,
+        Instance = httpContext.TraceIdentifier
+    };
+}
 }
 
 public class ValidationErrorResponse : ProblemDetails {
