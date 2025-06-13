@@ -8,6 +8,7 @@ using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Entities.Common;
 using BjjEire.Domain.Enums;
 using Bogus;
+using MongoDB.Bson;
 
 namespace BjjEire.Api.IntegrationTests.Data;
 
@@ -17,7 +18,7 @@ public static class BjjEventTestDataFactory {
     public static BjjEventDto GetValidBjjEventDto() {
         var faker = new Faker();
         return new BjjEventDto {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Name = "Dublin BJJ Masterclass Series",
             Description = "Weekly BJJ seminars with Professor Maria Santos at Dublin Grappling Hub.",
             Type = BjjEventType.Seminar,
@@ -50,15 +51,14 @@ public static class BjjEventTestDataFactory {
                 ScheduleType = ScheduleType.FixedDate,
                 StartDate = DateTime.UtcNow.Date.AddDays(14),
                 EndDate = DateTime.UtcNow.Date.AddDays(14),
-                Hours = new List<BjjEventHoursDto>
-                {
-                    new BjjEventHoursDto
-                    {
+                Hours =
+                [
+                    new() {
                         Day = DayOfWeek.Wednesday,
                         OpenTime = TimeSpan.Parse("09:00:00"),
                         CloseTime = TimeSpan.Parse("13:00:00")
                     }
-                }
+                ]
             },
             Pricing = new PricingModelDto {
                 Type = PricingType.PerDay,
@@ -75,7 +75,7 @@ public static class BjjEventTestDataFactory {
     public static BjjEvent CreateBjjEvent(Action<BjjEvent>? configure = null) {
         var faker = new Faker();
         var bjjevent = new BjjEvent {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Name = "Dublin BJJ Masterclass Series",
             Description = "Weekly BJJ seminars with Professor Maria Santos at Dublin Grappling Hub.",
             Type = BjjEventType.Seminar,

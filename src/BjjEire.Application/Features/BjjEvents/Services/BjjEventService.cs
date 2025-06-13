@@ -4,7 +4,6 @@
 using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.BjjEvents;
-using BjjEire.Domain.Enums;
 using BjjEire.SharedKernel.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -61,24 +60,26 @@ public sealed class BjjEventService(
 
         _logger.LogInformation(
             ApplicationLogEvents.BjjEventService.UpdateAttempt,
-            "Attempting to update BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
-            bjjEvent.Id,
-            bjjEvent.Name);
+            "Attempting to update BjjEvent with ID {BjjEventId}", bjjEvent.Id);
 
-        var updatedEvent = await _bjjEventRepository.UpdateAsync(bjjEvent);
+      var updatedBjjEvent  = await _bjjEventRepository.UpdateAsync(bjjEvent);
 
         _logger.LogInformation(
             ApplicationLogEvents.BjjEventService.UpdateSuccess,
-            "Successfully updated BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
-            updatedEvent.Id,
-            updatedEvent.Name);
+            "Successfully updated BjjEvent with ID {BjjEventId}", updatedBjjEvent.Id);
+
+        var specificCacheKey = CacheKey.BjjEventsById(updatedBjjEvent.Id);
+        var patternCacheKey = CacheKey.BjjEventsByPatternKey();
 
         _logger.LogInformation(
             ApplicationLogEvents.Cache.InvalidationInitiated,
-            "Initiating cache invalidation for BjjEvents pattern {CachePatternKey} due to update of BjjEvent ID {BjjEventId}",
-            CacheKey.BjjEventsByPatternKey(),
-            updatedEvent.Id);
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
+            "Initiating cache invalidation for BjjEvent ID {BjjEventId}. Keys: {SpecificKey}, {PatternKey}",
+            bjjEvent.Id, specificCacheKey, patternCacheKey);
+
+        var removeSpecificTask = _cacheBase.RemoveAsync(specificCacheKey);
+        var removePatternTask = _cacheBase.RemoveByPrefixAsync(patternCacheKey);
+
+        await Task.WhenAll(removeSpecificTask, removePatternTask);
     }
 
     public async Task DeleteAsync(BjjEvent bjjEvent) {
@@ -90,19 +91,27 @@ public sealed class BjjEventService(
             bjjEvent.Id,
             bjjEvent.Name);
 
-        await _cacheBase.RemoveByPrefixAsync(CacheKey.BjjEventsByPatternKey());
-        _logger.LogInformation(
-            ApplicationLogEvents.Cache.InvalidationInitiated,
-            "Cache invalidation for BjjEvents pattern {CachePatternKey} initiated prior to deleting BjjEvent ID {BjjEventId}",
-            CacheKey.BjjEventsByPatternKey(),
-            bjjEvent.Id);
-
-        var deletedEvent = await _bjjEventRepository.DeleteAsync(bjjEvent);
+        _ = await _bjjEventRepository.DeleteAsync(bjjEvent);
 
         _logger.LogInformation(
             ApplicationLogEvents.BjjEventService.DeleteSuccess,
-            "Successfully deleted BjjEvent with ID {BjjEventId}. EventName: {BjjEventName}",
-            deletedEvent.Id,
-            deletedEvent.Name);
+            "Successfully deleted BjjEvent with ID {BjjEventId}",
+            bjjEvent.Id);
+
+        var specificCacheKey = CacheKey.BjjEventsById(bjjEvent.Id);
+        var patternCacheKey = CacheKey.BjjEventsByPatternKey();
+
+        _logger.LogInformation(
+            ApplicationLogEvents.Cache.InvalidationInitiated,
+            "Initiating cache invalidation for BjjEvent ID {BjjEventId}. Keys: {SpecificKey}, {PatternKey}",
+            bjjEvent.Id,
+            specificCacheKey,
+            patternCacheKey);
+
+        var removeSpecificTask = _cacheBase.RemoveAsync(specificCacheKey);
+        var removePatternTask = _cacheBase.RemoveByPrefixAsync(patternCacheKey);
+
+        await Task.WhenAll(removeSpecificTask, removePatternTask);
     }
+
 }

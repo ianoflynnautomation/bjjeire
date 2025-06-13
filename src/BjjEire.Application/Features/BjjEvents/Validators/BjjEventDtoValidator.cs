@@ -2,6 +2,7 @@
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.DTOs;
+using MongoDB.Bson;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
@@ -11,6 +12,11 @@ public class BjjEventDtoValidator : AbstractValidator<BjjEventDto> {
                                 IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
                                 IValidator<PricingModelDto> pricingModelDtoValidator,
                                 IValidator<LocationDto> locationDtoValidator) {
+
+        _ = RuleFor(x => x.Id)
+            .Must(id => ObjectId.TryParse(id, out _))
+            .WithMessage("The provided ID is not in a valid format.");
+
         _ = RuleFor(x => x.Name)
             .ApplyRequiredString("Event Name", 100);
 

@@ -7,6 +7,7 @@ using BjjEire.Domain.Entities.Common;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
 using Bogus;
+using MongoDB.Bson;
 
 namespace BjjEire.Api.IntegrationTests.Data;
 
@@ -64,7 +65,7 @@ public static class GymTestDataFactory {
         .RuleFor(x => x.Website, faker => GenerateSafeUrl(faker, "affiliation", "/home"));
 
     private static Faker<GymDto> GymDtoGenerator { get; } = new Faker<GymDto>()
-        .RuleFor(x => x.Id, faker => faker.Random.Hexadecimal(24, "").ToLower())
+        .RuleFor(x => x.Id, faker => ObjectId.GenerateNewId().ToString())
         .RuleFor(x => x.Name, faker => $"Team {faker.Company.CatchPhrase()} BJJ".SetMinMaxLength(5, 100))
         .RuleFor(x => x.Description, faker => faker.Lorem.Sentence(10).SetMinMaxLength(10, 200))
         .RuleFor(x => x.Status, faker => faker.PickRandom<GymStatus>())
@@ -95,7 +96,7 @@ public static class GymTestDataFactory {
     public static GymDto GetValidGymDto() {
         var faker = new Faker();
         return new GymDto {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Name = "Valid Gym Name",
             Description = "Valid gym description, not too long.",
             Status = GymStatus.Active,
@@ -137,7 +138,7 @@ public static class GymTestDataFactory {
     public static Gym GetValidGym() {
         var faker = new Faker();
         return new Gym {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Name = "Valid Gym Name",
             Description = "Valid gym description, not too long.",
             Status = GymStatus.Active,
@@ -178,7 +179,7 @@ public static class GymTestDataFactory {
     public static Gym CreateGym(Action<Gym>? configure = null) {
         var faker = new Faker();
         var gym = new Gym {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = ObjectId.GenerateNewId().ToString(),
             Name = "Default Valid Gym",
             Description = "A valid default gym description.",
             Status = GymStatus.Active,
