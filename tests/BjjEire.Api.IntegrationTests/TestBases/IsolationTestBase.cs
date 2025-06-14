@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Common;
-using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Api.IntegrationTests.Extensions;
 using BjjEire.Api.IntegrationTests.Fixtures;
+using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Api.IntegrationTests.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,8 +19,7 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 /// Use this only for highly sensitive tests where performance is not a concern.
 /// </summary>
 [Collection("Sequential")]
-public abstract class IsolationTestBase : IAsyncLifetime
-{
+public abstract class IsolationTestBase : IAsyncLifetime {
     private IServiceScope _scope = null!;
     private IDisposable? _logContext;
     private ApiTestFixture _fixture = null!;
@@ -32,15 +31,13 @@ public abstract class IsolationTestBase : IAsyncLifetime
     protected ITestAuthService Auth { get; private set; } = null!;
     protected ITestAssertionService Assertions { get; private set; } = null!;
 
-    public IsolationTestBase(ITestOutputHelper output)
-    {
+    public IsolationTestBase(ITestOutputHelper output) {
         _output = output;
         Logger = LoggingExtension.ConfigureTestLogger(_output);
 
     }
 
-    public async Task InitializeAsync()
-    {
+    public async Task InitializeAsync() {
 
         var test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
@@ -70,15 +67,13 @@ public abstract class IsolationTestBase : IAsyncLifetime
 
     }
 
-    public async Task DisposeAsync()
-    {
+    public async Task DisposeAsync() {
         Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestFinished, "Tearing down isolated fixture.");
         _logContext?.Dispose();
         _scope?.Dispose();
         HttpClient?.Dispose();
 
-        if (_fixture != null)
-        {
+        if (_fixture != null) {
             await _fixture.DisposeAsync();
         }
 
