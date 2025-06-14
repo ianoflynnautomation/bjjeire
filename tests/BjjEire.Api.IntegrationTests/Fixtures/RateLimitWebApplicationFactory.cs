@@ -1,4 +1,4 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) {year} BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Extensions;
@@ -9,8 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public class RateLimitWebApplicationFactory(string connectionString) : WebApplicationFactory<Program>
-{
+public class RateLimitWebApplicationFactory(string connectionString) : WebApplicationFactory<Program> {
     private readonly string _databaseName = $"bjjeire_it_{Guid.NewGuid():N}";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder) {
@@ -26,7 +25,7 @@ public class RateLimitWebApplicationFactory(string connectionString) : WebApplic
                 { "ConnectionStrings:Mongodb", connectionString },
                 { "RateLimitOptions:EnableRateLimiting", "true" },
                 { "RateLimitOptions:PermitLimit", "2" },
-                { "RateLimitOptions:WindowInSeconds", "10" },
+                { "RateLimitOptions:WindowInSeconds", "5" },
                 { "RateLimitOptions:RejectionStatusCode", "429" },
             }));
 

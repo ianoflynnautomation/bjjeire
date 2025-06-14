@@ -20,7 +20,7 @@ public class TestDatabaseService(IMongoDatabase database, ILogger<TestDatabaseSe
     }
 
     public async Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity {
-        ArgumentNullException.ThrowIfNull(entities);
+        //ArgumentNullException.ThrowIfNull(entities);
 
         if (entities == null || entities.Length == 0)
     {
