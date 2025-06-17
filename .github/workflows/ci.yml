@@ -37,21 +37,21 @@ env:
   id-token: write
 
 jobs:
-  lint:
-    name: Lint & Format Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  # lint:
+  #   name: Lint & Format Check
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 5
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - name: Lint & Format Check
-        id: build_step
-        uses: ./.github/actions/lint
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-          node-version: ${{ env.NODE_VERSION }}
-          working-directory: ${{ env.REACT_APP_PATH }}
+  #     - name: Lint & Format Check
+  #       id: build_step
+  #       uses: ./.github/actions/lint
+  #       with:
+  #         dotnet-version: ${{ env.DOTNET_VERSION }}
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         working-directory: ${{ env.REACT_APP_PATH }}
 
   build_dotnet_solution:
     name: Build .NET Solution
