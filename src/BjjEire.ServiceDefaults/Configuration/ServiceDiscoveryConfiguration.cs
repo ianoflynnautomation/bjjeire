@@ -16,7 +16,7 @@ public static class ServiceDiscoveryConfiguration {
         });
 
         if (options?.AllowedSchemes?.Count > 0) {
-            _ = builder.Services.Configure<ServiceDiscoveryOptions>(o => o.AllowedSchemes = options.AllowedSchemes.ToList());
+            _ = builder.Services.Configure<ServiceDiscoveryOptions>(o => o.AllowedSchemes = [.. options.AllowedSchemes]);
         }
     }
 }
