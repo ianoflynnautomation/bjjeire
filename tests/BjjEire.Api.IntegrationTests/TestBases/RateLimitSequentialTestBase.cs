@@ -26,7 +26,7 @@ public abstract class RateLimitSequentialIntegrationTestBase : IAsyncLifetime {
     protected ITestAuthService Auth { get; private set; } = null!;
     protected ITestAssertionService Assertions { get; private set; } = null!;
 
-    public RateLimitSequentialIntegrationTestBase(ITestOutputHelper output) {
+    protected RateLimitSequentialIntegrationTestBase(ITestOutputHelper output) {
         _output = output;
         Logger = LoggingExtension.ConfigureTestLogger(_output);
 

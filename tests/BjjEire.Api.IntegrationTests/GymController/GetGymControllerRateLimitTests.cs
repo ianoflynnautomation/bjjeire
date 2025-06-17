@@ -43,23 +43,21 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     }
 
     [Fact]
-public async Task GetGym_WhenUnderRateLimit_ShouldSucceed()
-{
-    // Arrange
-    var requestsToMake = ConfiguredPermitLimit;
+    public async Task GetGym_WhenUnderRateLimit_ShouldSucceed() {
+        // Arrange
+        var requestsToMake = ConfiguredPermitLimit;
 
-    // Act
-    var responses = new List<HttpResponseMessage>();
-    for (var i = 0; i < requestsToMake; i++)
-    {
-        responses.Add(await HttpClient.GetAsync("api/gym"));
-        await Task.Delay(50);
+        // Act
+        var responses = new List<HttpResponseMessage>();
+        for (var i = 0; i < requestsToMake; i++) {
+            responses.Add(await HttpClient.GetAsync("api/gym"));
+            await Task.Delay(50);
+        }
+
+        // Assert
+        responses.ShouldAllBe(r => r.IsSuccessStatusCode);
+        responses.Count.ShouldBe(requestsToMake);
     }
-
-    // Assert
-    responses.ShouldAllBe(r => r.IsSuccessStatusCode);
-    responses.Count.ShouldBe(requestsToMake);
-}
 
     [Fact]
     public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgain() {

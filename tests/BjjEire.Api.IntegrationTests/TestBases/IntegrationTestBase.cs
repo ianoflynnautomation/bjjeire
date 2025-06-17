@@ -30,6 +30,8 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
     protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
+      ArgumentNullException.ThrowIfNull(fixture);
+
         _output = output;
         HttpClient = fixture.Factory.CreateClient();
         Logger = LoggingExtension.ConfigureTestLogger(_output);
@@ -76,10 +78,4 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
     protected Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>
         Assertions.AssertValidationErrorAsync(response, expectedErrors);
-
-    // protected Task AssertRateLimitHeadersAsync(HttpResponseMessage response, int expectedPermitLimit, int expectedWindowInSeconds, string expectedRemaining = "0") =>
-    //     Assertions.AssertRateLimitHeadersAsync(response, expectedPermitLimit, expectedWindowInSeconds, expectedRemaining);
-    //
-    // protected Task AssertRateLimitProblemDetailsAsync(HttpResponseMessage response, int expectedStatusCode, int expectedPermitLimit, int expectedWindowInSeconds) =>
-    //     Assertions.AssertRateLimitProblemDetailsAsync(response, expectedStatusCode, expectedPermitLimit, expectedWindowInSeconds);
 }

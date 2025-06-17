@@ -47,7 +47,9 @@ public static class DependencyInjection {
         _ = builder.Services.AddHttpClient();
         _ = builder.Services.AddMetrics();
         _ = builder.Services.ConfigureRateLimit(builder.Configuration);
-        _ = builder.Services.AddSecurityHeaders(builder.Configuration);
+        _ = builder.Services.AddCustomSecurityHeaders();
+        _ = builder.WebHost.ConfigureKestrel(serverOptions => 
+            serverOptions.AddServerHeader = false);
         _ = builder.Services.AddAppAuthentication(builder.Configuration);
 
         return builder;

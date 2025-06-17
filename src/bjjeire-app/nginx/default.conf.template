@@ -94,6 +94,8 @@ server {
 
     location /api/ {
         proxy_pass ${SERVICES_API_HTTPS_0};
+        proxy_pass_header Content-Security-Policy;
+        proxy_pass_header Permissions-Policy;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade; # For WebSocket support
         proxy_set_header Connection 'upgrade';   # For WebSocket support

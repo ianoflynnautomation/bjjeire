@@ -31,7 +31,7 @@ public abstract class IsolationTestBase : IAsyncLifetime {
     protected ITestAuthService Auth { get; private set; } = null!;
     protected ITestAssertionService Assertions { get; private set; } = null!;
 
-    public IsolationTestBase(ITestOutputHelper output) {
+    protected IsolationTestBase(ITestOutputHelper output) {
         _output = output;
         Logger = LoggingExtension.ConfigureTestLogger(_output);
 
