@@ -60,9 +60,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data",ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data", ValidationMessages.NotNull.ErrorCode, MessageContains: "Data cannot be null.")
+        );
 
     }
 
@@ -81,9 +81,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Name",ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Name", ValidationMessages.Required.ErrorCode, MessageContains: "Name is required.")
+        );
     }
 
     [Fact]
@@ -97,9 +97,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Name",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Name", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
+        );
     }
     #endregion
 
@@ -115,9 +115,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Description",ValidationMessages.MaxLength.ErrorCode , MessageContains: "Description cannot exceed 200 characters.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Description", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Description cannot exceed 200 characters.")
+        );
     }
 
     [Fact]
@@ -204,9 +204,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Affiliation.Name",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Affiliation.Name", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Name cannot exceed 100 characters.")
+        );
     }
 
     [Theory]
@@ -223,9 +223,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Affiliation.Website",ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Affiliation.Website", ValidationMessages.InvalidUrl.ErrorCode, MessageContains: "Website must be a valid URL.")
+        );
     }
 
     #endregion
@@ -242,9 +242,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer",ValidationMessages.NotNull.ErrorCode, MessageContains: "Trial Offer cannot be null.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer", ValidationMessages.NotNull.ErrorCode, MessageContains: "Trial Offer cannot be null.")
+        );
     }
 
     [Fact]
@@ -260,9 +260,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer",ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer (FreeClasses or FreeDays) is required when IsAvailable is true.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Trial Offer (FreeClasses or FreeDays) is required when IsAvailable is true.")
+        );
     }
 
     [Fact]
@@ -279,10 +279,10 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
 
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive."),
-        (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Classes must be null or positive when provided.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.FreeClasses", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive."),
+        (Field: "Data.TrialOffer.FreeClasses", ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Classes must be null or positive when provided.")
+        );
     }
 
     [Fact]
@@ -298,9 +298,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Classes must be between 1 and 10 inclusive.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.FreeClasses", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Classes must be between 1 and 10 inclusive.")
+        );
     }
 
     [Fact]
@@ -316,10 +316,10 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeDays",ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Days must be null or positive when provided."),
-        (Field: "Data.TrialOffer.FreeDays",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Days must be between 1 and 30 inclusive.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.FreeDays", ValidationMessages.PositiveOrNull.ErrorCode, MessageContains: "Free Days must be null or positive when provided."),
+        (Field: "Data.TrialOffer.FreeDays", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Days must be between 1 and 30 inclusive.")
+        );
     }
 
     [Fact]
@@ -335,9 +335,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeDays",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Days must be between 1 and 30 inclusive.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.FreeDays", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: $"Free Days must be between 1 and 30 inclusive.")
+        );
     }
 
     [Fact]
@@ -352,9 +352,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.FreeClasses",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.FreeClasses", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Free Classes must be between 1 and 10 inclusive.")
+        );
     }
 
     [Fact]
@@ -368,9 +368,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.TrialOffer.Notes",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Notes cannot exceed 200 characters.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.TrialOffer.Notes", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Notes cannot exceed 200 characters.")
+        );
     }
 
     #endregion
@@ -387,9 +387,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.SocialMedia",ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.SocialMedia", ValidationMessages.NotNull.ErrorCode, MessageContains: "Social Media cannot be null.")
+        );
     }
 
     [Theory]
@@ -423,9 +423,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: $"Data.SocialMedia.{socialMediaField}",ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: $"Data.SocialMedia.{socialMediaField}", ValidationMessages.InvalidUrl.ErrorCode, MessageContains: $"{socialMediaField} must be a valid URL.")
+        );
     }
 
     [Fact]
@@ -476,9 +476,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Location",ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Location", ValidationMessages.NotNull.ErrorCode, MessageContains: "Location cannot be null.")
+      );
     }
 
     [Theory]
@@ -495,9 +495,9 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var response = await Http.PostAsJsonAsync("api/gym", command);
 
         // Assert
-        await AssertValidationErrorAsync(response, [
-            (Field: "Data.Location.Address",ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
-        ]);
+        await AssertValidationErrorAsync(response,
+            (Field: "Data.Location.Address", ValidationMessages.Required.ErrorCode, MessageContains: "Address is required.")
+        );
     }
 
     [Fact]
@@ -512,7 +512,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Address",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
+            (Field: "Data.Location.Address", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Address cannot exceed 100 characters.")
         );
     }
 
@@ -531,7 +531,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Venue",ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
+            (Field: "Data.Location.Venue", ValidationMessages.Required.ErrorCode, MessageContains: "Venue is required.")
         );
     }
 
@@ -547,7 +547,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Venue",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
+            (Field: "Data.Location.Venue", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Venue cannot exceed 100 characters.")
         );
     }
 
@@ -563,7 +563,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates",ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
+            (Field: "Data.Location.Coordinates", ValidationMessages.NotNull.ErrorCode, MessageContains: "Coordinates cannot be null.")
         );
     }
 
@@ -585,7 +585,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Type",ValidationMessages.Required.ErrorCode, MessageContains: "Type is required.")
+            (Field: "Data.Location.Coordinates.Type", ValidationMessages.Required.ErrorCode, MessageContains: "Type is required.")
       );
     }
 
@@ -601,7 +601,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Type",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Type cannot exceed 50 characters.")
+            (Field: "Data.Location.Coordinates.Type", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Type cannot exceed 50 characters.")
         );
     }
 
@@ -619,7 +619,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Latitude",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Latitude must be between -90 and 90 inclusive.")
+            (Field: "Data.Location.Coordinates.Latitude", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Latitude must be between -90 and 90 inclusive.")
       );
     }
 
@@ -637,7 +637,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.Longitude",ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Longitude must be between -180 and 180 inclusive.")
+            (Field: "Data.Location.Coordinates.Longitude", ValidationMessages.InclusiveBetweenValue.ErrorCode, MessageContains: "Longitude must be between -180 and 180 inclusive.")
         );
     }
 
@@ -653,7 +653,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.PlaceName",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place Name cannot exceed 100 characters.")
+            (Field: "Data.Location.Coordinates.PlaceName", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place Name cannot exceed 100 characters.")
         );
     }
 
@@ -669,7 +669,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: "Data.Location.Coordinates.PlaceId",ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place ID cannot exceed 24 characters.")
+            (Field: "Data.Location.Coordinates.PlaceId", ValidationMessages.MaxLength.ErrorCode, MessageContains: "Place ID cannot exceed 24 characters.")
         );
     }
 
@@ -704,7 +704,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         await AssertValidationErrorAsync(response,
-            (Field: fieldName,ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
+            (Field: fieldName, ValidationMessages.InvalidUrl.ErrorCode, MessageContains: expectedMessage)
         );
     }
 

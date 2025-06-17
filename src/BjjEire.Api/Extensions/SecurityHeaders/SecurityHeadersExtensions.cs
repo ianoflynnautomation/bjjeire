@@ -1,52 +1,48 @@
+using NetEscapades.AspNetCore.SecurityHeaders;
 
 namespace BjjEire.Api.Extensions.SecurityHeaders;
 
-public static class SecurityHeadersExtensions {
-    internal static IServiceCollection AddSecurityHeaders(this IServiceCollection services, IConfiguration config) {
-        _ = services.Configure<SecurityHeaderOptions>(config.GetSection(nameof(SecurityHeaderOptions)));
+public static class SecurityHeadersServiceCollectionExtensions {
+    public static IServiceCollection AddCustomSecurityHeaders(this IServiceCollection services) {
+        _ = services.AddSecurityHeaderPolicies()
+            .SetDefaultPolicy(policy => {
+                _ = policy.AddDefaultSecurityHeaders();
+
+                // Override and add specific headers
+                _ = policy.AddStrictTransportSecurity(maxAgeInSeconds: 60 * 60 * 24 * 365, includeSubdomains: true, preload: false);
+
+                _ =  policy.AddXssProtectionBlock();
+
+                _ = policy.AddReferrerPolicyNoReferrer();
+                
+                _ = policy.AddPermissionsPolicy(builder => {
+                    builder.AddAccelerometer().None();
+                    builder.AddCamera().None();
+                    builder.AddGeolocation().None();
+                    builder.AddGyroscope().None();
+                    builder.AddMagnetometer().None();
+                    builder.AddMicrophone().None();
+                    builder.AddPayment().None();
+                    builder.AddUsb().None();
+                });
+
+                // Build a strong Content-Security-Policy
+                _ = policy.AddContentSecurityPolicy(builder => {
+                    builder.AddObjectSrc().None();
+                    builder.AddFormAction().Self();
+                    builder.AddFrameAncestors().None();
+
+                    builder.AddDefaultSrc().Self();
+
+                    // For a standard React/Vite app
+                    builder.AddScriptSrc().Self();
+                    builder.AddStyleSrc().Self();
+                    builder.AddImgSrc().Self().Data();
+                    builder.AddFontSrc().Self();
+                    builder.AddConnectSrc().Self();
+                });
+            });
 
         return services;
-    }
-
-    internal static IApplicationBuilder UseSecurityHeaders(this IApplicationBuilder app) {
-        var options = app.ApplicationServices.GetRequiredService<IOptions<SecurityHeaderOptions>>().Value;
-
-        if (options.Enable) {
-            _ = app.Use(async (context, next) => {
-                if (!context.Response.HasStarted) {
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XFrameOptions)) {
-                        context.Response.Headers.XFrameOptions = options.Headers.XFrameOptions;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XContentTypeOptions)) {
-                        context.Response.Headers.XContentTypeOptions = options.Headers.XContentTypeOptions;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.ReferrerPolicy)) {
-                        context.Response.Headers.Referer = options.Headers.ReferrerPolicy;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.PermissionsPolicy)) {
-                        context.Response.Headers["Permissions-Policy"] = options.Headers.PermissionsPolicy;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.XXSSProtection)) {
-                        context.Response.Headers.XXSSProtection = options.Headers.XXSSProtection;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.ContentSecurityPolicy)) {
-                        context.Response.Headers.ContentSecurityPolicy = options.Headers.ContentSecurityPolicy;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(options.Headers.StrictTransportSecurity)) {
-                        context.Response.Headers.StrictTransportSecurity = options.Headers.StrictTransportSecurity;
-                    }
-                }
-
-                await next.Invoke();
-            });
-        }
-
-        return app;
     }
 }
