@@ -28,7 +28,7 @@ env:
   REACT_APP_PATH: 'src/bjjeire-app'
   ACTIONS_STEP_DEBUG: true
   CONFIGURATION: release
-  AZURE_CONTAINER_REGISTRY: 'bjjeireshareddevacr.azurecr.io'
+  AZURE_CONTAINER_REGISTRY: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
   API_IMAGE_NAME: 'bjjeire-api'
   FRONTEND_IMAGE_NAME: 'bjjeire-frontend'
 
