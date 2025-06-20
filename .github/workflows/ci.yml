@@ -26,7 +26,7 @@ env:
   NODE_VERSION: '23.x' 
   SOLUTION_PATH: 'BjjEire.sln'
   REACT_APP_PATH: 'src/bjjeire-app'
-  ACTIONS_STEP_DEBUG: false
+  ACTIONS_STEP_DEBUG: true
   CONFIGURATION: release
   AZURE_CONTAINER_REGISTRY: 'bjjeireshareddevacr.azurecr.io'
   API_IMAGE_NAME: 'bjjeire-api'
@@ -186,7 +186,3 @@ jobs:
           tags: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}, ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          
-
-
-      
