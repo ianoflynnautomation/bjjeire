@@ -1,6 +1,34 @@
+
+x-defaults: &default-service
+  platform: linux/arm64 
+  restart: unless-stopped
+  networks:
+    - bjj-network
+  deploy:
+    resources:
+      limits:
+        cpus: '0.50'
+        memory: 512M
+      reservations:
+        cpus: '0.25'
+        memory: 256M
+
+x-healthcheck-curl: &healthcheck-curl
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 10s
+
+x-healthcheck-wget: &healthcheck-wget
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+
 services:
   api:
-    platform: linux/arm64
+    <<: *default-service
+    profiles: ["app"]
     container_name: api
     build:
       context: .
@@ -25,27 +53,26 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./certs:/https:ro
+    secrets:
+      - cert_password
+      - mongodb_password
     depends_on:
       mongodb:
         condition: service_healthy
-    networks:
-      - bjj-network
     healthcheck:
+      <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
 
   frontend:
-    platform: linux/arm64
+    <<: *default-service
+    profiles: ["app"]
     container_name: web
     build:
       context: .
       dockerfile: src/bjjeire-app/Dockerfile
     ports:
       - "60742:80"
-      - "60743:443" 
+      - "60743:443"
     environment:
       - BROWSER=${BROWSER}
       - NODE_ENV=${NODE_ENV}
@@ -53,50 +80,45 @@ services:
       - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
       - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
       - VITE_APP_API_URL=${VITE_APP_API_URL}
-      - VITE_APP_ENABLE_API_MOCKING=${VITE_APP_ENABLE_API_MOCKING}
-      - VITE_APP_MOCK_API_PORT=${VITE_APP_MOCK_API_PORT}
       - VITE_APP_URL=${VITE_APP_URL}
-      - VITE_APP_PAGE_SIZE=${VITE_APP_PAGE_SIZE}
     depends_on:
       api:
         condition: service_healthy
-    networks:
-      - bjj-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"] 
-      interval: 30s
-      timeout: 10s 
-      retries: 3 
-      start_period: 10s
+      <<: *healthcheck-curl
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
 
   mongodb:
-    platform: linux/arm64
+    <<: *default-service
+    profiles: ["app"]
     image: mongo:latest
+    container_name: mongodb
     ports:
       - "27017:27017"
-    container_name: mongodb
-    restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password}
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password
     volumes:
       - mongodb_data:/data/db
+    secrets:
+      - mongodb_password
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - bjj-network
 
   mongo-exporter:
-    platform: linux/arm64
+    <<: *default-service
+    profiles: ["monitoring"]
     image: percona/mongodb_exporter:0.44
     container_name: mongo-exporter
-    command: --mongodb.uri=mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@${MONGODB_HOST:-mongodb}:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
+    command: --mongodb.uri=mongodb://${MONGODB_USER:-admin}:/run/secrets/mongodb_password@${MONGODB_HOST:-mongodb}:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
     ports:
       - "9216:9216"
+    secrets:
+      - mongodb_password
     depends_on:
       mongodb:
         condition: service_healthy
@@ -104,6 +126,8 @@ services:
       - bjj-network
 
   otel-collector:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: otel/opentelemetry-collector-contrib:latest
     container_name: otel-collector
     command: --config /etc/otel/config.yaml
@@ -122,27 +146,21 @@ services:
         condition: service_healthy
     ports:
       - 8888:8888
-      - 8889:8889 
-      - 13133:13133 
+      - 8889:8889
+      - 13133:13133
       - "55679:55679"
-      - 4317:4317 
+      - 4317:4317
       - 4318:4318
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:13133"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bjj-network
 
   prometheus:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: prom/prometheus:latest
     container_name: prometheus
-    restart: unless-stopped
-    user: nobody 
-    # deploy:
-    #   replicas: 2
+    user: nobody
     volumes:
       - ${BASE_PATH}/infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ${BASE_PATH}/infra/prometheus/rules:/etc/prometheus/rules
@@ -156,20 +174,16 @@ services:
     ports:
       - 9090:9090
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
     depends_on:
       - alertmanager
-    networks:
-      - bjj-network
 
   alertmanager:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: prom/alertmanager:latest
     container_name: alertmanager
-    restart: unless-stopped
     volumes:
       - ${BASE_PATH}/infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
       - alertmanager-data:/alertmanager
@@ -179,17 +193,13 @@ services:
     ports:
       - 9093:9093
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:9093/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bjj-network
 
   grafana:
+    profiles: ["monitoring"]
     image: grafana/grafana:latest
-    # container_name: grafana
+    #entrypoint: /etc/grafana/docker-entrypoint.sh
     restart: unless-stopped
     user: "472"
     deploy:
@@ -201,6 +211,7 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      # - GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/grafana_admin_password
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
       - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=${GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH}
@@ -213,36 +224,42 @@ services:
       - GF_DATABASE_NAME=${GF_DATABASE_NAME}
       - GF_DATABASE_USER=${GF_DATABASE_USER}
       - GF_DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      # - GF_DATABASE_PASSWORD_FILE=/run/secrets/grafana_db_password
       - GF_AUTH_SESSION_PROVIDER=${GF_AUTH_SESSION_PROVIDER}
       - GF_AUTH_SESSION_PROVIDER_CONFIG=${GF_AUTH_SESSION_PROVIDER_CONFIG}
+      # - GF_AUTH_SESSION_PROVIDER_CONFIG=host=${GF_DATABASE_HOST} user=${GF_DATABASE_USER} password=/run/secrets/grafana_db_password dbname=${GF_DATABASE_NAME} sslmode=disable
       - GF_REMOTE_CACHE_TYPE=${GF_REMOTE_CACHE_TYPE}
       - GF_REMOTE_CACHE_CONNSTR=${GF_REMOTE_CACHE_CONNSTR}
       - GF_SERVER_SERVE_FROM_SUB_PATH=${GF_SERVER_SERVE_FROM_SUB_PATH}
       - GF_UNIFIED_ALERTING_HA_REDIS_ADDRESS=${GF_UNIFIED_ALERTING_HA_REDIS_ADDRESS}
+      # - GF_UNIFIED_ALERTING_HA_REDIS_PASSWORD_FILE=/run/secrets/redis_password
       - GF_UNIFIED_ALERTING_HA_REDIS_PASSWORD=${GF_UNIFIED_ALERTING_HA_REDIS_PASSWORD}
       - GF_UNIFIED_ALERTING_HA_REDIS_DB=${GF_UNIFIED_ALERTING_HA_REDIS_DB}
       - GF_UNIFIED_ALERTING_HA_REDIS_MASTER_NAME=${GF_UNIFIED_ALERTING_HA_REDIS_MASTER_NAME}
     volumes:
       - grafana-data:/var/lib/grafana
+      #- ${BASE_PATH}/infra/grafana/docker-entrypoint.sh:/etc/grafana/docker-entrypoint.sh
       - ${BASE_PATH}/infra/grafana/config/:/etc/grafana/
       - ${BASE_PATH}/infra/grafana/dashboards/:/var/lib/grafana/dashboards
+    secrets:
+      - grafana_admin_password
+      - grafana_db_password
+      - redis_password
     depends_on:
       prometheus:
         condition: service_healthy
       haproxy:
         condition: service_started
       redis-sentinel-1:
-        condition: service_healthy 
+        condition: service_healthy
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
     networks:
       - bjj-network
 
   grafana-nginx:
+    profiles: ["monitoring"]
     image: nginx:latest
     deploy:
       replicas: 1
@@ -250,7 +267,7 @@ services:
       - ${BASE_PATH}/infra/grafana/nginx/grafana-nginx.conf:/etc/nginx/nginx.conf
       - ${BASE_PATH}/certs/grafana-certs:/etc/nginx/certs
     ports:
-      - "8080:80" 
+      - "8080:80"
       - "8443:443"
     depends_on:
       - grafana
@@ -258,9 +275,10 @@ services:
       - bjj-network
 
   etcd:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: quay.io/coreos/etcd:v3.5.15
     container_name: etcd
-    restart: unless-stopped
     environment:
       - ETCD_NAME=etcd
       - ETCD_ENABLE_V2=true
@@ -269,7 +287,6 @@ services:
       - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
       - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://${ETCD_NODE_1}:2380
       - ETCD_INITIAL_CLUSTER=etcd=http://${ETCD_NODE_1}:2380
-      #- ETCD_INITIAL_CLUSTER=etcd=http://${IP_NODO_HA}:2380,etcd=http://${ETCD_NODE_1}:2380
       - ETCD_INITIAL_CLUSTER_STATE=new
       - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
       - ETCD_DATA_DIR=/etcd_data
@@ -283,10 +300,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - bjj-network
 
   postgres-1:
+    <<: *default-service
+    profiles: ["monitoring"]
     container_name: postgres-1
     build:
       context: ./infra/postgres
@@ -297,12 +314,15 @@ services:
       - PATRONI_RESTAPI_PORT=8008
       - GRAFANA_DB_NAME=${POSTGRES_USER}
       - GRAFANA_DB_USER=${GF_DATABASE_USER}
+      # - GRAFANA_DB_PASSWORD_FILE=/run/secrets/grafana_db_password
       - GRAFANA_DB_PASSWORD=${GF_DATABASE_PASSWORD}
       - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
       - PATRONI_POSTGRES_SUPERUSER_USERNAME=${PATRONI_POSTGRES_SUPERUSER_USERNAME}
+      # - ATRONI_POSTGRES_SUPERUSER_PASSWORD_FILE=/run/secrets/postgres_superuser_password
       - PATRONI_POSTGRES_SUPERUSER_PASSWORD=${PATRONI_POSTGRES_SUPERUSER_PASSWORD}
       - PATRONI_REPLICATION_USERNAME=${PATRONI_REPLICATION_USERNAME}
       - PATRONI_REPLICATION_PASSWORD=${PATRONI_REPLICATION_PASSWORD}
+      # - PATRONI_REPLICATION_PASSWORD_FILE=/run/secrets/postgres_replication_password
       - ETCD_NODE_1=${ETCD_NODE_1}
     volumes:
       - postgres_data_1:/var/lib/postgresql/data
@@ -310,6 +330,10 @@ services:
       - ${BASE_PATH}/infra/postgres/post_init.sh:/scripts/post_init.sh
       - ${BASE_PATH}/infra/postgres/certs/server.crt:/home/postgres/server.crt:ro
       - ${BASE_PATH}/infra/postgres/certs/server.key:/home/postgres/server.key:ro
+    secrets:
+      - grafana_db_password
+      - postgres_superuser_password
+      - postgres_replication_password
     depends_on:
       etcd:
         condition: service_healthy
@@ -317,14 +341,12 @@ services:
       - "6432:5432"
       - "8008:8008"
     healthcheck:
+      <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - bjj-network
 
   postgres-2:
+    <<: *default-service
+    profiles: ["monitoring"]
     container_name: postgres-2
     build:
       context: ./infra/postgres
@@ -335,12 +357,15 @@ services:
       - PATRONI_RESTAPI_PORT=8008
       - GRAFANA_DB_NAME=${POSTGRES_USER}
       - GRAFANA_DB_USER=${GF_DATABASE_USER}
+      # - GRAFANA_DB_PASSWORD_FILE=/run/secrets/grafana_db_password
       - GRAFANA_DB_PASSWORD=${GF_DATABASE_PASSWORD}
       - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
       - PATRONI_POSTGRES_SUPERUSER_USERNAME=${PATRONI_POSTGRES_SUPERUSER_USERNAME}
+      # - ATRONI_POSTGRES_SUPERUSER_PASSWORD_FILE=/run/secrets/postgres_superuser_password
       - PATRONI_POSTGRES_SUPERUSER_PASSWORD=${PATRONI_POSTGRES_SUPERUSER_PASSWORD}
       - PATRONI_REPLICATION_USERNAME=${PATRONI_REPLICATION_USERNAME}
       - PATRONI_REPLICATION_PASSWORD=${PATRONI_REPLICATION_PASSWORD}
+      # - PATRONI_REPLICATION_PASSWORD_FILE=/run/secrets/postgres_replication_password
       - ETCD_NODE_1=${ETCD_NODE_1}
     volumes:
       - postgres_data_2:/var/lib/postgresql/data
@@ -348,6 +373,10 @@ services:
       - ${BASE_PATH}/infra/postgres/post_init.sh:/scripts/post_init.sh
       - ${BASE_PATH}/infra/postgres/certs/server.crt:/home/postgres/server.crt:ro
       - ${BASE_PATH}/infra/postgres/certs/server.key:/home/postgres/server.key:ro
+    secrets:
+      - grafana_db_password
+      - postgres_superuser_password
+      - postgres_replication_password
     depends_on:
       etcd:
         condition: service_healthy
@@ -355,17 +384,14 @@ services:
       - "6433:5432"
       - "8009:8008"
     healthcheck:
+      <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - bjj-network
-        
+
   haproxy:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: haproxy:latest
     container_name: haproxy
-    restart: unless-stopped
     volumes:
       - ${BASE_PATH}/infra/postgres/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
@@ -375,55 +401,59 @@ services:
     depends_on:
       - postgres-1
       - postgres-2
-      # postgres-1:
-      #    condition: service_healthy
-      # postgres-2:
-      #    condition: service_healthy
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "5432"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - bjj-network
-
+      
   redis-primary:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: redis:7
-    container_name: redis-primary 
+    container_name: redis-primary
     volumes:
       - redis_data_primary:/data
     command: redis-server --requirepass ${REDIS_PASSWORD:-password}
+    # command: redis-server --requirepass /run/secrets/redis_password
+    secrets:
+      - redis_password
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-password}", "ping"]
+      # test: ["CMD", "redis-cli", "-a", "/run/secrets/redis_password", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - bjj-network
 
   redis-replica:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: redis:7
     container_name: redis-replica
     volumes:
       - redis_data_replica:/data
     command: redis-server --slaveof redis-primary 6379 --requirepass ${REDIS_PASSWORD:-password} --masterauth ${REDIS_PASSWORD:-password}
+    # command: redis-server --slaveof redis-primary 6379 --requirepass /run/secrets/redis_password --masterauth /run/secrets/redis_password
+    secrets:
+      - redis_password
     depends_on:
       redis-primary:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-password}", "ping"]
+      # test: ["CMD", "redis-cli", "-a", "/run/secrets/redis_password", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - bjj-network
+
 
   redis-sentinel-1:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: redis:7
     container_name: redis-sentinel-1
-    # command: redis-sentinel /etc/redis/sentinel.conf
     command: >
       sh -c "
         echo 'Waiting for redis-primary DNS...' &&
@@ -439,16 +469,18 @@ services:
         condition: service_healthy
       redis-replica:
         condition: service_healthy
+    secrets:
+      - redis_password
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
-    networks:
-      - bjj-network
 
   jaeger:
+    <<: *default-service
+    profiles: ["monitoring"]
     container_name: jaeger
     image: jaegertracing/all-in-one:latest
     command: --query.ui-config /etc/jaeger/jaeger-ui.json
@@ -464,15 +496,12 @@ services:
     ports:
       - "16686:16686"
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:16686"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bjj-network
 
   loki:
+    <<: *default-service
+    profiles: ["monitoring"]
     container_name: loki
     image: grafana/loki:latest
     command: -config.file=/mnt/config/loki-config.yml
@@ -481,20 +510,15 @@ services:
       - loki-index:/loki/index
       - loki-chunks:/loki/chunks
       - loki-rules:/loki/rules
-      # - loki-wal:/loki/wal
-      # - loki-compactor:/loki/compactor
     ports:
       - "3100:3100"
     healthcheck:
+      <<: *healthcheck-wget
       test: ["CMD", "wget", "--spider", "http://localhost:3100/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bjj-network
 
   node_exporter:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
     command: "--path.rootfs=/host"
@@ -504,24 +528,23 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
-    networks:
-      - bjj-network
 
   seq:
+    <<: *default-service
+    profiles: ["monitoring"]
     image: datalust/seq:latest
     container_name: seq
     ports:
       - "5341:80"
     environment:
-      ACCEPT_EULA: Y
+      - ACCEPT_EULA=Y
+      # - SEQ_FIRSTRUN_ADMINPASSWORD_FILE=/run/secrets/seq_admin_password
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=True
+    secrets:
+      - seq_admin_password
     healthcheck:
+      <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - bjj-network
 
 volumes:
   mongodb_data:
@@ -537,9 +560,27 @@ volumes:
   loki-index:
   loki-chunks:
   loki-rules:
-  # loki-wal:
-  # loki-compactor:
+
+secrets:
+  cert_password:
+    file: ./secrets/cert_password.txt
+  mongodb_password:
+    file: ./secrets/mongodb_password.txt
+  grafana_admin_password:
+    file: ./secrets/grafana_admin_password.txt
+  grafana_db_password:
+    file: ./secrets/grafana_db_password.txt
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  postgres_superuser_password:
+    file: ./secrets/postgres_superuser_password.txt
+  postgres_replication_password:
+    file: ./secrets/postgres_replication_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  seq_admin_password:
+    file: ./secrets/seq_admin_password.txt
 
 networks:
   bjj-network:
-    driver: bridge 
+    driver: bridge
