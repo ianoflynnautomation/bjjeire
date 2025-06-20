@@ -1,103 +1,73 @@
-# .NET Core / ASP.NET Core
-bin/
-obj/
+
+# --- .NET Build Artifacts & User Files ---
+**/bin
+**/obj
 *.csproj.user
 *.suo
-*.user
+# Publish profiles are for host-based publishing, not Docker builds
 *.pubxml
+# Nuget packages will be restored inside the container
 *.nupkg
+# VS installer config
 *.vsconfig
-*.sln
-*.csproj
-*.user
-*.pdb
-*.log
-*.cache
-*.bak
-*.swp
-*.tmp
-*.temp
-*.orig
-*.rej
+
+# --- IDE Folders & Config ---
+.vs/
+.vscode/
+.idea/
 *.DotSettings
 *.ncrunch*
-*.xproj
-*.xsc
-*.xss
-*.tss
-*.vs/
-*.vscode/
-*.idea/
-*.git/
-*.gitignore
-*.github/
-*.editorconfig
-*.eslintrc*
-*.prettierrc*
 
-# Node.js / React / Vite
+# --- Source Control ---
+.git/
+.gitignore
+.github/
+
+# --- Node.js / Frontend ---
+# This is the most important folder to ignore for Node projects
 node_modules/
+# These are build output folders, they will be created in the container
 dist/
 build/
 coverage/
+# Local cache files
+.vite/
+.eslintcache
+# Logs
 *.log
 npm-debug.log
 yarn-error.log
-yarn.lock
-package-lock.json
-.vite/
-.eslintcache
-.prettierrc
-.stylelintrc
+
+# --- Local Environment & Secrets (SECURITY) ---
+# Environment variables should be passed in at RUNTIME, not built into the image.
 .env
-.env.local
-.env.development
-.env.test
-.env.production
-
-# MongoDB
-data/
-mongo-data/
-
-# General
-*.md
-LICENSE
-Dockerfile
-docker-compose.yml
-docker-compose.override.yml
-docker-compose.dcproj
-*.sh
-*.ps1
-*.bat
-*.cmd
-*.bak
-*.tmp
-*.temp
-*.swp
-*.DS_Store
-Thumbs.db
+.env.*
+# The secrets folder should never be in the image. They are mounted at runtime.
+secrets/
+*.secret
+*.p12
+*.jks
+*.snk
 *.pem
 *.key
 *.crt
 *.cer
 *.pfx
 
-# Sensitive files
-secrets/
-*.secret
-*.p12
-*.jks
-*.snk
+# --- Database Files (should not be in an app image) ---
+data/
+mongo-data/
 *.mdf
 *.ldf
 *.sdf
-*.accdb
-*.mdb
 *.db
 *.sqlite
 *.sqlite3
-*.db3
-*.s3db
-*.sqlitedb
-*.db-shm
-*.db-wal
+
+# --- OS-specific & Temporary Files ---
+*.bak
+*.tmp
+*.temp
+*.swp
+*.DS_Store
+Thumbs.db

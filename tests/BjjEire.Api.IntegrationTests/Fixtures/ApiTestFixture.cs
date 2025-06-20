@@ -1,8 +1,6 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Api.IntegrationTests.Common;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
