@@ -4,6 +4,8 @@ name: CI Pipeline
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - "v*.*.*"
     paths-ignore:
       - '**.md'
       - '.vscode/**'
@@ -146,7 +148,7 @@ jobs:
     name: Package & Push to ACR
     runs-on: ubuntu-latest
     needs: run_dotnet_tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     
     permissions:
       id-token: write 
@@ -155,6 +157,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Azure Login (using OIDC)
         id: azure-login
@@ -163,21 +167,50 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
+          # enable-AzPSSession: true
+
+      - name: ACR Docker Login (explicitly configure Docker for push) 
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}
+          username: ${{ secrets.AZURE_CLIENT_ID }}
+          password: ${{ steps.azure-login.outputs.access_token }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract Version
-        id: get_version
-        run: echo "VERSION=$(dotnet msbuild /t:GetVersion ${{ env.SOLUTION_PATH }})" >> $GITHUB_OUTPUT
 
-      - name: ACR Docker Login (explicitly configure Docker for push) # <-- ADD THIS NEW STEP
-        uses: azure/docker-login@v1
+      - name: Generate Docker metadata for API Image
+        id: meta_api
+        uses: docker/metadata-action@v5
         with:
-          login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }} # With OIDC, the client ID is often used as the "username"
-          password: ${{ steps.azure-login.outputs.access_token }}
+          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch # e.g., main -> 'main' tag
+            type=sha,format=long # e.g., latest commit SHA
+            type=ref,event=pr # For PRs, but this job is not triggered by PRs
+            type=ref,event=tag # e.g., v1.0.0-beta.1 -> 'v1.0.0-beta.1' tag
+            # Additional tags based on semantic versioning (if using release tags)
+            type=semver,pattern={{version}} # e.g., 1.0.0-beta.1
+            type=semver,pattern={{major}}.{{minor}} # e.g., 1.0 (if it's not pre-release)
+            # You can also add `latest=true` for push to main branches
+            # type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }} # Add 'latest' tag only for main branch pushes
+
+      - name: Generate Docker metadata for Frontend Image
+        id: meta_frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=sha,format=long
+            type=ref,event=pr
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            # type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and Push API Image
         uses: docker/build-push-action@v6
@@ -185,7 +218,8 @@ jobs:
           context: .
           file: ./src/BjjEire.Api/Dockerfile
           push: true
-          tags: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.API_IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}, ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.API_IMAGE_NAME }}:latest
+          tags: ${{ steps.meta_api.outputs.tags }}
+          labels: ${{ steps.meta_api.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -195,6 +229,7 @@ jobs:
           context: .
           file: ./src/bjjeire-app/Dockerfile
           push: true
-          tags: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}, ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          tags: ${{ steps.meta_frontend.outputs.tags }}
+          labels: ${{ steps.meta_frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
