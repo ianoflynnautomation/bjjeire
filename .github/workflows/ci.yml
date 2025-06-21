@@ -165,9 +165,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: ACR Docker Login (explicitly configure Docker for push) 
-        uses: azure/docker-login@v1
+        uses: docker/login-action@v3
         with:
-          login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}
+          registry: ${{ env.AZURE_CONTAINER_REGISTRY }}
           username: ${{ secrets.AZURE_CLIENT_ID }}
           password: ${{ steps.azure-login.outputs.access_token }}
 
