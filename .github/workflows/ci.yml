@@ -167,9 +167,14 @@ jobs:
       - name: Get ACR Auth Token
         id: get_acr_token
         run: |
-          # Use az acr login --expose-token to get the ACR-specific JWT token
-          # This command uses the authenticated Azure CLI session from the previous step.
-          TOKEN=$(az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }} --expose-token --output tsv --query accessToken)
+          # The login server includes the DNL hash. We need to extract the base name for `az acr login --name`.
+          # Your AZURE_CONTAINER_REGISTRY env variable is 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
+          # We need 'bjjeireshareddevacr'
+          ACR_SHORT_NAME=$(echo "${{ env.AZURE_CONTAINER_REGISTRY }}" | sed 's/-h[0-9a-f]*.azurecr.io//' | sed 's/.azurecr.io//')
+          
+          echo "Attempting az acr login --name $ACR_SHORT_NAME"
+
+          TOKEN=$(az acr login --name "$ACR_SHORT_NAME" --expose-token --output tsv --query accessToken)
           echo "::add-mask::$TOKEN" # Mask the token in logs
           echo "acr_token=$TOKEN" >> $GITHUB_OUTPUT
         shell: bash
