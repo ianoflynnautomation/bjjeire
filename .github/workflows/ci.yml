@@ -27,6 +27,7 @@ env:
   ACTIONS_STEP_DEBUG: true
   CONFIGURATION: release
   AZURE_CONTAINER_REGISTRY: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
+  AZURE_CONTAINER_REGISTRY_SHORT_NAME: 'bjjeireshareddevacr'
   API_IMAGE_NAME: 'bjjeire-api'
   FRONTEND_IMAGE_NAME: 'bjjeire-frontend'
 
@@ -167,14 +168,9 @@ jobs:
       - name: Get ACR Auth Token
         id: get_acr_token
         run: |
-          # The login server includes the DNL hash. We need to extract the base name for `az acr login --name`.
-          # Your AZURE_CONTAINER_REGISTRY env variable is 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
-          # We need 'bjjeireshareddevacr'
-          ACR_SHORT_NAME=$(echo "${{ env.AZURE_CONTAINER_REGISTRY }}" | sed 's/-h[0-9a-f]*.azurecr.io//' | sed 's/.azurecr.io//')
-          
-          echo "Attempting az acr login --name $ACR_SHORT_NAME"
+          echo "Attempting az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY_SHORT_NAME}}
 
-          TOKEN=$(az acr login --name "$ACR_SHORT_NAME" --expose-token --output tsv --query accessToken)
+          TOKEN=$(az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY_SHORT_NAME}} --expose-token --output tsv --query accessToken)
           echo "::add-mask::$TOKEN" # Mask the token in logs
           echo "acr_token=$TOKEN" >> $GITHUB_OUTPUT
         shell: bash
