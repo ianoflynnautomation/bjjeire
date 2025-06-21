@@ -165,12 +165,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Verify Active Azure Subscription # <-- ADD THIS NEW STEP
+        run: az account show --query "id" -o tsv
+        shell: bash
+
       - name: Get ACR Auth Token
         id: get_acr_token
         run: |
-          echo "Attempting az acr login --name <span class="math-inline">\{\{ env\.AZURE\_CONTAINER\_REGISTRY\_SHORT\_NAME\}\}"
-          TOKEN\=</span>(az acr login --name "${{ env.AZURE_CONTAINER_REGISTRY_SHORT_NAME}}" --expose-token --output tsv --query accessToken)
-          echo "::add-mask::$TOKEN" # Mask the token in logs
+          echo "Attempting az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY_SHORT_NAME }}" 
+
+          TOKEN=$(az acr login --name "${{ env.AZURE_CONTAINER_REGISTRY_SHORT_NAME }}" --expose-token --output tsv --query accessToken)
+          echo "::add-mask::$TOKEN"
           echo "acr_token=$TOKEN" >> $GITHUB_OUTPUT
         shell: bash
 
