@@ -164,12 +164,22 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Get ACR Auth Token
+        id: get_acr_token
+        run: |
+          # Use az acr login --expose-token to get the ACR-specific JWT token
+          # This command uses the authenticated Azure CLI session from the previous step.
+          TOKEN=$(az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }} --expose-token --output tsv --query accessToken)
+          echo "::add-mask::$TOKEN" # Mask the token in logs
+          echo "acr_token=$TOKEN" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: ACR Docker Login (explicitly configure Docker for push) 
         uses: docker/login-action@v3
         with:
           registry: ${{ env.AZURE_CONTAINER_REGISTRY }}
           username: ${{ secrets.AZURE_CLIENT_ID }}
-          password: ${{ steps.azure-login.outputs.access_token }}
+          password: ${{ steps.get_acr_token.outputs.acr_token }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
