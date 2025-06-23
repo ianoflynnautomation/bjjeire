@@ -14,8 +14,8 @@ jobs:
   pool: ${{ parameters.pool }}
 
   steps:
-      - checkout: self
+    - checkout: self
 
-      - template: ../tasks/publish-reports-task.yml
-        parameters:
-          downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'
+    - template: ../tasks/publish-reports-task.yml
+      parameters:
+        downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'
