@@ -26,6 +26,6 @@ variables:
   - template: templates/variables/variables.yml
 
 stages:
-   - template: templates/stages/build-and-test-stage.yml
+  - template: templates/stages/build-and-test-stage.yml
 
-   - template: templates/stages/package-and-push-stage.yml
+  - template: templates/stages/package-and-push-stage.yml
