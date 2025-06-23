@@ -12,9 +12,11 @@ jobs:
   dependsOn: ${{ parameters.dependsOn }}
   condition: ${{ parameters.condition }}
   pool: ${{ parameters.pool }}
+  outputs:
+    build_successful: ${{ variables.buildSuccessfulOutput }}
 
   variables:
-    isBuildSuccessful: false
+    buildSuccessfulOutput: 'false'
 
   steps:
     - checkout: self
@@ -30,15 +32,17 @@ jobs:
     - script: |
         dotnet build "$(SOLUTION_PATH)" --configuration $(CONFIGURATION) --no-restore
       displayName: 'Build Solution'
-      name: build_step
+      name: buildDotNetProject
 
     - task: PowerShell@2
       inputs:
         targetType: 'inline'
-        script: |
-            if ("$(build_step.status)" -eq "Succeeded") {
-              Write-Host "##vso[task.setvariable variable=isBuildSuccessful;isOutput=true]true"
+          script: |
+            # Check the status of the 'buildDotNetProject' task
+            # (Note: task status is accessible via $(taskName.TaskResult) in expressions or $env:TASK_NAME_TASKRESULT in scripts)
+            if ("$(buildDotNetProject.TaskResult)" -eq "Succeeded") {
+              Write-Host "##vso[task.setvariable variable=buildSuccessfulOutput;isOutput=true]true"
             } else {
-              Write-Host "##vso[task.setvariable variable=isBuildSuccessful;isOutput=true]false"
+              Write-Host "##vso[task.setvariable variable=buildSuccessfulOutput;isOutput=true]false"
             }
       displayName: 'Set Build Success Output'
