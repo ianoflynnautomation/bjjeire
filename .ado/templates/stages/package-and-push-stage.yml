@@ -4,7 +4,7 @@ stages:
     dependsOn: BuildAndTest
     condition: and(succeeded('BuildAndTest'), or(eq(variables['Build.Reason'], 'Push'), startsWith(variables['Build.SourceBranch'], 'refs/tags/v')))
     jobs:
-      - template: ../templates/jobs/package-and-push-job.yml
+      - template: ../jobs/package-and-push-job.yml
         parameters:
           name: package_and_push
           displayName: 'Package & Push to ACR'
