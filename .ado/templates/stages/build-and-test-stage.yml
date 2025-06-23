@@ -14,7 +14,7 @@ stages:
           name: publish_dotnet_test_projects
           displayName: 'Publish .NET Test Projects'
           dependsOn: build_dotnet_solution
-          condition: and(succeeded(), eq(dependencies.${{ parameters.dependsOn }}.outputs['build_dotnet_solution.isBuildSuccessful'], 'true'))
+          condition: eq(dependencies[parameters.dependsOn].outputs.build_successful, 'true')
 
       - template: ../jobs/run-dotnet-tests-job.yml
         parameters:
