@@ -1,0 +1,32 @@
+parameters:
+  - name: downloadPath
+    type: string
+    default: '$(Build.SourcesDirectory)/test_artifacts'
+
+steps:
+  - task: DownloadBuildArtifacts@1
+    displayName: 'Download all workflow artifacts'
+    inputs:
+      buildType: 'current'
+      pattern: '**' 
+      downloadType: 'single'
+      artifactName: 'drop'
+      targetPath: '${{ parameters.downloadPath }}'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results Summary'
+    condition: always()
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '${{ parameters.downloadPath }}/**/*.trx'
+      mergeResults: true 
+      testRunTitle: 'Aggregated Test Results'
+
+  # - task: CodeCoverage@2 # This is a placeholder for code coverage publishing, if needed
+  #   displayName: 'Publish Code Coverage'
+  #   inputs:
+  #     codeCoverageTool: 'Cobertura' # Example: depends on your coverage tool output
+  #     summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.xml' # Adjust path as needed
+  #     reportDirectory: '$(Build.SourcesDirectory)/html-report' # Adjust path as needed
+  #     # Codecov token integration would typically be handled via a Service Connection or directly in the task if it supports it.
+  #     # This task would be used instead of codecov/codecov-action.

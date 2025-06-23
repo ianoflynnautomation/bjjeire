@@ -1,0 +1,32 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: ''
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: ${{ parameters.name }}
+  timeoutInMinutes: 20
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+  strategy:
+    matrix:
+      ApiIntegrationTests:
+        testType: 'ApiIntegrationTests'
+        artifactName: 'published_ApiIntegrationTests'
+        projectPath: 'tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj'
+
+  steps:
+    - checkout: self
+
+  - template: ../tasks/dotnet-publish.yml
+    parameters:
+        dotnetVersion: $(DOTNET_VERSION)
+        projectPath: $(projectPath)
+        configuration: $(CONFIGURATION) 
+        outputPath: '$(Build.SourcesDirectory)/published_tests/$(artifactName)'
+        artifactName: $(artifactName)

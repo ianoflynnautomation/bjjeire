@@ -1,0 +1,44 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: ''
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: ${{ parameters.name }}
+  timeoutInMinutes: 15
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+    variables:
+      isBuildSuccessful: false
+
+    steps:
+      - checkout: self
+
+      - template: ../tasks/setup-dotnet.yml
+        parameters:
+          dotnetVersion: $(DOTNET_VERSION)
+
+      - script: |
+          dotnet restore "$(SOLUTION_PATH)"
+        displayName: 'Restore Dependencies'
+
+      - script: |
+          dotnet build "$(SOLUTION_PATH)" --configuration $(CONFIGURATION) --no-restore
+        displayName: 'Build Solution'
+        name: build_step
+
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            if ("$(build_step.status)" -eq "Succeeded") {
+              Write-Host "##vso[task.setvariable variable=isBuildSuccessful;isOutput=true]true"
+            } else {
+              Write-Host "##vso[task.setvariable variable=isBuildSuccessful;isOutput=true]false"
+            }
+        displayName: 'Set Build Success Output'

@@ -1,0 +1,26 @@
+parameters:
+  - name: dotnetVersion
+    type: string
+    default: '6.x'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Setup .NET SDK ${{ parameters.dotnetVersion }}'
+    inputs:
+      version: ${{ parameters.dotnetVersion }}
+      packageType: 'sdk'
+
+  - task: NuGetCommand@2
+    displayName: 'Cache NuGet packages'
+    inputs:
+      command: 'restore' # Restore command triggers caching
+      restoreSolution: '**/*.sln' # Restore all solutions/projects
+      feedsToUse: 'config' # Use NuGet.config
+      # Azure DevOps cache task can use a hash of project files directly for its key
+      # GitHub Actions hashFiles is more specific, but this is a common ADO pattern
+      # Key uses OS and a hash of the content within the specified paths
+      # No direct equivalent of hashFiles in Azure DevOps task for `key`.
+      # Instead, for NuGet, caching is often implicitly handled by `NuGetCommand@2`'s restore operation
+      # and the agent's package cache. For more explicit caching, a separate `Cache@1` task can be used,
+      # but it needs a reliable key. Using `$(Agent.OS)` and `$(Build.SourceVersion)` is a common approach.
+      # For now, relying on the default NuGet caching behavior with restore is sufficient.

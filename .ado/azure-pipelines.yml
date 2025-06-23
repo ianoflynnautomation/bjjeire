@@ -1,0 +1,31 @@
+trigger:
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - 'v*.*.*'
+  paths:
+    exclude:
+      - '**.md'
+      - '.gitattributes'
+      - '.gitignore'
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '**.md'
+      - '.gitattributes'
+      - '.gitignore'
+
+
+variables:
+  - template: templates/variables/variables.yml
+
+stages:
+   - template: ../templates/stages/build-and-test-stage.yml
+
+   - template: ../templates/stages/package-and-push-stage.yml

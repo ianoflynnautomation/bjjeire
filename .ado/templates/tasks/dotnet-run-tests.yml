@@ -1,0 +1,57 @@
+parameters:
+  - name: dotnetVersion
+    type: string
+    default: '6.x'
+  - name: testArtifactName
+    type: string
+    default: ''
+  - name: testAssemblyPattern
+    type: string
+    default: '*Tests.dll'
+  - name: testResultsNamePrefix
+    type: string
+    default: 'TestResults'
+  - name: testFilterCriteria
+    type: string
+    default: ''
+  - name: downloadPath
+    type: string
+    default: '$(Build.SourcesDirectory)/test_artifacts'
+
+steps:
+  - template: setup-dotnet.yml
+    parameters:
+      dotnetVersion: ${{ parameters.dotnetVersion }}
+
+  - task: DownloadBuildArtifacts@1
+    displayName: 'Download Test Artifact - ${{ parameters.testArtifactName }}'
+    inputs:
+      artifactName: ${{ parameters.testArtifactName }}
+      targetPath: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
+
+  - script: |
+      TEST_RESULTS_DIR="$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}"
+      mkdir -p "$TEST_RESULTS_DIR"
+
+      dotnet test "${{ parameters.testAssemblyPattern }}" \
+      --logger "trx;LogFileName=${{ parameters.testResultsNamePrefix }}.trx" \
+      --results-directory "$TEST_RESULTS_DIR" \
+      ${{ parameters.testFilterCriteria }}
+    displayName: 'Run Tests'
+    workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    condition: always()
+    inputs:
+      testResultsFormat: 'VSTest'
+      testResultsFiles: '$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}/*.trx'
+      mergeResults: true
+      testRunTitle: '${{ parameters.testResultsNamePrefix }} Tests'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Upload Test Results Artifact'
+    condition: always()
+    inputs:
+      pathToPublish: '$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}'
+      artifactName: 'test_results_${{ parameters.testResultsNamePrefix }}'
