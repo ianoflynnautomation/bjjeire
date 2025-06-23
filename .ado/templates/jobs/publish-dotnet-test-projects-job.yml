@@ -19,7 +19,7 @@ jobs:
         testType: 'ApiIntegrationTests'
         artifactName: 'published_ApiIntegrationTests'
         projectPath: 'tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj'
-      maxParallel: 6
+    maxParallel: 6
 
   steps:
     - checkout: self
