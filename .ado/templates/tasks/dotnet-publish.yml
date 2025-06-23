@@ -1,0 +1,41 @@
+parameters:
+  - name: dotnetVersion
+    type: string
+    default: '6.x'
+  - name: projectPath
+    type: string
+    default: ''
+  - name: configuration
+    type: string
+    default: 'Release'
+  - name: outputPath
+    type: string
+    default: ''
+  - name: artifactName
+    type: string
+    default: ''
+
+steps:
+  - template: setup-dotnet.yml
+    parameters:
+      dotnetVersion: ${{ parameters.dotnetVersion }}
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore Project Dependencies'
+    inputs:
+      command: 'restore'
+      projects: '${{ parameters.projectPath }}'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Project'
+    inputs:
+      command: 'publish'
+      projects: '${{ parameters.projectPath }}'
+      arguments: '--configuration ${{ parameters.configuration }} --no-restore --output "${{ parameters.outputPath }}"'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Upload Published Project Artifact'
+    condition: and(succeeded(), ne('${{ parameters.artifactName }}', ''))
+    inputs:
+      pathToPublish: '${{ parameters.outputPath }}'
+      artifactName: '${{ parameters.artifactName }}'

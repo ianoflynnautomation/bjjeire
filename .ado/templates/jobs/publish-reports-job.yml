@@ -1,0 +1,21 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: ''
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: ${{ parameters.name }}
+  timeoutInMinutes: 20
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+  steps:
+      - checkout: self
+
+      - template: ../tasks/publish-reports-task.yml
+        parameters:
+          downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'

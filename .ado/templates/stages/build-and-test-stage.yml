@@ -1,0 +1,30 @@
+stages:
+  - stage: BuildAndTest
+    displayName: 'Build and Test'
+    jobs:
+      # - template: ../templates/jobs/lint-check-job.yml
+
+      - template: ../templates/jobs/build-dotnet-solution-job.yml
+        parameters:
+          name: build_dotnet_solution
+          displayName: 'Build .NET Solution'
+       
+      - template: ../templates/jobs/publish-dotnet-test-projects-job.yml
+        parameters:
+          name: publish_dotnet_test_projects
+          displayName: 'Publish .NET Test Projects'
+          dependsOn: build_dotnet_solution
+          condition: and(succeeded(), eq(dependencies.${{ parameters.dependsOn }}.outputs['build_dotnet_solution.isBuildSuccessful'], 'true'))
+
+      - template: ../templates/jobs/run-dotnet-tests-job.yml
+        parameters:
+          name: run_dotnet_tests
+          displayName: 'Run .NET Tests'
+          dependsOn: publish_dotnet_test_projects
+          condition: succeeded('${{ parameters.dependsOn }}')
+
+      - template: ../templates/jobs/publish-reports-job.yml
+        parameters:
+          name: publish_reports
+          dependsOn: run_dotnet_tests
+          condition: always()
