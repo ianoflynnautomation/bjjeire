@@ -19,14 +19,16 @@ jobs:
         testType: 'ApiIntegrationTests'
         artifactName: 'published_ApiIntegrationTests'
         projectPath: 'tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj'
+      maxParallel: 6
 
-    steps:
-      - checkout: self
+  steps:
+    - checkout: self
 
-      - template: ../tasks/dotnet-publish.yml
-        parameters:
-          dotnetVersion: $(DOTNET_VERSION)
-          projectPath: $(projectPath)
-          configuration: $(CONFIGURATION) 
-          outputPath: '$(Build.SourcesDirectory)/published_tests/$(artifactName)'
-          artifactName: $(artifactName)
+    - template: ../tasks/dotnet-publish.yml
+      parameters:
+        dotnetVersion: $(DOTNET_VERSION)
+        projectPath: $(projectPath)
+        configuration: $(CONFIGURATION) 
+        outputPath: '$(Build.SourcesDirectory)/published_tests/$(artifactName)'
+        artifactName: $(artifactName)
+
