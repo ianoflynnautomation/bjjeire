@@ -23,7 +23,7 @@ pr:
 
 
 variables:
-  - template: templates/variables/variables.yml
+  - template: ../templates/variables/variables.yml
 
 stages:
    - template: ../templates/stages/build-and-test-stage.yml
