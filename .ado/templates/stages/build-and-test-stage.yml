@@ -21,7 +21,7 @@ stages:
           name: run_dotnet_tests
           displayName: 'Run .NET Tests'
           dependsOn: publish_dotnet_test_projects
-          condition: succeeded('${{ parameters.dependsOn }}')
+          condition: succeeded()
 
       - template: ../jobs/publish-reports-job.yml
         parameters:
