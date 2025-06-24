@@ -25,7 +25,7 @@ steps:
     inputs:
       version: ${{ parameters.dotnetVersion }}
       packageType: 'sdk'
-      
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Test Artifact - ${{ parameters.testArtifactName }}'
     inputs:
@@ -44,28 +44,6 @@ steps:
       ${{ parameters.testFilterCriteria }}
     displayName: 'Run Tests'
     workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
-
-  # - task: VSTest@2
-  #   inputs:
-  #     testSelector: 'testAssemblies'
-  #     testAssemblyVer2: |
-  #       ${{ parameters.testAssemblyPattern }}
-  #       !**\*TestAdapter.dll
-  #       !**\obj\**
-  #     searchFolder: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
-  #     testFiltercriteria: ${{ parameters.testFilterCriteria }}
-  #     codeCoverageEnabled: true
-  #     resultsFolder: '$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}'
-  #     # runSettingsFile: ${{ parameters.runSettingsFile }}
-  #     uiTests: false
-  #     rerunFailedTests: true
-  #     rerunMaxAttempts: 1
-  #     rerunType: 'basedOnTestFailurePercentage'
-  #     rerunFailedThreshold: '30'
-  #     # distributionBatchType, batchingBasedOnAgentsOption, customBatchSizeValue -> make possible to rerun every test even forbidden characters
-  #     distributionBatchType: 'basedOnTestCases'
-  #     batchingBasedOnAgentsOption: 'customBatchSize'
-  #     customBatchSizeValue: '10000'
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
