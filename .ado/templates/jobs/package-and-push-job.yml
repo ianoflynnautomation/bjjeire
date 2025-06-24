@@ -51,8 +51,8 @@ jobs:
     - script: |
           echo "--- Starting Generate Docker Image Tags Script ---"
 
-          if [ -z "$(AZURE_CONTAINER_REGISTRY_TAG)" ]; then
-            echo "##vso[task.logissue type=error]AZURE_CONTAINER_REGISTRY_TAG variable is not set or empty."
+          if [ -z "$(AC_TAG)" ]; then
+            echo "##vso[task.logissue type=error]AC_TAG variable is not set or empty."
             exit 1
           fi
 
@@ -70,8 +70,8 @@ jobs:
 
           # Construct base tag prefixes
           # Example: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io/bjjeire-api'
-          API_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY_TAG)/$(API_IMAGE_NAME)"
-          FRONTEND_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY_TAG)/$(FRONTEND_IMAGE_NAME)"
+          API_BASE_TAG_PREFIX="$(AC_TAG)/$(API_IMAGE_NAME)"
+          FRONTEND_BASE_TAG_PREFIX="$(AC_TAG)/$(FRONTEND_IMAGE_NAME)"
           echo "DEBUG: API_BASE_TAG_PREFIX = ${API_BASE_TAG_PREFIX}"
           echo "DEBUG: FRONTEND_BASE_TAG_PREFIX = ${FRONTEND_BASE_TAG_PREFIX}"
 
@@ -120,7 +120,7 @@ jobs:
 
     - script: |
         echo "API_IMAGE_NAME: $(API_IMAGE_NAME)"
-        echo "AZURE_CONTAINER_REGISTRY: $(AZURE_CONTAINER_REGISTRY_TAG)"
+        echo "AZURE_CONTAINER_REGISTRY: $(AC_TAG)"
         echo "build.SourceBranchName: $(Build.SourceBranchName)"
         echo "build.SourceVersion: $(Build.SourceVersion)"
         echo "Final API Tags being sent to Docker: $(generate_tags.apiImageTags)"
@@ -142,7 +142,7 @@ jobs:
       inputs:
         command: 'buildAndPush'
         repository: '$(FRONTEND_IMAGE_NAME)'
-        dockerfile: './src/bjjeire-app/Dockerfile'
+        dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
         containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.frontendImageTags)
         buildContext: '.'

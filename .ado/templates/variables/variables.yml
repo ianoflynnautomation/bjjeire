@@ -12,4 +12,4 @@ variables:
   AZURE_SERVICE_CONNECTION: 'AzureServiceConnectionWIF'
   AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION: 'AzureServiceConnectionACR'
 
-  AZURE_CONTAINER_REGISTRY_TAG: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
+  AC_TAG: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
