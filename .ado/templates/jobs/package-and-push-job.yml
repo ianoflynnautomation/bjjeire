@@ -17,34 +17,34 @@ jobs:
     - checkout: self
       fetchDepth: 0
 
-    - task: AzureCLI@2
-      displayName: 'Azure Login (Workload Identity Federation)'
-      inputs:
-        azureSubscription: 'AzureServiceConnectionWIF'
-        scriptType: 'bash'  
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-            echo "Attempting to log into Azure..."
-            az account show > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                echo "##vso[task.logissue type=warning]Already logged in, skipping re-authentication."
-            else
-                echo "Successfully logged into Azure via Service Connection."
-            fi
-      env:
-        AZURE_CLIENT_ID: $(AZURE-APP-CLIENT-ID)
-        AZURE_TENANT_ID: $(AZURE-TENANT-ID)
-        AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
+    # - task: AzureCLI@2
+    #   displayName: 'Azure Login (Workload Identity Federation)'
+    #   inputs:
+    #     azureSubscription: 'AzureServiceConnectionWIF'
+    #     scriptType: 'bash'  
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #         echo "Attempting to log into Azure..."
+    #         az account show > /dev/null 2>&1
+    #         if [ $? -eq 0 ]; then
+    #             echo "##vso[task.logissue type=warning]Already logged in, skipping re-authentication."
+    #         else
+    #             echo "Successfully logged into Azure via Service Connection."
+    #         fi
+    #   env:
+    #     AZURE_CLIENT_ID: $(AZURE-APP-CLIENT-ID)
+    #     AZURE_TENANT_ID: $(AZURE-TENANT-ID)
+    #     AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
 
-    - task: AzureCLI@2
-      displayName: 'ACR Login (via Azure CLI)'
-      inputs:
-        azureSubscription: 'AzureServiceConnectionWIF'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-            az acr login --name $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)
-            echo "Logged into ACR: $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)"
+    # - task: AzureCLI@2
+    #   displayName: 'ACR Login (via Azure CLI)'
+    #   inputs:
+    #     azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #         az acr login --name $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)
+    #         echo "Logged into ACR: $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)"
 
       # Generate Docker tags dynamically
     - script: |
@@ -82,28 +82,27 @@ jobs:
       displayName: 'Generate Docker Image Tags'
       name: generate_tags
 
-    # - task: Docker@2
-    #   displayName: 'Build and Push API Image'
-    #   inputs:
-    #     command: 'buildAndPush'
-    #     repository: '$(API_IMAGE_NAME)'
-    #     dockerfile: './src/BjjEire.Api/Dockerfile'
-    #     containerRegistry: '$(AZURE_CONTAINER_REGISTRY)'
-    #     tags: $(generate_tags.apiImageTags)
-    #     buildContext: '.'
+    - task: Docker@2
+      displayName: 'Build and Push API Image'
+      inputs:
+        command: 'buildAndPush'
+        repository: '$(API_IMAGE_NAME)'
+        dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
+        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
+        tags: $(generate_tags.apiImageTags)
+        buildContext: '.'
         # cacheFrom: 'youracrname.azurecr.io/bjjeire-api:latest' # Example for pulling cache from an existing image
 
-    # - task: Docker@2
-    #   displayName: 'Build and Push Frontend Image'
-    #   inputs:
-    #     command: 'buildAndPush'
-    #     repository: '$(FRONTEND_IMAGE_NAME)'
-    #     dockerfile: './src/bjjeire-app/Dockerfile'
-    #     # containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
-    #     containerRegistry: '$(AZURE_CONTAINER_REGISTRY)'
-    #     tags: $(generate_tags.frontendImageTags)
-    #     buildContext: '.'
-    #     # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
+    - task: Docker@2
+      displayName: 'Build and Push Frontend Image'
+      inputs:
+        command: 'buildAndPush'
+        repository: '$(FRONTEND_IMAGE_NAME)'
+        dockerfile: './src/bjjeire-app/Dockerfile'
+        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
+        tags: $(generate_tags.frontendImageTags)
+        buildContext: '.'
+        # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
 
     # - task: AzureCLI@2
     #   displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
