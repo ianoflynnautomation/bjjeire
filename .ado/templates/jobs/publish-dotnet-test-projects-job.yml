@@ -31,4 +31,3 @@ jobs:
         configuration: $(CONFIGURATION) 
         outputPath: '$(Build.SourcesDirectory)/published_tests/$(artifactName)'
         artifactName: $(artifactName)
-
