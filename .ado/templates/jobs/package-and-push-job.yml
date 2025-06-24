@@ -18,17 +18,17 @@ jobs:
       fetchDepth: 0
 
     - task: AzureCLI@2
-        displayName: 'Azure Login (Workload Identity Federation Recommended)'
-        inputs:
-          azureSubscription: 'AzureServiceConnectionWIF'
-          scriptType: 'bash'  
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-              echo "Successfully logged into Azure via Service Connection."
-        env:
-          AZURE_CLIENT_ID: $(AZURE-APP-CLIENT-ID)
-          AZURE_TENANT_ID: $(AZURE-TENANT-ID)
-          AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
+      displayName: 'Azure Login (Workload Identity Federation Recommended)'
+      inputs:
+        azureSubscription: 'AzureServiceConnectionWIF'
+        scriptType: 'bash'  
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+            echo "Successfully logged into Azure via Service Connection."
+      env:
+        AZURE_CLIENT_ID: $(AZURE-APP-CLIENT-ID)
+        AZURE_TENANT_ID: $(AZURE-TENANT-ID)
+        AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
 
     - task: AzureCLI@2
       displayName: 'ACR Login (via Azure CLI)'
