@@ -46,6 +46,14 @@ jobs:
     #         az acr login --name $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)
     #         echo "Logged into ACR: $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)"
 
+    - script: |
+        echo "API_IMAGE_NAME: $(API_IMAGE_NAME)"
+        echo "AZURE_CONTAINER_REGISTRY: $(AZURE_CONTAINER_REGISTRY)"
+        echo "build.SourceBranchName: $(Build.SourceBranchName)"
+        echo "build.SourceVersion: $(Build.SourceVersion)"
+        echo "Final API Tags being sent to Docker: $(generate_tags.apiImageTags)"
+      displayName: 'Debug Tag Variables'
+
       # Generate Docker tags dynamically
     - script: |
           # Initialize tags with common build identifiers
