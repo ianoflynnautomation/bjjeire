@@ -11,5 +11,3 @@ variables:
   FRONTEND_IMAGE_NAME: 'bjjeire-frontend'
   AZURE_SERVICE_CONNECTION: 'AzureServiceConnectionWIF'
   AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION: 'AzureServiceConnectionACR'
-
-  AC_TAG: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io'
