@@ -2,7 +2,8 @@ stages:
   - stage: PackageAndPush
     displayName: 'Package and Push to ACR'
     dependsOn: BuildAndTest
-    condition: and(succeeded('BuildAndTest'), or(eq(variables['Build.Reason'], 'Push'), startsWith(variables['Build.SourceBranch'], 'refs/tags/v')))
+    # condition: and(succeeded(), or(eq(variables['Build.Reason'], 'Push'), startsWith(variables['Build.SourceBranch'], 'refs/tags/v')))
+    condition: succeeded()
 
     jobs:
       - template: ../jobs/package-and-push-job.yml
