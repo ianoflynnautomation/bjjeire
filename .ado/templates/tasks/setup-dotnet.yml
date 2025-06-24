@@ -10,17 +10,18 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       packageType: 'sdk'
 
-  - task: NuGetCommand@2
-    displayName: 'Cache NuGet packages'
+  - task: DotNetCoreCLI@2 # <-- CHANGE THIS TASK
+    displayName: 'Restore NuGet packages'
     inputs:
-      command: 'restore' # Restore command triggers caching
-      restoreSolution: '**/*.sln' # Restore all solutions/projects
-      feedsToUse: 'config' # Use NuGet.config
-      # Azure DevOps cache task can use a hash of project files directly for its key
-      # GitHub Actions hashFiles is more specific, but this is a common ADO pattern
-      # Key uses OS and a hash of the content within the specified paths
-      # No direct equivalent of hashFiles in Azure DevOps task for `key`.
-      # Instead, for NuGet, caching is often implicitly handled by `NuGetCommand@2`'s restore operation
-      # and the agent's package cache. For more explicit caching, a separate `Cache@1` task can be used,
-      # but it needs a reliable key. Using `$(Agent.OS)` and `$(Build.SourceVersion)` is a common approach.
-      # For now, relying on the default NuGet caching behavior with restore is sufficient.
+      command: 'restore'
+      projects: '**/*.csproj' # <-- Specify projects, not solution for dotnet restore
+      # Using a glob pattern for projects is generally more robust than solutions for `dotnet restore`
+      # if you have multiple projects or don't want to rely on the solution file.
+      # If you specifically want to restore via solution, you can use:
+      # projects: '**/*.sln'
+      # But `**/*.csproj` is often preferred for multi-project repos.
+
+      # feedsToUse: 'config' is implicitly handled by dotnet restore if NuGet.config is present
+      # For custom feeds, you'd configure them in NuGet.config or use the `nugetConfigPath` input if needed.
+      # Eg: nugetConfigPath: 'path/to/my/NuGet.config'
+      # The `DotNetCoreCLI@2` task naturally leverages the agent's package cache for NuGet packages.
