@@ -19,6 +19,13 @@ parameters:
     default: '$(Build.SourcesDirectory)/test_artifacts'
 
 steps:
+
+  - task: UseDotNet@2
+    displayName: 'Setup .NET SDK ${{ parameters.dotnetVersion }}'
+    inputs:
+      version: ${{ parameters.dotnetVersion }}
+      packageType: 'sdk'
+      
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Test Artifact - ${{ parameters.testArtifactName }}'
     inputs:
