@@ -9,3 +9,5 @@ variables:
   AZURE_CONTAINER_REGISTRY_SHORT_NAME: 'bjjeireshareddevacr'
   API_IMAGE_NAME: 'bjjeire-api'
   FRONTEND_IMAGE_NAME: 'bjjeire-frontend'
+  AZURE_SERVICE_CONNECTION: 'AzureServiceConnectionWIF'
+  AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION: 'AzureServiceConnectionACR'
