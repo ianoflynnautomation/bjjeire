@@ -76,15 +76,15 @@ jobs:
       displayName: 'Generate Docker Image Tags'
       name: generate_tags
 
-    - task: Docker@2
-      displayName: 'Build and Push API Image'
-      inputs:
-        command: 'buildAndPush'
-        repository: '$(API_IMAGE_NAME)'
-        dockerfile: './src/BjjEire.Api/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY)'
-        tags: $(generate_tags.apiImageTags)
-        buildContext: '.'
+    # - task: Docker@2
+    #   displayName: 'Build and Push API Image'
+    #   inputs:
+    #     command: 'buildAndPush'
+    #     repository: '$(API_IMAGE_NAME)'
+    #     dockerfile: './src/BjjEire.Api/Dockerfile'
+    #     containerRegistry: '$(AZURE_CONTAINER_REGISTRY)'
+    #     tags: $(generate_tags.apiImageTags)
+    #     buildContext: '.'
         # cacheFrom: 'youracrname.azurecr.io/bjjeire-api:latest' # Example for pulling cache from an existing image
 
     # - task: Docker@2
