@@ -4,13 +4,20 @@ parameters:
     default: '$(Build.SourcesDirectory)/test_artifacts'
 
 steps:
-  - task: DownloadBuildArtifacts@1
-    displayName: 'Download all workflow artifacts'
+  # - task: DownloadBuildArtifacts@1
+  #   displayName: 'Download all workflow artifacts'
+  #   inputs:
+  #     buildType: 'current'
+  #     pattern: '**' 
+  #     downloadType: 'single'
+  #     artifactName: 'drop'
+  #     targetPath: '${{ parameters.downloadPath }}'
+
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download all workflow pipeline artifacts'
     inputs:
       buildType: 'current'
-      pattern: '**' 
-      downloadType: 'single'
-      artifactName: 'drop'
+      patterns:  '**'
       targetPath: '${{ parameters.downloadPath }}'
 
   - task: PublishTestResults@2
