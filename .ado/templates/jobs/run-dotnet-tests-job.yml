@@ -18,7 +18,7 @@ jobs:
         IntegrationTests:
           testType: 'IntegrationTests'
           testArtifactName: 'published_ApiIntegrationTests'
-          testAssemblyPattern: '*IntegrationTests.dll'
+          testAssemblyPattern:  '*IntegrationTests.dll'
           testFilterCriteria: ''
 
   steps:
