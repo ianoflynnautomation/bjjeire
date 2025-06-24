@@ -99,12 +99,12 @@ jobs:
         # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
 
     - task: AzureCLI@2
-        displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
-        inputs:
-          azureSubscription: 'AzureServiceConnection'
-          scriptType: 'bash'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
+      displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
+      inputs:
+        azureSubscription: 'AzureServiceConnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
             # Example: Triggering a Defender for Cloud scan on a specific image
             # Replace with actual scan command/tool (e.g., Trivy, Azure Defender for Cloud)
             # This is a placeholder, as actual scanning depends on your chosen tool and setup.
@@ -117,8 +117,8 @@ jobs:
             # For integrated Azure Defender for Cloud, scans happen automatically on push
             # but you might want to query results or integrate with other tools.
 
-      - script: |
-          echo "Logging out from Docker registry"
-          docker logout $(AZURE_CONTAINER_REGISTRY)
-        displayName: 'Docker Logout (Good Practice)'
-        condition: always()
+    - script: |
+        echo "Logging out from Docker registry"
+        docker logout $(AZURE_CONTAINER_REGISTRY)
+      displayName: 'Docker Logout (Good Practice)'
+      condition: always()
