@@ -19,10 +19,6 @@ parameters:
     default: '$(Build.SourcesDirectory)/test_artifacts'
 
 steps:
-  - template: setup-dotnet.yml
-    parameters:
-      dotnetVersion: ${{ parameters.dotnetVersion }}
-
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Test Artifact - ${{ parameters.testArtifactName }}'
     inputs:
@@ -35,7 +31,7 @@ steps:
       TEST_RESULTS_DIR="$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}"
       mkdir -p "$TEST_RESULTS_DIR"
 
-      dotnet test "${{ parameters.testAssemblyPattern }}" \
+      dotnet test "**\*Tests.dll" \
       --logger "trx;LogFileName=${{ parameters.testResultsNamePrefix }}.trx" \
       --results-directory "$TEST_RESULTS_DIR" \
       ${{ parameters.testFilterCriteria }}
