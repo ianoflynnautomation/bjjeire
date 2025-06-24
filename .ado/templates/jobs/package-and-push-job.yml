@@ -18,20 +18,19 @@ jobs:
       fetchDepth: 0
 
     - task: AzureCLI@2
-      displayName: 'Azure Login (using Service Principal)'
-      inputs:
-        azureSubscription: 'github.com_ianoflynnautomation'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-            echo "Successfully logged into Azure."
-            # The AzureCLI task handles login, no explicit 'az login' needed here unless for specific scenarios
-            # For OIDC, ensure your Azure Service Connection is configured with Workload Identity Federation
+        displayName: 'Azure Login (Workload Identity Federation Recommended)'
+        inputs:
+          azureSubscription: 'AzureServiceConnection'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+              echo "Successfully logged into Azure via Service Connection."
+        env:
 
     - task: AzureCLI@2
-      displayName: 'ACR Login'
+      displayName: 'ACR Login (via Azure CLI)'
       inputs:
-        azureSubscription: 'github.com_ianoflynnautomation'
+        azureSubscription: 'AzureServiceConnection'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -39,26 +38,39 @@ jobs:
 
       # Generate Docker tags dynamically
     - script: |
-          # Default tags for branch builds
+          # Initialize tags with common build identifiers
+          # Always include branch name and source version for traceability
           API_TAGS="$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):$(Build.SourceBranchName),$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):$(Build.SourceVersion)"
           FRONTEND_TAGS="$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):$(Build.SourceBranchName),$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):$(Build.SourceVersion)"
 
-          # Add tag-specific tags if it's a tag push
+          # Add additional tags based on push type (e.g., semantic versions for releases, 'latest')
           if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
             VERSION_TAG=$(echo "$(Build.SourceBranch)" | sed 's/refs\/tags\/v//')
             API_TAGS="${API_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):${VERSION_TAG}"
             FRONTEND_TAGS="${FRONTEND_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):${VERSION_TAG}"
-            # Add latest tag for main branch or specific release tags
+            echo "Detected tag push, adding semantic version tag: ${VERSION_TAG}"
+
+            # If it's a main branch or a release tag, also tag as 'latest'
+            # Adjust this logic based on YOUR definition of 'latest'
             if [[ "$(Build.SourceBranchName)" == "main" || "$(Build.SourceBranch)" == "refs/tags/v"* ]]; then
               API_TAGS="${API_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest"
               FRONTEND_TAGS="${FRONTEND_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest"
+              echo "Adding 'latest' tag."
             fi
+          elif [[ "$(Build.SourceBranchName)" == "main" ]]; then
+            # For main branch builds that are not a tag push, you might still want a 'latest' tag for dev/staging
+            API_TAGS="${API_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest-dev" # or just 'latest' if main is always deployable
+            FRONTEND_TAGS="${FRONTEND_TAGS},$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest-dev"
+            echo "Main branch build, adding 'latest-dev' tag."
           fi
+
+          echo "Generated API Tags: $API_TAGS"
+          echo "Generated Frontend Tags: $FRONTEND_TAGS"
 
           echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$API_TAGS"
           echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$FRONTEND_TAGS"
-      displayName: 'Generate Docker Metadata (Tags)'
-      name: generate_tags # Name this step to reference its output
+      displayName: 'Generate Docker Image Tags'
+      name: generate_tags
 
     - task: Docker@2
       displayName: 'Build and Push API Image'
@@ -66,11 +78,9 @@ jobs:
         command: 'buildAndPush'
         repository: '$(API_IMAGE_NAME)'
         dockerfile: './src/BjjEire.Api/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)' # Use the short name from variables
-        tags: $(generate_tags.apiImageTags) # Use output from previous step
+        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
+        tags: $(generate_tags.apiImageTags)
         buildContext: '.'
-          # No direct equivalent for cache-from/cache-to for buildx in Docker@2 task.
-          # Azure DevOps generally uses build agent's cache or a shared cache for subsequent builds on the same agent.
 
     - task: Docker@2
       displayName: 'Build and Push Frontend Image'
@@ -79,5 +89,5 @@ jobs:
         repository: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: './src/bjjeire-app/Dockerfile'
         containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
-        tags: $(generate_tags.frontendImageTags) # Use output from previous step
+        tags: $(generate_tags.frontendImageTags)
         buildContext: '.'
