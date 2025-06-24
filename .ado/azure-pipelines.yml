@@ -23,6 +23,7 @@ pr:
 
 
 variables:
+  - group: DEVOPS-Infra-DevTest-Secrets
   - template: templates/variables/variables.yml
 
 stages:

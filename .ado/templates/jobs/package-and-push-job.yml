@@ -20,21 +20,25 @@ jobs:
     - task: AzureCLI@2
         displayName: 'Azure Login (Workload Identity Federation Recommended)'
         inputs:
-          azureSubscription: 'AzureServiceConnection'
-          scriptType: 'bash'
+          azureSubscription: 'AzureServiceConnectionWIF'
+          scriptType: 'bash'  
           scriptLocation: 'inlineScript'
           inlineScript: |
               echo "Successfully logged into Azure via Service Connection."
         env:
+          AZURE_CLIENT_ID: $(AZURE-APP-CLIENT-ID)
+          AZURE_TENANT_ID: $(AZURE-TENANT-ID)
+          AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
 
     - task: AzureCLI@2
       displayName: 'ACR Login (via Azure CLI)'
       inputs:
-        azureSubscription: 'AzureServiceConnection'
+        azureSubscription: 'AzureServiceConnectionWIF'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
             az acr login --name $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)
+            echo "Logged into ACR: $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)"
 
       # Generate Docker tags dynamically
     - script: |
@@ -81,6 +85,7 @@ jobs:
         containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
         tags: $(generate_tags.apiImageTags)
         buildContext: '.'
+        # cacheFrom: 'youracrname.azurecr.io/bjjeire-api:latest' # Example for pulling cache from an existing image
 
     - task: Docker@2
       displayName: 'Build and Push Frontend Image'
@@ -91,3 +96,29 @@ jobs:
         containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
         tags: $(generate_tags.frontendImageTags)
         buildContext: '.'
+        # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
+
+    - task: AzureCLI@2
+        displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
+        inputs:
+          azureSubscription: 'AzureServiceConnection'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            # Example: Triggering a Defender for Cloud scan on a specific image
+            # Replace with actual scan command/tool (e.g., Trivy, Azure Defender for Cloud)
+            # This is a placeholder, as actual scanning depends on your chosen tool and setup.
+            echo "Triggering vulnerability scan for $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):$(Build.SourceVersion)"
+            # az acr scan --registry $(AZURE_CONTAINER_REGISTRY_SHORT_NAME) --image $(API_IMAGE_NAME):$(Build.SourceVersion)
+            
+            echo "Triggering vulnerability scan for $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):$(Build.SourceVersion)"
+            # az acr scan --registry $(AZURE_CONTAINER_REGISTRY_SHORT_NAME) --image $(FRONTEND_IMAGE_NAME):$(Build.SourceVersion)
+            
+            # For integrated Azure Defender for Cloud, scans happen automatically on push
+            # but you might want to query results or integrate with other tools.
+
+      - script: |
+          echo "Logging out from Docker registry"
+          docker logout $(AZURE_CONTAINER_REGISTRY)
+        displayName: 'Docker Logout (Good Practice)'
+        condition: always()
