@@ -82,7 +82,8 @@ jobs:
         command: 'buildAndPush'
         repository: '$(API_IMAGE_NAME)'
         dockerfile: './src/BjjEire.Api/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
+        # containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
+        containerRegistry: 'AzureServiceConnectionWIF'
         tags: $(generate_tags.apiImageTags)
         buildContext: '.'
         # cacheFrom: 'youracrname.azurecr.io/bjjeire-api:latest' # Example for pulling cache from an existing image
@@ -93,7 +94,8 @@ jobs:
         command: 'buildAndPush'
         repository: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: './src/bjjeire-app/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
+        # containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SHORT_NAME)'
+        containerRegistry: 'AzureServiceConnectionWIF'
         tags: $(generate_tags.frontendImageTags)
         buildContext: '.'
         # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
@@ -101,7 +103,7 @@ jobs:
     - task: AzureCLI@2
       displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
       inputs:
-        azureSubscription: 'AzureServiceConnection'
+        azureSubscription: 'AzureServiceConnectionWIF'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
