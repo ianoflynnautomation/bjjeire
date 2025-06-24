@@ -23,10 +23,12 @@ steps:
     parameters:
       dotnetVersion: ${{ parameters.dotnetVersion }}
 
-  - task: DownloadBuildArtifacts@1
+  - task: DownloadPipelineArtifact@2
     displayName: 'Download Test Artifact - ${{ parameters.testArtifactName }}'
     inputs:
-      artifactName: ${{ parameters.testArtifactName }}
+      buildType: 'current'
+      artifact: ${{ parameters.testArtifactName }}
+      patterns:  ${{ parameters.testAssemblyPattern }}}
       targetPath: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
 
   - script: |

@@ -32,10 +32,11 @@ steps:
       command: 'publish'
       projects: '${{ parameters.projectPath }}'
       arguments: '--configuration ${{ parameters.configuration }} --no-restore --output "${{ parameters.outputPath }}"'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Upload Published Project Artifact'
+  
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish ${{ parameters.artifactName }} artifacts'
     condition: and(succeeded(), ne('${{ parameters.artifactName }}', ''))
     inputs:
-      pathToPublish: '${{ parameters.outputPath }}'
-      artifactName: '${{ parameters.artifactName }}'
+      targetPath: '${{ parameters.outputPath }}'
+      artifact: ${{ parameters.artifactName }}
+      publishLocation: 'pipeline'
