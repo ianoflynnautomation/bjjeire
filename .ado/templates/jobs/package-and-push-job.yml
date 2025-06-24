@@ -49,43 +49,78 @@ jobs:
 
       # Generate Docker tags dynamically
     - script: |
-        echo "--- Starting Generate Docker Image Tags Script ---"
- 
-        # Get short Git commit SHA
-        SHORT_SHA=$(echo "$(Build.SourceVersion)" | cut -c1-7)
-        if [ -z "$SHORT_SHA" ]; then
-          echo "##vso[task.logissue type=error]SHORT_SHA is empty. Build.SourceVersion: $(Build.SourceVersion)"
-          exit 1
-        fi
-        echo "DEBUG: SHORT_SHA = ${SHORT_SHA}"
+          echo "--- Starting Generate Docker Image Tags Script ---"
 
-        # Clean branch name
-        CLEAN_BRANCH_NAME=$(echo "$(Build.SourceBranch)" | sed 's/refs\/heads\///g' | sed 's/refs\/pull\///g' | sed 's/refs\/tags\///g' | tr '/' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-        if [ -z "$CLEAN_BRANCH_NAME" ]; then
-          CLEAN_BRANCH_NAME="unknown"
-          echo "##vso[task.logissue type=warning]CLEAN_BRANCH_NAME is empty, defaulting to 'unknown'"
-        fi
-        echo "DEBUG: CLEAN_BRANCH_NAME = ${CLEAN_BRANCH_NAME}"
+          if [ -z "$(AZURE_CONTAINER_REGISTRY)" ]; then
+            echo "##vso[task.logissue type=error]AZURE_CONTAINER_REGISTRY variable is not set or empty."
+            exit 1
+          fi
 
-        # Construct tags (newline-separated)
-        API_BASE_TAG_PREFIX="$(API_IMAGE_NAME)"
-        FRONTEND_BASE_TAG_PREFIX="$(FRONTEND_IMAGE_NAME)"
-        API_TAGS="${API_BASE_TAG_PREFIX}:${SHORT_SHA}\n${API_BASE_TAG_PREFIX}:${CLEAN_BRANCH_NAME}-${SHORT_SHA}\n${API_BASE_TAG_PREFIX}:latest-main"
-        FRONTEND_TAGS="${FRONTEND_BASE_TAG_PREFIX}:${SHORT_SHA}\n${FRONTEND_BASE_TAG_PREFIX}:${CLEAN_BRANCH_NAME}-${SHORT_SHA}\n${FRONTEND_BASE_TAG_PREFIX}:latest-main"
+          # Get short Git commit SHA for immutable tagging (first 7 characters)
+          SHORT_SHA=$(Build.SourceVersion | cut -c1-7)
+          echo "DEBUG: Build.SourceVersion = $(Build.SourceVersion)"
+          echo "DEBUG: SHORT_SHA = ${SHORT_SHA}"
 
-        echo "Generated API Tags (Final):"
-        echo -e "$API_TAGS"
-        echo "Generated Frontend Tags (Final):"
-        echo -e "$FRONTEND_TAGS"
+          # Clean branch name for use in tags (replace slashes with hyphens, convert to lowercase)
+          # Use Build.SourceBranch for full path (e.g., 'refs/heads/feature/my-feature')
+          # Build.SourceBranchName often only gives the last segment (e.g., 'my-feature')
+          CLEAN_BRANCH_NAME=$(echo "$(Build.SourceBranch)" | sed 's/refs\/heads\///g' | sed 's/refs\/pull\///g' | sed 's/refs\/tags\///g' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo "DEBUG: Build.SourceBranch = $(Build.SourceBranch)"
+          echo "DEBUG: CLEAN_BRANCH_NAME = ${CLEAN_BRANCH_NAME}"
 
-        # Set output variables
-        echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$API_TAGS"
-        echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$FRONTEND_TAGS"
+          # Construct base tag prefixes
+          # Example: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io/bjjeire-api'
+          API_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME)"
+          FRONTEND_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME)"
+          echo "DEBUG: API_BASE_TAG_PREFIX = ${API_BASE_TAG_PREFIX}"
+          echo "DEBUG: FRONTEND_BASE_TAG_PREFIX = ${FRONTEND_BASE_TAG_PREFIX}"
+
+          # Initialize tags with immutable Git SHA
+          API_TAGS="${API_BASE_TAG_PREFIX}:${SHORT_SHA}"
+          FRONTEND_TAGS="${FRONTEND_BASE_TAG_PREFIX}:${SHORT_SHA}"
+          echo "DEBUG: Initial API Tags (SHA): ${API_TAGS}"
+          echo "DEBUG: Initial Frontend Tags (SHA): ${FRONTEND_TAGS}"
+
+          # Add branch-specific tags for traceability during development
+          # Example: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io/bjjeire-api:main-03f0fac'
+          API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:${CLEAN_BRANCH_NAME}-${SHORT_SHA}"
+          FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:${CLEAN_BRANCH_NAME}-${SHORT_SHA}"
+          echo "DEBUG: API Tags (with branch-SHA): ${API_TAGS}"
+          echo "DEBUG: Frontend Tags (with branch-SHA): ${FRONTEND_TAGS}"
+
+          # Add additional tags based on push type (e.g., semantic versions for releases, 'latest')
+          # If a Git tag (e.g., v1.0.0) is pushed
+          if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
+            VERSION_TAG=$(echo "$(Build.SourceBranch)" | sed 's/refs\/tags\/v//')
+            API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:${VERSION_TAG}"
+            FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:${VERSION_TAG}"
+            echo "Detected Git tag push, adding semantic version tag: ${VERSION_TAG}"
+
+            # For release tags (e.g., v1.0.0), also consider tagging as 'latest'.
+            # Use 'latest' with caution; prefer explicit version tags for production deployments.
+            API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:latest"
+            FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:latest"
+            echo "Adding 'latest' tag for release."
+          elif [[ "$(Build.SourceBranchName)" == "main" ]]; then
+            # For main branch builds that are not a tag push,
+            # you might want a 'latest-main' or 'latest-dev' tag for quick dev/staging deployments.
+            API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:latest-main"
+            FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:latest-main"
+            echo "Main branch build, adding 'latest-main' tag."
+          fi
+
+          echo "Generated API Tags (Final): $API_TAGS"
+          echo "Generated Frontend Tags (Final): $FRONTEND_TAGS"
+
+          # Set output variables for subsequent steps
+          echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$API_TAGS"
+          echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$FRONTEND_TAGS"
       displayName: 'Generate Docker Image Tags'
       name: generate_tags 
 
     - script: |
         echo "API_IMAGE_NAME: $(API_IMAGE_NAME)"
+        echo "AZURE_CONTAINER_REGISTRY: $(AZURE_CONTAINER_REGISTRY)"
         echo "build.SourceBranchName: $(Build.SourceBranchName)"
         echo "build.SourceVersion: $(Build.SourceVersion)"
         echo "Final API Tags being sent to Docker: $(generate_tags.apiImageTags)"
