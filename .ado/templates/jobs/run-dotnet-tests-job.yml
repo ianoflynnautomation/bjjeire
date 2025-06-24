@@ -19,7 +19,7 @@ jobs:
           testType: 'IntegrationTests'
           testArtifactName: 'published_ApiIntegrationTests'
           testAssemblyPattern: |
-              BjjEire.Api/**/*
+              BjjEire.Api.IntegrationTests/**/*
           testFilterCriteria: ''
 
   steps:
