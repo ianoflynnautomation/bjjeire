@@ -37,36 +37,19 @@ jobs:
     #     AZURE_TENANT_ID: $(AZURE-TENANT-ID)
     #     AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
 
-    # - task: AzureCLI@2
-    #   displayName: 'ACR Login (via Azure CLI)'
-    #   inputs:
-    #     azureSubscription: '$(AZURE_SERVICE_CONNECTION)'
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: |
-    #         az acr login --name $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)
-    #         echo "Logged into ACR: $(AZURE_CONTAINER_REGISTRY_SHORT_NAME)"
 
-
-      # Generate Docker tags dynamically
     - script: |
-          echo "--- Starting Generate Docker Image Tags Script ---"
-
-          # Validate AZURE_CONTAINER_REGISTRY (though it will be unmasked at runtime for the script)
-          if [ -z "$(AZURE_CONTAINER_REGISTRY)" ]; then
-            echo "##vso[task.logissue type=error]AZURE_CONTAINER_REGISTRY variable is not set or empty. This is critical for tagging."
-            exit 1
-          fi
+          echo "##vso[task.group]Generate Docker Image Tags"
 
           # Get short Git commit SHA for immutable tagging
           SHORT_SHA=$(echo "$(Build.SourceVersion)" | cut -c1-7)
           if [ -z "$SHORT_SHA" ]; then
-            echo "##vso[task.logissue type=error]SHORT_SHA could not be determined. Exiting."
+            echo "##vso[task.logissue type=error;sourcepath=Build.SourceVersion]Git short SHA could not be determined from Build.SourceVersion. Ensure fetchDepth is sufficient (e.g., fetchDepth: 0)."
             exit 1
           fi
-          echo "DEBUG: SHORT_SHA = ${SHORT_SHA}"
+          echo "##vso[task.setvariable variable=ShortShaForLogs;isSecret=false]${SHORT_SHA}" # For easier visibility in logs if not masked
 
-          # Clean branch name for use in tags
+          # Clean branch name for use in tags (remove prefixes, convert slashes to hyphens, lowercase, remove invalid chars)
           CLEAN_BRANCH_NAME=$(echo "$(Build.SourceBranch)" | \
               sed 's/^refs\/heads\///g' | \
               sed 's/^refs\/pull\///g' | \
@@ -77,81 +60,58 @@ jobs:
           
           if [ -z "$CLEAN_BRANCH_NAME" ]; then
             CLEAN_BRANCH_NAME="unknown-branch"
-            echo "##vso[task.logissue type=warning]CLEAN_BRANCH_NAME is empty, defaulting to '${CLEAN_BRANCH_NAME}'."
+            echo "##vso[task.logissue type=warning]Cleaned branch name is empty, defaulting to '${CLEAN_BRANCH_NAME}'. Build.SourceBranch: '$(Build.SourceBranch)'"
           fi
-          echo "DEBUG: CLEAN_BRANCH_NAME = ${CLEAN_BRANCH_NAME}"
 
-          # --- CRITICAL CHANGE HERE ---
-          # API_TAGS will now only contain the actual tags, NOT the full registry/repo path.
-          # The Docker@2 task handles prepending $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME)
-          
-          # Initialize tags with immutable Git SHA (comma-separated)
+          # Initialize tags with immutable Git SHA (comma-separated for Docker@2 task)
           API_TAGS="${SHORT_SHA}"
           FRONTEND_TAGS="${SHORT_SHA}"
-          echo "DEBUG: Initial API Tags (SHA): ${API_TAGS}"
-          echo "DEBUG: Initial Frontend Tags (SHA): ${FRONTEND_TAGS}"
+          echo "##vso[task.debug]Base tags (SHA): API=${API_TAGS}, Frontend=${FRONTEND_TAGS}"
 
-          # Add branch-specific tags
+          # Add branch-specific tags for traceability
           API_TAGS="${API_TAGS},${CLEAN_BRANCH_NAME}-${SHORT_SHA}"
           FRONTEND_TAGS="${FRONTEND_TAGS},${CLEAN_BRANCH_NAME}-${SHORT_SHA}"
-          echo "DEBUG: API Tags (with branch-SHA): ${API_TAGS}"
-          echo "DEBUG: Frontend Tags (with branch-SHA): ${FRONTEND_TAGS}"
+          echo "##vso[task.debug]Tags after branch-SHA: API=${API_TAGS}, Frontend=${FRONTEND_TAGS}"
 
           # Add additional tags based on push type (semantic versions for releases, 'latest')
           if [[ "$(Build.SourceBranch)" == refs/tags/v* ]]; then
             VERSION_TAG=$(echo "$(Build.SourceBranch)" | sed 's/refs\/tags\/v//')
             API_TAGS="${API_TAGS},${VERSION_TAG}"
             FRONTEND_TAGS="${FRONTEND_TAGS},${VERSION_TAG}"
-            echo "Detected Git tag push, adding semantic version tag: ${VERSION_TAG}"
+            echo "##vso[task.debug]Detected Git tag push. Adding semantic version tag: ${VERSION_TAG}"
 
             API_TAGS="${API_TAGS},latest"
             FRONTEND_TAGS="${FRONTEND_TAGS},latest"
-            echo "Adding 'latest' tag for release."
+            echo "##vso[task.debug]Adding 'latest' tag for release builds."
           elif [[ "$(Build.SourceBranchName)" == "main" ]]; then
             API_TAGS="${API_TAGS},latest-main"
             FRONTEND_TAGS="${FRONTEND_TAGS},latest-main"
-            echo "Main branch build, adding 'latest-main' tag."
+            echo "##vso[task.debug]Main branch build. Adding 'latest-main' tag."
           fi
 
-          echo "Generated API Tags (Final for Docker@2): $API_TAGS"
-          echo "Generated Frontend Tags (Final for Docker@2): $FRONTEND_TAGS"
+          echo "##vso[task.debug]Final Generated API Tags for Docker@2: ${API_TAGS}"
+          echo "##vso[task.debug]Final Generated Frontend Tags for Docker@2: ${FRONTEND_TAGS}"
 
-          # Set output variables
+          # Set output variables for subsequent steps (e.g., Docker@2 task)
+          # These output variables contain the comma-separated tag strings (without registry/repo prefix).
           echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$API_TAGS"
           echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$FRONTEND_TAGS"
+
+          echo "##vso[task.groupend]" # Ends the log group
       displayName: 'Generate Docker Image Tags'
       name: generate_tags
 
-    # Debug Step: Verify the generated tags
-    - script: |
-        echo "--- Debugging Generated Tags (After Generation) ---"
-        echo "API_IMAGE_NAME (repository): $(API_IMAGE_NAME)"
-        echo "AZURE_CONTAINER_REGISTRY (registry host): $(AZURE_CONTAINER_REGISTRY)" # This will still be masked in logs.
-        echo "Final API Tags being passed to Docker task (should be comma-separated, NO registry/repo prefix): $(generate_tags.apiImageTags)"
-        echo "Final Frontend Tags being passed to Docker task (should be comma-separated, NO registry/repo prefix): $(generate_tags.frontendImageTags)"
-      displayName: 'Debug Generated Tags (Post-Generation Script)'
-
-    - task: Docker@2
-      displayName: 'Build and Push API Image'
-      inputs:
-        command: 'buildAndPush'
-        repository: '$(API_IMAGE_NAME)'
+    - template: ../tasks/docker-build-push.yml
+      parameters:
+        imageName: '$(API_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.apiImageTags)
-        buildContext: '.'
-        # cacheFrom: 'youracrname.azurecr.io/bjjeire-api:latest' # Example for pulling cache from an existing image
 
-    - task: Docker@2
-      displayName: 'Build and Push Frontend Image'
-      inputs:
-        command: 'buildAndPush'
-        repository: '$(FRONTEND_IMAGE_NAME)'
+    - template: ../tasks/docker-build-push.yml
+      parameters:
+        imageName: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
-        containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.frontendImageTags)
-        buildContext: '.'
-        # cacheFrom: 'youracrname.azurecr.io/bjjeire-frontend:latest' # Example for pulling cache from an existing image
 
     # - task: AzureCLI@2
     #   displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
@@ -172,8 +132,8 @@ jobs:
     #         # For integrated Azure Defender for Cloud, scans happen automatically on push
     #         # but you might want to query results or integrate with other tools.
 
-    # - script: |
-    #     echo "Logging out from Docker registry"
-    #     docker logout $(AZURE_CONTAINER_REGISTRY)
-    #   displayName: 'Docker Logout (Good Practice)'
-    #   condition: always()
+    - script: |
+        echo "Logging out from Docker registry"
+        docker logout $(AZURE_CONTAINER_REGISTRY)
+      displayName: 'Docker Logout (Good Practice)'
+      condition: always()
