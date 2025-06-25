@@ -118,7 +118,7 @@ test-results/
 
 # Package Manager Files
 *.lock
-package-lock.json
+# package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
