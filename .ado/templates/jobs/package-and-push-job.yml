@@ -117,77 +117,26 @@ jobs:
       displayName: 'Generate Docker Image Tags'
       name: generate_tags 
 
-    - task: Docker@2
-      displayName: 'Build API Image'
-      inputs:
-        command: build
-        repository: '$(API_IMAGE_NAME)'
+    - template: ../tasks/docker-build-push.yml
+      parameters:
+        imageName: '$(API_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
-        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.apiImageTags)
-        # Arguments for the 'build' command
         arguments: >
-          --platform linux/amd64,linux/arm64
-            --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest
-            --sbom=true --attest type=provenance
-      env:
-        DOCKER_BUILDKIT: 1 # Ensure BuildKit is enabled for this task
+          --platform linux/amd64,linux/arm64 
+          --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest
 
-    - task: Docker@2
-      displayName: 'Push API Image'
-      inputs:
-        command: push
-        repository: '$(API_IMAGE_NAME)'
-        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
-        tags: $(generate_tags.apiImageTags)
-
-          # --- Frontend Image Build and Push (using separate build and push commands) ---
-    - task: Docker@2
-      displayName: 'Build Frontend Image'
-      inputs:
-        command: build
-        repository: '$(FRONTEND_IMAGE_NAME)'
+    - template: ../tasks/docker-build-push.yml
+      parameters:
+        imageName: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
-        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.frontendImageTags)
-              # Arguments for the 'build' command, including --build-arg
         arguments: >
-          --platform linux/amd64,linux/arm64
+          --platform linux/amd64,linux/arm64 
           --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest
           --build-arg SERVICES_API_HTTPS_0=$(SERVICES_API_HTTPS_0)
-          --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0)
-          --sbom=true --attest type=provenance
-      env:
-        DOCKER_BUILDKIT: 1 # Ensure BuildKit is enabled for this task
-
-    - task: Docker@2
-      displayName: 'Push Frontend Image'
-      inputs:
-        command: push
-        repository: '$(FRONTEND_IMAGE_NAME)'
-        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
-        tags: $(generate_tags.frontendImageTags)
-
-    # - template: ../tasks/docker-build-push.yml
-    #   parameters:
-    #     imageName: '$(API_IMAGE_NAME)'
-    #     dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
-    #     tags: $(generate_tags.apiImageTags)
-    #     arguments: >
-    #       --platform linux/amd64,linux/arm64 
-    #       --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest
-
-    # - template: ../tasks/docker-build-push.yml
-    #   parameters:
-    #     imageName: '$(FRONTEND_IMAGE_NAME)'
-    #     dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
-    #     tags: $(generate_tags.frontendImageTags)
-    #     arguments: >
-    #       --platform linux/amd64,linux/arm64 
-    #       --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest
-    #       --build-arg SERVICES_API_HTTPS_0=$(SERVICES_API_HTTPS_0)
-    #       --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0
-    #       --sbom=true --attest type=provenance)
+          --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0
+          --sbom=true --attest type=provenance)
 
     # - task: AzureCLI@2
     #   displayName: Get Image Digest
