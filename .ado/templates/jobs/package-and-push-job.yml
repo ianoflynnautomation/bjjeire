@@ -51,17 +51,14 @@ jobs:
     - script: |
           echo "--- Starting Generate Docker Image Tags Script ---"
 
-          # Validate AZURE_CONTAINER_REGISTRY (though it will be unmasked at runtime for the script)
-          if [ -z "$(AZURE_CONTAINER_REGISTRY)" ]; then
-            echo "##vso[task.logissue type=error]AZURE_CONTAINER_REGISTRY variable is not set or empty. This is critical for tagging."
+          # Combine the ACR parts to form the full registry name
+          # This should prevent Azure DevOps from masking/transforming the value
+          FULL_AZURE_CONTAINER_REGISTRY="$(ACR_REGISTRY_PREFIX)$(ACR_REGISTRY_SUFFIX)"
+          if [ -z "${FULL_AZURE_CONTAINER_REGISTRY}" ]; then
+            echo "##vso[task.logissue type=error]FULL_AZURE_CONTAINER_REGISTRY is empty. This is critical for tagging."
             exit 1
           fi
-          # Check for accidental trailing slash (good practice)
-          if [[ "$(AZURE_CONTAINER_REGISTRY)" == *"/" ]]; then
-            echo "##vso[task.logissue type=warning]AZURE_CONTAINER_REGISTRY has a trailing slash. It's recommended to remove it in variable definition."
-            # Optionally, you can self-correct here if you prefer, but it's cleaner in variable definition
-            # AZURE_CONTAINER_REGISTRY=$(echo "$(AZURE_CONTAINER_REGISTRY)" | sed 's/\/$//')
-          fi
+          echo "DEBUG: FULL_AZURE_CONTAINER_REGISTRY = ${FULL_AZURE_CONTAINER_REGISTRY}"
 
           # Get short Git commit SHA for immutable tagging (first 7 characters for brevity)
           SHORT_SHA=$(echo "$(Build.SourceVersion)" | cut -c1-7)
@@ -69,7 +66,6 @@ jobs:
             echo "##vso[task.logissue type=error]SHORT_SHA could not be determined from Build.SourceVersion. Exiting."
             exit 1
           fi
-          echo "DEBUG: Build.SourceVersion = $(Build.SourceVersion)"
           echo "DEBUG: SHORT_SHA = ${SHORT_SHA}"
 
           # Clean branch name for use in tags (removes prefixes, converts slashes to hyphens, to lowercase, removes invalid chars)
@@ -85,12 +81,11 @@ jobs:
             CLEAN_BRANCH_NAME="unknown-branch" # Fallback if cleaning results in empty string
             echo "##vso[task.logissue type=warning]CLEAN_BRANCH_NAME is empty after sanitization, defaulting to '${CLEAN_BRANCH_NAME}'."
           fi
-          echo "DEBUG: Build.SourceBranch = $(Build.SourceBranch)"
           echo "DEBUG: CLEAN_BRANCH_NAME = ${CLEAN_BRANCH_NAME}"
 
           # Construct base tag prefixes with the full registry name
-          API_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME)"
-          FRONTEND_BASE_TAG_PREFIX="$(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME)"
+          API_BASE_TAG_PREFIX="${FULL_AZURE_CONTAINER_REGISTRY}/$(API_IMAGE_NAME)"
+          FRONTEND_BASE_TAG_PREFIX="${FULL_AZURE_CONTAINER_REGISTRY}/$(FRONTEND_IMAGE_NAME)"
           echo "DEBUG: API_BASE_TAG_PREFIX = ${API_BASE_TAG_PREFIX}"
           echo "DEBUG: FRONTEND_BASE_TAG_PREFIX = ${FRONTEND_BASE_TAG_PREFIX}"
 
@@ -113,13 +108,10 @@ jobs:
             FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:${VERSION_TAG}"
             echo "Detected Git tag push, adding semantic version tag: ${VERSION_TAG}"
 
-            # For formal release tags, consider also tagging as 'latest'.
-            # Recommendation: Be explicit in production deployments (e.g., use the SemVer tag).
             API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:latest"
             FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:latest"
             echo "Adding 'latest' tag for release."
           elif [[ "$(Build.SourceBranchName)" == "main" ]]; then
-            # For main branch builds, tag as 'latest-main' for development/staging environments
             API_TAGS="${API_TAGS},${API_BASE_TAG_PREFIX}:latest-main"
             FRONTEND_TAGS="${FRONTEND_TAGS},${FRONTEND_BASE_TAG_PREFIX}:latest-main"
             echo "Main branch build, adding 'latest-main' tag."
@@ -129,18 +121,26 @@ jobs:
           echo "Generated Frontend Tags (Final for Docker@2): $FRONTEND_TAGS"
 
           # Set output variables for subsequent steps (e.g., Docker@2 task)
+          # Note: These output variables might still be masked in logs, but the value should be correct.
           echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$API_TAGS"
           echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$FRONTEND_TAGS"
       displayName: 'Generate Docker Image Tags'
-      name: generate_tags 
+      name: generate_tags # This name is crucial for accessing output variables later
 
+    # Debug Step: This will show the final comma-separated string that Docker@2 task receives
     - script: |
+        echo "--- Debugging Generated Tags ---"
         echo "API_IMAGE_NAME: $(API_IMAGE_NAME)"
-        echo "AZURE_CONTAINER_REGISTRY: $(AZURE_CONTAINER_REGISTRY)"
+        # Note: ACR_REGISTRY_PREFIX/SUFFIX are pipeline variables, not script variables.
+        # They will be expanded by Azure DevOps before the script runs.
+        # The FULL_AZURE_CONTAINER_REGISTRY is a script variable.
+        echo "Registry Prefix: $(ACR_REGISTRY_PREFIX)"
+        echo "Registry Suffix: $(ACR_REGISTRY_SUFFIX)"
         echo "build.SourceBranchName: $(Build.SourceBranchName)"
         echo "build.SourceVersion: $(Build.SourceVersion)"
-        echo "Final API Tags being sent to Docker: $(generate_tags.apiImageTags)"
-      displayName: 'Debug Tag Variables'
+        echo "Final API Tags being passed to Docker task (should be comma-separated, unmasked value used): $(generate_tags.apiImageTags)"
+        echo "Final Frontend Tags being passed to Docker task (should be comma-separated, unmasked value used): $(generate_tags.frontendImageTags)"
+      displayName: 'Debug Generated Tags (Post-Generation Script)'
 
     - task: Docker@2
       displayName: 'Build and Push API Image'

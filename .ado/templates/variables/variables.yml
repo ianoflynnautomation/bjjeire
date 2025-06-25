@@ -10,3 +10,7 @@ variables:
   FRONTEND_IMAGE_NAME: 'bjjeire-frontend'
   AZURE_SERVICE_CONNECTION: 'AzureServiceConnectionWIF'
   AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION: 'AzureServiceConnectionACR'
+
+
+   ACR_REGISTRY_PREFIX: 'bjjeireshareddevacr-h7e7c2fkdwbme0gc' # First part of your registry name
+  ACR_REGISTRY_SUFFIX: '.azurecr.io'  
