@@ -63,6 +63,10 @@ jobs:
           CLEAN_BRANCH_NAME=$(echo "$(Build.SourceBranch)" | \
               sed 's/^refs\/heads\///g' | \
               sed 's/^refs\/pull\///g' | \
+              sed 's/^refs\/tags\///g' | \
+              tr '/' '-' | \
+              tr '[:upper:]' '[:lower:]' | \
+              sed 's/[^a-z0-9\.-]//g' )
           
           if [ -z "$CLEAN_BRANCH_NAME" ]; then
             CLEAN_BRANCH_NAME="unknown-branch"
