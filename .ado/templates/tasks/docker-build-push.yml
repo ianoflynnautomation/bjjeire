@@ -5,6 +5,8 @@ parameters:
     type: string
   - name: tags
     type: string
+  - name: arguments
+    type: string
 
 steps:
   - task: Docker@2
@@ -16,4 +18,4 @@ steps:
       containerRegistry: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
       tags: ${{ parameters.tags }}
       buildContext: '.'
-      cacheFrom: '$(AZURE_CONTAINER_REGISTRY)/${{ parameters.imageName }}:latest'
+      arguments: ${{ parameters.arguments }}
