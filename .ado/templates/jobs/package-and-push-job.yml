@@ -37,10 +37,10 @@ jobs:
     #     AZURE_TENANT_ID: $(AZURE-TENANT-ID)
     #     AZURE_SUBSCRIPTION_ID: $(AZURE-SUBSCRIPTION-ID)
 
-    - script: |
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-        docker buildx create --use
-      displayName: 'Set up Docker Buildx'
+    # - script: |
+    #     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    #     docker buildx create --use
+    #   displayName: 'Set up Docker Buildx'
 
     - script: |
           echo "--- Starting Generate Docker Image Tags Script ---"
@@ -123,7 +123,6 @@ jobs:
         dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
         tags: $(generate_tags.apiImageTags)
         arguments: >
-          --platform linux/amd64,linux/arm64 
           --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest
 
     - template: ../tasks/docker-build-push.yml
@@ -132,7 +131,6 @@ jobs:
         dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
         tags: $(generate_tags.frontendImageTags)
         arguments: >
-          --platform linux/amd64,linux/arm64 
           --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest
           --build-arg SERVICES_API_HTTPS_0=$(SERVICES_API_HTTPS_0)
           --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0
