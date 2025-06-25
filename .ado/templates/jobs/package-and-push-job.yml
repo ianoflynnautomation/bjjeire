@@ -133,8 +133,7 @@ jobs:
         arguments: >
           --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest
           --build-arg SERVICES_API_HTTPS_0=$(SERVICES_API_HTTPS_0)
-          --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0
-          --sbom=true --attest type=provenance)
+          --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0)
 
     # - task: AzureCLI@2
     #   displayName: Get Image Digest
