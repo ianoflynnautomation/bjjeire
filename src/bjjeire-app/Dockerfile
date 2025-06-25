@@ -6,7 +6,8 @@ COPY src/bjjeire-app/package.json src/bjjeire-app/package-lock.json ./
 RUN npm ci
 
 COPY src/bjjeire-app/ .
-RUN npm run build -- --output-dir dist
+# RUN npm run build -- --output-dir dist
+RUN npm run build
 
 FROM nginx:1.25-alpine
 
