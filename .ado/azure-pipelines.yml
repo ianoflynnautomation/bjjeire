@@ -25,6 +25,7 @@ pr:
 variables:
   - group: DEVOPS-Infra-DevTest-Secrets
   - group: AZURE-Infra-DevTest-Config
+  - group: BjjEire-Frontend-Secrets
   - template: templates/variables/variables.yml
 
 stages:

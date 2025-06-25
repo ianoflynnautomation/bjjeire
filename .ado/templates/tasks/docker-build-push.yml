@@ -19,3 +19,5 @@ steps:
       tags: ${{ parameters.tags }}
       buildContext: '.'
       arguments: ${{ parameters.arguments }}
+    env:
+      DOCKER_BUILDKIT: 1 
