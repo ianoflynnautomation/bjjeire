@@ -122,14 +122,51 @@ jobs:
         imageName: '$(API_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
         tags: $(generate_tags.apiImageTags)
-        arguments: '--platform linux/amd64,linux/arm64 --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest'
+        arguments: >
+          --platform linux/amd64,linux/arm64 
+          --cache-from $(AZURE_CONTAINER_REGISTRY)/$(API_IMAGE_NAME):latest
 
     - template: ../tasks/docker-build-push.yml
       parameters:
         imageName: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
         tags: $(generate_tags.frontendImageTags)
-        arguments: '--platform linux/amd64,linux/arm64 --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest'
+        arguments: >
+          --platform linux/amd64,linux/arm64 
+          --cache-from $(AZURE_CONTAINER_REGISTRY)/$(FRONTEND_IMAGE_NAME):latest
+          --build-arg SERVICES_API_HTTPS_0=$(SERVICES_API_HTTPS_0)
+          --build-arg SERVICES_API_HTTP_0=$(SERVICES_API_HTTP_0
+          --sbom=true --attest type=provenance)
+
+    # - task: AzureCLI@2
+    #   displayName: Get Image Digest
+    #   inputs:
+    #     azureSubscription: '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #       # Retrieve the image digest for the recently pushed image
+    #       IMAGE_DIGEST=$(az acr show-manifests -n $(acrName) --query "[?tags=='$(Build.BuildId)'].digest]" -o tsv)
+    #       echo "##vso$IMAGE_DIGEST"
+    #   name: getImageDigest # Assign a reference name to capture the imageDigest output
+
+    # - task: NotationSign@1 # Assumes NotationSign task is available from the marketplace or custom
+    #   displayName: Sign Image with Notation
+    #   inputs:
+    #     azureSubscription: $(akvServiceConnection) # Service connection to AKV
+    #     keyVaultName: $(akvName)
+    #     certificateName: $(certName)
+    #     # Reference the image using its immutable digest
+    #     imageReference: '$(acrName).azurecr.io/$(imageRepository)@$(getImageDigest.imageDigest)'
+
+    # - task: NotationVerify@1 # Assumes NotationVerify task is available from the marketplace or custom
+    #   displayName: Verify Image Signature
+    #   inputs:
+    #     azureSubscription: $(akvServiceConnection) # Service connection to AKV for verification
+    #     imageReference: '$(acrName).azurecr.io/$(imageRepository)@$(getImageDigest.imageDigest)'
+    #     # Paths to your Notation trust policy and trust store files within the repository
+    #     trustPolicyFilePath: '$(Build.SourcesDirectory)/.pipeline/trustpolicy/trustpolicy.json'
+    #     trustStoreFolderPath: '$(Build.SourcesDirectory)/.pipeline/truststore/'
 
     # - task: AzureCLI@2
     #   displayName: 'Run ACR Vulnerability Scan (Optional but Recommended)'
