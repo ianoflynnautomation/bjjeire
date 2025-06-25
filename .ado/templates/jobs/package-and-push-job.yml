@@ -123,7 +123,7 @@ jobs:
         command: build
         repository: '$(API_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/BjjEire.Api/Dockerfile'
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.apiImageTags)
         # Arguments for the 'build' command
         arguments: >
@@ -138,7 +138,7 @@ jobs:
       inputs:
         command: push
         repository: '$(API_IMAGE_NAME)'
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.apiImageTags)
 
           # --- Frontend Image Build and Push (using separate build and push commands) ---
@@ -148,7 +148,7 @@ jobs:
         command: build
         repository: '$(FRONTEND_IMAGE_NAME)'
         dockerfile: '$(Build.SourcesDirectory)/src/bjjeire-app/Dockerfile'
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.frontendImageTags)
               # Arguments for the 'build' command, including --build-arg
         arguments: >
@@ -165,7 +165,7 @@ jobs:
       inputs:
         command: push
         repository: '$(FRONTEND_IMAGE_NAME)'
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry:  '$(AZURE_CONTAINER_REGISTRY_SERVICE_CONNECTION)'
         tags: $(generate_tags.frontendImageTags)
 
     # - template: ../tasks/docker-build-push.yml
