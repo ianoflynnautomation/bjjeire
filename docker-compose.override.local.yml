@@ -1,0 +1,14 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./src/BjjEire.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/bjjeire-app/Dockerfile
+    environment:
+      NODE_ENV: "development"
