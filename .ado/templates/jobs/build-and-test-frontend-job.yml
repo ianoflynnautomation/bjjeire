@@ -1,0 +1,54 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: ''
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: ${{ parameters.name }}
+  timeoutInMinutes: 15
+  cancelTimeoutInMinutes: 2
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+
+  steps:
+    - checkout: self
+
+    - task: UseNode@1
+        displayName: 'Use Node.js $(NODE_VERSION)'
+        inputs:
+          versionSpec: '$(NODE_VERSION)'
+
+    - script: |
+          npm ci
+        displayName: 'Install Frontend Dependencies'
+        workingDirectory: '$(REACT_APP_PATH)'
+
+    - script: |
+          npm test -- --ci --runInBand --testResultsProcessor "jest-junit" --json --outputFile "test-results.json"
+        displayName: 'Run Frontend Tests'
+        workingDirectory: '$(REACT_APP_PATH)'
+        continueOnError: true # 
+        condition: succeededOrFailed()
+
+    - task: PublishTestResults@2
+        displayName: 'Publish Frontend Test Results'
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(REACT_APP_PATH)/test-results.xml'
+          failTaskOnFailedTests: true
+        condition: succeededOrFailed()
+
+      # You typically don't publish the dist folder as a pipeline artifact here
+      # because it will be included in the NGINX Docker image later.
+      # If you needed to inspect the built output directly, you could add:
+      # - task: PublishPipelineArtifact@1
+      #   displayName: 'Publish Frontend Build Output'
+      #   inputs:
+      #     targetPath: '$(REACT_APP_PATH)/dist'
+      #     artifact: 'frontend_dist'
+    #     publishLocation: 'pipeline'

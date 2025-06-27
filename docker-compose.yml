@@ -8,7 +8,7 @@ x-defaults: &default-service
       limits:
         cpus: '0.50'
         memory: 512M
-      reservances:
+      reservations:
         cpus: '0.25'
         memory: 256M
 
@@ -67,19 +67,62 @@ services:
       - "60742:80"
       - "60743:443"
     environment:
-      - BROWSER=${BROWSER}
-      - NODE_ENV=${NODE_ENV}
+      # - BROWSER=${BROWSER}
+      # - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
       - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
       - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
-      - VITE_APP_API_URL=${VITE_APP_API_URL}
-      - VITE_APP_URL=${VITE_APP_URL}
+      # - VITE_APP_API_URL=${VITE_APP_API_URL}
+      # - VITE_APP_URL=${VITE_APP_URL}
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
       <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
+
+  # frontend:
+  #   <<: *default-service
+  #   profiles: ["app"]
+  #   container_name: web
+  #   volumes:
+  #     - frontend_dist_volume:/app/dist
+  #   command: ["npm", "run", "build"]
+  #   deploy: 
+  #     resources:
+  #       limits:
+  #         cpus: '0.75'
+  #         memory: 2048M
+  #       reservations:
+  #         cpus: '0.50'
+  #         memory: 1024M 
+
+  # nginx:
+  #   <<: *default-service
+  #   profiles: ["app"]
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports:
+  #     - "80:80"    
+  #     - "443:443"
+  #   volumes:
+  #     - ${BASE_PATH}/infra/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+  #     - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt
+  #     - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key
+  #     - ${BASE_PATH}/logs/nginx:/var/log/nginx
+  #     - frontend_dist_volume:/usr/share/nginx/html:ro
+  #   environment:
+  #     - PORT=${PORT}
+  #     - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
+  #     - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
+  #   depends_on:
+  #     frontend:
+  #       condition: service_completed_successfully
+  #     api:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     <<: *healthcheck-curl
+  #     test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
 
   mongodb:
     <<: *default-service
@@ -90,7 +133,7 @@ services:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongodb_password
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
       - mongodb_data:/data/db
     secrets:
@@ -104,6 +147,7 @@ services:
 
 volumes:
   mongodb_data:
+  frontend_dist_volume:
 
 secrets:
   cert_password:

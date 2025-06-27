@@ -1,7 +1,7 @@
 parameters:
   - name: dotnetVersion
     type: string
-    default: '6.x'
+    default: '9.x'
   - name: testArtifactName
     type: string
     default: ''
@@ -19,7 +19,6 @@ parameters:
     default: '$(Build.SourcesDirectory)/test_artifacts'
 
 steps:
-
   - task: UseDotNet@2
     displayName: 'Setup .NET SDK ${{ parameters.dotnetVersion }}'
     inputs:

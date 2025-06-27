@@ -16,6 +16,11 @@ stages:
           dependsOn: build_dotnet_solution
           condition: succeeded()
 
+      - template: ../jobs/build-and-test-frontend-job.yml
+        parameters:
+          name: build-and-test-frontend
+          displayName: 'Build and Test Frontend UI'
+
       - template: ../jobs/run-dotnet-tests-job.yml
         parameters:
           name: run_dotnet_tests
