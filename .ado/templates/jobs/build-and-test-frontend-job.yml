@@ -25,26 +25,26 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: 'npm | "$(Agent.OS)" | $(REACT_APP_PATH)/package-lock.json'
-        path: '$(REACT_APP_PATH)/node_modules'
+        key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/$(REACT_APP_PATH)/package-lock.json'
+        path: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/node_modules'
         cacheHitVar: 'CACHE_RESTORED'
       displayName: 'Cache node_modules'
 
     - script: |
           npm ci
       displayName: 'Install Frontend Dependencies'
-      workingDirectory: '$(REACT_APP_PATH)'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
       condition: ne(variables.CACHE_RESTORED, 'true')
 
     - script: |
           npm run build
       displayName: 'Build Frontend'
-      workingDirectory: '$(REACT_APP_PATH)'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
     - script: |
           npm test -- --ci --runInBand
       displayName: 'Run Frontend Tests'
-      workingDirectory: '$(REACT_APP_PATH)'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
       continueOnError: true
       condition: succeededOrFailed()
 
@@ -52,7 +52,7 @@ jobs:
       displayName: 'Publish Frontend Test Results'
       inputs:
         testResultsFormat: 'JUnit'
-        testResultsFiles: '$(REACT_APP_PATH)/test-results.xml'
+        testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/test-results.xml'
         failTaskOnFailedTests: true
       condition: succeededOrFailed()
 
