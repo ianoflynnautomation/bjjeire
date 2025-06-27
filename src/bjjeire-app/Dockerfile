@@ -1,7 +1,8 @@
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 
 ARG SERVICES_API_HTTPS_0
 ARG SERVICES_API_HTTP_0
+ARG NODE_ENV
 
 WORKDIR /app
 
@@ -12,17 +13,17 @@ COPY src/bjjeire-app/ .
 
 ENV SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
 ENV SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
-ENV NODE_OPTIONS="--max_old_space_size=4096"
+ENV NODE_ENV=${NODE_ENV}
 
 RUN npm run build
 
 FROM nginx:1.25-alpine
 
-COPY ../certs/aspnetapp.crt /etc/nginx/certs/aspnetapp.crt
-COPY ../certs/aspnetapp.key /etc/nginx/certs/aspnetapp.key
-RUN chmod 644 /etc/nginx/certs/aspnetapp.crt /etc/nginx/certs/aspnetapp.key
+RUN mkdir -p /etc/nginx/certs/ && \
+    chmod 700 /etc/nginx/certs/
 
-COPY ../infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80 443

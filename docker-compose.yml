@@ -74,6 +74,9 @@ services:
       - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
       # - VITE_APP_API_URL=${VITE_APP_API_URL}
       # - VITE_APP_URL=${VITE_APP_URL}
+    volumes: 
+        - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt:ro
+        - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key:ro
     depends_on:
       api:
         condition: service_healthy
