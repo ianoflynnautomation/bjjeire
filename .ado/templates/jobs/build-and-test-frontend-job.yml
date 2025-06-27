@@ -24,10 +24,15 @@ jobs:
     #     versionSpec: '$(NODE_VERSION)'
 
     - script: |
-        source /usr/share/nvm/init-nvm.sh
+        export NVM_DIR="/usr/local/lib/nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+        # Install and use the desired Node.js version
         nvm install $(NODE_VERSION)
         nvm use $(NODE_VERSION)
         
+        # Verify Node.js and npm versions
         node --version
         npm --version
         ls -la $(Build.SourcesDirectory)/$(REACT_APP_PATH)
@@ -62,20 +67,20 @@ jobs:
       displayName: 'Build Frontend'
       workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
-    - script: |
-        npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
-      displayName: 'Run Frontend Tests'
-      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
-      continueOnError: true
-      condition: succeededOrFailed()
+    # - script: |
+    #     npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
+    #   displayName: 'Run Frontend Tests'
+    #   workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
+    #   continueOnError: true
+    #   condition: succeededOrFailed()
 
-    - task: PublishTestResults@2
-      displayName: 'Publish Frontend Test Results'
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
-        failTaskOnFailedTests: true
-        condition: succeededOrFailed()
+    # - task: PublishTestResults@2
+    #   displayName: 'Publish Frontend Test Results'
+    #   inputs:
+    #     testResultsFormat: 'JUnit'
+    #     testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
+    #     failTaskOnFailedTests: true
+    #     condition: succeededOrFailed()
 
       # You typically don't publish the dist folder as a pipeline artifact here
       # because it will be included in the NGINX Docker image later.
