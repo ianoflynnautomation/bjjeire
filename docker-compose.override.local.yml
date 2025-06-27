@@ -10,5 +10,7 @@ services:
     build:
       context: .
       dockerfile: src/bjjeire-app/Dockerfile
-    # environment:
-    #   NODE_ENV: "development"
+      args:
+        SERVICES_API_HTTP_0: ${SERVICES_API_HTTP_0}
+        SERVICES_API_HTTPS_0: ${SERVICES_API_HTTPS_0}
+        PORT: ${PORT}
