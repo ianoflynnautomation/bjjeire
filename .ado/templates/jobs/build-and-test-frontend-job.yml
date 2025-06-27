@@ -54,7 +54,7 @@ jobs:
     - script: |
         npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
       displayName: 'Run Frontend Tests'
-      workingDirectory: $(Build.SourcesDirectory)/'$(REACT_APP_PATH)'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
       continueOnError: true
       condition: succeededOrFailed()
 
