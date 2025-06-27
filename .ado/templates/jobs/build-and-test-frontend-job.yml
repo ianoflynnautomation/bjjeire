@@ -23,6 +23,16 @@ jobs:
       inputs:
         versionSpec: '$(NODE_VERSION)'
 
+    - script: |
+        node --version
+        npm --version
+        ls -la $(Build.SourcesDirectory)/$(REACT_APP_PATH)
+      displayName: 'Log versions and list files'
+
+    - script: |
+        npm cache clean --force
+      displayName: 'Clear npm cache'
+
     - task: Cache@2
       inputs:
         key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/$(REACT_APP_PATH)/package-lock.json'
@@ -42,9 +52,9 @@ jobs:
       workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
     - script: |
-          npm test -- --ci --runInBand
+        npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
       displayName: 'Run Frontend Tests'
-      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
+      workingDirectory: $(Build.SourcesDirectory)/'$(REACT_APP_PATH)'
       continueOnError: true
       condition: succeededOrFailed()
 
@@ -52,9 +62,9 @@ jobs:
       displayName: 'Publish Frontend Test Results'
       inputs:
         testResultsFormat: 'JUnit'
-        testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/test-results.xml'
+        testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
         failTaskOnFailedTests: true
-      condition: succeededOrFailed()
+        condition: succeededOrFailed()
 
       # You typically don't publish the dist folder as a pipeline artifact here
       # because it will be included in the NGINX Docker image later.
