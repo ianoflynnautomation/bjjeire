@@ -1,7 +1,7 @@
 parameters:
   - name: dotnetVersion
     type: string
-    default: '6.x'
+    default: '9.x'
 
 steps:
   - task: UseDotNet@2
@@ -10,18 +10,8 @@ steps:
       version: ${{ parameters.dotnetVersion }}
       packageType: 'sdk'
 
-  - task: DotNetCoreCLI@2 # <-- CHANGE THIS TASK
+  - task: DotNetCoreCLI@2
     displayName: 'Restore NuGet packages'
     inputs:
       command: 'restore'
-      projects: '**/*.csproj' # <-- Specify projects, not solution for dotnet restore
-      # Using a glob pattern for projects is generally more robust than solutions for `dotnet restore`
-      # if you have multiple projects or don't want to rely on the solution file.
-      # If you specifically want to restore via solution, you can use:
-      # projects: '**/*.sln'
-      # But `**/*.csproj` is often preferred for multi-project repos.
-
-      # feedsToUse: 'config' is implicitly handled by dotnet restore if NuGet.config is present
-      # For custom feeds, you'd configure them in NuGet.config or use the `nugetConfigPath` input if needed.
-      # Eg: nugetConfigPath: 'path/to/my/NuGet.config'
-      # The `DotNetCoreCLI@2` task naturally leverages the agent's package cache for NuGet packages.
+      projects: '**/*.csproj'

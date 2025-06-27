@@ -1,7 +1,7 @@
 parameters:
   - name: dotnetVersion
     type: string
-    default: '6.x'
+    default: '9.x'
   - name: path
     type: string
     default: ''

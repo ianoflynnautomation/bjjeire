@@ -10,5 +10,5 @@ services:
     build:
       context: .
       dockerfile: src/bjjeire-app/Dockerfile
-    environment:
-      NODE_ENV: "development"
+    # environment:
+    #   NODE_ENV: "development"
