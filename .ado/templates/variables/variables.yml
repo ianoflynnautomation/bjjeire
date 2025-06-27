@@ -1,6 +1,6 @@
 variables:
   DOTNET_VERSION: '9.x'
-  NODE_VERSION: '23.x'
+  NODE_VERSION: '24.x'
   SOLUTION_PATH: 'BjjEire.sln'
   REACT_APP_PATH: 'src/bjjeire-app'
   TEST_ARTIFACTS_DOWNLOAD_PATH: 'test_artifacts'
