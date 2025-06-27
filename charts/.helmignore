@@ -1,0 +1,13 @@
+# .helmignore
+# Files to ignore when packaging Helm chart
+.git
+.gitignore
+.DS_Store
+# Exclude local directories that are not part of the chart
+infra/
+src/
+secrets/
+tests/
+# Exclude any temporary or build artifacts
+*.tmp
+*.log

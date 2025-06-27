@@ -1,32 +1,35 @@
+using BjjEire.Aspire.AppHost.Constants;
 using Microsoft.Extensions.Configuration;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class ApiConfiguration {
 
-    //public static IResourceBuilder<ContainerResource> AddApi(
-    public static IResourceBuilder<ProjectResource> AddApi(
-        IDistributedApplicationBuilder builder,
-        IResourceBuilder<MongoDBDatabaseResource> mongo) {
+    public static IResourceBuilder<ContainerResource> AddApi(
+      IDistributedApplicationBuilder builder,
+      IResourceBuilder<MongoDBDatabaseResource> mongo) {
         ArgumentNullException.ThrowIfNull(builder);
 
-        // var contextPath = Path.Combine("");
-        // var dockerfilePath = Path.Combine(contextPath, "");
-        // var api = builder.AddDockerfile("api", dockerfilePath)
-        var api = builder.AddProject<Projects.BjjEire_Api>("api")
-        .WithExternalHttpEndpoints()
-        // .WithHttpEndpoint(port: ServiceConstants.ApiHttpPort, targetPort: 80, name: "http")
-        // .WithHttpEndpoint(port: ServiceConstants.ApiHttpsPort, targetPort: 443, name: "https")
+        var solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
+        var contextPath = solutionRoot;
+        var dockerfilePath = Path.Combine(solutionRoot, "src/BjjEire.Api/Dockerfile");
+
+        var certPath = builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"] 
+            ?? throw new InvalidOperationException("Certificate path is not configured.");
+        var certPassword = builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"] 
+            ?? throw new InvalidOperationException("Certificate password is not configured.");
+
+        var api = builder.AddDockerfile("api", contextPath, dockerfilePath)
         .WithReference(mongo)
         .WaitFor(mongo)
-        // .WithVolume(ServiceConstants.ApiLogsVolume, "/app/log")
-        // .WithVolume(ServiceConstants.ApiCertsVolume, "/https", isReadOnly: true)
+        .WithHttpEndpoint(port: ServiceConstants.ApiHttpPort, targetPort: 80)
+        .WithHttpsEndpoint(port: ServiceConstants.ApiHttpsPort, targetPort: 443, name: "https")
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Configuration["ASPNETCORE_ENVIRONMENT"] ?? "Production")
         .WithEnvironment("ASPNETCORE_URLS", builder.Configuration["ASPNETCORE_URLS"] ?? "https://+;http://+")
         .WithEnvironment("ASPNETCORE_HTTP_PORT", builder.Configuration["ASPNETCORE_HTTP_PORT"] ?? "80")
         .WithEnvironment("ASPNETCORE_HTTPS_PORT", builder.Configuration["ASPNETCORE_HTTPS_PORT"] ?? "443")
-        .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"] ?? string.Empty)
-        .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"] ?? string.Empty)
+        .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", certPath)
+        .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", certPassword)
         .WithEnvironment("ConnectionStrings__Mongodb", BuildMongoConnectionString(builder.Configuration))
         .WithEnvironment("CorsOptions__AllowedOrigins", builder.Configuration["CORS_ORIGINS"] ?? string.Empty)
         .WithEnvironment("Serilog__WriteTo__1__Args__serverUrl", builder.Configuration["SEQ_URL"] ?? string.Empty)
