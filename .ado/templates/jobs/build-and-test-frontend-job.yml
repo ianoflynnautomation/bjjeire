@@ -18,20 +18,31 @@ jobs:
   steps:
     - checkout: self
 
-    - task: UseNode@1
-      displayName: 'Use Node.js $(NODE_VERSION)'
-      inputs:
-        versionSpec: '$(NODE_VERSION)'
+    # - task: UseNode@1
+    #   displayName: 'Use Node.js $(NODE_VERSION)'
+    #   inputs:
+    #     versionSpec: '$(NODE_VERSION)'
 
     - script: |
+        source /usr/share/nvm/init-nvm.sh
+        nvm install $(NODE_VERSION)
+        nvm use $(NODE_VERSION)
+        
         node --version
         npm --version
         ls -la $(Build.SourcesDirectory)/$(REACT_APP_PATH)
-      displayName: 'Log versions and list files'
+      displayName: 'Log versions and list files (with nvm)'
+
+    # - script: |
+    #     node --version
+    #     npm --version
+    #     ls -la $(Build.SourcesDirectory)/$(REACT_APP_PATH)
+    #   displayName: 'Log versions and list files'
 
     - script: |
         npm cache clean --force
       displayName: 'Clear npm cache'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
     - task: Cache@2
       inputs:
