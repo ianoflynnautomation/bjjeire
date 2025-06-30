@@ -68,7 +68,7 @@ services:
       - "60743:443"
     environment:
       # - BROWSER=${BROWSER}
-      # - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
       - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
       - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bjj-app.api.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bjj-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bjj-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "bjj-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.api.port }}
+              protocol: TCP
+            {{- if .Values.service.api.httpsPort }}
+            - name: https
+              containerPort: {{ .Values.service.api.httpsPort }}
+              protocol: TCP
+            {{- end }}
+          env:
+            {{- range $key, $value := .Values.environment.api }}
+            - name: {{ $key }}
+              value: {{ tpl $value $ | quote }}
+            {{- end }}
+            {{- $mongodbRootPassword := "" -}}
+            {{- if .Values.azure.enabled -}}
+              {{- $secret := lookup "v1" "Secret" .Values.namespace .Values.secrets.mongodbRootPassword.name -}}
+              {{- if $secret -}}
+                {{- $mongodbRootPassword = index $secret.data .Values.secrets.mongodbRootPassword.key | b64dec -}}
+              {{- else -}}
+                {{- fail (printf "Secret '%s' not found for AKS deployment. Ensure Secret Store CSI driver is syncing it from Key Vault." .Values.secrets.mongodbRootPassword.name) -}}
+              {{- end -}}
+            {{- else -}}
+              {{- $mongodbRootPassword = .Values.secrets.mongodbRootPassword.value | b64dec -}}
+            {{- end }}
+            - name: ConnectionStrings__Mongodb
+              value: {{ printf "mongodb://%s:%s@%s:%s/%s?authSource=admin&authMechanism=SCRAM-SHA-256"
+                .Values.environment.mongodb.MONGODB_USER
+                $mongodbRootPassword
+                .Values.environment.mongodb.MONGODB_HOST
+                (.Values.environment.mongodb.MONGODB_PORT | toString)
+                .Values.environment.mongodb.MONGODB_DB | quote }}
+            {{- if .Values.apiKestrelCertVolume.enabled }}
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.apiKestrelCertPassword.name }}
+                  key: {{ .Values.secrets.apiKestrelCertPassword.key }}
+            - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+              value: "{{ .Values.apiKestrelCertVolume.mountPath }}/aspnetapp.pfx"
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources.api | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 1
+          volumeMounts:
+            {{- if .Values.apiKestrelCertVolume.enabled }}
+            - name: {{ .Values.apiKestrelCertVolume.name }}
+              mountPath: {{ .Values.apiKestrelCertVolume.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.azure.enabled }}
+            - name: secrets-store-vol
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if .Values.apiKestrelCertVolume.enabled }}
+        - name: {{ .Values.apiKestrelCertVolume.name }}
+          secret:
+            secretName: {{ .Values.apiKestrelCertVolume.name }}
+        {{- end }}
+        {{- if .Values.azure.enabled }}
+        - name: secrets-store-vol
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "bjj-app.fullname" . }}-akv-secrets
+        {{- end }}
+      {{- if .Values.azure.enabled }}
+      imagePullSecrets:
+        - name: {{ include "bjj-app.fullname" . }}-acr-secret
+      {{- end }}
+      initContainers: []

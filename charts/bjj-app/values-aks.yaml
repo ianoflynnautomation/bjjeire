@@ -1,0 +1,229 @@
+nameOverride: "bjj-app"
+fullnameOverride: "bjj-app"
+
+replicaCount: 1
+
+image:
+  repository: bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io/bjjeire-api
+  frontendRepository: bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io/bjjeire-frontend
+  pullPolicy: IfNotPresent
+  tag: "latest-main"
+
+service:
+  api:
+    type: ClusterIP
+    port: 80
+    httpsPort: 443
+  frontend:
+    type: ClusterIP
+    port: 80
+    httpsPort: 443
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: api.bjj.local
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: ""
+          servicePort: 80
+    - host: app.bjj.local
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: ""
+          servicePort: 80
+  tls:
+    - secretName: bjj-tls-secret
+      hosts:
+        - api.bjj.local
+        - app.bjj.local
+
+resources:
+  api:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  mongodb:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+environment:
+  api:
+    ASPNETCORE_ENVIRONMENT: Production
+    ASPNETCORE_URLS: "http://+:80;https://+:443"
+    CorsOptions__AllowedOrigins: "https://app.bjj.local,http://bjj-app-frontend:80"
+    Serilog__WriteTo__1__Args__serverUrl: http://seq:80
+    Serilog__WriteTo__2__Args__endpoint: http://otel-collector:4317
+    Serilog__Properties__Application: BjjWorld.Api
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    OTEL_RESOURCE_ATTRIBUTES__service.name: BjjWorld.Api
+
+  frontend: {}
+
+  mongodb:
+    MONGODB_USER: admin
+    MONGODB_HOST: mongodb
+    MONGODB_PORT: 27017
+    MONGODB_DB: Mongodb
+
+mongodbVolume:
+  enabled: true
+  size: 10Gi
+  storageClassName: standard
+
+apiKestrelCertVolume:
+  enabled: true
+  name: bjj-api-kestrel-cert-secret
+  mountPath: /https
+
+frontendNginxCertVolume:
+  enabled: true
+  name: bjj-frontend-tls-secret
+  certMountPath: /etc/nginx/certs/aspnetapp.crt
+  keyMountPath: /etc/nginx/certs/aspnetapp.key
+
+secrets:
+  apiKestrelCertPassword:
+    enabled: true
+    name: bjj-api-kestrel-cert-password
+    key: cert-password
+
+  mongodbRootPassword:
+    enabled: true
+    name: bjj-mongodb-root-password
+    key: mongodb-password
+
+  frontendTlsCert:
+    enabled: true
+    name: bjj-frontend-tls-secret
+    key: tls.crt
+
+  frontendTlsKey:
+    enabled: true
+    name: bjj-frontend-tls-secret
+    key: tls.key
+
+namespace: bjj-app
+
+azure:
+  enabled: true
+  tenantId: "YOUR_AZURE_TENANT_ID"
+  keyVaultName: "YOUR_KEY_VAULT_NAME"
+
+frontendNginxConfig: |
+  worker_processes auto;
+  error_log /var/log/nginx/error.log warn;
+  pid /var/run/nginx.pid;
+
+  events {
+      worker_connections 1024;
+  }
+
+  http {
+      access_log /var/log/nginx/access.log combined;
+      server_tokens off;
+
+      server {
+          listen 80;
+          listen 443 ssl;
+          server_name _;
+
+          ssl_certificate /etc/nginx/certs/aspnetapp.crt;
+          ssl_certificate_key /etc/nginx/certs/aspnetapp.key;
+
+          gzip on;
+          gzip_vary on;
+          gzip_proxied any;
+          gzip_comp_level 6;
+          gzip_buffers 16 8k;
+          gzip_http_version 1.1;
+          gzip_min_length 256;
+          gzip_types
+              application/atom+xml
+              application/geo+json
+              application/javascript
+              application/x-javascript
+              application/json
+              application/ld+json
+              application/manifest+json
+              application/rdf+xml
+              application/rss+xml
+              application/vnd.ms-fontobject
+              application/wasm
+              application/x-web-app-manifest+json
+              application/xhtml+xml
+              application/xml
+              font/eot
+              font/otf
+              font/ttf
+              image/svg+xml
+              image/x-icon
+              text/cache-manifest
+              text/css
+              text/javascript
+              text/plain
+              text/vcard
+              text/vnd.rim.location.xloc
+              text/vtt
+              text/x-component
+              text/x-cross-domain-policy;
+
+          root /usr/share/nginx/html;
+
+          location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot)$ {
+              expires 1y;
+              add_header Cache-Control "public";
+              access_log off;
+          }
+
+          location / {
+              try_files $uri $uri/ /index.html;
+          }
+
+          location /api/ {
+              proxy_pass http://api.bjj-app.svc.cluster.local:80/;
+
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_cache_bypass $http_upgrade;
+
+              proxy_pass_header Content-Security-Policy;
+              proxy_pass_header Permissions-Policy;
+          }
+
+          location /health {
+              access_log off;
+              return 200 "OK";
+              add_header Content-Type text/plain;
+          }
+
+          location ~ /\. {
+              deny all;
+          }
+      }
+  }
