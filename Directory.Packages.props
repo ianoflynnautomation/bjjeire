@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup Label="Azure">
     <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
-    <PackageVersion Include="Azure.Identity" Version="1.14.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.14.1" />
     <PackageVersion Include="Azure.Developer.MicrosoftPlaywrightTesting.NUnit" Version="1.0.0-beta.4" />
   </ItemGroup>
   <ItemGroup Label="Microsoft">
@@ -47,7 +47,7 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
-    <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.1.0" />
+    <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.2.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.0-preview.25277.114" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
@@ -115,9 +115,9 @@
     <PackageVersion Include="NUnit.Analyzers" Version="4.9.2" />
     <PackageVersion Include="Respawn" Version="6.2.1" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Playwright" Version="1.52.0" />
-    <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.52.0" />
-    <PackageVersion Include="Microsoft.Playwright.TestAdapter" Version="1.52.0" />
+    <PackageVersion Include="Microsoft.Playwright" Version="1.53.0" />
+    <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.53.0" />
+    <PackageVersion Include="Microsoft.Playwright.TestAdapter" Version="1.53.0" />
     <PackageVersion Include="Reqnroll.NUnit" Version="2.4.1" />
     <PackageVersion Include="Reqnroll" Version="2.4.1" />
     <PackageVersion Include="Reqnroll.Autofac" Version="2.4.1" />
