@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bjj-app.frontend.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bjj-app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bjj-app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "bjj-app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+    spec:
+      initContainers:
+        - name: wait-for-api-service
+          image: curlimages/curl:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for API health check...";
+              until curl -k -s -f https://bjj-app-api.bjj-app.svc.cluster.local:443/health; do
+                echo "API health check failed (or not yet reachable), retrying...";
+                sleep 5; # Longer sleep to reduce a bit of hammering
+              done;
+              echo "API is healthy and reachable, proceeding with frontend."
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.frontendRepository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.frontend.port }}
+              protocol: TCP
+            {{- if .Values.service.frontend.httpsPort }}
+            - name: https
+              containerPort: {{ .Values.service.frontend.httpsPort }}
+              protocol: TCP
+            {{- end }}
+          env:
+            {{- range $key, $value := .Values.environment.frontend }}
+            - name: {{ $key }}
+              value: {{ tpl ($value | toString) $ | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            {{- if .Values.frontendNginxCertVolume.enabled }}
+            - name: frontend-tls-certs
+              mountPath: {{ .Values.frontendNginxCertVolume.certMountPath }}
+              subPath: tls.crt
+              readOnly: true
+            - name: frontend-tls-certs
+              mountPath: {{ .Values.frontendNginxCertVolume.keyMountPath }}
+              subPath: tls.key
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources.frontend | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 1
+      volumes:
+        - name: nginx-config-volume
+          configMap:
+            name: {{ include "bjj-app.frontend.fullname" . }}-nginx-config
+        {{- if .Values.frontendNginxCertVolume.enabled }}
+        - name: frontend-tls-certs
+          secret:
+            secretName: {{ .Values.secrets.frontendTlsCert.name }}
+        {{- end }}
+      {{- if .Values.azure.enabled }}
+      imagePullSecrets:
+        - name: {{ include "bjj-app.fullname" . }}-acr-secret
+      {{- end }}

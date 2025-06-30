@@ -98,26 +98,6 @@ jobs:
       displayName: 'Generate Docker Image Tags'
       name: generate_tags 
 
-    - script: |
-        echo "--- Debug: Listing contents of the build context root ($(Build.SourcesDirectory)) ---"
-        pwd
-        ls -R $(Build.SourcesDirectory) || true # Use || true to prevent task failure if ls encounters issues
-        echo "--- END Debug: Build context contents ---"
-        echo "--- Debug: Check specific file presence ---"
-        if [ -f "$(Build.SourcesDirectory)/infra/nginx/default.conf.template" ]; then
-          echo "File infra/nginx/default.conf.template EXISTS in build context."
-          echo "--- File contents (first few lines): ---"
-          head "$(Build.SourcesDirectory)/infra/nginx/default.conf.template"
-          echo "--- END File contents ---"
-        else
-          echo "File infra/nginx/default.conf.template DOES NOT EXIST in build context at expected path."
-        fi
-        echo "--- Debug: Contents of .dockerignore ---"
-        cat $(Build.SourcesDirectory)/.dockerignore || true
-        echo "--- END Debug: .dockerignore ---"
-      displayName: 'DEBUG: Verify Nginx Template File in Build Context'
-      condition: always()
-
     - template: ../tasks/docker-build-push.yml
       parameters:
         imageName: '$(API_IMAGE_NAME)'

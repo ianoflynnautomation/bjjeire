@@ -1,0 +1,235 @@
+nameOverride: "bjj-app"
+fullnameOverride: "bjj-app"
+
+replicaCount: 1
+
+image:
+  repository: bjj-api
+  frontendRepository: bjj-frontend
+  pullPolicy: IfNotPresent
+  tag: "local"
+
+service:
+  api:
+    type: ClusterIP
+    port: 80
+    httpsPort: 443
+  frontend:
+    type: ClusterIP
+    port: 80
+    httpsPort: 443
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+  hosts:
+    - host: api.bjj.local
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: ""
+          servicePort: 80
+    - host: app.bjj.local
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: ""
+          servicePort: 80
+  tls:
+    - secretName: bjj-tls-secret
+      hosts:
+        - api.bjj.local
+        - app.bjj.local
+
+resources:
+  api:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  mongodb:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+environment:
+  api:
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_URLS: "http://+:80;https://+:443"
+    CorsOptions__AllowedOrigins: "https://app.bjj.local,http://app.bjj.local,http://bjj-app-frontend:80,https://bjj-app-frontend:443"
+    Serilog__WriteTo__1__Args__serverUrl: http://seq:80
+    Serilog__WriteTo__2__Args__endpoint: http://otel-collector:4317
+    Serilog__Properties__Application: BjjWorld.Api
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    OTEL_RESOURCE_ATTRIBUTES__service.name: BjjWorld.Api
+
+  frontend:
+    NODE_ENV: production
+    PORT: 80
+
+  mongodb:
+    MONGODB_USER: admin
+    MONGODB_HOST: mongodb
+    MONGODB_PORT: 27017
+    MONGODB_DB: Mongodb
+
+mongodbVolume:
+  enabled: true
+  size: 10Gi
+  storageClassName: standard
+
+apiKestrelCertVolume:
+  enabled: true
+  name: bjj-api-kestrel-cert-secret
+  mountPath: /https
+
+frontendNginxCertVolume:
+  enabled: true
+  name: bjj-frontend-tls-secret
+  certMountPath: /etc/nginx/certs/aspnetapp.crt
+  keyMountPath: /etc/nginx/certs/aspnetapp.key
+
+secrets:
+  apiKestrelCertPassword:
+    enabled: true
+    name: bjj-api-kestrel-cert-password
+    key: cert-password
+    value: c2VjdXJlcGFzc3dvcmQxMjM=
+
+  mongodbRootPassword:
+    enabled: true
+    name: bjj-mongodb-root-password
+    key: mongodb-password
+    value: c2VjdXJlcGFzc3dvcmQxMjM=
+
+  frontendTlsCert:
+    enabled: true
+    name: bjj-frontend-tls-secret
+    key: tls.crt
+    value: "QmFnIEF0dHJpYnV0ZXMKICAgIGxvY2FsS2V5SUQ6IDAwIDAwIDAwIDAwIApzdWJqZWN0PUNOPWxvY2FsaG9zdAppc3N1ZXI9Q049bG9jYWxob3N0Ci0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlERERDQ0FmU2dBd0lCQWdJSU9saVk0TTY4VnYwd0RRWUpLb1pJaHZjTkFRRUxCUUF3RkRFU01CQUdBMVVFCkF4TUpiRzlqWVd4b2IzTjBNQjRYRFRJMU1EUXpNREE1TkRZd04xb1hEVEkyTURRek1EQTVORFl3TjFvd0ZERVMKTUJBR0ExVUVBeE1KYkc5allXeG9iM04wTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQwpBUUVBbmIrSDM5Y1BoeVlreDAzam1abFRXa1dvcUlueHFDZWtBWTl3dWN4SUdFNjFjZHhlWUxjaUlzNSs5UWNrCmF6LzJuUWtNZENXS2RkQ0tTQ0FJMUx3b1BpOTJYalkzZHhyQ2hIOUZxWFduY2V1M012dzVRM3c2WWpaQ21KQlUKbzdYK1F1M2FyVDM4SVd6UWwzNlQzQ2pvWk5jbVB2TVdqWnNtSHNnMmtTV2VUTkVkMjF6NjdsRHhKeDVTNUxUMwp6VWJQR1hHbitDQWpoS215bFRrVnZBK1VXeWlsaGVCeHNESHFSSkMvYTRhT1ZvYURxUUJrcnBmaHljVFRzdm5zCjNqRk9xK2Y4ZngyYmhFdVRjcDJ3WGhrZTZYYS9hMTVPMlJ0UmJMVHBIODBreVdTNi9ZdnFYZlJGU3gzTnZmWUYKR21YY0dYQy9OZUtGS2R1a2s0N0l6ZWdtNFFJREFRQUJvMkl3WURBTUJnTlZIUk1CQWY4RUFqQUFNQTRHQTFVZApEd0VCL3dRRUF3SUZvREFXQmdOVkhTVUJBZjhFRERBS0JnZ3JCZ0VGQlFjREFUQVhCZ05WSFJFQkFmOEVEVEFMCmdnbHNiMk5oYkdodmMzUXdEd1lLS3dZQkJBR0NOMVFCQVFRQkFqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUEKTUswTitHM09tS1hUSVlwRnNkcCtFRzBCMWYwSVpvSytJYXdzd0hiU0xQZWpwNkU4UUZLZ1gvVzI3OXREZmZYTQpERmFsZGw0eWFVdTNCVExYaFhWQnBkQ2lDcEV2Smo0b3c4WkJ4MmVzc1VxbXJWSi9ONVBmOTVOUC9UMllXbDNmCjhHWlNuL2QzT3JnbG9hbU04dkp2QXVOa21LSGVrbkgrOFpoYXFmQktza3U5cklDUjMycG5EUXJRcU5XOWJSK1EKUUxEY2NrVTk3d0ZhajFVM2NZdFhLQm9UUDcwWlhVNlRNcjhNRlgyZHpPSHl2azVxcHlPMjdGdTlzY3puUWw0bApFekhXMXNDNkk1QnpYZG40V211UXhjZ0FiY2lPblJRYU5nVXRDOStqV0tXS3YzS2lJdXgzeXg3U3ErWGFjdlpICkdGTXJrNm51SGZHMGFPeEJHcUhXSmc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+
+  frontendTlsKey:
+    enabled: true
+    name: bjj-frontend-tls-secret
+    key: tls.key
+    value: "QmFnIEF0dHJpYnV0ZXMKICAgIGxvY2FsS2V5SUQ6IDAwIDAwIDAwIDAwIApLZXkgQXR0cmlidXRlczogPE5vIEF0dHJpYnV0ZXM+Ci0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLQpNSUlFdlFJQkFEQU5CZ2txaGtpRzl3MEJBUUVGQUFTQ0JLY3dnZ1NqQWdFQUFvSUJBUUNkdjRmZjF3K0hKaVRIClRlT1ptVk5hUmFpb2lmR29KNlFCajNDNXpFZ1lUclZ4M0Y1Z3R5SWl6bjcxQnlSclAvYWRDUXgwSllwMTBJcEkKSUFqVXZDZytMM1plTmpkM0dzS0VmMFdwZGFkeDY3Y3kvRGxEZkRwaU5rS1lrRlNqdGY1QzdkcXRQZndoYk5DWApmcFBjS09oazF5WSs4eGFObXlZZXlEYVJKWjVNMFIzYlhQcnVVUEVuSGxMa3RQZk5SczhaY2FmNElDT0VxYktWCk9SVzhENVJiS0tXRjRIR3dNZXBFa0w5cmhvNVdob09wQUdTdWwrSEp4Tk95K2V6ZU1VNnI1L3gvSFp1RVM1TnkKbmJCZUdSN3BkcjlyWGs3WkcxRnN0T2tmelNUSlpMcjlpK3BkOUVWTEhjMjk5Z1VhWmR3WmNMODE0b1VwMjZTVApqc2pONkNiaEFnTUJBQUVDZ2dFQUc5Ym5kZHVRZy90NVZpc3ExYnEzZVNEK0NQQi9VM3ZiZCtNR3MrT1hmYUsyClp1ZkxTQ3BKdmZiUGRSTFRuSkhuUmdPSXpSNnE5dXZjMjZtN3BUK25vb0hoMC9LaGkwV1B1cTV6YnRxeXVHb3YKSkxKYXNNeEZ5WHRsK1dMUGJTejdPSGlkdFNGUlU5ek9XMDRkYmlkU0RDbmtPQXZTbVI4ZWRTUkViUTFFaUsyLwoyQURwL0lpZjhjUVEzMjBFL2dzek9wUUp6b2pUUytnTVFpbTA1LzBQRVlwWWJ1c0Y2RkVjTnhCaENEN09KQ3RICk1yNDlsRTRjRjEvdnFwZENwbndEMnozdjNJSnhCeWN3QmNXSysxL1hBamJRc2wweHYxQ0E1Z1N0V2QxMnN5N04KYUdkc0J1ZWFFREtza3RNQ1VDVW13WTJaRzB3MWhxeDZkeHVKZzJjUm9RS0JnUURla3g0aDBqWUdqZzMrMWRBNwozUDgvUy92bU5PSmc2clRNQkxvVXdvTzBWdjRVMkV5Z3hQbzgvMlZuQnZzSmVqWVl1REo0M3YzL2JDRnJqOXB4Cms0SFZ2MlpDVHVlVHkyL3c2R0JiWS82Zi9iUFNBVUl3ME5zbFVQNXh3S3g5a0JTWk1TVlRaTm9MMTJUcmRNQnYKZENQTS9LYkdDVjdZTjY0SE03cjhNS0wwWlFLQmdRQzFjQ2grUFk3WHhvYkdSN0Q1MkhXU2ExV3kxTzh3VXlTUwp3dFJJc2ZkZ3U4SGZadnVFV2EvbFpkTmlIaW01SG9IVm9CS1N1M2RZdjd3aEhzT2ttV0R2RnpySk9yMTBpb0ZDCk1Ub1ZicnNMMHVNTHF1QTRmamZ2RFRQTlU5SStIanR5S1c3YnRxbzByUEdwaThDOHF3R3NnMExENW1qVXhITVcKL0orWUREeUt6UUtCZ1FDbW14ZG1GN1ZyS0xDZlBpdVdjL0g0em9icnBsQ0NYWTRpWGJOdzBMM0hvNHFqemRsbQpTcXhLTnA4UUJQQ3JBbmsxL2NPQ0tPR1diYm1DaTNibnA1UDdqVDhkaVhUZGM5NENSZC9DNlZIekx2U0kwWHBiCmtpdElmcDFJUndLWEp0L1VZQzVoZzArWXA0NGFsaFZxR0ZTb0g4TXk0RmJIb0w0N0UrVDIyKzFPNVFLQmdHQUgKRW9kdUVUSUdzc0l5bzJvNHRGRmdXYVVpcWMyTDA2bVJVRVdCVzRwcEZUMG1CaXlRUTFaSVJFNkQ1RlZEM2pldwpWdVF1TUFaYXhEbExUUVRLNE5EcUhJVHdmK0UwaFNFQmFOcDdGcWcxWDFHSGlOQ2RqUUVLbmNZb2ZQZS9qSHJwCmp2RGVoc3NHVllrRW5HZStvazRwMHFaWVJsZUYrZHZLckxVT2xPUnBBb0dBWXJvVDNSQStHUWpzTjQ2bmc4WWUKaWlidVU0ZWozZUtEZWd2ODcxVnR3VHRtaHc5K1hCcWt2N0kyT3RhSWlqVXN6L2VrL2NJMWQ3NEVNSFFBZThUQgpLUFMrV2FMaUpQRi9ORWFsenpIVThCbk1HU2lVbmdlMzlvMmpUdGhxTVQ4MEUzUGVCc0U0d01CdEJhVS81VE9FClJpVUxmN01TSDhsOHZlZEt3bTBtN0UwPQotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tCg=="
+
+namespace: bjj-app
+
+azure:
+  enabled: false
+  tenantId: "123"
+  keyVaultName: "123"
+
+frontendNginxConfig: |
+  worker_processes auto;
+  error_log /var/log/nginx/error.log warn;
+  pid /var/run/nginx.pid;
+
+  events {
+      worker_connections 1024;
+  }
+
+  http {
+      access_log /var/log/nginx/access.log combined;
+      server_tokens off;
+
+      server {
+          listen 80;
+          listen 443 ssl;
+          server_name _;
+
+          ssl_certificate /etc/nginx/certs/aspnetapp.crt;
+          ssl_certificate_key /etc/nginx/certs/aspnetapp.key;
+
+          gzip on;
+          gzip_vary on;
+          gzip_proxied any;
+          gzip_comp_level 6;
+          gzip_buffers 16 8k;
+          gzip_http_version 1.1;
+          gzip_min_length 256;
+          gzip_types
+              application/atom+xml
+              application/geo+json
+              application/javascript
+              application/x-javascript
+              application/json
+              application/ld+json
+              application/manifest+json
+              application/rdf+xml
+              application/rss+xml
+              application/vnd.ms-fontobject
+              application/wasm
+              application/x-web-app-manifest+json
+              application/xhtml+xml
+              application/xml
+              font/eot
+              font/otf
+              font/ttf
+              image/svg+xml
+              image/x-icon
+              text/cache-manifest
+              text/css
+              text/javascript
+              text/plain
+              text/vcard
+              text/vnd.rim.location.xloc
+              text/vtt
+              text/x-component
+              text/x-cross-domain-policy;
+
+          root /usr/share/nginx/html;
+
+          location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot)$ {
+              expires 1y;
+              add_header Cache-Control "public";
+              access_log off;
+          }
+
+          location / {
+              try_files $uri $uri/ /index.html;
+          }
+
+          location /api/ {
+              proxy_pass http://api.bjj-app.svc.cluster.local:80/;
+
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection 'upgrade';
+              proxy_cache_bypass $http_upgrade;
+
+              proxy_pass_header Content-Security-Policy;
+              proxy_pass_header Permissions-Policy;
+          }
+
+          location /health {
+              access_log off;
+              return 200 "OK";
+              add_header Content-Type text/plain;
+          }
+
+          location ~ /\. {
+              deny all;
+          }
+      }
+  }
