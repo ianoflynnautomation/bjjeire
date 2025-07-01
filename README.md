@@ -151,6 +151,7 @@ kubectl create secret tls bjj-frontend-tls-secret --cert=../certs/local-certs/bj
 kubectl create secret generic bjj-api-kestrel-cert-secret --from-file=aspnetapp.pfx=../certs/local-certs/bjj-api-kestrel.pfx --namespace bjj-app 
 kubectl create secret generic bjj-api-kestrel-cert-password --from-file=cert-password=../certs/local-certs/bjj-api-kestrel-password.txt --namespace bjj-app
 kubectl create secret generic bjj-mongodb-root-password --from-literal=mongodb-password='securepassword123' --namespace bjj-app
+kubectl create secret tls bjj-tls-secret --cert=../certs/local-certs/bjj-frontend.crt --key=../certs/local-certs/bjj-frontend.key --namespace bjj-app
 ```
 
 build local docker files for frontend and api 
@@ -233,6 +234,7 @@ B. Example values-local.yaml Configuration
 Your values-local.yaml should contain environment-specific settings.
 
 # bjj-app/values-local.yaml
+```yaml
 nameOverride: "bjj-app"
 fullnameOverride: "bjj-app"
 
@@ -473,60 +475,79 @@ frontendNginxConfig: |
           }
       }
   }
+```
 
 4. Initial Cluster & Application Deployment Steps
 Follow these steps for a clean installation of your application.
 
 A. Clean Minikube Environment (If starting from scratch or after issues)
+```bash
 minikube stop
 minikube delete --all # WARNING: This deletes your Minikube VM and ALL its contents!
 minikube start --driver=docker # Or your preferred driver (e.g., --driver=virtualbox)
+```
 
 B. Rebuild Application Images into Minikube's Docker Daemon
 If you are using image.tag: "local" in your values-local.yaml, you must build your Docker images directly into Minikube's Docker daemon.
 
 Point Docker client to Minikube:
 
+```bash
 eval $(minikube docker-env)
+```
 
 Navigate to your API Dockerfile directory:
 
+```bash
 cd <path/to/your/bjj-api-project-root>
 docker build -t bjj-api:local .
+```
 
 Navigate to your Frontend Dockerfile directory:
 
+```bash
 cd <path/to/your/bjj-frontend-project-root>
 docker build -t bjj-frontend:local .
+```
 
 Verify images are present in Minikube:
 
+```bash
 docker images | grep bjj-api
 docker images | grep bjj-frontend
+```
 
 Revert Docker client to host (optional, but good practice):
 
+```bash
 eval $(minikube docker-env -u)
+```
 
 C. Install Ingress Controller and MetalLB
 A fresh Minikube cluster needs an Ingress Controller and MetalLB for external access.
 
 Install Nginx Ingress Controller:
 
+```bash
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace
+```
 
 Enable and Configure MetalLB (for LoadBalancer Service External IP):
 
+```bash
 minikube addons enable metallb
 minikube addons configure metallb
+```
 
 When prompted for IP ranges, use a range within your minikube ip's subnet (e.g., if minikube ip is 192.168.49.2, use 192.168.49.100 - 192.168.49.150).
 
 Verify MetalLB assigned IP:
 
+```bash
 kubectl get svc ingress-nginx-controller -n ingress-nginx -w # Watch for IP to appear
+```
 
 Note the EXTERNAL-IP (e.g., 192.168.49.100).
 
@@ -538,20 +559,27 @@ These are needed by your application and are not managed by Helm (as per secrets
 kubectl create namespace bjj-app --dry-run=client -o yaml | kubectl apply -f -
 
 # Create Secrets
-kubectl create secret tls bjj-frontend-tls-secret --cert=./local-certs/bjj-frontend.crt --key=./local-certs/bjj-frontend.key --namespace bjj-app --overwrite=true
-kubectl create secret generic bjj-api-kestrel-cert-secret --from-file=aspnetapp.pfx=./local-certs/bjj-api-kestrel.pfx --namespace bjj-app --overwrite=true
-kubectl create secret generic bjj-api-kestrel-cert-password --from-file=cert-password=./local-certs/bjj-api-kestrel-password.txt --namespace bjj-app --overwrite=true
-kubectl create secret generic bjj-mongodb-root-password --from-literal=mongodb-password='securepassword123' --namespace bjj-app --overwrite=true
+```bash
+kubectl create secret tls bjj-frontend-tls-secret --cert=../certs/local-certs/bjj-frontend.crt --key=../certs/local-certs/bjj-frontend.key --namespace bjj-app
+kubectl create secret generic bjj-api-kestrel-cert-secret --from-file=aspnetapp.pfx=../certs/local-certs/bjj-api-kestrel.pfx --namespace bjj-app 
+kubectl create secret generic bjj-api-kestrel-cert-password --from-file=cert-password=../certs/local-certs/bjj-api-kestrel-password.txt --namespace bjj-app
+kubectl create secret generic bjj-mongodb-root-password --from-literal=mongodb-password='securepassword123' --namespace bjj-app
+kubectl create secret tls bjj-tls-secret --cert=../certs/local-certs/bjj-frontend.crt --key=../certs/local-certs/bjj-frontend.key --namespace bjj-app
+```
 
 E. Deploy Your Helm Chart
 Apply your application's Helm chart with the local values.
 
+```bash
 helm upgrade --install bjj-app ./bjj-app --namespace bjj-app --values ./bjj-app/values-local.yaml --create-namespace --debug
+```
 
 F. Monitor Pod Status
 Verify that all pods in your bjj-app namespace become 1/1 Running.
 
+```bash
 kubectl get pods -w -n bjj-app
+```
 
 5. Accessing Your Application UI
 Once all pods are 1/1 Running, access your application.
@@ -561,7 +589,9 @@ Map your application domains to the MetalLB assigned EXTERNAL-IP.
 
 Get the MetalLB EXTERNAL-IP:
 
+```bash
 kubectl get svc ingress-nginx-controller -n ingress-nginx -o wide
+```
 
 (Note the IP in the EXTERNAL-IP column, e.g., 192.168.49.100).
 
@@ -574,8 +604,10 @@ Windows: Open Notepad as Administrator, then File > Open, navigate to C:\Windows
 Add the mappings (replace <METAL_LB_EXTERNAL_IP>):
 
 # Kubernetes local domains for bjj-app
+```
 <METAL_LB_EXTERNAL_IP> app.bjj.local
 <METAL_LB_EXTERNAL_IP> api.bjj.local
+```
 
 Save the hosts file.
 

@@ -1,13 +1,28 @@
-# .helmignore
-# Files to ignore when packaging Helm chart
-.git
-.gitignore
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
 .DS_Store
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
 # Exclude local directories that are not part of the chart
 infra/
 src/
 secrets/
 tests/
-# Exclude any temporary or build artifacts
+# Common backup files
+*.swp
+*.bak
 *.tmp
-*.log
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/

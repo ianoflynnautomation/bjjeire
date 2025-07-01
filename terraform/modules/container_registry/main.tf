@@ -8,12 +8,12 @@ terraform {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                     = var.name
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  sku                      = var.sku  
-  admin_enabled            = var.admin_enabled
-  tags                     = var.tags
+  name                = var.name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku                 = var.sku
+  admin_enabled       = var.admin_enabled
+  tags                = var.tags
 
   identity {
     type = "UserAssigned"
@@ -32,9 +32,9 @@ resource "azurerm_container_registry" "acr" {
   }
 
   lifecycle {
-      ignore_changes = [
-          tags
-      ]
+    ignore_changes = [
+      tags
+    ]
   }
 }
 
