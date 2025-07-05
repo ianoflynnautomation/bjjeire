@@ -147,21 +147,67 @@ frontendNginxConfig: |
   }
 
   http {
+      resolver 10.96.0.10 valid=5s;
+      resolver_timeout 5s;
+
       access_log /var/log/nginx/access.log combined;
       server_tokens off;
 
+      # Optional: Separate server block to redirect HTTP to HTTPS
       server {
           listen 80;
-          listen 443 ssl;
-          server_name _;
+          # CHANGE THIS LINE: Add the expected hostnames
+          server_name app.bjj.local 127.0.0.1 localhost;
+          # If the probes are *ever* hitting HTTP directly, this would also need the Pod IP
 
-          ssl_certificate /etc/nginx/certs/aspnetapp.crt;
-          ssl_certificate_key /etc/nginx/certs/aspnetapp.key;
+          server_tokens off;
 
+          location / {
+              return 301 https://$host$request_uri;
+          }
+
+          location /health {
+              return 200 "OK";
+              add_header Content-Type text/plain;
+          }
+      }
+
+      server {
+          listen 443 ssl default_server;
+          http2 on;
+          # CHANGE THIS LINE: Add all expected hostnames, including the Minikube IP and service name if used by probes
+          # For probes, the Pod IP is the most common target.
+          server_name app.bjj.local 127.0.0.1 localhost;
+          # You might also need to add the service FQDN if internal services target it by name:
+          # bjj-app-frontend.bjj-app.svc.cluster.local
+          # and potentially the Pod IP dynamically if the probes aren't hitting by hostname (which they seem to be by IP)
+
+          server_tokens off;
+
+          # SSL configuration
+          ssl_certificate       /etc/nginx/certs/aspnetapp.crt;
+          ssl_certificate_key   /etc/nginx/certs/aspnetapp.key;
+          ssl_protocols         TLSv1.2 TLSv1.3;
+          ssl_ciphers           ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+          ssl_session_timeout   1d;
+          ssl_session_cache     shared:SSL:10m;
+          ssl_session_tickets   off;
+          ssl_stapling          on;
+          ssl_stapling_verify   on;
+
+          add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+          add_header X-Frame-Options "SAMEORIGIN" always;
+          add_header X-Content-Type-Options "nosniff" always;
+          add_header X-XSS-Protection "1; mode=block" always;
+
+          access_log /var/log/nginx/server.access.log main;
+          error_log  /var/log/nginx/server.error.log warn;
+
+          # Performance: Gzip compression
           gzip on;
           gzip_vary on;
           gzip_proxied any;
-          gzip_comp_level 6;
+          gzip_comp_level 6; # Balance between compression and CPU usage
           gzip_buffers 16 8k;
           gzip_http_version 1.1;
           gzip_min_length 256;
@@ -201,26 +247,27 @@ frontendNginxConfig: |
               expires 1y;
               add_header Cache-Control "public";
               access_log off;
-          }
 
           location / {
               try_files $uri $uri/ /index.html;
           }
 
           location /api/ {
-              proxy_pass http://api.bjj-app.svc.cluster.local:80/;
-
+              proxy_pass ${SERVICES_API_HTTPS_0};
+              proxy_pass_header Content-Security-Policy;
+              proxy_pass_header Permissions-Policy;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade; 
+              proxy_set_header Connection 'upgrade';
               proxy_set_header Host $host;
+              proxy_cache_bypass $http_upgrade;
+
+              # Headers to pass to the backend
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
               proxy_set_header X-Forwarded-Proto $scheme;
-
-              proxy_set_header Upgrade $http_upgrade;
-              proxy_set_header Connection 'upgrade';
-              proxy_cache_bypass $http_upgrade;
-
-              proxy_pass_header Content-Security-Policy;
-              proxy_pass_header Permissions-Policy;
+              proxy_set_header X-Forwarded-Host $host;
+              proxy_set_header X-Forwarded-Port $server_port;
           }
 
           location /health {

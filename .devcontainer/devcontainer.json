@@ -1,0 +1,63 @@
+{
+    "name": "BJJ App Development Environment",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+            "version": "latest",
+            "helm": "latest",
+            "kubectl": "latest",
+            "minikube": "latest"
+        },
+        "ghcr.io/devcontainers/features/dotnet:2": {
+            "version": "9.0" 
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "24",
+            "nodeGypDependencies": true
+        }
+    },
+
+    "remoteUser": "vscode",
+    "postCreateCommand": "bash .devcontainer/post-create-commands.sh",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "ms-azuretools.vscode-docker",
+                "redhat.vscode-yaml",
+                "ms-dotnettools.csharp",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "chakroun-hadrien.pascal-case",
+                "formulahendry.dotnet-test-explorer",
+                "streetsidesoftware.code-spell-checker"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "editor.formatOnSave": true,
+                "dotnet.defaultSolution": "../BjjEire.sln", 
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": "explicit"
+                }
+            }
+        }
+    },
+
+    "portsAttributes": {
+        "5003": { "label": "API (HTTP)", "onAutoForward": "notify" },
+        "5001": { "label": "API (HTTPS)", "onAutoForward": "notify" },
+        "60742": { "label": "Frontend (HTTP)", "onAutoForward": "notify" },
+        "60743": { "label": "Frontend (HTTPS)", "onAutoForward": "notify" },
+        "27017": { "label": "MongoDB", "onAutoForward": "notify" }
+    },
+    "forwardPorts": [5003, 5001, 60742, 60743, 27017],
+
+    "containerEnv": {
+        "BJJ_PROVISIONING_METHOD": "helm"
+    }
+}
