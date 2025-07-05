@@ -179,13 +179,21 @@ git clone <your-repository-url>
 cd <your-repository-name>
 ```
 
+
 2. Run the Deployment Script
 Execute the main deployment script. This script will automate all the necessary steps, from starting Minikube to deploying your application.
 
 ```bash
-./deploy-local.sh
+./setup-helm.sh
+```
+
+Then:
+
+```bash
+./setup-minikube.sh
 ```
 The script will provide output at each stage of the deployment process. Please be patient, as some steps (like Minikube startup or image building) can take a few minutes.
+
 
 > ⚠️ **Important Note for sudo on macOS/Linux**  
 > The script modifies your `/etc/hosts` file, which requires sudo permissions.  
@@ -199,6 +207,14 @@ Once the `deploy-local.sh` script completes successfully, your application shoul
 
 - **Frontend UI:** [https://app.bjj.local](https://app.bjj.local)  
 - **Backend API:** [https://api.bjj.local](https://api.bjj.local)
+
+
+port forward 
+
+
+```bash
+kubectl port-forward svc/bjj-app-frontend 8080:80 -n bjj-app   
+```
 
 ---
 
