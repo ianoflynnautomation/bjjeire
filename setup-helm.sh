@@ -68,11 +68,9 @@ start_minikube() {
 build_and_load_images() {
   echo "--- Docker Image Management ---"
   echo "Building API Docker image: ${API_IMAGE_NAME}..."
-  # Use SRC_DIR for Dockerfile path and APP_ROOT_DIR for build context
   docker build -t "${API_IMAGE_NAME}" -f "${SRC_DIR}/BjjEire.Api/Dockerfile" "${APP_ROOT_DIR}"
 
   echo "Building Frontend Docker image: ${FRONTEND_IMAGE_NAME}..."
-  # Use SRC_DIR for Dockerfile path and APP_ROOT_DIR for build context
   docker build -t "${FRONTEND_IMAGE_NAME}" -f "${SRC_DIR}/bjjeire-app/Dockerfile" "${APP_ROOT_DIR}" \
     --build-arg SERVICES_API_HTTP_0=http://api.bjj.local \
     --build-arg SERVICES_API_HTTPS_0=https://api.bjj.local \
@@ -87,13 +85,10 @@ build_and_load_images() {
 ensure_namespace() {
   echo "--- Kubernetes Namespace Setup ---"
   echo "Ensuring namespace '${NAMESPACE}' exists..."
-  # Idempotent way to create a namespace
   kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 }
 
 # --- Create Kubernetes Secrets ---
-# Note: For production, consider using a dedicated secrets management solution
-# or Helm's built-in secret templating if values can be committed.
 create_secrets() {
   echo "--- Kubernetes Secrets Setup ---"
 
@@ -178,14 +173,10 @@ update_hosts_file() {
 add_or_update_host() {
   local ip=$1
   local host=$2
-  # Check if the host entry exists
+
   if grep -q "$host" "$hosts_file"; then
     echo "Updating existing $host entry in $hosts_file..."
-    # Delete the line(s) containing the host entry.
-    # The '' after -i is crucial for BSD sed (macOS) when no backup file is desired.
-    # The regex is simplified to be more compatible.
     sudo sed -i '' "/${host}/d" "$hosts_file"
-    # Append the new entry
     echo "$ip $host" | sudo tee -a "$hosts_file" > /dev/null
   else
     echo "Adding $host entry to $hosts_file..."
