@@ -146,6 +146,9 @@ frontendNginxConfig: |
   }
 
   http {
+      resolver 10.96.0.10 valid=5s; # Use your Cluster DNS IP
+      resolver_timeout 5s;
+
       access_log /var/log/nginx/access.log combined;
       server_tokens off;
 
@@ -207,7 +210,8 @@ frontendNginxConfig: |
           }
 
           location /api/ {
-              proxy_pass http://api.bjj-app.svc.cluster.local:80/;
+              set $api_upstream api.bjj-app.svc.cluster.local;
+              proxy_pass http://$api_upstream:80/;
 
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
