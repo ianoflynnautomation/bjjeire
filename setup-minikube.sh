@@ -68,9 +68,6 @@ main() {
   build_and_load_images
 
   echo "Minikube setup and image loading complete."
-  echo "If you have separate K8s manifests for minikube, you can apply them now."
-  # Example: kubectl apply -f path/to/your/minikube-manifests/
 }
 
-# Call the main function
 main
