@@ -1,9 +1,35 @@
 ﻿# BJJ Eire: Local Development & Kubernetes Setup
 
+<!-- Badges -->
 [![CI Pipeline](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
 [![Azure DevOps Build Status](https://dev.azure.com/<ORG>/<PROJECT>/_apis/build/status/<PIPELINE_NAME>?branchName=main)](https://dev.azure.com/<ORG>/<PROJECT>/_build/latest?definitionId=<DEFINITION_ID>&branchName=main)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/<ACR_NAME>/<API_IMAGE_NAME>?label=API%20Image&sort=date)](https://portal.azure.com/#@/resource/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.ContainerRegistry/registries/<ACR_NAME>/repository)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/<ACR_NAME>/<FRONTEND_IMAGE_NAME>?label=Frontend%20Image&sort=date)](https://portal.azure.com/#@/resource/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.ContainerRegistry/registries/<ACR_NAME>/repository)
+
+---
+
+## Dev Container Setup
+
+This project includes a ready-to-use [Dev Container](https://containers.dev/) configuration for rapid onboarding and consistent development environments in VS Code or GitHub Codespaces.
+
+- **Base Image:** `mcr.microsoft.com/devcontainers/base:ubuntu`
+- **Custom Features:**
+  - Docker-in-Docker (for building/running containers inside the devcontainer)
+  - Minikube, Helm, and kubectl (for local Kubernetes development)
+  - .NET 9 SDK
+  - Node.js 24 (with node-gyp dependencies)
+- **VS Code Extensions:**
+  - Kubernetes, Docker, YAML, C#, ESLint, Prettier, Pascal Case, .NET Test Explorer, Spell Checker
+- **Ports Auto-Forwarded:**
+  - 5003 (API HTTP), 5001 (API HTTPS)
+  - 60742 (Frontend HTTP), 60743 (Frontend HTTPS)
+  - 27017 (MongoDB)
+- **Post-Create Command:** Runs `bash ./post-create-commands.sh` to finalize setup
+- **Default User:** `vscode`
+- **Workspace Directory:** `/workspaces/BjjEire`
+- **Environment Variable:** `BJJ_PROVISIONING_METHOD=helm`
+
+> **Tip:** Open this project in VS Code and install the "Dev Containers" extension for a seamless, pre-configured development experience.
 
 ---
 
@@ -12,13 +38,6 @@
   - [Prerequisites](#prerequisites)
   - [File Structure](#file-structure)
   - [How to Run](#how-to-run)
-    - [Running Core App Services (Local Build)](#running-core-app-services-local-build)
-    - [Running Core App Services (ACR Images)](#running-core-app-services-acr-images)
-    - [Running Core App Services (Local Build) + Observability](#running-core-app-services-local-build--observability)
-    - [Running Core App Services (ACR Images) + Observability](#running-core-app-services-acr-images--observability)
-  - [Managing Environment Variables](#managing-environment-variables)
-  - [Managing Secrets](#managing-secrets)
-  - [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
 - [Kubernetes Setup](#kubernetes-setup)
   - [BJJ Application Deployment to Minikube](#bjj-application-deployment-to-minikube)
   - [Prerequisites](#prerequisites-1)
@@ -80,8 +99,6 @@ Docker Compose uses the `-f` flag to combine multiple Compose files. The order m
 
 ### Running Core App Services (Local Build)
 
-This is ideal for local development, where you want to build the `api` and `frontend` images directly from your source code.
-
 ```bash
 docker compose --profile app -f docker-compose.yml -f docker-compose.override.local.yml up --build --wait
 ```
@@ -93,8 +110,6 @@ docker compose --profile app -f docker-compose.yml -f docker-compose.override.lo
 ```
 
 ### Running Core App Services (ACR Images)
-
-Use this scenario for deploying to testing/staging environments, pulling pre-built images from your Azure Container Registry.
 
 First, log in to your Azure Container Registry:
 
@@ -118,8 +133,6 @@ docker compose --profile app -f docker-compose.yml -f docker-compose.override.ac
 
 ### Running Core App Services (Local Build) + Observability
 
-To include the monitoring and logging stack while developing locally:
-
 ```bash
 docker compose --profile app --profile monitoring -f docker-compose.yml -f docker-compose.override.local.yml -f docker-compose.override.observability.yml up --build --wait
 ```
@@ -131,8 +144,6 @@ docker compose --profile app --profile monitoring -f docker-compose.yml -f docke
 ```
 
 ### Running Core App Services (ACR Images) + Observability
-
-To run your pre-built app services with the full observability stack, pulling all images from registries:
 
 > **Note:**
 > Ensure you are logged into ACR (see [Running Core App Services (ACR Images)](#running-core-app-services-acr-images)).
@@ -205,98 +216,6 @@ The script will provide output at each stage of the deployment process. Please b
 
 ---
 
-## 4. Access the Application
-
-Once the `deploy-local.sh` script completes successfully, your application should be accessible via your web browser:
-
-- **Frontend UI:** [https://app.bjj.local](https://app.bjj.local)  
-- **Backend API:** [https://api.bjj.local](https://api.bjj.local)
-
-port forward 
-
-```bash
-kubectl port-forward svc/bjj-app-frontend 8080:80 -n bjj-app   
-```
-https
-```bash
-kubectl port-forward svc/bjj-app-frontend 8443:443 -n bjj-app
-kubectl port-forward svc/bjj-app-frontend 8443:443 -n bjj-app
-```
----
-
-## 🔍 Verification
-
-You can verify the deployment status using `kubectl` commands:
-
-```bash
-minikube status
-```
-Check running pods in the bjj-app namespace:
-
-```bash
-kubectl get pods -n bjj-app
-```
-You should see pods for bjj-api, bjj-frontend, and mongodb in a Running state.
-
-Check services:
-
-```bash
-kubectl get services -n bjj-app
-```
-Check ingresses:
-```bash
-kubectl get ingress -n bjj-app
-kubectl get ingress -n ingress-nginx
-```
-View logs for a specific pod (replace <pod-name> with actual pod name):
-
-```bash
-kubectl logs <pod-name> -n bjj-app
-```
-# 🏗️ Key Components
-
-## Docker Images
-
-The deployment builds and loads two custom Docker images into your Minikube environment:
-
-- `bjj-api:local`: For the backend API service.
-- `bjj-frontend:local`: For the frontend application.
-
-These images are built from Dockerfiles located in the `src` directory.
-
----
-
-## Kubernetes Namespace
-
-All application components are deployed into the dedicated `bjj-app` namespace to keep them isolated.
-
----
-
-## Kubernetes Secrets
-
-Several Kubernetes secrets are created to securely store sensitive information:
-
-- `bjj-frontend-tls-secret`: TLS certificate and key for the frontend ingress.
-- `bjj-api-kestrel-cert-secret`: PFX certificate for the Kestrel server in the API.
-- `bjj-api-kestrel-cert-password`: Password for the API Kestrel certificate.
-- `bjj-mongodb-root-password`: Root password for the MongoDB database.
-- `bjj-tls-secret`: General TLS secret for ingress (might be redundant if `bjj-frontend-tls-secret` is used for both).
-
-> ⚠️ **Security Warning (Local Development Only):**  
-> The `bjj-api-kestrel-cert-password` and `bjj-mongodb-root-password` secrets are currently created using hardcoded values from files or literals.  
-> This approach is **highly discouraged** for production environments.  
-> For production, consider using more secure methods like:
-> - External secret management systems (e.g., Azure Key Vault, HashiCorp Vault)
-> - Interactive prompts for sensitive values
-
----
-
-## NGINX Ingress Controller
-
-The NGINX Ingress Controller is installed in the `ingress-nginx` namespace. It manages incoming HTTP/HTTPS traffic and routes it to the correct services within the cluster based on the ingress rules defined in the Helm chart.
-
----
-
 ## Helm Chart
 
 The application's Kubernetes manifests are managed via a Helm chart located at `charts/bjj-app`.
@@ -324,93 +243,4 @@ to your Minikube cluster's IP address. This allows you to access the application
 
 ---
 
-## 🐛 Troubleshooting
-
-**Minikube Not Starting:**
-
-- Ensure Docker is running.
-- Try:
-  ```bash
-  minikube delete --profile minikube
-
-
-Check Minikube logs: 
-```bash
-minikube logs
-```
-
-Images Not Found/Loaded:
-
-Ensure eval "$(minikube docker-env)" was run correctly (the script handles this).
-
-Verify the Docker images exist locally: 
-```bash
-docker images | grep bjj
-```
-
-Manually load images: 
-```bash
-minikube image load bjj-api:local bjj-frontend:local
-```
-
-Application Not Accessible via app.bjj.local:
-
-Confirm Minikube IP:
-```bash
-minikube ip
-```
-
-Check your /etc/hosts file for correct entries.
-
-Verify Ingress status: 
-```bash
-kubectl get ingress -n bjj-app
-```
-
-Check NGINX Ingress Controller health: 
-```bash
-kubectl get pods -n ingress-nginx
-```
-
-Ensure no other local services are using ports 80/443 that might conflict.
-
-Pod CrashLoopBackOff/Error:
-
-Check pod logs: 
-```bash
-kubectl logs <pod-name> -n bjj-app
-```
-
-Describe the pod for events: 
-```bash
-kubectl describe pod <pod-name> -n bjj-app
-```
-
-Common issues include incorrect environment variables, missing secrets, or misconfigured volumes.
-
-Certificate Errors:
-
-Ensure your local certificates in certs/local-certs are valid and correctly referenced in the create_secrets function and values-local.yaml.
-
-Confirm secrets are created: kubectl get secrets -n bjj-app
-
-## 🧹 Cleanup
-To stop and remove the Minikube cluster and all deployed resources:
-
-Delete the Minikube cluster:
-
-```bash
-minikube delete --profile minikube
-```
-Remove host file entries:
-Manually remove the api.bjj.local and app.bjj.local entries from your /etc/hosts file.
-
-```bash
-sudo sed -i '' "/api.bjj.local/d" /etc/hosts
-sudo sed -i '' "/app.bjj.local/d" /etc/hosts
-```
-
-```bash
-sudo sed -i '' "/api.bjj.local/d" /etc/hosts
-sudo sed -i '' "/app.bjj.local/d" /etc/hosts
-```
+For troubleshooting, verification, and cleanup instructions, see [charts/README.md](charts/README.md).
