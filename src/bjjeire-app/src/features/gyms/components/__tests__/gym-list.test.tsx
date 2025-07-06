@@ -4,10 +4,6 @@ import { GymsList } from './../gym-list'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import { GymDto } from '../../../../types/gyms'
 
-vi.unmock('../../../../utils/formattingUtils')
-vi.unmock('../../../../utils/gymDisplayUtils')
-vi.unmock('../../../../utils/mapUtils')
-
 describe('GymsList Component', () => {
   it('should render loading state correctly', () => {
     render(<GymsList isLoading={true} />)
