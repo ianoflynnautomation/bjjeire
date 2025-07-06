@@ -1,25 +1,38 @@
-﻿# Docker Compose Setup
+﻿# BJJ Eire: Local Development & Kubernetes Setup
+
+[![CI Pipeline](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
+[![Azure DevOps Build Status](https://dev.azure.com/<ORG>/<PROJECT>/_apis/build/status/<PIPELINE_NAME>?branchName=main)](https://dev.azure.com/<ORG>/<PROJECT>/_build/latest?definitionId=<DEFINITION_ID>&branchName=main)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/<ACR_NAME>/<API_IMAGE_NAME>?label=API%20Image&sort=date)](https://portal.azure.com/#@/resource/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.ContainerRegistry/registries/<ACR_NAME>/repository)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/<ACR_NAME>/<FRONTEND_IMAGE_NAME>?label=Frontend%20Image&sort=date)](https://portal.azure.com/#@/resource/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.ContainerRegistry/registries/<ACR_NAME>/repository)
+
+---
+
+## Table of Contents
+- [Docker Compose Setup](#docker-compose-setup)
+  - [Prerequisites](#prerequisites)
+  - [File Structure](#file-structure)
+  - [How to Run](#how-to-run)
+    - [Running Core App Services (Local Build)](#running-core-app-services-local-build)
+    - [Running Core App Services (ACR Images)](#running-core-app-services-acr-images)
+    - [Running Core App Services (Local Build) + Observability](#running-core-app-services-local-build--observability)
+    - [Running Core App Services (ACR Images) + Observability](#running-core-app-services-acr-images--observability)
+  - [Managing Environment Variables](#managing-environment-variables)
+  - [Managing Secrets](#managing-secrets)
+  - [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
+- [Kubernetes Setup](#kubernetes-setup)
+  - [BJJ Application Deployment to Minikube](#bjj-application-deployment-to-minikube)
+  - [Prerequisites](#prerequisites-1)
+  - [Local Setup and Deployment](#local-setup-and-deployment)
+
+---
+
+# Docker Compose Setup
 
 This project utilizes a modular Docker Compose setup to manage different environments and optional services. The core application services are defined in a base `docker-compose.yml` file, with environment-specific configurations and optional components defined in separate override files. This approach provides flexibility for:
 
 - Running locally with services built from source.
 - Deploying to testing/staging environments by pulling pre-built images from Azure Container Registry (ACR).
 - Optionally enabling comprehensive observability tools (monitoring, logging, tracing).
-
----
-
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [File Structure](#file-structure)
-- [How to Run](#how-to-run)
-  - [Running Core App Services (Local Build)](#running-core-app-services-local-build)
-  - [Running Core App Services (ACR Images)](#running-core-app-services-acr-images)
-  - [Running Core App Services (Local Build) + Observability](#running-core-app-services-local-build--observability)
-  - [Running Core App Services (ACR Images) + Observability](#running-core-app-services-acr-images--observability)
-- [Managing Environment Variables](#managing-environment-variables)
-- [Managing Secrets](#managing-secrets)
-- [Common Issues and Troubleshooting](#common-issues-and-troubleshooting)
 
 ---
 
@@ -51,7 +64,9 @@ The Docker Compose configuration is split into the following files:
 ### `docker-compose.override.acr.yml`
 - **ACR Image Pull Override**: Specifies the `image` instruction for `api` and `frontend`, instructing Docker Compose to pull pre-built images from your Azure Container Registry.
 - Useful for testing, staging, or production environments where images are already built and pushed by your CI/CD pipeline.
-- ⚠️ Remember to update `youracrname.azurecr.io` with your actual ACR login server!
+
+> **Warning:**
+> Remember to update `youracrname.azurecr.io` with your actual ACR login server!
 
 ### `docker-compose.override.observability.yml`
 - **Observability Services**: Defines all monitoring, logging, and tracing services (`mongo-exporter`, `otel-collector`, `prometheus`, `grafana`, `jaeger`, `loki`, `node_exporter`, `seq`, `etcd`, `postgres-1`, `postgres-2`, `haproxy`, `redis-primary`, `redis-replica`, `redis-sentinel-1`, `grafana-nginx`).
@@ -80,13 +95,15 @@ docker compose --profile app -f docker-compose.yml -f docker-compose.override.lo
 ### Running Core App Services (ACR Images)
 
 Use this scenario for deploying to testing/staging environments, pulling pre-built images from your Azure Container Registry.
+
 First, log in to your Azure Container Registry:
 
 ```bash
 docker login youracrname.azurecr.io
 ```
 
-(Replace youracrname.azurecr.io with your actual ACR login server. You'll be prompted for username/password or token.)
+(Replace `youracrname.azurecr.io` with your actual ACR login server. You'll be prompted for username/password or token.)
+
 Then, run Docker Compose:
 
 ```bash
@@ -99,13 +116,14 @@ To stop:
 docker compose --profile app -f docker-compose.yml -f docker-compose.override.acr.yml down
 ```
 
-###  Running Core App Services (Local Build) + Observability
+### Running Core App Services (Local Build) + Observability
 
 To include the monitoring and logging stack while developing locally:
 
 ```bash
 docker compose --profile app --profile monitoring -f docker-compose.yml -f docker-compose.override.local.yml -f docker-compose.override.observability.yml up --build --wait
 ```
+
 To stop:
 
 ```bash
@@ -115,7 +133,9 @@ docker compose --profile app --profile monitoring -f docker-compose.yml -f docke
 ### Running Core App Services (ACR Images) + Observability
 
 To run your pre-built app services with the full observability stack, pulling all images from registries:
-Ensure you are logged into ACR (see Running Core App Services (ACR Images) (#running-core-app-services-acr-images)).
+
+> **Note:**
+> Ensure you are logged into ACR (see [Running Core App Services (ACR Images)](#running-core-app-services-acr-images)).
 
 ```bash
 docker compose --profile app --profile monitoring -f docker-compose.yml -f docker-compose.override.acr.yml -f docker-compose.override.observability.yml up --pull always --wait
@@ -127,16 +147,17 @@ To stop:
 docker compose --profile app --profile monitoring -f docker-compose.yml -f docker-compose.override.acr.yml -f docker-compose.override.observability.yml down
 ```
 
+---
+
 # Kubernetes Setup
 
-# BJJ Application Deployment to Minikube
+## BJJ Application Deployment to Minikube
 
 This repository contains the necessary scripts and Helm charts to deploy the **BJJ application**, consisting of a **Backend API** and a **Frontend UI**, to a local **Minikube Kubernetes cluster**.
 
 The deployment automates the following tasks:
 
-## 🚀 Deployment Overview
-
+### 🚀 Deployment Overview
 - **Minikube Initialization**: Starts a Minikube cluster using the Docker driver.
 - **Docker Image Management**: Builds local Docker images for the API and Frontend services and loads them into Minikube's Docker daemon.
 - **Kubernetes Resource Creation**: Sets up a dedicated namespace and creates necessary secrets for certificates and database passwords.
@@ -150,54 +171,37 @@ The deployment automates the following tasks:
 
 Before you begin, ensure you have the following tools installed on your system:
 
-- **Minikube**: A tool that runs a single-node Kubernetes cluster locally.  
-  [Installation Guide](https://minikube.sigs.k8s.io/docs/start/)
-
-- **Kubectl**: The Kubernetes command-line tool.  
-  [Installation Guide](https://kubernetes.io/docs/tasks/tools/)
-
-- **Helm**: The Kubernetes package manager.  
-  [Installation Guide](https://helm.sh/docs/intro/install/)
-
-- **Docker**: Used for building and managing container images.  
-  [Installation Guide](https://docs.docker.com/get-docker/)
+- **Minikube**: [Installation Guide](https://minikube.sigs.k8s.io/docs/start/)
+- **Kubectl**: [Installation Guide](https://kubernetes.io/docs/tasks/tools/)
+- **Helm**: [Installation Guide](https://helm.sh/docs/intro/install/)
+- **Docker**: [Installation Guide](https://docs.docker.com/get-docker/)
 
 ---
 
 ## 🛠️ Local Setup and Deployment
 
 Follow these steps to deploy the BJJ application to your local Minikube cluster:
-1. [Step-by-step deployment instructions would go here...]
 
----
-
-1. Clone the Repository
-If you haven't already, clone this repository to your local machine:
+1. **Clone the Repository**
 
 ```bash
 git clone <your-repository-url>
 cd <your-repository-name>
 ```
 
+2. **Run the Deployment Script**
 
-2. Run the Deployment Script
 Execute the main deployment script. This script will automate all the necessary steps, from starting Minikube to deploying your application.
 
 ```bash
 ./setup-helm.sh
-```
-
-Then:
-
-```bash
 ./setup-minikube.sh
 ```
+
 The script will provide output at each stage of the deployment process. Please be patient, as some steps (like Minikube startup or image building) can take a few minutes.
 
-
-> ⚠️ **Important Note for sudo on macOS/Linux**  
-> The script modifies your `/etc/hosts` file, which requires sudo permissions.  
-> You will be prompted to enter your password during this step.
+> ⚠️ **Important Note for sudo on macOS/Linux**
+> The script modifies your `/etc/hosts` file, which requires sudo permissions. You will be prompted to enter your password during this step.
 
 ---
 
@@ -208,14 +212,16 @@ Once the `deploy-local.sh` script completes successfully, your application shoul
 - **Frontend UI:** [https://app.bjj.local](https://app.bjj.local)  
 - **Backend API:** [https://api.bjj.local](https://api.bjj.local)
 
-
 port forward 
-
 
 ```bash
 kubectl port-forward svc/bjj-app-frontend 8080:80 -n bjj-app   
 ```
-
+https
+```bash
+kubectl port-forward svc/bjj-app-frontend 8443:443 -n bjj-app
+kubectl port-forward svc/bjj-app-frontend 8443:443 -n bjj-app
+```
 ---
 
 ## 🔍 Verification
@@ -388,7 +394,7 @@ Ensure your local certificates in certs/local-certs are valid and correctly refe
 
 Confirm secrets are created: kubectl get secrets -n bjj-app
 
-🧹 Cleanup
+## 🧹 Cleanup
 To stop and remove the Minikube cluster and all deployed resources:
 
 Delete the Minikube cluster:

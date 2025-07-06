@@ -18,7 +18,6 @@ readonly HELM_VALUES_FILE="${HELM_CHART_PATH}/values-local.yaml"
 
 echo "--- Starting Kubernetes Deployment Setup ---"
 
-# Function to check if a command exists
 command_exists() {
   command -v "$1" &>/dev/null
 }
@@ -72,9 +71,7 @@ build_and_load_images() {
 
   echo "Building Frontend Docker image: ${FRONTEND_IMAGE_NAME}..."
   docker build -t "${FRONTEND_IMAGE_NAME}" -f "${SRC_DIR}/bjjeire-app/Dockerfile" "${APP_ROOT_DIR}" \
-    --build-arg SERVICES_API_HTTP_0=http://api.bjj.local \
-    --build-arg SERVICES_API_HTTPS_0=https://api.bjj.local \
-    --build-arg PORT=80
+    --build-arg SERVICES_API_HTTP_0=http://api.bjj.local --build-arg SERVICES_API_HTTPS_0=https://api.bjj.local --build-arg PORT=80
 
   echo "Loading built images into Minikube's Docker daemon..."
   minikube image load "${API_IMAGE_NAME}"
@@ -92,7 +89,6 @@ ensure_namespace() {
 create_secrets() {
   echo "--- Kubernetes Secrets Setup ---"
 
-  # bjj-frontend-tls-secret for Ingress
   echo "Creating/Updating bjj-frontend-tls-secret..."
   kubectl create secret tls bjj-frontend-tls-secret \
     --cert="${CERTS_DIR}/bjj-frontend.crt" \
@@ -100,32 +96,24 @@ create_secrets() {
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
-  # bjj-api-kestrel-cert-secret
   echo "Creating/Updating bjj-api-kestrel-cert-secret..."
   kubectl create secret generic bjj-api-kestrel-cert-secret \
     --from-file=aspnetapp.pfx="${CERTS_DIR}/bjj-api-kestrel.pfx" \
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
-  # bjj-api-kestrel-cert-password
   echo "Creating/Updating bjj-api-kestrel-cert-password..."
-  # WARNING: Hardcoding passwords like this is not recommended for production.
-  # Consider externalizing this via environment variables or a secure prompt.
   kubectl create secret generic bjj-api-kestrel-cert-password \
     --from-file=cert-password="${CERTS_DIR}/bjj-api-kestrel-password.txt" \
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
-  # bjj-mongodb-root-password secret
   echo "Creating/Updating bjj-mongodb-root-password secret..."
-  # WARNING: Hardcoding passwords like this is not recommended for production.
-  # Consider externalizing this via environment variables or a secure prompt.
   kubectl create secret generic bjj-mongodb-root-password \
     --from-literal=mongodb-password='securepassword123' \
     --namespace "${NAMESPACE}" \
     --dry-run=client -o yaml | kubectl apply -f -
 
-  # bjj-tls-secret for Ingress (if different from frontend, otherwise might be redundant)
   echo "Creating/Updating bjj-tls-secret..."
   kubectl create secret tls bjj-tls-secret \
     --cert="${CERTS_DIR}/bjj-frontend.crt" \
@@ -154,22 +142,29 @@ deploy_helm_chart() {
   echo "--- Helm Chart Deployment ---"
   echo "Deploying/Upgrading '${NAMESPACE}' Helm chart from '${HELM_CHART_PATH}'..."
 
-  helm upgrade --install "${NAMESPACE}" "${HELM_CHART_PATH}" --namespace "${NAMESPACE}" --values "${HELM_VALUES_FILE}" --wait
+  helm upgrade --install "${NAMESPACE}" "${HELM_CHART_PATH}" --namespace "${NAMESPACE}" --values "${HELM_VALUES_FILE}"
   echo "Helm deployment complete."
 }
 
 # --- Update /etc/hosts for local access ---
 update_hosts_file() {
-  echo "--- Host File Configuration ---"
-  local minikube_ip
-  minikube_ip=$(minikube ip)
-  echo "Minikube IP: ${minikube_ip}"
+   echo "--- Host File Configuration ---"
+  local ingress_ip
+
+  ingress_ip=$(kubectl get service ingress-nginx-controller -n "${INGRESS_NAMESPACE}" -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
+
+  if [ -z "$ingress_ip" ] || [[ "$ingress_ip" == *"no matches"* ]]; then
+    echo "Warning: Could not determine Ingress Controller ClusterIP. Falling back to Minikube IP."
+    ingress_ip=$(minikube ip)
+  fi
+
+  echo "Using Ingress IP: ${ingress_ip}"
 
   local hosts_file="/etc/hosts"
   local api_host="api.bjj.local"
   local app_host="app.bjj.local"
 
-  # Function to add/update host entry idempotently
+# --- Add/update host entry ---
 add_or_update_host() {
   local ip=$1
   local host=$2
@@ -184,8 +179,8 @@ add_or_update_host() {
   fi
 }
 
-  add_or_update_host "${minikube_ip}" "${api_host}"
-  add_or_update_host "${minikube_ip}" "${app_host}"
+  add_or_update_host "${ingress_ip}" "${api_host}"
+  add_or_update_host "${ingress_ip}" "${app_host}"
 
   echo "Host file updated. Application should be accessible via Ingress:"
   echo "  - https://app.bjj.local"

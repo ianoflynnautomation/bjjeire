@@ -22,7 +22,7 @@
     },
 
     "remoteUser": "vscode",
-    "postCreateCommand": "bash .devcontainer/post-create-commands.sh",
+    "postCreateCommand": "bash ./post-create-commands.sh",
 
     "customizations": {
         "vscode": {
@@ -40,7 +40,7 @@
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "editor.formatOnSave": true,
-                "dotnet.defaultSolution": "../BjjEire.sln", 
+                "dotnet.defaultSolution": "./BjjEire.sln", 
                 "editor.codeActionsOnSave": {
                     "source.fixAll.eslint": "explicit"
                 }
