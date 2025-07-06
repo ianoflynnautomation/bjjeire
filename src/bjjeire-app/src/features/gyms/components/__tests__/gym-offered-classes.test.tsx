@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { GymOfferedClasses } from './../gym-card/gym-offered-classes'
 import { ClassCategory } from '../../../../types/gyms'
 
