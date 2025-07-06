@@ -32,28 +32,33 @@ terraform {
 }
 
 provider "azurerm" {
-  subscription_id = var.subscription_id
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
+}
+
+provider "azuread" {
+  tenant_id = data.azurerm_client_config.current.tenant_id
 }
 
 provider "azapi" {}
 
-# Configure the Helm provider to use the AKS cluster's kubeconfig
-provider "helm" {
-  kubernetes {
-    host                   = module.aks_cluster.kube_config[0].host
-    client_certificate     = base64decode(module.aks_cluster.kube_config[0].client_certificate)
-    client_key             = base64decode(module.aks_cluster.kube_config[0].client_key)
-    cluster_ca_certificate = base64decode(module.aks_cluster.kube_config[0].cluster_ca_certificate)
-  }
+resource "local_file" "kubeconfig" {
+  content  = module.aks.kube_config_raw
+  filename = "${path.module}/kubeconfig"
 }
 
-# Configure the Kubernetes provider to use the AKS cluster's kubeconfig
+provider "helm" {
+  kubernetes {
+    config_path = local_file.kubeconfig.filename
+  }
+
+}
+
 provider "kubernetes" {
-  host                   = module.aks_cluster.kube_config[0].host
-  client_certificate     = base64decode(module.aks_cluster.kube_config[0].client_certificate)
-  client_key             = base64decode(module.aks_cluster.kube_config[0].client_key)
-  cluster_ca_certificate = base64decode(module.aks_cluster.kube_config[0].cluster_ca_certificate)
+  config_path = local_file.kubeconfig.filename
 }
 
 

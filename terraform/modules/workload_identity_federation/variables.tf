@@ -1,3 +1,8 @@
+variable "resource_group_name" {
+  description = "(Required) Specifies the name of the resource group"
+  type        = string
+}
+
 variable "application_display_name" {
   description = "The display name for the Azure AD application."
   type        = string

@@ -589,21 +589,18 @@ module "helm_deployment" {
 # -----------------------------------------------------------------------------
 
 module "workload_identity_federation_acr_pull" {
-  source = "./modules/workload_identity_federation" # New module for this purpose
+  source = "./modules/workload_identity_federation"
 
-  # Inputs for Azure AD Application and Service Principal
   application_display_name = "${var.project_prefix}-acr-pull-app"
+  resource_group_name = azurerm_resource_group.rg.name
 
-  # Inputs for Federated Identity Credential
   aks_oidc_issuer_url        = module.aks_cluster.oidc_issuer_url # Output from AKS module
   kubernetes_namespace       = var.workload_identity_namespace
   kubernetes_service_account = var.workload_identity_service_account
 
-  # Inputs for Role Assignment
   scope                = module.container_registry.id # Target resource (ACR)
   role_definition_name = "AcrPull"                    # Least privilege role for pulling images
   principal_type       = "ServicePrincipal"
 
-  # Ensure this module depends on AKS cluster to get the OIDC issuer URL
   depends_on = [module.aks_cluster, module.container_registry]
 }
