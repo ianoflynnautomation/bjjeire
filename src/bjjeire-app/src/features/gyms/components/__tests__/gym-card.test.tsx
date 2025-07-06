@@ -3,10 +3,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { GymCard } from './../gym-card/gym-card'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 
-vi.unmock('../../../../utils/formattingUtils')
-vi.unmock('../../../../utils/gymDisplayUtils')
-vi.unmock('../../../../utils/mapUtils')
-
 describe('GymCard Component', () => {
   it('should render all sections with correct content for a full gym object', () => {
     render(<GymCard gym={MOCK_GYM_FULL} />)

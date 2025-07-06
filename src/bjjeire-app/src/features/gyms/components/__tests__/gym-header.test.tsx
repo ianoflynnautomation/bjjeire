@@ -3,8 +3,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { GymHeader } from '../gym-card/gym-header'
 import { MOCK_GYM_FULL } from './mocks/gym.mock'
 
-vi.unmock('../../../../utils/gymDisplayUtils')
-
 describe('GymHeader Component', () => {
   const defaultProps = {
     name: MOCK_GYM_FULL.name,

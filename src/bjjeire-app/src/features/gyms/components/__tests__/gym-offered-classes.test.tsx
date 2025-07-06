@@ -3,8 +3,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { GymOfferedClasses } from './../gym-card/gym-offered-classes'
 import { ClassCategory } from '../../../../types/gyms'
 
-vi.unmock('../../../../utils/gymDisplayUtils')
-
 describe('GymOfferedClasses Component', () => {
   it('should render nothing if the classes array is empty or undefined', () => {
     const { container: containerEmpty } = render(<GymOfferedClasses classes={[]} />)

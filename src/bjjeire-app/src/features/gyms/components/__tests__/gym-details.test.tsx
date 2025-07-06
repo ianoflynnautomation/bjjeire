@@ -4,9 +4,6 @@ import { GymDetails } from '../gym-card/gym-details'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 
-vi.unmock('../../../../utils/formattingUtils')
-vi.unmock('../../../../utils/gymDisplayUtils')
-
 vi.mock('../../../../utils/mapUtils')
 vi.mock('../../../../components/ui/social-media/social-media-links', () => ({
   SocialMediaLinks: vi.fn(() => <div>Mocked Social Media</div>),

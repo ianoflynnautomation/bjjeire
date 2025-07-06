@@ -2,8 +2,6 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { GymFooter } from './../gym-card/gym-footer'
 
-vi.unmock('../../../../utils/formattingUtils')
-
 describe('GymFooter Component', () => {
   const defaultProps = {
     gymName: 'Test Gym Footer',
