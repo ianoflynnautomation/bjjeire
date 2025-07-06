@@ -81,12 +81,9 @@ jobs:
         failTaskOnFailedTests: true
         condition: succeededOrFailed()
 
-      You typically don't publish the dist folder as a pipeline artifact here
-      because it will be included in the NGINX Docker image later.
-      If you needed to inspect the built output directly, you could add:
-      - task: PublishPipelineArtifact@1
-        displayName: 'Publish Frontend Build Output'
-        inputs:
-          targetPath: '$(REACT_APP_PATH)/dist'
-          artifact: 'frontend_dist'
-        publishLocation: 'pipeline'
+    # - task: PublishPipelineArtifact@1
+    #   displayName: 'Publish Frontend Build Output'
+    #   inputs:
+    #     targetPath: '$(REACT_APP_PATH)/dist'
+    #     artifact: 'frontend_dist'
+    #     publishLocation: 'pipeline'
