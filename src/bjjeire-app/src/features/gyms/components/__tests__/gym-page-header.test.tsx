@@ -1,63 +1,52 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymsPageHeader } from './../gym-page-header'
-import { GymsPageHeaderTestIds } from '../../../../constants/gymDataTestIds'
 
 describe('GymsPageHeader Component', () => {
-  const defaultTestId = GymsPageHeaderTestIds.ROOT()
-
-  it('renders "All BJJ Gyms" title by default"', () => {
-    render(<GymsPageHeader data-testid={defaultTestId} />)
-    expect(screen.getByTestId(GymsPageHeaderTestIds.TITLE())).toHaveTextContent(
-      'All BJJ Gyms'
-    )
+  it('should render "All BJJ Gyms" as the main heading by default', () => {
+    render(<GymsPageHeader />)
+    expect(
+      screen.getByRole('heading', { name: 'All BJJ Gyms' })
+    ).toBeInTheDocument()
   })
 
-  it('renders "All BJJ Gyms" title if countyName is "all"', () => {
-    render(<GymsPageHeader countyName="all" data-testid={defaultTestId} />)
-    expect(screen.getByTestId(GymsPageHeaderTestIds.TITLE())).toHaveTextContent(
-      'All BJJ Gyms'
-    )
+  it('should render "All BJJ Gyms" as the main heading if countyName is "all"', () => {
+    render(<GymsPageHeader countyName="all" />)
+    expect(
+      screen.getByRole('heading', { name: 'All BJJ Gyms' })
+    ).toBeInTheDocument()
   })
 
-  it('renders title with specific county name', () => {
+  it('should render a specific county name in the main heading', () => {
     const county = 'Dublin'
-    render(<GymsPageHeader countyName={county} data-testid={defaultTestId} />)
-    expect(screen.getByTestId(GymsPageHeaderTestIds.TITLE())).toHaveTextContent(
-      `BJJ Gyms in ${county}`
-    )
-  })
-
-  it('does not render total gyms count if totalGyms is undefined', () => {
-    render(<GymsPageHeader data-testid={defaultTestId} />)
+    render(<GymsPageHeader countyName={county} />)
     expect(
-      screen.queryByTestId(GymsPageHeaderTestIds.TOTAL())
-    ).not.toBeInTheDocument()
+      screen.getByRole('heading', { name: `BJJ Gyms in ${county}` })
+    ).toBeInTheDocument()
   })
 
-  it('does not render total gyms count if totalGyms is 0', () => {
-    render(<GymsPageHeader totalGyms={0} data-testid={defaultTestId} />)
-    expect(
-      screen.queryByTestId(GymsPageHeaderTestIds.TOTAL())
-    ).not.toBeInTheDocument()
+  it('should not render a total count if totalGyms is undefined or 0', () => {
+
+    const { rerender } = render(<GymsPageHeader />)
+
+    expect(screen.queryByText(/Found \d+ gym/)).not.toBeInTheDocument()
+
+    rerender(<GymsPageHeader totalGyms={0} />)
+    expect(screen.queryByText(/Found \d+ gym/)).not.toBeInTheDocument()
   })
 
-  it('renders correct total gyms count for 1 gym', () => {
-    render(<GymsPageHeader totalGyms={1} data-testid={defaultTestId} />)
-    expect(screen.getByTestId(GymsPageHeaderTestIds.TOTAL())).toHaveTextContent(
-      'Found 1 gym.'
-    )
+  it('should render the correct total count for a single gym', () => {
+    render(<GymsPageHeader totalGyms={1} />)
+    expect(screen.getByText('Found 1 gym.')).toBeInTheDocument()
   })
 
-  it('renders correct total gyms count for multiple gyms', () => {
-    render(<GymsPageHeader totalGyms={5} data-testid={defaultTestId} />)
-    expect(screen.getByTestId(GymsPageHeaderTestIds.TOTAL())).toHaveTextContent(
-      'Found 5 gyms.'
-    )
+  it('should render the correct total count for multiple gyms', () => {
+    render(<GymsPageHeader totalGyms={5} />)
+    expect(screen.getByText('Found 5 gyms.')).toBeInTheDocument()
   })
 
-  it('applies the root data-testid', () => {
-    const customId = 'my-page-header'
+  it('should still apply a custom data-testid if one is provided', () => {
+    const customId = 'my-custom-page-header'
     render(<GymsPageHeader data-testid={customId} />)
     expect(screen.getByTestId(customId)).toBeInTheDocument()
   })

@@ -1,152 +1,54 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { GymsList } from './../gym-list'
-import { GymsListTestIds } from '../../../../constants/gymDataTestIds'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import { GymDto } from '../../../../types/gyms'
-import { GymCard } from '../gym-card/gym-card'
 
-// Mock GymCard to verify props and count
-vi.mock('./GymCard', () => ({
-  // Adjust path to GymCard
-  GymCard: vi.fn(({ gym, 'data-testid': dtId }) => (
-    <div data-testid={dtId}>Mocked GymCard for: {gym.name}</div>
-  )),
-}))
+vi.unmock('../../../../utils/formattingUtils')
+vi.unmock('../../../../utils/gymDisplayUtils')
+vi.unmock('../../../../utils/mapUtils')
 
 describe('GymsList Component', () => {
-  const defaultProps = {
-    testIdInstanceSuffix: 'test-list-suffix',
-  }
+  it('should render loading state correctly', () => {
+    render(<GymsList isLoading={true} />)
 
-  it('renders loading state correctly', () => {
-    render(<GymsList {...defaultProps} isLoading={true} />)
-    expect(
-      screen.getByTestId(
-        GymsListTestIds.LOADING(defaultProps.testIdInstanceSuffix)
-      )
-    ).toBeInTheDocument()
+    expect(screen.getByTestId('gyms-list-loading')).toBeInTheDocument()
   })
 
-  it('renders error state correctly', () => {
-    render(<GymsList {...defaultProps} error={new Error('Failed to load')} />)
-    const errorState = screen.getByTestId(
-      GymsListTestIds.ERROR(defaultProps.testIdInstanceSuffix)
-    )
-    expect(errorState).toBeInTheDocument()
-    expect(
-      within(errorState).getByText('Could not load gyms.')
-    ).toBeInTheDocument()
+  it('should render error state correctly', () => {
+    render(<GymsList error={new Error('Failed to load gyms')} />)
+    expect(screen.getByText(/Could not load gyms/i)).toBeInTheDocument()
   })
 
-  it('renders empty state correctly if gyms array is empty or undefined', () => {
-    render(<GymsList {...defaultProps} gyms={[]} />)
-    const emptyState = screen.getByTestId(
-      GymsListTestIds.EMPTY(defaultProps.testIdInstanceSuffix)
-    )
-    expect(emptyState).toBeInTheDocument()
-    expect(within(emptyState).getByText('No gyms found.')).toBeInTheDocument()
-
-    render(<GymsList {...defaultProps} gyms={undefined} />)
-    expect(
-      screen.getByTestId(
-        GymsListTestIds.EMPTY(defaultProps.testIdInstanceSuffix)
-      )
-    ).toBeInTheDocument()
+  it('should render empty state if the gyms array is empty', () => {
+    render(<GymsList gyms={[]} />)
+    expect(screen.getByText(/No gyms found/i)).toBeInTheDocument()
   })
 
-  it('renders a list of GymCards when gyms are provided', () => {
+  it('should render empty state if the gyms array is undefined', () => {
+    render(<GymsList gyms={undefined} />)
+    expect(screen.getByText(/No gyms found/i)).toBeInTheDocument()
+  })
+
+  it('should render a list of GymCards when gyms are provided', () => {
     const gyms: GymDto[] = [MOCK_GYM_FULL, MOCK_GYM_MINIMAL]
-    render(
-      <GymsList
-        {...defaultProps}
-        gyms={gyms}
-        data-testid={GymsListTestIds.ROOT(defaultProps.testIdInstanceSuffix)}
-      />
-    )
+    render(<GymsList gyms={gyms} />)
 
     expect(
-      screen.getByTestId(
-        GymsListTestIds.ROOT(defaultProps.testIdInstanceSuffix)
-      )
+      screen.getByRole('heading', {
+        name: /Elite Fighters Academy/i,
+        level: 3,
+      })
     ).toBeInTheDocument()
+
     expect(
-      screen.queryByTestId(
-        GymsListTestIds.LOADING(defaultProps.testIdInstanceSuffix)
-      )
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByTestId(
-        GymsListTestIds.ERROR(defaultProps.testIdInstanceSuffix)
-      )
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByTestId(
-        GymsListTestIds.EMPTY(defaultProps.testIdInstanceSuffix)
-      )
-    ).not.toBeInTheDocument()
-
-    gyms.forEach(gym => {
-      const expectedGymCardTestId = GymsListTestIds.ITEM(
-        gym.id || gym.name.replace(/\s+/g, '-').toLowerCase()
-      )
-      const gymCardElement = screen.getByTestId(expectedGymCardTestId)
-      expect(gymCardElement).toBeInTheDocument()
-      expect(gymCardElement).toHaveTextContent(
-        `Mocked GymCard for: ${gym.name}`
-      )
-
-      // Verify that GymCard mock was called with the correct props
-      expect(vi.mocked(GymCard)).toHaveBeenCalledWith(
-        expect.objectContaining({
-          gym: gym,
-          'data-testid': expectedGymCardTestId,
-          // testIdInstanceSuffix: gym.id || gym.name.replace(/\s+/g, '-').toLowerCase() // This prop was missing in GymsList
-        }),
-        expect.anything() // For the second argument (context) of functional components
-      )
-    })
-  })
-
-  it('passes testIdInstanceSuffix to GymCard (ensure GymsList is updated to do so)', () => {
-    // NOTE: Your GymsList component was missing passing testIdInstanceSuffix to GymCard.
-    // This test assumes GymsList is updated like:
-    // <GymCard ... testIdInstanceSuffix={gym.id || gym.name.replace(/\s+/g, '-').toLowerCase()} />
-    const gym = MOCK_GYM_FULL
-    render(<GymsList {...defaultProps} gyms={[gym]} />)
-
-    const gymCardInstanceSuffix =
-      gym.id || gym.name.replace(/\s+/g, '-').toLowerCase()
-    expect(vi.mocked(GymCard)).toHaveBeenCalledWith(
-      expect.objectContaining({
-        testIdInstanceSuffix: gymCardInstanceSuffix,
-      }),
-      expect.anything()
-    )
-  })
-
-  it('uses provided root data-testid or defaults correctly', () => {
-    const customRootId = 'custom-gyms-list-root'
-    render(
-      <GymsList
-        {...defaultProps}
-        gyms={[MOCK_GYM_FULL]}
-        data-testid={customRootId}
-      />
-    )
-    expect(screen.getByTestId(customRootId)).toBeInTheDocument()
-
-    render(
-      <GymsList
-        {...defaultProps}
-        gyms={[MOCK_GYM_FULL]}
-        data-testid={undefined}
-      />
-    )
-    expect(
-      screen.getByTestId(
-        GymsListTestIds.ROOT(defaultProps.testIdInstanceSuffix)
-      )
+      screen.getByRole('heading', {
+        name: /Community BJJ Club/i,
+        level: 3,
+      })
     ).toBeInTheDocument()
+
+    expect(screen.queryByText(/No gyms found/i)).not.toBeInTheDocument()
+    expect(screen.queryByTestId('gyms-list-loading')).not.toBeInTheDocument()
   })
 })

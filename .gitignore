@@ -85,6 +85,7 @@ desktop.ini
 
 # Sensitive Files
 secrets/
+certs/
 *.secret
 *.p12
 *.jks

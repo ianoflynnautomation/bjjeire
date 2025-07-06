@@ -1,211 +1,108 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { GymDetails } from './../gym-card/gym-details'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import { GymDetails } from '../gym-card/gym-details'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
-import {
-  ensureExternalUrlScheme,
-  formatDisplayUrl,
-} from '../../../../utils/formattingUtils'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 
-// Mock child components
-vi.mock('../../../../components/ui/icons/detail-item', () => ({
-  DetailItem: vi.fn(
-    ({
-      children,
-      'data-testid': dtId,
-      icon,
-      ariaLabel,
-    }) => (
-      <div data-testid={dtId} aria-label={ariaLabel}>
-        <div data-testid={`mock-detail-item-icon-for-${dtId}`}>
-          {icon && icon.type.name}
-        </div>
-        <div data-testid={`mock-detail-item-content-for-${dtId}`}>
-          {children}
-        </div>
-      </div>
-    )
-  ),
-}))
-vi.mock('./GymOfferedClasses', () => ({
-  GymOfferedClasses: vi.fn(({ 'data-testid': dtId }) => (
-    <div data-testid={dtId}>Mocked GymOfferedClasses</div>
-  )),
-}))
-vi.mock('./GymTrialOffer', () => ({
-  GymTrialOffer: vi.fn(({ 'data-testid': dtId }) => (
-    <div data-testid={dtId}>Mocked GymTrialOffer</div>
-  )),
-}))
+vi.unmock('../../../../utils/formattingUtils')
+vi.unmock('../../../../utils/gymDisplayUtils')
+
+vi.mock('../../../../utils/mapUtils')
 vi.mock('../../../../components/ui/social-media/social-media-links', () => ({
-  SocialMediaLinks: vi.fn(({ 'data-testid': dtId }) => (
-    <div data-testid={dtId}>Mocked SocialMediaLinks</div>
-  )),
+  SocialMediaLinks: vi.fn(() => <div>Mocked Social Media</div>),
 }))
 
 describe('GymDetails Component', () => {
-  const defaultSuffix =
-    MOCK_GYM_FULL.id || MOCK_GYM_FULL.name.replace(/\s+/g, '-').toLowerCase()
-
   beforeEach(() => {
-    ;(ensureExternalUrlScheme as ReturnType<typeof vi.fn>).mockImplementation(
-      url => (url ? `https://${url.replace(/^https?:\/\//, '')}` : undefined)
-    )
-    ;(formatDisplayUrl as ReturnType<typeof vi.fn>).mockImplementation(
-      url => `formatted-${url}`
-    )
+
+    vi.clearAllMocks()
+
+
     ;(getGoogleMapsUrl as ReturnType<typeof vi.fn>).mockImplementation(
-      loc => `maps://?address=${loc?.address}`
+      location => `maps://?address=${location?.address}`
     )
   })
 
-  it('renders all details for a full gym object', () => {
-    render(
-      <GymDetails gym={MOCK_GYM_FULL} testIdInstanceSuffix={defaultSuffix} />
-    )
+  it('should render all details correctly when provided with a full gym object', () => {
+    render(<GymDetails gym={MOCK_GYM_FULL} />)
 
-    // Location
-    const addressDetailItem = screen.getByTestId(
-      GymCardTestIds.DETAILS.ADDRESS(defaultSuffix)
-    )
-    expect(addressDetailItem).toBeInTheDocument()
-    expect(
-      within(addressDetailItem).getByText(
-        `${MOCK_GYM_FULL.location.address} (${MOCK_GYM_FULL.location.venue})`
-      )
-    ).toBeInTheDocument()
-    expect(within(addressDetailItem).getByRole('link')).toHaveAttribute(
+    expect(screen.getByText('BJJ Gi (All Levels)')).toBeInTheDocument()
+    expect(screen.getByText('Kids BJJ')).toBeInTheDocument()
+    expect(screen.getByText('Wrestling')).toBeInTheDocument()
+    expect(screen.getByText(/1 free class/i)).toBeInTheDocument()
+    expect(screen.getByText(/Your first class is on us!/i)).toBeInTheDocument()
+
+
+    const locationLink = screen.getByRole('link', {
+      name: /123 Main Street, Dublin, D01 A2B3/i,
+    })
+    expect(locationLink).toHaveAttribute(
       'href',
       `maps://?address=${MOCK_GYM_FULL.location.address}`
     )
 
-    // Affiliation
-    const affiliationDetailItem = screen.getByTestId(
-      GymCardTestIds.DETAILS.AFFILIATION(defaultSuffix)
-    )
-    expect(affiliationDetailItem).toBeInTheDocument()
-    expect(
-      within(affiliationDetailItem).getByText(
-        `Affiliated with ${MOCK_GYM_FULL.affiliation!.name}`
-      )
-    ).toBeInTheDocument()
-    expect(within(affiliationDetailItem).getByRole('link')).toHaveAttribute(
+    const affiliationLink = screen.getByRole('link', {
+      name: /Affiliated with Global BJJ Federation/i,
+    })
+    expect(affiliationLink).toHaveAttribute('href', 'https://globalbjj.com')
+
+    const timetableLink = screen.getByRole('link', { name: /View Timetable/i })
+    expect(timetableLink).toHaveAttribute(
       'href',
-      `https://${MOCK_GYM_FULL.affiliation!.website!.replace(/^https?:\/\//, '')}`
+      'https://elitefighters.ie/timetable'
     )
 
-    // Timetable
-    const timetableDetailItem = screen.getByTestId(
-      GymCardTestIds.DETAILS.TIMETABLE(defaultSuffix)
-    )
-    expect(timetableDetailItem).toBeInTheDocument()
-    expect(
-      within(timetableDetailItem).getByText('View Timetable')
-    ).toBeInTheDocument()
-    expect(within(timetableDetailItem).getByRole('link')).toHaveAttribute(
-      'href',
-      `https://${MOCK_GYM_FULL.timetableUrl!.replace(/^https?:\/\//, '')}`
-    )
-
-    // Offered Classes, Trial Offer, Social Media (check if mocks are rendered)
-    expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.CLASSES(defaultSuffix))
-    ).toHaveTextContent('Mocked GymOfferedClasses')
-    expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.TRIAL(defaultSuffix))
-    ).toHaveTextContent('Mocked GymTrialOffer')
-    expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.SOCIAL_MEDIA(defaultSuffix))
-    ).toHaveTextContent('Mocked SocialMediaLinks')
+    expect(screen.getByText('Mocked Social Media')).toBeInTheDocument()
   })
 
-  it('renders correctly with minimal gym data (some sections should not appear)', () => {
-    const minimalSuffix =
-      MOCK_GYM_MINIMAL.id ||
-      MOCK_GYM_MINIMAL.name.replace(/\s+/g, '-').toLowerCase()
-    render(
-      <GymDetails gym={MOCK_GYM_MINIMAL} testIdInstanceSuffix={minimalSuffix} />
-    )
 
-    // Location (address is present in MOCK_GYM_MINIMAL.location)
+  it('should hide sections for which data is not provided', () => {
+    render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
+
     expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.ADDRESS(minimalSuffix))
+      screen.getByRole('link', { name: /456 Side Street, Cork/i })
     ).toBeInTheDocument()
 
-    // Affiliation (not present)
     expect(
-      screen.queryByTestId(GymCardTestIds.DETAILS.AFFILIATION(minimalSuffix))
+      screen.queryByRole('link', { name: /Affiliated with/i })
     ).not.toBeInTheDocument()
-
-    // Timetable (not present)
     expect(
-      screen.queryByTestId(GymCardTestIds.DETAILS.TIMETABLE(minimalSuffix))
-    ).not.toBeInTheDocument()
-
-    // Social Media (present because it's not optional in type, but links might be empty)
-    expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.SOCIAL_MEDIA(minimalSuffix))
-    ).toBeInTheDocument()
-  })
-
-  it('does not render affiliation if affiliation name is missing', () => {
-    const gymWithoutAffiliationName = {
-      ...MOCK_GYM_FULL,
-      affiliation: { name: '' },
-    }
-    render(
-      <GymDetails
-        gym={gymWithoutAffiliationName}
-        testIdInstanceSuffix={defaultSuffix}
-      />
-    )
-    expect(
-      screen.queryByTestId(GymCardTestIds.DETAILS.AFFILIATION(defaultSuffix))
+      screen.queryByRole('link', { name: /View Timetable/i })
     ).not.toBeInTheDocument()
   })
 
-  it('renders affiliation without a link if website is missing', () => {
+  it('should render affiliation as text if the affiliation has no website', () => {
     const gymWithAffiliationNoWebsite = {
       ...MOCK_GYM_FULL,
       affiliation: { name: 'Local Club', website: undefined },
     }
-    render(
-      <GymDetails
-        gym={gymWithAffiliationNoWebsite}
-        testIdInstanceSuffix={defaultSuffix}
-      />
-    )
-    const affiliationItem = screen.getByTestId(
-      GymCardTestIds.DETAILS.AFFILIATION(defaultSuffix)
-    )
+    render(<GymDetails gym={gymWithAffiliationNoWebsite} />)
+
+    const affiliationText = screen.getByText(/Affiliated with Local Club/i)
+    expect(affiliationText).toBeInTheDocument()
     expect(
-      within(affiliationItem).getByText('Affiliated with Local Club')
-    ).toBeInTheDocument()
-    expect(within(affiliationItem).queryByRole('link')).not.toBeInTheDocument()
+      screen.queryByRole('link', { name: /Affiliated with Local Club/i })
+    ).not.toBeInTheDocument()
   })
 
-  it('uses provided root data-testid or defaults correctly', () => {
-    const customRootId = 'custom-details-root'
-    render(
-      <GymDetails
-        gym={MOCK_GYM_FULL}
-        data-testid={customRootId}
-        testIdInstanceSuffix={defaultSuffix}
-      />
-    )
-    expect(screen.getByTestId(customRootId)).toBeInTheDocument()
+  it('should not render the affiliation section if the affiliation name is missing', () => {
+    const gymWithoutAffiliationName = {
+      ...MOCK_GYM_FULL,
+      affiliation: { name: '' },
+    }
+    render(<GymDetails gym={gymWithoutAffiliationName} />)
+    expect(screen.queryByText(/Affiliated with/i)).not.toBeInTheDocument()
+  })
 
-    render(
-      <GymDetails
-        gym={MOCK_GYM_FULL}
-        data-testid={undefined}
-        testIdInstanceSuffix={defaultSuffix}
-      />
-    )
-    expect(
-      screen.getByTestId(GymCardTestIds.DETAILS.ROOT(defaultSuffix))
-    ).toBeInTheDocument()
+  it('should not render the location section if the address is null or empty', () => {
+    const gymWithNoAddress = {
+      ...MOCK_GYM_FULL,
+      location: {
+        ...MOCK_GYM_FULL.location,
+        address: '',
+      },
+    }
+    render(<GymDetails gym={gymWithNoAddress} />)
+    expect(screen.queryByLabelText(/Location:/)).not.toBeInTheDocument()
   })
 })

@@ -44,10 +44,10 @@ jobs:
     #     ls -la $(Build.SourcesDirectory)/$(REACT_APP_PATH)
     #   displayName: 'Log versions and list files'
 
-    - script: |
-        npm cache clean --force
-      displayName: 'Clear npm cache'
-      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
+    # - script: |
+    #     npm cache clean --force
+    #   displayName: 'Clear npm cache'
+    #   workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
     - task: Cache@2
       inputs:
@@ -67,27 +67,26 @@ jobs:
       displayName: 'Build Frontend'
       workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
 
-    # - script: |
-    #     npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
-    #   displayName: 'Run Frontend Tests'
-    #   workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
-    #   continueOnError: true
-    #   condition: succeededOrFailed()
+    - script: |
+        npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
+      displayName: 'Run Frontend Tests'
+      workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
+      continueOnError: true
 
-    # - task: PublishTestResults@2
-    #   displayName: 'Publish Frontend Test Results'
-    #   inputs:
-    #     testResultsFormat: 'JUnit'
-    #     testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
-    #     failTaskOnFailedTests: true
-    #     condition: succeededOrFailed()
+    - task: PublishTestResults@2
+      displayName: 'Publish Frontend Test Results'
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
+        failTaskOnFailedTests: true
+        condition: succeededOrFailed()
 
-      # You typically don't publish the dist folder as a pipeline artifact here
-      # because it will be included in the NGINX Docker image later.
-      # If you needed to inspect the built output directly, you could add:
-      # - task: PublishPipelineArtifact@1
-      #   displayName: 'Publish Frontend Build Output'
-      #   inputs:
-      #     targetPath: '$(REACT_APP_PATH)/dist'
-      #     artifact: 'frontend_dist'
-    #     publishLocation: 'pipeline'
+      You typically don't publish the dist folder as a pipeline artifact here
+      because it will be included in the NGINX Docker image later.
+      If you needed to inspect the built output directly, you could add:
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Frontend Build Output'
+        inputs:
+          targetPath: '$(REACT_APP_PATH)/dist'
+          artifact: 'frontend_dist'
+        publishLocation: 'pipeline'

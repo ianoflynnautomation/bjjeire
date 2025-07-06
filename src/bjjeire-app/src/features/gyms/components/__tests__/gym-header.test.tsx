@@ -1,21 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { GymHeader } from '../gym-card/gym-header'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
-import {
-  getGymStatusLabel,
-  getGymStatusColorScheme,
-} from '../../../../utils/gymDisplayUtils'
 import { MOCK_GYM_FULL } from './mocks/gym.mock'
 
-// Mock Badge
-vi.mock('../../../../components/ui/badge/badge', () => ({
-  Badge: vi.fn(({ text, colorScheme, 'data-testid': dataTestId }) => (
-    <div data-testid={dataTestId} className={colorScheme}>
-      Mocked Badge: {text}
-    </div>
-  )),
-}))
+vi.unmock('../../../../utils/gymDisplayUtils')
 
 describe('GymHeader Component', () => {
   const defaultProps = {
@@ -23,147 +11,48 @@ describe('GymHeader Component', () => {
     county: MOCK_GYM_FULL.county,
     status: MOCK_GYM_FULL.status,
     imageUrl: MOCK_GYM_FULL.imageUrl,
-    testIdInstanceSuffix: 'test-suffix-header',
   }
 
-  beforeEach(() => {
-    // Reset mocks if they have specific implementations per test
-    ;(getGymStatusLabel as ReturnType<typeof vi.fn>).mockImplementation(
-      status => `Mocked Status: ${status}`
-    )
-    ;(getGymStatusColorScheme as ReturnType<typeof vi.fn>).mockReturnValue(
-      'mock-status-scheme'
-    )
-  })
+  it('should render the gym name, county, and status', () => {
+    render(<GymHeader {...defaultProps} />)
 
-  it('renders the gym name', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
-    expect(screen.getByText(defaultProps.name)).toBeInTheDocument()
     expect(
-      screen.getByTestId(
-        GymCardTestIds.HEADER.NAME(defaultProps.testIdInstanceSuffix)
-      )
-    ).toHaveTextContent(defaultProps.name)
-  })
-
-  it('renders the county', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
-    expect(
-      screen.getByText(`${defaultProps.county} County`)
+      screen.getByRole('heading', {
+        name: `Gym name: ${defaultProps.name}`,
+        level: 3,
+      })
     ).toBeInTheDocument()
-    expect(
-      screen.getByTestId(
-        GymCardTestIds.HEADER.COUNTY(defaultProps.testIdInstanceSuffix)
-      )
-    ).toHaveTextContent(`${defaultProps.county} County`)
+
+    expect(screen.getByText('Dublin County')).toBeInTheDocument()
+    expect(screen.getByText('Active')).toBeInTheDocument()
   })
 
-  it('renders the status badge with correct text and scheme', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
-    const expectedStatusLabel = `Mocked Status: ${defaultProps.status}`
-    const badgeElement = screen.getByTestId(
-      GymCardTestIds.HEADER.STATUS_BADGE(defaultProps.testIdInstanceSuffix)
-    )
+  it('should render the image with correct alt text when imageUrl is provided', () => {
+    render(<GymHeader {...defaultProps} />)
 
-    expect(badgeElement).toHaveTextContent(
-      `Mocked Badge: ${expectedStatusLabel}`
-    )
-    expect(getGymStatusLabel).toHaveBeenCalledWith(defaultProps.status)
-    expect(getGymStatusColorScheme).toHaveBeenCalledWith(defaultProps.status)
-    expect(badgeElement).toHaveClass('mock-status-scheme')
-  })
+    const image = screen.getByRole('img', {
+      name: `Exterior or interior of ${defaultProps.name}`,
+    })
 
-  it('renders the image if imageUrl is provided', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
-    const image = screen.getByAltText(
-      `Exterior or interior of ${defaultProps.name}`
-    )
     expect(image).toBeInTheDocument()
     expect(image).toHaveAttribute('src', defaultProps.imageUrl)
-    expect(
-      screen.getByTestId(
-        GymCardTestIds.HEADER.IMAGE(defaultProps.testIdInstanceSuffix)
-      )
-    ).toBe(image)
   })
 
-  it('does not render image if imageUrl is not provided', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        imageUrl={undefined}
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
-    expect(
-      screen.queryByTestId(
-        GymCardTestIds.HEADER.IMAGE(defaultProps.testIdInstanceSuffix)
-      )
-    ).not.toBeInTheDocument()
+  it('should not render an image if imageUrl is not provided', () => {
+    render(<GymHeader {...defaultProps} imageUrl={undefined} />)
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 
-  it('uses provided data-testid for root or defaults correctly', () => {
-    const customRootId = 'custom-header-root'
-    render(<GymHeader {...defaultProps} data-testid={customRootId} />)
-    expect(screen.getByTestId(customRootId)).toBeInTheDocument()
+  it('should handle an unnamed gym gracefully', () => {
+    render(<GymHeader {...defaultProps} name="" />)
 
-    render(<GymHeader {...defaultProps} data-testid={undefined} />)
     expect(
-      screen.getByTestId(
-        GymCardTestIds.HEADER.ROOT(defaultProps.testIdInstanceSuffix)
-      )
+      screen.getByRole('heading', { name: 'Gym name: Unnamed Gym', level: 3 })
     ).toBeInTheDocument()
-  })
 
-  it('handles unnamed gym gracefully', () => {
-    render(
-      <GymHeader
-        {...defaultProps}
-        name=""
-        data-testid={GymCardTestIds.HEADER.ROOT(
-          defaultProps.testIdInstanceSuffix
-        )}
-      />
-    )
     expect(
-      screen.getByTestId(
-        GymCardTestIds.HEADER.NAME(defaultProps.testIdInstanceSuffix)
-      )
-    ).toHaveTextContent('Unnamed Gym')
-    if (defaultProps.imageUrl) {
-      expect(
-        screen.getByAltText('Exterior or interior of Unnamed Gym')
-      ).toBeInTheDocument()
-    }
+      screen.getByRole('img', { name: 'Exterior or interior of Unnamed Gym' })
+    ).toBeInTheDocument()
   })
 })
