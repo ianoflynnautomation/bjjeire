@@ -9,9 +9,17 @@ resource "azuread_service_principal" "sp" {
   depends_on = [azuread_application.app]
 }
 
+# resource "azurerm_user_assigned_identity" "example" {
+#   count               = local.deploy_azure_workload_identity ? 1 : 0
+#   location            = var.location
+#   name                = "mid-${local.name}"
+#   resource_group_name = var.resource_group_name
+# }
+
+
 resource "azurerm_federated_identity_credential" "fic" {
   name                = "${var.application_display_name}-fic"
-  resource_group_name = data.azurerm_client_config.current.resource_group_name
+  resource_group_name = var.resource_group_name
   parent_id           = azuread_service_principal.sp.id
   audience            = "api://AzureADTokenExchange"
   issuer              = var.aks_oidc_issuer_url
