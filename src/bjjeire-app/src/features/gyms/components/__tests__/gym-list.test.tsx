@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { GymsList } from './../gym-list'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import { GymDto } from '../../../../types/gyms'
