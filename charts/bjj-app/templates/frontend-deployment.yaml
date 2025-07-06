@@ -51,7 +51,7 @@ spec:
             {{- end }}
           volumeMounts:
             - name: nginx-config-volume
-              mountPath: /etc/nginx/nginx.conf
+              mountPath: /etc/nginx/templates/default.conf.template
               subPath: nginx.conf
               readOnly: true
             {{- if .Values.frontendNginxCertVolume.enabled }}
