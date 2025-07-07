@@ -44,18 +44,29 @@ steps:
     displayName: 'Run Tests'
     workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
 
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Run .NET Unit & Integration Tests'
+  #   inputs:
+  #     command: 'test'
+  #     projects: '**/*Tests/*.csproj'
+  #     arguments: '--configuration Release --logger "trx;LogFileName=dotnet-test-results.trx"'
+  #     publishTestResults: false
+  #   continueOnError: true
+
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
-    condition: always()
+    condition: succeededOrFailed()
     inputs:
       testResultsFormat: 'VSTest'
-      testResultsFiles: '$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}/*.trx'
+      testResultsFiles: '**/*.trx'
+      searchFolder: '$(Agent.TempDirectory)'
       mergeResults: true
       testRunTitle: '${{ parameters.testResultsNamePrefix }} Tests'
+      failTaskOnFailedTests: true
 
   - task: PublishBuildArtifacts@1
     displayName: 'Upload Test Results Artifact'
-    condition: always()
+    condition: succeededOrFailed()
     inputs:
       pathToPublish: '$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}'
       artifactName: 'test_results_${{ parameters.testResultsNamePrefix }}'
