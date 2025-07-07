@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymFooter } from './../gym-card/gym-footer'
 import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
@@ -17,11 +17,13 @@ describe('GymFooter Component', () => {
       'should render a disabled button when websiteUrl is $case',
       ({ websiteUrl }) => {
         // Arrange
-        render(<GymFooter {...defaultProps} websiteUrl={websiteUrl} />)
+        const { getByRole } = render(
+          <GymFooter {...defaultProps} websiteUrl={websiteUrl} />
+        )
 
         // Act
         const expectedAriaLabel = `No website available for ${defaultProps.gymName}`
-        const button = screen.getByRole('button', { name: expectedAriaLabel })
+        const button = getByRole('button', { name: expectedAriaLabel })
 
         // Assert
         expect(button).toBeInTheDocument()
@@ -36,11 +38,13 @@ describe('GymFooter Component', () => {
     it('should render an active link with all correct attributes', () => {
       // Arrange
       const website = 'testgym.com'
-      render(<GymFooter {...defaultProps} websiteUrl={website} />)
+      const { getByRole } = render(
+        <GymFooter {...defaultProps} websiteUrl={website} />
+      )
 
       // Act
       const expectedAriaLabel = `Visit website for ${defaultProps.gymName}`
-      const link = screen.getByRole('link', { name: expectedAriaLabel })
+      const link = getByRole('link', { name: expectedAriaLabel })
 
       // Assert
       expect(link).toBeInTheDocument()
@@ -54,11 +58,13 @@ describe('GymFooter Component', () => {
   describe('Edge Cases', () => {
     it('should use a fallback in the aria-label if gymName is empty', () => {
       // Arrange
-      render(<GymFooter gymName="" websiteUrl={undefined} />)
+      const { getByRole } = render(
+        <GymFooter gymName="" websiteUrl={undefined} />
+      )
 
       // Act
       const expectedAriaLabel = 'No website available for this gym'
-      const button = screen.getByRole('button', { name: expectedAriaLabel })
+      const button = getByRole('button', { name: expectedAriaLabel })
 
       // Assert
       expect(button).toBeInTheDocument()

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymCard } from './../gym-card/gym-card'
 import {
@@ -13,11 +13,14 @@ describe('GymCard Component', () => {
     it('should render all sections with correct content for a full gym object', () => {
       // Arrange
       const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_FULL.id)
-      render(<GymCard gym={MOCK_GYM_FULL} data-testid={rootTestId} />)
+
+      const { getByTestId } = render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={rootTestId} />
+      )
       const expectedAddress = `${MOCK_GYM_FULL.location.address} (${MOCK_GYM_FULL.location.venue})`
 
       // Act
-      const card = screen.getByTestId(rootTestId)
+      const card = getByTestId(rootTestId)
       const footer = within(card).getByTestId(
         GymCardTestIds.FOOTER.ROOT(MOCK_GYM_FULL.id)
       )
@@ -47,10 +50,12 @@ describe('GymCard Component', () => {
     it('should render correctly with minimal gym data and hide optional sections', () => {
       // Arrange
       const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_MINIMAL.id)
-      render(<GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />)
+      const { getByTestId } = render(
+        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
+      )
 
       // Act
-      const card = screen.getByTestId(rootTestId)
+      const card = getByTestId(rootTestId)
 
       // Assert
       expect(
@@ -73,10 +78,12 @@ describe('GymCard Component', () => {
     it('should not render the website link if the website URL is missing', () => {
       // Arrange
       const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_NO_WEBSITE.id)
-      render(<GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={rootTestId} />)
+      const { getByTestId } = render(
+        <GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={rootTestId} />
+      )
 
       // Act
-      const card = screen.getByTestId(rootTestId)
+      const card = getByTestId(rootTestId)
 
       // Assert
       expect(
@@ -94,10 +101,12 @@ describe('GymCard Component', () => {
     it('should correctly display a non-active status like "Pending Approval"', () => {
       // Arrange
       const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_MINIMAL.id)
-      render(<GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />)
+      const { getByTestId } = render(
+        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
+      )
 
       // Act
-      const card = screen.getByTestId(rootTestId)
+      const card = getByTestId(rootTestId)
 
       // Assert
       const statusBadge = within(card).getByTestId(
@@ -115,8 +124,10 @@ describe('GymCard Component', () => {
         affiliation: undefined,
       }
       const rootTestId = GymCardTestIds.ROOT(gymWithoutAffiliation.id)
-      render(<GymCard gym={gymWithoutAffiliation} data-testid={rootTestId} />)
-      const card = screen.getByTestId(rootTestId)
+      const { getByTestId } = render(
+        <GymCard gym={gymWithoutAffiliation} data-testid={rootTestId} />
+      )
+      const card = getByTestId(rootTestId)
 
       // Assert
       expect(

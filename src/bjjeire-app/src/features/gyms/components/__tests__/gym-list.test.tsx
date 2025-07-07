@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymsList } from './../gym-list'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
@@ -9,24 +9,23 @@ describe('GymsList Component', () => {
   describe('State Handling', () => {
     it('should render the loading state when isLoading is true', () => {
       // Arrange
-      render(<GymsList isLoading={true} />)
-
+      const { getByTestId, queryByTestId } = render(
+        <GymsList isLoading={true} />
+      )
       // Assert
-      expect(screen.getByTestId(GymsListTestIds.LOADING())).toBeInTheDocument()
-      expect(
-        screen.queryByTestId(GymsListTestIds.ERROR())
-      ).not.toBeInTheDocument()
-      expect(
-        screen.queryByTestId(GymsListTestIds.ROOT())
-      ).not.toBeInTheDocument()
+      expect(getByTestId(GymsListTestIds.LOADING())).toBeInTheDocument()
+      expect(queryByTestId(GymsListTestIds.ERROR())).not.toBeInTheDocument()
+      expect(queryByTestId(GymsListTestIds.ROOT())).not.toBeInTheDocument()
     })
 
     it('should render the error state when an error is provided', () => {
       // Arrange
-      render(<GymsList error={new Error('Failed to load')} />)
+      const { getByTestId } = render(
+        <GymsList error={new Error('Failed to load')} />
+      )
 
       // Act
-      const errorContainer = screen.getByTestId(GymsListTestIds.ERROR())
+      const errorContainer = getByTestId(GymsListTestIds.ERROR())
 
       // Assert
       expect(
@@ -39,10 +38,10 @@ describe('GymsList Component', () => {
       { case: 'undefined', gyms: undefined },
     ])('should render the empty state when gyms prop is $case', ({ gyms }) => {
       // Arrange
-      render(<GymsList gyms={gyms} />)
+      const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const emptyContainer = screen.getByTestId(GymsListTestIds.EMPTY())
+      const emptyContainer = getByTestId(GymsListTestIds.EMPTY())
 
       // Assert
       expect(
@@ -51,32 +50,35 @@ describe('GymsList Component', () => {
     })
   })
 
-  describe('Data Display', () => {
+  describe.concurrent('Data Display', () => {
     it('should render the correct number of GymCard components', () => {
       // Arrange
       const gyms: GymDto[] = [MOCK_GYM_FULL, MOCK_GYM_MINIMAL]
-      render(<GymsList gyms={gyms} />)
+      const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const listContainer = screen.getByTestId(GymsListTestIds.ROOT())
+      const listContainer = getByTestId(GymsListTestIds.ROOT())
       const renderedCards = within(listContainer).getAllByRole('article')
 
       // Assert
       expect(renderedCards).toHaveLength(gyms.length)
     })
 
-    //   it('should pass the correct data down to each GymCard', () => {
-    //     // Arrange
-    //     const gyms: GymDto[] = [MOCK_GYM_FULL];
-    //     render(<GymsList gyms={gyms} />);
+    // it('should pass the correct data down to each GymCard', () => {
+    //       // Arrange
+    //       const gyms: GymDto[] = [MOCK_GYM_FULL]
+    //       const { getByTestId } = render(<GymsList gyms={gyms} />)
 
-    //     // Act
-    //     const expectedCardId = GymsListTestIds.ITEM(MOCK_GYM_FULL.id);
-    //     const gymCard = screen.getByTestId(expectedCardId);
+    //       // Act
+    //       // Find a specific card by the test ID that GymsList assigns to it.
+    //       const expectedCardId = GymsListTestIds.ITEM(MOCK_GYM_FULL.id)
+    //       const gymCard = getByTestId(expectedCardId)
 
-    //     expect(
-    //       within(gymCard).getByRole('heading', { name: new RegExp(MOCK_GYM_FULL.name) })
-    //     ).toBeInTheDocument();
-    //   });
+    //       // Assert: Spot-check that the data was passed down correctly by finding the name inside that card.
+    //       // This query is precise and robust.
+    //       expect(
+    //         within(gymCard).getByRole('heading', { name: `Gym name: ${MOCK_GYM_FULL.name}` })
+    //       ).toBeInTheDocument()
+    //     })
   })
 })

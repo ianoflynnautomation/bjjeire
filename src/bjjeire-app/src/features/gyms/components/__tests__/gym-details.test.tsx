@@ -1,50 +1,43 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, within } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import { GymDetails } from '../gym-card/gym-details'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
-import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 
 vi.mock('../../../../utils/mapUtils')
 vi.mock('../../../../components/ui/social-media/social-media-links', () => ({
   SocialMediaLinks: vi.fn(() => <div data-testid="mock-social-media" />),
 }))
 
-describe('GymDetails Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    ;(getGoogleMapsUrl as ReturnType<typeof vi.fn>).mockImplementation(
-      location => `maps://?address=${location?.address}`
+describe.concurrent('With Full Data', () => {
+  it('should render all sections correctly', () => {
+    //
+    const { container } = render(
+      <GymDetails gym={MOCK_GYM_FULL} testIdInstanceSuffix={MOCK_GYM_FULL.id} />
     )
+
+    // Act
+    const { getByLabelText, getByTestId } = within(container)
+
+    // Assert
+    expect(getByLabelText(/Location:/)).toBeInTheDocument()
+    expect(getByLabelText(/Affiliation:/)).toBeInTheDocument()
+    expect(getByLabelText(/Timetable:/)).toBeInTheDocument()
+    expect(getByTestId('mock-social-media')).toBeInTheDocument()
   })
+})
 
-  describe('With Full Data', () => {
-    it('should render all sections correctly', () => {
-      // Arrange
-      render(
-        <GymDetails
-          gym={MOCK_GYM_FULL}
-          testIdInstanceSuffix={MOCK_GYM_FULL.id}
-        />
-      )
+describe.concurrent('With Minimal Data', () => {
+  it('should hide sections when their data is missing', () => {
+    // Arrange
+    const { container } = render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
 
-      // Assert
-      expect(screen.getByLabelText(/Location:/)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Affiliation:/)).toBeInTheDocument()
-      expect(screen.getByLabelText(/Timetable:/)).toBeInTheDocument()
-      expect(screen.getByTestId('mock-social-media')).toBeInTheDocument()
-    })
-  })
+    // Act
+    const { getByLabelText, getByTestId, queryByLabelText } = within(container)
 
-  describe('With Minimal Data', () => {
-    it('should hide sections when their data is missing', () => {
-      // Arrange
-      render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
-
-      // Assert:
-      expect(screen.getByLabelText(/Location:/)).toBeInTheDocument()
-      expect(screen.getByTestId('mock-social-media')).toBeInTheDocument()
-      expect(screen.queryByLabelText(/Affiliation:/)).not.toBeInTheDocument()
-      expect(screen.queryByLabelText(/Timetable:/)).not.toBeInTheDocument()
-    })
+    // Assert
+    expect(getByLabelText(/Location:/)).toBeInTheDocument()
+    expect(getByTestId('mock-social-media')).toBeInTheDocument()
+    expect(queryByLabelText(/Affiliation:/)).not.toBeInTheDocument()
+    expect(queryByLabelText(/Timetable:/)).not.toBeInTheDocument()
   })
 })
