@@ -47,7 +47,7 @@ jobs:
 
     - script: |
           npm ci
-      displayName: 'Install Frontend Dependencies'
+      displayName: 'Install Dependencies'
       workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
       condition: ne(variables.CACHE_RESTORED, 'true')
 
@@ -58,7 +58,7 @@ jobs:
 
     - script: |
         npx vitest run --reporter=junit --outputFile=$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml
-      displayName: 'Run Frontend Tests'
+      displayName: 'Run React Unit & Component Tests'
       workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
       continueOnError: true
 
@@ -68,6 +68,7 @@ jobs:
         testResultsFormat: 'JUnit'
         testResultsFiles: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)/junit.xml'
         failTaskOnFailedTests: true
+        testRunTitle: 'React Unit/Component Tests'
         condition: succeededOrFailed()
 
     - task: PublishPipelineArtifact@1
