@@ -67,6 +67,8 @@ export default defineConfig(({ mode }) => {
         reporter: ['text', 'json', 'html', 'cobertura'],
         all: true,
       },
+      // minThreads: 1,
+      // maxThreads: 4, 
     },
     optimizeDeps: {
       exclude: ['fsevents'],

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymHeader } from '../gym-card/gym-header'
 import { MOCK_GYM_FULL } from './mocks/gym.mock'
@@ -14,19 +14,19 @@ describe('GymHeader Component', () => {
     testIdInstanceSuffix: 'test-id',
   }
 
-  describe('Display Logic', () => {
+  describe.concurrent('Display Logic', () => {
     it('should render the name, county, and status correctly', () => {
       // Arrange
-      render(<GymHeader {...defaultProps} />)
+      const { getByTestId } = render(<GymHeader {...defaultProps} />)
 
       // Act
-      const header = screen.getByTestId(
+      const header = getByTestId(
         GymCardTestIds.HEADER.ROOT(defaultProps.testIdInstanceSuffix)
       )
-      const statusBadge = screen.getByTestId(
+      const statusBadge = getByTestId(
         GymCardTestIds.HEADER.STATUS_BADGE(defaultProps.testIdInstanceSuffix)
       )
-      const countyText = screen.getByTestId(
+      const countyText = getByTestId(
         GymCardTestIds.HEADER.COUNTY(defaultProps.testIdInstanceSuffix)
       )
 
@@ -48,10 +48,10 @@ describe('GymHeader Component', () => {
   describe('Image Rendering', () => {
     it('should render the image with correct alt text and src when imageUrl is provided', () => {
       // Arrange
-      render(<GymHeader {...defaultProps} />)
+      const { getByRole } = render(<GymHeader {...defaultProps} />)
 
       // Act
-      const image = screen.getByRole('img', {
+      const image = getByRole('img', {
         name: `Exterior or interior of ${defaultProps.name}`,
       })
 
@@ -62,24 +62,26 @@ describe('GymHeader Component', () => {
 
     it('should not render an image if imageUrl is not provided', () => {
       // Arrange
-      render(<GymHeader {...defaultProps} imageUrl={undefined} />)
+      const { queryByRole } = render(
+        <GymHeader {...defaultProps} imageUrl={undefined} />
+      )
 
       // Assert
-      expect(screen.queryByRole('img')).not.toBeInTheDocument()
+      expect(queryByRole('img')).not.toBeInTheDocument()
     })
   })
 
   describe('Edge Cases', () => {
     it('should handle an empty name gracefully with a fallback', () => {
       // Arrange
-      render(<GymHeader {...defaultProps} name="" />)
+      const { getByRole } = render(<GymHeader {...defaultProps} name="" />)
 
       // Assert
       expect(
-        screen.getByRole('heading', { name: 'Gym name: Unnamed Gym' })
+        getByRole('heading', { name: 'Gym name: Unnamed Gym' })
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('img', { name: 'Exterior or interior of Unnamed Gym' })
+        getByRole('img', { name: 'Exterior or interior of Unnamed Gym' })
       ).toBeInTheDocument()
     })
   })

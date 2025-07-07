@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymOfferedClasses } from './../gym-card/gym-offered-classes'
 import { ClassCategory } from '../../../../types/gyms'
@@ -30,10 +30,12 @@ describe('GymOfferedClasses Component', () => {
 
     it('should render the correct labels for a given list of classes', () => {
       // Arrange
-      render(<GymOfferedClasses classes={mockClasses} />)
+      const { getByLabelText } = render(
+        <GymOfferedClasses classes={mockClasses} />
+      )
 
       // Act
-      const offeredClassesSection = screen.getByLabelText('Offered Classes')
+      const offeredClassesSection = getByLabelText('Offered Classes')
 
       // Assert
       mockClasses.forEach(category => {
@@ -47,10 +49,12 @@ describe('GymOfferedClasses Component', () => {
     it('should not render a label for a class that is not provided', () => {
       // Arrange
       const subsetOfClasses = [ClassCategory.BJJGiAllLevels]
-      render(<GymOfferedClasses classes={subsetOfClasses} />)
+      const { getByLabelText } = render(
+        <GymOfferedClasses classes={subsetOfClasses} />
+      )
 
       // Act
-      const offeredClassesSection = screen.getByLabelText('Offered Classes')
+      const offeredClassesSection = getByLabelText('Offered Classes')
       const missingLabel = getClassCategoryLabel(ClassCategory.KidsBJJ)
 
       // Assert
