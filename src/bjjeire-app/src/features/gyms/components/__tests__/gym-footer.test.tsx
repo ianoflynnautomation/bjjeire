@@ -1,72 +1,67 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymFooter } from './../gym-card/gym-footer'
+import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
 
 describe('GymFooter Component', () => {
   const defaultProps = {
-    gymName: 'Test Gym Footer',
+    gymName: 'Test Gym',
   }
 
-  it.each([
-    { websiteUrl: undefined, case: 'undefined' },
-    { websiteUrl: '', case: 'an empty string' },
-    { websiteUrl: '   ', case: 'only whitespace' },
-  ])(
-    'should render a disabled button when websiteUrl is $case',
-    ({ websiteUrl }) => {
-      render(<GymFooter {...defaultProps} websiteUrl={websiteUrl} />)
+  describe('When Website is Unavailable', () => {
+    it.each([
+      { websiteUrl: undefined, case: 'undefined' },
+      { websiteUrl: '', case: 'an empty string' },
+      { websiteUrl: '   ', case: 'only whitespace' },
+    ])(
+      'should render a disabled button when websiteUrl is $case',
+      ({ websiteUrl }) => {
+        // Arrange
+        render(<GymFooter {...defaultProps} websiteUrl={websiteUrl} />)
 
-      const button = screen.getByRole('button', {
-        name: /No website available for Test Gym Footer/i,
-      })
+        // Act
+        const expectedAriaLabel = `No website available for ${defaultProps.gymName}`
+        const button = screen.getByRole('button', { name: expectedAriaLabel })
 
+        // Assert
+        expect(button).toBeInTheDocument()
+        expect(button).toBeDisabled()
+        expect(button).toHaveAttribute('title', expectedAriaLabel)
+        expect(button).toHaveTextContent('Website Unavailable')
+      }
+    )
+  })
+
+  describe('When Website is Available', () => {
+    it('should render an active link with all correct attributes', () => {
+      // Arrange
+      const website = 'testgym.com'
+      render(<GymFooter {...defaultProps} websiteUrl={website} />)
+
+      // Act
+      const expectedAriaLabel = `Visit website for ${defaultProps.gymName}`
+      const link = screen.getByRole('link', { name: expectedAriaLabel })
+
+      // Assert
+      expect(link).toBeInTheDocument()
+      expect(link).not.toBeDisabled()
+      expect(link).toHaveAttribute('href', ensureExternalUrlScheme(website))
+      expect(link).toHaveAttribute('title', expectedAriaLabel)
+      expect(link).toHaveTextContent('Visit Website')
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should use a fallback in the aria-label if gymName is empty', () => {
+      // Arrange
+      render(<GymFooter gymName="" websiteUrl={undefined} />)
+
+      // Act
+      const expectedAriaLabel = 'No website available for this gym'
+      const button = screen.getByRole('button', { name: expectedAriaLabel })
+
+      // Assert
       expect(button).toBeInTheDocument()
-      expect(button).toBeDisabled()
-    }
-  )
-
-  it('should render an active link with a correct href when websiteUrl is provided', () => {
-    const website = 'testgym.com'
-    render(<GymFooter {...defaultProps} websiteUrl={website} />)
-
-    const link = screen.getByRole('link', {
-      name: `Visit website for ${defaultProps.gymName}`,
     })
-
-    expect(link).toBeInTheDocument()
-    expect(link).not.toBeDisabled()
-    expect(link).toHaveAttribute('href', 'https://testgym.com')
-  })
-
-  it('should set correct aria-label and title for the link', () => {
-    render(<GymFooter {...defaultProps} websiteUrl="testgym.com" />)
-    const link = screen.getByRole('link', {
-      name: `Visit website for ${defaultProps.gymName}`,
-    })
-
-    expect(link).toHaveAttribute(
-      'aria-label',
-      `Visit website for ${defaultProps.gymName}`
-    )
-    expect(link).toHaveAttribute(
-      'title',
-      `Visit website for ${defaultProps.gymName}`
-    )
-  })
-
-  it('should set correct aria-label and title for the disabled button', () => {
-    render(<GymFooter {...defaultProps} websiteUrl={undefined} />)
-    const button = screen.getByRole('button', {
-      name: `No website available for ${defaultProps.gymName}`,
-    })
-
-    expect(button).toHaveAttribute(
-      'aria-label',
-      `No website available for ${defaultProps.gymName}`
-    )
-    expect(button).toHaveAttribute(
-      'title',
-      `No website available for ${defaultProps.gymName}`
-    )
   })
 })

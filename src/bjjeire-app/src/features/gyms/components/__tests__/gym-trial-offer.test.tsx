@@ -1,59 +1,83 @@
-import { render, screen} from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymTrialOffer } from './../gym-card/gym-trial-offer'
 import { TrialOfferDto } from '../../../../types/gyms'
 
 describe('GymTrialOffer Component', () => {
-  it('should render nothing if trialOffer is undefined or not available', () => {
+  describe('Rendering Logic', () => {
+    it('should render nothing if the trialOffer prop is undefined', () => {
+      const { container } = render(<GymTrialOffer trialOffer={undefined} />)
+      expect(container).toBeEmptyDOMElement()
+    })
 
-    const { container: containerUndefined } = render(
-      <GymTrialOffer trialOffer={undefined} />
-    )
-    expect(containerUndefined).toBeEmptyDOMElement()
-
-    const trialUnavailable: TrialOfferDto = { isAvailable: false }
-    const { container: containerUnavailable } = render(
-      <GymTrialOffer trialOffer={trialUnavailable} />
-    )
-    expect(containerUnavailable).toBeEmptyDOMElement()
+    it('should render nothing if the trial is not available', () => {
+      const trialUnavailable: TrialOfferDto = { isAvailable: false }
+      const { container } = render(
+        <GymTrialOffer trialOffer={trialUnavailable} />
+      )
+      expect(container).toBeEmptyDOMElement()
+    })
   })
 
-  it('should display the correct text for free classes', () => {
-    const trial: TrialOfferDto = { isAvailable: true, freeClasses: 2 }
-    render(<GymTrialOffer trialOffer={trial} />)
-    expect(screen.getByText('2 free classes')).toBeInTheDocument()
-  })
+  describe('Content and Accessibility', () => {
+    it('should display the correct text and aria-label for multiple free classes', () => {
+      // Arrange
+      const trial: TrialOfferDto = { isAvailable: true, freeClasses: 2 }
+      render(<GymTrialOffer trialOffer={trial} />)
 
-  it('should display the correct text for free days', () => {
-    const trial: TrialOfferDto = { isAvailable: true, freeDays: 7 }
-    render(<GymTrialOffer trialOffer={trial} />)
-    expect(screen.getByText('7 free days')).toBeInTheDocument()
-  })
+      // Act
+      const expectedText = '2 free classes'
+      const expectedAriaLabel = `Trial Offer: ${expectedText}`
 
-  it('should display the correct text for notes only', () => {
-    const trial: TrialOfferDto = {
-      isAvailable: true,
-      notes: 'Special intro offer.',
-    }
-    render(<GymTrialOffer trialOffer={trial} />)
-    expect(screen.getByText('Special intro offer.')).toBeInTheDocument()
-  })
+      // Assert
+      const labeledElement = screen.getByLabelText(expectedAriaLabel)
+      expect(labeledElement).toHaveTextContent(expectedText)
+    })
 
-  it('should display combined text for free classes and notes', () => {
-    const trial: TrialOfferDto = {
-      isAvailable: true,
-      freeClasses: 1,
-      notes: 'Book online.',
-    }
-    render(<GymTrialOffer trialOffer={trial} />)
-    expect(screen.getByText('1 free class. Book online.')).toBeInTheDocument()
-  })
+    it('should handle singular text for one free class', () => {
+      // Arrange
+      const trial: TrialOfferDto = { isAvailable: true, freeClasses: 1 }
+      render(<GymTrialOffer trialOffer={trial} />)
 
-  it('should display a fallback message if trial is available but has no details', () => {
-    const trial: TrialOfferDto = { isAvailable: true }
-    render(<GymTrialOffer trialOffer={trial} />)
-    expect(
-      screen.getByText('Trial offer available (details not specified)')
-    ).toBeInTheDocument()
+      // Act
+      const expectedText = '1 free class'
+      const expectedAriaLabel = `Trial Offer: ${expectedText}`
+
+      // Assert
+      const labeledElement = screen.getByLabelText(expectedAriaLabel)
+      expect(labeledElement).toHaveTextContent(expectedText)
+    })
+
+    it('should display combined text and aria-label for free days and notes', () => {
+      // Arrange
+      const trial: TrialOfferDto = {
+        isAvailable: true,
+        freeDays: 7,
+        notes: 'Come and try us out!',
+      }
+      render(<GymTrialOffer trialOffer={trial} />)
+
+      // Act
+      const expectedText = '7 free days. Come and try us out!'
+      const expectedAriaLabel = `Trial Offer: ${expectedText}`
+
+      // Assert
+      const labeledElement = screen.getByLabelText(expectedAriaLabel)
+      expect(labeledElement).toHaveTextContent(expectedText)
+    })
+
+    it('should display a fallback message and aria-label if trial has no details', () => {
+      // Arrange
+      const trial: TrialOfferDto = { isAvailable: true }
+      render(<GymTrialOffer trialOffer={trial} />)
+
+      // Act
+      const fallbackText = 'Trial offer available (details not specified)'
+      const expectedAriaLabel = `Trial Offer: ${fallbackText}`
+
+      // Assert
+      const labeledElement = screen.getByLabelText(expectedAriaLabel)
+      expect(labeledElement).toHaveTextContent(fallbackText)
+    })
   })
 })
