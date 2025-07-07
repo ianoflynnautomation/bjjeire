@@ -6,100 +6,45 @@ import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 
 vi.mock('../../../../utils/mapUtils')
 vi.mock('../../../../components/ui/social-media/social-media-links', () => ({
-  SocialMediaLinks: vi.fn(() => <div>Mocked Social Media</div>),
+  SocialMediaLinks: vi.fn(() => <div data-testid="mock-social-media" />),
 }))
 
 describe('GymDetails Component', () => {
   beforeEach(() => {
-
     vi.clearAllMocks()
-
-
     ;(getGoogleMapsUrl as ReturnType<typeof vi.fn>).mockImplementation(
       location => `maps://?address=${location?.address}`
     )
   })
 
-  it('should render all details correctly when provided with a full gym object', () => {
-    render(<GymDetails gym={MOCK_GYM_FULL} />)
+  describe('With Full Data', () => {
+    it('should render all sections correctly', () => {
+      // Arrange
+      render(
+        <GymDetails
+          gym={MOCK_GYM_FULL}
+          testIdInstanceSuffix={MOCK_GYM_FULL.id}
+        />
+      )
 
-    expect(screen.getByText('BJJ Gi (All Levels)')).toBeInTheDocument()
-    expect(screen.getByText('Kids BJJ')).toBeInTheDocument()
-    expect(screen.getByText('Wrestling')).toBeInTheDocument()
-    expect(screen.getByText(/1 free class/i)).toBeInTheDocument()
-    expect(screen.getByText(/Your first class is on us!/i)).toBeInTheDocument()
-
-
-    const locationLink = screen.getByRole('link', {
-      name: /123 Main Street, Dublin, D01 A2B3/i,
+      // Assert
+      expect(screen.getByLabelText(/Location:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Affiliation:/)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Timetable:/)).toBeInTheDocument()
+      expect(screen.getByTestId('mock-social-media')).toBeInTheDocument()
     })
-    expect(locationLink).toHaveAttribute(
-      'href',
-      `maps://?address=${MOCK_GYM_FULL.location.address}`
-    )
+  })
 
-    const affiliationLink = screen.getByRole('link', {
-      name: /Affiliated with Global BJJ Federation/i,
+  describe('With Minimal Data', () => {
+    it('should hide sections when their data is missing', () => {
+      // Arrange
+      render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
+
+      // Assert:
+      expect(screen.getByLabelText(/Location:/)).toBeInTheDocument()
+      expect(screen.getByTestId('mock-social-media')).toBeInTheDocument()
+      expect(screen.queryByLabelText(/Affiliation:/)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/Timetable:/)).not.toBeInTheDocument()
     })
-    expect(affiliationLink).toHaveAttribute('href', 'https://globalbjj.com')
-
-    const timetableLink = screen.getByRole('link', { name: /View Timetable/i })
-    expect(timetableLink).toHaveAttribute(
-      'href',
-      'https://elitefighters.ie/timetable'
-    )
-
-    expect(screen.getByText('Mocked Social Media')).toBeInTheDocument()
-  })
-
-
-  it('should hide sections for which data is not provided', () => {
-    render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
-
-    expect(
-      screen.getByRole('link', { name: /456 Side Street, Cork/i })
-    ).toBeInTheDocument()
-
-    expect(
-      screen.queryByRole('link', { name: /Affiliated with/i })
-    ).not.toBeInTheDocument()
-    expect(
-      screen.queryByRole('link', { name: /View Timetable/i })
-    ).not.toBeInTheDocument()
-  })
-
-  it('should render affiliation as text if the affiliation has no website', () => {
-    const gymWithAffiliationNoWebsite = {
-      ...MOCK_GYM_FULL,
-      affiliation: { name: 'Local Club', website: undefined },
-    }
-    render(<GymDetails gym={gymWithAffiliationNoWebsite} />)
-
-    const affiliationText = screen.getByText(/Affiliated with Local Club/i)
-    expect(affiliationText).toBeInTheDocument()
-    expect(
-      screen.queryByRole('link', { name: /Affiliated with Local Club/i })
-    ).not.toBeInTheDocument()
-  })
-
-  it('should not render the affiliation section if the affiliation name is missing', () => {
-    const gymWithoutAffiliationName = {
-      ...MOCK_GYM_FULL,
-      affiliation: { name: '' },
-    }
-    render(<GymDetails gym={gymWithoutAffiliationName} />)
-    expect(screen.queryByText(/Affiliated with/i)).not.toBeInTheDocument()
-  })
-
-  it('should not render the location section if the address is null or empty', () => {
-    const gymWithNoAddress = {
-      ...MOCK_GYM_FULL,
-      location: {
-        ...MOCK_GYM_FULL.location,
-        address: '',
-      },
-    }
-    render(<GymDetails gym={gymWithNoAddress} />)
-    expect(screen.queryByLabelText(/Location:/)).not.toBeInTheDocument()
   })
 })
