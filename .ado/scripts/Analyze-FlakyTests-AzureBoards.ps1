@@ -104,8 +104,8 @@ try {
   $filter = "Timestamp ge datetime'$($startDate.ToString("o"))'"
     
   Write-Host "Fetching test results with filter: $filter"
-  # FIX: Explicitly qualify the cmdlet with the module name 'AzTable' to prevent command conflicts.
-  $recentTestResults = AzTable\Get-AzTableRow -Table $cloudTable -Filter $filter
+  # FIX: Changed -Filter to -CustomFilter as per the AzTable module documentation.
+  $recentTestResults = AzTable\Get-AzTableRow -Table $cloudTable -CustomFilter $filter
 
   if (-not $recentTestResults) {
     Write-Warning "No test results found in the last $TimeWindowDays days."
