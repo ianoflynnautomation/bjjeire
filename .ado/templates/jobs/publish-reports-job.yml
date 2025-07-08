@@ -14,9 +14,6 @@ jobs:
   condition: ${{ parameters.condition }}
   pool: ${{ parameters.pool }}
 
-  variables:
-    System.AccessToken: $(System.AccessToken) 
-
   steps:
     - checkout: self
 
