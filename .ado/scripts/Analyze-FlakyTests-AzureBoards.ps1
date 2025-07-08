@@ -89,6 +89,8 @@ function Resolve-AdoBug {
 }
 
 try {
+  # --- 1. Flakiness Analysis ---
+  # Import all required modules
   Import-Module -Name Az.Storage -ErrorAction Stop
   Import-Module -Name Az.Resources -ErrorAction Stop
   Import-Module -Name AzTable -ErrorAction Stop
@@ -97,11 +99,13 @@ try {
   $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext
   $cloudTable = $tableRef.CloudTable
 
+  # Correctly format the date filter for AzTable using the 'o' round-trip format specifier
   $startDate = (Get-Date).AddDays(-$TimeWindowDays).ToUniversalTime()
   $filter = "Timestamp ge datetime'$($startDate.ToString("o"))'"
     
   Write-Host "Fetching test results with filter: $filter"
-  $recentTestResults = Get-AzTableRow -Table $cloudTable -Filter $filter
+  # FIX: Explicitly qualify the cmdlet with the module name 'AzTable' to prevent command conflicts.
+  $recentTestResults = AzTable\Get-AzTableRow -Table $cloudTable -Filter $filter
 
   if (-not $recentTestResults) {
     Write-Warning "No test results found in the last $TimeWindowDays days."
@@ -129,10 +133,12 @@ try {
   }
   Write-Host "Analysis complete. Found $($currentlyFlakyTests.Count) flaky tests."
 
+  # --- 2. Synchronize with Azure Boards ---
   Write-Host "Fetching existing flaky test bugs from Azure Boards..."
   $existingBugs = Get-AdoWorkItemsByTag -tag "FlakyTest"
   Write-Host "Found $($existingBugs.Count) open flaky test bugs."
 
+  # Create new bugs for tests that are flaky but don't have an open bug
   foreach ($flakyTest in $currentlyFlakyTests) {
     $bugExists = $false
     foreach ($bug in $existingBugs) {
@@ -148,6 +154,7 @@ try {
     }
   }
 
+  # Resolve old bugs for tests that are no longer flaky
   foreach ($bug in $existingBugs) {
     $testNameInTitle = ($bug.fields.'System.Title' -split ': ')[1]
     $isStillFlaky = $false
