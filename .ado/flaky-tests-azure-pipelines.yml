@@ -10,8 +10,7 @@ pool:
 variables:
   - group: DEVOPS-Infra-DevTest-Secrets 
   - group: DEVOPS-Infra-DevTest-Config
-  - name: adoAreaPath
-    value: 'IofOps\TestHealth'
+  - template: templates/variables/flaky-tests-variables.yml
 
 steps:
   - task: PowerShell@2
@@ -34,7 +33,7 @@ steps:
         -Project "$(System.TeamProject)"
         -Pat $env:SYSTEM_ACCESSTOKEN
         -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
-        -AreaPath "$(adoAreaPath)"
+        -AreaPath "$(ADO_AREA_PATH)"
         -ApiVersion "$(AZURE_API_VERSION)"
       pwsh: true
     env:

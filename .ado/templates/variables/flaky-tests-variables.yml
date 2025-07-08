@@ -1,0 +1,3 @@
+variables:
+  AZURE_API_VERSION: 7.1
+  ADO_AREA_PATH: 'IofOps\TestHealth'

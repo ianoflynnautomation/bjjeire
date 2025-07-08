@@ -27,7 +27,7 @@ variables:
   - group: DEVOPS-Infra-DevTest-Config
   - group: AZURE-Infra-DevTest-Config
   - group: BjjEire-Frontend-Secrets
-  - template: templates/variables/variables.yml
+  - template: templates/variables/ci-variables.yml
 
 stages:
   - template: templates/stages/build-and-test-stage.yml
