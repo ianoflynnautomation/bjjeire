@@ -14,9 +14,33 @@ jobs:
   condition: ${{ parameters.condition }}
   pool: ${{ parameters.pool }}
 
+  variables:
+    System.AccessToken: $(System.AccessToken) 
+
   steps:
     - checkout: self
 
     - template: ../tasks/publish-reports-task.yml
       parameters:
         downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'
+
+    - task: PowerShell@2
+      displayName: 'Install Required PS Modules'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    
+    - task: PowerShell@2
+      displayName: 'Log TestHistory'
+      inputs:
+        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Log-TestHistory.ps1'
+        arguments: >
+          -Organization $(System.TeamFoundationCollectionUri)".Split('/')[3]
+          -Project "$(System.TeamProject)"
+          -BuildId "$(Build.BuildId)"
+          -Pat $env:SYSTEM_ACCESSTOKEN
+          -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
+          -ApiVersion "$(AZURE_API_VERSION)"
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
