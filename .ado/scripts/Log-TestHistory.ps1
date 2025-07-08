@@ -51,20 +51,23 @@ $headers = @{
 try {
     # FIX: Explicitly import both required modules.
     # Az.Storage is for table management (Get/New-AzStorageTable).
-    # Az.Data.Tables is for data operations (Add-AzTableRow).
+    # AzTable is for data operations (Add-AzTableRow).
     Import-Module -Name Az.Storage -ErrorAction Stop
-    Import-Module -Name Az.Data.Tables -ErrorAction Stop
+    Import-Module -Name AzTable -ErrorAction Stop
 
     # --- Setup Azure Table Storage Connection using modern cmdlets ---
     Write-Host "Connecting to Azure Storage..."
     $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
 
-    Write-Host "Checking for table '$TableName'..."
-    $table = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
-    if (-not $table) {
+    Write-Host "Getting table reference for '$TableName'..."
+    # The AzTable module requires a reference to the .CloudTable property for data operations
+    $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
+    if (-not $tableRef) {
         Write-Host "Table not found. Creating table '$TableName'..."
-        $table = New-AzStorageTable -Name $TableName -Context $storageContext
+        $tableRef = New-AzStorageTable -Name $TableName -Context $storageContext
     }
+    $cloudTable = $tableRef.CloudTable
+
 
     # --- Data Collection ---
     $allTestResultsForLogging = [System.Collections.Generic.List[object]]::new()
@@ -84,7 +87,6 @@ try {
         $page = 1
 
         do {
-            # Construct URL for fetching results, include continuation token if present
             $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
             if ($continuationToken) {
                 $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
@@ -96,8 +98,6 @@ try {
             Write-Host "Fetched page $page with $($results.Count) results."
 
             foreach ($result in $results) {
-                # Create a PowerShell hashtable for the entity. This is the modern approach.
-                # The keys of the hashtable become the columns in the table.
                 $entity = @{
                     PartitionKey    = $run.pipelineReference.pipelineDefinition.name
                     RowKey          = "$($BuildId)_$($result.id)"
@@ -112,7 +112,6 @@ try {
                 $allTestResultsForLogging.Add($entity)
             }
             
-            # Check for the continuation token to see if there's more data
             $continuationToken = $responseHeaders['x-ms-continuationtoken']
             $page++
 
@@ -120,13 +119,12 @@ try {
     }
 
     # --- Data Ingestion ---
-    # Note: For improved performance on very large datasets, this could be refactored
-    # to use batch transactions instead of adding rows one-by-one.
     if ($allTestResultsForLogging.Count -gt 0) {
         Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
         foreach ($entity in $allTestResultsForLogging) {
             try {
-                Add-AzTableRow -Table $table -Entity $entity -ErrorAction Stop
+                # Use the $cloudTable reference required by AzTable cmdlets
+                Add-AzTableRow -Table $cloudTable -Entity $entity -ErrorAction Stop
             }
             catch {
                 Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
@@ -142,7 +140,6 @@ try {
 }
 catch {
     Write-Error "An error occurred: $_"
-    # Dump the full error record for better debugging in pipelines
     Write-Error $_.Exception.ToString()
     exit 1
 }
