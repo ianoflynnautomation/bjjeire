@@ -96,16 +96,22 @@ try {
             Write-Host "Fetched page $page with $($results.Count) results."
 
             foreach ($result in $results) {
-                # Create a PowerShell hashtable for the entity.
+                # FIX: Sanitize all inputs to prevent null values from being passed to the database.
+                # Azure Table Storage properties cannot be null. Use the null-coalescing operator '??' for defaults.
+                $partitionKey = "UnknownDefinition"
+                if ($run.pipelineReference -and $run.pipelineReference.pipelineDefinition -and $run.pipelineReference.pipelineDefinition.name) {
+                    $partitionKey = $run.pipelineReference.pipelineDefinition.name
+                }
+
                 $entity = @{
-                    PartitionKey    = $run.pipelineReference.pipelineDefinition.name
+                    PartitionKey    = $partitionKey
                     RowKey          = "$($BuildId)_$($result.id)"
-                    TestName        = $result.testCase.name
-                    Outcome         = $result.outcome
+                    TestName        = $result.testCase.name ?? "UnknownTest"
+                    Outcome         = $result.outcome ?? "Inconclusive"
                     BuildId         = $BuildId
-                    Duration        = $result.durationInMs
-                    TestSuite       = $run.name
-                    BuildDefinition = $run.pipelineReference.pipelineDefinition.name
+                    Duration        = $result.durationInMs ?? 0
+                    TestSuite       = $run.name ?? "UnknownSuite"
+                    BuildDefinition = $partitionKey
                     Timestamp       = Get-Date
                 }
                 $allTestResultsForLogging.Add($entity)
@@ -122,8 +128,7 @@ try {
         Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
         foreach ($entity in $allTestResultsForLogging) {
             try {
-                # FIX: Explicitly define the -Property hashtable to ensure it's correctly passed to the cmdlet.
-                # This avoids potential issues with cloning and removing keys from the main entity object.
+                # The -Property parameter takes a hashtable of the remaining columns.
                 $propertiesForTable = @{
                     TestName        = $entity.TestName
                     Outcome         = $entity.Outcome
