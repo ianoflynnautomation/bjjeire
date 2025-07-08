@@ -44,146 +44,101 @@ param (
 
 # Set up authentication headers for Azure DevOps API
 $headers = @{
-    Authorization = "Bearer $Pat"
-    "Content-Type" = "application/json"
-}
-
-function Write-BatchToDataStore {
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.Generic.List[Microsoft.Azure.Cosmos.Table.TableEntity]]$AllResults,
-        [Parameter(Mandatory = $true)]
-        [Microsoft.Azure.Cosmos.Table.CloudTable]$Table
-    )
-
-    Write-Host "Preparing to upload $($AllResults.Count) test results..."
-
-    # Group results by PartitionKey. Batch operations in Azure Table Storage
-    # are scoped to a single partition.
-    $resultsByPartition = $AllResults | Group-Object -Property PartitionKey
-
-    foreach ($partitionGroup in $resultsByPartition) {
-        $partitionKey = $partitionGroup.Name
-        $records = $partitionGroup.Group
-        $recordCount = $records.Count
-        Write-Host "Processing partition '$partitionKey' with $recordCount records."
-
-        $batchOperation = New-Object Microsoft.Azure.Cosmos.Table.TableBatchOperation
-        $i = 0
-
-        foreach ($record in $records) {
-            $batchOperation.Insert($record)
-            $i++
-
-            # Azure Table Storage batches are limited to 100 operations.
-            # When the batch is full or we are at the last record, execute it.
-            if ($batchOperation.Count -ge 100 -or $i -eq $recordCount) {
-                try {
-                    $Table.ExecuteBatch($batchOperation)
-                    Write-Host "Successfully uploaded batch of $($batchOperation.Count) records for partition '$partitionKey'."
-                    $batchOperation.Clear()
-                }
-                catch {
-                    Write-Error "Failed to execute batch for partition '$partitionKey'. Error: $_"
-                }
-            }
-        }
-    }
+  Authorization  = "Bearer $Pat"
+  "Content-Type" = "application/json"
 }
 
 try {
-    # FIX: Explicitly import the module to make its types available in the current session.
-    # This is crucial in Azure DevOps pipelines where tasks run in separate processes.
-    Import-Module -Name Az.Storage -ErrorAction Stop
+  # FIX: Explicitly import the module to make its types available in the current session.
+  # This is crucial in Azure DevOps pipelines where tasks run in separate processes.
+  Import-Module -Name Az.Storage -ErrorAction Stop
 
-    # Establish connection to Azure Table Storage
-    Write-Host "Connecting to Azure Storage..."
-    $storageAccount = [Microsoft.Azure.Cosmos.Table.CloudStorageAccount]::Parse($StorageConnectionString)
-    $tableClient = $storageAccount.CreateCloudTableClient()
-    $table = $tableClient.GetTableReference($TableName)
-    $table.CreateIfNotExists()
+  # --- Setup Azure Table Storage Connection using modern cmdlets ---
+  Write-Host "Connecting to Azure Storage..."
+  $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
 
-    # The class definition is inside the 'try' block to ensure the base class type is available.
-    class TestResultEntity {
-        [string]$TestName
-        [string]$Outcome
-        [int]$BuildId
-        [double]$Duration
-        [string]$TestSuite
-        [string]$BuildDefinition
+  Write-Host "Checking for table '$TableName'..."
+  $table = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
+  if (-not $table) {
+    Write-Host "Table not found. Creating table '$TableName'..."
+    $table = New-AzStorageTable -Name $TableName -Context $storageContext
+  }
 
-        TestResultEntity() {}
-        TestResultEntity($PartitionKey, $RowKey) {
-            $this.PartitionKey = $PartitionKey
-            $this.RowKey = $RowKey
-        }
-    }
+  # --- Data Collection ---
+  $allTestResultsForLogging = [System.Collections.Generic.List[object]]::new()
 
-    # --- Data Collection ---
-    $allTestResults = New-Object System.Collections.Generic.List[TestResultEntity]
-
-    Write-Host "Fetching test runs for build '$BuildId'..."
-    $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&api-version=$ApiVersion"
-    $testRunsResponse = Invoke-RestMethod -Uri $testRunsUrl -Method Get -Headers $headers -ErrorAction Stop
+  Write-Host "Fetching test runs for build '$BuildId'..."
+  $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&api-version=$ApiVersion"
+  $testRunsResponse = Invoke-RestMethod -Uri $testRunsUrl -Method Get -Headers $headers -ErrorAction Stop
     
-    if (-not $testRunsResponse.value) {
-        Write-Warning "No test runs found for Build ID $BuildId."
-        return
-    }
+  if (-not $testRunsResponse.value) {
+    Write-Warning "No test runs found for Build ID $BuildId."
+    return
+  }
 
-    foreach ($run in $testRunsResponse.value) {
-        Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
-        $continuationToken = $null
-        $page = 1
+  foreach ($run in $testRunsResponse.value) {
+    Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
+    $continuationToken = $null
+    $page = 1
 
-        do {
-            # Construct URL for fetching results, include continuation token if present
-            $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
-            if ($continuationToken) {
-                $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
-            }
+    do {
+      # Construct URL for fetching results, include continuation token if present
+      $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
+      if ($continuationToken) {
+        $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
+      }
 
-            $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders -ErrorAction Stop
-            $results = $response.value
+      $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders -ErrorAction Stop
+      $results = $response.value
 
-            Write-Host "Fetched page $page with $($results.Count) results."
+      Write-Host "Fetched page $page with $($results.Count) results."
 
-            foreach ($result in $results) {
-                # Create a strongly-typed entity for the batch operation.
-                $partitionKey = $run.pipelineReference.pipelineDefinition.name
-                $rowKey = "$($BuildId)_$($result.id)"
-
-                $entity = [TestResultEntity]::new($partitionKey, $rowKey)
-                $entity.TestName = $result.testCase.name
-                $entity.Outcome = $result.outcome
-                $entity.BuildId = $BuildId
-                $entity.Duration = $result.durationInMs
-                $entity.TestSuite = $run.name
-                $entity.BuildDefinition = $run.pipelineReference.pipelineDefinition.name
-
-                $allTestResults.Add($entity)
-            }
+      foreach ($result in $results) {
+        # Create a PowerShell hashtable for the entity. This is the modern approach.
+        # The keys of the hashtable become the columns in the table.
+        $entity = @{
+          PartitionKey    = $run.pipelineReference.pipelineDefinition.name
+          RowKey          = "$($BuildId)_$($result.id)"
+          TestName        = $result.testCase.name
+          Outcome         = $result.outcome
+          BuildId         = $BuildId
+          Duration        = $result.durationInMs
+          TestSuite       = $run.name
+          BuildDefinition = $run.pipelineReference.pipelineDefinition.name
+          Timestamp       = Get-Date
+        }
+        $allTestResultsForLogging.Add($entity)
+      }
             
-            # Check for the continuation token to see if there's more data
-            $continuationToken = $responseHeaders['x-ms-continuationtoken']
-            $page++
+      # Check for the continuation token to see if there's more data
+      $continuationToken = $responseHeaders['x-ms-continuationtoken']
+      $page++
 
-        } while ($continuationToken)
-    }
+    } while ($continuationToken)
+  }
 
-    # --- Data Ingestion ---
-    if ($allTestResults.Count -gt 0) {
-        Write-BatchToDataStore -AllResults $allTestResults -Table $table
+  # --- Data Ingestion ---
+  if ($allTestResultsForLogging.Count -gt 0) {
+    Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
+    foreach ($entity in $allTestResultsForLogging) {
+      try {
+        Add-AzTableRow -Table $table -Entity $entity -ErrorAction Stop
+      }
+      catch {
+        Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
+      }
     }
-    else {
-        Write-Host "No test results found to log."
-    }
+    Write-Host "Upload complete."
+  }
+  else {
+    Write-Host "No test results found to log."
+  }
 
-    Write-Host "Script completed successfully."
+  Write-Host "Script completed successfully."
 }
 catch {
-    Write-Error "An error occurred: $_"
-    # Dump the full error record for better debugging in pipelines
-    Write-Error $_.Exception.ToString()
-    exit 1
+  Write-Error "An error occurred: $_"
+  # Dump the full error record for better debugging in pipelines
+  Write-Error $_.Exception.ToString()
+  exit 1
 }
