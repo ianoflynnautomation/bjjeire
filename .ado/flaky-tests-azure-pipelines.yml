@@ -1,0 +1,41 @@
+schedules:
+- cron: "0 3 * * *"
+  displayName: Daily Flaky Test Sync with Azure Boards
+  branches: { include: [main] }
+  always: true
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  - group: DEVOPS-Infra-DevTest-Secrets 
+  - group: DEVOPS-Infra-DevTest-Config
+  - name: adoAreaPath
+    value: 'IofOps\TestHealth'
+
+steps:
+  - task: PowerShell@2
+    displayName: 'Install Required PS Modules'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+        Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+        Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+      pwsh: true
+
+  - task: PowerShell@2
+    displayName: 'Analyze and Sync Flaky Tests with Azure Boards'
+    inputs:
+      filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Analyze-FlakyTests-AzureBoards.ps1'
+      arguments: >
+        -TableName "TestResultHistory"
+        -Organization "$(ORGANISATION_NAME)"
+        -Project "$(System.TeamProject)"
+        -Pat $env:SYSTEM_ACCESSTOKEN
+        -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
+        -AreaPath "$(adoAreaPath)"
+        -ApiVersion "$(AZURE_API_VERSION)"
+      pwsh: true
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
