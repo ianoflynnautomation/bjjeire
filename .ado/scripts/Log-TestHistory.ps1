@@ -49,10 +49,9 @@ $headers = @{
 }
 
 try {
-    # FIX: Explicitly import both required modules.
-    # Az.Storage is for table management (Get/New-AzStorageTable).
-    # AzTable is for data operations (Add-AzTableRow).
+    # Explicitly import all required modules.
     Import-Module -Name Az.Storage -ErrorAction Stop
+    Import-Module -Name Az.Resources -ErrorAction Stop
     Import-Module -Name AzTable -ErrorAction Stop
 
     # --- Setup Azure Table Storage Connection using modern cmdlets ---
@@ -60,7 +59,6 @@ try {
     $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
 
     Write-Host "Getting table reference for '$TableName'..."
-    # The AzTable module requires a reference to the .CloudTable property for data operations
     $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
     if (-not $tableRef) {
         Write-Host "Table not found. Creating table '$TableName'..."
@@ -98,6 +96,7 @@ try {
             Write-Host "Fetched page $page with $($results.Count) results."
 
             foreach ($result in $results) {
+                # Create a PowerShell hashtable for the entity.
                 $entity = @{
                     PartitionKey    = $run.pipelineReference.pipelineDefinition.name
                     RowKey          = "$($BuildId)_$($result.id)"
@@ -123,8 +122,19 @@ try {
         Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
         foreach ($entity in $allTestResultsForLogging) {
             try {
-                # Use the $cloudTable reference required by AzTable cmdlets
-                Add-AzTableRow -Table $cloudTable -Entity $entity -ErrorAction Stop
+                # FIX: Explicitly define the -Property hashtable to ensure it's correctly passed to the cmdlet.
+                # This avoids potential issues with cloning and removing keys from the main entity object.
+                $propertiesForTable = @{
+                    TestName        = $entity.TestName
+                    Outcome         = $entity.Outcome
+                    BuildId         = $entity.BuildId
+                    Duration        = $entity.Duration
+                    TestSuite       = $entity.TestSuite
+                    BuildDefinition = $entity.BuildDefinition
+                    Timestamp       = $entity.Timestamp
+                }
+
+                Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $propertiesForTable -ErrorAction Stop
             }
             catch {
                 Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
