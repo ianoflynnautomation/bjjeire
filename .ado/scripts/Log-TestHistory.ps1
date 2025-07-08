@@ -39,12 +39,50 @@ param (
   [string]$ApiVersion = '7.1',
 
   [Parameter(Mandatory = $false)]
-  [string]$TableName = 'TestResultHistory'
+  [string]$TableName = 'TestResultHistory',
+
+  [Parameter(Mandatory = $false)]
+  [int]$BatchSize = 100 # Azure Table Storage batch operations are limited 
 )
 
 $headers = @{
   Authorization  = "Bearer $Pat"
   "Content-Type" = "application/json"
+}
+
+# Helper function for resilient API calls with retry logic
+function Invoke-AdoRestMethodWithRetry {
+  param(
+    [string]$Uri,
+    [string]$Method = 'GET',
+    [hashtable]$Headers,
+    [int]$MaxRetries = 3,
+    [int]$RetryDelaySec = 5,
+    [string]$ResponseHeadersVariable
+  )
+  for ($i = 1; $i -le $MaxRetries; $i++) {
+    try {
+      $params = @{
+        Uri         = $Uri
+        Method      = $Method
+        Headers     = $Headers
+        ErrorAction = 'Stop'
+      }
+      if ($ResponseHeadersVariable) {
+        $params.Add('ResponseHeadersVariable', $ResponseHeadersVariable)
+      }
+      return Invoke-RestMethod @params
+    }
+    catch {
+      Write-Warning "API call to '$Uri' failed on attempt $i. Error: $($_.Exception.Message)"
+      if ($i -lt $MaxRetries) {
+        Start-Sleep -Seconds ($RetryDelaySec * $i) # Exponential backoff
+      }
+      else {
+        throw "Failed to call API after $MaxRetries attempts."
+      }
+    }
+  }
 }
 
 try {
@@ -58,21 +96,21 @@ try {
   Write-Host "Getting table reference for '$TableName'..."
   $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
   if (-not $tableRef) {
-    Write-Host "Table not found. Creating table '$TableName'..."
+    Write-Host "Table '$TableName' not found. Creating it..."
     $tableRef = New-AzStorageTable -Name $TableName -Context $storageContext
   }
   $cloudTable = $tableRef.CloudTable
 
-
-  $allTestResultsForLogging = [System.Collections.Generic.List[object]]::new()
+  $allEntitiesToLog = [System.Collections.Generic.List[object]]::new()
 
   Write-Host "Fetching test runs for build '$BuildId'..."
-  $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&api-version=$ApiVersion"
-  $testRunsResponse = Invoke-RestMethod -Uri $testRunsUrl -Method Get -Headers $headers -ErrorAction Stop
+  # Include run details to get pipeline reference information
+  $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&includeRunDetails=true&api-version=$ApiVersion"
+  $testRunsResponse = Invoke-AdoRestMethodWithRetry -Uri $testRunsUrl -Headers $headers
     
   if (-not $testRunsResponse.value) {
     Write-Warning "No test runs found for Build ID $BuildId."
-    return
+    exit 0
   }
 
   foreach ($run in $testRunsResponse.value) {
@@ -81,66 +119,75 @@ try {
     $page = 1
 
     do {
-      $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
+      # Fetch results with details to get error messages and stack traces
+      $resultsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs/$($run.id)/results?`$top=1000&detailsToInclude=WorkItems,Iterations,SubResult,StackTrace&api-version=$ApiVersion"
       if ($continuationToken) {
+        # The continuation token from the header needs to be URL encoded
         $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
       }
 
-      $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders -ErrorAction Stop
+      $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders
       $results = $response.value
 
       Write-Host "Fetched page $page with $($results.Count) results."
 
       foreach ($result in $results) {
-        # FIX: Add robust fallback logic for the PartitionKey.
-        # First, try the ideal pipeline definition name. If that's null (common for aggregated runs),
-        # fall back to the build name itself, which is a reliable alternative.
-        $partitionKey = "UnknownDefinition"
-        if ($run.pipelineReference -and $run.pipelineReference.pipelineDefinition -and $run.pipelineReference.pipelineDefinition.name) {
-          $partitionKey = $run.pipelineReference.pipelineDefinition.name
-        }
-        elseif ($run.build -and $run.build.name) {
-          $partitionKey = $run.build.name
-        }
+        # Use the pipeline definition name as the primary partition key for better data organization.
+        # Fallback to the build name, then a generic key.
+        $partitionKey = if ($run.pipelineReference.definition.name) { $run.pipelineReference.definition.name } else { $run.build.name ?? "Uncategorized" }
+                
+        # Create a unique, sortable RowKey. Using Ticks ensures chronological order within the partition.
+        $rowKey = "{0:D19}_{1}" -f (Get-Date).ToUniversalTime().Ticks, $result.id
 
         $entity = @{
-          PartitionKey    = $partitionKey
-          RowKey          = "$($BuildId)_$($run.id)_$($result.id)"
-          TestName        = $result.testCase.name ?? "UnknownTest"
-          Outcome         = $result.outcome ?? "Inconclusive"
-          BuildId         = $BuildId
-          Duration        = $result.durationInMs ?? 0
-          TestSuite       = $run.name ?? "UnknownSuite"
-          BuildDefinition = $partitionKey
-          Timestamp       = Get-Date
+          PartitionKey      = $partitionKey
+          RowKey            = $rowKey
+          Timestamp         = (Get-Date).ToUniversalTime()
+          TestName          = $result.testCase.name ?? "UnknownTest"
+          TestCaseId        = $result.testCase.id
+          Outcome           = $result.outcome ?? "Inconclusive"
+          BuildId           = $BuildId
+          BuildReason       = $env:BUILD_REASON ?? "Unknown"
+          SourceBranch      = $env:BUILD_SOURCEBRANCHNAME ?? "Unknown"
+          AgentName         = $env:AGENT_NAME ?? "Unknown"
+          DurationMs        = $result.durationInMs ?? 0
+          TestSuite         = $run.name ?? "UnknownSuite"
+          BuildDefinitionId = $run.pipelineReference.definition.id
+          ErrorMessage      = $result.errorMessage
+          StackTrace        = $result.stackTrace
         }
-        $allTestResultsForLogging.Add($entity)
+        $allEntitiesToLog.Add($entity)
       }
             
+      # The continuation token is in the response headers
       $continuationToken = $responseHeaders['x-ms-continuationtoken']
       $page++
 
     } while ($continuationToken)
   }
 
-  if ($allTestResultsForLogging.Count -gt 0) {
-    Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
-    foreach ($entity in $allTestResultsForLogging) {
+  if ($allEntitiesToLog.Count -gt 0) {
+    Write-Host "Preparing to upload $($allEntitiesToLog.Count) test results in batches of $BatchSize..."
+        
+    $batchCount = [math]::Ceiling($allEntitiesToLog.Count / $BatchSize)
+    for ($i = 0; $i -lt $batchCount; $i++) {
+      $batch = $allEntitiesToLog | Select-Object -Skip ($i * $BatchSize) -First $BatchSize
+      Write-Host "Uploading batch $($i+1) of $batchCount..."
       try {
-        $propertiesForTable = @{
-          TestName        = $entity.TestName
-          Outcome         = $entity.Outcome
-          BuildId         = $entity.BuildId
-          Duration        = $entity.Duration
-          TestSuite       = $entity.TestSuite
-          BuildDefinition = $entity.BuildDefinition
-          Timestamp       = $entity.Timestamp
-        }
-
-        Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $propertiesForTable -ErrorAction Stop
+        # Using Add-AzTableRow with -Entity parameter for batch operations
+        Add-AzTableRow -Table $cloudTable -Entity $batch -ErrorAction Stop
       }
       catch {
-        Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
+        Write-Warning "Batch $($i+1) failed. Error: $_. Trying individual uploads for this batch as a fallback..."
+        # Fallback to individual uploads if a batch operation fails (e.g., due to mixed partition keys)
+        foreach ($entity in $batch) {
+          try {
+            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $entity -ErrorAction Stop
+          }
+          catch {
+            Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
+          }
+        }
       }
     }
     Write-Host "Upload complete."
@@ -152,7 +199,7 @@ try {
   Write-Host "Script completed successfully."
 }
 catch {
-  Write-Error "An error occurred: $_"
+  Write-Error "A critical error occurred: $_"
   Write-Error $_.Exception.ToString()
   exit 1
 }
