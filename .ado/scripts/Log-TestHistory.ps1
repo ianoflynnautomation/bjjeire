@@ -42,124 +42,117 @@ param (
   [string]$TableName = 'TestResultHistory'
 )
 
-# Set up authentication headers for Azure DevOps API
 $headers = @{
-    Authorization = "Bearer $Pat"
-    "Content-Type" = "application/json"
+  Authorization  = "Bearer $Pat"
+  "Content-Type" = "application/json"
 }
 
 try {
-    # Explicitly import all required modules.
-    Import-Module -Name Az.Storage -ErrorAction Stop
-    Import-Module -Name Az.Resources -ErrorAction Stop
-    Import-Module -Name AzTable -ErrorAction Stop
+  Import-Module -Name Az.Storage -ErrorAction Stop
+  Import-Module -Name Az.Resources -ErrorAction Stop
+  Import-Module -Name AzTable -ErrorAction Stop
 
-    # --- Setup Azure Table Storage Connection using modern cmdlets ---
-    Write-Host "Connecting to Azure Storage..."
-    $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
+  Write-Host "Connecting to Azure Storage..."
+  $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
 
-    Write-Host "Getting table reference for '$TableName'..."
-    $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
-    if (-not $tableRef) {
-        Write-Host "Table not found. Creating table '$TableName'..."
-        $tableRef = New-AzStorageTable -Name $TableName -Context $storageContext
-    }
-    $cloudTable = $tableRef.CloudTable
+  Write-Host "Getting table reference for '$TableName'..."
+  $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
+  if (-not $tableRef) {
+    Write-Host "Table not found. Creating table '$TableName'..."
+    $tableRef = New-AzStorageTable -Name $TableName -Context $storageContext
+  }
+  $cloudTable = $tableRef.CloudTable
 
 
-    # --- Data Collection ---
-    $allTestResultsForLogging = [System.Collections.Generic.List[object]]::new()
+  $allTestResultsForLogging = [System.Collections.Generic.List[object]]::new()
 
-    Write-Host "Fetching test runs for build '$BuildId'..."
-    $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&api-version=$ApiVersion"
-    $testRunsResponse = Invoke-RestMethod -Uri $testRunsUrl -Method Get -Headers $headers -ErrorAction Stop
+  Write-Host "Fetching test runs for build '$BuildId'..."
+  $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&api-version=$ApiVersion"
+  $testRunsResponse = Invoke-RestMethod -Uri $testRunsUrl -Method Get -Headers $headers -ErrorAction Stop
     
-    if (-not $testRunsResponse.value) {
-        Write-Warning "No test runs found for Build ID $BuildId."
-        return
-    }
+  if (-not $testRunsResponse.value) {
+    Write-Warning "No test runs found for Build ID $BuildId."
+    return
+  }
 
-    foreach ($run in $testRunsResponse.value) {
-        Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
-        $continuationToken = $null
-        $page = 1
+  foreach ($run in $testRunsResponse.value) {
+    Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
+    $continuationToken = $null
+    $page = 1
 
-        do {
-            $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
-            if ($continuationToken) {
-                $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
-            }
+    do {
+      $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($run.id)/results?`$top=1000&api-version=$ApiVersion"
+      if ($continuationToken) {
+        $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
+      }
 
-            $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders -ErrorAction Stop
-            $results = $response.value
+      $response = Invoke-RestMethod -Uri $resultsUrl -Method Get -Headers $headers -ResponseHeadersVariable responseHeaders -ErrorAction Stop
+      $results = $response.value
 
-            Write-Host "Fetched page $page with $($results.Count) results."
+      Write-Host "Fetched page $page with $($results.Count) results."
 
-            foreach ($result in $results) {
-                # FIX: Add robust fallback logic for the PartitionKey.
-                # First, try the ideal pipeline definition name. If that's null (common for aggregated runs),
-                # fall back to the build name itself, which is a reliable alternative.
-                $partitionKey = "UnknownDefinition"
-                if ($run.pipelineReference -and $run.pipelineReference.pipelineDefinition -and $run.pipelineReference.pipelineDefinition.name) {
-                    $partitionKey = $run.pipelineReference.pipelineDefinition.name
-                }
-                elseif ($run.build -and $run.build.name) {
-                    $partitionKey = $run.build.name
-                }
-
-                # The RowKey includes the Test Run ID to guarantee uniqueness across all test runs in a build.
-                $entity = @{
-                    PartitionKey    = $partitionKey
-                    RowKey          = "$($BuildId)_$($run.id)_$($result.id)"
-                    TestName        = $result.testCase.name ?? "UnknownTest"
-                    Outcome         = $result.outcome ?? "Inconclusive"
-                    BuildId         = $BuildId
-                    Duration        = $result.durationInMs ?? 0
-                    TestSuite       = $run.name ?? "UnknownSuite"
-                    BuildDefinition = $partitionKey
-                    Timestamp       = Get-Date
-                }
-                $allTestResultsForLogging.Add($entity)
-            }
-            
-            $continuationToken = $responseHeaders['x-ms-continuationtoken']
-            $page++
-
-        } while ($continuationToken)
-    }
-
-    # --- Data Ingestion ---
-    if ($allTestResultsForLogging.Count -gt 0) {
-        Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
-        foreach ($entity in $allTestResultsForLogging) {
-            try {
-                # The -Property parameter takes a hashtable of the remaining columns.
-                $propertiesForTable = @{
-                    TestName        = $entity.TestName
-                    Outcome         = $entity.Outcome
-                    BuildId         = $entity.BuildId
-                    Duration        = $entity.Duration
-                    TestSuite       = $entity.TestSuite
-                    BuildDefinition = $entity.BuildDefinition
-                    Timestamp       = $entity.Timestamp
-                }
-
-                Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $propertiesForTable -ErrorAction Stop
-            }
-            catch {
-                Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
-            }
+      foreach ($result in $results) {
+        # FIX: Add robust fallback logic for the PartitionKey.
+        # First, try the ideal pipeline definition name. If that's null (common for aggregated runs),
+        # fall back to the build name itself, which is a reliable alternative.
+        $partitionKey = "UnknownDefinition"
+        if ($run.pipelineReference -and $run.pipelineReference.pipelineDefinition -and $run.pipelineReference.pipelineDefinition.name) {
+          $partitionKey = $run.pipelineReference.pipelineDefinition.name
         }
-        Write-Host "Upload complete."
-    }
-    else {
-        Write-Host "No test results found to log."
-    }
+        elseif ($run.build -and $run.build.name) {
+          $partitionKey = $run.build.name
+        }
 
-    Write-Host "Script completed successfully."
+        $entity = @{
+          PartitionKey    = $partitionKey
+          RowKey          = "$($BuildId)_$($run.id)_$($result.id)"
+          TestName        = $result.testCase.name ?? "UnknownTest"
+          Outcome         = $result.outcome ?? "Inconclusive"
+          BuildId         = $BuildId
+          Duration        = $result.durationInMs ?? 0
+          TestSuite       = $run.name ?? "UnknownSuite"
+          BuildDefinition = $partitionKey
+          Timestamp       = Get-Date
+        }
+        $allTestResultsForLogging.Add($entity)
+      }
+            
+      $continuationToken = $responseHeaders['x-ms-continuationtoken']
+      $page++
+
+    } while ($continuationToken)
+  }
+
+  if ($allTestResultsForLogging.Count -gt 0) {
+    Write-Host "Uploading $($allTestResultsForLogging.Count) test results..."
+    foreach ($entity in $allTestResultsForLogging) {
+      try {
+        $propertiesForTable = @{
+          TestName        = $entity.TestName
+          Outcome         = $entity.Outcome
+          BuildId         = $entity.BuildId
+          Duration        = $entity.Duration
+          TestSuite       = $entity.TestSuite
+          BuildDefinition = $entity.BuildDefinition
+          Timestamp       = $entity.Timestamp
+        }
+
+        Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $propertiesForTable -ErrorAction Stop
+      }
+      catch {
+        Write-Warning "Failed to upload entity with RowKey '$($entity.RowKey)'. Error: $_"
+      }
+    }
+    Write-Host "Upload complete."
+  }
+  else {
+    Write-Host "No test results found to log."
+  }
+
+  Write-Host "Script completed successfully."
 }
 catch {
-    Write-Error "An error occurred: $_"
-    Write-Error $_.Exception.ToString()
-    exit 1
+  Write-Error "An error occurred: $_"
+  Write-Error $_.Exception.ToString()
+  exit 1
 }
