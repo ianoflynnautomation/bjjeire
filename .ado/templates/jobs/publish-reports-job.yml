@@ -33,7 +33,7 @@ jobs:
       inputs:
         filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Log-TestHistory.ps1'
         arguments: >
-          -Organization $(System.TeamFoundationCollectionUri)".Split('/')[3]
+          -Organization "$(ORGANISATION_NAME)"
           -Project "$(System.TeamProject)"
           -BuildId "$(Build.BuildId)"
           -Pat $env:SYSTEM_ACCESSTOKEN
