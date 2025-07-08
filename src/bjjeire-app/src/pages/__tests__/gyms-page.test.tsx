@@ -174,7 +174,7 @@ describe.concurrent('GymsPage Component', () => {
       })
       const { container } = render(<GymsPage />)
       const { getByTestId } = within(container)
-      const pagination = getByTestId('mock-pagination')
+      const pagination = getByTestId('mock-pagination_TMP')
 
       // Act
       fireEvent.click(pagination)
