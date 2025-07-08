@@ -96,16 +96,21 @@ try {
             Write-Host "Fetched page $page with $($results.Count) results."
 
             foreach ($result in $results) {
-                # FIX: Sanitize all inputs to prevent null values from being passed to the database.
-                # Azure Table Storage properties cannot be null. Use the null-coalescing operator '??' for defaults.
+                # FIX: Add robust fallback logic for the PartitionKey.
+                # First, try the ideal pipeline definition name. If that's null (common for aggregated runs),
+                # fall back to the build name itself, which is a reliable alternative.
                 $partitionKey = "UnknownDefinition"
                 if ($run.pipelineReference -and $run.pipelineReference.pipelineDefinition -and $run.pipelineReference.pipelineDefinition.name) {
                     $partitionKey = $run.pipelineReference.pipelineDefinition.name
                 }
+                elseif ($run.build -and $run.build.name) {
+                    $partitionKey = $run.build.name
+                }
 
+                # The RowKey includes the Test Run ID to guarantee uniqueness across all test runs in a build.
                 $entity = @{
                     PartitionKey    = $partitionKey
-                    RowKey          = "$($BuildId)_$($result.id)"
+                    RowKey          = "$($BuildId)_$($run.id)_$($result.id)"
                     TestName        = $result.testCase.name ?? "UnknownTest"
                     Outcome         = $result.outcome ?? "Inconclusive"
                     BuildId         = $BuildId
