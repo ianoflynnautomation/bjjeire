@@ -1,10 +1,14 @@
 <#
 .SYNOPSIS
-    Analyzes test history and creates/resolves Bug work items in Azure Boards for flaky tests.
+    Analyzes test history, creates/resolves Bug work items for flaky tests, and manages a quarantine tag.
 .DESCRIPTION
-    Queries recent test history from Azure Table Storage, identifies flaky tests, and then synchronizes their state with Azure Boards.
-    - If a test is flaky and has no active Bug, it creates one.
-    - If a test is no longer flaky but has an open Bug, it resolves it.
+    Queries recent test history from Azure Table Storage, identifies flaky tests based on a flip-rate algorithm,
+    and synchronizes their state with Azure Boards.
+    - If a test is flaky and has no active Bug, it creates a detailed one and adds a 'Quarantined' tag.
+    - If a test is no longer flaky but has an open Bug, it resolves the bug and removes the 'Quarantined' tag.
+.NOTES
+    Version: 2.0
+    Author: 
 .PARAMETER StorageConnectionString
     The connection string for the Azure Storage Account.
 .PARAMETER TableName
@@ -39,8 +43,8 @@ param (
   [Parameter(Mandatory = $true)]
   [string]$AreaPath,
   [int]$TimeWindowDays = 14,
-  [double]$FlakinessThreshold = 0.10,
-  [int]$MinRunsThreshold = 5,
+  [double]$FlakinessThreshold = 0.05,
+  [int]$MinRunsThreshold = 10,
   [Parameter(Mandatory = $false)]
   [string]$ApiVersion = '7.1'
 )
@@ -48,67 +52,70 @@ param (
 $adoQueryHeaders = @{ Authorization = "Bearer $Pat"; "Content-Type" = "application/json" }
 $adoPatchHeaders = @{ Authorization = "Bearer $Pat"; "Content-Type" = "application/json-patch+json" }
 
+# --- Azure DevOps API Helper Functions ---
 function Get-AdoWorkItemsByTag {
   param($tag)
   $encodedProject = [uri]::EscapeDataString($Project)
+  # Refined WIQL to be more specific and exclude closed/done states
   $wiql = @{
-    query = "SELECT [System.Id] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '$tag' AND [System.State] <> 'Closed' AND [System.State] <> 'Resolved' AND [System.State] <> 'Done'"
+    query = "SELECT [System.Id], [System.Title], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '$tag' AND [System.State] <> 'Removed'"
   } | ConvertTo-Json
   $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/wiql?api-version=$ApiVersion"
-  # Use the correct query headers
   $response = Invoke-RestMethod -Method Post -Uri $url -Headers $adoQueryHeaders -Body $wiql
   if ($response.workItems) {
     $ids = ($response.workItems.id | ForEach-Object { $_ }) -join ','
     if ([string]::IsNullOrEmpty($ids)) { return @() }
     $getDetailsUrl = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=$ApiVersion"
-    # Use the correct query headers for getting details as well
     return (Invoke-RestMethod -Method Get -Uri $getDetailsUrl -Headers $adoQueryHeaders).value
   }
   return @()
 }
 
-function New-AdoBug {
-  param($testName, $description)
+function New-AdoBugForFlakyTest {
+  param($testName, $description, $tags)
   $encodedProject = [uri]::EscapeDataString($Project)
   $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems/`$Bug?api-version=$ApiVersion"
   $body = @(
-    @{ op = "add"; path = "/fields/System.Title"; value = "Flaky Test Detected: $testName" },
-    @{ op = "add"; path = "/fields/System.Description"; value = $description },
+    @{ op = "add"; path = "/fields/System.Title"; value = "[Flaky Test] $testName" },
+    @{ op = "add"; path = "/fields/Microsoft.VSTS.TCM.ReproSteps"; value = $description },
     @{ op = "add"; path = "/fields/System.AreaPath"; value = $AreaPath },
-    @{ op = "add"; path = "/fields/System.Tags"; value = "FlakyTest;Automated" }
+    @{ op = "add"; path = "/fields/System.Tags"; value = $tags },
+    @{ op = "add"; path = "/fields/Microsoft.VSTS.Common.Priority"; value = 2 } # Assign a default priority
   ) | ConvertTo-Json
-  # Use the patch headers for creating a bug
-  Invoke-RestMethod -Method Post -Uri $url -Headers $adoPatchHeaders -Body $body
+  return Invoke-RestMethod -Method Post -Uri $url -Headers $adoPatchHeaders -Body $body
 }
 
-function Resolve-AdoBug {
-  param($bugId)
+function Update-AdoBugState {
+  param($bugId, $state, $comment, $tags)
   $url = "https://dev.azure.com/$Organization/_apis/wit/workitems/$bugId?api-version=$ApiVersion"
-  $body = @(
-    @{ op = "add"; path = "/fields/System.State"; value = "Resolved" },
-    @{ op = "add"; path = "/fields/System.History"; value = "Test is no longer flaky. Automatically resolved by pipeline." }
-  ) | ConvertTo-Json
-  # Use the patch headers for updating a bug
-  Invoke-RestMethod -Method Patch -Uri $url -Headers $adoPatchHeaders -Body $body
+  $bodyPayload = [System.Collections.Generic.List[object]]::new()
+  $bodyPayload.Add(@{ op = "add"; path = "/fields/System.State"; value = $state })
+  $bodyPayload.Add(@{ op = "add"; path = "/fields/System.History"; value = $comment })
+  if ($tags) {
+    $bodyPayload.Add(@{ op = "add"; path = "/fields/System.Tags"; value = $tags })
+  }
+  Invoke-RestMethod -Method Patch -Uri $url -Headers $adoPatchHeaders -Body ($bodyPayload | ConvertTo-Json)
 }
 
 try {
   # --- 1. Flakiness Analysis ---
-  # Import all required modules
-  Import-Module -Name Az.Storage -ErrorAction Stop
-  Import-Module -Name Az.Resources -ErrorAction Stop
-  Import-Module -Name AzTable -ErrorAction Stop
+  if (-not (Get-Module -Name AzTable -ListAvailable)) {
+    Write-Host "AzTable module not found. Installing..."
+    Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+  }
+  Import-Module -Name AzTable
 
   $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString
   $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext
   $cloudTable = $tableRef.CloudTable
 
-  # Correctly format the date filter for AzTable using the 'o' round-trip format specifier
+  # Use a precise ISO 8601 format for the timestamp filter
   $startDate = (Get-Date).AddDays(-$TimeWindowDays).ToUniversalTime()
   $filter = "Timestamp ge datetime'$($startDate.ToString("o"))'"
     
   Write-Host "Fetching test results with filter: $filter"
-  $recentTestResults = AzTable\Get-AzTableRow -Table $cloudTable -CustomFilter $filter
+  # Use -Take parameter to limit results if necessary, though the filter is primary
+  $recentTestResults = Get-AzTableRow -Table $cloudTable -CustomFilter $filter
 
   if (-not $recentTestResults) {
     Write-Warning "No test results found in the last $TimeWindowDays days."
@@ -118,19 +125,32 @@ try {
   $uniqueTests = $recentTestResults | Group-Object -Property TestName
   $currentlyFlakyTests = [System.Collections.Generic.List[PSObject]]::new()
 
+  Write-Host "Analyzing $($uniqueTests.Count) unique tests..."
   foreach ($testGroup in $uniqueTests) {
     $testName = $testGroup.Name
     $history = $testGroup.Group | Sort-Object -Property Timestamp
     if ($history.Count -lt $MinRunsThreshold) { continue }
+        
     $flips = 0
     for ($i = 1; $i -lt $history.Count; $i++) {
-      if ($history[$i].Outcome -ne $history[$i - 1].Outcome) { $flips++ }
+      # Only count flips between 'Passed' and 'Failed' states
+      if (($history[$i].Outcome -eq 'Passed' -and $history[$i - 1].Outcome -eq 'Failed') -or
+        ($history[$i].Outcome -eq 'Failed' -and $history[$i - 1].Outcome -eq 'Passed')) {
+        $flips++
+      }
     }
     $flipRate = $flips / ($history.Count - 1)
+
     if ($flipRate -ge $FlakinessThreshold) {
+      # Get the most recent failure for context
+      $lastFailure = $history | Where-Object { $_.Outcome -eq 'Failed' } | Sort-Object -Property Timestamp -Descending | Select-Object -First 1
+            
       $currentlyFlakyTests.Add([PSCustomObject]@{
           TestName    = $testName
-          HistoryText = ($history.Outcome -join ' -> ')
+          FlipRate    = $flipRate
+          TotalRuns   = $history.Count
+          HistoryText = ($history.Outcome -join ', ')
+          LastFailure = $lastFailure
         })
     }
   }
@@ -143,33 +163,50 @@ try {
 
   # Create new bugs for tests that are flaky but don't have an open bug
   foreach ($flakyTest in $currentlyFlakyTests) {
-    $bugExists = $false
-    foreach ($bug in $existingBugs) {
-      if ($bug.fields.'System.Title' -like "*$($flakyTest.TestName)*") {
-        $bugExists = $true
-        break
-      }
-    }
+    $bugExists = $existingBugs | Where-Object { $_.fields.'System.Title' -like "*$($flakyTest.TestName)*" }
+        
     if (-not $bugExists) {
       Write-Host "CREATING new bug for flaky test: $($flakyTest.TestName)"
-      $description = "This test has been identified as flaky.<br><b>Recent History:</b> $($flakyTest.HistoryText)"
-      New-AdoBug -testName $flakyTest.TestName -description $description
+      $testCaseUrl = "https://dev.azure.com/$Organization/$Project/_testPlans/execute?testCaseId=$($flakyTest.LastFailure.TestCaseId)&runId=0"
+      $description = @"
+            <h3>Automated Flaky Test Report</h3>
+            This test has been identified as flaky by the automated detection pipeline.
+            <br/><br/>
+            <b>Action Required:</b> Please investigate the root cause. If this test is blocking builds, it will be automatically quarantined.
+            <hr>
+            <b>Flakiness Score:</b> $(($flakyTest.FlipRate).ToString("P2"))
+            <b>Total Runs Analyzed:</b> $($flakyTest.TotalRuns)
+            <b>Recent History (oldest to newest):</b> $($flakyTest.HistoryText)
+            <br/><br/>
+            <b>Last Failure Details:</b>
+            <ul>
+                <li><b>Build ID:</b> <a href='https://dev.azure.com/$Organization/$Project/_build/results?buildId=$($flakyTest.LastFailure.BuildId)'>$($flakyTest.LastFailure.BuildId)</a></li>
+                <li><b>Error Message:</b> $($flakyTest.LastFailure.ErrorMessage)</li>
+            </ul>
+            <br/>
+            <a href='$testCaseUrl'>View Test Case in Azure Test Plans</a>
+"@
+      New-AdoBugForFlakyTest -testName $flakyTest.TestName -description $description -tags "FlakyTest; Automated; Quarantined"
     }
   }
 
   # Resolve old bugs for tests that are no longer flaky
   foreach ($bug in $existingBugs) {
-    $testNameInTitle = ($bug.fields.'System.Title' -split ': ')[1]
-    $isStillFlaky = $false
-    foreach ($flakyTest in $currentlyFlakyTests) {
-      if ($flakyTest.TestName -eq $testNameInTitle) {
-        $isStillFlaky = $true
-        break
-      }
-    }
-    if (-not $isStillFlaky) {
+    # Extract test name, assuming title format "[Flaky Test] Test.Name.Here"
+    $testNameInTitle = ($bug.fields.'System.Title' -replace '\[Flaky Test\] ', '')
+    $isStillFlaky = $currentlyFlakyTests | Where-Object { $_.TestName -eq $testNameInTitle }
+        
+    # Check if the bug is in a state that can be resolved (e.g., Active, New)
+    if (-not $isStillFlaky -and ($bug.fields.'System.State' -in @('New', 'Active', 'To Do'))) {
       Write-Host "RESOLVING stale bug #$($bug.id) for test: $testNameInTitle"
-      Resolve-AdoBug -bugId $bug.id
+      # Calculate MTTR before resolving
+      $createdDate = [datetime]$bug.fields.'System.CreatedDate'
+      $mttr = (Get-Date) - $createdDate
+      $comment = "Test is no longer flaky based on analysis over the last $TimeWindowDays days. Automatically resolved by pipeline. MTTR: $($mttr.Days) days, $($mttr.Hours) hours."
+            
+      # Remove the 'Quarantined' tag upon resolution
+      $newTags = ($bug.fields.'System.Tags' -replace 'Quarantined;? ?', '')
+      Update-AdoBugState -bugId $bug.id -state "Resolved" -comment $comment -tags $newTags
     }
   }
   Write-Host "Azure Boards synchronization complete."
