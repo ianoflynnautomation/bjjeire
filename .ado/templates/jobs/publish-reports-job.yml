@@ -43,3 +43,6 @@ jobs:
           -ApiVersion "$(AZURE_API_VERSION)"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+        BUILD_REASON: $(Build.Reason)
+        BUILD_SOURCEBRANCHNAME: $(Build.SourceBranchName)
+        AGENT_NAME: $(Agent.Name)
