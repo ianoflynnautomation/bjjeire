@@ -45,8 +45,8 @@ param (
   [string]$ApiVersion = '7.1'
 )
 
-# Set up authentication headers for Azure DevOps API
-$adoHeaders = @{ Authorization = "Bearer $Pat"; "Content-Type" = "application/json-patch+json" }
+$adoQueryHeaders = @{ Authorization = "Bearer $Pat"; "Content-Type" = "application/json" }
+$adoPatchHeaders = @{ Authorization = "Bearer $Pat"; "Content-Type" = "application/json-patch+json" }
 
 function Get-AdoWorkItemsByTag {
   param($tag)
@@ -55,12 +55,14 @@ function Get-AdoWorkItemsByTag {
     query = "SELECT [System.Id] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '$tag' AND [System.State] <> 'Closed' AND [System.State] <> 'Resolved' AND [System.State] <> 'Done'"
   } | ConvertTo-Json
   $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/wiql?api-version=$ApiVersion"
-  $response = Invoke-RestMethod -Method Post -Uri $url -Headers $adoHeaders -Body $wiql
+  # Use the correct query headers
+  $response = Invoke-RestMethod -Method Post -Uri $url -Headers $adoQueryHeaders -Body $wiql
   if ($response.workItems) {
     $ids = ($response.workItems.id | ForEach-Object { $_ }) -join ','
     if ([string]::IsNullOrEmpty($ids)) { return @() }
     $getDetailsUrl = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=$ApiVersion"
-    return (Invoke-RestMethod -Method Get -Uri $getDetailsUrl -Headers $adoHeaders).value
+    # Use the correct query headers for getting details as well
+    return (Invoke-RestMethod -Method Get -Uri $getDetailsUrl -Headers $adoQueryHeaders).value
   }
   return @()
 }
@@ -75,7 +77,8 @@ function New-AdoBug {
     @{ op = "add"; path = "/fields/System.AreaPath"; value = $AreaPath },
     @{ op = "add"; path = "/fields/System.Tags"; value = "FlakyTest;Automated" }
   ) | ConvertTo-Json
-  Invoke-RestMethod -Method Post -Uri $url -Headers $adoHeaders -Body $body
+  # Use the patch headers for creating a bug
+  Invoke-RestMethod -Method Post -Uri $url -Headers $adoPatchHeaders -Body $body
 }
 
 function Resolve-AdoBug {
@@ -85,7 +88,8 @@ function Resolve-AdoBug {
     @{ op = "add"; path = "/fields/System.State"; value = "Resolved" },
     @{ op = "add"; path = "/fields/System.History"; value = "Test is no longer flaky. Automatically resolved by pipeline." }
   ) | ConvertTo-Json
-  Invoke-RestMethod -Method Patch -Uri $url -Headers $adoHeaders -Body $body
+  # Use the patch headers for updating a bug
+  Invoke-RestMethod -Method Patch -Uri $url -Headers $adoPatchHeaders -Body $body
 }
 
 try {
@@ -104,7 +108,6 @@ try {
   $filter = "Timestamp ge datetime'$($startDate.ToString("o"))'"
     
   Write-Host "Fetching test results with filter: $filter"
-  # FIX: Changed -Filter to -CustomFilter as per the AzTable module documentation.
   $recentTestResults = AzTable\Get-AzTableRow -Table $cloudTable -CustomFilter $filter
 
   if (-not $recentTestResults) {
