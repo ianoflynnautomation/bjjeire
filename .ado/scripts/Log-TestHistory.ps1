@@ -139,7 +139,6 @@ try {
     $allEntities = [System.Collections.Generic.List[object]]::new()
 
     foreach ($run in $testRunsResponse.value) {
-        # It's common practice to skip aggregated runs as they don't contain raw result data.
         if ($run.name -like '*Aggregated*') {
             Write-Host "##vso[task.debug]Skipping aggregated run '$($run.name)' (ID: $($run.id))."
             continue
@@ -150,7 +149,6 @@ try {
         $page = 1
 
         do {
-            # Base URL for fetching results with all necessary details for analysis.
             $resultsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs/$($run.id)/results?`$top=1000&detailsToInclude=WorkItems,Iterations,SubResult,StackTrace&api-version=$ApiVersion"
             if ($continuationToken) {
                 $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
@@ -163,18 +161,20 @@ try {
             Write-Host "Fetched page $page with $($results.Count) results for run $($run.id)."
 
             foreach ($result in $results) {
-                # --- Data Modeling Best Practices ---
-                # PartitionKey: Use the pipeline definition name. This groups all historical data for a pipeline together,
-                # which is excellent for trend analysis. Fallback to a generic key if the info isn't present.
-                $partitionKey = if (-not [string]::IsNullOrEmpty($run.pipelineReference.definition.name)) {
-                    $run.pipelineReference.definition.name.Replace(" ", "_") # Replace spaces for cleaner keys
+                $partitionKeyName = if (-not [string]::IsNullOrEmpty($run.pipelineReference.definition.name)) {
+                    $run.pipelineReference.definition.name
+                }
+                elseif (-not [string]::IsNullOrEmpty($run.build.definition)) {
+                    $run.build.definition
+                }
+                elseif (-not [string]::IsNullOrEmpty($run.name)) {
+                    $run.name
                 }
                 else {
                     "Build_$BuildId"
                 }
+                $partitionKey = $partitionKeyName.Replace(" ", "_").Replace("/", "_")
 
-                # RowKey: Use a reverse-chronological, unique key. This is a highly effective pattern.
-                # It makes querying for the "latest result of a test" extremely fast as new data sorts to the top.
                 $completedDate = if ($result.completedDate) { [DateTime]::Parse($result.completedDate, $null, 'RoundtripKind') } else { (Get-Date) }
                 $reversedTicks = "{0:D19}" -f ([DateTime]::MaxValue.Ticks - $completedDate.ToUniversalTime().Ticks)
                 $rowKey = "{0}_{1}_{2}_{3}" -f $reversedTicks, $result.testCase.id, $run.id, ($result.retryCount ?? 0)
@@ -182,7 +182,7 @@ try {
                 $entity = @{
                     PartitionKey      = $partitionKey
                     RowKey            = $rowKey
-                    Timestamp         = $completedDate.ToUniversalTime() # Store the actual completion time
+                    Timestamp         = $completedDate.ToUniversalTime()
                     TestName          = $result.testCase.name ?? "UnknownTest"
                     TestCaseId        = $result.testCase.id ?? "Unknown"
                     Outcome           = $result.outcome ?? "Inconclusive"
@@ -191,8 +191,8 @@ try {
                     RunId             = $run.id
                     TestSuite         = $run.name ?? "UnknownSuite"
                     DurationMs        = $result.durationInMs ?? 0
-                    ErrorMessage      = $result.errorMessage # Can be null, which is fine
-                    StackTrace        = $result.stackTrace   # Can be null
+                    ErrorMessage      = $result.errorMessage
+                    StackTrace        = $result.stackTrace
                     Attempt           = $result.retryCount ?? 0
                     AgentName         = $env:AGENT_NAME ?? "Unknown"
                     SourceBranch      = $env:BUILD_SOURCEBRANCHNAME ?? "Unknown"
@@ -201,7 +201,6 @@ try {
                 $allEntities.Add($entity)
             }
 
-            # Check for the continuation token in the response headers to handle pagination.
             $continuationToken = $null
             if ($resultsResponse.Headers.Contains("x-ms-continuationtoken")) {
                 $continuationToken = $resultsResponse.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
@@ -217,10 +216,7 @@ try {
         Write-Host "Total test result entities to upload: $($allEntities.Count)."
         Write-Host "##vso[task.setvariable variable=EntityCount]$($allEntities.Count)"
 
-        # CRITICAL: Group entities by PartitionKey. Batch operations in Azure Table Storage
-        # require all entities in the batch to have the same PartitionKey.
         $entityGroups = $allEntities | Group-Object PartitionKey
-
         Write-Host "Uploading entities in $($entityGroups.Count) partition groups..."
 
         foreach ($group in $entityGroups) {
@@ -232,18 +228,32 @@ try {
             for ($i = 0; $i -lt $batchCount; $i++) {
                 $batch = $partitionEntities | Select-Object -Skip ($i * $BatchSize) -First $BatchSize
                 $batchNum = $i + 1
-                Write-Host "Uploading batch $batchNum of $batchCount for partition '$partitionName'..."
+                
+                $batchOperation = New-Object -TypeName Microsoft.Azure.Cosmos.Table.TableBatchOperation
+                foreach($entity in $batch){
+                    $tableEntity = New-Object -TypeName Microsoft.Azure.Cosmos.Table.DynamicTableEntity -ArgumentList $entity.PartitionKey, $entity.RowKey
+                    
+                    # CRITICAL FIX: Add properties to the entity, filtering out any that have a null value.
+                    $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') -and $null -ne $_.Value } | ForEach-Object {
+                        $tableEntity.Properties.Add($_.Key, $_.Value)
+                    }
+                    $batchOperation.InsertOrReplace($tableEntity)
+                }
 
                 try {
-                    # The AzTable module handles the batch creation internally when passed an array of entities.
-                    Add-AzTableRow -Table $cloudTable -Entity $batch -ErrorAction Stop
+                    Write-Host "Uploading batch $batchNum of $batchCount for partition '$partitionName'..."
+                    $cloudTable.ExecuteBatch($batchOperation) | Out-Null
                 }
                 catch {
-                    # Fallback Logic: If the batch fails for any reason, try uploading entities one by one.
                     Write-Host "##vso[task.logissue type=warning]Batch $batchNum for partition '$partitionName' failed: $($_.Exception.Message). Attempting individual uploads for this batch."
                     foreach ($entity in $batch) {
                         try {
-                            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $entity -ErrorAction Stop
+                            # CRITICAL FIX: Create properties hashtable for individual upload, filtering out nulls.
+                            $properties = @{}
+                            $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') -and $null -ne $_.Value } | ForEach-Object {
+                                $properties.Add($_.Key, $_.Value)
+                            }
+                            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $properties -ErrorAction Stop
                         }
                         catch {
                             Write-Host "##vso[task.logissue type=error]Failed to upload individual entity with RowKey '$($entity.RowKey)' in partition '$partitionName': $($_.Exception.Message)"
@@ -272,7 +282,6 @@ catch {
     exit 1
 }
 finally {
-    # Ensure the HttpClient is always disposed of to release resources.
     if ($null -ne $httpClient) {
         Write-Host "##vso[task.debug]Disposing HttpClient."
         $httpClient.Dispose()
