@@ -21,10 +21,45 @@ jobs:
           testArtifactName: 'published_ApiIntegrationTests'
           testAssemblyPattern: |
               BjjEire.Api.IntegrationTests/**/*
-          testFilterCriteria: ''
+          testFilterCriteria: 'TestCategory!=Ignore'
 
   steps:
     - checkout: self
+
+    - task: PowerShell@2
+      name: SetQuarantineFilter
+      displayName: 'Generate Filter for Quarantined Tests'
+      inputs:
+        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Get-QuarantinedTestFilter.ps1'
+        arguments: >
+          -Organization "$(ORGANISATION_NAME)"
+          -Project "$(System.TeamProject)"
+          -Pat "$(System.AccessToken)"
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+    - task: PowerShell@2
+      name: CombineFilters
+      displayName: 'Combine Test Filters'
+      inputs:
+        targetType: 'inline'
+        script: |
+          $baseFilter = "$(testFilterCriteria)"
+          $quarantineFilter = "$(SetQuarantineFilter.quarantineFilter)"
+          $finalFilter = $baseFilter
+
+          Write-Host "Base filter: $baseFilter"
+          Write-Host "Quarantine filter: $quarantineFilter"
+
+          if (-not [string]::IsNullOrEmpty($quarantineFilter)) {
+            if (-not [string]::IsNullOrEmpty($finalFilter)) {
+              $finalFilter += "&"
+            }
+            $finalFilter += $quarantineFilter
+          }
+          
+          Write-Host "Final combined filter: $finalFilter"
+          Write-Host "##vso[task.setvariable variable=finalTestFilter]$finalFilter"
 
     - template: ../tasks/dotnet-run-tests.yml
       parameters:
@@ -32,5 +67,5 @@ jobs:
         testArtifactName: $(testArtifactName)
         testAssemblyPattern: $(testAssemblyPattern)
         testResultsNamePrefix: $(testType)
-        testFilterCriteria: $(testFilterCriteria)
+        testFilterCriteria: '$(finalTestFilter)'
         downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'
