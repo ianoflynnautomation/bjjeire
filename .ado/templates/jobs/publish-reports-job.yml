@@ -41,6 +41,7 @@ jobs:
           -Pat $env:SYSTEM_ACCESSTOKEN
           -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
           -ApiVersion "$(AZURE_API_VERSION)"
+          -TableName "$(SA_TEST_HISTORY_TABLE_NAME)"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         BUILD_REASON: $(Build.Reason)

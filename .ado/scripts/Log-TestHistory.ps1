@@ -48,94 +48,99 @@ param (
   [int]$BatchSize = 100 # Azure Table Storage batch operations are limited 
 )
 
-# $headers = @{
-#   Authorization  = "Bearer $Pat"
-#   "Content-Type" = "application/json"
-# }
+$startTime = [System.Diagnostics.Stopwatch]::StartNew()
+$httpClient = $null # Initialize here for the finally block
 
-# Helper function for resilient API calls with retry logic
-# function Invoke-AdoRestMethodWithRetry {
-#   param(
-#     [string]$Uri,
-#     [string]$Method = 'GET',
-#     [hashtable]$Headers,
-#     [int]$MaxRetries = 3,
-#     [int]$RetryDelaySec = 5,
-#     [string]$ResponseHeadersVariable
-#   )
-#   for ($i = 1; $i -le $MaxRetries; $i++) {
-#     try {
-#       $params = @{
-#         Uri         = $Uri
-#         Method      = $Method
-#         Headers     = $Headers
-#         ErrorAction = 'Stop'
-#       }
-#       if ($ResponseHeadersVariable) {
-#         $params.Add('ResponseHeadersVariable', $ResponseHeadersVariable)
-#       }
-#       return Invoke-RestMethod @params
-#     }
-#     catch {
-#       Write-Warning "API call to '$Uri' failed on attempt $i. Error: $($_.Exception.Message)"
-#       if ($i -lt $MaxRetries) {
-#         Start-Sleep -Seconds ($RetryDelaySec * $i) # Exponential backoff
-#       }
-#       else {
-#         throw "Failed to call API after $MaxRetries attempts."
-#       }
-#     }
-#   }
-# }
+#region Helper Functions
 
-# $startTime = Get-Date
+# Asynchronous, resilient API call function with retry logic and exponential backoff.
+function Invoke-AdoRestMethodAsyncWithRetry {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Net.Http.HttpClient]$HttpClient,
+        [Parameter(Mandatory = $true)]
+        [string]$Uri,
+        [int]$MaxRetries = 3,
+        [int]$RetryDelaySec = 5
+    )
+
+    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+        try {
+            Write-Host "##vso[task.debug]Attempting to GET: $Uri (Attempt $attempt of $MaxRetries)"
+            $response = $HttpClient.GetAsync($Uri).GetAwaiter().GetResult()
+
+            if ($response.IsSuccessStatusCode) {
+                return $response
+            }
+            else {
+                $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+                Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
+            }
+        }
+        catch {
+            Write-Warning "Exception during API call on attempt $attempt : $($_.Exception.Message)"
+        }
+
+        if ($attempt -lt $MaxRetries) {
+            $delay = $RetryDelaySec * $attempt
+            Write-Warning "Waiting for $delay seconds before retrying..."
+            Start-Sleep -Seconds $delay
+        }
+        else {
+            throw "Failed to call API '$Uri' after $MaxRetries attempts."
+        }
+    }
+}
+
+#endregion
 
 try {
-  Import-Module -Name Az.Storage -ErrorAction Stop
-  Import-Module -Name Az.Resources -ErrorAction Stop
-  Import-Module -Name AzTable -ErrorAction Stop
+    #region Initialization
+    Write-Host "Importing required PowerShell modules..."
+    Import-Module -Name Az.Storage -ErrorAction Stop
+    Import-Module -Name AzTable -ErrorAction Stop
 
-  Write-Host "##vso[task.debug]Initializing Azure Storage context with connection string..."
-    $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString -ErrorAction Stop
-
-    # Initialize HTTP client for async API calls
+    Write-Host "Initializing HttpClient for asynchronous API calls..."
     Add-Type -AssemblyName System.Net.Http
     $httpClient = [System.Net.Http.HttpClient]::new()
     $httpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
     $httpClient.DefaultRequestHeaders.Add("Accept", "application/json")
 
-    # Get or create table
-    Write-Host "##vso[task.debug]Checking for table '$TableName'..."
+    Write-Host "Initializing Azure Storage context..."
+    $storageContext = New-AzStorageContext -ConnectionString $StorageConnectionString -ErrorAction Stop
+
+    Write-Host "Verifying Azure Storage Table '$TableName'..."
     $tableRef = Get-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction SilentlyContinue
     if (-not $tableRef) {
-        Write-Host "Creating table '$TableName'..."
+        Write-Host "Table '$TableName' not found. Creating it..."
         $tableRef = New-AzStorageTable -Name $TableName -Context $storageContext -ErrorAction Stop
     }
     $cloudTable = $tableRef.CloudTable
+    #endregion
 
-    # Fetch test runs
-    Write-Host "##vso[task.debug]Fetching test runs for Build ID $BuildId..."
+    #region Fetch Test Runs
+    Write-Host "Fetching test runs for Build ID $BuildId..."
     $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&includeRunDetails=true&api-version=$ApiVersion"
-    $response = $httpClient.GetAsync($testRunsUrl).GetAwaiter().GetResult()
-    if (-not $response.IsSuccessStatusCode) {
-        Write-Host "##vso[task.logissue type=error]Failed to fetch test runs: $($response.StatusCode)"
-        Write-Host "##vso[task.complete result=Failed]"
-        exit 1
-    }
+    $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $httpClient -Uri $testRunsUrl
     $testRunsResponse = ($response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
 
     if (-not $testRunsResponse.value) {
-        Write-Host "No test runs found for Build ID $BuildId."
+        Write-Host "No test runs found for Build ID $BuildId. Exiting gracefully."
         Write-Host "##vso[task.setvariable variable=TestRunCount]0"
         Write-Host "##vso[task.complete result=Succeeded]"
         exit 0
     }
 
+    Write-Host "Found $($testRunsResponse.value.Count) test runs."
     Write-Host "##vso[task.setvariable variable=TestRunCount]$($testRunsResponse.value.Count)"
+    #endregion
+
+    #region Process Results
     $allEntities = [System.Collections.Generic.List[object]]::new()
 
     foreach ($run in $testRunsResponse.value) {
-        if ($run.name -eq 'Aggregated Test Results') {
+        # It's common practice to skip aggregated runs as they don't contain raw result data.
+        if ($run.name -like '*Aggregated*') {
             Write-Host "##vso[task.debug]Skipping aggregated run '$($run.name)' (ID: $($run.id))."
             continue
         }
@@ -145,99 +150,103 @@ try {
         $page = 1
 
         do {
+            # Base URL for fetching results with all necessary details for analysis.
             $resultsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs/$($run.id)/results?`$top=1000&detailsToInclude=WorkItems,Iterations,SubResult,StackTrace&api-version=$ApiVersion"
             if ($continuationToken) {
                 $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
             }
 
-            Write-Host "##vso[task.debug]Fetching page $page of test results for run $($run.id)..."
-            $response = $httpClient.GetAsync($resultsUrl).GetAwaiter().GetResult()
-            if (-not $response.IsSuccessStatusCode) {
-                Write-Host "##vso[task.logissue type=error]Failed to fetch test results for run $($run.id): $($response.StatusCode)"
-                Write-Host "##vso[task.complete result=Failed]"
-                exit 1
-            }
-            $results = ($response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json).value
+            $resultsResponse = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $httpClient -Uri $resultsUrl
+            $resultsData = ($resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
+            $results = $resultsData.value
 
             Write-Host "Fetched page $page with $($results.Count) results for run $($run.id)."
+
             foreach ($result in $results) {
-                # Use BuildId as fallback if pipeline definition name is null
-                $pipelineName = if ($run.pipelineReference.definition.name) { $run.pipelineReference.definition.name } else { "Build_$BuildId" }
-                $partitionKey = "$pipelineName_$($run.name)"
-                $rowKey = "{0:D19}_{1}_{2}" -f (Get-Date).ToUniversalTime().Ticks, $result.testCase.id, $run.id
+                # --- Data Modeling Best Practices ---
+                # PartitionKey: Use the pipeline definition name. This groups all historical data for a pipeline together,
+                # which is excellent for trend analysis. Fallback to a generic key if the info isn't present.
+                $partitionKey = if (-not [string]::IsNullOrEmpty($run.pipelineReference.definition.name)) {
+                    $run.pipelineReference.definition.name.Replace(" ", "_") # Replace spaces for cleaner keys
+                }
+                else {
+                    "Build_$BuildId"
+                }
+
+                # RowKey: Use a reverse-chronological, unique key. This is a highly effective pattern.
+                # It makes querying for the "latest result of a test" extremely fast as new data sorts to the top.
+                $completedDate = if ($result.completedDate) { [DateTime]::Parse($result.completedDate, $null, 'RoundtripKind') } else { (Get-Date) }
+                $reversedTicks = "{0:D19}" -f ([DateTime]::MaxValue.Ticks - $completedDate.ToUniversalTime().Ticks)
+                $rowKey = "{0}_{1}_{2}_{3}" -f $reversedTicks, $result.testCase.id, $run.id, ($result.retryCount ?? 0)
 
                 $entity = @{
                     PartitionKey      = $partitionKey
                     RowKey            = $rowKey
-                    Timestamp         = (Get-Date).ToUniversalTime()
+                    Timestamp         = $completedDate.ToUniversalTime() # Store the actual completion time
                     TestName          = $result.testCase.name ?? "UnknownTest"
                     TestCaseId        = $result.testCase.id ?? "Unknown"
                     Outcome           = $result.outcome ?? "Inconclusive"
                     BuildId           = $BuildId
+                    BuildReason       = $env:BUILD_REASON ?? "Unknown"
                     RunId             = $run.id
+                    TestSuite         = $run.name ?? "UnknownSuite"
                     DurationMs        = $result.durationInMs ?? 0
-                    ErrorMessage      = $result.errorMessage
-                    StackTrace        = $result.stackTrace
-                    RetryCount        = $result.retryCount ?? 0
-                    Environment       = $env:TEST_ENVIRONMENT ?? "Unknown"
+                    ErrorMessage      = $result.errorMessage # Can be null, which is fine
+                    StackTrace        = $result.stackTrace   # Can be null
+                    Attempt           = $result.retryCount ?? 0
                     AgentName         = $env:AGENT_NAME ?? "Unknown"
                     SourceBranch      = $env:BUILD_SOURCEBRANCHNAME ?? "Unknown"
-                    TestCategory      = $result.testCase.category ?? "Unknown"
+                    PipelineDefId     = $run.pipelineReference.definition.id ?? 0
                 }
                 $allEntities.Add($entity)
             }
 
-            # Check if continuation token exists
+            # Check for the continuation token in the response headers to handle pagination.
             $continuationToken = $null
-            if ($response.Headers.Contains("x-ms-continuationtoken")) {
-                $continuationToken = $response.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
-                Write-Host "##vso[task.debug]Continuation token found for page $page : $continuationToken"
-            }
-            else {
-                Write-Host "##vso[task.debug]No continuation token for page $page. All results fetched."
+            if ($resultsResponse.Headers.Contains("x-ms-continuationtoken")) {
+                $continuationToken = $resultsResponse.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
+                Write-Host "##vso[task.debug]Continuation token found for page $page. More results to fetch."
             }
             $page++
         } while ($continuationToken)
     }
+    #endregion
 
-    # Batch entities by PartitionKey
+    #region Batch Upload
     if ($allEntities.Count -gt 0) {
-        Write-Host "Uploading $($allEntities.Count) test results in batches of $BatchSize..."
+        Write-Host "Total test result entities to upload: $($allEntities.Count)."
         Write-Host "##vso[task.setvariable variable=EntityCount]$($allEntities.Count)"
 
+        # CRITICAL: Group entities by PartitionKey. Batch operations in Azure Table Storage
+        # require all entities in the batch to have the same PartitionKey.
         $entityGroups = $allEntities | Group-Object PartitionKey
-        foreach ($group in $entityGroups) {
-            $batchCount = [math]::Ceiling($group.Group.Count / $BatchSize)
-            for ($i = 0; $i -lt $batchCount; $i++) {
-                $batch = $group.Group | Select-Object -Skip ($i * $BatchSize) -First $BatchSize
-                $batchOperation = New-Object -TypeName Microsoft.Azure.Cosmos.Table.TableBatchOperation
 
-                foreach ($entity in $batch) {
-                    $tableEntity = New-Object -TypeName Microsoft.Azure.Cosmos.Table.DynamicTableEntity -ArgumentList $entity.PartitionKey, $entity.RowKey
-                    foreach ($property in $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') }) {
-                        $tableEntity.Properties.Add($property.Key, $property.Value)
-                    }
-                    $batchOperation.InsertOrReplace($tableEntity)
-                }
+        Write-Host "Uploading entities in $($entityGroups.Count) partition groups..."
+
+        foreach ($group in $entityGroups) {
+            $partitionEntities = $group.Group
+            $partitionName = $group.Name
+            Write-Host "Processing partition '$partitionName' with $($partitionEntities.Count) entities."
+
+            $batchCount = [math]::Ceiling($partitionEntities.Count / $BatchSize)
+            for ($i = 0; $i -lt $batchCount; $i++) {
+                $batch = $partitionEntities | Select-Object -Skip ($i * $BatchSize) -First $BatchSize
+                $batchNum = $i + 1
+                Write-Host "Uploading batch $batchNum of $batchCount for partition '$partitionName'..."
 
                 try {
-                    Write-Host "##vso[task.debug]Uploading batch $($i+1) of $batchCount for partition '$($group.Name)'..."
-                    $cloudTable.ExecuteBatch($batchOperation) | Out-Null
-                    Write-Host "Uploaded batch $($i+1) of $batchCount for partition '$($group.Name)'."
+                    # The AzTable module handles the batch creation internally when passed an array of entities.
+                    Add-AzTableRow -Table $cloudTable -Entity $batch -ErrorAction Stop
                 }
                 catch {
-                    Write-Host "##vso[task.logissue type=warning]Batch $($i+1) for partition '$($group.Name)' failed: $_"
+                    # Fallback Logic: If the batch fails for any reason, try uploading entities one by one.
+                    Write-Host "##vso[task.logissue type=warning]Batch $batchNum for partition '$partitionName' failed: $($_.Exception.Message). Attempting individual uploads for this batch."
                     foreach ($entity in $batch) {
                         try {
-                            $properties = @{}
-                            foreach ($property in $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') }) {
-                                $properties[$property.Key] = $property.Value
-                            }
-                            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $properties -ErrorAction Stop
-                            Write-Host "##vso[task.debug]Uploaded individual entity '$($entity.RowKey)' for partition '$($group.Name)'."
+                            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $entity -ErrorAction Stop
                         }
                         catch {
-                            Write-Host "##vso[task.logissue type=warning]Failed to upload entity '$($entity.RowKey)' in partition '$($group.Name)': $_"
+                            Write-Host "##vso[task.logissue type=error]Failed to upload individual entity with RowKey '$($entity.RowKey)' in partition '$partitionName': $($_.Exception.Message)"
                         }
                     }
                 }
@@ -245,21 +254,27 @@ try {
         }
     }
     else {
-        Write-Host "No test results to log."
+        Write-Host "No test results were found to log."
         Write-Host "##vso[task.setvariable variable=EntityCount]0"
     }
+    #endregion
 
-    # Log execution duration
-    # $durationMs = ((Get-Date) - $startTime).TotalMilliseconds
-    # Write-Host "##vso[task.setvariable variable=ScriptDurationMs]$durationMs"
-    # Write-Host "Script completed successfully in $durationMs ms."
+    $startTime.Stop()
+    $durationMs = $startTime.Elapsed.TotalMilliseconds
+    Write-Host "##vso[task.setvariable variable=ScriptDurationMs]$durationMs"
+    Write-Host "Script completed successfully in $($startTime.Elapsed.TotalSeconds) seconds."
     Write-Host "##vso[task.complete result=Succeeded]"
 }
 catch {
-    Write-Host "##vso[task.logissue type=error]Critical error: $_"
+    Write-Host "##vso[task.logissue type=error;]A critical error occurred: $($_.Exception.Message)"
+    Write-Host "##vso[task.logissue type=error;]$($_.ScriptStackTrace)"
     Write-Host "##vso[task.complete result=Failed]"
     exit 1
 }
 finally {
-    $httpClient.Dispose()
+    # Ensure the HttpClient is always disposed of to release resources.
+    if ($null -ne $httpClient) {
+        Write-Host "##vso[task.debug]Disposing HttpClient."
+        $httpClient.Dispose()
+    }
 }
