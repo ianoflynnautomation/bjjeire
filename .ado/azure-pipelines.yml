@@ -28,6 +28,7 @@ variables:
   - group: AZURE-Infra-DevTest-Config
   - group: BjjEire-Frontend-Secrets
   - template: templates/variables/ci-variables.yml
+  - template: templates/variables/flaky-tests-variables.yml
 
 stages:
   - template: templates/stages/build-and-test-stage.yml

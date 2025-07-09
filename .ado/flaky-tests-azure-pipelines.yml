@@ -28,7 +28,7 @@ steps:
     inputs:
       filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Analyze-FlakyTests-AzureBoards.ps1'
       arguments: >
-        -TableName "TestResultHistory"
+        -TableName "$(SA_TEST_HISTORY_TABLE_NAME)"
         -Organization "$(ORGANISATION_NAME)"
         -Project "$(System.TeamProject)"
         -Pat $env:SYSTEM_ACCESSTOKEN
