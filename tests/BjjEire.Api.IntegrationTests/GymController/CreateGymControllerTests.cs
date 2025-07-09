@@ -33,8 +33,8 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         var createdGymResponse = await Http.ReadAsJsonAsync<CreateGymResponse>(response);
 
         //NOTE: Failing test to test flaky test pipeline
-        createdGymResponse.ShouldBeNull();
-        // createdGymResponse.ShouldNotBeNull();
+        //createdGymResponse.ShouldBeNull();
+        createdGymResponse.ShouldNotBeNull();
         createdGymResponse.Data.ShouldNotBeNull();
         createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
     }
@@ -50,8 +50,8 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         // Assert
         //NOTE: Failing test to test flaky test pipeline
-        // response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        //response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
