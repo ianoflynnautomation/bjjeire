@@ -43,7 +43,7 @@ param (
   [Parameter(Mandatory = $true)]
   [string]$AreaPath,
   [int]$TimeWindowDays = 14,
-  [double]$FlakinessThreshold = 0.05,
+  [double]$FlakinessThreshold = 0.01,
   [int]$MinRunsThreshold = 10,
   [Parameter(Mandatory = $false)]
   [string]$ApiVersion = '7.1'
