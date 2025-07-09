@@ -53,6 +53,7 @@ $headers = @{
   "Content-Type" = "application/json"
 }
 
+# Helper function for resilient API calls with retry logic
 function Invoke-AdoRestMethodWithRetry {
     param(
         [string]$Uri,
@@ -152,15 +153,15 @@ try {
             $batch = $allEntitiesToLog | Select-Object -Skip ($i * $BatchSize) -First $BatchSize
             Write-Host "Upserting batch $($i+1) of $batchCount..."
             try {
-                # BEST PRACTICE: Use Set-AzTableRow with -Force to perform an "Insert or Replace" (Upsert) operation.
+                # BEST PRACTICE: Use Add-AzTableRow with -Force to perform an "Insert or Replace" (Upsert) operation.
                 # This makes the entire process idempotent.
-                Set-AzTableRow -Table $cloudTable -Entity $batch -Force -ErrorAction Stop
+                Add-AzTableRow -Table $cloudTable -Entity $batch -Force -ErrorAction Stop
             }
             catch {
                 Write-Warning "Batch $($i+1) failed. Error: $_. This can happen with mixed partition keys in a single batch. Trying individual upserts as a fallback..."
                 foreach ($entity in $batch) {
                     try {
-                        Set-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $entity -Force -ErrorAction Stop
+                        Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $entity -Force -ErrorAction Stop
                     }
                     catch {
                         Write-Warning "Failed to upsert entity with RowKey '$($entity.RowKey)'. Error: $_"
