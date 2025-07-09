@@ -5,6 +5,9 @@
     This script queries all test runs for a given build, iterates through all test results using proper pagination,
     and logs the results efficiently in batches to Azure Table Storage.
     This historical data is the foundation for calculating Flaky Test Rate and MTTR.
+.NOTES
+    Version: 1.0
+    Author: 
 .PARAMETER Organization
     Your Azure DevOps organization name.
 .PARAMETER Project
