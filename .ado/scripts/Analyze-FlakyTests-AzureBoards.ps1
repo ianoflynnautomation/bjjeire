@@ -74,7 +74,9 @@ function Get-AdoWorkItemsByTag {
 function New-AdoBugForFlakyTest {
   param($testName, $description, $tags)
   $encodedProject = [uri]::EscapeDataString($Project)
-  $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems/`$Bug?api-version=$ApiVersion"
+  # # TODO: work item BUG is not available in free account
+  # $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems/`$Bug?api-version=$ApiVersion"
+  $url = "https://dev.azure.com/$Organization/$encodedProject/_apis/wit/workitems/`$Task?api-version=$ApiVersion"
   $body = @(
     @{ op = "add"; path = "/fields/System.Title"; value = "[Flaky Test] $testName" },
     @{ op = "add"; path = "/fields/Microsoft.VSTS.TCM.ReproSteps"; value = $description },
