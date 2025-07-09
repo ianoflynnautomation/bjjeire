@@ -88,10 +88,24 @@ param (
 #   }
 # }
 
+# $startTime = Get-Date
+
 try {
   Import-Module -Name Az.Storage -ErrorAction Stop
   Import-Module -Name Az.Resources -ErrorAction Stop
   Import-Module -Name AzTable -ErrorAction Stop
+
+  Write-Host "##vso[task.debug]Validating input parameters..."
+  if ([string]::IsNullOrWhiteSpace($StorageConnectionString)) {
+    Write-Host "##vso[task.logissue type=error]StorageConnectionString is null or empty. Please provide a valid Azure Storage connection string."
+    Write-Host "##vso[task.complete result=Failed]"
+    exit 1
+  }
+  if ([string]::IsNullOrWhiteSpace($Pat)) {
+    Write-Host "##vso[task.logissue type=error]Pat is null or empty. Please provide a valid Personal Access Token."
+    Write-Host "##vso[task.complete result=Failed]"
+    exit 1
+  }
 
   # Initialize Azure Storage module and context
   Import-Module -Name Az.Storage -ErrorAction Stop
@@ -185,7 +199,15 @@ try {
         $allEntities.Add($entity)
       }
 
-      $continuationToken = $response.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
+      # Check if continuation token exists before accessing it
+      $continuationToken = $null
+      if ($response.Headers.Contains("x-ms-continuationtoken")) {
+        $continuationToken = $response.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
+        Write-Host "##vso[task.debug]Continuation token found for page $page : $continuationToken"
+      }
+      else {
+        Write-Host "##vso[task.debug]No continuation token for page $page. All results fetched."
+      }
       $page++
     } while ($continuationToken)
   }
@@ -224,9 +246,9 @@ try {
   }
 
   # Log execution duration
-  $durationMs = ((Get-Date) - $startTime).TotalMilliseconds
-  Write-Host "##vso[task.setvariable variable=ScriptDurationMs]$durationMs"
-  Write-Host "Script completed successfully in $durationMs ms."
+  # $durationMs = ((Get-Date) - $startTime).TotalMilliseconds
+  # Write-Host "##vso[task.setvariable variable=ScriptDurationMs]$durationMs"
+  # Write-Host "Script completed successfully in $durationMs ms."
   Write-Host "##vso[task.complete result=Succeeded]"
 }
 catch {
