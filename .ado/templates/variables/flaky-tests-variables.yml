@@ -1,4 +1,4 @@
 variables:
   AZURE_API_VERSION: 7.1
   ADO_AREA_PATH: 'IofOps\TestHealth'
-  SA_TEST_HISTORY_TABLE_NAME: 'TestResultsHistoryIofOps'
+  SA_TEST_HISTORY_TABLE_NAME: 'IofOpsTestResultsHistoryTable'

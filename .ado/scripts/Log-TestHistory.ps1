@@ -177,7 +177,10 @@ try {
 
                 $completedDate = if ($result.completedDate) { [DateTime]::Parse($result.completedDate, $null, 'RoundtripKind') } else { (Get-Date) }
                 $reversedTicks = "{0:D19}" -f ([DateTime]::MaxValue.Ticks - $completedDate.ToUniversalTime().Ticks)
-                $rowKey = "{0}_{1}_{2}_{3}" -f $reversedTicks, $result.testCase.id, $run.id, ($result.retryCount ?? 0)
+                
+                # CRITICAL FIX: The RowKey must be unique. Using the test result's own ID guarantees uniqueness
+                # while the reversed ticks ensure chronological sorting.
+                $rowKey = "{0}_{1}" -f $reversedTicks, $result.id
 
                 $entity = @{
                     PartitionKey      = $partitionKey
@@ -232,8 +235,6 @@ try {
                 $batchOperation = New-Object -TypeName Microsoft.Azure.Cosmos.Table.TableBatchOperation
                 foreach($entity in $batch){
                     $tableEntity = New-Object -TypeName Microsoft.Azure.Cosmos.Table.DynamicTableEntity -ArgumentList $entity.PartitionKey, $entity.RowKey
-                    
-                    # CRITICAL FIX: Add properties to the entity, filtering out any that have a null value.
                     $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') -and $null -ne $_.Value } | ForEach-Object {
                         $tableEntity.Properties.Add($_.Key, $_.Value)
                     }
@@ -248,12 +249,13 @@ try {
                     Write-Host "##vso[task.logissue type=warning]Batch $batchNum for partition '$partitionName' failed: $($_.Exception.Message). Attempting individual uploads for this batch."
                     foreach ($entity in $batch) {
                         try {
-                            # CRITICAL FIX: Create properties hashtable for individual upload, filtering out nulls.
-                            $properties = @{}
+                            # CRITICAL FIX: Use an InsertOrReplace operation for the fallback to make it idempotent and prevent Conflict errors.
+                            $individualEntity = New-Object -TypeName Microsoft.Azure.Cosmos.Table.DynamicTableEntity -ArgumentList $entity.PartitionKey, $entity.RowKey
                             $entity.GetEnumerator() | Where-Object { $_.Key -notin @('PartitionKey', 'RowKey') -and $null -ne $_.Value } | ForEach-Object {
-                                $properties.Add($_.Key, $_.Value)
+                                $individualEntity.Properties.Add($_.Key, $_.Value)
                             }
-                            Add-AzTableRow -Table $cloudTable -PartitionKey $entity.PartitionKey -RowKey $entity.RowKey -Property $properties -ErrorAction Stop
+                            $operation = [Microsoft.Azure.Cosmos.Table.TableOperation]::InsertOrReplace($individualEntity)
+                            $cloudTable.Execute($operation) | Out-Null
                         }
                         catch {
                             Write-Host "##vso[task.logissue type=error]Failed to upload individual entity with RowKey '$($entity.RowKey)' in partition '$partitionName': $($_.Exception.Message)"
