@@ -46,3 +46,4 @@ jobs:
         BUILD_REASON: $(Build.Reason)
         BUILD_SOURCEBRANCHNAME: $(Build.SourceBranchName)
         AGENT_NAME: $(Agent.Name)
+        SYSTEM_DEBUG: true
