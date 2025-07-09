@@ -34,8 +34,6 @@ $headers = @{
 try {
   Write-Host "Querying for active, quarantined flaky tests..."
 
-  # This WIQL query finds work items that are active and have BOTH tags.
-  # This is the source of truth for what is currently under quarantine.
   $wiql = @{
     query = "
             SELECT [System.Id], [System.Title]
@@ -63,7 +61,6 @@ try {
   Write-Host "Found $($response.workItems.Count) quarantined tests. Building exclusion filter."
 
   foreach ($item in $response.workItems) {
-    # The work item URL is available directly from the WIQL response
     $workItemUrl = $item.url
     $workItemDetails = Invoke-RestMethod -Method Get -Uri $workItemUrl -Headers $headers
     $title = $workItemDetails.fields.'System.Title'
