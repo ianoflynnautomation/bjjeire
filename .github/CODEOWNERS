@@ -1,0 +1,59 @@
+# CODEOWNERS file for MyBjjEire
+# This file defines ownership of code paths for automatic assignment of reviews and bugs.
+# Format: <file_pattern> <owner(s)> (can be usernames, email addresses, or team aliases)
+# Owners are responsible for reviewing changes and handling issues in their areas.
+
+# Default ownership for all files (catch-all for unlisted paths)
+* @MyBjjEire/core-devs
+
+# Backend code ownership
+# API-specific code and integration tests
+# Database-related code
+# Includes migrations, schema definitions, and database utilities
+# All backend-related code is owned by the backend team
+/src/BjjEire.Api/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.Application/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.Domain/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.Aspire.AppHost/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.Infrastructure/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.ServiceDefaults/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/src/BjjEire.SharedKernel/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+
+/tests/BjjEire.Api.IntegrationTests/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/tests/BjjEire.Application.FunctionalTests/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/tests/BjjEire.Application.UnitTests/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/tests/BjjEire.Domain.UnitTests/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+/tests/BjjEire.Infrastructure.IntegrationTests/ @MyBjjEire/api-team ianoflynnlimited@gmail.com
+
+# Frontend code ownership
+# All frontend components, styles, and UI tests
+/src/bjjeire-app/ @MyBjjEire/frontend-team ianoflynnlimited@gmail.com
+
+# Infrastructure and DevOps
+# Includes CI/CD pipelines, Dockerfiles, Kubernetes configs, and cloud infrastructure
+/infra/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/.github/workflows/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/.github/actions/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/.ado/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/.ado/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/.devcontainer/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/charts/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+/terraform/ @MyBjjEire/devops-team ianoflynnlimited@gmail.com
+
+# Documentation
+# All markdown files, API docs, and user guides
+*.md @MyBjjEire/technical-writers
+
+# Security-related code
+# Includes authentication, authorization, and security configurations
+
+# QA and test automation
+# General test utilities and frameworks
+/tests/@BjjEire.Web.SystemTests/ @MyBjjEire/qa-team ianoflynnlimited@gmail.com
+/tests/BjjEire.Web.AcceptanceTests/ @MyBjjEire/qa-team ianoflynnlimited@gmail.com
+
+# Configuration files
+# Root-level config files (e.g., package.json, tsconfig.json, etc.)
+
+# Specific high-priority files
+# Critical files that require senior developer oversight
