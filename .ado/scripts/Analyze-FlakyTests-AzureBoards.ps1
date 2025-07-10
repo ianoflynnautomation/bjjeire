@@ -24,7 +24,9 @@ param (
   [string]$AreaPath,
   [Parameter(Mandatory = $false)]
   [string]$ApiVersion = '7.1',
-  
+
+  [string]$RepoName = 'IofOps',
+  [string]$TestHealthDashboardUrl = "https://dev.azure.com/your-org/your-project/_dashboards/dashboard/your-dashboard-guid",
   # --- Analysis Thresholds ---
   [int]$TimeWindowDays = 14,
   [double]$FlakinessThreshold = 0.01, # e.g., 1% flip rate
@@ -65,11 +67,7 @@ try {
   $uniqueTests = $recentTestResults | Group-Object -Property TestName
   $currentlyFlakyTests = [System.Collections.Generic.List[PSObject]]::new()
 
-  Write-Host "Analyzing $($uniqueTests.Count) unique tests with the following thresholds:"
-  Write-Host "- Min Runs: $MinRunsThreshold"
-  Write-Host "- Min Flips: $MinFlipsThreshold"
-  Write-Host "- Flip Rate: $($FlakinessThreshold.ToString('P0'))"
-  Write-Host "- Duration StdDev Factor: $DurationStdDevFactor"
+  Write-Host "Analyzing $($uniqueTests.Count) unique tests..."
 
   foreach ($testGroup in $uniqueTests) {
     $testName = $testGroup.Name
@@ -78,7 +76,7 @@ try {
         
     $flakinessReasons = [System.Collections.Generic.List[string]]::new()
 
-    # --- SIGNAL 1: Flip-Rate Analysis (with Statistical Significance) ---
+    # --- SIGNAL 1: Flip-Rate Analysis ---
     $flips = 0
     for ($i = 1; $i -lt $history.Count; $i++) {
       if (($history[$i].Outcome -eq 'Passed' -and $history[$i - 1].Outcome -eq 'Failed') -or
@@ -87,7 +85,6 @@ try {
       }
     }
     $flipRate = $flips / ($history.Count - 1)
-
     if ($flipRate -ge $FlakinessThreshold -and $flips -ge $MinFlipsThreshold) {
       $flakinessReasons.Add("High flip rate (Rate: $($flipRate.ToString('P2')), Flips: $flips)")
     }
@@ -95,13 +92,10 @@ try {
     # --- SIGNAL 2: Execution Duration Variance Analysis ---
     $durations = $history.DurationMs | ForEach-Object { [double]$_ }
     if ($durations.Count -gt 5) {
-      # Only analyze if we have enough data points for duration
       $avgDuration = $durations | Measure-Object -Average | Select-Object -ExpandProperty Average
       if ($avgDuration -gt 50) {
-        # Ignore variance for very fast tests (e.g., < 50ms)
         $sumOfSquares = ($durations | ForEach-Object { [math]::Pow($_ - $avgDuration, 2) }) | Measure-Object -Sum | Select-Object -ExpandProperty Sum
         $stdDev = [math]::Sqrt($sumOfSquares / $durations.Count)
-
         if ($stdDev -gt ($avgDuration * $DurationStdDevFactor)) {
           $flakinessReasons.Add("Unstable execution time (Avg: $($avgDuration.ToString('F0'))ms, StdDev: $($stdDev.ToString('F0'))ms)")
         }
@@ -110,13 +104,17 @@ try {
 
     # --- Decision: If any signal was triggered, flag the test ---
     if ($flakinessReasons.Count -gt 0) {
+      $firstFailure = $history | Where-Object { $_.Outcome -eq 'Failed' } | Sort-Object -Property Timestamp | Select-Object -First 1
+      $lastGoodRun = $history | Where-Object { $_.Timestamp -lt $firstFailure.Timestamp } | Sort-Object -Property Timestamp -Descending | Select-Object -First 1
       $lastFailure = $history | Where-Object { $_.Outcome -eq 'Failed' } | Sort-Object -Property Timestamp -Descending | Select-Object -First 1
+      
       $currentlyFlakyTests.Add([PSCustomObject]@{
-          TestName    = $testName
-          Reasons     = $flakinessReasons
-          TotalRuns   = $history.Count
-          HistoryText = ($history.Outcome -join ', ')
-          LastFailure = $lastFailure
+          TestName     = $testName
+          Reasons      = $flakinessReasons
+          HistoryText  = ($history.Outcome -join ', ')
+          FirstFailure = $firstFailure
+          LastGoodRun  = $lastGoodRun
+          LastFailure  = $lastFailure
         })
     }
   }
@@ -128,13 +126,46 @@ try {
   Write-Host "Found $($existingBugs.Count) open flaky test bugs."
 
   foreach ($flakyTest in $currentlyFlakyTests) {
-    $bugExists = $existingBugs | Where-Object { $_.fields.'System.Title' -like "*$($flakyTest.TestName)*" -and $_.fields.'System.State' -ne 'Resolved' -and $_.fields.'System.State' -ne 'Closed' }
+    $bugExists = $existingBugs | Where-Object { $_.fields.'System.Title' -like "*$($flakyTest.TestName)*" -and $_.fields.'System.State' -ne 'Resolved' -and $_.fields.'System.State' -ne 'Closed' -and $_.fields.'System.State' -ne 'Done' }
         
     if (-not $bugExists) {
       Write-Host "##vso[task.logissue type=warning]CREATING new bug for flaky test: $($flakyTest.TestName)"
       $reasonsList = ($flakyTest.Reasons | ForEach-Object { "<li>$_</li>" }) -join ''
-      $description = "<h3>Automated Flaky Test Report</h3>This test has been identified as flaky by the automated detection pipeline.<br/><br/><b>Action Required:</b> Please investigate the root cause.<hr><b>Reason(s) for Flakiness:</b><ul>$reasonsList</ul><b>Total Runs Analyzed:</b> $($flakyTest.TotalRuns)<br/><b>Recent History (oldest to newest):</b> $($flakyTest.HistoryText)<br/><br/><b>Last Failure Details:</b><ul><li><b>Build ID:</b> $($flakyTest.LastFailure.BuildId)</li><li><b>Error Message:</b> $($flakyTest.LastFailure.ErrorMessage)</li></ul>"
-      New-AdoBugForFlakyTest -HttpClient $httpClient -Organization $Organization -Project $Project -TestName $flakyTest.TestName -Description $description -AreaPath $AreaPath -Tags "FlakyTest; Automated; Quarantined" -ApiVersion $ApiVersion
+      
+      # --- Build Rich Description with Links ---
+      $commitLink = "https://dev.azure.com/$Organization/$Project/_git/$RepoName/commit/$($flakyTest.FirstFailure.CommitId)"
+      $firstFailureLink = "https://dev.azure.com/$Organization/$Project/_build/results?buildId=$($flakyTest.FirstFailure.BuildId)"
+      $lastGoodRunLink = if ($flakyTest.LastGoodRun) { "https://dev.azure.com/$Organization/$Project/_build/results?buildId=$($flakyTest.LastGoodRun.BuildId)" } else { '' }
+      $safeErrorMessage = $flakyTest.LastFailure.ErrorMessage -replace '<', '&lt;' -replace '>', '&gt;'
+
+      $description = @"
+<h3>Automated Flaky Test Report</h3>
+<p>This test is now <strong>quarantined</strong>. Please investigate and fix the underlying instability.</p>
+<hr>
+<p><strong>Detection Reason(s):</strong></p>
+<ul>$reasonsList</ul>
+<p><strong>Suggested Culprit Commit:</strong> <a href="$commitLink">$($flakyTest.FirstFailure.CommitId.Substring(0,8))</a></p>
+<hr>
+<p><strong>Context Links:</strong></p>
+<ul>
+    <li><a href="$firstFailureLink">First Failing Build</a></li>
+"@
+      if ($lastGoodRunLink) {
+        $description += "<li><a href=`"$lastGoodRunLink`">Last Known-Good Build</a></li>"
+      }
+      $description += @"
+    <li><a href="$TestHealthDashboardUrl">Test Health Dashboard</a></li>
+</ul>
+<hr>
+<p><strong>Recent History (oldest to newest):</strong></p>
+<p>$($flakyTest.HistoryText)</p>
+<p><strong>Last Failure Error:</strong></p>
+<pre>$safeErrorMessage</pre>
+"@
+      
+      $assignee = $flakyTest.FirstFailure.RequestedForEmail
+
+      New-AdoBugForFlakyTest -HttpClient $httpClient -Organization $Organization -Project $Project -TestName $flakyTest.TestName -Description $description -AreaPath $AreaPath -Tags "FlakyTest; Automated; Quarantined" -AssignedToEmail $assignee -ApiVersion $ApiVersion
     }
   }
 
