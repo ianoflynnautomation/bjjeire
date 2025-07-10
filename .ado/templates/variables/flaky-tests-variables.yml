@@ -1,4 +1,6 @@
 variables:
   AZURE_API_VERSION: 7.1
   ADO_AREA_PATH: 'IofOps\TestHealth'
-  SA_TEST_HISTORY_TABLE_NAME: 'IofOpsTestResultsHistoryTable'
+  SA_TEST_HISTORY_TABLE_NAME: 'TestResultsHistoryTableIofOps'
+  AZURE_DEVOPS_TEST_HEALTH_DASHBOARD_URL: https://dev.azure.com/your-org/your-project/_dashboards/dashboard/your-dashboard-guid",
+  PROJECT_REPO_NAME: IofOps
