@@ -3,16 +3,15 @@
     Queries Azure DevOps for quarantined tests and generates a VSTest filter to exclude them.
 .DESCRIPTION
     This script is designed to run in a CI/PR pipeline before the main test task.
-    It finds all active work items tagged as 'FlakyTest' and 'Quarantined', extracts the
-    fully qualified test names from their titles, and builds a filter string.
-    This filter string is then set as an output variable ('quarantineFilter') to be consumed
-    by a subsequent VSTest or 'dotnet test' task.
+    It uses the AdoWorkItemManagement module to find all active work items tagged as 'FlakyTest' and 'Quarantined',
+    extracts the test names, and builds a filter string. This filter is set as a pipeline output variable.
 .OUTPUTS
     Sets a pipeline output variable named 'quarantineFilter'.
-    Example value: "FullyQualifiedName!=Namespace.Class1.TestA&FullyQualifiedName!=Namespace.Class2.TestB"
+    Example: "FullyQualifiedName!=Namespace.Class1.TestA&FullyQualifiedName!=Namespace.Class2.TestB"
 .NOTES
-    Version: 1.0
+    Version: 2.0
     Author: Staff SDET
+    Depends on: AdoWorkItemManagement.psm1
 #>
 [CmdletBinding()]
 param(
@@ -26,16 +25,25 @@ param(
   [string]$ApiVersion = '7.1'
 )
 
-$headers = @{
-  Authorization  = "Bearer $Pat"
-  "Content-Type" = "application/json"
-}
+$httpClient = $null
 
 try {
-  Write-Host "Querying for active, quarantined flaky tests..."
+    # 1. Initialization
+    $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1"
+    Write-Host "Importing module from: $modulePath"
+    Import-Module -Name $modulePath -Force
 
-  $wiql = @{
-    query = "
+    Write-Host "Initializing HttpClient..."
+    Add-Type -AssemblyName System.Net.Http
+    $httpClient = [System.Net.Http.HttpClient]::new()
+    $httpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
+
+    # 2. Query for Quarantined Work Items
+    Write-Host "Querying for active, quarantined flaky tests..."
+    # The Get-AdoWorkItemsByTag function is not sufficient here as we need a more complex query (two tags).
+    # We will construct a specific WIQL query for this task.
+    $wiql = @{
+        query = "
             SELECT [System.Id], [System.Title]
             FROM workitems
             WHERE [System.TeamProject] = @project
@@ -43,59 +51,64 @@ try {
             AND [System.Tags] CONTAINS 'Quarantined'
             AND [System.State] IN ('New', 'Active', 'To Do', 'Proposed')
         "
-  } | ConvertTo-Json
+    } | ConvertTo-Json
 
-  $url = "https://dev.azure.com/$Organization/$Project/_apis/wit/wiql?api-version=$ApiVersion"
-  $response = Invoke-RestMethod -Method Post -Uri $url -Headers $headers -Body $wiql
+    $url = "https://dev.azure.com/$Organization/$Project/_apis/wit/wiql?api-version=$ApiVersion"
+    
+    # Use the resilient async function from the module
+    $responseMessage = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $httpClient -Uri $url -Method Post -Body $wiql
+    $response = ($responseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
 
-  if (-not $response.workItems) {
-    Write-Host "No quarantined tests found. All tests will be run."
-    # Set an empty filter string. This is important.
-    Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true]"
-    exit 0
-  }
-
-  $testNamesToExclude = [System.Collections.Generic.List[string]]::new()
-  $titlePrefix = '[Flaky Test] '
-
-  Write-Host "Found $($response.workItems.Count) quarantined tests. Building exclusion filter."
-
-  foreach ($item in $response.workItems) {
-    $workItemUrl = $item.url
-    $workItemDetails = Invoke-RestMethod -Method Get -Uri $workItemUrl -Headers $headers
-    $title = $workItemDetails.fields.'System.Title'
-
-    if ($title -like "$($titlePrefix)*") {
-      # Extract the fully qualified test name by removing the prefix
-      $testName = $title.Substring($titlePrefix.Length)
-      $testNamesToExclude.Add($testName.Trim())
-      Write-Host "  - Adding to exclusion list: $testName"
+    if (-not $response.workItems) {
+        Write-Host "No quarantined tests found. All tests will be run."
+        Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true;]"
+        exit 0
     }
-  }
 
-  if ($testNamesToExclude.Count -eq 0) {
-    Write-Host "No valid test names found in work item titles. All tests will be run."
-    Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true]"
-    exit 0
-  }
+    # 3. Build the VSTest Filter
+    $testNamesToExclude = [System.Collections.Generic.List[string]]::new()
+    $titlePrefix = '[Flaky Test] '
 
-  # Build the final filter string for VSTest/dotnet test
-  # Format: FullyQualifiedName!=Test1&FullyQualifiedName!=Test2
-  $filterParts = $testNamesToExclude | ForEach-Object { "FullyQualifiedName!=$_" }
-  $filterString = $filterParts -join '&'
+    Write-Host "Found $($response.workItems.Count) quarantined tests. Building exclusion filter."
 
-  Write-Host "Generated VSTest filter: $filterString"
+    # Fetch details for all found work items in a single batch call for efficiency
+    $ids = ($response.workItems.id | ForEach-Object { $_ }) -join ','
+    $getDetailsUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems?ids=$ids&fields=System.Title&api-version=$ApiVersion"
+    $detailsResponseMessage = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $httpClient -Uri $getDetailsUrl
+    $workItemsDetails = ($detailsResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json).value
 
-  # Set the output variable for the pipeline. The next task can access this.
-  Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true]$filterString"
+    foreach ($item in $workItemsDetails) {
+        $title = $item.fields.'System.Title'
+        if ($title -like "$($titlePrefix)*") {
+            $testName = $title.Substring($titlePrefix.Length)
+            $testNamesToExclude.Add($testName.Trim())
+            Write-Host "  - Adding to exclusion list: $testName"
+        }
+    }
 
-  Write-Host "Script completed successfully."
+    if ($testNamesToExclude.Count -eq 0) {
+        Write-Host "No valid test names found in work item titles. All tests will be run."
+        Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true;]"
+        exit 0
+    }
 
+    $filterParts = $testNamesToExclude | ForEach-Object { "FullyQualifiedName!=$_" }
+    $filterString = $filterParts -join '&'
+
+    # 4. Set Pipeline Variable
+    Write-Host "Generated VSTest filter: $filterString"
+    Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true]$filterString"
+    Write-Host "Script completed successfully."
 }
 catch {
-  Write-Error "A critical error occurred while generating the quarantine filter: $_"
-  Write-Error $_.Exception.ToString()
-  # In case of failure, set an empty filter to avoid breaking the build.
-  Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true]"
-  exit 1
+    Write-Host "##vso[task.logissue type=error]A critical error occurred while generating the quarantine filter: $_"
+    Write-Host "##vso[task.logissue type=error]$($_.ScriptStackTrace)"
+    # In case of failure, set an empty filter to avoid breaking the build.
+    Write-Host "##vso[task.setvariable variable=quarantineFilter;isOutput=true;]"
+    exit 1
+}
+finally {
+    if ($null -ne $httpClient) {
+        $httpClient.Dispose()
+    }
 }
