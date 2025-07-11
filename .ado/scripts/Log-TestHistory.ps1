@@ -47,6 +47,9 @@ $adoHttpClient = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
 
 try {
+
+  Install-Module PowerShellKusto -Scope CurrentUser
+  
   # 1. Initialization
   Write-Host "Script starting..."
   $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
