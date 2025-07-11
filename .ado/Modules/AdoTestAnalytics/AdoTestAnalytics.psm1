@@ -8,7 +8,7 @@
     Version: 2.0
     Author: Staff SDET
 #>
-using module ".\AdoAutomationCore.psm1"
+using module ".\AdoAutomationCore\AdoAutomationCore.psm1"
 
 function Get-AdoTestRuns {
   [CmdletBinding()]
