@@ -4,11 +4,11 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.10
+    Version: 1.12
     Author: Staff SDET
-    Changes in v1.10:
-    - Corrected the KQL query in `Test-AdxTableExists` to resolve the '400 Bad Request' error.
-    - Added comprehensive error logging to the `catch` block in `Test-AdxTableExists` to capture the full response body from ADX on failure, which is critical for debugging.
+    Changes in v1.12:
+    - Implemented a more robust error handling mechanism in the catch blocks to resolve the "Cannot access a disposed object" error.
+    - The code now reads the error details from the PowerShell ErrorRecord, which is safer than accessing the raw response stream.
 #>
 
 #region Reusable Functions
@@ -71,11 +71,10 @@ function Test-AdxTableExists {
     return $true
   }
   catch {
-    # <<< FIX: Correctly read the response body from the exception object.
+    # <<< FIX: Use a more robust method to get the error details to avoid the disposed object exception.
     $errorMessage = $_.Exception.Message
-    if ($_.Exception.Response) {
-        $responseBody = $_.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        $errorMessage += " Response Body: $responseBody"
+    if ($_.ErrorDetails.Message) {
+        $errorMessage += " | Response: " + $_.ErrorDetails.Message
     }
     Write-Warning "Verification query failed. This may indicate the table/database is not found or a query syntax error. Full Error: $errorMessage"
     return $false
@@ -228,11 +227,10 @@ function Publish-TestResultsToADX {
     Write-Host "Successfully queued data for ingestion into ADX."
   }
   catch {
-    # <<< FIX: Correctly read the response body from the exception object.
+    # <<< FIX: Use a more robust method to get the error details to avoid the disposed object exception.
     $errorMessage = $_.Exception.Message
-    if ($_.Exception.Response) {
-        $responseBody = $_.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        $errorMessage += " Response Body: $responseBody"
+    if ($_.ErrorDetails.Message) {
+        $errorMessage += " | Response: " + $_.ErrorDetails.Message
     }
     throw "Failed to ingest data to ADX. Error: $errorMessage"
   }
