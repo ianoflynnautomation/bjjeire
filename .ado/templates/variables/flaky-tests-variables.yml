@@ -3,6 +3,7 @@ variables:
   ADO_AREA_PATH: 'IofOps\TestHealth'
   AZURE_DEVOPS_TEST_HEALTH_DASHBOARD_URL: 'https://dev.azure.com/your-org/your-project/_dashboards/dashboard/your-dashboard-guid'
   PROJECT_REPO_NAME: IofOps
+  KUSTO_CLUSTER_NAME: 'testresults-dev-sn-dec'
   KUSTO_DATABASE_NAME: 'TestAnalyticsDb'
   KUSTO_TABLE_NAME: 'TestResultHistory'
   KUSTO_MAPPING_NAME: 'TestResultHistory_Mapping'

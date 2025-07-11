@@ -13,103 +13,103 @@
 #region Reusable Functions
 
 function Invoke-AdoRestMethodAsyncWithRetry {
-    <#
+  <#
     .SYNOPSIS
         Performs a resilient request to a REST API, supporting different methods and retry logic.
     #>
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Net.Http.HttpClient]$HttpClient,
-        [Parameter(Mandatory = $true)]
-        [string]$Uri,
-        [string]$Method = 'GET',
-        [string]$Body,
-        [string]$ContentType = "application/json",
-        [int]$MaxRetries = 3,
-        [int]$RetryDelaySec = 5
-    )
+  param(
+    [Parameter(Mandatory = $true)]
+    [System.Net.Http.HttpClient]$HttpClient,
+    [Parameter(Mandatory = $true)]
+    [string]$Uri,
+    [string]$Method = 'GET',
+    [string]$Body,
+    [string]$ContentType = "application/json",
+    [int]$MaxRetries = 3,
+    [int]$RetryDelaySec = 5
+  )
 
-    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
-        try {
-            Write-Host "##vso[task.debug]Attempting to $Method : $Uri (Attempt $attempt of $MaxRetries)"
-            $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::$Method, $Uri)
-            if ($Body) {
-                $request.Content = [System.Net.Http.StringContent]::new($Body, [System.Text.Encoding]::UTF8, $ContentType)
-            }
+  for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+    try {
+      Write-Host "##vso[task.debug]Attempting to $Method : $Uri (Attempt $attempt of $MaxRetries)"
+      $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::$Method, $Uri)
+      if ($Body) {
+        $request.Content = [System.Net.Http.StringContent]::new($Body, [System.Text.Encoding]::UTF8, $ContentType)
+      }
 
-            $response = $HttpClient.SendAsync($request).GetAwaiter().GetResult()
+      $response = $HttpClient.SendAsync($request).GetAwaiter().GetResult()
 
-            if ($response.IsSuccessStatusCode) {
-                return $response
-            }
-            else {
-                $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-                Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
-            }
-        }
-        catch {
-            Write-Warning "Exception during API call on attempt $attempt : $($_.Exception.Message)"
-        }
-        if ($attempt -lt $MaxRetries) {
-            $delay = $RetryDelaySec * $attempt
-            Write-Warning "Waiting for $delay seconds before retrying..."
-            Start-Sleep -Seconds $delay
-        }
-        else {
-            throw "Failed to call API '$Uri' after $MaxRetries attempts."
-        }
+      if ($response.IsSuccessStatusCode) {
+        return $response
+      }
+      else {
+        $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+        Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
+      }
     }
+    catch {
+      Write-Warning "Exception during API call on attempt $attempt : $($_.Exception.Message)"
+    }
+    if ($attempt -lt $MaxRetries) {
+      $delay = $RetryDelaySec * $attempt
+      Write-Warning "Waiting for $delay seconds before retrying..."
+      Start-Sleep -Seconds $delay
+    }
+    else {
+      throw "Failed to call API '$Uri' after $MaxRetries attempts."
+    }
+  }
 }
 
 function Get-AdxHttpClient {
-    <#
+  <#
     .SYNOPSIS
         Creates and returns an authenticated HttpClient for Azure Data Explorer using a Service Principal.
     #>
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$KustoClusterUri,
-        [Parameter(Mandatory = $true)]
-        [string]$AppClientId,
-        [Parameter(Mandatory = $true)]
-        [string]$AppClientSecret,
-        [Parameter(Mandatory = $true)]
-        [string]$TenantId
-    )
-    Write-Host "Authenticating to Azure Data Explorer cluster: $KustoClusterUri"
-    $authUrl = "https://login.microsoftonline.com/$TenantId/oauth2/token"
-    $authBody = "grant_type=client_credentials&client_id=$AppClientId&client_secret=$AppClientSecret&resource=$KustoClusterUri"
-    $tokenResponse = Invoke-RestMethod -Uri $authUrl -Method Post -Body $authBody -ContentType 'application/x-www-form-urlencoded'
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$KustoClusterUri,
+    [Parameter(Mandatory = $true)]
+    [string]$AppClientId,
+    [Parameter(Mandatory = $true)]
+    [string]$AppClientSecret,
+    [Parameter(Mandatory = $true)]
+    [string]$TenantId
+  )
+  Write-Host "Authenticating to Azure Data Explorer cluster: $KustoClusterUri"
+  $authUrl = "https://login.microsoftonline.com/$TenantId/oauth2/token"
+  $authBody = "grant_type=client_credentials&client_id=$AppClientId&client_secret=$AppClientSecret&resource=$KustoClusterUri"
+  $tokenResponse = Invoke-RestMethod -Uri $authUrl -Method Post -Body $authBody -ContentType 'application/x-www-form-urlencoded'
     
-    $adxHttpClient = [System.Net.Http.HttpClient]::new()
-    $adxHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $tokenResponse.access_token)
-    return $adxHttpClient
+  $adxHttpClient = [System.Net.Http.HttpClient]::new()
+  $adxHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $tokenResponse.access_token)
+  return $adxHttpClient
 }
 
 function Get-AdoTestRuns {
-    <#
+  <#
     .SYNOPSIS
         Fetches all test runs for a specific build ID.
     #>
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Net.Http.HttpClient]$HttpClient,
-        [Parameter(Mandatory = $true)]
-        [string]$Organization,
-        [Parameter(Mandatory = $true)]
-        [string]$Project,
-        [Parameter(Mandatory = $true)]
-        [int]$BuildId,
-        [Parameter(Mandatory = $true)]
-        [string]$ApiVersion
-    )
-    $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&includeRunDetails=true&api-version=$ApiVersion"
-    $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $testRunsUrl
-    return ($response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json).value
+  param(
+    [Parameter(Mandatory = $true)]
+    [System.Net.Http.HttpClient]$HttpClient,
+    [Parameter(Mandatory = $true)]
+    [string]$Organization,
+    [Parameter(Mandatory = $true)]
+    [string]$Project,
+    [Parameter(Mandatory = $true)]
+    [int]$BuildId,
+    [Parameter(Mandatory = $true)]
+    [string]$ApiVersion
+  )
+  $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&includeRunDetails=true&api-version=$ApiVersion"
+  $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $testRunsUrl
+  return ($response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json).value
 }
 
 function Get-AdoTestResultsForRun {
-    <#
+  <#
     .SYNOPSIS
         Fetches all test results for a single test run, handling API pagination.
     #>
@@ -155,7 +155,7 @@ function Get-AdoTestResultsForRun {
 }
 
 function ConvertTo-TestResultEntity {
-    <#
+  <#
     .SYNOPSIS
         Transforms a raw test result object from the API into a structured entity for Kusto ingestion.
     #>
@@ -191,38 +191,82 @@ function ConvertTo-TestResultEntity {
   }
 }
 
+# function Publish-TestResultsToADX {
+#   <#
+#     .SYNOPSIS
+#         Publishes a list of test result entities to Azure Data Explorer.
+#     #>
+#   param(
+#     [Parameter(Mandatory = $true)]
+#     [System.Collections.Generic.List[object]]$Entities,
+#     [Parameter(Mandatory = $true)]
+#     [string]$IngestionUri,
+#     [Parameter(Mandatory = $true)]
+#     [string]$DatabaseName,
+#     [Parameter(Mandatory = $true)]
+#     [string]$TableName,
+#     [Parameter(Mandatory = $true)]
+#     [string]$MappingName,
+#     [Parameter(Mandatory = $true)]
+#     [System.Net.Http.HttpClient]$HttpClient
+#   )
+
+#   $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
+    
+#   $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+
+#   Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
+    
+#   $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
+
+#   if ($response.IsSuccessStatusCode) {
+#     Write-Host "Successfully queued data for ingestion into ADX."
+#   }
+#   else {
+#     Write-Error "Failed to ingest data to ADX after multiple retries."
+#   }
+# }
+
 function Publish-TestResultsToADX {
     <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer.
+        Publishes a list of test result entities to Azure Data Explorer using the Az.Kusto module.
     #>
     param(
         [Parameter(Mandatory=$true)]
         [System.Collections.Generic.List[object]]$Entities,
         [Parameter(Mandatory=$true)]
-        [string]$IngestionUri,
+        [string]$KustoClusterName,
         [Parameter(Mandatory=$true)]
         [string]$DatabaseName,
         [Parameter(Mandatory=$true)]
         [string]$TableName,
         [Parameter(Mandatory=$true)]
-        [string]$MappingName,
-        [Parameter(Mandatory=$true)]
-        [System.Net.Http.HttpClient]$HttpClient
+        [string]$MappingName
     )
 
+    # Convert the entities to a single string of line-separated JSON objects
     $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
-    
-    $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+    $tempFilePath = [System.IO.Path]::GetTempFileName()
 
-    Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
-    
-    $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
+    try {
+        Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via Az.Kusto module..."
+        [System.IO.File]::WriteAllText($tempFilePath, $jsonPayload)
 
-    if ($response.IsSuccessStatusCode) {
-        Write-Host "Successfully queued data for ingestion into ADX."
-    } else {
-        Write-Error "Failed to ingest data to ADX after multiple retries."
+        # Use the official Az.Kusto cmdlet. This is more robust than direct REST API calls.
+        # The calling script is responsible for authenticating via Connect-AzAccount first.
+        Invoke-AzKustoIngest -ClusterName $KustoClusterName -DatabaseName $DatabaseName -TableName $TableName -Path $tempFilePath -Format "multijson" -IngestionMappingRef $MappingName
+
+        Write-Host "Successfully initiated data ingestion into ADX."
+    }
+    catch {
+        Write-Error "A critical error occurred during ADX ingestion using Az.Kusto: $($_.Exception.Message)"
+        throw
+    }
+    finally {
+        if (Test-Path $tempFilePath) {
+            Remove-Item $tempFilePath -Force
+        }
     }
 }
 
