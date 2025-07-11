@@ -4,64 +4,16 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.8
+    Version: 1.9
     Author: Staff SDET
-    Changes in v1.8:
-    - Replaced System.Net.Http.HttpClient with Invoke-RestMethod for all ADX interactions to debug potential client-specific issues.
-    - Added Get-AdxAccessToken to retrieve the token.
-    - Updated Publish-TestResultsToADX to use 'application/x-ndjson' content type for better standards compliance.
-    - Improved error handling in Publish-TestResultsToADX to dump the full response body on failure.
+    Changes in v1.9:
+    - Refactored all API calls (Azure DevOps and ADX) to use Invoke-RestMethod exclusively.
+    - Removed System.Net.Http.HttpClient dependency entirely to resolve the "term not recognized" error.
+    - Simplified functions to pass access tokens directly.
+    - Updated Get-AdoTestResultsForRun to use the -ResponseHeadersVariable parameter to handle pagination.
 #>
 
 #region Reusable Functions
-
-function Invoke-AdoRestMethodAsyncWithRetry {
-  <#
-    .SYNOPSIS
-        Performs a resilient request to a REST API, supporting different methods and retry logic.
-        Note: This is kept for ADO API calls which still use the HttpClient.
-    #>
-  param(
-    [Parameter(Mandatory = $true)]
-    [System.Net.Http.HttpClient]$HttpClient,
-    [Parameter(Mandatory = $true)]
-    [string]$Uri,
-    [string]$Method = 'GET',
-    [string]$Body,
-    [string]$ContentType = "application/json",
-    [int]$MaxRetries = 3,
-    [int]$RetryDelaySec = 5
-  )
-
-  for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
-    try {
-      Write-Host "##vso[task.debug]Attempting to $Method : $Uri (Attempt $attempt of $MaxRetries)"
-      $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::$Method, $Uri)
-      if ($Body) {
-        $request.Content = [System.Net.Http.StringContent]::new($Body, [System.Text.Encoding]::UTF8, $ContentType)
-      }
-      $response = $HttpClient.SendAsync($request).GetAwaiter().GetResult()
-      if ($response.IsSuccessStatusCode) {
-        return $response
-      }
-      else {
-        $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
-      }
-    }
-    catch {
-      Write-Warning "Exception during API call on attempt $attempt : $($_.Exception.Message)"
-    }
-    if ($attempt -lt $MaxRetries) {
-      $delay = $RetryDelaySec * $attempt
-      Write-Warning "Waiting for $delay seconds before retrying..."
-      Start-Sleep -Seconds $delay
-    }
-    else {
-      throw "Failed to call API '$Uri' after $MaxRetries attempts."
-    }
-  }
-}
 
 function Get-AdxAccessToken {
   <#
@@ -102,11 +54,10 @@ function Test-AdxTableExists {
   )
   
   $queryUrl = "$QueryUri/v2/rest/query"
-  # Quote the table name to handle special characters and ensure correctness
   $kqlQuery = ".show table `"$TableName`" details | count"
   $queryPayload = @{
-    db   = $DatabaseName
-    csl  = $kqlQuery
+    db  = $DatabaseName
+    csl = $kqlQuery
   } | ConvertTo-Json
 
   $headers = @{
@@ -126,9 +77,13 @@ function Test-AdxTableExists {
 }
 
 function Get-AdoTestRuns {
+  <#
+    .SYNOPSIS
+        Fetches all test runs for a specific build ID using Invoke-RestMethod.
+    #>
   param(
     [Parameter(Mandatory = $true)]
-    [System.Net.Http.HttpClient]$HttpClient,
+    [string]$AccessToken,
     [Parameter(Mandatory = $true)]
     [string]$Organization,
     [Parameter(Mandatory = $true)]
@@ -139,14 +94,25 @@ function Get-AdoTestRuns {
     [string]$ApiVersion
   )
   $testRunsUrl = "https://dev.azure.com/$Organization/$Project/_apis/test/runs?buildIds=$BuildId&includeRunDetails=true&api-version=$ApiVersion"
-  $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $testRunsUrl
-  return ($response.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json).value
+  $headers = @{ "Authorization" = "Bearer $AccessToken" }
+  
+  try {
+    $response = Invoke-RestMethod -Uri $testRunsUrl -Headers $headers -Method Get -ErrorAction Stop
+    return $response.value
+  }
+  catch {
+    throw "Failed to get test runs from Azure DevOps. Error: $($_.Exception.Message)"
+  }
 }
 
 function Get-AdoTestResultsForRun {
+  <#
+    .SYNOPSIS
+        Fetches all test results for a single test run, handling API pagination using Invoke-RestMethod.
+    #>
   param(
     [Parameter(Mandatory = $true)]
-    [System.Net.Http.HttpClient]$HttpClient,
+    [string]$AccessToken,
     [Parameter(Mandatory = $true)]
     [string]$Organization,
     [Parameter(Mandatory = $true)]
@@ -159,23 +125,35 @@ function Get-AdoTestResultsForRun {
   $allResults = [System.Collections.Generic.List[object]]::new()
   $continuationToken = $null
   $page = 1
+  $headers = @{ "Authorization" = "Bearer $AccessToken" }
+
   do {
     $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($Run.id)/results?`$top=1000&detailsToInclude=WorkItems,Iterations,SubResult,StackTrace&api-version=$ApiVersion"
     if ($continuationToken) {
       $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
     }
-    $resultsResponse = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $resultsUrl
-    $resultsData = ($resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
-    if ($resultsData.value) {
-      Write-Host "Fetched page $page with $($resultsData.value.Count) results for run $($Run.id)."
-      $allResults.AddRange($resultsData.value)
+
+    try {
+      $responseHeaders = $null
+      $resultsResponse = Invoke-RestMethod -Uri $resultsUrl -Headers $headers -Method Get -ResponseHeadersVariable responseHeaders -ErrorAction Stop
+          
+      if ($resultsResponse.value) {
+        Write-Host "Fetched page $page with $($resultsResponse.value.Count) results for run $($Run.id)."
+        $allResults.AddRange($resultsResponse.value)
+      }
+
+      $continuationToken = $null
+      if ($responseHeaders.ContainsKey("x-ms-continuationtoken")) {
+        $continuationToken = $responseHeaders["x-ms-continuationtoken"]
+        Write-Host "##vso[task.debug]Continuation token found. More results to fetch."
+      }
+      $page++
     }
-    $continuationToken = $null
-    if ($resultsResponse.Headers.Contains("x-ms-continuationtoken")) {
-      $continuationToken = $resultsResponse.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
+    catch {
+      throw "Failed to get test results for run '$($Run.id)'. Error: $($_.Exception.Message)"
     }
-    $page++
   } while ($continuationToken)
+
   return $allResults
 }
 
@@ -246,11 +224,11 @@ function Publish-TestResultsToADX {
   catch {
     $errorMessage = $_.Exception.Message
     if ($_.Exception.Response) {
-        $responseStream = $_.Exception.Response.GetResponseStream()
-        $streamReader = [System.IO.StreamReader]::new($responseStream)
-        $responseBody = $streamReader.ReadToEnd()
-        $streamReader.Close()
-        $errorMessage += " Response Body: $responseBody"
+      $responseStream = $_.Exception.Response.GetResponseStream()
+      $streamReader = [System.IO.StreamReader]::new($responseStream)
+      $responseBody = $streamReader.ReadToEnd()
+      $streamReader.Close()
+      $errorMessage += " Response Body: $responseBody"
     }
     throw "Failed to ingest data to ADX. Error: $errorMessage"
   }
