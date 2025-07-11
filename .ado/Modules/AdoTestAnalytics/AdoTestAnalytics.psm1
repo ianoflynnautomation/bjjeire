@@ -196,7 +196,7 @@ function ConvertTo-TestResultEntity {
 function Publish-TestResultsToADX {
   <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer using Invoke-RestMethod.
+        Publishes a list of test result entities to Azure Data Explorer in batches.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -210,30 +210,42 @@ function Publish-TestResultsToADX {
     [Parameter(Mandatory = $true)]
     [string]$MappingName,
     [Parameter(Mandatory = $true)]
-    [string]$AccessToken
+    [string]$AccessToken,
+    [int]$BatchSize = 5000
   )
 
-  $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
   $url = "$IngestionUri/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
-  Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
-    
   $headers = @{
     "Authorization" = "Bearer $AccessToken"
     "Content-Type"  = "application/x-ndjson"
   }
 
-  try {
-    Invoke-RestMethod -Uri $url -Method 'POST' -Body $jsonPayload -Headers $headers -ErrorAction Stop
-    Write-Host "Successfully queued data for ingestion into ADX."
-  }
-  catch {
-    # <<< FIX: Use a more robust method to get the error details to avoid the disposed object exception.
-    $errorMessage = $_.Exception.Message
-    if ($_.ErrorDetails.Message) {
-        $errorMessage += " | Response: " + $_.ErrorDetails.Message
+  $totalCount = $Entities.Count
+  Write-Host "Starting ingestion of $totalCount records in batches of $BatchSize."
+
+  for ($i = 0; $i -lt $totalCount; $i += $BatchSize) {
+    $batch = $Entities | Select-Object -Skip $i -First $BatchSize
+    $batchCount = $batch.Count
+    $batchNumber = ($i / $BatchSize) + 1
+    
+    Write-Host "Uploading batch $batchNumber with $batchCount records..."
+    
+    $jsonPayload = ($batch | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
+
+    try {
+      Invoke-RestMethod -Uri $url -Method 'POST' -Body $jsonPayload -Headers $headers -ErrorAction Stop
+      Write-Host "Successfully queued batch $batchNumber for ingestion."
     }
-    throw "Failed to ingest data to ADX. Error: $errorMessage"
+    catch {
+      $errorMessage = $_.Exception.Message
+      if ($_.ErrorDetails.Message) {
+          $errorMessage += " | Response: " + $_.ErrorDetails.Message
+      }
+      # Throw an error on the first failed batch
+      throw "Failed to ingest data to ADX on batch $batchNumber. Error: $errorMessage"
+    }
   }
+  Write-Host "Successfully queued all $totalCount records for ingestion."
 }
 
 #endregion
