@@ -29,14 +29,13 @@ steps:
       arguments: >
         -Organization "$(ORGANISATION_NAME)"
         -Project "$(System.TeamProject)"
-        -Pat $env:SYSTEM_ACCESSTOKEN
+        -AdoPat $env:SYSTEM_ACCESSTOKEN
         -AreaPath "$(ADO_AREA_PATH)"
-        -ApiVersion "$(AZURE_API_VERSION)"
+        -AdoApiVersion "$(AZURE_API_VERSION)"
         -RepoName "$(PROJECT_REPO_NAME)"
         -TestHealthDashboardUrl "$(AZURE_DEVOPS_TEST_HEALTH_DASHBOARD_URL)"
-        -AssignmentMethod "BuildTriggerUser"
         -KustoClusterUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
-        -DatabaseName "$(KUSTO_DATABASE_NAME)"
+        -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
         -AppClientId "$(KUSTO-APP-CLIENT-ID)"
         -AppClientSecret "$(KUSTO-APP-CLIENT-SECRET)"
         -TenantId "$(KUSTO-TENANT-ID)"
