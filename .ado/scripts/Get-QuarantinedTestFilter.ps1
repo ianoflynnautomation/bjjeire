@@ -28,6 +28,10 @@ param(
 $httpClient = $null
 
 try {
+
+    Install-Module -Name Az.Accounts -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    Install-Module -Name Az.Kusto -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    
     # 1. Initialization
     $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1"
     Write-Host "Importing module from: $modulePath"
