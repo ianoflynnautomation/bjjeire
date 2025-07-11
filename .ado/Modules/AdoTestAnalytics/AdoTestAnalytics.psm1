@@ -196,7 +196,7 @@ function ConvertTo-TestResultEntity {
 function Publish-TestResultsToADX {
   <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer in compressed batches with a robust retry mechanism.
+        Publishes a list of test result entities to Azure Data Explorer using Invoke-RestMethod, based on user feedback.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -214,8 +214,8 @@ function Publish-TestResultsToADX {
     [int]$BatchSize = 5000
   )
 
-  # <<< FIX: Re-introduced the /v1/rest/ingest/ path as per the documentation.
-  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+  # Using streamFormat=json as it appears to correctly handle newline-delimited streams.
+  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=json&mappingName=$MappingName"
   
   $totalCount = $Entities.Count
   Write-Host "Starting ingestion of $totalCount records in batches of $BatchSize."
@@ -272,7 +272,6 @@ function Publish-TestResultsToADX {
   }
   Write-Host "Successfully queued all $totalCount records for ingestion."
 }
-
 
 #endregion
 
