@@ -23,37 +23,46 @@ param (
   [string]$Pat,
   [Parameter(Mandatory = $false)]
   [string]$ApiVersion = '7.1',
-  # --- Azure Data Explorer (Kusto) Ingestion Parameters ---
   [Parameter(Mandatory = $true)]
-  [string]$KustoIngestionUri, # e.g., "https://ingest-testresults-dev-sn-dec.switzerlandnorth.kusto.windows.net"
+  [string]$KustoIngestionUri,
   [Parameter(Mandatory = $true)]
-  [string]$KustoDatabaseName, # e.g., "TestAnalyticsDb"
+  [string]$KustoQueryUri,
+  [Parameter(Mandatory = $true)]
+  [string]$KustoDatabaseName,
   [Parameter(Mandatory = $true)]
   [string]$KustoTableName = 'TestResultHistory',
   [Parameter(Mandatory = $true)]
-  [string]$KustoMappingName = 'TestResultHistory_Mapping'
+  [string]$KustoMappingName = 'TestResultHistory_Mapping',
+  [Parameter(Mandatory = $true)]
+  [string]$AppClientId,
+  [Parameter(Mandatory = $true)]
+  [string]$AppClientSecret,
+  [Parameter(Mandatory = $true)]
+  [string]$TenantId
 )
 
-# --- Main Script Workflow ---
+$adoHttpClient = $null
+$adxHttpClient = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
-$httpClient = $null
 
 try {
   # 1. Initialization
   $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
-  Write-Host "Importing module from: $modulePath"
   Import-Module -Name $modulePath -Force
     
-  Write-Host "Initializing HttpClient for API calls..."
-  Add-Type -AssemblyName System.Net.Http
-  $httpClient = [System.Net.Http.HttpClient]::new()
-  # The PAT provides authentication for both Azure DevOps and ADX ingestion
-  $httpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
-  $httpClient.DefaultRequestHeaders.Add("Accept", "application/json")
+  # Create a client for Azure DevOps
+  Write-Host "Initializing HttpClient for Azure DevOps API calls..."
+  $adoHttpClient = [System.Net.Http.HttpClient]::new()
+  $adoHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
+  $adoHttpClient.DefaultRequestHeaders.Add("Accept", "application/json")
+
+  # Create a dedicated, authenticated client for Azure Data Explorer
+  # This function must exist in your AdoTestAnalytics.psm1 module
+  $adxHttpClient = Get-AdxHttpClient -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
 
   # 2. Fetch Data from Azure DevOps
   Write-Host "Fetching test runs for Build ID $BuildId..."
-  $testRuns = Get-AdoTestRuns -HttpClient $httpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
+  $testRuns = Get-AdoTestRuns -HttpClient $adoHttpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
     
   if (-not $testRuns) {
     Write-Host "No test runs found for Build ID $BuildId. Exiting gracefully."
@@ -69,7 +78,7 @@ try {
       continue
     }
     Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
-    $resultsForRun = Get-AdoTestResultsForRun -HttpClient $httpClient -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
+    $resultsForRun = Get-AdoTestResultsForRun -HttpClient $adoHttpClient -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
     foreach ($result in $resultsForRun) {
       # This function must exist in your AdoTestAnalytics.psm1 module
       $entity = ConvertTo-TestResultEntity -Result $result -Run $run -BuildId $BuildId
@@ -82,12 +91,12 @@ try {
     Write-Host "Total test result entities to upload to Kusto: $($allEntities.Count)."
     # This function must exist in your AdoTestAnalytics.psm1 module
     Publish-TestResultsToADX `
-      -Entities $allEntities `
-      -IngestionUri $KustoIngestionUri `
-      -DatabaseName $KustoDatabaseName `
-      -TableName $KustoTableName `
-      -MappingName $KustoMappingName `
-      -HttpClient $httpClient
+        -Entities $allEntities `
+        -IngestionUri $KustoIngestionUri `
+        -DatabaseName $KustoDatabaseName `
+        -TableName $KustoTableName `
+        -MappingName $KustoMappingName `
+        -HttpClient $adxHttpClient # Use the correctly authenticated client
   }
   else {
     Write-Host "No test results were found to log."
@@ -104,8 +113,6 @@ catch {
   exit 1
 }
 finally {
-  if ($null -ne $httpClient) {
-    Write-Host "##vso[task.debug]Disposing HttpClient."
-    $httpClient.Dispose()
-  }
+  if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
+  if ($null -ne $adxHttpClient) { $adxHttpClient.Dispose() }
 }

@@ -41,9 +41,13 @@ jobs:
           -Pat $env:SYSTEM_ACCESSTOKEN
           -ApiVersion "$(AZURE_API_VERSION)"
           -KustoIngestionUri "$(KUSTO-INGESTION-URL)"
+          -KustoQueryUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
           -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
           -KustoTableName "$(KUSTO_TABLE_NAME)"
           -KustoMappingName "$(KUSTO_MAPPING_NAME)"
+          -AppClientId "$(KUSTO-APP-CLIENT-ID)"
+          -AppClientSecret "$(KUSTO-APP-CLIENT-SECRET)"
+          -TenantId "$(KUSTO-TENANT-ID)"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         BUILD_REASON: $(Build.Reason)
@@ -51,3 +55,4 @@ jobs:
         BUILD_SOURCEVERSION: $(Build.SourceVersion)
         BUILD_REQUESTEDFOREMAIL: $(Build.RequestedForEmail)
         AGENT_NAME: $(Agent.Name)
+ß

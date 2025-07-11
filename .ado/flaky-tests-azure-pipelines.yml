@@ -13,15 +13,14 @@ variables:
   - template: templates/variables/flaky-tests-variables.yml
 
 steps:
-  # - task: PowerShell@2
-  #   displayName: 'Install Required PS Modules'
-  #   inputs:
-  #     targetType: 'inline'
-  #     script: |
-  #       Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-  #       Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-  #       Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-  #     pwsh: true
+  - task: PowerShell@2
+    displayName: 'Install Required PS Modules'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+        Install-Module -Name Az.Kusto -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+      pwsh: true
 
   - task: PowerShell@2
     displayName: 'Analyze and Sync Flaky Tests with Azure Boards'
