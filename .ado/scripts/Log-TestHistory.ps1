@@ -1,112 +1,106 @@
 <#
 .SYNOPSIS
-    Fetches all Azure DevOps test results for a build and logs them to Azure Data Explorer (Kusto).
+    Fetches Azure DevOps test results for a build and ingests them into Azure Data Explorer.
 .DESCRIPTION
-    This script uses the AdoTestAnalytics module to fetch test results and ingest them directly into a specified Azure Data Explorer database.
+    This script orchestrates the process of fetching test results via the Azure DevOps API and
+    publishing them to a specified ADX (Kusto) database using a managed identity or service principal.
+    It leverages the AdoTestAnalytics and AdoAutomationCore modules for all heavy lifting.
 .NOTES
-    Version: 5.0
-    Author: 
-    Depends on: AdoTestAnalytics.psm1 (which must contain Publish-TestResultsToADX)
+    Version:
+    Author:
 .EXAMPLE
-    ./Log-TestHistory.ps1 -Organization "my-org" -Project "my-project" -BuildId $(Build.BuildId) -Pat $env:SYSTEM_ACCESSTOKEN -KustoIngestionUri "..."
+    ./Log-TestHistory.ps1 -Organization "my-org" -Project "my-project" -KustoClusterUri "https://ingest-mycluster.kusto.windows.net" ...
 #>
 [CmdletBinding()]
 param (
   # --- Azure DevOps Parameters ---
-  [Parameter(Mandatory = $true)]
-  [string]$Organization,
-  [Parameter(Mandatory = $true)]
-  [string]$Project,
-  [Parameter(Mandatory = $true)]
-  [int]$BuildId,
-  [Parameter(Mandatory = $true)]
-  [string]$Pat,
-  [Parameter(Mandatory = $false)]
-  [string]$ApiVersion = '7.1',
-  [Parameter(Mandatory = $true)]
-  [string]$KustoIngestionUri,
-  [Parameter(Mandatory = $true)]
-  [string]$KustoQueryUri,
-  [Parameter(Mandatory = $true)]
-  [string]$KustoDatabaseName,
-  [Parameter(Mandatory = $true)]
-  [string]$KustoTableName = 'TestResultHistory',
-  [Parameter(Mandatory = $true)]
-  [string]$KustoMappingName = 'TestResultHistory_Mapping',
-  [Parameter(Mandatory = $true)]
-  [string]$AppClientId,
-  [Parameter(Mandatory = $true)]
-  [string]$AppClientSecret,
-  [Parameter(Mandatory = $true)]
-  [string]$TenantId
+  [Parameter(Mandatory = $true)][string]$Organization,
+  [Parameter(Mandatory = $true)][string]$Project,
+  [Parameter(Mandatory = $true)][string]$AdoPat,
+
+  # --- Azure Data Explorer (Kusto) Parameters ---
+  [Parameter(Mandatory = $true)][string]$KustoIngestionUri,
+  [Parameter(Mandatory = $true)][string]$KustoClusterUri,
+  [Parameter(Mandatory = $true)][string]$KustoDatabaseName,
+  [Parameter(Mandatory = $true)][string]$KustoTableName = 'TestResultHistory',
+  [Parameter(Mandatory = $true)][string]$KustoMappingName = 'TestResultHistory_Mapping',
+
+  # --- Service Principal Authentication Parameters ---
+  [Parameter(Mandatory = $true)][string]$AppClientId,
+  [Parameter(Mandatory = $true)][string]$AppClientSecret,
+  [Parameter(Mandatory = $true)][string]$TenantId,
+
+  # --- Context Parameters (Defaults from Azure Pipelines) ---
+  [Parameter(Mandatory = $false)][int]$BuildId = $env:BUILD_BUILDID,
+  [Parameter(Mandatory = $false)][string]$BuildReason = $env:BUILD_REASON,
+  [Parameter(Mandatory = $false)][string]$CommitId = $env:BUILD_SOURCEVERSION,
+  [Parameter(Mandatory = $false)][string]$RequestedForEmail = $env:BUILD_REQUESTEDFOREMAIL,
+  [Parameter(Mandatory = $false)][string]$SourceBranch = $env:BUILD_SOURCEBRANCHNAME,
+  [Parameter(Mandatory = $false)][string]$AgentName = $env:AGENT_NAME,
+  [Parameter(Mandatory = $false)][string]$AdoApiVersion = '7.1'
 )
 
-$adxAccessToken = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
+$adoHttpClient = $null
+$adxHttpClient = $null
 
 try {
   # 1. Initialization
-  $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
-  Import-Module -Name $modulePath -Force
-    
-  # Get a dedicated access token for Azure Data Explorer
-  $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
+  Write-Host "Initializing modules and HTTP clients..."
+  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
 
-  # 2. Diagnostic Step
-  Write-Host "Verifying ADX resources: Database '$KustoDatabaseName', Table '$KustoTableName'..."
-  $tableExists = Test-AdxTableExists -AccessToken $adxAccessToken -QueryUri $KustoQueryUri -DatabaseName $KustoDatabaseName -TableName $KustoTableName
-    
-  if (-not $tableExists) {
-    throw "Verification failed: Table '$KustoTableName' not found in database '$KustoDatabaseName'. Please check for typos or case-sensitivity issues in your pipeline variables and ADX resource names."
-  }
-  Write-Host "Verification successful. Target table found."
+  $adoHttpClient = New-AdoHttpClient -AccessToken $AdoPat
+  $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoClusterUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
+  $adxHttpClient = New-AdoHttpClient -AccessToken $adxAccessToken
 
-  # 3. Fetch Data from Azure DevOps
-  Write-Host "Fetching test runs for Build ID $BuildId..."
-  $testRuns = Get-AdoTestRuns -AccessToken $Pat -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
-    
+  # 2. Fetch Data from Azure DevOps
+  Write-Host "Fetching test runs for Build ID: $BuildId..."
+  $testRuns = Get-AdoTestRuns -HttpClient $adoHttpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $AdoApiVersion
+
   if (-not $testRuns) {
     Write-Host "No test runs found for Build ID $BuildId. Exiting gracefully."
     exit 0
   }
   Write-Host "Found $($testRuns.Count) test runs."
 
-  # 4. Process and Transform Data
-  $allEntities = [System.Collections.Generic.List[object]]::new()
-  foreach ($run in $testRuns) {
-    if ($run.name -like '*Aggregated*') {
-      Write-Host "##vso[task.debug]Skipping aggregated run '$($run.name)' (ID: $($run.id))."
-      continue
-    }
-    Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
-    $resultsForRun = Get-AdoTestResultsForRun -AccessToken $Pat -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
-    foreach ($result in $resultsForRun) {
-      $entity = ConvertTo-TestResultEntity -Result $result -Run $run -BuildId $BuildId
-      $allEntities.Add($entity)
-    }
+  # 3. Process and Transform Data
+  $context = @{
+    BuildId           = $BuildId
+    BuildReason       = $BuildReason
+    CommitId          = $CommitId
+    RequestedForEmail = $RequestedForEmail
+    SourceBranch      = $SourceBranch
+    AgentName         = $AgentName
   }
+  $allTestResults = Get-AdoTestResults -HttpClient $adoHttpClient -Organization $Organization -Project $Project -TestRuns $testRuns -Context $context -ApiVersion $AdoApiVersion
 
-  # 5. Publish Data to Azure Data Explorer
-  if ($allEntities.Count -gt 0) {
-    Write-Host "Total test result entities to upload to Kusto: $($allEntities.Count)."
-    Publish-TestResultsToADX `
-      -Entities $allEntities `
-      -IngestionUri $KustoIngestionUri `
-      -DatabaseName $KustoDatabaseName `
-      -TableName $KustoTableName `
-      -MappingName $KustoMappingName `
-      -AccessToken $adxAccessToken
+  # 4. Publish Data to Azure Data Explorer
+  if ($allTestResults.Count -gt 0) {
+    Write-Host "Total test results to upload: $($allTestResults.Count)."
+    $publishParams = @{
+      HttpClient   = $adxHttpClient
+      Entities     = $allTestResults
+      IngestionUri = $KustoIngestionUri
+      DatabaseName = $KustoDatabaseName
+      TableName    = $KustoTableName
+      MappingName  = $KustoMappingName
+    }
+    Publish-TestResultsToADX @publishParams
   }
   else {
-    Write-Host "No test results were found to log."
+    Write-Host "No individual test results were found to log after processing."
   }
-
-  # 6. Finalize
-  $startTime.Stop()
-  Write-Host "Script completed successfully in $($startTime.Elapsed.TotalSeconds) seconds."
 }
 catch {
-  Write-Host "##vso[task.logissue type=error;]A critical error occurred: $($_.Exception.Message)"
+  Write-Host "##vso[task.logissue type=error;]A critical error occurred in Log-TestHistory.ps1: $($_.Exception.Message)"
   Write-Host "##vso[task.logissue type=error;]$($_.ScriptStackTrace)"
   exit 1
+}
+finally {
+  # 5. Finalize
+  if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
+  if ($null -ne $adxHttpClient) { $adxHttpClient.Dispose() }
+  $startTime.Stop()
+  Write-Host "Script completed in $($startTime.Elapsed.TotalSeconds) seconds."
 }
