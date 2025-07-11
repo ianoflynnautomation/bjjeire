@@ -212,8 +212,10 @@ function Publish-TestResultsToADX {
     )
 
     $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
-    $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
-    Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer..."
+    
+    $url = "$IngestionUri/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+
+    Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
     
     $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
 
