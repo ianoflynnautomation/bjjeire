@@ -71,31 +71,39 @@ try {
 
   # 3. Define and Execute KQL Query to Find Flaky Tests
   Write-Host "Executing KQL query to find flaky tests..."
+  # This robust, multi-stage query avoids syntax errors with nulls and array filtering.
   $kqlQuery = @"
-TestResultHistory
+let flaky_tests_with_reasons_and_nulls = TestResultHistory
 | where Timestamp > ago($($TimeWindowDays)d)
 | summarize TotalRuns = count(),
             PassedRuns = countif(Outcome == "Passed"),
             FailedRuns = countif(Outcome == "Failed"),
             Durations = make_list(DurationMs),
             History = make_list(pack('Timestamp', Timestamp, 'Outcome', Outcome)),
-            FirstFailure = arg_min(Timestamp, iif(Outcome=='Failed', pack_all(), null)),
-            LastFailure = arg_max(Timestamp, iif(Outcome=='Failed', pack_all(), null)),
-            LastGoodRun = arg_max(Timestamp, iif(Outcome=='Passed', pack_all(), null))
+            FirstFailure = arg_min(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
+            LastFailure = arg_max(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
+            LastGoodRun = arg_max(iif(Outcome == 'Passed', Timestamp, datetime(null)), pack_all())
             by TestName
 | where TotalRuns > $MinRunsThreshold and FailedRuns > 0
 | extend FlipRate = todouble(FailedRuns) / TotalRuns
 | extend DurationStats = series_stats_dynamic(Durations)
 | extend DurationAvg = todouble(DurationStats.avg), DurationStdDev = todouble(DurationStats.stdev)
-| extend Flips = FailedRuns // This is a simplification; for Kusto, FailedRuns is a good proxy for flips
-| where (FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold) 
+| extend Flips = FailedRuns
+| where (FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold)
     or (isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor))
-| extend Reasons = pack_array(
-    iif(FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold, strcat('High flip rate (', format_number(FlipRate, 'P2'), ')'), null),
-    iif(isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor), strcat('Unstable execution time (Avg: ', toint(DurationAvg), 'ms, StdDev: ', toint(DurationStdDev), 'ms)'), null)
-  )
-| project TestName, Reasons, FirstFailure, LastFailure, LastGoodRun, History
-| extend Reasons = array_filter(Reasons, (r) => isnotnull(r))
+| project TestName,
+          FirstFailure,
+          LastFailure,
+          LastGoodRun,
+          History,
+          _Reason1 = iif(FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold, strcat('High flip rate (', tostring(toint(FlipRate*100)), '%)'), ""),
+          _Reason2 = iif(isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor), strcat('Unstable execution time (Avg: ', toint(DurationAvg), 'ms, StdDev: ', toint(DurationStdDev), 'ms)'), "");
+flaky_tests_with_reasons_and_nulls
+| extend _ReasonsPacked = pack_array(_Reason1, _Reason2)
+| mv-expand Reason = _ReasonsPacked to typeof(string)
+| where isnotempty(Reason)
+| summarize Reasons = make_list(Reason), take_any(FirstFailure, LastFailure, LastGoodRun, History) by TestName
+| project TestName, Reasons, FirstFailure = take_any_FirstFailure, LastFailure = take_any_LastFailure, LastGoodRun = take_any_LastGoodRun, History = take_any_History
 "@
 
   $queryPayload = @{ db = $DatabaseName; csl = $kqlQuery } | ConvertTo-Json
@@ -106,21 +114,19 @@ TestResultHistory
   $resultContent = $queryResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult()
   $kustoTable = ($resultContent | ConvertFrom-Json).Tables[0]
 
-  if (-not $kustoTable.Rows) {
-    Write-Host "KQL query returned no flaky tests. All clear!"
-    exit 0
-  }
-
   # 4. Parse Kusto Results into a usable format
-  $currentlyFlakyTests = $kustoTable.Rows | ForEach-Object {
-    $historyList = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
-    [PSCustomObject]@{
-      TestName     = $_[0]
-      Reasons      = $_[1]
-      FirstFailure = $_[2] | ConvertFrom-Json
-      LastFailure  = $_[3] | ConvertFrom-Json
-      LastGoodRun  = $_[4] | ConvertFrom-Json
-      HistoryText  = $historyList
+  $currentlyFlakyTests = [System.Collections.Generic.List[PSObject]]::new()
+  if ($kustoTable.Rows) {
+    $currentlyFlakyTests = $kustoTable.Rows | ForEach-Object {
+      $historyList = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
+      [PSCustomObject]@{
+        TestName     = $_[0]
+        Reasons      = $_[1]
+        FirstFailure = $_[2] | ConvertFrom-Json
+        LastFailure  = $_[3] | ConvertFrom-Json
+        LastGoodRun  = $_[4] | ConvertFrom-Json
+        HistoryText  = $historyList
+      }
     }
   }
   Write-Host "Analysis complete. Found $($currentlyFlakyTests.Count) flaky tests via Kusto."
