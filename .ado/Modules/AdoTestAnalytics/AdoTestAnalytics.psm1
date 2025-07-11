@@ -191,83 +191,40 @@ function ConvertTo-TestResultEntity {
   }
 }
 
-# function Publish-TestResultsToADX {
-#   <#
-#     .SYNOPSIS
-#         Publishes a list of test result entities to Azure Data Explorer.
-#     #>
-#   param(
-#     [Parameter(Mandatory = $true)]
-#     [System.Collections.Generic.List[object]]$Entities,
-#     [Parameter(Mandatory = $true)]
-#     [string]$IngestionUri,
-#     [Parameter(Mandatory = $true)]
-#     [string]$DatabaseName,
-#     [Parameter(Mandatory = $true)]
-#     [string]$TableName,
-#     [Parameter(Mandatory = $true)]
-#     [string]$MappingName,
-#     [Parameter(Mandatory = $true)]
-#     [System.Net.Http.HttpClient]$HttpClient
-#   )
-
-#   $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
-    
-#   $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
-
-#   Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
-    
-#   $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
-
-#   if ($response.IsSuccessStatusCode) {
-#     Write-Host "Successfully queued data for ingestion into ADX."
-#   }
-#   else {
-#     Write-Error "Failed to ingest data to ADX after multiple retries."
-#   }
-# }
-
 function Publish-TestResultsToADX {
-    <#
+  <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer using the Az.Kusto module.
+        Publishes a list of test result entities to Azure Data Explorer.
     #>
-    param(
-        [Parameter(Mandatory=$true)]
-        [System.Collections.Generic.List[object]]$Entities,
-        [Parameter(Mandatory=$true)]
-        [string]$KustoClusterName,
-        [Parameter(Mandatory=$true)]
-        [string]$DatabaseName,
-        [Parameter(Mandatory=$true)]
-        [string]$TableName,
-        [Parameter(Mandatory=$true)]
-        [string]$MappingName
-    )
+  param(
+    [Parameter(Mandatory = $true)]
+    [System.Collections.Generic.List[object]]$Entities,
+    [Parameter(Mandatory = $true)]
+    [string]$IngestionUri,
+    [Parameter(Mandatory = $true)]
+    [string]$DatabaseName,
+    [Parameter(Mandatory = $true)]
+    [string]$TableName,
+    [Parameter(Mandatory = $true)]
+    [string]$MappingName,
+    [Parameter(Mandatory = $true)]
+    [System.Net.Http.HttpClient]$HttpClient
+  )
 
-    # Convert the entities to a single string of line-separated JSON objects
-    $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
-    $tempFilePath = [System.IO.Path]::GetTempFileName()
+  $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
+    
+  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
 
-    try {
-        Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via Az.Kusto module..."
-        [System.IO.File]::WriteAllText($tempFilePath, $jsonPayload)
+  Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
+    
+  $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
 
-        # Use the official Az.Kusto cmdlet. This is more robust than direct REST API calls.
-        # The calling script is responsible for authenticating via Connect-AzAccount first.
-        Invoke-AzKustoIngest -ClusterName $KustoClusterName -DatabaseName $DatabaseName -TableName $TableName -Path $tempFilePath -Format "multijson" -IngestionMappingRef $MappingName
-
-        Write-Host "Successfully initiated data ingestion into ADX."
-    }
-    catch {
-        Write-Error "A critical error occurred during ADX ingestion using Az.Kusto: $($_.Exception.Message)"
-        throw
-    }
-    finally {
-        if (Test-Path $tempFilePath) {
-            Remove-Item $tempFilePath -Force
-        }
-    }
+  if ($response.IsSuccessStatusCode) {
+    Write-Host "Successfully queued data for ingestion into ADX."
+  }
+  else {
+    Write-Error "Failed to ingest data to ADX after multiple retries."
+  }
 }
 
 #endregion
