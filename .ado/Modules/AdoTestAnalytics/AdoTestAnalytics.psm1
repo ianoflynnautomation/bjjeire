@@ -4,11 +4,13 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.6
+    Version: 1.8
     Author: Staff SDET
-    Changes in v1.6:
-    - Corrected the ADX ingestion URL in `Publish-TestResultsToADX` to fix the '404 Not Found' error. The `/v1/rest/ingest/` prefix was removed as it's not part of the streaming ingestion endpoint path.
-    - Enhanced error logging in `Invoke-AdoRestMethodAsyncWithRetry` to include the full response body on failure.
+    Changes in v1.8:
+    - Replaced System.Net.Http.HttpClient with Invoke-RestMethod for all ADX interactions to debug potential client-specific issues.
+    - Added Get-AdxAccessToken to retrieve the token.
+    - Updated Publish-TestResultsToADX to use 'application/x-ndjson' content type for better standards compliance.
+    - Improved error handling in Publish-TestResultsToADX to dump the full response body on failure.
 #>
 
 #region Reusable Functions
@@ -17,6 +19,7 @@ function Invoke-AdoRestMethodAsyncWithRetry {
   <#
     .SYNOPSIS
         Performs a resilient request to a REST API, supporting different methods and retry logic.
+        Note: This is kept for ADO API calls which still use the HttpClient.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -37,17 +40,13 @@ function Invoke-AdoRestMethodAsyncWithRetry {
       if ($Body) {
         $request.Content = [System.Net.Http.StringContent]::new($Body, [System.Text.Encoding]::UTF8, $ContentType)
       }
-
       $response = $HttpClient.SendAsync($request).GetAwaiter().GetResult()
-      $responseContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-
       if ($response.IsSuccessStatusCode) {
-        # Return the entire response object on success
         return $response
       }
       else {
-        # Log the detailed error content from the response
-        Write-Warning "API call failed with status code $($response.StatusCode). Response: $responseContent"
+        $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+        Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
       }
     }
     catch {
@@ -64,10 +63,10 @@ function Invoke-AdoRestMethodAsyncWithRetry {
   }
 }
 
-function Get-AdxHttpClient {
+function Get-AdxAccessToken {
   <#
     .SYNOPSIS
-        Creates and returns an authenticated HttpClient for Azure Data Explorer using a Service Principal.
+        Gets an authenticated access token for Azure Data Explorer using a Service Principal.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -83,17 +82,50 @@ function Get-AdxHttpClient {
   $authUrl = "https://login.microsoftonline.com/$TenantId/oauth2/token"
   $authBody = "grant_type=client_credentials&client_id=$AppClientId&client_secret=$AppClientSecret&resource=$KustoClusterUri"
   $tokenResponse = Invoke-RestMethod -Uri $authUrl -Method Post -Body $authBody -ContentType 'application/x-www-form-urlencoded'
-    
-  $adxHttpClient = [System.Net.Http.HttpClient]::new()
-  $adxHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $tokenResponse.access_token)
-  return $adxHttpClient
+  return $tokenResponse.access_token
+}
+
+function Test-AdxTableExists {
+  <#
+    .SYNOPSIS
+        Checks if a specific table exists in an ADX database using Invoke-RestMethod.
+    #>
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$AccessToken,
+    [Parameter(Mandatory = $true)]
+    [string]$QueryUri,
+    [Parameter(Mandatory = $true)]
+    [string]$DatabaseName,
+    [Parameter(Mandatory = $true)]
+    [string]$TableName
+  )
+  
+  $queryUrl = "$QueryUri/v2/rest/query"
+  # Quote the table name to handle special characters and ensure correctness
+  $kqlQuery = ".show table `"$TableName`" details | count"
+  $queryPayload = @{
+    db   = $DatabaseName
+    csl  = $kqlQuery
+  } | ConvertTo-Json
+
+  $headers = @{
+    "Authorization" = "Bearer $AccessToken"
+    "Accept"        = "application/json"
+    "Content-Type"  = "application/json"
+  }
+
+  try {
+    Invoke-RestMethod -Uri $queryUrl -Method 'POST' -Body $queryPayload -Headers $headers -ErrorAction Stop
+    return $true
+  }
+  catch {
+    Write-Warning "Verification query failed. This may indicate the table/database is not found. Error: $($_.Exception.Message)"
+    return $false
+  }
 }
 
 function Get-AdoTestRuns {
-  <#
-    .SYNOPSIS
-        Fetches all test runs for a specific build ID.
-    #>
   param(
     [Parameter(Mandatory = $true)]
     [System.Net.Http.HttpClient]$HttpClient,
@@ -112,10 +144,6 @@ function Get-AdoTestRuns {
 }
 
 function Get-AdoTestResultsForRun {
-  <#
-    .SYNOPSIS
-        Fetches all test results for a single test run, handling API pagination.
-    #>
   param(
     [Parameter(Mandatory = $true)]
     [System.Net.Http.HttpClient]$HttpClient,
@@ -131,38 +159,27 @@ function Get-AdoTestResultsForRun {
   $allResults = [System.Collections.Generic.List[object]]::new()
   $continuationToken = $null
   $page = 1
-
   do {
     $resultsUrl = "https://dev.azure.com/$($Organization)/$($Project)/_apis/test/runs/$($Run.id)/results?`$top=1000&detailsToInclude=WorkItems,Iterations,SubResult,StackTrace&api-version=$ApiVersion"
     if ($continuationToken) {
       $resultsUrl += "&continuationToken=$([uri]::EscapeDataString($continuationToken))"
     }
-
     $resultsResponse = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $resultsUrl
-    $resultsContent = $resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-    $resultsData = $resultsContent | ConvertFrom-Json
-        
+    $resultsData = ($resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
     if ($resultsData.value) {
       Write-Host "Fetched page $page with $($resultsData.value.Count) results for run $($Run.id)."
       $allResults.AddRange($resultsData.value)
     }
-
     $continuationToken = $null
     if ($resultsResponse.Headers.Contains("x-ms-continuationtoken")) {
       $continuationToken = $resultsResponse.Headers.GetValues("x-ms-continuationtoken") | Select-Object -First 1
-      Write-Host "##vso[task.debug]Continuation token found. More results to fetch."
     }
     $page++
   } while ($continuationToken)
-
   return $allResults
 }
 
 function ConvertTo-TestResultEntity {
-  <#
-    .SYNOPSIS
-        Transforms a raw test result object from the API into a structured entity for Kusto ingestion.
-    #>
   param(
     [Parameter(Mandatory = $true)]
     [object]$Result,
@@ -171,9 +188,7 @@ function ConvertTo-TestResultEntity {
     [Parameter(Mandatory = $true)]
     [int]$BuildId
   )
-  
   $completedDate = if ($Result.completedDate) { [DateTime]::Parse($Result.completedDate, $null, 'RoundtripKind') } else { (Get-Date) }
-
   return @{
     Timestamp         = $completedDate.ToUniversalTime().ToString("o")
     TestName          = $Result.testCase.name ?? "UnknownTest"
@@ -198,7 +213,7 @@ function ConvertTo-TestResultEntity {
 function Publish-TestResultsToADX {
   <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer.
+        Publishes a list of test result entities to Azure Data Explorer using Invoke-RestMethod.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -212,25 +227,32 @@ function Publish-TestResultsToADX {
     [Parameter(Mandatory = $true)]
     [string]$MappingName,
     [Parameter(Mandatory = $true)]
-    [System.Net.Http.HttpClient]$HttpClient
+    [string]$AccessToken
   )
 
   $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
-    
-  # <<< FIX: Corrected the URL construction here.
-  # The ingestion URI does not need the `/v1/rest/ingest` path prefix.
   $url = "$IngestionUri/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
-
   Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
     
-  $response = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $jsonPayload -ContentType 'application/json'
+  $headers = @{
+    "Authorization" = "Bearer $AccessToken"
+    "Content-Type"  = "application/x-ndjson"
+  }
 
-  if ($response.IsSuccessStatusCode) {
+  try {
+    Invoke-RestMethod -Uri $url -Method 'POST' -Body $jsonPayload -Headers $headers -ErrorAction Stop
     Write-Host "Successfully queued data for ingestion into ADX."
   }
-  else {
-    # The error is already written by Invoke-AdoRestMethodAsyncWithRetry, but we throw to stop the script.
-    throw "Failed to ingest data to ADX after multiple retries."
+  catch {
+    $errorMessage = $_.Exception.Message
+    if ($_.Exception.Response) {
+        $responseStream = $_.Exception.Response.GetResponseStream()
+        $streamReader = [System.IO.StreamReader]::new($responseStream)
+        $responseBody = $streamReader.ReadToEnd()
+        $streamReader.Close()
+        $errorMessage += " Response Body: $responseBody"
+    }
+    throw "Failed to ingest data to ADX. Error: $errorMessage"
   }
 }
 
