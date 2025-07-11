@@ -233,12 +233,10 @@ function Publish-TestResultsToADX {
     Write-Host "Successfully queued data for ingestion into ADX."
   }
   catch {
+    # <<< FIX: Correctly read the response body from the exception object.
     $errorMessage = $_.Exception.Message
     if ($_.Exception.Response) {
-        $responseStream = $_.Exception.Response.GetResponseStream()
-        $streamReader = [System.IO.StreamReader]::new($responseStream)
-        $responseBody = $streamReader.ReadToEnd()
-        $streamReader.Close()
+        $responseBody = $_.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         $errorMessage += " Response Body: $responseBody"
     }
     throw "Failed to ingest data to ADX. Error: $errorMessage"
