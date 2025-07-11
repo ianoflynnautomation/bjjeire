@@ -4,13 +4,11 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.9
+    Version: 1.10
     Author: Staff SDET
-    Changes in v1.9:
-    - Refactored all API calls (Azure DevOps and ADX) to use Invoke-RestMethod exclusively.
-    - Removed System.Net.Http.HttpClient dependency entirely to resolve the "term not recognized" error.
-    - Simplified functions to pass access tokens directly.
-    - Updated Get-AdoTestResultsForRun to use the -ResponseHeadersVariable parameter to handle pagination.
+    Changes in v1.10:
+    - Corrected the KQL query in `Test-AdxTableExists` to resolve the '400 Bad Request' error.
+    - Added comprehensive error logging to the `catch` block in `Test-AdxTableExists` to capture the full response body from ADX on failure, which is critical for debugging.
 #>
 
 #region Reusable Functions
@@ -54,10 +52,13 @@ function Test-AdxTableExists {
   )
   
   $queryUrl = "$QueryUri/v2/rest/query"
-  $kqlQuery = ".show table `"$TableName`" details | count"
+  
+  # Using a simpler KQL query that will fail if the table does not exist. This is more robust.
+  $kqlQuery = ".show table $TableName"
+  
   $queryPayload = @{
-    db  = $DatabaseName
-    csl = $kqlQuery
+    db   = $DatabaseName
+    csl  = $kqlQuery
   } | ConvertTo-Json
 
   $headers = @{
@@ -67,11 +68,21 @@ function Test-AdxTableExists {
   }
 
   try {
+    # If this command succeeds, the table exists. We don't need to inspect the output.
     Invoke-RestMethod -Uri $queryUrl -Method 'POST' -Body $queryPayload -Headers $headers -ErrorAction Stop
     return $true
   }
   catch {
-    Write-Warning "Verification query failed. This may indicate the table/database is not found. Error: $($_.Exception.Message)"
+    # Enhanced error logging to show the full response body from the server.
+    $errorMessage = $_.Exception.Message
+    if ($_.Exception.Response) {
+        $responseStream = $_.Exception.Response.GetResponseStream()
+        $streamReader = [System.IO.StreamReader]::new($responseStream)
+        $responseBody = $streamReader.ReadToEnd()
+        $streamReader.Close()
+        $errorMessage += " Response Body: $responseBody"
+    }
+    Write-Warning "Verification query failed. This may indicate the table/database is not found or a query syntax error. Full Error: $errorMessage"
     return $false
   }
 }
@@ -224,11 +235,11 @@ function Publish-TestResultsToADX {
   catch {
     $errorMessage = $_.Exception.Message
     if ($_.Exception.Response) {
-      $responseStream = $_.Exception.Response.GetResponseStream()
-      $streamReader = [System.IO.StreamReader]::new($responseStream)
-      $responseBody = $streamReader.ReadToEnd()
-      $streamReader.Close()
-      $errorMessage += " Response Body: $responseBody"
+        $responseStream = $_.Exception.Response.GetResponseStream()
+        $streamReader = [System.IO.StreamReader]::new($responseStream)
+        $responseBody = $streamReader.ReadToEnd()
+        $streamReader.Close()
+        $errorMessage += " Response Body: $responseBody"
     }
     throw "Failed to ingest data to ADX. Error: $errorMessage"
   }
