@@ -21,14 +21,14 @@ jobs:
       parameters:
         downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'
 
-    - task: PowerShell@2
-      displayName: 'Install Required PS Modules'
-      inputs:
-        targetType: 'inline'
-        script: |
-          Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-          Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-          Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    # - task: PowerShell@2
+    #   displayName: 'Install Required PS Modules'
+    #   inputs:
+    #     targetType: 'inline'
+    #     script: |
+    #       Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    #       Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+    #       Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
     
     - task: PowerShell@2
       displayName: 'Log TestHistory'
@@ -39,12 +39,15 @@ jobs:
           -Project "$(System.TeamProject)"
           -BuildId "$(Build.BuildId)"
           -Pat $env:SYSTEM_ACCESSTOKEN
-          -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
           -ApiVersion "$(AZURE_API_VERSION)"
-          -TableName "$(SA_TEST_HISTORY_TABLE_NAME)"
+          -KustoIngestionUri "$(KUSTO-INGESTION-URL)"
+          -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
+          -KustoTableName "$(KUSTO_TABLE_NAME)"
+          -KustoMappingName "$(KUSTO_MAPPING_NAME)"
       env:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         BUILD_REASON: $(Build.Reason)
         BUILD_SOURCEBRANCHNAME: $(Build.SourceBranchName)
+        BUILD_SOURCEVERSION: $(Build.SourceVersion)
+        BUILD_REQUESTEDFOREMAIL: $(Build.RequestedForEmail)
         AGENT_NAME: $(Agent.Name)
-        SYSTEM_DEBUG: true
