@@ -53,3 +53,4 @@ jobs:
         BUILD_SOURCEVERSION: $(Build.SourceVersion)
         BUILD_REQUESTEDFOREMAIL: $(Build.RequestedForEmail)
         AGENT_NAME: $(Agent.Name)
+        SYSTEM_DEBUG: true
