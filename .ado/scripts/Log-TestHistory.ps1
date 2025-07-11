@@ -40,7 +40,7 @@ param (
   [string]$AppClientSecret,
   [Parameter(Mandatory = $true)]
   [string]$TenantId,
-  [int]$RunBatchSize = 20
+  [int]$RunBatchSize = 100
 )
 
 $adoHttpClient = $null
