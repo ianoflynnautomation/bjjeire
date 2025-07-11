@@ -37,9 +37,10 @@ jobs:
           -Organization "$(ORGANISATION_NAME)"
           -Project "$(System.TeamProject)"
           -BuildId "$(Build.BuildId)"
-          -Pat $env:SYSTEM_ACCESSTOKEN
-          -ApiVersion "$(AZURE_API_VERSION)"
-          -KustoQueryUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
+          -AdoPat $env:SYSTEM_ACCESSTOKEN
+          -AdoApiVersion "$(AZURE_API_VERSION)"
+          -KustoIngestionUri "$(AZURE-DEC-KUSTO-INGESTION-URI)"
+          -KustoClusterUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
           -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
           -KustoTableName "$(KUSTO_TABLE_NAME)"
           -KustoMappingName "$(KUSTO_MAPPING_NAME)"
