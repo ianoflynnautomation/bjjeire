@@ -73,7 +73,7 @@ try {
   Write-Host "Executing KQL query to find flaky tests..."
   # This robust, multi-stage query avoids syntax errors with nulls and array filtering.
   $kqlQuery = @"
-let flaky_tests_with_reasons_and_nulls = TestResultHistory
+TestResultHistory
 | where Timestamp > ago($($TimeWindowDays)d)
 | summarize TotalRuns = count(),
             PassedRuns = countif(Outcome == "Passed"),
@@ -91,19 +91,11 @@ let flaky_tests_with_reasons_and_nulls = TestResultHistory
 | extend Flips = FailedRuns
 | where (FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold)
     or (isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor))
-| project TestName,
-          FirstFailure,
-          LastFailure,
-          LastGoodRun,
-          History,
-          _Reason1 = iif(FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold, strcat('High flip rate (', tostring(toint(FlipRate*100)), '%)'), ""),
-          _Reason2 = iif(isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor), strcat('Unstable execution time (Avg: ', toint(DurationAvg), 'ms, StdDev: ', toint(DurationStdDev), 'ms)'), "");
-flaky_tests_with_reasons_and_nulls
-| extend _ReasonsPacked = pack_array(_Reason1, _Reason2)
-| mv-expand Reason = _ReasonsPacked to typeof(string)
-| where isnotempty(Reason)
-| summarize Reasons = make_list(Reason), take_any(FirstFailure, LastFailure, LastGoodRun, History) by TestName
-| project TestName, Reasons, FirstFailure = take_any_FirstFailure, LastFailure = take_any_LastFailure, LastGoodRun = take_any_LastGoodRun, History = take_any_History
+| extend Reasons = pack_array(
+    iif(FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold, strcat('High flip rate (', tostring(toint(FlipRate*100)), '%)'), dynamic(null)),
+    iif(isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor), strcat('Unstable execution time (Avg: ', toint(DurationAvg), 'ms, StdDev: ', toint(DurationStdDev), 'ms)'), dynamic(null))
+  )
+| project TestName, Reasons, FirstFailure, LastFailure, LastGoodRun, History
 "@
 
   $queryPayload = @{ db = $DatabaseName; csl = $kqlQuery } | ConvertTo-Json
