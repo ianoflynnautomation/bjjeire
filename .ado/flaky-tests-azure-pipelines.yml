@@ -13,28 +13,34 @@ variables:
   - template: templates/variables/flaky-tests-variables.yml
 
 steps:
-  - task: PowerShell@2
-    displayName: 'Install Required PS Modules'
-    inputs:
-      targetType: 'inline'
-      script: |
-        Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-        Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-        Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-      pwsh: true
+  # - task: PowerShell@2
+  #   displayName: 'Install Required PS Modules'
+  #   inputs:
+  #     targetType: 'inline'
+  #     script: |
+  #       Install-Module -Name Az.Storage -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+  #       Install-Module -Name Az.Resources -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+  #       Install-Module -Name AzTable -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+  #     pwsh: true
 
   - task: PowerShell@2
     displayName: 'Analyze and Sync Flaky Tests with Azure Boards'
     inputs:
       filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Analyze-FlakyTests-AzureBoards.ps1'
       arguments: >
-        -TableName "$(SA_TEST_HISTORY_TABLE_NAME)"
         -Organization "$(ORGANISATION_NAME)"
         -Project "$(System.TeamProject)"
         -Pat $env:SYSTEM_ACCESSTOKEN
-        -StorageConnectionString "$(TEST-RESULTS-SA-CONNECTION-STRING)"
         -AreaPath "$(ADO_AREA_PATH)"
         -ApiVersion "$(AZURE_API_VERSION)"
+        -RepoName "$(PROJECT_REPO_NAME)"
+        -TestHealthDashboardUrl "$(AZURE_DEVOPS_TEST_HEALTH_DASHBOARD_URL)"
+        -AssignmentMethod "BuildTriggerUser"
+        -KustoClusterUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
+        -DatabaseName "$(KUSTO_DATABASE_NAME)"
+        -AppClientId "$(KUSTO-APP-CLIENT-ID)"
+        -AppClientSecret "$(KUSTO-APP-CLIENT-SECRET)"
+        -TenantId "$(KUSTO-TENANT-ID)"
       pwsh: true
     env:
       SYSTEM_ACCESSTOKEN: $(System.AccessToken)

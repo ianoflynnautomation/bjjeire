@@ -173,6 +173,50 @@ function ConvertTo-TestResultEntity {
   }
 }
 
+function Publish-TestResultsToADX {
+  <#
+    .SYNOPSIS
+        Publishes a list of test result entities to Azure Data Explorer using the resilient helper function.
+    #>
+  param(
+    [Parameter(Mandatory = $true)]
+    [System.Collections.Generic.List[object]]$Entities,
+    [Parameter(Mandatory = $true)]
+    [string]$IngestionUri, # e.g., https://ingest-yourcluster.kusto.windows.net
+    [Parameter(Mandatory = $true)]
+    [string]$DatabaseName,
+    [Parameter(Mandatory = $true)]
+    [string]$TableName,
+    [Parameter(Mandatory = $true)]
+    [string]$MappingName,
+    [Parameter(Mandatory = $true)]
+    [System.Net.Http.HttpClient]$HttpClient # The client should already be authenticated
+  )
+
+  # ADX ingestion prefers one JSON object per line in the payload.
+  $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
+
+  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+
+  Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer..."
+    
+  # Use the generic helper function for the POST request
+  $response = Invoke-AdoRestMethodAsyncWithRetry `
+    -HttpClient $HttpClient `
+    -Uri $url `
+    -Method 'POST' `
+    -Body $jsonPayload `
+    -ContentType 'application/json'
+
+  if ($response.IsSuccessStatusCode) {
+    Write-Host "Successfully queued data for ingestion into ADX."
+  }
+  else {
+    # The helper function will have already logged warnings, but we can add a final error.
+    Write-Error "Failed to ingest data to ADX after multiple retries."
+  }
+}
+
 function Publish-TestResultEntities {
   <#
     .SYNOPSIS

@@ -4,3 +4,6 @@ variables:
   SA_TEST_HISTORY_TABLE_NAME: 'TestResultsHistoryTableIofOps'
   AZURE_DEVOPS_TEST_HEALTH_DASHBOARD_URL: https://dev.azure.com/your-org/your-project/_dashboards/dashboard/your-dashboard-guid",
   PROJECT_REPO_NAME: IofOps
+  KUSTO_DATABASE_NAME: "TestAnalyticsDb"
+  KUSTO_TABLE_NAME: 'TestResultHistory'
+  KUSTO_MAPPING_NAME: 'TestResultHistory_Mapping'
