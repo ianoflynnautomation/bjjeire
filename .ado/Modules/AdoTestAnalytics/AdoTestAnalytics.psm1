@@ -4,10 +4,11 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.5 (Final Kusto Version)
+    Version: 1.6
     Author: Staff SDET
-    Changes in v1.5:
-    - Upgraded `Invoke-AdoRestMethodAsyncWithRetry` to be a generic helper supporting POST/PATCH methods to fix the ingestion error.
+    Changes in v1.6:
+    - Corrected the ADX ingestion URL in `Publish-TestResultsToADX` to fix the '404 Not Found' error. The `/v1/rest/ingest/` prefix was removed as it's not part of the streaming ingestion endpoint path.
+    - Enhanced error logging in `Invoke-AdoRestMethodAsyncWithRetry` to include the full response body on failure.
 #>
 
 #region Reusable Functions
@@ -38,13 +39,15 @@ function Invoke-AdoRestMethodAsyncWithRetry {
       }
 
       $response = $HttpClient.SendAsync($request).GetAwaiter().GetResult()
+      $responseContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
 
       if ($response.IsSuccessStatusCode) {
+        # Return the entire response object on success
         return $response
       }
       else {
-        $errorContent = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
-        Write-Warning "API call failed with status code $($response.StatusCode). Response: $errorContent"
+        # Log the detailed error content from the response
+        Write-Warning "API call failed with status code $($response.StatusCode). Response: $responseContent"
       }
     }
     catch {
@@ -136,7 +139,8 @@ function Get-AdoTestResultsForRun {
     }
 
     $resultsResponse = Invoke-AdoRestMethodAsyncWithRetry -HttpClient $HttpClient -Uri $resultsUrl
-    $resultsData = ($resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult() | ConvertFrom-Json)
+    $resultsContent = $resultsResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+    $resultsData = $resultsContent | ConvertFrom-Json
         
     if ($resultsData.value) {
       Write-Host "Fetched page $page with $($resultsData.value.Count) results for run $($Run.id)."
@@ -213,7 +217,9 @@ function Publish-TestResultsToADX {
 
   $jsonPayload = ($Entities | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
     
-  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+  # <<< FIX: Corrected the URL construction here.
+  # The ingestion URI does not need the `/v1/rest/ingest` path prefix.
+  $url = "$IngestionUri/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
 
   Write-Host "Uploading $($Entities.Count) records to Azure Data Explorer via URL: $url"
     
@@ -223,7 +229,8 @@ function Publish-TestResultsToADX {
     Write-Host "Successfully queued data for ingestion into ADX."
   }
   else {
-    Write-Error "Failed to ingest data to ADX after multiple retries."
+    # The error is already written by Invoke-AdoRestMethodAsyncWithRetry, but we throw to stop the script.
+    throw "Failed to ingest data to ADX after multiple retries."
   }
 }
 
