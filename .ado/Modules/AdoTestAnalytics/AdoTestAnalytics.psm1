@@ -51,7 +51,7 @@ function Test-AdxTableExists {
     [string]$TableName
   )
   
-  $queryUrl = "$QueryUri/v2/rest/query"
+  $queryUrl = "$QueryUri/v1/rest/query"
   
   $kqlQuery = ".show table $TableName"
   
