@@ -1,14 +1,13 @@
 <#
 .SYNOPSIS
-    Fetches all Azure DevOps test results for a build and logs them to Azure Data Explorer (Kusto).
-.DESCRIPTION
-    This script uses the AdoTestAnalytics module to fetch test results and ingest them directly into a specified Azure Data Explorer database.
+    Fetches all Azure DevOps test results for a build and logs them to Azure Data Explorer (Kusto) using the Az.Kusto module.
 .NOTES
-    Version: 5.0
+    Version: 6.0 (Az.Kusto Auth)
     Author: 
-    Depends on: AdoTestAnalytics.psm1 (which must contain Publish-TestResultsToADX)
-.EXAMPLE
-    ./Log-TestHistory.ps1 -Organization "my-org" -Project "my-project" -BuildId $(Build.BuildId) -Pat $env:SYSTEM_ACCESSTOKEN -KustoIngestionUri "..."
+    Depends on: AdoTestAnalytics.psm1
+    Changes in v6.0:
+    - Authenticates to Azure using a Service Principal via Connect-AzAccount.
+    - Calls the updated Publish-TestResultsToADX function which uses Invoke-AzKustoIngest.
 #>
 [CmdletBinding()]
 param (
@@ -23,16 +22,18 @@ param (
   [string]$Pat,
   [Parameter(Mandatory = $false)]
   [string]$ApiVersion = '7.1',
+
+  # --- Azure Data Explorer (Kusto) Parameters ---
   [Parameter(Mandatory = $true)]
-  [string]$KustoIngestionUri,
+  [string]$KustoClusterName, # e.g., "testresults-dev-sn-dec"
   [Parameter(Mandatory = $true)]
-  [string]$KustoQueryUri,
-  [Parameter(Mandatory = $true)]
-  [string]$KustoDatabaseName,
+  [string]$KustoDatabaseName, # e.g., "TestAnalyticsDb"
   [Parameter(Mandatory = $true)]
   [string]$KustoTableName = 'TestResultHistory',
   [Parameter(Mandatory = $true)]
   [string]$KustoMappingName = 'TestResultHistory_Mapping',
+
+  # --- Service Principal Credentials for Azure Authentication ---
   [Parameter(Mandatory = $true)]
   [string]$AppClientId,
   [Parameter(Mandatory = $true)]
@@ -42,7 +43,6 @@ param (
 )
 
 $adoHttpClient = $null
-$adxHttpClient = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
 
 try {
@@ -56,11 +56,14 @@ try {
   $adoHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
   $adoHttpClient.DefaultRequestHeaders.Add("Accept", "application/json")
 
-  # Create a dedicated, authenticated client for Azure Data Explorer
-  # This function must exist in your AdoTestAnalytics.psm1 module
-  $adxHttpClient = Get-AdxHttpClient -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
+  # 2. Authenticate to Azure using the Service Principal
+  Write-Host "Authenticating to Azure with Service Principal..."
+  $secureClientSecret = ConvertTo-SecureString -String $AppClientSecret -AsPlainText -Force
+  $credential = New-Object System.Management.Automation.PSCredential($AppClientId, $secureClientSecret)
+  Connect-AzAccount -ServicePrincipal -Credential $credential -Tenant $TenantId | Out-Null
+  Write-Host "Successfully authenticated to Azure."
 
-  # 2. Fetch Data from Azure DevOps
+  # 3. Fetch Data from Azure DevOps
   Write-Host "Fetching test runs for Build ID $BuildId..."
   $testRuns = Get-AdoTestRuns -HttpClient $adoHttpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
     
@@ -70,7 +73,7 @@ try {
   }
   Write-Host "Found $($testRuns.Count) test runs."
 
-  # 3. Process and Transform Data
+  # 4. Process and Transform Data
   $allEntities = [System.Collections.Generic.List[object]]::new()
   foreach ($run in $testRuns) {
     if ($run.name -like '*Aggregated*') {
@@ -80,31 +83,28 @@ try {
     Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
     $resultsForRun = Get-AdoTestResultsForRun -HttpClient $adoHttpClient -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
     foreach ($result in $resultsForRun) {
-      # This function must exist in your AdoTestAnalytics.psm1 module
       $entity = ConvertTo-TestResultEntity -Result $result -Run $run -BuildId $BuildId
       $allEntities.Add($entity)
     }
   }
 
-  # 4. Publish Data to Azure Data Explorer
+  # 5. Publish Data to Azure Data Explorer
   if ($allEntities.Count -gt 0) {
     Write-Host "Total test result entities to upload to Kusto: $($allEntities.Count)."
-    # This function must exist in your AdoTestAnalytics.psm1 module
+    # This function now uses Invoke-AzKustoIngest internally
     Publish-TestResultsToADX `
         -Entities $allEntities `
-        -IngestionUri $KustoIngestionUri `
+        -KustoClusterName $KustoClusterName `
         -DatabaseName $KustoDatabaseName `
         -TableName $KustoTableName `
-        -MappingName $KustoMappingName `
-        -HttpClient $adxHttpClient # Use the correctly authenticated client
+        -MappingName $KustoMappingName
   }
   else {
     Write-Host "No test results were found to log."
   }
 
-  # 5. Finalize
+  # 6. Finalize
   $startTime.Stop()
-  $durationMs = $startTime.Elapsed.TotalMilliseconds
   Write-Host "Script completed successfully in $($startTime.Elapsed.TotalSeconds) seconds."
 }
 catch {
@@ -114,5 +114,4 @@ catch {
 }
 finally {
   if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
-  if ($null -ne $adxHttpClient) { $adxHttpClient.Dispose() }
 }
