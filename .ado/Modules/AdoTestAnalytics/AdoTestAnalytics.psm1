@@ -4,9 +4,9 @@
 .DESCRIPTION
     This module provides functions to fetch test runs and results, transform the data into structured entities, and publish them to Azure Data Explorer (ADX).
 .NOTES
-    Version: 1.4
+    Version: 1.5 (Final Kusto Version)
     Author: Staff SDET
-    Changes in v1.4:
+    Changes in v1.5:
     - Upgraded `Invoke-AdoRestMethodAsyncWithRetry` to be a generic helper supporting POST/PATCH methods to fix the ingestion error.
 #>
 
@@ -175,7 +175,7 @@ function Publish-TestResultsToADX {
         [Parameter(Mandatory=$true)]
         [System.Collections.Generic.List[object]]$Entities,
         [Parameter(Mandatory=$true)]
-        [string]$IngestionUri,
+        [string]$IngestionUri, # e.g., https://ingest-yourcluster.kusto.windows.net
         [Parameter(Mandatory=$true)]
         [string]$DatabaseName,
         [Parameter(Mandatory=$true)]
@@ -183,7 +183,7 @@ function Publish-TestResultsToADX {
         [Parameter(Mandatory=$true)]
         [string]$MappingName,
         [Parameter(Mandatory=$true)]
-        [System.Net.Http.HttpClient]$HttpClient
+        [System.Net.Http.HttpClient]$HttpClient # The client should already be authenticated
     )
 
     # ADX ingestion prefers one JSON object per line in the payload.
@@ -205,6 +205,7 @@ function Publish-TestResultsToADX {
         Write-Host "Successfully queued data for ingestion into ADX."
     }
     else {
+        # The helper function will have already logged warnings, but we can add a final error.
         Write-Error "Failed to ingest data to ADX after multiple retries."
     }
 }
