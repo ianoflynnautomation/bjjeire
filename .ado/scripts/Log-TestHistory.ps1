@@ -41,13 +41,11 @@ param (
   [string]$TenantId
 )
 
-$adoHttpClient = $null
-$adxHttpClient = $null
+adoHttpClient = $null
+$adxAccessToken = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
 
 try {
-  Install-Module -Name Az.Kusto -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
-
   # 1. Initialization
   $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
   Import-Module -Name $modulePath -Force
@@ -58,11 +56,19 @@ try {
   $adoHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
   $adoHttpClient.DefaultRequestHeaders.Add("Accept", "application/json")
 
-  # Create a dedicated, authenticated client for Azure Data Explorer
-  # This function must exist in your AdoTestAnalytics.psm1 module
-  $adxHttpClient = Get-AdxHttpClient -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
+  # Get a dedicated access token for Azure Data Explorer
+  $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
 
-  # 2. Fetch Data from Azure DevOps
+  # 2. Diagnostic Step
+  Write-Host "Verifying ADX resources: Database '$KustoDatabaseName', Table '$KustoTableName'..."
+  $tableExists = Test-AdxTableExists -AccessToken $adxAccessToken -QueryUri $KustoQueryUri -DatabaseName $KustoDatabaseName -TableName $KustoTableName
+    
+  if (-not $tableExists) {
+    throw "Verification failed: Table '$KustoTableName' not found in database '$KustoDatabaseName'. Please check for typos or case-sensitivity issues in your pipeline variables and ADX resource names."
+  }
+  Write-Host "Verification successful. Target table found."
+
+  # 3. Fetch Data from Azure DevOps
   Write-Host "Fetching test runs for Build ID $BuildId..."
   $testRuns = Get-AdoTestRuns -HttpClient $adoHttpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
     
@@ -72,7 +78,7 @@ try {
   }
   Write-Host "Found $($testRuns.Count) test runs."
 
-  # 3. Process and Transform Data
+  # 4. Process and Transform Data
   $allEntities = [System.Collections.Generic.List[object]]::new()
   foreach ($run in $testRuns) {
     if ($run.name -like '*Aggregated*') {
@@ -87,7 +93,7 @@ try {
     }
   }
 
-  # 4. Publish Data to Azure Data Explorer
+  # 5. Publish Data to Azure Data Explorer
   if ($allEntities.Count -gt 0) {
     Write-Host "Total test result entities to upload to Kusto: $($allEntities.Count)."
     Publish-TestResultsToADX `
@@ -96,15 +102,14 @@ try {
         -DatabaseName $KustoDatabaseName `
         -TableName $KustoTableName `
         -MappingName $KustoMappingName `
-        -HttpClient $adxHttpClient
+        -AccessToken $adxAccessToken
   }
   else {
     Write-Host "No test results were found to log."
   }
 
-  # 5. Finalize
+  # 6. Finalize
   $startTime.Stop()
-  $durationMs = $startTime.Elapsed.TotalMilliseconds
   Write-Host "Script completed successfully in $($startTime.Elapsed.TotalSeconds) seconds."
 }
 catch {
@@ -114,5 +119,4 @@ catch {
 }
 finally {
   if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
-  if ($null -ne $adxHttpClient) { $adxHttpClient.Dispose() }
 }
