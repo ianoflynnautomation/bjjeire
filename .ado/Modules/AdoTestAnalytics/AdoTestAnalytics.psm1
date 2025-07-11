@@ -214,7 +214,6 @@ function Publish-TestResultsToADX {
     [int]$BatchSize = 5000
   )
 
-  # Using streamFormat=json as it appears to correctly handle newline-delimited streams.
   $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=json&mappingName=$MappingName"
   
   $totalCount = $Entities.Count
@@ -228,6 +227,15 @@ function Publish-TestResultsToADX {
     Write-Host "Preparing to upload batch $batchNumber with $batchCount records..."
     
     $jsonPayload = ($batch | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
+
+    # <<< DEBUGGING STEP >>>
+    # Only print the sample for the very first batch to avoid flooding the logs.
+    if ($i -eq 0) {
+        $firstRecordForDebug = ($jsonPayload -split "`n" | Select-Object -First 1)
+        Write-Host "DEBUG: Sample JSON record from payload for verification:"
+        Write-Host $firstRecordForDebug
+    }
+    # <<< END DEBUGGING STEP >>>
 
     $uncompressedBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonPayload)
     $compressedStream = [System.IO.MemoryStream]::new()
