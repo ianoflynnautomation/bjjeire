@@ -196,7 +196,7 @@ function ConvertTo-TestResultEntity {
 function Publish-TestResultsToADX {
   <#
     .SYNOPSIS
-        Publishes a list of test result entities to Azure Data Explorer in batches.
+        Publishes a list of test result entities to Azure Data Explorer in compressed batches with a robust retry mechanism.
     #>
   param(
     [Parameter(Mandatory = $true)]
@@ -214,12 +214,9 @@ function Publish-TestResultsToADX {
     [int]$BatchSize = 5000
   )
 
-  $url = "$IngestionUri/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
-  $headers = @{
-    "Authorization" = "Bearer $AccessToken"
-    "Content-Type"  = "application/x-ndjson"
-  }
-
+  # <<< FIX: Re-introduced the /v1/rest/ingest/ path as per the documentation.
+  $url = "$IngestionUri/v1/rest/ingest/$DatabaseName/$TableName`?streamFormat=multijson&mappingName=$MappingName"
+  
   $totalCount = $Entities.Count
   Write-Host "Starting ingestion of $totalCount records in batches of $BatchSize."
 
@@ -228,25 +225,54 @@ function Publish-TestResultsToADX {
     $batchCount = $batch.Count
     $batchNumber = ($i / $BatchSize) + 1
     
-    Write-Host "Uploading batch $batchNumber with $batchCount records..."
+    Write-Host "Preparing to upload batch $batchNumber with $batchCount records..."
     
     $jsonPayload = ($batch | ForEach-Object { $_ | ConvertTo-Json -Compress -Depth 5 }) -join "`n"
 
-    try {
-      Invoke-RestMethod -Uri $url -Method 'POST' -Body $jsonPayload -Headers $headers -ErrorAction Stop
-      Write-Host "Successfully queued batch $batchNumber for ingestion."
+    $uncompressedBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonPayload)
+    $compressedStream = [System.IO.MemoryStream]::new()
+    $gzipStream = [System.IO.Compression.GZipStream]::new($compressedStream, [System.IO.Compression.CompressionMode]::Compress)
+    $gzipStream.Write($uncompressedBytes, 0, $uncompressedBytes.Length)
+    $gzipStream.Close()
+    $compressedBytes = $compressedStream.ToArray()
+    $compressedStream.Close()
+
+    $headers = @{
+        "Authorization"    = "Bearer $AccessToken"
+        "Content-Type"     = "application/x-ndjson"
+        "Content-Encoding" = "gzip"
     }
-    catch {
-      $errorMessage = $_.Exception.Message
-      if ($_.ErrorDetails.Message) {
-          $errorMessage += " | Response: " + $_.ErrorDetails.Message
-      }
-      # Throw an error on the first failed batch
-      throw "Failed to ingest data to ADX on batch $batchNumber. Error: $errorMessage"
+
+    $maxRetries = 3
+    $retryDelaySec = 15
+    for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
+        try {
+            Write-Host "Uploading compressed batch $batchNumber (size: $($compressedBytes.Length) bytes) to URL: $url"
+            Invoke-RestMethod -Uri $url -Method 'POST' -Body $compressedBytes -Headers $headers -ErrorAction Stop
+            Write-Host "Successfully queued batch $batchNumber for ingestion."
+            break 
+        }
+        catch {
+            $errorMessage = $_.Exception.Message
+            if ($_.ErrorDetails.Message) {
+                $errorMessage += " | Response: " + $_.ErrorDetails.Message
+            }
+            
+            if ($attempt -lt $maxRetries) {
+                $delay = $retryDelaySec * $attempt
+                Write-Warning "Failed to ingest batch $batchNumber on attempt $attempt. Error: $errorMessage"
+                Write-Warning "Waiting for $delay seconds before retrying..."
+                Start-Sleep -Seconds $delay
+            }
+            else {
+                throw "Failed to ingest data to ADX on batch $batchNumber after $maxRetries attempts. Final Error: $errorMessage"
+            }
+        }
     }
   }
   Write-Host "Successfully queued all $totalCount records for ingestion."
 }
+
 
 #endregion
 
