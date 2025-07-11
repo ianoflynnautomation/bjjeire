@@ -53,7 +53,6 @@ function Test-AdxTableExists {
   
   $queryUrl = "$QueryUri/v2/rest/query"
   
-  # Using a simpler KQL query that will fail if the table does not exist. This is more robust.
   $kqlQuery = ".show table $TableName"
   
   $queryPayload = @{
@@ -68,18 +67,14 @@ function Test-AdxTableExists {
   }
 
   try {
-    # If this command succeeds, the table exists. We don't need to inspect the output.
     Invoke-RestMethod -Uri $queryUrl -Method 'POST' -Body $queryPayload -Headers $headers -ErrorAction Stop
     return $true
   }
   catch {
-    # Enhanced error logging to show the full response body from the server.
+    # <<< FIX: Correctly read the response body from the exception object.
     $errorMessage = $_.Exception.Message
     if ($_.Exception.Response) {
-        $responseStream = $_.Exception.Response.GetResponseStream()
-        $streamReader = [System.IO.StreamReader]::new($responseStream)
-        $responseBody = $streamReader.ReadToEnd()
-        $streamReader.Close()
+        $responseBody = $_.Exception.Response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
         $errorMessage += " Response Body: $responseBody"
     }
     Write-Warning "Verification query failed. This may indicate the table/database is not found or a query syntax error. Full Error: $errorMessage"
