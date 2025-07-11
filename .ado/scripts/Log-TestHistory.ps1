@@ -41,7 +41,6 @@ param (
   [string]$TenantId
 )
 
-adoHttpClient = $null
 $adxAccessToken = $null
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -50,12 +49,6 @@ try {
   $modulePath = Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
   Import-Module -Name $modulePath -Force
     
-  # Create a client for Azure DevOps
-  Write-Host "Initializing HttpClient for Azure DevOps API calls..."
-  $adoHttpClient = [System.Net.Http.HttpClient]::new()
-  $adoHttpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $Pat)
-  $adoHttpClient.DefaultRequestHeaders.Add("Accept", "application/json")
-
   # Get a dedicated access token for Azure Data Explorer
   $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoQueryUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
 
@@ -70,7 +63,7 @@ try {
 
   # 3. Fetch Data from Azure DevOps
   Write-Host "Fetching test runs for Build ID $BuildId..."
-  $testRuns = Get-AdoTestRuns -HttpClient $adoHttpClient -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
+  $testRuns = Get-AdoTestRuns -AccessToken $Pat -Organization $Organization -Project $Project -BuildId $BuildId -ApiVersion $ApiVersion
     
   if (-not $testRuns) {
     Write-Host "No test runs found for Build ID $BuildId. Exiting gracefully."
@@ -86,7 +79,7 @@ try {
       continue
     }
     Write-Host "Processing Test Run '$($run.name)' (ID: $($run.id))..."
-    $resultsForRun = Get-AdoTestResultsForRun -HttpClient $adoHttpClient -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
+    $resultsForRun = Get-AdoTestResultsForRun -AccessToken $Pat -Organization $Organization -Project $Project -Run $run -ApiVersion $ApiVersion
     foreach ($result in $resultsForRun) {
       $entity = ConvertTo-TestResultEntity -Result $result -Run $run -BuildId $BuildId
       $allEntities.Add($entity)
@@ -97,12 +90,12 @@ try {
   if ($allEntities.Count -gt 0) {
     Write-Host "Total test result entities to upload to Kusto: $($allEntities.Count)."
     Publish-TestResultsToADX `
-        -Entities $allEntities `
-        -IngestionUri $KustoIngestionUri `
-        -DatabaseName $KustoDatabaseName `
-        -TableName $KustoTableName `
-        -MappingName $KustoMappingName `
-        -AccessToken $adxAccessToken
+      -Entities $allEntities `
+      -IngestionUri $KustoIngestionUri `
+      -DatabaseName $KustoDatabaseName `
+      -TableName $KustoTableName `
+      -MappingName $KustoMappingName `
+      -AccessToken $adxAccessToken
   }
   else {
     Write-Host "No test results were found to log."
@@ -116,7 +109,4 @@ catch {
   Write-Host "##vso[task.logissue type=error;]A critical error occurred: $($_.Exception.Message)"
   Write-Host "##vso[task.logissue type=error;]$($_.ScriptStackTrace)"
   exit 1
-}
-finally {
-  if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
 }
