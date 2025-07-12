@@ -34,7 +34,10 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // Assert
     response.StatusCode.ShouldBe(HttpStatusCode.Created);
     var createdBjjEventResponse = await Http.ReadAsJsonAsync<CreateBjjEventResponse>(response);
-    createdBjjEventResponse.ShouldNotBeNull();
+
+    // NOTE: Failing on purpose to test flaky test pipeline
+    //createdBjjEventResponse.ShouldNotBeNull();
+    createdBjjEventResponse.ShouldBeNull();
     createdBjjEventResponse.Data.ShouldNotBeNull();
     createdBjjEventResponse.Data.ShouldBeEquivalentTo(command.Data);
   }
@@ -50,7 +53,10 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     var response = await Http.PostAsJsonAsync("api/bjjevent", command);
 
     // Assert
-    response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+
+    // NOTE: Failing on purpose to test flaky test pipeline
+    //response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    response.StatusCode.ShouldBe(HttpStatusCode.BadGateway);
   }
 
   [Fact]

@@ -13,23 +13,16 @@
 #>
 [CmdletBinding()]
 param (
-  # --- Azure DevOps Parameters ---
   [Parameter(Mandatory = $true)][string]$Organization,
   [Parameter(Mandatory = $true)][string]$Project,
   [Parameter(Mandatory = $true)][string]$AdoPat,
-
-  # --- Azure Data Explorer (Kusto) Parameters ---
   [Parameter(Mandatory = $true)][string]$KustoClusterUri,
   [Parameter(Mandatory = $true)][string]$KustoDatabaseName,
   [Parameter(Mandatory = $true)][string]$KustoTableName = 'TestResultHistory',
   [Parameter(Mandatory = $true)][string]$KustoMappingName = 'TestResultHistory_Mapping',
-
-  # --- Service Principal Authentication Parameters ---
   [Parameter(Mandatory = $true)][string]$AppClientId,
   [Parameter(Mandatory = $true)][string]$AppClientSecret,
   [Parameter(Mandatory = $true)][string]$TenantId,
-
-  # --- Context Parameters (Defaults from Azure Pipelines) ---
   [Parameter(Mandatory = $false)][int]$BuildId = $env:BUILD_BUILDID,
   [Parameter(Mandatory = $false)][string]$BuildReason = $env:BUILD_REASON,
   [Parameter(Mandatory = $false)][string]$CommitId = $env:BUILD_SOURCEVERSION,

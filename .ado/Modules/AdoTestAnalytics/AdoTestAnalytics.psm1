@@ -6,7 +6,7 @@
     the data, and ingesting it into ADX. Depends on AdoAutomationCore.psm1 for API interactions.
 .NOTES
     Version: 2.0
-    Author: Staff SDET
+    Author:
 #>
 using module "..\AdoAutomationCore\AdoAutomationCore.psm1"
 
@@ -108,10 +108,7 @@ function Get-AdoTestResultsForRun {
     }
     $response = Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url
     if ($response.value) { $allResults.AddRange($response.value) }
-    # ADO API passes the next token in a custom header, not the response body
-    # This part of the original code would need adjustment if Invoke-ResilientRestMethod doesn't return headers.
-    # For simplicity, this refactor assumes single-page responses or that the helper can be adapted.
-    $continuationToken = $null # Simplified for clarity
+    $continuationToken = $null 
   } while ($continuationToken)
   return $allResults
 }
@@ -131,7 +128,6 @@ function ConvertTo-TestResultEntity {
     RunId             = $Run.id
     TestSuite         = $Run.name ?? "UnknownSuite"
     PipelineDefId     = $Run.pipelineReference.definition.id ?? 0
-    # Add context from parameters
     BuildId           = $Context.BuildId
     BuildReason       = $Context.BuildReason
     CommitId          = $Context.CommitId

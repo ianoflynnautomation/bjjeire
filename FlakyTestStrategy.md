@@ -16,7 +16,7 @@ The system is composed of several automated steps that run within our Azure DevO
 
 - **What**: After every test run on the main branch, a script (`Log-TestHistory.ps1`) collects detailed results for each test.
 - **Data Points**: Test name, outcome (Passed/Failed), execution duration, error messages, build ID, and timestamp.
-- **Where**: Logged centrally to an Azure Table Storage account for historical analysis.
+- **Where**: Logged centrally to an Azure Data Explorer Cluster database for historical analysis.
 
 ### Step 2: Nightly Analysis
 
