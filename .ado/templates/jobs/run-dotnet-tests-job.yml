@@ -30,7 +30,7 @@ jobs:
       name: SetQuarantineFilter
       displayName: 'Generate Filter for Quarantined Tests'
       inputs:
-        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Get-QuarantinedTestFilter.ps1'
+        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Generate-Quarantine-Filter.ps1'
         arguments: >
           -Organization "$(ORGANISATION_NAME)"
           -Project "$(System.TeamProject)"

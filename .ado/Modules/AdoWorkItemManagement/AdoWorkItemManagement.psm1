@@ -90,4 +90,31 @@ function Update-AdoWorkItemState {
   Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method Patch -Body ($body | ConvertTo-Json) -ContentType "application/json-patch+json"
 }
 
-Export-ModuleMember -Function Get-AdoWorkItemsByTag, New-AdoBugForFlakyTest, Update-AdoWorkItemState
+function Get-AdoWorkItemsByWiql {
+  <#
+    .SYNOPSIS
+        Executes a WIQL query and returns the full details of the resulting work items.
+    #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)][System.Net.Http.HttpClient]$HttpClient,
+    [Parameter(Mandatory = $true)][string]$Organization,
+    [Parameter(Mandatory = $true)][string]$Project,
+    [Parameter(Mandatory = $true)][string]$Query,
+    [Parameter(Mandatory = $true)][string]$ApiVersion
+  )
+  $wiqlPayload = @{ query = $Query } | ConvertTo-Json
+  $wiqlUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/wiql?api-version=$ApiVersion"
+  $wiqlResponse = Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $wiqlUrl -Method Post -Body $wiqlPayload
+
+  if ($wiqlResponse.workItems) {
+    $ids = ($wiqlResponse.workItems.id) -join ','
+    if ([string]::IsNullOrEmpty($ids)) { return @() }
+        
+    $getDetailsUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=$ApiVersion"
+    return (Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $getDetailsUrl).value
+  }
+  return @()
+}
+
+Export-ModuleMember -Function Get-AdoWorkItemsByTag, New-AdoBugForFlakyTest, Update-AdoWorkItemState, Get-AdoWorkItemsByWiql
