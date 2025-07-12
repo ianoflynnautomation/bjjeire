@@ -46,8 +46,8 @@ $adxHttpClient = $null
 try {
   # 1. Initialization
   Write-Host "Initializing modules and HTTP clients..."
-  Import-Module (Join-Path $PSScriptRoot "\Modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
-  Import-Module (Join-Path $PSScriptRoot "\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
+  Import-Module "..\Modules\AdoAutomationCore\AdoAutomationCore.psm1"
+  Import-Module "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
 
   $adoHttpClient = New-AdoHttpClient -AccessToken $AdoPat
   $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoClusterUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
