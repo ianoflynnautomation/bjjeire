@@ -5,11 +5,11 @@
     Provides functions to query, create, and update Bugs in Azure Boards based on test analysis.
     Depends on AdoAutomationCore.psm1 for all API interactions.
 .NOTES
-    Version: 1.1
+    Version: 1.2
     Author: Staff SDET
     Changes:
-    - Updated Get-AdoWorkItemsByTag to accept a 'Fields' parameter to specify which work item
-      fields to retrieve. This makes the function more flexible and efficient.
+    - Temporarily commented out the 'CustomFields' parameter and related logic in New-AdoBugForFlakyTest
+      and Update-AdoWorkItemState to support environments without custom fields.
 #>
 using module "..\AdoAutomationCore\AdoAutomationCore.psm1"
 
@@ -24,10 +24,7 @@ function Get-AdoWorkItemsByTag {
     [Parameter(Mandatory = $false)][string]$Fields
   )
 
-  # If a specific list of fields is not provided, use a sensible default.
   $apiFields = if (-not [string]::IsNullOrEmpty($Fields)) { $Fields } else { "System.Id,System.Title,System.State,System.Tags,System.CreatedDate" }
-  
-  # Format field names for the WIQL SELECT clause by wrapping them in brackets.
   $wiqlFields = ($apiFields.Split(',') | ForEach-Object { "[{0}]" -f $_.Trim() }) -join ', '
 
   $wiql = @{
@@ -41,7 +38,6 @@ function Get-AdoWorkItemsByTag {
     $ids = ($wiqlResponse.workItems.id) -join ','
     if ([string]::IsNullOrEmpty($ids)) { return @() }
         
-    # Use the 'fields' parameter for an efficient API call instead of '$expand=fields'.
     $getDetailsUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems?ids=$ids&fields=$([uri]::EscapeDataString($apiFields))&api-version=$ApiVersion"
     return (Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $getDetailsUrl).value
   }
@@ -60,7 +56,7 @@ function New-AdoBugForFlakyTest {
     [Parameter(Mandatory = $true)][string]$Tags,
     [Parameter(Mandatory = $true)][string]$ApiVersion,
     [string]$AssignedToEmail,
-    [hashtable]$CustomFields,
+    # [hashtable]$CustomFields,
     [ValidateSet('Bug', 'Task')][string]$WorkItemType = 'Bug'
   )
   $url = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems/`$$WorkItemType`?api-version=$ApiVersion"
@@ -77,11 +73,11 @@ function New-AdoBugForFlakyTest {
     $body.Add(@{ op = "add"; path = "/fields/System.AssignedTo"; value = $AssignedToEmail })
   }
 
-  if ($CustomFields) {
-    foreach ($key in $CustomFields.Keys) {
-      $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
-    }
-  }
+  # if ($CustomFields) {
+  #     foreach ($key in $CustomFields.Keys) {
+  #         $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
+  #     }
+  # }
     
   Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method Patch -Body ($body | ConvertTo-Json -Depth 5) -ContentType "application/json-patch+json"
 }
@@ -95,7 +91,7 @@ function Update-AdoWorkItemState {
     [Parameter(Mandatory = $true)][string]$State,
     [Parameter(Mandatory = $true)][string]$Comment,
     [string]$Tags,
-    [hashtable]$CustomFields,
+    # [hashtable]$CustomFields,
     [Parameter(Mandatory = $true)][string]$ApiVersion
   )
   $url = "https://dev.azure.com/$Organization/_apis/wit/workitems/$WorkItemId`?api-version=$ApiVersion"
@@ -105,11 +101,11 @@ function Update-AdoWorkItemState {
   if ($Tags) {
     $body.Add(@{ op = "add"; path = "/fields/System.Tags"; value = $Tags })
   }
-  if ($CustomFields) {
-    foreach ($key in $CustomFields.Keys) {
-      $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
-    }
-  }
+  # if ($CustomFields) {
+  #     foreach ($key in $CustomFields.Keys) {
+  #         $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
+  #     }
+  # }
     
   Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method Patch -Body ($body | ConvertTo-Json) -ContentType "application/json-patch+json"
 }
@@ -119,7 +115,7 @@ function Get-AdoWorkItemsByWiql {
   param(
     [Parameter(Mandatory = $true)][System.Net.Http.HttpClient]$HttpClient,
     [Parameter(Mandatory = $true)][string]$Organization,
-    [Parameter(Mandatory = $true)][string]$Project,
+    [Parameter(Mandatory = "true")][string]$Project,
     [Parameter(Mandatory = $true)][string]$Query,
     [Parameter(Mandatory = $true)][string]$ApiVersion
   )
