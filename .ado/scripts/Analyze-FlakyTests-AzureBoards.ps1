@@ -45,9 +45,9 @@ $adxHttpClient = $null
 try {
   # 1. Initialization
   Write-Host "Initializing modules and HTTP clients..."
-  Import-Module "..\Modules\AdoAutomationCore\AdoAutomationCore.psm1"
-  Import-Module "..\Modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1"
-  Import-Module "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1"
+  Import-Module (Join-Path $PSScriptRoot "..\Modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "..\Modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "..\Modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
 
   # ... (rest of the script logic from lines 38-124 is unchanged)
 
