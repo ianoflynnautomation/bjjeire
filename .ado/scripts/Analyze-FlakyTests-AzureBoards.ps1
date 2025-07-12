@@ -94,6 +94,11 @@ FlakinessAnalysis
 | project TestName, Reasons, FirstFailure, LastFailure, History
 "@
 
+  # --- DEBUGGING: Print the generated KQL query to the console ---
+  Write-Host "====================== KQL QUERY TO BE EXECUTED ======================"
+  Write-Host $kqlQuery
+  Write-Host "===================================================================="
+
   $queryPayload = @{ db = $KustoDatabaseName; csl = $kqlQuery } | ConvertTo-Json
   $queryUrl = "$KustoClusterUri/v2/rest/query"
   $kustoResult = Invoke-ResilientRestMethod -HttpClient $adxHttpClient -Uri $queryUrl -Method 'POST' -Body $queryPayload
