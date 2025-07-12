@@ -1,0 +1,54 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: ''
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: ${{ parameters.name }}
+  timeoutInMinutes: 10
+  cancelTimeoutInMinutes: 2
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+  steps:
+    - checkout: self
+
+    - task: PowerShell@2
+      displayName: 'Install Required PS Modules'
+      inputs:
+        targetType: 'inline'
+        script: |
+          Install-Module -Name Az.Accounts -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+          Install-Module -Name Az.Kusto -Repository PSGallery -Force -AcceptLicense -Scope CurrentUser
+
+    - task: PowerShell@2
+      displayName: 'Log TestHistory'
+      inputs:
+        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Log-TestHistory.ps1'
+        arguments: >
+          -Organization "$(ORGANISATION_NAME)"
+          -Project "$(System.TeamProject)"
+          -BuildId "$(Build.BuildId)"
+          -AdoPat $env:SYSTEM_ACCESSTOKEN
+          -AdoApiVersion "$(AZURE_API_VERSION)"
+          -KustoClusterUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
+          -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
+          -KustoTableName "$(KUSTO_TABLE_NAME)"
+          -KustoMappingName "$(KUSTO_MAPPING_NAME)"
+          -AppClientId "$(KUSTO-APP-CLIENT-ID)"
+          -AppClientSecret "$(KUSTO-APP-CLIENT-SECRET)"
+          -TenantId "$(KUSTO-TENANT-ID)"
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+        BUILD_REASON: $(Build.Reason)
+        BUILD_SOURCEBRANCHNAME: $(Build.SourceBranchName)
+        BUILD_SOURCEVERSION: $(Build.SourceVersion)
+        BUILD_REQUESTEDFOREMAIL: $(Build.RequestedForEmail)
+        AGENT_NAME: $(Agent.Name)
+        SYSTEM_DEBUG: true
+
+
