@@ -1,20 +1,17 @@
 <#
 .SYNOPSIS
-    Analyzes test history from Kusto to create or resolve work items for flaky tests. (Version 5.0)
+    Analyzes test history from Kusto to create or resolve work items for flaky tests. (Version 5.1)
 .DESCRIPTION
     This script connects to Azure Data Explorer to identify flaky tests based on an enhanced query
     that detects outcome flips and new instability. It synchronizes these findings with Azure Boards
     by creating new bugs (suggesting an owner) and automatically resolving bugs for tests that are
     now stable, calculating a precise MTTR upon resolution.
-    It depends on the AdoAutomationCore and AdoWorkItemManagement modules.
 .NOTES
-    Version: 5.0
+    Version: 5.1
     Author: Staff SDET
     Changes:
-    - Replaced KQL query with enhanced version for flip rate and new instability detection.
-    - Assigns bug to committer of first failure.
-    - Stores 'FirstFailureDate' in a custom field on bug creation.
-    - Calculates and stores MTTR in days in a custom field upon bug resolution.
+    - Fixed a culture-related bug where a double value for the flakiness threshold could be converted
+      to a string with a comma decimal separator, causing a KQL syntax error.
 #>
 [CmdletBinding()]
 param (
@@ -56,11 +53,15 @@ try {
 
   # 2. Define and Execute ENHANCED KQL Query to Find Flaky Tests
   Write-Host "Executing enhanced KQL query to find flaky tests..."
+  
+  # **FIX**: Convert the double to a string using InvariantCulture to ensure '.' is the decimal separator.
+  $kqlFlakinessThreshold = $FlakinessThreshold.ToString([System.Globalization.CultureInfo]::InvariantCulture)
+
   $kqlQuery = @"
 let lookbackPeriod = $($TimeWindowDays)d;
 let stabilityPeriod = $($StabilityLookbackDays)d;
 let minRunsThreshold = $MinRunsThreshold;
-let flakinessThreshold = $FlakinessThreshold;
+let flakinessThreshold = $kqlFlakinessThreshold;
 let minFlipsThreshold = $MinFlipsThreshold;
 TestResultHistory
 | where Timestamp > ago(lookbackPeriod)
@@ -123,7 +124,6 @@ TestResultHistory
     Project      = $Project
     Tag          = "FlakyTest"
     ApiVersion   = $AdoApiVersion
-    # Fetch the custom field needed for MTTR calculation
     Fields       = "System.Id,System.Title,System.State,System.Tags,System.CreatedDate,$($FirstFailureDateField)"
   }
   $existingBugs = Get-AdoWorkItemsByTag @getBugsParams
@@ -136,7 +136,6 @@ TestResultHistory
             
       $bugDescription = Get-FlakyTestBugDescription -FlakyTest $flakyTest -Organization $Organization -Project $Project -RepoName $RepoName -DashboardUrl $TestHealthDashboardUrl
       
-      # Prepare custom fields payload
       $customFields = @{
         ($FirstFailureDateField) = $flakyTest.FirstFailure.Timestamp
       }
@@ -164,7 +163,6 @@ TestResultHistory
     if (-not $isStillFlaky -and $bug.fields.'System.State' -in @('New', 'Active', 'To Do', 'Proposed')) {
       Write-Host "##vso[task.logissue type=warning]RESOLVING stale bug #$($bug.id) for test: $testNameInTitle"
       
-      # Refined MTTR Calculation
       $mttrDays = "N/A"
       $firstFailureDateStr = $bug.fields.$FirstFailureDateField
       if ($firstFailureDateStr) {
@@ -173,14 +171,12 @@ TestResultHistory
         $mttrDays = [Math]::Round($mttr.TotalDays, 2)
       }
       else {
-        # Fallback to bug lifetime if custom field is not present
         $mttr = (Get-Date) - ([datetime]$bug.fields.'System.CreatedDate')
         $mttrDays = [Math]::Round($mttr.TotalDays, 2)
       }
 
       $comment = "Test is no longer flaky based on analysis over the last $TimeWindowDays days. Automatically resolved by pipeline. MTTR: $mttrDays days."
       
-      # Prepare custom fields for update
       $updateCustomFields = @{
         ($MttrField) = $mttrDays
       }
@@ -189,7 +185,7 @@ TestResultHistory
         HttpClient   = $adoHttpClient
         Organization = $Organization
         WorkItemId   = $bug.id
-        State        = "Done" # Or "Resolved" depending on your process template
+        State        = "Done"
         Comment      = $comment
         Tags         = ($bug.fields.'System.Tags' -replace 'Quarantined;? ?', '')
         CustomFields = $updateCustomFields
