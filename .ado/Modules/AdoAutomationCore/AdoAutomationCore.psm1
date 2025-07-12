@@ -6,7 +6,7 @@
     and other utilities required by higher-level automation modules.
 .NOTES
     Version: 1.0
-    Author: Staff SDET
+    Author:
 #>
 
 function New-AdoHttpClient {
@@ -54,17 +54,13 @@ function Invoke-ResilientRestMethod {
   <#
     .SYNOPSIS
         Performs a resilient HTTP request with automatic retries on transient failures.
-    .NOTES
-        Version: 1.1
-        - Now accepts a generic -Body parameter (string or byte array).
-        - Now accepts a -Headers parameter for custom request headers.
     #>
   [CmdletBinding()]
   param(
     [Parameter(Mandatory = $true)][System.Net.Http.HttpClient]$HttpClient,
     [Parameter(Mandatory = $true)][string]$Uri,
     [string]$Method = 'GET',
-    [object]$Body, # Can be [string] or [byte[]]
+    [object]$Body,
     [string]$ContentType = "application/json",
     [hashtable]$Headers,
     [int]$MaxRetries = 3,
