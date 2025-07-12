@@ -1,17 +1,18 @@
 <#
 .SYNOPSIS
-    Analyzes test history from Kusto to create or resolve work items for flaky tests. (Version 5.1)
+    Analyzes test history from Kusto to create or resolve work items for flaky tests. (Version 5.2)
 .DESCRIPTION
     This script connects to Azure Data Explorer to identify flaky tests based on an enhanced query
     that detects outcome flips and new instability. It synchronizes these findings with Azure Boards
     by creating new bugs (suggesting an owner) and automatically resolving bugs for tests that are
     now stable, calculating a precise MTTR upon resolution.
 .NOTES
-    Version: 5.1
+    Version: 5.2
     Author: Staff SDET
     Changes:
-    - Fixed a culture-related bug where a double value for the flakiness threshold could be converted
-      to a string with a comma decimal separator, causing a KQL syntax error.
+    - Reworked KQL query to avoid using 'join' inside a 'partition' subquery, which is not allowed.
+      The logic is now split into two parts (stability check and flakiness analysis) and joined at the end.
+    - Updated deprecated 'pack_all()' function to the modern '*' syntax in arg_min/arg_max.
 #>
 [CmdletBinding()]
 param (
@@ -54,7 +55,6 @@ try {
   # 2. Define and Execute ENHANCED KQL Query to Find Flaky Tests
   Write-Host "Executing enhanced KQL query to find flaky tests..."
   
-  # **FIX**: Convert the double to a string using InvariantCulture to ensure '.' is the decimal separator.
   $kqlFlakinessThreshold = $FlakinessThreshold.ToString([System.Globalization.CultureInfo]::InvariantCulture)
 
   $kqlQuery = @"
@@ -63,29 +63,28 @@ let stabilityPeriod = $($StabilityLookbackDays)d;
 let minRunsThreshold = $MinRunsThreshold;
 let flakinessThreshold = $kqlFlakinessThreshold;
 let minFlipsThreshold = $MinFlipsThreshold;
-TestResultHistory
-| where Timestamp > ago(lookbackPeriod)
-| order by TestName, Timestamp asc
-| serialize
-| partition by TestName (
-    extend PrevOutcome = prev(Outcome)
-    | extend IsFlip = Outcome != PrevOutcome
-    | summarize
-        TotalRuns = count(),
-        PassedRuns = countif(Outcome == 'Passed'),
-        FailedRuns = countif(Outcome == 'Failed'),
-        Flips = countif(IsFlip),
-        Durations = make_list(DurationMs),
-        History = make_list(pack('Timestamp', Timestamp, 'Outcome', Outcome)),
-        FirstFailure = arg_min(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
-        LastFailure = arg_max(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all())
-        by TestName
-    | join kind=leftouter (
-        TestResultHistory
-        | where Timestamp between (ago(stabilityPeriod) .. ago(lookbackPeriod))
-        | summarize WasStable = (countif(Outcome != 'Passed') == 0) by TestName
-    ) on TestName
-)
+let StabilityInfo = TestResultHistory
+    | where Timestamp between (ago(stabilityPeriod) .. ago(lookbackPeriod))
+    | summarize WasStable = (countif(Outcome != 'Passed') == 0) by TestName;
+let FlakinessAnalysis = TestResultHistory
+    | where Timestamp > ago(lookbackPeriod)
+    | partition hint.strategy=native by TestName (
+        order by Timestamp asc
+        | extend PrevOutcome = prev(Outcome)
+        | extend IsFlip = Outcome != PrevOutcome
+        | summarize
+            TotalRuns = count(),
+            PassedRuns = countif(Outcome == 'Passed'),
+            FailedRuns = countif(Outcome == 'Failed'),
+            Flips = countif(IsFlip),
+            Durations = make_list(DurationMs),
+            History = make_list(bag_pack('Timestamp', Timestamp, 'Outcome', Outcome)),
+            FirstFailure = arg_min(iif(Outcome == 'Failed', Timestamp, datetime(null)), *),
+            LastFailure = arg_max(iif(Outcome == 'Failed', Timestamp, datetime(null)), *)
+            by TestName
+    );
+FlakinessAnalysis
+| join kind=leftouter StabilityInfo on TestName
 | where TotalRuns > minRunsThreshold and FailedRuns > 0
 | extend FlipRate = todouble(FailedRuns) / TotalRuns
 | where (FlipRate >= flakinessThreshold and Flips >= minFlipsThreshold) or (WasStable == true)
@@ -105,11 +104,11 @@ TestResultHistory
   if ($kustoResult.Tables[0].Rows) {
     $currentlyFlakyTests = $kustoResult.Tables[0].Rows | ForEach-Object {
       [PSCustomObject]@{
-        TestName        = $_[0]
-        Reasons         = $_[1] | ConvertFrom-Json
-        FirstFailure    = $_[2] | ConvertFrom-Json
-        LastFailure     = $_[3] | ConvertFrom-Json
-        HistoryText     = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
+        TestName      = $_[0]
+        Reasons       = $_[1] | ConvertFrom-Json
+        FirstFailure  = $_[2] | ConvertFrom-Json
+        LastFailure   = $_[3] | ConvertFrom-Json
+        HistoryText   = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
         AssignedToEmail = ($_[2] | ConvertFrom-Json).RequestedForEmail
       }
     }
@@ -166,13 +165,12 @@ TestResultHistory
       $mttrDays = "N/A"
       $firstFailureDateStr = $bug.fields.$FirstFailureDateField
       if ($firstFailureDateStr) {
-        $firstFailureDate = [datetime]::Parse($firstFailureDateStr, $null, 'RoundtripKind')
-        $mttr = (Get-Date) - $firstFailureDate
-        $mttrDays = [Math]::Round($mttr.TotalDays, 2)
-      }
-      else {
-        $mttr = (Get-Date) - ([datetime]$bug.fields.'System.CreatedDate')
-        $mttrDays = [Math]::Round($mttr.TotalDays, 2)
+          $firstFailureDate = [datetime]::Parse($firstFailureDateStr, $null, 'RoundtripKind')
+          $mttr = (Get-Date) - $firstFailureDate
+          $mttrDays = [Math]::Round($mttr.TotalDays, 2)
+      } else {
+          $mttr = (Get-Date) - ([datetime]$bug.fields.'System.CreatedDate')
+          $mttrDays = [Math]::Round($mttr.TotalDays, 2)
       }
 
       $comment = "Test is no longer flaky based on analysis over the last $TimeWindowDays days. Automatically resolved by pipeline. MTTR: $mttrDays days."
