@@ -39,7 +39,6 @@ jobs:
           -BuildId "$(Build.BuildId)"
           -AdoPat $env:SYSTEM_ACCESSTOKEN
           -AdoApiVersion "$(AZURE_API_VERSION)"
-          -KustoIngestionUri "$(AZURE-DEC-KUSTO-INGESTION-URI)"
           -KustoClusterUri "$(AZURE-DEC-KUSTO-CLUSTER-URI)"
           -KustoDatabaseName "$(KUSTO_DATABASE_NAME)"
           -KustoTableName "$(KUSTO_TABLE_NAME)"

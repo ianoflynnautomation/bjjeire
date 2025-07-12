@@ -19,7 +19,6 @@ param (
   [Parameter(Mandatory = $true)][string]$AdoPat,
 
   # --- Azure Data Explorer (Kusto) Parameters ---
-  [Parameter(Mandatory = $true)][string]$KustoIngestionUri,
   [Parameter(Mandatory = $true)][string]$KustoClusterUri,
   [Parameter(Mandatory = $true)][string]$KustoDatabaseName,
   [Parameter(Mandatory = $true)][string]$KustoTableName = 'TestResultHistory',
@@ -47,8 +46,8 @@ $adxHttpClient = $null
 try {
   # 1. Initialization
   Write-Host "Initializing modules and HTTP clients..."
-  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
-  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "\modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "\modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
 
   $adoHttpClient = New-AdoHttpClient -AccessToken $AdoPat
   $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoClusterUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
@@ -81,7 +80,7 @@ try {
     $publishParams = @{
       HttpClient   = $adxHttpClient
       Entities     = $allTestResults
-      IngestionUri = $KustoIngestionUri
+      IngestionUri = $KustoClusterUri
       DatabaseName = $KustoDatabaseName
       TableName    = $KustoTableName
       MappingName  = $KustoMappingName
