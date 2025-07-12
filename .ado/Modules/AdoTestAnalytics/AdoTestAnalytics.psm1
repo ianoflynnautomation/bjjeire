@@ -8,7 +8,7 @@
     Version: 2.0
     Author: Staff SDET
 #>
-using module ".\AdoAutomationCore\AdoAutomationCore.psm1"
+using module "..\AdoAutomationCore\AdoAutomationCore.psm1"
 
 function Get-AdoTestRuns {
   [CmdletBinding()]
@@ -82,7 +82,6 @@ function Publish-TestResultsToADX {
 
     $headers = @{ "Content-Encoding" = "gzip" }
 
-    # The -Headers parameter is now used, fixing the error.
     Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method 'POST' -Body $compressedBytes -ContentType "application/x-ndjson" -Headers $headers
     
     Write-Host "Successfully queued batch $batchNumber for ingestion."

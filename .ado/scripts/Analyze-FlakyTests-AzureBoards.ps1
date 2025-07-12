@@ -45,9 +45,9 @@ $adxHttpClient = $null
 try {
   # 1. Initialization
   Write-Host "Initializing modules and HTTP clients..."
-  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
-  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1") -Force
-  Import-Module (Join-Path $PSScriptRoot "..\modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "\modules\AdoAutomationCore\AdoAutomationCore.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "\modules\AdoWorkItemManagement\AdoWorkItemManagement.psm1") -Force
+  Import-Module (Join-Path $PSScriptRoot "\modules\AdoTestAnalytics\AdoTestAnalytics.psm1") -Force
 
   # ... (rest of the script logic from lines 38-124 is unchanged)
 
@@ -99,7 +99,7 @@ try {
   Write-Host "Azure Boards synchronization complete."
 }
 catch {
-  Write-Host "##vso[task.logissue type=error;]A critical error occurred in Analyze-And-Manage-Flaky-Tests.ps1: $($_.Exception.Message)"
+  Write-Host "##vso[task.logissue type=error;]A critical error occurred in Analyze-FlakyTests-AzureBoards.ps1: $($_.Exception.Message)"
   Write-Host "##vso[task.logissue type=error;]$($_.ScriptStackTrace)"
   exit 1
 }

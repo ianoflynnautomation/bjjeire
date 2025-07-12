@@ -8,7 +8,7 @@
     Version: 1.0
     Author:
 #>
-using module ".\AdoAutomationCore\AdoAutomationCore.psm1"
+using module "..\AdoAutomationCore\AdoAutomationCore.psm1"
 
 function Get-AdoWorkItemsByTag {
   [CmdletBinding()]
