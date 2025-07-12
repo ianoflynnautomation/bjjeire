@@ -1,16 +1,20 @@
 <#
 .SYNOPSIS
-    Analyzes test history from Kusto to create or resolve work items for flaky tests.
+    Analyzes test history from Kusto to create or resolve work items for flaky tests. (Version 5.0)
 .DESCRIPTION
-    This script connects to Azure Data Explorer to identify flaky tests based on predefined thresholds.
-    It then synchronizes these findings with Azure Boards by creating new bugs for newly detected
-    flakiness and automatically resolving bugs for tests that are now stable.
+    This script connects to Azure Data Explorer to identify flaky tests based on an enhanced query
+    that detects outcome flips and new instability. It synchronizes these findings with Azure Boards
+    by creating new bugs (suggesting an owner) and automatically resolving bugs for tests that are
+    now stable, calculating a precise MTTR upon resolution.
     It depends on the AdoAutomationCore and AdoWorkItemManagement modules.
 .NOTES
-    Version: 4.0
-    Author:
-.EXAMPLE
-    ./Analyze-And-Manage-Flaky-Tests.ps1 -Organization "my-org" -Project "my-project" ...
+    Version: 5.0
+    Author: Staff SDET
+    Changes:
+    - Replaced KQL query with enhanced version for flip rate and new instability detection.
+    - Assigns bug to committer of first failure.
+    - Stores 'FirstFailureDate' in a custom field on bug creation.
+    - Calculates and stores MTTR in days in a custom field upon bug resolution.
 #>
 [CmdletBinding()]
 param (
@@ -27,10 +31,12 @@ param (
   [Parameter(Mandatory = $true)][string]$AppClientSecret,
   [Parameter(Mandatory = $true)][string]$TenantId,
   [Parameter(Mandatory = $false)][int]$TimeWindowDays = 14,
-  [Parameter(Mandatory = $false)][double]$FlakinessThreshold = 0.01,
+  [Parameter(Mandatory = $false)][int]$StabilityLookbackDays = 30,
+  [Parameter(Mandatory = $false)][double]$FlakinessThreshold = 0.02,
   [Parameter(Mandatory = $false)][int]$MinRunsThreshold = 20,
-  [Parameter(Mandatory = $false)][int]$MinFlipsThreshold = 2,
-  [Parameter(Mandatory = $false)][double]$DurationStdDevFactor = 2.5
+  [Parameter(Mandatory = $false)][int]$MinFlipsThreshold = 3,
+  [Parameter(Mandatory = $false)][string]$FirstFailureDateField = 'Custom.FirstFailureDate',
+  [Parameter(Mandatory = $false)][string]$MttrField = 'Custom.MTTRDays'
 )
 
 $startTime = [System.Diagnostics.Stopwatch]::StartNew()
@@ -48,31 +54,45 @@ try {
   $adxAccessToken = Get-AdxAccessToken -KustoClusterUri $KustoClusterUri -AppClientId $AppClientId -AppClientSecret $AppClientSecret -TenantId $TenantId
   $adxHttpClient = New-AdoHttpClient -AccessToken $adxAccessToken
 
-  # 2. Define and Execute KQL Query to Find Flaky Tests
-  Write-Host "Executing KQL query to find flaky tests over the last $($TimeWindowDays) days..."
+  # 2. Define and Execute ENHANCED KQL Query to Find Flaky Tests
+  Write-Host "Executing enhanced KQL query to find flaky tests..."
   $kqlQuery = @"
+let lookbackPeriod = $($TimeWindowDays)d;
+let stabilityPeriod = $($StabilityLookbackDays)d;
+let minRunsThreshold = $MinRunsThreshold;
+let flakinessThreshold = $FlakinessThreshold;
+let minFlipsThreshold = $MinFlipsThreshold;
 TestResultHistory
-| where Timestamp > ago($($TimeWindowDays)d)
-| summarize TotalRuns = count(),
-            PassedRuns = countif(Outcome == "Passed"),
-            FailedRuns = countif(Outcome == "Failed"),
-            Durations = make_list(DurationMs),
-            History = make_list(pack('Timestamp', Timestamp, 'Outcome', Outcome)),
-            FirstFailure = arg_min(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
-            LastFailure = arg_max(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
-            LastGoodRun = arg_max(iif(Outcome == 'Passed', Timestamp, datetime(null)), pack_all())
-            by TestName
-| where TotalRuns > $MinRunsThreshold and FailedRuns > 0
-| extend FlipRate = todouble(FailedRuns) / TotalRuns, Flips = FailedRuns
-| extend DurationStats = series_stats_dynamic(Durations)
-| extend DurationAvg = todouble(DurationStats.avg), DurationStdDev = todouble(DurationStats.stdev)
-| where (FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold)
-    or (isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor))
+| where Timestamp > ago(lookbackPeriod)
+| order by TestName, Timestamp asc
+| serialize
+| partition by TestName (
+    extend PrevOutcome = prev(Outcome)
+    | extend IsFlip = Outcome != PrevOutcome
+    | summarize
+        TotalRuns = count(),
+        PassedRuns = countif(Outcome == 'Passed'),
+        FailedRuns = countif(Outcome == 'Failed'),
+        Flips = countif(IsFlip),
+        Durations = make_list(DurationMs),
+        History = make_list(pack('Timestamp', Timestamp, 'Outcome', Outcome)),
+        FirstFailure = arg_min(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all()),
+        LastFailure = arg_max(iif(Outcome == 'Failed', Timestamp, datetime(null)), pack_all())
+        by TestName
+    | join kind=leftouter (
+        TestResultHistory
+        | where Timestamp between (ago(stabilityPeriod) .. ago(lookbackPeriod))
+        | summarize WasStable = (countif(Outcome != 'Passed') == 0) by TestName
+    ) on TestName
+)
+| where TotalRuns > minRunsThreshold and FailedRuns > 0
+| extend FlipRate = todouble(FailedRuns) / TotalRuns
+| where (FlipRate >= flakinessThreshold and Flips >= minFlipsThreshold) or (WasStable == true)
 | extend Reasons = pack_array(
-    iif(FlipRate >= $FlakinessThreshold and Flips >= $MinFlipsThreshold, strcat('High flip rate (', tostring(toint(FlipRate*100)), '%)'), dynamic(null)),
-    iif(isnotnull(DurationAvg) and DurationAvg > 50 and DurationStdDev > (DurationAvg * $DurationStdDevFactor), strcat('Unstable execution time (Avg: ', toint(DurationAvg), 'ms, StdDev: ', toint(DurationStdDev), 'ms)'), dynamic(null))
+    iif(FlipRate >= flakinessThreshold and Flips >= minFlipsThreshold, strcat('High flip rate (', tostring(toint(FlipRate*100)), '%) with ', Flips, ' outcome flips.'), dynamic(null)),
+    iif(WasStable == true, 'Newly unstable: This test was stable for the preceding period.', dynamic(null))
   )
-| project TestName, Reasons, FirstFailure, LastFailure, LastGoodRun, History
+| project TestName, Reasons, FirstFailure, LastFailure, History
 "@
 
   $queryPayload = @{ db = $KustoDatabaseName; csl = $kqlQuery } | ConvertTo-Json
@@ -84,12 +104,12 @@ TestResultHistory
   if ($kustoResult.Tables[0].Rows) {
     $currentlyFlakyTests = $kustoResult.Tables[0].Rows | ForEach-Object {
       [PSCustomObject]@{
-        TestName     = $_[0]
-        Reasons      = $_[1] | ConvertFrom-Json
-        FirstFailure = $_[2] | ConvertFrom-Json
-        LastFailure  = $_[3] | ConvertFrom-Json
-        LastGoodRun  = $_[4] | ConvertFrom-Json
-        HistoryText  = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
+        TestName        = $_[0]
+        Reasons         = $_[1] | ConvertFrom-Json
+        FirstFailure    = $_[2] | ConvertFrom-Json
+        LastFailure     = $_[3] | ConvertFrom-Json
+        HistoryText     = ($_[-1] | ConvertFrom-Json | Sort-Object Timestamp).Outcome -join ', '
+        AssignedToEmail = ($_[2] | ConvertFrom-Json).RequestedForEmail
       }
     }
   }
@@ -103,6 +123,8 @@ TestResultHistory
     Project      = $Project
     Tag          = "FlakyTest"
     ApiVersion   = $AdoApiVersion
+    # Fetch the custom field needed for MTTR calculation
+    Fields       = "System.Id,System.Title,System.State,System.Tags,System.CreatedDate,$($FirstFailureDateField)"
   }
   $existingBugs = Get-AdoWorkItemsByTag @getBugsParams
 
@@ -112,9 +134,13 @@ TestResultHistory
     if (-not $bugExists) {
       Write-Host "##vso[task.logissue type=warning]CREATING new bug for flaky test: $($flakyTest.TestName)"
             
-      # Call the helper function from the module to build the description
       $bugDescription = Get-FlakyTestBugDescription -FlakyTest $flakyTest -Organization $Organization -Project $Project -RepoName $RepoName -DashboardUrl $TestHealthDashboardUrl
-            
+      
+      # Prepare custom fields payload
+      $customFields = @{
+        ($FirstFailureDateField) = $flakyTest.FirstFailure.Timestamp
+      }
+
       $newBugParams = @{
         HttpClient      = $adoHttpClient
         Organization    = $Organization
@@ -123,7 +149,8 @@ TestResultHistory
         Description     = $bugDescription
         AreaPath        = $AreaPath
         Tags            = "FlakyTest; Automated; Quarantined"
-        AssignedToEmail = $flakyTest.FirstFailure.RequestedForEmail
+        AssignedToEmail = $flakyTest.AssignedToEmail
+        CustomFields    = $customFields
         ApiVersion      = $AdoApiVersion
       }
       New-AdoBugForFlakyTest @newBugParams
@@ -134,19 +161,38 @@ TestResultHistory
   foreach ($bug in $existingBugs) {
     $testNameInTitle = $bug.fields.'System.Title' -replace '^\[Flaky Test\] '
     $isStillFlaky = $currentlyFlakyTests | Where-Object { $_.TestName -eq $testNameInTitle }
-    if (-not $isStillFlaky -and $bug.fields.'System.State' -in @('New', 'Active', 'To Do')) {
+    if (-not $isStillFlaky -and $bug.fields.'System.State' -in @('New', 'Active', 'To Do', 'Proposed')) {
       Write-Host "##vso[task.logissue type=warning]RESOLVING stale bug #$($bug.id) for test: $testNameInTitle"
-            
-      $mttr = (Get-Date) - ([datetime]$bug.fields.'System.CreatedDate')
-      $comment = "Test is no longer flaky based on analysis over the last $TimeWindowDays days. Automatically resolved by pipeline. MTTR: $($mttr.Days) days."
-            
+      
+      # Refined MTTR Calculation
+      $mttrDays = "N/A"
+      $firstFailureDateStr = $bug.fields.$FirstFailureDateField
+      if ($firstFailureDateStr) {
+        $firstFailureDate = [datetime]::Parse($firstFailureDateStr, $null, 'RoundtripKind')
+        $mttr = (Get-Date) - $firstFailureDate
+        $mttrDays = [Math]::Round($mttr.TotalDays, 2)
+      }
+      else {
+        # Fallback to bug lifetime if custom field is not present
+        $mttr = (Get-Date) - ([datetime]$bug.fields.'System.CreatedDate')
+        $mttrDays = [Math]::Round($mttr.TotalDays, 2)
+      }
+
+      $comment = "Test is no longer flaky based on analysis over the last $TimeWindowDays days. Automatically resolved by pipeline. MTTR: $mttrDays days."
+      
+      # Prepare custom fields for update
+      $updateCustomFields = @{
+        ($MttrField) = $mttrDays
+      }
+
       $resolveBugParams = @{
         HttpClient   = $adoHttpClient
         Organization = $Organization
         WorkItemId   = $bug.id
-        State        = "Done"
+        State        = "Done" # Or "Resolved" depending on your process template
         Comment      = $comment
         Tags         = ($bug.fields.'System.Tags' -replace 'Quarantined;? ?', '')
+        CustomFields = $updateCustomFields
         ApiVersion   = $AdoApiVersion
       }
       Update-AdoWorkItemState @resolveBugParams
@@ -160,7 +206,6 @@ catch {
   exit 1
 }
 finally {
-  # 5. Finalize
   if ($null -ne $adoHttpClient) { $adoHttpClient.Dispose() }
   if ($null -ne $adxHttpClient) { $adxHttpClient.Dispose() }
   $startTime.Stop()
