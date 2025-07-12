@@ -5,8 +5,11 @@
     Provides functions to query, create, and update Bugs in Azure Boards based on test analysis.
     Depends on AdoAutomationCore.psm1 for all API interactions.
 .NOTES
-    Version: 1.0
-    Author:
+    Version: 1.1
+    Author: Staff SDET
+    Changes:
+    - Updated Get-AdoWorkItemsByTag to accept a 'Fields' parameter to specify which work item
+      fields to retrieve. This makes the function more flexible and efficient.
 #>
 using module "..\AdoAutomationCore\AdoAutomationCore.psm1"
 
@@ -17,10 +20,18 @@ function Get-AdoWorkItemsByTag {
     [Parameter(Mandatory = $true)][string]$Organization,
     [Parameter(Mandatory = $true)][string]$Project,
     [Parameter(Mandatory = $true)][string]$Tag,
-    [Parameter(Mandatory = $true)][string]$ApiVersion
+    [Parameter(Mandatory = $true)][string]$ApiVersion,
+    [Parameter(Mandatory = $false)][string]$Fields
   )
+
+  # If a specific list of fields is not provided, use a sensible default.
+  $apiFields = if (-not [string]::IsNullOrEmpty($Fields)) { $Fields } else { "System.Id,System.Title,System.State,System.Tags,System.CreatedDate" }
+  
+  # Format field names for the WIQL SELECT clause by wrapping them in brackets.
+  $wiqlFields = ($apiFields.Split(',') | ForEach-Object { "[{0}]" -f $_.Trim() }) -join ', '
+
   $wiql = @{
-    query = "SELECT [System.Id], [System.Title], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '$Tag' AND [System.State] <> 'Removed'"
+    query = "SELECT $wiqlFields FROM workitems WHERE [System.TeamProject] = @project AND [System.Tags] CONTAINS '$Tag' AND [System.State] <> 'Removed'"
   } | ConvertTo-Json
 
   $url = "https://dev.azure.com/$Organization/$Project/_apis/wit/wiql?api-version=$ApiVersion"
@@ -30,7 +41,8 @@ function Get-AdoWorkItemsByTag {
     $ids = ($wiqlResponse.workItems.id) -join ','
     if ([string]::IsNullOrEmpty($ids)) { return @() }
         
-    $getDetailsUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=$ApiVersion"
+    # Use the 'fields' parameter for an efficient API call instead of '$expand=fields'.
+    $getDetailsUrl = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems?ids=$ids&fields=$([uri]::EscapeDataString($apiFields))&api-version=$ApiVersion"
     return (Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $getDetailsUrl).value
   }
   return @()
@@ -48,13 +60,13 @@ function New-AdoBugForFlakyTest {
     [Parameter(Mandatory = $true)][string]$Tags,
     [Parameter(Mandatory = $true)][string]$ApiVersion,
     [string]$AssignedToEmail,
+    [hashtable]$CustomFields,
     [ValidateSet('Bug', 'Task')][string]$WorkItemType = 'Bug'
   )
   $url = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems/`$$WorkItemType`?api-version=$ApiVersion"
     
   $body = [System.Collections.Generic.List[object]]::new()
   $body.Add(@{ op = "add"; path = "/fields/System.Title"; value = "[Flaky Test] $TestName" })
-  # Use the correct field based on the Work Item Type
   $descriptionField = if ($WorkItemType -eq 'Bug') { "Microsoft.VSTS.TCM.ReproSteps" } else { "System.Description" }
   $body.Add(@{ op = "add"; path = "/fields/$descriptionField"; value = $Description })
   $body.Add(@{ op = "add"; path = "/fields/System.AreaPath"; value = $AreaPath })
@@ -63,6 +75,12 @@ function New-AdoBugForFlakyTest {
 
   if ($AssignedToEmail -and $AssignedToEmail -ne "N/A") {
     $body.Add(@{ op = "add"; path = "/fields/System.AssignedTo"; value = $AssignedToEmail })
+  }
+
+  if ($CustomFields) {
+    foreach ($key in $CustomFields.Keys) {
+      $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
+    }
   }
     
   Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method Patch -Body ($body | ConvertTo-Json -Depth 5) -ContentType "application/json-patch+json"
@@ -77,6 +95,7 @@ function Update-AdoWorkItemState {
     [Parameter(Mandatory = $true)][string]$State,
     [Parameter(Mandatory = $true)][string]$Comment,
     [string]$Tags,
+    [hashtable]$CustomFields,
     [Parameter(Mandatory = $true)][string]$ApiVersion
   )
   $url = "https://dev.azure.com/$Organization/_apis/wit/workitems/$WorkItemId`?api-version=$ApiVersion"
@@ -86,15 +105,16 @@ function Update-AdoWorkItemState {
   if ($Tags) {
     $body.Add(@{ op = "add"; path = "/fields/System.Tags"; value = $Tags })
   }
+  if ($CustomFields) {
+    foreach ($key in $CustomFields.Keys) {
+      $body.Add(@{ op = "add"; path = "/fields/$key"; value = $CustomFields[$key] })
+    }
+  }
     
   Invoke-ResilientRestMethod -HttpClient $HttpClient -Uri $url -Method Patch -Body ($body | ConvertTo-Json) -ContentType "application/json-patch+json"
 }
 
 function Get-AdoWorkItemsByWiql {
-  <#
-    .SYNOPSIS
-        Executes a WIQL query and returns the full details of the resulting work items.
-    #>
   [CmdletBinding()]
   param(
     [Parameter(Mandatory = $true)][System.Net.Http.HttpClient]$HttpClient,
