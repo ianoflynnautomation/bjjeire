@@ -5,9 +5,9 @@ stages:
     condition: succeededOrFailed()
 
     jobs:
-      - template: ../jobs/log-test-history-job.yml
-        parameters:
-          name: log_test_history
-          displayName: 'Package & Push to ACR'
+      # - template: ../jobs/log-test-history-job.yml
+      #   parameters:
+      #     name: log_test_history
+      #     displayName: 'Package & Push to ACR'
 
   

@@ -15,7 +15,7 @@ variables:
   - template: templates/variables/flaky-tests-variables.yml
 
 jobs:
-  - template: jobs/flaky-test-analysis-job.yml
+  - template: templates/jobs/flaky-test-analysis-job.yml
     parameters:
       name: flaky_test_analysis
       displayName: 'Analyze and Sync Flaky Tests'
