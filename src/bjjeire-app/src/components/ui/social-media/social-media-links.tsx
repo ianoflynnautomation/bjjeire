@@ -10,15 +10,13 @@ import { SocialMediaLinksTestIds } from '../../../constants/commonDataTestIds'
 interface SocialLinkProps {
   platform: KnownPlatform
   url: string
-  'data-testid'?: string // For the root <a> tag, constructed by SocialMediaLinks
-  testIdInstanceSuffix?: string // Passed from SocialMediaLinks for the icon
+  'data-testid'?: string 
 }
 
 const SocialLink: React.FC<SocialLinkProps> = ({
   platform,
   url,
-  'data-testid': rootDataTestId, // This is the data-testid for the <a> tag itself
-  testIdInstanceSuffix = '', // Default if not provided
+  'data-testid': rootDataTestId,
 }) => {
   const config = platformConfig[platform]
   if (!config) {
@@ -33,7 +31,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({
       rel="noopener noreferrer"
       aria-label={`View on ${label}`}
       title={`View on ${label}`}
-      data-testid={rootDataTestId} // Use the fully formed data-testid from parent
+      data-testid={rootDataTestId}
       className={`
         group rounded-full p-1.5 transition-all duration-200 ease-in-out
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
@@ -50,10 +48,7 @@ const SocialLink: React.FC<SocialLinkProps> = ({
         aria-hidden="true"
         // Use the explicit testIdInstanceSuffix for the icon
         // Assumes SocialMediaLinksTestIds.ICON takes (platform, suffix_id)
-        data-testid={SocialMediaLinksTestIds.ICON(
-          platform.toLowerCase(),
-          testIdInstanceSuffix
-        )}
+        data-testid={SocialMediaLinksTestIds.ICON}
       />
     </a>
   )
@@ -61,14 +56,13 @@ const SocialLink: React.FC<SocialLinkProps> = ({
 
 interface SocialMediaLinksProps {
   socialMedia?: SocialMediaDto
-  'data-testid'?: string // For the root of SocialMediaLinks, set by its parent
-  testIdInstanceSuffix?: string // Passed from its parent for all internal elements
+  'data-testid'?: string
+  
 }
 
 export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   socialMedia,
-  'data-testid': rootDataTestIdFromParent, // data-testid for the root of this component
-  testIdInstanceSuffix = '', // Instance suffix passed from this component's parent
+  'data-testid': rootDataTestIdFromParent,
 }) => {
   if (!socialMedia) {
     return null
@@ -92,11 +86,9 @@ export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
     return null
   }
 
-  // Determine the root test ID for SocialMediaLinks itself
-  // It uses the passed data-testid or generates one using the instance suffix
   const actualRootDataTestId =
     rootDataTestIdFromParent ||
-    SocialMediaLinksTestIds.ROOT(testIdInstanceSuffix)
+    SocialMediaLinksTestIds.ROOT
 
   return (
     <div
@@ -108,14 +100,7 @@ export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
           key={platform}
           platform={platform}
           url={url}
-          // data-testid for the SocialLink's root <a> tag, incorporating platform and instance suffix
-          // Assumes SocialMediaLinksTestIds.LINK takes (platform, suffix_id)
-          data-testid={SocialMediaLinksTestIds.LINK(
-            platform.toLowerCase(),
-            testIdInstanceSuffix
-          )}
-          // Pass the instance suffix to SocialLink for its internal elements (icon)
-          testIdInstanceSuffix={testIdInstanceSuffix}
+          data-testid={SocialMediaLinksTestIds.LINK}
         />
       ))}
     </div>

@@ -15,7 +15,7 @@ export const Badge: React.FC<BadgeProps> = ({
   colorScheme = 'neutral',
   size = 'xs',
   className,
-  'data-testid': dataTestId = BadgeTestIds.ROOT(),
+  'data-testid': dataTestId = BadgeTestIds.ROOT,
 }) => {
   const baseClasses =
     'inline-flex items-center rounded-full font-semibold uppercase tracking-wider'

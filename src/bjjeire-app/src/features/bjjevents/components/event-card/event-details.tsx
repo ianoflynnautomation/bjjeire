@@ -12,7 +12,6 @@ import { DetailItem } from './detail-item'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
 import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
-import { withTestIdSuffix } from '../../../../constants/commonDataTestIds'
 
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
@@ -63,21 +62,16 @@ const formatOrganiserDisplay = (
 interface EventDetailsProps {
   event: BjjEventDto
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const EventDetails: React.FC<EventDetailsProps> = memo(
   ({
-    event,
-    'data-testid': sectionDataTestId,
-    testIdInstanceSuffix = event.id ||
-      event.name.replace(/\s+/g, '-').toLowerCase(),
-  }) => {
+    event, 'data-testid': sectionDataTestId }) => {
     const { name, location, socialMedia, pricing, schedule, organiser } = event
 
     const rootTestId =
-      sectionDataTestId ||
-      withTestIdSuffix(EventCardTestIds.DETAILS.ROOT, testIdInstanceSuffix)
+      sectionDataTestId || EventCardTestIds.DETAILS.ROOT
+
 
     const calculatedPrice = useMemo(
       () => calculateEventPrice(schedule, pricing),
@@ -112,12 +106,8 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             icon={<MapPinIcon />}
             ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
             // DetailItem's root test ID
-            data-testid={withTestIdSuffix(
-              EventCardTestIds.DETAILS.ADDRESS,
-              testIdInstanceSuffix
-            )}
-            // Suffix for DetailItem's internal parts (icon, content)
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={EventCardTestIds.DETAILS.ADDRESS}
+
           >
             <a
               href={getGoogleMapsUrl(location)}
@@ -135,11 +125,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <DetailItem
             icon={<UserCircleIcon />}
             ariaLabel={`Organised by: ${organiserDisplay}`}
-            data-testid={withTestIdSuffix(
-              EventCardTestIds.DETAILS.ORGANISER,
-              testIdInstanceSuffix
-            )}
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={EventCardTestIds.DETAILS.ORGANISER}
           >
             <a
               href={ensureExternalUrlScheme(organiser.website)}
@@ -157,11 +143,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <DetailItem
             icon={<CurrencyDollarIcon />}
             ariaLabel={`Event pricing: ${pricingDisplay}`}
-            data-testid={withTestIdSuffix(
-              EventCardTestIds.DETAILS.PRICING,
-              testIdInstanceSuffix
-            )}
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={EventCardTestIds.DETAILS.PRICING}
           >
             {pricingDisplay}
           </DetailItem>
@@ -171,11 +153,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <div className="pt-1">
             <SocialMediaLinks
               socialMedia={socialMedia}
-              data-testid={withTestIdSuffix(
-                EventCardTestIds.DETAILS.SOCIAL_MEDIA,
-                testIdInstanceSuffix
-              )}
-              testIdInstanceSuffix={testIdInstanceSuffix}
+              data-testid={EventCardTestIds.DETAILS.SOCIAL_MEDIA}
             />
           </div>
         )}

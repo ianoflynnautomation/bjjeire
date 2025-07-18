@@ -2,8 +2,7 @@ import React, { memo } from 'react'
 import { HateoasPagination } from '../../../types/common'
 import clsx from 'clsx'
 import {
-  PaginationTestIds,
-  withTestIdSuffix,
+  PaginationTestIds
 } from '../../../constants/commonDataTestIds'
 
 interface PaginationProps {
@@ -11,15 +10,13 @@ interface PaginationProps {
   pagination: HateoasPagination
   onPageChange: (url: string | null, page?: number) => void
   'data-testid'?: string
-  testIdInstanceSuffix?: string 
 }
 
 const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   pagination,
   onPageChange,
-  'data-testid': dataTestIdFromProp, 
-  testIdInstanceSuffix = '',
+  'data-testid': dataTestIdFromProp
 }) => {
   const {
     totalPages,
@@ -34,7 +31,7 @@ const Pagination: React.FC<PaginationProps> = ({
   if (totalPages <= 1) return null
 
   const rootTestId =
-    dataTestIdFromProp || PaginationTestIds.ROOT(testIdInstanceSuffix)
+    dataTestIdFromProp || PaginationTestIds.ROOT
 
   const buttonBaseClasses = clsx(
     'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
@@ -79,10 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
     >
       {itemsText && (
         <div
-          data-testid={withTestIdSuffix(
-            PaginationTestIds.ITEMS_TEXT,
-            testIdInstanceSuffix 
-          )}
+          data-testid={PaginationTestIds.ITEMS_TEXT}
           className="mb-2 text-sm text-slate-600 dark:text-slate-300"
           aria-live="polite"
         >
@@ -92,10 +86,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="flex items-center gap-3">
         {/* Previous Page */}
         <button
-          data-testid={withTestIdSuffix(
-            PaginationTestIds.PREV_BUTTON,
-            testIdInstanceSuffix
-          )}
+          data-testid={PaginationTestIds.PREV_BUTTON}
           className={clsx(
             buttonBaseClasses,
             hasPreviousPage ? inactiveClasses : disabledClasses
@@ -111,10 +102,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
         {/* Current Page Indicator */}
         <span
-          data-testid={withTestIdSuffix(
-            PaginationTestIds.PAGE_INDICATOR,
-            testIdInstanceSuffix
-          )}
+          data-testid={PaginationTestIds.PAGE_INDICATOR}
           className={clsx(
             'px-3 py-1.5 text-sm font-medium rounded-md border',
             activeClasses
@@ -126,10 +114,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
         {/* Next Page */}
         <button
-          data-testid={withTestIdSuffix(
-            PaginationTestIds.NEXT_BUTTON,
-            testIdInstanceSuffix 
-          )}
+          data-testid={PaginationTestIds.NEXT_BUTTON}
           className={clsx(
             buttonBaseClasses,
             hasNextPage ? inactiveClasses : disabledClasses

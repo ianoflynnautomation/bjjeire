@@ -18,15 +18,12 @@ import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
 interface GymDetailsProps {
   gym: GymDto
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const GymDetails: React.FC<GymDetailsProps> = memo(
   ({
     gym,
     'data-testid': rootDataTestId,
-    testIdInstanceSuffix = gym.id ||
-      gym.name.replace(/\s+/g, '-').toLowerCase(),
   }) => {
     const {
       location,
@@ -38,7 +35,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
     } = gym
 
     const actualRootDataTestId =
-      rootDataTestId || GymCardTestIds.DETAILS.ROOT(testIdInstanceSuffix)
+      rootDataTestId || GymCardTestIds.DETAILS.ROOT
 
     return (
       <section
@@ -56,8 +53,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<MapPinIcon />}
             ariaLabel={`Location: ${location.address}, ${location.venue || ''}`}
-            data-testid={GymCardTestIds.DETAILS.ADDRESS(testIdInstanceSuffix)}
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={GymCardTestIds.DETAILS.ADDRESS}
           >
             <a
               href={getGoogleMapsUrl(gym.location)}
@@ -74,10 +70,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<BuildingLibraryIcon />}
             ariaLabel={`Affiliation: ${affiliation.name}`}
-            data-testid={GymCardTestIds.DETAILS.AFFILIATION(
-              testIdInstanceSuffix
-            )}
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={GymCardTestIds.DETAILS.AFFILIATION}
           >
             {affiliation.website ? (
               <a
@@ -97,8 +90,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<ClipboardDocumentListIcon />}
             ariaLabel={`Timetable: ${formatDisplayUrl(timetableUrl)}`}
-            data-testid={GymCardTestIds.DETAILS.TIMETABLE(testIdInstanceSuffix)}
-            testIdInstanceSuffix={testIdInstanceSuffix}
+            data-testid={GymCardTestIds.DETAILS.TIMETABLE}
           >
             <a
               href={ensureExternalUrlScheme(timetableUrl)}
@@ -113,23 +105,18 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
 
         <GymOfferedClasses
           classes={offeredClasses}
-          data-testid={GymCardTestIds.DETAILS.CLASSES(testIdInstanceSuffix)}
-          testIdInstanceSuffix={testIdInstanceSuffix}
+          data-testid={GymCardTestIds.DETAILS.CLASSES}
         />
         <GymTrialOffer
           trialOffer={trialOffer}
-          data-testid={GymCardTestIds.DETAILS.TRIAL(testIdInstanceSuffix)}
-          testIdInstanceSuffix={testIdInstanceSuffix}
+          data-testid={GymCardTestIds.DETAILS.TRIAL}
         />
 
         {socialMedia && (
           <div className="pt-1">
             <SocialMediaLinks
               socialMedia={socialMedia}
-              data-testid={GymCardTestIds.DETAILS.SOCIAL_MEDIA(
-                testIdInstanceSuffix
-              )}
-              testIdInstanceSuffix={testIdInstanceSuffix}
+              data-testid={GymCardTestIds.DETAILS.SOCIAL_MEDIA}
             />
           </div>
         )}

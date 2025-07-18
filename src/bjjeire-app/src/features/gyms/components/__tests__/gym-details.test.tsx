@@ -12,7 +12,7 @@ describe.concurrent('With Full Data', () => {
   it('should render all sections correctly', () => {
     //
     const { container } = render(
-      <GymDetails gym={MOCK_GYM_FULL} testIdInstanceSuffix={MOCK_GYM_FULL.id} />
+      <GymDetails gym={MOCK_GYM_FULL} />
     )
 
     // Act

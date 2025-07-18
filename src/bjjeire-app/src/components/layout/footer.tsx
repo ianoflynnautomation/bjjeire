@@ -7,15 +7,13 @@ const footerPathKeys = ['events', 'gyms'] as const;
 
 interface FooterProps {
   'data-testid'?: string;
-  testIdInstanceSuffix?: string;
 }
 
 const Footer: React.FC<FooterProps> = ({
-  'data-testid': dataTestIdFromProp,
-  testIdInstanceSuffix = '',
+  'data-testid': dataTestIdFromProp
 }) => {
   const rootTestId =
-    dataTestIdFromProp || FooterTestIds.ROOT(testIdInstanceSuffix);
+    dataTestIdFromProp || FooterTestIds.ROOT;
 
   const quickLinksSectionMinHeight = 'min-h-[120px]';
 
@@ -31,15 +29,11 @@ const Footer: React.FC<FooterProps> = ({
         >
           {footerPathKeys.length > 0 ? (
             <div
-              data-testid={FooterTestIds.QUICK_LINKS_SECTION(
-                testIdInstanceSuffix
-              )}
+              data-testid={FooterTestIds.QUICK_LINKS_SECTION}
             >
               <h3
                 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100"
-                data-testid={FooterTestIds.QUICK_LINKS_HEADING(
-                  testIdInstanceSuffix
-                )}
+                data-testid={FooterTestIds.QUICK_LINKS_HEADING}
               >
                 Quick Links
               </h3>
@@ -57,10 +51,7 @@ const Footer: React.FC<FooterProps> = ({
                       <Link
                         to={pathConfig.getHref()}
                         className="text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        data-testid={FooterTestIds.QUICK_LINK_ITEM(
-                          pathKey,
-                          testIdInstanceSuffix
-                        )}
+                        data-testid={FooterTestIds.QUICK_LINK_ITEM}
                       >
                         {pathConfig.label}
                       </Link>
@@ -77,7 +68,7 @@ const Footer: React.FC<FooterProps> = ({
         <div className="mt-8 border-t border-slate-300 pt-8 text-center dark:border-slate-700">
           <p
             className="text-slate-600 dark:text-slate-400"
-            data-testid={FooterTestIds.COPYRIGHT_TEXT(testIdInstanceSuffix)}
+            data-testid={FooterTestIds.COPYRIGHT_TEXT}
           >
             © {new Date().getFullYear()} BJJ Éire. All rights reserved.
           </p>

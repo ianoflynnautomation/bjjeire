@@ -83,7 +83,7 @@ const EventsPage: React.FC = () => {
         <EventsPageHeader
           countyName={activeFilters.county}
           totalEvents={paginationInfo?.totalItems}
-          dataTestId={EventsPageHeaderTestIds.ROOT()}
+          dataTestId={EventsPageHeaderTestIds.ROOT}
         />
 
         <div className="mb-8">
@@ -93,7 +93,7 @@ const EventsPage: React.FC = () => {
             onCityChange={city => handleFilterChange('county', city)}
             onTypeChange={type => handleFilterChange('type', type)}
             disabled={isFetching || isLoading}
-            dataTestId={EventFiltersTestIds.ROOT()}
+            dataTestId={EventFiltersTestIds.ROOT}
           />
         </div>
 

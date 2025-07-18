@@ -1,8 +1,7 @@
 import React, { memo } from 'react'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import {
-  ErrorStateTestIds,
-  withTestIdSuffix,
+  ErrorStateTestIds
 } from '../../../constants/commonDataTestIds'
 
 interface ErrorStateProps {
@@ -17,11 +16,10 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   message,
   title = 'Error Loading Data',
   onRetry,
-  'data-testid': dataTestIdFromProp,
-  testIdInstanceSuffix = '',
+  'data-testid': dataTestIdFromProp
 }) => {
   const rootTestId =
-    dataTestIdFromProp || ErrorStateTestIds.ROOT(testIdInstanceSuffix)
+    dataTestIdFromProp || ErrorStateTestIds.ROOT
 
   return (
     <div
@@ -32,36 +30,24 @@ const ErrorState: React.FC<ErrorStateProps> = ({
       <ExclamationTriangleIcon
         className="mx-auto h-10 w-10 text-red-500 dark:text-red-400"
         aria-hidden="true"
-        data-testid={withTestIdSuffix(
-          ErrorStateTestIds.ICON,
-          testIdInstanceSuffix
-        )}
+        data-testid={ErrorStateTestIds.ICON}
       />
       <h3
         className="mt-3 text-lg font-semibold text-red-800 dark:text-red-200"
-        data-testid={withTestIdSuffix(
-          ErrorStateTestIds.TITLE,
-          testIdInstanceSuffix
-        )}
+        data-testid={ErrorStateTestIds.TITLE}
       >
         {title}
       </h3>
       <p
         className="mt-1 text-sm text-red-700 dark:text-red-300"
-        data-testid={withTestIdSuffix(
-          ErrorStateTestIds.MESSAGE,
-          testIdInstanceSuffix
-        )}
+        data-testid={ErrorStateTestIds.MESSAGE}
       >
         {message}
       </p>
       <button
         onClick={onRetry}
         className="mt-6 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:from-emerald-500 dark:to-emerald-600 dark:hover:from-emerald-600 dark:hover:to-emerald-700 dark:focus:ring-offset-red-50 dark:dark:focus:ring-offset-red-900/20"
-        data-testid={withTestIdSuffix(
-          ErrorStateTestIds.RETRY_BUTTON,
-          testIdInstanceSuffix
-        )}
+        data-testid={ErrorStateTestIds.RETRY_BUTTON}
       >
         Retry
       </button>

@@ -5,16 +5,14 @@ import { LoadingStateTestIds } from '../../../constants/commonDataTestIds'
 interface LoadingStateProps {
   message?: string
   'data-testid'?: string
-  testIdInstanceSuffix?: string 
 }
 
 const LoadingState: React.FC<LoadingStateProps> = ({
   message = 'Loading data...',
-  'data-testid': dataTestIdFromProp, 
-  testIdInstanceSuffix = '',
+  'data-testid': dataTestIdFromProp
 }) => {
   const rootTestId =
-    dataTestIdFromProp || LoadingStateTestIds.ROOT(testIdInstanceSuffix)
+    dataTestIdFromProp || LoadingStateTestIds.ROOT
 
   return (
     <div
@@ -25,8 +23,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         color="text-emerald-600 dark:text-emerald-400"
         text={message}
         size="lg"
-        data-testid={LoadingStateTestIds.SPINNER(testIdInstanceSuffix)}
-        testIdInstanceSuffix={testIdInstanceSuffix}
+        data-testid={LoadingStateTestIds.SPINNER}
       />
     </div>
   )

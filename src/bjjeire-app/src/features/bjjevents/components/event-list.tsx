@@ -6,19 +6,17 @@ import { EventsListTestIds } from '../../../constants/eventDataTestIds'
 interface EventsListProps {
   events: BjjEventDto[]
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 const EventsList: React.FC<EventsListProps> = ({
   events,
-  'data-testid': dataTestId,
-  testIdInstanceSuffix = '',
+  'data-testid': dataTestId
 }) => {
   if (!events || events.length === 0) {
     return null
   }
 
-  const rootTestId = dataTestId || EventsListTestIds.ROOT(testIdInstanceSuffix)
+  const rootTestId = dataTestId || EventsListTestIds.ROOT
 
   return (
     <div
@@ -30,7 +28,7 @@ const EventsList: React.FC<EventsListProps> = ({
           <EventCard
             key={event.id || `event-card-list-item-${index}`}
             event={event}
-            data-testid={EventsListTestIds.ITEM(event.id || index.toString())}
+            data-testid={EventsListTestIds.ROOT}
           />
         )
       })}

@@ -12,7 +12,7 @@ describe('GymCard Component', () => {
   describe('Positive Scenarios', () => {
     it('should render all sections with correct content for a full gym object', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_FULL.id)
+      const rootTestId = GymCardTestIds.ROOT
 
       const { getByTestId } = render(
         <GymCard gym={MOCK_GYM_FULL} data-testid={rootTestId} />
@@ -22,7 +22,7 @@ describe('GymCard Component', () => {
       // Act
       const card = getByTestId(rootTestId)
       const footer = within(card).getByTestId(
-        GymCardTestIds.FOOTER.ROOT(MOCK_GYM_FULL.id)
+        GymCardTestIds.FOOTER.ROOT
       )
 
       // Assert
@@ -49,7 +49,7 @@ describe('GymCard Component', () => {
   describe('Negative Scenarios', () => {
     it('should render correctly with minimal gym data and hide optional sections', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_MINIMAL.id)
+      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
         <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
       )
@@ -77,7 +77,7 @@ describe('GymCard Component', () => {
   describe('Edge Cases', () => {
     it('should not render the website link if the website URL is missing', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_NO_WEBSITE.id)
+      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
         <GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={rootTestId} />
       )
@@ -100,7 +100,7 @@ describe('GymCard Component', () => {
 
     it('should correctly display a non-active status like "Pending Approval"', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT(MOCK_GYM_MINIMAL.id)
+      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
         <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
       )
@@ -110,7 +110,7 @@ describe('GymCard Component', () => {
 
       // Assert
       const statusBadge = within(card).getByTestId(
-        GymCardTestIds.HEADER.STATUS_BADGE(MOCK_GYM_MINIMAL.id)
+        GymCardTestIds.HEADER.STATUS_BADGE
       )
       expect(statusBadge).toHaveTextContent('Pending Approval')
       expect(statusBadge).not.toHaveTextContent('Active')
@@ -123,7 +123,7 @@ describe('GymCard Component', () => {
         id: 'gym-no-affiliation',
         affiliation: undefined,
       }
-      const rootTestId = GymCardTestIds.ROOT(gymWithoutAffiliation.id)
+      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
         <GymCard gym={gymWithoutAffiliation} data-testid={rootTestId} />
       )

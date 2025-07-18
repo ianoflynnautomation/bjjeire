@@ -13,9 +13,9 @@ describe('GymsList Component', () => {
         <GymsList isLoading={true} />
       )
       // Assert
-      expect(getByTestId(GymsListTestIds.LOADING())).toBeInTheDocument()
-      expect(queryByTestId(GymsListTestIds.ERROR())).not.toBeInTheDocument()
-      expect(queryByTestId(GymsListTestIds.ROOT())).not.toBeInTheDocument()
+      expect(getByTestId(GymsListTestIds.LOADING)).toBeInTheDocument()
+      expect(queryByTestId(GymsListTestIds.ERROR)).not.toBeInTheDocument()
+      expect(queryByTestId(GymsListTestIds.ROOT)).not.toBeInTheDocument()
     })
 
     it('should render the error state when an error is provided', () => {
@@ -25,7 +25,7 @@ describe('GymsList Component', () => {
       )
 
       // Act
-      const errorContainer = getByTestId(GymsListTestIds.ERROR())
+      const errorContainer = getByTestId(GymsListTestIds.ERROR)
 
       // Assert
       expect(
@@ -41,7 +41,7 @@ describe('GymsList Component', () => {
       const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const emptyContainer = getByTestId(GymsListTestIds.EMPTY())
+      const emptyContainer = getByTestId(GymsListTestIds.EMPTY)
 
       // Assert
       expect(
@@ -57,7 +57,7 @@ describe('GymsList Component', () => {
       const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const listContainer = getByTestId(GymsListTestIds.ROOT())
+      const listContainer = getByTestId(GymsListTestIds.ROOT)
       const renderedCards = within(listContainer).getAllByRole('article')
 
       // Assert

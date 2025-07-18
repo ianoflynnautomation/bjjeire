@@ -7,15 +7,13 @@ interface GymFooterProps {
   websiteUrl?: string
   gymName: string
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const GymFooter: React.FC<GymFooterProps> = memo(
   ({
     websiteUrl,
     gymName,
-    'data-testid': rootDataTestIdFromParent,
-    testIdInstanceSuffix = '',
+    'data-testid': rootDataTestIdFromParent
   }) => {
     const externalWebsiteUrl =
       websiteUrl && websiteUrl.trim() !== ''
@@ -24,10 +22,10 @@ export const GymFooter: React.FC<GymFooterProps> = memo(
 
     const actualRootDataTestId =
       rootDataTestIdFromParent ||
-      GymCardTestIds.FOOTER.ROOT(testIdInstanceSuffix)
+      GymCardTestIds.FOOTER.ROOT
 
     const websiteLinkTestId =
-      GymCardTestIds.FOOTER.WEBSITE_LINK(testIdInstanceSuffix)
+      GymCardTestIds.FOOTER.WEBSITE_LINK
 
     const isDisabled = !externalWebsiteUrl
     const buttonText = externalWebsiteUrl

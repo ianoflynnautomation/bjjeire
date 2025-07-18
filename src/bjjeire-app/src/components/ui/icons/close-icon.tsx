@@ -7,7 +7,7 @@ type CloseIconProps = React.SVGProps<SVGSVGElement> & {
 
 export const CloseIcon: React.FC<CloseIconProps> = ({
   className,
-  'data-testid': dataTestId = CloseIconTestIds.ROOT(),
+  'data-testid': dataTestId = CloseIconTestIds.ROOT,
   ...props
 }) => (
   <svg

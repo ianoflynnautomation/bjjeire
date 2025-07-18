@@ -5,15 +5,13 @@ interface EventsPageHeaderProps {
   countyName?: string;
   totalEvents?: number;
   dataTestId?: string;
-  testIdInstanceSuffix?: string;
 }
 
 export const EventsPageHeader: React.FC<EventsPageHeaderProps> = memo(
   ({
     countyName,
     totalEvents,
-    dataTestId = EventsPageHeaderTestIds.ROOT(),
-    testIdInstanceSuffix = '',
+    dataTestId = EventsPageHeaderTestIds.ROOT,
   }) => {
     const title =
       !countyName || countyName.toLowerCase() === 'all'
@@ -21,7 +19,7 @@ export const EventsPageHeader: React.FC<EventsPageHeaderProps> = memo(
         : `BJJ Events in ${countyName}`;
 
     const rootTestId = dataTestId;
-    const titleTestId = EventsPageHeaderTestIds.TITLE(testIdInstanceSuffix);
+    const titleTestId = EventsPageHeaderTestIds.TITLE;
 
     return (
       <header
@@ -38,7 +36,7 @@ export const EventsPageHeader: React.FC<EventsPageHeaderProps> = memo(
           {totalEvents !== undefined && totalEvents > 0 && (
             <p
               className="mt-1 text-sm text-slate-600 dark:text-slate-50"
-              data-testid={EventsPageHeaderTestIds.TOTAL(testIdInstanceSuffix)}
+              data-testid={EventsPageHeaderTestIds.TOTAL}
             >
               Found {totalEvents} event{totalEvents !== 1 ? 's' : ''}.
             </p>

@@ -7,7 +7,6 @@ interface IconWrapperProps {
   className?: string
   'aria-hidden'?: boolean
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const IconWrapper: React.FC<IconWrapperProps> = ({
@@ -15,10 +14,9 @@ export const IconWrapper: React.FC<IconWrapperProps> = ({
   className = 'h-5 w-5 text-emerald-600 dark:text-emerald-400',
   'aria-hidden': ariaHidden = true,
   'data-testid': dataTestIdFromProp,
-  testIdInstanceSuffix = '',
 }) => {
   const rootTestId =
-    dataTestIdFromProp || IconWrapperTestIds.ROOT(testIdInstanceSuffix)
+    dataTestIdFromProp || IconWrapperTestIds.ROOT
 
   return (
     <span

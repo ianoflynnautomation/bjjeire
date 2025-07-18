@@ -7,14 +7,12 @@ import { GymTrialOfferTestIds } from '../../../../constants/gymDataTestIds'
 interface GymTrialOfferProps {
   trialOffer?: TrialOfferDto
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
   ({
     trialOffer,
-    'data-testid': rootDataTestId,
-    testIdInstanceSuffix = '',
+    'data-testid': rootDataTestId
   }) => {
     if (!trialOffer || !trialOffer.isAvailable) {
       return null
@@ -57,14 +55,13 @@ export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
     const finalAriaLabel = `Trial Offer: ${ariaTextParts.join('. ')}`
 
     const actualRootDataTestId =
-      rootDataTestId || GymTrialOfferTestIds.ROOT(testIdInstanceSuffix)
+      rootDataTestId || GymTrialOfferTestIds.ROOT
 
     return (
       <DetailItem
         icon={<SparklesIcon />}
         ariaLabel={finalAriaLabel}
         data-testid={actualRootDataTestId}
-        testIdInstanceSuffix={testIdInstanceSuffix}
         className="mt-1 text-emerald-700 dark:text-emerald-400"
         iconClassName="h-5 w-5 text-amber-500 dark:text-amber-400"
       >
