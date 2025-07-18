@@ -9,7 +9,6 @@ interface DetailItemProps {
   iconClassName?: string
   ariaLabel?: string
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 export const DetailItem: React.FC<DetailItemProps> = memo(
@@ -19,11 +18,10 @@ export const DetailItem: React.FC<DetailItemProps> = memo(
     className,
     iconClassName,
     ariaLabel,
-    'data-testid': rootDataTestId,
-    testIdInstanceSuffix = '',
+    'data-testid': rootDataTestId
   }) => {
     const actualRootDataTestId =
-      rootDataTestId || DetailItemTestIds.ROOT(testIdInstanceSuffix)
+      rootDataTestId || DetailItemTestIds.ROOT
 
     return (
       <div
@@ -32,13 +30,13 @@ export const DetailItem: React.FC<DetailItemProps> = memo(
       >
         <IconWrapper
           className={iconClassName}
-          data-testid={DetailItemTestIds.ICON(testIdInstanceSuffix)}
+          data-testid={DetailItemTestIds.ICON}
         >
           {icon}
         </IconWrapper>
         <div
           className="flex-grow"
-          data-testid={DetailItemTestIds.CONTENT(testIdInstanceSuffix)}
+          data-testid={DetailItemTestIds.CONTENT}
           {...(ariaLabel && { 'aria-label': ariaLabel })}
         >
           {children}

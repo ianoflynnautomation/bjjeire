@@ -21,13 +21,13 @@ describe('GymHeader Component', () => {
 
       // Act
       const header = getByTestId(
-        GymCardTestIds.HEADER.ROOT(defaultProps.testIdInstanceSuffix)
+        GymCardTestIds.HEADER.ROOT
       )
       const statusBadge = getByTestId(
-        GymCardTestIds.HEADER.STATUS_BADGE(defaultProps.testIdInstanceSuffix)
+        GymCardTestIds.HEADER.STATUS_BADGE
       )
       const countyText = getByTestId(
-        GymCardTestIds.HEADER.COUNTY(defaultProps.testIdInstanceSuffix)
+        GymCardTestIds.HEADER.COUNTY
       )
 
       // Assert

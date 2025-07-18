@@ -2,7 +2,6 @@ import React, { memo } from 'react'
 import { BjjEventDto } from '../../../../types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
 import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
-import { withTestIdSuffix } from '../../../../constants/commonDataTestIds'
 
 interface EventCardProps {
   event: BjjEventDto
@@ -13,11 +12,8 @@ export const EventCard: React.FC<EventCardProps> = memo(
   ({ event, 'data-testid': dataTestId }) => {
     const { name, eventUrl, schedule, type } = event
 
-    const uniqueInstanceSuffix =
-      event.id || name.replace(/\s+/g, '-').toLowerCase()
     const rootTestId =
-      dataTestId ||
-      withTestIdSuffix(EventCardTestIds.ROOT, uniqueInstanceSuffix)
+      dataTestId || EventCardTestIds.ROOT
 
     return (
       <article
@@ -33,22 +29,14 @@ export const EventCard: React.FC<EventCardProps> = memo(
           <EventHeader
             name={name}
             type={type}
-            data-testid={withTestIdSuffix(
-              EventCardTestIds.HEADER.ROOT,
-              uniqueInstanceSuffix
-            )}
-            testIdInstanceSuffix={uniqueInstanceSuffix}
+            data-testid={EventCardTestIds.HEADER.ROOT}
           />
 
           {/* Event Details Section */}
           <div className="mb-4">
             <EventDetails
               event={event}
-              data-testid={withTestIdSuffix(
-                EventCardTestIds.DETAILS.ROOT,
-                uniqueInstanceSuffix
-              )}
-              testIdInstanceSuffix={uniqueInstanceSuffix}
+              data-testid={EventCardTestIds.DETAILS.ROOT}
             />
           </div>
 
@@ -56,17 +44,11 @@ export const EventCard: React.FC<EventCardProps> = memo(
           {schedule && (
             <div
               className="mb-4 text-sm text-slate-600 dark:text-slate-300"
-              data-testid={withTestIdSuffix(
-                EventCardTestIds.SCHEDULE.ROOT,
-                uniqueInstanceSuffix
-              )}
+              data-testid={EventCardTestIds.SCHEDULE.ROOT}
             >
               <EventSchedule
                 schedule={schedule}
-                data-testid={withTestIdSuffix(
-                  EventCardTestIds.SCHEDULE.CONTENT,
-                  uniqueInstanceSuffix
-                )}
+                data-testid={EventCardTestIds.SCHEDULE.CONTENT}
               />
             </div>
           )}
@@ -78,11 +60,7 @@ export const EventCard: React.FC<EventCardProps> = memo(
           <EventFooter
             eventUrl={eventUrl}
             eventName={name}
-            data-testid={withTestIdSuffix(
-              EventCardTestIds.FOOTER.ROOT,
-              uniqueInstanceSuffix
-            )}
-            testIdInstanceSuffix={uniqueInstanceSuffix}
+            data-testid={EventCardTestIds.FOOTER.ROOT}
           />
         </div>
       </article>

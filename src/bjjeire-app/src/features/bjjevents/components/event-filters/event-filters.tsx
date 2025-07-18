@@ -14,7 +14,6 @@ interface EventFiltersProps {
   onTypeChange: (type: BjjEventType | 'all' | undefined) => void
   disabled: boolean
   dataTestId?: string
-  testIdInstanceSuffix?: string
 }
 
 const EventFilters: React.FC<EventFiltersProps> = memo(
@@ -25,7 +24,6 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
     onTypeChange,
     disabled,
     dataTestId,
-    testIdInstanceSuffix = '',
   }) => {
     const cityOptions = useMemo(
       () => [
@@ -50,7 +48,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
     )
 
     const rootTestId =
-      dataTestId || EventFiltersTestIds.ROOT(testIdInstanceSuffix)
+      dataTestId || EventFiltersTestIds.ROOT
 
     return (
       <div
@@ -65,8 +63,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
           options={cityOptions}
           disabled={disabled}
           Icon={MapPinIcon}
-          data-testid={EventFiltersTestIds.CITY_SELECT(testIdInstanceSuffix)}
-          testIdInstanceSuffix={testIdInstanceSuffix}
+          data-testid={EventFiltersTestIds.CITY_SELECT}
           className="flex-1"
         />
         <ButtonGroupFilter<BjjEventType | 'all'>
@@ -75,8 +72,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
           selectedValue={selectedType ?? 'all'}
           onValueChange={onTypeChange}
           disabled={disabled}
-          data-testid={EventFiltersTestIds.TYPE_GROUP(testIdInstanceSuffix)}
-          testIdInstanceSuffix={testIdInstanceSuffix}
+          data-testid={EventFiltersTestIds.TYPE_GROUP}
           className="flex-1 sm:flex-none"
         />
       </div>

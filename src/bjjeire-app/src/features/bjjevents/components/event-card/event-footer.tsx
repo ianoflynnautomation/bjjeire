@@ -2,7 +2,6 @@ import React, { memo } from 'react'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
 import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
-import { withTestIdSuffix } from '../../../../constants/commonDataTestIds'
 
 interface EventFooterProps {
   eventUrl?: string
@@ -15,8 +14,7 @@ export const EventFooter: React.FC<EventFooterProps> = memo(
   ({
     eventUrl,
     eventName,
-    dataTestId = EventCardTestIds.FOOTER.ROOT(),
-    testIdInstanceSuffix = '',
+    dataTestId = EventCardTestIds.FOOTER.ROOT
   }) => {
     const externalEventUrl = eventUrl
       ? ensureExternalUrlScheme(eventUrl)
@@ -24,10 +22,7 @@ export const EventFooter: React.FC<EventFooterProps> = memo(
 
     const actualRootDataTestId = dataTestId
 
-    const eventLinkTestId = withTestIdSuffix(
-      EventCardTestIds.FOOTER.LINK,
-      testIdInstanceSuffix
-    )
+    const eventLinkTestId = EventCardTestIds.FOOTER.BUTTON
 
     // Determine button state
     const isDisabled = !externalEventUrl

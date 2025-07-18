@@ -11,7 +11,7 @@ export const GymsPageHeader: React.FC<GymsPageHeaderProps> = memo(
   ({
     countyName,
     totalGyms,
-    'data-testid': baseTestId = GymsPageHeaderTestIds.ROOT(),
+    'data-testid': baseTestId = GymsPageHeaderTestIds.ROOT,
   }) => {
     const title =
       !countyName || countyName.toLowerCase() === 'all'
@@ -26,14 +26,14 @@ export const GymsPageHeader: React.FC<GymsPageHeaderProps> = memo(
         <div>
           <h1
             className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl"
-            data-testid={GymsPageHeaderTestIds.TITLE()}
+            data-testid={GymsPageHeaderTestIds.TITLE}
           >
             {title}
           </h1>
           {totalGyms !== undefined && totalGyms > 0 && (
             <p
               className="mt-1 text-sm text-slate-600 dark:text-slate-50"
-              data-testid={GymsPageHeaderTestIds.TOTAL()}
+              data-testid={GymsPageHeaderTestIds.TOTAL}
             >
               Found {totalGyms} gym{totalGyms !== 1 ? 's' : ''}.
             </p>

@@ -12,8 +12,7 @@ export const GymCard: React.FC<GymCardProps> = memo(
   ({ gym, 'data-testid': dataTestId }) => {
     const { name, county, status, imageUrl, website } = gym
 
-    const gymInstanceSuffix = gym.id || name.replace(/\s+/g, '-').toLowerCase()
-    const rootTestId = dataTestId || GymCardTestIds.ROOT(gymInstanceSuffix)
+    const rootTestId = dataTestId || GymCardTestIds.ROOT
 
     return (
       <article
@@ -30,24 +29,21 @@ export const GymCard: React.FC<GymCardProps> = memo(
           county={county}
           status={status}
           imageUrl={imageUrl}
-          data-testid={GymCardTestIds.HEADER.ROOT(gymInstanceSuffix)}
-          testIdInstanceSuffix={gymInstanceSuffix}
+          data-testid={GymCardTestIds.HEADER.ROOT}
         />
 
         <div className="flex flex-1 flex-col p-4 sm:p-5">
           <div className="mb-4">
             <GymDetails
               gym={gym}
-              data-testid={GymCardTestIds.DETAILS.ROOT(gymInstanceSuffix)}
-              testIdInstanceSuffix={gymInstanceSuffix}
+              data-testid={GymCardTestIds.DETAILS.ROOT}
             />
           </div>
           <div className="flex-grow" />
           <GymFooter
             websiteUrl={website}
             gymName={name}
-            data-testid={GymCardTestIds.FOOTER.ROOT(gymInstanceSuffix)}
-            testIdInstanceSuffix={gymInstanceSuffix}
+            data-testid={GymCardTestIds.FOOTER.ROOT}
           />
         </div>
       </article>

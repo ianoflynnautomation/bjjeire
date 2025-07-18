@@ -4,61 +4,42 @@ export const EVENTS_LIST_BASE_ID = 'events-list'
 export const EVENTS_PAGE_HEADER_BASE_ID = 'events-page-header'
 
 export const EventCardTestIds = {
-  ROOT: (id: string = '') => `${EVENT_CARD_BASE_ID}${id ? `-${id}` : ''}`,
+  ROOT: 'event-list-item',
+
   HEADER: {
-    ROOT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-header${id ? `-${id}` : ''}`,
-    NAME: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-header-name${id ? `-${id}` : ''}`,
-    TYPE: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-header-type${id ? `-${id}` : ''}`,
+    ROOT: 'event-item-header',
+    NAME: 'event-item-name',
+    TYPE: 'event-item-type',
   },
   DETAILS: {
-    ROOT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details${id ? `-${id}` : ''}`,
-    CONTENT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details-content${id ? `-${id}` : ''}`,
-    ADDRESS: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details-address${id ? `-${id}` : ''}`,
-    ORGANISER: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details-organiser${id ? `-${id}` : ''}`,
-    PRICING: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details-pricing${id ? `-${id}` : ''}`,
-    SOCIAL_MEDIA: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-details-social-media${id ? `-${id}` : ''}`,
+    ROOT: 'event-item-details',
+    ADDRESS: 'event-item-address',
+    ORGANISER: 'event-item-organiser',
+    PRICING: 'event-item-pricing',
+    SOCIAL_MEDIA: 'event-item-social-media',
   },
   SCHEDULE: {
-    ROOT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-schedule${id ? `-${id}` : ''}`,
-    CONTENT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-schedule-content${id ? `-${id}` : ''}`,
+    ROOT: 'event-item-schedule',
+    CONTENT: 'event-item-schedule-content',
   },
   FOOTER: {
-    ROOT: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-footer${id ? `-${id}` : ''}`,
-    LINK: (id: string = '') =>
-      `${EVENT_CARD_BASE_ID}-footer-link${id ? `-${id}` : ''}`,
+    ROOT: 'event-item-footer',
+    BUTTON: 'event-item-button',
   },
-}
+};
 
 export const EventFiltersTestIds = {
-  ROOT: (id: string = '') => `${EVENT_FILTERS_BASE_ID}${id ? `-${id}` : ''}`,
-  CITY_SELECT: (id: string = '') =>
-    `${EVENT_FILTERS_BASE_ID}-city-select${id ? `-${id}` : ''}`,
-  TYPE_GROUP: (id: string = '') =>
-    `${EVENT_FILTERS_BASE_ID}-type-group${id ? `-${id}` : ''}`,
-}
+  ROOT: 'event-filters',
+  CITY_SELECT: 'event-filters-city-select',
+  TYPE_GROUP: 'event-filters-type-group',
+};
 
 export const EventsListTestIds = {
-  ROOT: (id: string = '') => `${EVENTS_LIST_BASE_ID}${id ? `-${id}` : ''}`,
-  ITEM: (id: string) => `${EVENTS_LIST_BASE_ID}-item-${id}`,
-}
+  ROOT: 'events-list',
+};
 
 export const EventsPageHeaderTestIds = {
-  ROOT: (id: string = '') =>
-    `${EVENTS_PAGE_HEADER_BASE_ID}${id ? `-${id}` : ''}`,
-  TITLE: (id: string = '') =>
-    `${EVENTS_PAGE_HEADER_BASE_ID}-title${id ? `-${id}` : ''}`,
-  TOTAL: (id: string = '') =>
-    `${EVENTS_PAGE_HEADER_BASE_ID}-total${id ? `-${id}` : ''}`,
-}
+  ROOT: 'events-page-header',
+  TITLE: 'events-page-header-title',
+  TOTAL: 'events-page-header-total',
+};

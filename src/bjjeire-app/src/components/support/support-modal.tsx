@@ -4,22 +4,19 @@ import clsx from 'clsx'
 import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
 import { env } from '@/config/env'
 import { CloseIcon } from '../ui/icons/close-icon';
-import { withTestIdSuffix } from '../../constants/commonDataTestIds'
 import { SupportModalTestIds } from '../../constants/supportTestDataIds'
 
 interface SupportModalProps {
   isOpen: boolean
   onClose: () => void
   'data-testid'?: string
-  testIdInstanceSuffix?: string
 }
 
 const SupportModal: React.FC<SupportModalProps> = memo(
   ({
     isOpen,
     onClose,
-    'data-testid': _baseTestId,
-    testIdInstanceSuffix = '',
+    'data-testid': _baseTestId
   }) => {
     const [copied, setCopied] = useState(false)
     const bitcoinAddress = env.BITCOIN_ADDRESS
@@ -40,28 +37,19 @@ const SupportModal: React.FC<SupportModalProps> = memo(
 
     if (!isOpen) return null
 
-    const mainTitleId = withTestIdSuffix(
-      SupportModalTestIds.MAIN_TITLE,
-      testIdInstanceSuffix
-    )
+    const mainTitleId = SupportModalTestIds.MAIN_TITLE
 
     return (
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-in-out dark:bg-opacity-75"
-        data-testid={withTestIdSuffix(
-          SupportModalTestIds.OVERLAY,
-          testIdInstanceSuffix
-        )}
+        data-testid= {SupportModalTestIds.OVERLAY}
         role="dialog"
         aria-modal="true"
         aria-labelledby={mainTitleId}
       >
         <div
           className="w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-modalShow dark:bg-slate-800 sm:p-8"
-          data-testid={withTestIdSuffix(
-            SupportModalTestIds.CONTENT,
-            testIdInstanceSuffix
-          )}
+          data-testid={SupportModalTestIds.CONTENT}
         >
           <header className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -78,17 +66,11 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               onClick={onClose}
               className="rounded-full p-1 text-slate-500 transition-colors hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-800"
               aria-label="Close support modal"
-              data-testid={withTestIdSuffix(
-                SupportModalTestIds.CLOSE_BUTTON,
-                testIdInstanceSuffix
-              )}
+              data-testid={SupportModalTestIds.CLOSE_BUTTON}
             >
               <CloseIcon
                 className="h-6 w-6"
-                data-testid={withTestIdSuffix(
-                  SupportModalTestIds.CLOSE_BUTTON,
-                  testIdInstanceSuffix
-                )}
+                data-testid={SupportModalTestIds.CLOSE_BUTTON}
               />
             </button>
           </header>
@@ -99,10 +81,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </p>
             <div
               className="rounded-lg bg-slate-50 p-4 shadow-inner dark:bg-slate-700"
-              data-testid={withTestIdSuffix(
-                SupportModalTestIds.ADDRESS_SECTION,
-                testIdInstanceSuffix
-              )}
+              data-testid={SupportModalTestIds.ADDRESS_SECTION}
             >
               <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
                 Bitcoin Address:
@@ -110,10 +89,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                 <code
                   className="flex-1 rounded border border-slate-200 bg-white p-3 text-sm text-slate-700 break-all dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                  data-testid={withTestIdSuffix(
-                    SupportModalTestIds.BTC_ADDRESS_DISPLAY,
-                    testIdInstanceSuffix
-                  )}
+                  data-testid={SupportModalTestIds.BTC_ADDRESS_DISPLAY}
                 >
                   {bitcoinAddress}
                 </code>
@@ -125,10 +101,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                       ? 'bg-emerald-600 focus-visible:ring-emerald-500 dark:bg-emerald-500'
                       : 'border border-orange-600 bg-[#F7931A] hover:bg-[#E67E00] focus-visible:ring-orange-500 dark:border-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600'
                   )}
-                  data-testid={withTestIdSuffix(
-                    SupportModalTestIds.COPY_BUTTON,
-                    testIdInstanceSuffix
-                  )}
+                  data-testid={SupportModalTestIds.COPY_BUTTON}
                 >
                   {copied ? 'Copied!' : 'Copy Address'}
                 </button>
@@ -136,10 +109,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               {copied && (
                 <p
                   className="mt-2 text-center text-xs text-emerald-600 dark:text-emerald-400 sm:text-right"
-                  data-testid={withTestIdSuffix(
-                    SupportModalTestIds.COPIED_CONFIRMATION,
-                    testIdInstanceSuffix
-                  )}
+                  data-testid={SupportModalTestIds.COPIED_CONFIRMATION}
                 >
                   Address copied to clipboard!
                 </p>
@@ -147,10 +117,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </div>
             <div
               className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30"
-              data-testid={withTestIdSuffix(
-                SupportModalTestIds.WARNING_MESSAGE,
-                testIdInstanceSuffix
-              )}
+              data-testid={SupportModalTestIds.WARNING_MESSAGE}
             >
               <p className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
                 <svg
@@ -158,10 +125,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   aria-hidden="true"
-                  data-testid={withTestIdSuffix(
-                    `${SupportModalTestIds.WARNING_MESSAGE(testIdInstanceSuffix)}-icon`,
-                    ''
-                  )}
+                  data-testid={`${SupportModalTestIds.WARNING_MESSAGE}-icon`}
                 >
                   <path
                     fillRule="evenodd"

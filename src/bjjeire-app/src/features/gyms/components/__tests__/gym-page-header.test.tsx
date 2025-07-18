@@ -10,7 +10,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader />)
 
       // Act
-      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE())
+      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE)
 
       // Assert
       expect(titleElement).toHaveTextContent('All BJJ Gyms')
@@ -21,7 +21,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader countyName="all" />)
 
       // Act
-      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE())
+      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE)
 
       // Assert
       expect(titleElement).toHaveTextContent('All BJJ Gyms')
@@ -32,7 +32,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader countyName="All" />)
 
       // Act
-      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE())
+      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE)
 
       // Assert
       expect(titleElement).toHaveTextContent('All BJJ Gyms')
@@ -44,7 +44,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader countyName={county} />)
 
       // Act
-      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE())
+      const titleElement = getByTestId(GymsPageHeaderTestIds.TITLE)
 
       // Assert
       expect(titleElement).toHaveTextContent(`BJJ Gyms in ${county}`)
@@ -58,7 +58,7 @@ describe('GymsPageHeader Component', () => {
 
       // Assert
       expect(
-        queryByTestId(GymsPageHeaderTestIds.TOTAL())
+        queryByTestId(GymsPageHeaderTestIds.TOTAL)
       ).not.toBeInTheDocument()
     })
 
@@ -68,7 +68,7 @@ describe('GymsPageHeader Component', () => {
 
       // Assert
       expect(
-        queryByTestId(GymsPageHeaderTestIds.TOTAL())
+        queryByTestId(GymsPageHeaderTestIds.TOTAL)
       ).not.toBeInTheDocument()
     })
 
@@ -78,7 +78,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader totalGyms={total} />)
 
       // Act
-      const totalElement = getByTestId(GymsPageHeaderTestIds.TOTAL())
+      const totalElement = getByTestId(GymsPageHeaderTestIds.TOTAL)
 
       // Assert
       expect(totalElement).toHaveTextContent(`Found ${total} gym.`)
@@ -90,7 +90,7 @@ describe('GymsPageHeader Component', () => {
       const { getByTestId } = render(<GymsPageHeader totalGyms={total} />)
 
       // Act
-      const totalElement = getByTestId(GymsPageHeaderTestIds.TOTAL())
+      const totalElement = getByTestId(GymsPageHeaderTestIds.TOTAL)
 
       // Assert
       expect(totalElement).toHaveTextContent(`Found ${total} gyms.`)

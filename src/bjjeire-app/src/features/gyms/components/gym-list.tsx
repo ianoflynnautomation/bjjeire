@@ -8,7 +8,6 @@ interface GymsListProps {
   isLoading?: boolean;
   error?: unknown;
   'data-testid'?: string;
-  testIdInstanceSuffix?: string;
 }
 
 export const GymsList: React.FC<GymsListProps> = memo(
@@ -16,16 +15,15 @@ export const GymsList: React.FC<GymsListProps> = memo(
     gyms,
     isLoading,
     error,
-    'data-testid': dataTestId,
-    testIdInstanceSuffix = '',
+    'data-testid': dataTestId
   }) => {
-    const rootListTestId = dataTestId || GymsListTestIds.ROOT(testIdInstanceSuffix);
+    const rootListTestId = dataTestId || GymsListTestIds.ROOT;
 
     if (isLoading) {
       return (
         <div
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
-          data-testid={GymsListTestIds.LOADING(testIdInstanceSuffix)}
+          data-testid={GymsListTestIds.LOADING}
         >
         </div>
       );
@@ -35,7 +33,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
       return (
         <div
           className="rounded-md bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-          data-testid={GymsListTestIds.ERROR(testIdInstanceSuffix)}
+          data-testid={GymsListTestIds.ERROR}
         >
           <p className="font-medium">Could not load gyms.</p>
         </div>
@@ -46,7 +44,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
       return (
         <div
           className="text-center py-12 text-slate-500 dark:text-slate-400"
-          data-testid={GymsListTestIds.EMPTY(testIdInstanceSuffix)}
+          data-testid={GymsListTestIds.EMPTY}
         >
           <p className="text-xl font-semibold">No gyms found.</p>
           <p>Try adjusting your search or check back later.</p>
@@ -60,7 +58,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
         data-testid={rootListTestId}
       >
         {gyms.map(gym => {
-          const gymCardRootId = GymsListTestIds.ITEM(gym.id || gym.name.replace(/\s+/g, '-').toLowerCase());
+          const gymCardRootId = GymsListTestIds.ROOT
 
           return (
             <GymCard

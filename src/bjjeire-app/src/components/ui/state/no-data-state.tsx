@@ -1,9 +1,6 @@
 import React, { memo } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
-import {
-  NoDataStateTestIds,
-  withTestIdSuffix,
-} from '../../../constants/commonDataTestIds'
+import { NoDataStateTestIds } from '../../../constants/commonDataTestIds'
 
 interface NoDataStateProps {
   title?: string
@@ -12,7 +9,6 @@ interface NoDataStateProps {
   actionText?: string
   onActionClick?: () => void
   'data-testid'?: string
-  testIdInstanceSuffix?: string 
 }
 
 const NoDataState: React.FC<NoDataStateProps> = ({
@@ -22,10 +18,8 @@ const NoDataState: React.FC<NoDataStateProps> = ({
   actionText,
   onActionClick,
   'data-testid': dataTestIdFromProp,
-  testIdInstanceSuffix = '',
 }) => {
-  const rootTestId =
-    dataTestIdFromProp || NoDataStateTestIds.ROOT(testIdInstanceSuffix)
+  const rootTestId = dataTestIdFromProp || NoDataStateTestIds.ROOT
 
   return (
     <div
@@ -35,35 +29,23 @@ const NoDataState: React.FC<NoDataStateProps> = ({
       <InformationCircleIcon
         className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400"
         aria-hidden="true"
-        data-testid={withTestIdSuffix(
-          NoDataStateTestIds.ICON,
-          testIdInstanceSuffix
-        )}
+        data-testid={NoDataStateTestIds.ICON}
       />
       <p
         className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100"
-        data-testid={withTestIdSuffix(
-          NoDataStateTestIds.TITLE,
-          testIdInstanceSuffix
-        )}
+        data-testid={NoDataStateTestIds.TITLE}
       >
         {title}
       </p>
       <p
         className="mt-1 text-sm text-slate-600 dark:text-slate-300"
-        data-testid={withTestIdSuffix(
-          NoDataStateTestIds.MESSAGE_LINE1,
-          testIdInstanceSuffix 
-        )}
+        data-testid={NoDataStateTestIds.MESSAGE_LINE1}
       >
         {messageLine1}
       </p>
       <p
         className="mt-0.5 text-sm text-slate-600 dark:text-slate-300"
-        data-testid={withTestIdSuffix(
-          NoDataStateTestIds.MESSAGE_LINE2,
-          testIdInstanceSuffix
-        )}
+        data-testid={NoDataStateTestIds.MESSAGE_LINE2}
       >
         {messageLine2}
         {onActionClick && actionText && (
@@ -73,10 +55,7 @@ const NoDataState: React.FC<NoDataStateProps> = ({
             <button
               onClick={onActionClick}
               className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 focus:underline focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300"
-              data-testid={withTestIdSuffix(
-                NoDataStateTestIds.ACTION_BUTTON,
-                testIdInstanceSuffix 
-              )}
+              data-testid={NoDataStateTestIds.ACTION_BUTTON}
             >
               {actionText}
             </button>

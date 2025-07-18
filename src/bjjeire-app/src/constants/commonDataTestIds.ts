@@ -14,153 +14,106 @@ export const PAGINATION_BASE_ID = 'pagination'
 export const FOOTER_BASE_ID = 'app-footer'
 export const BACKGROUND_FETCHING_INDICATOR_BASE_ID ='background-fetching-indicator'
 
-export const withTestIdSuffix = (
-  baseId: string | ((id: string) => string),
-  suffix: string
-): string => {
-  return typeof baseId === 'string' ? `${baseId}-${suffix}` : baseId(suffix)
-}
 
 export const NavigationTestIds = {
-  ROOT: (id: string = '') => `${NAVIGATION_BASE_ID}${id ? `-${id}` : ''}`,
-  LOGO_LINK: (id: string = '') =>
-    `${NAVIGATION_BASE_ID}-logo-link${id ? `-${id}` : ''}`,
+  ROOT: 'main-navigation',
+  LOGO_LINK: 'main-navigation-logo-link',
   DESKTOP: {
-    LINKS: (id: string = '') =>
-      `${NAVIGATION_BASE_ID}-desktop-links${id ? `-${id}` : ''}`,
-    LINK: (itemId: string, id: string = '') =>
-      `${NAVIGATION_BASE_ID}-desktop-link-${itemId}${id ? `-${id}` : ''}`,
+    ROOT: 'main-navigation-desktop',
+    LINK: 'main-navigation-desktop-link', 
   },
   MOBILE: {
-    TOGGLE: (id: string = '') =>
-      `${NAVIGATION_BASE_ID}-mobile-menu-toggle${id ? `-${id}` : ''}`,
-    PANEL: (id: string = '') =>
-      `${NAVIGATION_BASE_ID}-mobile-menu-panel${id ? `-${id}` : ''}`,
-    LINK: (itemId: string, id: string = '') =>
-      `${NAVIGATION_BASE_ID}-mobile-link-${itemId}${id ? `-${id}` : ''}`,
+    TOGGLE: 'main-navigation-mobile-toggle',
+    PANEL: 'main-navigation-mobile-panel',
+    LINK: 'main-navigation-mobile-link',
   },
-  SUPPORT_BUTTON: (id: string = '') =>
-    `${NAVIGATION_BASE_ID}-support-button${id ? `-${id}` : ''}`,
-}
+  SUPPORT_BUTTON: 'main-navigation-support-button',
+};
 
 export const ButtonGroupFilterTestIds = {
-  ROOT: (id: string = '') =>
-    `${BUTTON_GROUP_FILTER_BASE_ID}${id ? `-${id}` : ''}`,
-  LABEL: (id: string = '') =>
-    `${BUTTON_GROUP_FILTER_BASE_ID}-label${id ? `-${id}` : ''}`,
-  ALL_BUTTON: (id: string = '') =>
-    `${BUTTON_GROUP_FILTER_BASE_ID}-all-button${id ? `-${id}` : ''}`,
-  BUTTON: (value: string, id: string = '') =>
-    `${BUTTON_GROUP_FILTER_BASE_ID}-button-${value}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'button-group-filter',
+  LABEL: 'button-group-filter-label',
+  ALL_BUTTON: 'button-group-filter-all-button',
+  BUTTON: 'button-group-filter-button', 
+};
 
 export const SelectFilterTestIds = {
-  ROOT: (id: string = '') => `${SELECT_FILTER_BASE_ID}${id ? `-${id}` : ''}`,
-  LABEL: (id: string = '') =>
-    `${SELECT_FILTER_BASE_ID}-label${id ? `-${id}` : ''}`,
-  ICON: (id: string = '') =>
-    `${SELECT_FILTER_BASE_ID}-icon${id ? `-${id}` : ''}`,
-  SELECT: (id: string = '') =>
-    `${SELECT_FILTER_BASE_ID}-select${id ? `-${id}` : ''}`,
-  PLACEHOLDER_OPTION: (id: string = '') =>
-    `${SELECT_FILTER_BASE_ID}-placeholder-option${id ? `-${id}` : ''}`,
-  OPTION: (value: string, id: string = '') =>
-    `${SELECT_FILTER_BASE_ID}-option-${value}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'select-filter',
+  LABEL: 'select-filter-label',
+  ICON: 'select-filter-icon',
+  SELECT: 'select-filter-select',
+  PLACEHOLDER_OPTION: 'select-filter-placeholder-option',
+  OPTION: 'select-filter-option', 
+};
 
 export const SocialMediaLinksTestIds = {
-  ROOT: (id: string = '') =>
-    `${SOCIAL_MEDIA_LINKS_BASE_ID}${id ? `-${id}` : ''}`,
-  LINK: (platform: string, id: string = '') =>
-    `${SOCIAL_MEDIA_LINKS_BASE_ID}-link-${platform}${id ? `-${id}` : ''}`,
-  ICON: (platform: string, id: string = '') =>
-    `${SOCIAL_MEDIA_LINKS_BASE_ID}-icon-${platform}${id ? `-${id}` : ''}`,
-}
-
+  ROOT: 'social-media-links',
+  LINK: 'social-media-link', 
+  ICON: 'social-media-icon',
+};
 
 export const BackgroundFetchingIndicatorTestIds = {
-  ROOT: (id: string = '') =>
-    `${BACKGROUND_FETCHING_INDICATOR_BASE_ID}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'background-fetching-indicator',
+};
 
 export const BadgeTestIds = {
-  ROOT: (id: string = '') => `${BADGE_BASE_ID}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'badge',
+};
 
 export const CloseIconTestIds = {
-  ROOT: (id: string = '') => `${CLOSE_ICON_BASE_ID}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'close-icon',
+};
 
 export const DetailItemTestIds = {
-  ROOT: (id: string = '') => `${DETAIL_ITEM_BASE_ID}${id ? `-${id}` : ''}`,
-  ICON: (id: string = '') => `${DETAIL_ITEM_BASE_ID}-icon${id ? `-${id}` : ''}`,
-  CONTENT: (id: string = '') =>
-    `${DETAIL_ITEM_BASE_ID}-content${id ? `-${id}` : ''}`,
-}
+  ROOT: 'detail-item',
+  ICON: 'detail-item-icon',
+  CONTENT: 'detail-item-content',
+};
 
 export const ErrorStateTestIds = {
-  ROOT: (id: string = '') => `${ERROR_STATE_BASE_ID}${id ? `-${id}` : ''}`,
-  ICON: (id: string = '') => `${ERROR_STATE_BASE_ID}-icon${id ? `-${id}` : ''}`,
-  TITLE: (id: string = '') =>
-    `${ERROR_STATE_BASE_ID}-title${id ? `-${id}` : ''}`,
-  MESSAGE: (id: string = '') =>
-    `${ERROR_STATE_BASE_ID}-message${id ? `-${id}` : ''}`,
-  RETRY_BUTTON: (id: string = '') =>
-    `${ERROR_STATE_BASE_ID}-retry-button${id ? `-${id}` : ''}`,
-}
+  ROOT: 'error-state',
+  ICON: 'error-state-icon',
+  TITLE: 'error-state-title',
+  MESSAGE: 'error-state-message',
+  RETRY_BUTTON: 'error-state-retry-button',
+};
 
 export const IconWrapperTestIds = {
-  ROOT: (id: string = '') => `${ICON_WRAPPER_BASE_ID}${id ? `-${id}` : ''}`,
-}
+  ROOT: 'icon-wrapper',
+};
 
 export const LoadingSpinnerTestIds = {
-  ROOT: (id: string = '') => `${LOADING_SPINNER_BASE_ID}${id ? `-${id}` : ''}`,
-  ICON: (id: string = '') =>
-    `${LOADING_SPINNER_BASE_ID}-icon${id ? `-${id}` : ''}`,
-  TEXT: (id: string = '') =>
-    `${LOADING_SPINNER_BASE_ID}-text${id ? `-${id}` : ''}`,
-}
+  ROOT: 'spinner',
+  ICON: 'spinner-icon',
+  TEXT: 'spinner-text',
+};
 
 export const LoadingStateTestIds = {
-  ROOT: (id: string = '') => `${LOADING_STATE_BASE_ID}${id ? `-${id}` : ''}`,
-  SPINNER: (id: string = '') =>
-    `${LOADING_STATE_BASE_ID}-spinner${id ? `-${id}` : ''}`,
-}
+  ROOT: 'loading-state',
+  SPINNER: 'loading-state-spinner',
+};
 
 export const NoDataStateTestIds = {
-  ROOT: (id: string = '') => `${NO_DATA_STATE_BASE_ID}${id ? `-${id}` : ''}`,
-  ICON: (id: string = '') =>
-    `${NO_DATA_STATE_BASE_ID}-icon${id ? `-${id}` : ''}`,
-  TITLE: (id: string = '') =>
-    `${NO_DATA_STATE_BASE_ID}-title${id ? `-${id}` : ''}`,
-  MESSAGE_LINE1: (id: string = '') =>
-    `${NO_DATA_STATE_BASE_ID}-message-line1${id ? `-${id}` : ''}`,
-  MESSAGE_LINE2: (id: string = '') =>
-    `${NO_DATA_STATE_BASE_ID}-message-line2${id ? `-${id}` : ''}`,
-  ACTION_BUTTON: (id: string = '') =>
-    `${NO_DATA_STATE_BASE_ID}-action-button${id ? `-${id}` : ''}`,
-}
+  ROOT: 'no-data-state',
+  ICON: 'no-data-state-icon',
+  TITLE: 'no-data-state-title',
+  MESSAGE_LINE1: 'no-data-state-message-line1',
+  MESSAGE_LINE2: 'no-data-state-message-line2',
+  ACTION_BUTTON: 'no-data-state-action-button',
+};
 
 export const PaginationTestIds = {
-  ROOT: (id: string = '') => `${PAGINATION_BASE_ID}${id ? `-${id}` : ''}`,
-  ITEMS_TEXT: (id: string = '') =>
-    `${PAGINATION_BASE_ID}-items-text${id ? `-${id}` : ''}`,
-  PREV_BUTTON: (id: string = '') =>
-    `${PAGINATION_BASE_ID}-prev-button${id ? `-${id}` : ''}`,
-  PAGE_INDICATOR: (id: string = '') =>
-    `${PAGINATION_BASE_ID}-page-indicator${id ? `-${id}` : ''}`,
-  NEXT_BUTTON: (id: string = '') =>
-    `${PAGINATION_BASE_ID}-next-button${id ? `-${id}` : ''}`,
-}
+  ROOT: 'pagination',
+  ITEMS_TEXT: 'pagination-items-text',
+  PREV_BUTTON: 'pagination-prev-button',
+  PAGE_INDICATOR: 'pagination-page-indicator',
+  NEXT_BUTTON: 'pagination-next-button',
+};
 
 export const FooterTestIds = {
-  ROOT: (id: string = '') => `${FOOTER_BASE_ID}${id ? `-${id}` : ''}`,
-  QUICK_LINKS_SECTION: (id: string = '') =>
-    `${FOOTER_BASE_ID}-quick-links-section${id ? `-${id}` : ''}`,
-  QUICK_LINKS_HEADING: (id: string = '') =>
-    `${FOOTER_BASE_ID}-quick-links-heading${id ? `-${id}` : ''}`,
-  QUICK_LINK_ITEM: (linkName: string, id: string = '') =>
-    `${FOOTER_BASE_ID}-quick-link-${linkName}${id ? `-${id}` : ''}`,
-  COPYRIGHT_TEXT: (id: string = '') =>
-    `${FOOTER_BASE_ID}-copyright${id ? `-${id}` : ''}`,
-}
+  ROOT: 'app-footer',
+  QUICK_LINKS_SECTION: 'app-footer-quick-links-section',
+  QUICK_LINKS_HEADING: 'app-footer-quick-links-heading',
+  QUICK_LINK_ITEM: 'app-footer-quick-link-item',
+  COPYRIGHT_TEXT: 'app-footer-copyright',
+};

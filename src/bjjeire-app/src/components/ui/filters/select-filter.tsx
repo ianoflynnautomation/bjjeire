@@ -2,8 +2,7 @@ import React from 'react'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import clsx from 'clsx'
 import {
-  SelectFilterTestIds,
-  withTestIdSuffix,
+  SelectFilterTestIds
 } from '../../../constants/commonDataTestIds'
 
 interface SelectFilterProps<T> {
@@ -29,8 +28,7 @@ function SelectFilter<T extends string | number>({
   disabled = false,
   placeholderOptionLabel,
   Icon = MapPinIcon,
-  'data-testid': baseTestId = SelectFilterTestIds.ROOT(),
-  testIdInstanceSuffix = '',
+  'data-testid': baseTestId = SelectFilterTestIds.ROOT,
   className,
 }: SelectFilterProps<T>) {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -47,10 +45,7 @@ function SelectFilter<T extends string | number>({
       <label
         htmlFor={id}
         className="text-sm font-medium text-slate-700 dark:text-slate-50"
-        data-testid={withTestIdSuffix(
-          SelectFilterTestIds.LABEL,
-          testIdInstanceSuffix
-        )}
+        data-testid={SelectFilterTestIds.LABEL}
       >
         {label}
       </label>
@@ -59,10 +54,7 @@ function SelectFilter<T extends string | number>({
           <Icon
             className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-500 dark:text-emerald-400 pointer-events-none"
             aria-hidden="true"
-            data-testid={withTestIdSuffix(
-              SelectFilterTestIds.ICON,
-              testIdInstanceSuffix
-            )}
+            data-testid={SelectFilterTestIds.ICON}
           />
         )}
         <select
@@ -70,10 +62,7 @@ function SelectFilter<T extends string | number>({
           value={value === undefined ? 'all' : String(value)}
           onChange={handleChange}
           disabled={disabled}
-          data-testid={withTestIdSuffix(
-            SelectFilterTestIds.SELECT,
-            testIdInstanceSuffix
-          )}
+          data-testid={SelectFilterTestIds.SELECT}
           className={clsx(
             'block w-full rounded-md border-slate-300 pr-4 py-2 text-base focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-slate-50 dark:focus:border-emerald-500 dark:focus:ring-emerald-500',
             iconPresent,
@@ -85,10 +74,7 @@ function SelectFilter<T extends string | number>({
           {placeholderOptionLabel && (
             <option
               value="all"
-              data-testid={withTestIdSuffix(
-                SelectFilterTestIds.PLACEHOLDER_OPTION,
-                testIdInstanceSuffix
-              )}
+              data-testid={SelectFilterTestIds.PLACEHOLDER_OPTION}
             >
               {placeholderOptionLabel}
             </option>
@@ -97,10 +83,7 @@ function SelectFilter<T extends string | number>({
             <option
               key={String(option.value)}
               value={String(option.value)}
-              data-testid={SelectFilterTestIds.OPTION(
-                String(option.value).toLowerCase().replace(/\s+/g, '-'),
-                testIdInstanceSuffix
-              )}
+              data-testid={SelectFilterTestIds.OPTION}
             >
               {option.label}
             </option>

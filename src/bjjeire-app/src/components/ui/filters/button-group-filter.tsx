@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import {
-  ButtonGroupFilterTestIds,
-  withTestIdSuffix,
+  ButtonGroupFilterTestIds
 } from '../../../constants/commonDataTestIds'
 
 export interface ButtonOption<T> {
@@ -26,18 +25,14 @@ const ButtonGroupFilter = <T extends string | number>({
   selectedValue,
   onValueChange,
   disabled = false,
-  dataTestId = ButtonGroupFilterTestIds.ROOT(),
-  testIdInstanceSuffix = '',
+  dataTestId = ButtonGroupFilterTestIds.ROOT,
   className,
 }: ButtonGroupFilterProps<T>) => {
   return (
     <div className={clsx('flex-1', className)} data-testid={dataTestId}>
       <label
         className="block text-sm font-medium text-slate-700 dark:text-slate-50 mb-1.5"
-        data-testid={withTestIdSuffix(
-          ButtonGroupFilterTestIds.LABEL,
-          testIdInstanceSuffix
-        )}
+        data-testid={ButtonGroupFilterTestIds.LABEL}
       >
         {label}
       </label>
@@ -49,10 +44,7 @@ const ButtonGroupFilter = <T extends string | number>({
             type="button"
             onClick={() => onValueChange(option.value)}
             disabled={disabled}
-            data-testid={ButtonGroupFilterTestIds.BUTTON(
-              String(option.value).toLowerCase().replace(/\s+/g, '-'),
-              testIdInstanceSuffix
-            )}
+            data-testid={ButtonGroupFilterTestIds.BUTTON}
             className={clsx(
               'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
               selectedValue === option.value
