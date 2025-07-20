@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { GymsList } from './../gym-list'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import { GymDto } from '../../../../types/gyms'
-import { GymsListTestIds } from '../../../../constants/gymDataTestIds'
+import { GymsPageTestIds, GymCardTestIds } from '../../../../constants/gymDataTestIds'
 
 describe('GymsList Component', () => {
   describe('State Handling', () => {
@@ -13,9 +13,9 @@ describe('GymsList Component', () => {
         <GymsList isLoading={true} />
       )
       // Assert
-      expect(getByTestId(GymsListTestIds.LOADING)).toBeInTheDocument()
-      expect(queryByTestId(GymsListTestIds.ERROR)).not.toBeInTheDocument()
-      expect(queryByTestId(GymsListTestIds.ROOT)).not.toBeInTheDocument()
+      expect(getByTestId(GymsPageTestIds.LIST_LOADING)).toBeInTheDocument()
+      expect(queryByTestId(GymsPageTestIds.LIST_ERROR)).not.toBeInTheDocument()
+      expect(queryByTestId(GymsPageTestIds.LIST)).not.toBeInTheDocument()
     })
 
     it('should render the error state when an error is provided', () => {
@@ -25,7 +25,7 @@ describe('GymsList Component', () => {
       )
 
       // Act
-      const errorContainer = getByTestId(GymsListTestIds.ERROR)
+      const errorContainer = getByTestId(GymsPageTestIds.LIST_ERROR)
 
       // Assert
       expect(
@@ -41,7 +41,7 @@ describe('GymsList Component', () => {
       const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const emptyContainer = getByTestId(GymsListTestIds.EMPTY)
+      const emptyContainer = getByTestId(GymsPageTestIds.LIST_EMPTY)
 
       // Assert
       expect(
@@ -50,35 +50,36 @@ describe('GymsList Component', () => {
     })
   })
 
-  describe.concurrent('Data Display', () => {
+  describe('Data Display', () => {
     it('should render the correct number of GymCard components', () => {
       // Arrange
       const gyms: GymDto[] = [MOCK_GYM_FULL, MOCK_GYM_MINIMAL]
       const { getByTestId } = render(<GymsList gyms={gyms} />)
 
       // Act
-      const listContainer = getByTestId(GymsListTestIds.ROOT)
-      const renderedCards = within(listContainer).getAllByRole('article')
+      const listContainer = getByTestId(GymsPageTestIds.LIST)
+      const renderedCards = within(listContainer).getAllByTestId(GymsPageTestIds.LIST_ITEM)
 
       // Assert
       expect(renderedCards).toHaveLength(gyms.length)
     })
 
-    // it('should pass the correct data down to each GymCard', () => {
-    //       // Arrange
-    //       const gyms: GymDto[] = [MOCK_GYM_FULL]
-    //       const { getByTestId } = render(<GymsList gyms={gyms} />)
+    it('should pass the correct data down to each GymCard', () => {
+      // Arrange
+      const gyms: GymDto[] = [MOCK_GYM_FULL]
+      const { getByTestId } = render(<GymsList gyms={gyms} />)
 
-    //       // Act
-    //       // Find a specific card by the test ID that GymsList assigns to it.
-    //       const expectedCardId = GymsListTestIds.ITEM(MOCK_GYM_FULL.id)
-    //       const gymCard = getByTestId(expectedCardId)
+      // Act
 
-    //       // Assert: Spot-check that the data was passed down correctly by finding the name inside that card.
-    //       // This query is precise and robust.
-    //       expect(
-    //         within(gymCard).getByRole('heading', { name: `Gym name: ${MOCK_GYM_FULL.name}` })
-    //       ).toBeInTheDocument()
-    //     })
+      const listContainer = getByTestId(GymsPageTestIds.LIST)
+    
+      const gymCard = within(listContainer).getByText(MOCK_GYM_FULL.name).closest('article')
+
+      // Assert
+      expect(gymCard).toBeInTheDocument()
+      expect(
+        within(gymCard!).getByTestId(GymCardTestIds.COUNTY)
+      ).toHaveTextContent(`${MOCK_GYM_FULL.county} County`)
+    })
   })
 })

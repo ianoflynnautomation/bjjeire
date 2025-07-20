@@ -21,17 +21,14 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
     county,
     status,
     imageUrl,
-    'data-testid': rootDataTestId
   }) => {
     const statusLabel = getGymStatusLabel(status)
     const statusColorScheme = getGymStatusColorScheme(status)
     const displayName = name || 'Unnamed Gym'
 
-    const actualRootDataTestId =
-      rootDataTestId || GymCardTestIds.HEADER.ROOT
 
     return (
-      <header data-testid={actualRootDataTestId} className="relative">
+      <header className="relative">
         {imageUrl && (
           <div className="mb-4 h-40 w-full overflow-hidden rounded-t-md">
             <img
@@ -39,7 +36,7 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
               alt={`Exterior or interior of ${displayName}`}
               className="h-full w-full object-cover"
               loading="lazy"
-              data-testid={GymCardTestIds.HEADER.IMAGE}
+              data-testid={GymCardTestIds.IMAGE}
             />
           </div>
         )}
@@ -50,19 +47,19 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
             <h3
               className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100"
               aria-label={`Gym name: ${displayName}`}
-              data-testid={GymCardTestIds.HEADER.NAME}
+              data-testid={GymCardTestIds.NAME}
             >
               {displayName}
             </h3>
             <Badge
               text={statusLabel}
               colorScheme={statusColorScheme}
-              data-testid={GymCardTestIds.HEADER.STATUS_BADGE}
+              data-testid={GymCardTestIds.STATUS_BADGE}
             />
           </div>
           <p
             className="text-xs font-medium text-slate-500 dark:text-slate-400"
-            data-testid={GymCardTestIds.HEADER.COUNTY}
+            data-testid={GymCardTestIds.COUNTY}
           >
             {county} County
           </p>

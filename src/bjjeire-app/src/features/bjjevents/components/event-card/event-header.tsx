@@ -16,16 +16,15 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(
   ({
     name,
     type,
-    'data-testid': baseTestId = EventCardTestIds.HEADER.ROOT
   }) => {
     const eventTypeLabel = getEventTypeLabel(type)
     const displayName = name || 'Unnamed Event'
 
     return (
-      <header className="mb-4" data-testid={baseTestId}>
+      <header className="mb-4" >
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
           <h3
-            data-testid={EventCardTestIds.HEADER.NAME}
+            data-testid={EventCardTestIds.NAME}
             className="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-100 transition-colors"
             aria-label={`Event name: ${displayName}`}
           >
@@ -33,7 +32,7 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(
           </h3>
           {eventTypeLabel && (
             <span
-              data-testid={EventCardTestIds.HEADER.TYPE}
+              data-testid={EventCardTestIds.TYPE}
               className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${getEventTypeColorClasses(
                 type
               )}`}

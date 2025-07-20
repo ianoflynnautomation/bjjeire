@@ -30,13 +30,11 @@ export const DetailItem: React.FC<DetailItemProps> = memo(
       >
         <IconWrapper
           className={iconClassName}
-          data-testid={DetailItemTestIds.ICON}
         >
           {icon}
         </IconWrapper>
         <div
           className="flex-grow"
-          data-testid={DetailItemTestIds.CONTENT}
           {...(ariaLabel && { 'aria-label': ariaLabel })}
         >
           {children}

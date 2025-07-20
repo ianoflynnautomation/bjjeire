@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import { SparklesIcon } from '@heroicons/react/20/solid'
 import { TrialOfferDto } from '../../../../types/gyms'
 import { DetailItem } from '../../../../components/ui/icons/detail-item'
-import { GymTrialOfferTestIds } from '../../../../constants/gymDataTestIds'
+import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
 
 interface GymTrialOfferProps {
   trialOffer?: TrialOfferDto
@@ -10,16 +10,12 @@ interface GymTrialOfferProps {
 }
 
 export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
-  ({
-    trialOffer,
-    'data-testid': rootDataTestId
-  }) => {
+  ({ trialOffer, 'data-testid': rootDataTestId }) => {
     if (!trialOffer || !trialOffer.isAvailable) {
       return null
     }
 
     let offerPrimaryPart: string | null = null
-
     if (trialOffer.freeClasses && trialOffer.freeClasses > 0) {
       offerPrimaryPart = `${trialOffer.freeClasses} free class${trialOffer.freeClasses > 1 ? 'es' : ''}`
     } else if (trialOffer.freeDays && trialOffer.freeDays > 0) {
@@ -54,8 +50,7 @@ export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
 
     const finalAriaLabel = `Trial Offer: ${ariaTextParts.join('. ')}`
 
-    const actualRootDataTestId =
-      rootDataTestId || GymTrialOfferTestIds.ROOT
+    const actualRootDataTestId = rootDataTestId || GymCardTestIds.TRIAL_OFFER
 
     return (
       <DetailItem

@@ -23,7 +23,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({
         color="text-emerald-600 dark:text-emerald-400"
         text={message}
         size="lg"
-        data-testid={LoadingStateTestIds.SPINNER}
+        data-testid={LoadingStateTestIds.ROOT}
       />
     </div>
   )

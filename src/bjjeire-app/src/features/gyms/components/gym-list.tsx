@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 import { GymDto } from '../../../types/gyms';
 import { GymCard } from './gym-card';
-import { GymsListTestIds, } from '../../../constants/gymDataTestIds';
+import { GymsPageTestIds } from '../../../constants/gymDataTestIds';
+import { LoadingStateTestIds, StateTestIds, NoDataStateTestIds } from '../../../constants/commonDataTestIds';
+
 
 interface GymsListProps {
   gyms?: GymDto[];
@@ -17,13 +19,13 @@ export const GymsList: React.FC<GymsListProps> = memo(
     error,
     'data-testid': dataTestId
   }) => {
-    const rootListTestId = dataTestId || GymsListTestIds.ROOT;
+    const rootListTestId = dataTestId || GymsPageTestIds.LIST;
 
     if (isLoading) {
       return (
         <div
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
-          data-testid={GymsListTestIds.LOADING}
+          data-testid={LoadingStateTestIds.ROOT}
         >
         </div>
       );
@@ -33,7 +35,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
       return (
         <div
           className="rounded-md bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-          data-testid={GymsListTestIds.ERROR}
+          data-testid={StateTestIds.ROOT}
         >
           <p className="font-medium">Could not load gyms.</p>
         </div>
@@ -44,7 +46,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
       return (
         <div
           className="text-center py-12 text-slate-500 dark:text-slate-400"
-          data-testid={GymsListTestIds.EMPTY}
+          data-testid={NoDataStateTestIds.ROOT}
         >
           <p className="text-xl font-semibold">No gyms found.</p>
           <p>Try adjusting your search or check back later.</p>
@@ -58,13 +60,11 @@ export const GymsList: React.FC<GymsListProps> = memo(
         data-testid={rootListTestId}
       >
         {gyms.map(gym => {
-          const gymCardRootId = GymsListTestIds.ROOT
-
           return (
             <GymCard
               key={gym.id || gym.name}
               gym={gym}
-              data-testid={gymCardRootId}
+              data-testid={GymsPageTestIds.LIST_ITEM}
             />
           );
         })}

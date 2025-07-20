@@ -1,54 +1,34 @@
-export const GYM_CARD_BASE_ID = 'gym-card'
-export const GYM_OFFERED_CLASSES_BASE_ID = 'gym-offered-classes'
-export const GYM_TRIAL_OFFER_BASE_ID = 'gym-trial-offer'
-export const GYMS_LIST_BASE_ID = 'gyms-list'
-export const GYMS_PAGE_HEADER_BASE_ID = 'gyms-page-header'
+// ========================================================================
+// Gyms Page Test IDs
+//
+// Convention: gyms-[component]-[element]
+// ========================================================================
+
+export const GymsPageTestIds = {
+  HEADER: 'gyms-page-header',
+  HEADER_TITLE: 'gyms-page-header-title',
+  HEADER_TOTAL: 'gyms-page-header-total',
+  LIST: 'gyms-page-list',
+  LIST_ITEM: 'gyms-list-item',
+  LIST_LOADING: 'gyms-list-loading',
+  LIST_ERROR: 'gyms-list-error',
+  LIST_EMPTY: 'gyms-list-empty',
+}
 
 export const GymCardTestIds = {
-  ROOT: 'gym-list-item',
-
-  HEADER: {
-    ROOT: 'gym-item-header',
-    IMAGE: 'gym-item-header-image',
-    NAME: 'gym-item-header-name',
-    STATUS_BADGE: 'gym-item-header-status',
-    COUNTY: 'gym-item-header-county',
-  },
-  DETAILS: {
-    ROOT: 'gym-item-details',
-    ADDRESS: 'gym-item-details-address',
-    AFFILIATION: 'gym-item-details-affiliation',
-    TIMETABLE: 'gym-item-details-timetable',
-    CLASSES: 'gym-item-details-classes',
-    TRIAL: 'gym-item-details-trial',
-    SOCIAL_MEDIA: 'gym-item-details-social-media',
-  },
-  FOOTER: {
-    ROOT: 'gym-item-footer',
-    WEBSITE_LINK: 'gym-item-footer-website',
-  },
-};
-
-export const GymOfferedClassesTestIds = {
-  ROOT: 'gym-offered-classes',
-  ITEM: 'gym-offered-classes-item', 
-};
-
-export const GymTrialOfferTestIds = {
-  ROOT: 'gym-trial-offer',
-};
-
-export const GymsListTestIds = {
-  ROOT: 'gyms-list',
-  
-  LOADING: 'gyms-list-loading',
-  ERROR: 'gyms-list-error',
-  EMPTY: 'gyms-list-empty',
-  // The 'ITEM' locator is handled by GymCardTestIds.ROOT
-};
-
-export const GymsPageHeaderTestIds = {
-  ROOT: 'gyms-page-header',
-  TITLE: 'gyms-page-header-title',
-  TOTAL: 'gyms-page-header-total',
-};
+  IMAGE: 'gym-card-image',
+  NAME: 'gym-card-name',
+  STATUS_BADGE: 'gym-card-status-badge',
+  COUNTY: 'gym-card-county',
+  ADDRESS: 'gym-card-address',
+  ADDRESS_LINK: 'gym-card-address-link',
+  AFFILIATION: 'gym-card-affiliation',
+  AFFILIATION_LINK: 'gym-card-affiliation-link',
+  TIMETABLE: 'gym-card-timetable',
+  TIMETABLE_LINK: 'gym-card-timetable-link',
+  CLASSES: 'gym-card-classes',
+  CLASSES_ITEM: 'gym-card-classes-item',
+  TRIAL_OFFER: 'gym-card-trial-offer',
+  SOCIAL_MEDIA: 'gym-card-social-media',
+  WEBSITE_LINK: 'gym-card-website-link',
+}
