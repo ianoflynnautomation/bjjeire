@@ -14,6 +14,7 @@ import { SocialMediaLinks } from '../../../../components/ui/social-media/social-
 import { GymOfferedClasses, GymTrialOffer } from '.'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import {DetailItemTestIds} from '../../../../constants/commonDataTestIds'
 
 interface GymDetailsProps {
   gym: GymDto
@@ -21,10 +22,7 @@ interface GymDetailsProps {
 }
 
 export const GymDetails: React.FC<GymDetailsProps> = memo(
-  ({
-    gym,
-    'data-testid': rootDataTestId,
-  }) => {
+  ({ gym, 'data-testid': rootDataTestId }) => {
     const {
       location,
       affiliation,
@@ -34,8 +32,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
       trialOffer,
     } = gym
 
-    const actualRootDataTestId =
-      rootDataTestId || GymCardTestIds.DETAILS.ROOT
+    const actualRootDataTestId = rootDataTestId || DetailItemTestIds.ROOT
 
     return (
       <section
@@ -53,13 +50,14 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<MapPinIcon />}
             ariaLabel={`Location: ${location.address}, ${location.venue || ''}`}
-            data-testid={GymCardTestIds.DETAILS.ADDRESS}
+            data-testid={GymCardTestIds.ADDRESS}
           >
             <a
               href={getGoogleMapsUrl(gym.location)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
+              data-testid={GymCardTestIds.ADDRESS_LINK}
             >
               {location.address} {location.venue && `(${location.venue})`}
             </a>
@@ -70,7 +68,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<BuildingLibraryIcon />}
             ariaLabel={`Affiliation: ${affiliation.name}`}
-            data-testid={GymCardTestIds.DETAILS.AFFILIATION}
+            data-testid={GymCardTestIds.AFFILIATION}
           >
             {affiliation.website ? (
               <a
@@ -78,6 +76,7 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
+                data-testid={GymCardTestIds.AFFILIATION_LINK}
               >
                 Affiliated with {affiliation.name}
               </a>
@@ -90,13 +89,14 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
           <DetailItem
             icon={<ClipboardDocumentListIcon />}
             ariaLabel={`Timetable: ${formatDisplayUrl(timetableUrl)}`}
-            data-testid={GymCardTestIds.DETAILS.TIMETABLE}
+            data-testid={GymCardTestIds.TIMETABLE}
           >
             <a
               href={ensureExternalUrlScheme(timetableUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
+              data-testid={GymCardTestIds.TIMETABLE_LINK}
             >
               View Timetable
             </a>
@@ -105,18 +105,18 @@ export const GymDetails: React.FC<GymDetailsProps> = memo(
 
         <GymOfferedClasses
           classes={offeredClasses}
-          data-testid={GymCardTestIds.DETAILS.CLASSES}
+          data-testid={GymCardTestIds.CLASSES}
         />
         <GymTrialOffer
           trialOffer={trialOffer}
-          data-testid={GymCardTestIds.DETAILS.TRIAL}
+          data-testid={GymCardTestIds.TRIAL_OFFER}
         />
 
         {socialMedia && (
           <div className="pt-1">
             <SocialMediaLinks
               socialMedia={socialMedia}
-              data-testid={GymCardTestIds.DETAILS.SOCIAL_MEDIA}
+              data-testid={GymCardTestIds.SOCIAL_MEDIA}
             />
           </div>
         )}

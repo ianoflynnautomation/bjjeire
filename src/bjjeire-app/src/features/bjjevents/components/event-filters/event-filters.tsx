@@ -5,7 +5,8 @@ import { BjjEventType } from '../../../../types/event'
 import SelectFilter from '../../../../components/ui/filters/select-filter';
 import ButtonGroupFilter from '../../../../components/ui/filters/button-group-filter';
 import { MapPinIcon } from '@heroicons/react/20/solid'
-import { EventFiltersTestIds } from '../../../../constants/eventDataTestIds'
+import { EventsPageTestIds } from '../../../../constants/eventDataTestIds'
+import { SelectFilterTestIds, ButtonGroupFilterTestIds} from '../../../../constants/commonDataTestIds'
 
 interface EventFiltersProps {
   selectedCity: County | 'all' | undefined
@@ -48,7 +49,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
     )
 
     const rootTestId =
-      dataTestId || EventFiltersTestIds.ROOT
+      dataTestId || EventsPageTestIds.FILTERS
 
     return (
       <div
@@ -63,7 +64,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
           options={cityOptions}
           disabled={disabled}
           Icon={MapPinIcon}
-          data-testid={EventFiltersTestIds.CITY_SELECT}
+          data-testid={SelectFilterTestIds.ROOT}
           className="flex-1"
         />
         <ButtonGroupFilter<BjjEventType | 'all'>
@@ -72,7 +73,7 @@ const EventFilters: React.FC<EventFiltersProps> = memo(
           selectedValue={selectedType ?? 'all'}
           onValueChange={onTypeChange}
           disabled={disabled}
-          data-testid={EventFiltersTestIds.TYPE_GROUP}
+          data-testid={ButtonGroupFilterTestIds.ROOT}
           className="flex-1 sm:flex-none"
         />
       </div>

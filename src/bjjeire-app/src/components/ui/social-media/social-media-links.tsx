@@ -46,9 +46,6 @@ const SocialLink: React.FC<SocialLinkProps> = ({
           transition-all duration-200 ease-in-out
         `}
         aria-hidden="true"
-        // Use the explicit testIdInstanceSuffix for the icon
-        // Assumes SocialMediaLinksTestIds.ICON takes (platform, suffix_id)
-        data-testid={SocialMediaLinksTestIds.ICON}
       />
     </a>
   )

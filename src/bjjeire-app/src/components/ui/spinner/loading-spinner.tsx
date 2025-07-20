@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import {
-  LoadingSpinnerTestIds
+  SpinnerTestIds
 } from '../../../constants/commonDataTestIds'
 
 interface LoadingSpinnerProps {
@@ -19,7 +19,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   'data-testid': dataTestIdFromProp
 }) => {
   const rootTestId =
-    dataTestIdFromProp || LoadingSpinnerTestIds.ROOT
+    dataTestIdFromProp || SpinnerTestIds.ROOT
 
   const sizeClasses = {
     sm: 'w-5 h-5 border-2',
@@ -35,13 +35,11 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       aria-live="polite"
     >
       <div
-        data-testid={LoadingSpinnerTestIds.ICON}
         className={`animate-spin rounded-full ${sizeClasses[size]} ${color} border-t-transparent border-solid`}
         aria-hidden="true"
       ></div>
       {text && (
         <p
-          data-testid={LoadingSpinnerTestIds.TEXT}
           className={`mt-3 text-sm font-medium text-gray-600 ${color}`}
         >
           {text}

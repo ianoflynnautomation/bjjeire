@@ -6,26 +6,18 @@ import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
 interface GymFooterProps {
   websiteUrl?: string
   gymName: string
-  'data-testid'?: string
 }
 
 export const GymFooter: React.FC<GymFooterProps> = memo(
   ({
     websiteUrl,
     gymName,
-    'data-testid': rootDataTestIdFromParent
   }) => {
     const externalWebsiteUrl =
       websiteUrl && websiteUrl.trim() !== ''
         ? ensureExternalUrlScheme(websiteUrl)
         : undefined
 
-    const actualRootDataTestId =
-      rootDataTestIdFromParent ||
-      GymCardTestIds.FOOTER.ROOT
-
-    const websiteLinkTestId =
-      GymCardTestIds.FOOTER.WEBSITE_LINK
 
     const isDisabled = !externalWebsiteUrl
     const buttonText = externalWebsiteUrl
@@ -41,7 +33,6 @@ export const GymFooter: React.FC<GymFooterProps> = memo(
     return (
       <div
         className="mt-auto border-t border-slate-200 pt-3 dark:border-slate-700"
-        data-testid={actualRootDataTestId}
       >
         {isDisabled ? (
           <button
@@ -49,7 +40,7 @@ export const GymFooter: React.FC<GymFooterProps> = memo(
             aria-disabled="true"
             aria-label={ariaLabel}
             title={title}
-            data-testid={websiteLinkTestId}
+            data-testid={GymCardTestIds.WEBSITE_LINK}
             className="inline-flex w-full cursor-not-allowed items-center justify-center gap-x-2 rounded-md bg-gray-400 px-3.5 py-2 text-sm font-semibold text-white opacity-50 shadow-sm"
           >
             <ArrowTopRightOnSquareIcon
@@ -63,7 +54,7 @@ export const GymFooter: React.FC<GymFooterProps> = memo(
             href={externalWebsiteUrl}
             target="_blank"
             rel="noopener noreferrer"
-            data-testid={websiteLinkTestId}
+            data-testid={GymCardTestIds.WEBSITE_LINK}
             className="inline-flex w-full items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
             aria-label={ariaLabel}
             title={title}

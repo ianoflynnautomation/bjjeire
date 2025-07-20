@@ -1,4 +1,4 @@
-import { render, within } from '@testing-library/react'
+import { render, } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymHeader } from '../gym-card/gym-header'
 import { MOCK_GYM_FULL } from './mocks/gym.mock'
@@ -11,36 +11,23 @@ describe('GymHeader Component', () => {
     county: MOCK_GYM_FULL.county,
     status: MOCK_GYM_FULL.status,
     imageUrl: MOCK_GYM_FULL.imageUrl,
-    testIdInstanceSuffix: 'test-id',
   }
 
-  describe.concurrent('Display Logic', () => {
+  describe('Display Logic', () => {
     it('should render the name, county, and status correctly', () => {
       // Arrange
       const { getByTestId } = render(<GymHeader {...defaultProps} />)
 
       // Act
-      const header = getByTestId(
-        GymCardTestIds.HEADER.ROOT
-      )
-      const statusBadge = getByTestId(
-        GymCardTestIds.HEADER.STATUS_BADGE
-      )
-      const countyText = getByTestId(
-        GymCardTestIds.HEADER.COUNTY
-      )
+      const name = getByTestId(GymCardTestIds.NAME)
+      const statusBadge = getByTestId(GymCardTestIds.STATUS_BADGE)
+      const countyText = getByTestId(GymCardTestIds.COUNTY)
 
       // Assert
-      expect(
-        within(header).getByRole('heading', {
-          name: `Gym name: ${defaultProps.name}`,
-        })
-      ).toBeInTheDocument()
-
+      expect(name).toHaveTextContent(defaultProps.name)
       expect(statusBadge).toHaveTextContent(
         getGymStatusLabel(defaultProps.status)
       )
-
       expect(countyText).toHaveTextContent(`${defaultProps.county} County`)
     })
   })
@@ -48,41 +35,46 @@ describe('GymHeader Component', () => {
   describe('Image Rendering', () => {
     it('should render the image with correct alt text and src when imageUrl is provided', () => {
       // Arrange
-      const { getByRole } = render(<GymHeader {...defaultProps} />)
+      const { getByTestId } = render(<GymHeader {...defaultProps} />)
 
       // Act
-      const image = getByRole('img', {
-        name: `Exterior or interior of ${defaultProps.name}`,
-      })
+      const image = getByTestId(GymCardTestIds.IMAGE)
 
       // Assert
       expect(image).toBeInTheDocument()
       expect(image).toHaveAttribute('src', defaultProps.imageUrl)
+      expect(image).toHaveAttribute(
+        'alt',
+        `Exterior or interior of ${defaultProps.name}`
+      )
     })
 
     it('should not render an image if imageUrl is not provided', () => {
       // Arrange
-      const { queryByRole } = render(
+      const { queryByTestId } = render(
         <GymHeader {...defaultProps} imageUrl={undefined} />
       )
 
       // Assert
-      expect(queryByRole('img')).not.toBeInTheDocument()
+      expect(queryByTestId(GymCardTestIds.IMAGE)).not.toBeInTheDocument()
     })
   })
 
   describe('Edge Cases', () => {
     it('should handle an empty name gracefully with a fallback', () => {
       // Arrange
-      const { getByRole } = render(<GymHeader {...defaultProps} name="" />)
+      const { getByTestId } = render(<GymHeader {...defaultProps} name="" />)
+
+      // Act
+      const name = getByTestId(GymCardTestIds.NAME)
+      const image = getByTestId(GymCardTestIds.IMAGE)
 
       // Assert
-      expect(
-        getByRole('heading', { name: 'Gym name: Unnamed Gym' })
-      ).toBeInTheDocument()
-      expect(
-        getByRole('img', { name: 'Exterior or interior of Unnamed Gym' })
-      ).toBeInTheDocument()
+      expect(name).toHaveTextContent('Unnamed Gym')
+      expect(image).toHaveAttribute(
+        'alt',
+        'Exterior or interior of Unnamed Gym'
+      )
     })
   })
 })

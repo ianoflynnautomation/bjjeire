@@ -6,139 +6,102 @@ import {
   MOCK_GYM_MINIMAL,
   MOCK_GYM_NO_WEBSITE,
 } from './mocks/gym.mock'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import { GymsPageTestIds, GymCardTestIds } from '../../../../constants/gymDataTestIds'
 
 describe('GymCard Component', () => {
   describe('Positive Scenarios', () => {
     it('should render all sections with correct content for a full gym object', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT
-
       const { getByTestId } = render(
-        <GymCard gym={MOCK_GYM_FULL} data-testid={rootTestId} />
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
       )
       const expectedAddress = `${MOCK_GYM_FULL.location.address} (${MOCK_GYM_FULL.location.venue})`
 
       // Act
-      const card = getByTestId(rootTestId)
-      const footer = within(card).getByTestId(
-        GymCardTestIds.FOOTER.ROOT
-      )
+      const card = getByTestId(GymsPageTestIds.LIST_ITEM)
 
-      // Assert
-      expect(
-        within(card).getByRole('heading', {
-          name: `Gym name: ${MOCK_GYM_FULL.name}`,
-          level: 3,
-        })
-      ).toBeInTheDocument()
-      expect(within(card).getByText(MOCK_GYM_FULL.status)).toBeInTheDocument()
-      expect(
-        within(card).getByText(`${MOCK_GYM_FULL.county} County`)
-      ).toBeInTheDocument()
-      expect(
-        within(card).getByRole('link', { name: expectedAddress })
-      ).toBeInTheDocument()
-      //expect(within(card).getByRole('link', { name: `Affiliated with ${MOCK_GYM_FULL.affiliation.name}` })).toBeInTheDocument();
-      expect(
-        within(footer).getByRole('link', { name: /Visit Website/i })
-      ).toBeInTheDocument()
+      // Assert 
+      const name = within(card).getByTestId(GymCardTestIds.NAME)
+      const status = within(card).getByTestId(GymCardTestIds.STATUS_BADGE)
+      const county = within(card).getByTestId(GymCardTestIds.COUNTY)
+      const addressLink = within(card).getByTestId(GymCardTestIds.ADDRESS_LINK)
+      const websiteLink = within(card).getByTestId(GymCardTestIds.WEBSITE_LINK)
+
+      expect(name).toHaveTextContent(MOCK_GYM_FULL.name)
+      expect(status).toHaveTextContent(MOCK_GYM_FULL.status)
+      expect(county).toHaveTextContent(`${MOCK_GYM_FULL.county} County`)
+      expect(addressLink).toHaveTextContent(expectedAddress)
+      expect(websiteLink).toBeInTheDocument()
+      expect(websiteLink).toHaveAttribute('href', MOCK_GYM_FULL.website)
     })
   })
 
   describe('Negative Scenarios', () => {
     it('should render correctly with minimal gym data and hide optional sections', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
-        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
+        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={GymsPageTestIds.LIST_ITEM} />
       )
 
       // Act
-      const card = getByTestId(rootTestId)
+      const card = getByTestId(GymsPageTestIds.LIST_ITEM)
 
       // Assert
-      expect(
-        within(card).getByRole('heading', {
-          name: `Gym name: ${MOCK_GYM_MINIMAL.name}`,
-          level: 3,
-        })
-      ).toBeInTheDocument()
-      expect(within(card).getByText('Pending Approval')).toBeInTheDocument()
-      expect(
-        within(card).queryByText(/Affiliated with/i)
-      ).not.toBeInTheDocument()
-      expect(
-        within(card).queryByRole('link', { name: /Visit Website/i })
-      ).not.toBeInTheDocument()
+      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(MOCK_GYM_MINIMAL.name)
+      expect(within(card).getByTestId(GymCardTestIds.STATUS_BADGE)).toHaveTextContent('Pending Approval')
+      expect(within(card).queryByTestId(GymCardTestIds.AFFILIATION)).not.toBeInTheDocument()
+      expect(within(card).queryByTestId(GymCardTestIds.WEBSITE_LINK)).not.toBeInTheDocument()
     })
   })
 
   describe('Edge Cases', () => {
-    it('should not render the website link if the website URL is missing', () => {
+    it('should disable the website link if the website URL is missing', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
-        <GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={rootTestId} />
+        <GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={GymsPageTestIds.LIST_ITEM} />
       )
 
       // Act
-      const card = getByTestId(rootTestId)
+      const card = getByTestId(GymsPageTestIds.LIST_ITEM)
+      const websiteLink = within(card).getByTestId(GymCardTestIds.WEBSITE_LINK)
 
       // Assert
-      expect(
-        within(card).getByRole('heading', {
-          name: `Gym name: ${MOCK_GYM_NO_WEBSITE.name}`,
-          level: 3,
-        })
-      ).toBeInTheDocument()
-
-      expect(
-        within(card).queryByRole('link', { name: /Visit Website/i })
-      ).not.toBeInTheDocument()
+      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(MOCK_GYM_NO_WEBSITE.name)
+      
+      expect(websiteLink.tagName).toBe('BUTTON')
+      expect(websiteLink).toBeDisabled()
     })
 
     it('should correctly display a non-active status like "Pending Approval"', () => {
       // Arrange
-      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
-        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={rootTestId} />
+        <GymCard gym={MOCK_GYM_MINIMAL} data-testid={GymsPageTestIds.LIST_ITEM} />
       )
 
       // Act
-      const card = getByTestId(rootTestId)
+      const card = getByTestId(GymsPageTestIds.LIST_ITEM)
+      const statusBadge = within(card).getByTestId(GymCardTestIds.STATUS_BADGE)
 
       // Assert
-      const statusBadge = within(card).getByTestId(
-        GymCardTestIds.HEADER.STATUS_BADGE
-      )
       expect(statusBadge).toHaveTextContent('Pending Approval')
       expect(statusBadge).not.toHaveTextContent('Active')
     })
 
-    it('should render without an affiliation link if affiliation data is missing', () => {
+    it('should render without an affiliation section if affiliation data is missing', () => {
       // Arrange
       const gymWithoutAffiliation = {
         ...MOCK_GYM_FULL,
         id: 'gym-no-affiliation',
         affiliation: undefined,
       }
-      const rootTestId = GymCardTestIds.ROOT
       const { getByTestId } = render(
-        <GymCard gym={gymWithoutAffiliation} data-testid={rootTestId} />
+        <GymCard gym={gymWithoutAffiliation} data-testid={GymsPageTestIds.LIST_ITEM} />
       )
-      const card = getByTestId(rootTestId)
+      const card = getByTestId(GymsPageTestIds.LIST_ITEM)
 
       // Assert
-      expect(
-        within(card).queryByText(/Affiliated with/i)
-      ).not.toBeInTheDocument()
-
-      expect(
-        within(card).getByRole('heading', {
-          name: `Gym name: ${gymWithoutAffiliation.name}`,
-        })
-      ).toBeInTheDocument()
+      expect(within(card).queryByTestId(GymCardTestIds.AFFILIATION)).not.toBeInTheDocument()
+      expect(within(card).getByTestId(GymCardTestIds.NAME)).toBeInTheDocument()
     })
   })
 })

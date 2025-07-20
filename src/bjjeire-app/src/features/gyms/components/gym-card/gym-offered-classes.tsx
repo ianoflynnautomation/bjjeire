@@ -3,7 +3,8 @@ import { ClassCategory } from '../../../../types/gyms'
 import { getClassCategoryLabel } from '../../../../utils/gymDisplayUtils'
 import { TagIcon } from '@heroicons/react/20/solid'
 import { DetailItem } from '../../../../components/ui/icons/detail-item'
-import { GymOfferedClassesTestIds } from '../../../../constants/gymDataTestIds'
+// Import the standardized test IDs
+import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
 
 interface GymOfferedClassesProps {
   classes?: ClassCategory[]
@@ -16,7 +17,8 @@ export const GymOfferedClasses: React.FC<GymOfferedClassesProps> = memo(
       return null
     }
 
-    const actualRootDataTestId = rootDataTestId || GymOfferedClassesTestIds.ROOT
+    // The root test ID now defaults to the static constant for the classes section.
+    const actualRootDataTestId = rootDataTestId || GymCardTestIds.CLASSES
 
     return (
       <DetailItem
@@ -30,7 +32,7 @@ export const GymOfferedClasses: React.FC<GymOfferedClassesProps> = memo(
             <span
               key={category}
               className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-800 dark:text-emerald-200"
-              data-testid={GymOfferedClassesTestIds.ITEM}
+              data-testid={GymCardTestIds.CLASSES_ITEM}
             >
               {getClassCategoryLabel(category)}
             </span>

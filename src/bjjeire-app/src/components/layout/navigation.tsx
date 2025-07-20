@@ -15,7 +15,7 @@ const HamburgerIcon = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
-    data-testid={NavigationTestIds.MOBILE}
+    data-testid={NavigationTestIds.ROOT}
   >
     <path
       strokeLinecap="round"
@@ -75,7 +75,7 @@ const Navigation = () => {
               </div>
               <div
                 className="hidden sm:ml-6 sm:flex sm:space-x-8"
-                data-testid={NavigationTestIds.DESKTOP.LINK}
+                data-testid={NavigationTestIds.DESKTOP_LINK}
               >
                 {navItems.map(item => (
                   <NavLink
@@ -87,7 +87,7 @@ const Navigation = () => {
                         isActive ? activeClassName : inactiveClassName
                       )
                     }
-                    data-testid={NavigationTestIds.DESKTOP.LINK}
+                    data-testid={NavigationTestIds.DESKTOP_LINK}
                   >
                     {item.label}
                   </NavLink>
@@ -110,7 +110,7 @@ const Navigation = () => {
                   className="inline-flex items-center justify-center rounded-md p-2 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500 dark:text-emerald-300 dark:hover:bg-slate-700 dark:hover:text-emerald-200 dark:focus:ring-emerald-400"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
-                  data-testid={NavigationTestIds.MOBILE.TOGGLE}
+                  data-testid={NavigationTestIds.MOBILE_TOGGLE}
                 >
                   <span className="sr-only">Open main menu</span>
                   <HamburgerIcon />
@@ -125,7 +125,7 @@ const Navigation = () => {
           <div
             id="mobile-menu-panel"
             className="absolute z-30 w-full bg-white shadow-lg dark:bg-slate-800 sm:hidden"
-            data-testid={NavigationTestIds.MOBILE.PANEL}
+            data-testid={NavigationTestIds.MOBILE_PANEL}
           >
             <div className="space-y-1 px-2 pb-3 pt-2">
               {navItems.map(item => (
@@ -141,7 +141,7 @@ const Navigation = () => {
                         : 'border-transparent text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600 dark:text-emerald-300 dark:hover:border-emerald-400 dark:hover:bg-slate-700 dark:hover:text-emerald-200'
                     )
                   }
-                  data-testid={NavigationTestIds.MOBILE.LINK}
+                  data-testid={NavigationTestIds.MOBILE_LINK}
                 >
                   {item.label}
                 </NavLink>

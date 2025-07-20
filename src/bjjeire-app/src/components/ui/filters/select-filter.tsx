@@ -74,7 +74,7 @@ function SelectFilter<T extends string | number>({
           {placeholderOptionLabel && (
             <option
               value="all"
-              data-testid={SelectFilterTestIds.PLACEHOLDER_OPTION}
+              data-testid={SelectFilterTestIds.OPTION}
             >
               {placeholderOptionLabel}
             </option>

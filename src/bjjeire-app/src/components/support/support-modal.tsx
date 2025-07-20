@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
 import { env } from '@/config/env'
 import { CloseIcon } from '../ui/icons/close-icon';
-import { SupportModalTestIds } from '../../constants/supportTestDataIds'
+import { SupportModalTestIds } from '../../constants/commonDataTestIds'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -37,7 +37,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
 
     if (!isOpen) return null
 
-    const mainTitleId = SupportModalTestIds.MAIN_TITLE
+    const mainTitleId = SupportModalTestIds.TITLE
 
     return (
       <div
@@ -81,7 +81,6 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </p>
             <div
               className="rounded-lg bg-slate-50 p-4 shadow-inner dark:bg-slate-700"
-              data-testid={SupportModalTestIds.ADDRESS_SECTION}
             >
               <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
                 Bitcoin Address:
@@ -89,7 +88,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                 <code
                   className="flex-1 rounded border border-slate-200 bg-white p-3 text-sm text-slate-700 break-all dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                  data-testid={SupportModalTestIds.BTC_ADDRESS_DISPLAY}
+                  data-testid={SupportModalTestIds.BTC_ADDRESS}
                 >
                   {bitcoinAddress}
                 </code>
@@ -117,7 +116,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </div>
             <div
               className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30"
-              data-testid={SupportModalTestIds.WARNING_MESSAGE}
+              data-testid={SupportModalTestIds.WARNING}
             >
               <p className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
                 <svg
@@ -125,7 +124,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   aria-hidden="true"
-                  data-testid={`${SupportModalTestIds.WARNING_MESSAGE}-icon`}
+                  data-testid={`${SupportModalTestIds.WARNING}-icon`}
                 >
                   <path
                     fillRule="evenodd"

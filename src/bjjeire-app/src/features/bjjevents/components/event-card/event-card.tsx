@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { BjjEventDto } from '../../../../types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
-import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
+import { EventsPageTestIds, EventCardTestIds} from '../../../../constants/eventDataTestIds'
 
 interface EventCardProps {
   event: BjjEventDto
@@ -12,8 +12,7 @@ export const EventCard: React.FC<EventCardProps> = memo(
   ({ event, 'data-testid': dataTestId }) => {
     const { name, eventUrl, schedule, type } = event
 
-    const rootTestId =
-      dataTestId || EventCardTestIds.ROOT
+    const rootTestId = dataTestId || EventsPageTestIds.LIST_ITEM
 
     return (
       <article
@@ -29,14 +28,12 @@ export const EventCard: React.FC<EventCardProps> = memo(
           <EventHeader
             name={name}
             type={type}
-            data-testid={EventCardTestIds.HEADER.ROOT}
           />
 
           {/* Event Details Section */}
           <div className="mb-4">
             <EventDetails
               event={event}
-              data-testid={EventCardTestIds.DETAILS.ROOT}
             />
           </div>
 
@@ -44,12 +41,9 @@ export const EventCard: React.FC<EventCardProps> = memo(
           {schedule && (
             <div
               className="mb-4 text-sm text-slate-600 dark:text-slate-300"
-              data-testid={EventCardTestIds.SCHEDULE.ROOT}
+              data-testid={EventCardTestIds.SCHEDULE}
             >
-              <EventSchedule
-                schedule={schedule}
-                data-testid={EventCardTestIds.SCHEDULE.CONTENT}
-              />
+              <EventSchedule schedule={schedule} />
             </div>
           )}
 
@@ -60,7 +54,6 @@ export const EventCard: React.FC<EventCardProps> = memo(
           <EventFooter
             eventUrl={eventUrl}
             eventName={name}
-            data-testid={EventCardTestIds.FOOTER.ROOT}
           />
         </div>
       </article>

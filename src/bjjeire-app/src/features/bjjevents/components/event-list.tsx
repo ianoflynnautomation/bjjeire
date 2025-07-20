@@ -1,7 +1,7 @@
 import React from 'react'
 import { EventCard } from './event-card'
 import { BjjEventDto } from '../../../types/event'
-import { EventsListTestIds } from '../../../constants/eventDataTestIds'
+import { EventsPageTestIds } from '../../../constants/eventDataTestIds'
 
 interface EventsListProps {
   events: BjjEventDto[]
@@ -16,7 +16,7 @@ const EventsList: React.FC<EventsListProps> = ({
     return null
   }
 
-  const rootTestId = dataTestId || EventsListTestIds.ROOT
+  const rootTestId = dataTestId || EventsPageTestIds.LIST
 
   return (
     <div
@@ -28,7 +28,7 @@ const EventsList: React.FC<EventsListProps> = ({
           <EventCard
             key={event.id || `event-card-list-item-${index}`}
             event={event}
-            data-testid={EventsListTestIds.ROOT}
+            data-testid={EventsPageTestIds.LIST_ITEM}
           />
         )
       })}

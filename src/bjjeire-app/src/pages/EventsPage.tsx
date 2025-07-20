@@ -11,8 +11,7 @@ import { EventsPageHeader } from '@/features/bjjevents/components/event-page-hea
 import EventsList from '@/features/bjjevents/components/event-list'
 import { env } from '@/config/env'
 import {
-  EventsPageHeaderTestIds,
-  EventFiltersTestIds,
+  EventsPageTestIds,
 } from '@/constants/eventDataTestIds'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
@@ -83,7 +82,7 @@ const EventsPage: React.FC = () => {
         <EventsPageHeader
           countyName={activeFilters.county}
           totalEvents={paginationInfo?.totalItems}
-          dataTestId={EventsPageHeaderTestIds.ROOT}
+          dataTestId={EventsPageTestIds.HEADER}
         />
 
         <div className="mb-8">
@@ -93,7 +92,7 @@ const EventsPage: React.FC = () => {
             onCityChange={city => handleFilterChange('county', city)}
             onTypeChange={type => handleFilterChange('type', type)}
             disabled={isFetching || isLoading}
-            dataTestId={EventFiltersTestIds.ROOT}
+            dataTestId={EventsPageTestIds.FILTERS}
           />
         </div>
 

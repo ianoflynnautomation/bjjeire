@@ -12,6 +12,7 @@ import { DetailItem } from './detail-item'
 import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
 import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
 import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
+import {DetailItemTestIds} from '../../../../constants/commonDataTestIds'
 
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
@@ -70,7 +71,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
     const { name, location, socialMedia, pricing, schedule, organiser } = event
 
     const rootTestId =
-      sectionDataTestId || EventCardTestIds.DETAILS.ROOT
+      sectionDataTestId || DetailItemTestIds.ROOT
 
 
     const calculatedPrice = useMemo(
@@ -106,7 +107,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             icon={<MapPinIcon />}
             ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
             // DetailItem's root test ID
-            data-testid={EventCardTestIds.DETAILS.ADDRESS}
+            data-testid={EventCardTestIds.ADDRESS}
 
           >
             <a
@@ -115,6 +116,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
               aria-label={`View ${name || 'event'} location on Google Maps`}
+              data-testid={EventCardTestIds.ADDRESS_LINK}
             >
               {location.address || location.venue || 'View on map'}
             </a>
@@ -125,7 +127,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <DetailItem
             icon={<UserCircleIcon />}
             ariaLabel={`Organised by: ${organiserDisplay}`}
-            data-testid={EventCardTestIds.DETAILS.ORGANISER}
+            data-testid={EventCardTestIds.ORGANISER}
           >
             <a
               href={ensureExternalUrlScheme(organiser.website)}
@@ -133,6 +135,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
               rel="noopener noreferrer"
               className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
               aria-label={`Visit organiser website for ${name || 'this event'}`}
+              data-testid={EventCardTestIds.ORGANISER_LINK}
             >
               Organised by: {organiserDisplay}
             </a>
@@ -143,7 +146,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <DetailItem
             icon={<CurrencyDollarIcon />}
             ariaLabel={`Event pricing: ${pricingDisplay}`}
-            data-testid={EventCardTestIds.DETAILS.PRICING}
+            data-testid={EventCardTestIds.PRICING}
           >
             {pricingDisplay}
           </DetailItem>
@@ -153,7 +156,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
           <div className="pt-1">
             <SocialMediaLinks
               socialMedia={socialMedia}
-              data-testid={EventCardTestIds.DETAILS.SOCIAL_MEDIA}
+              data-testid={EventCardTestIds.SOCIAL_MEDIA}
             />
           </div>
         )}
