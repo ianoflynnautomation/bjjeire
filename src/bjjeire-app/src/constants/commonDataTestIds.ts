@@ -42,13 +42,22 @@ export const PaginationTestIds = {
   NEXT_BUTTON: 'pagination-next-button',
 }
 
-export const StateTestIds = {
-  ROOT: 'state',
-  ICON: 'state-icon',
-  TITLE: 'state-title',
-  MESSAGE_LINE1: 'state-message-line1',
-  MESSAGE_LINE2: 'state-message-line2',
-  BUTTON: 'state-button',
+export const  ErrorStateTestIds = {
+  ROOT: 'error-state',
+  ICON: 'error-state-icon',
+  TITLE: 'error-state-title',
+  MESSAGE_LINE1: 'error-state-message-line1',
+  MESSAGE_LINE2: 'error-state-message-line2',
+  BUTTON: 'error-state-button',
+}
+
+export const  NoDataStateTestIds = {
+  ROOT: 'no-data-state',
+  ICON: 'no-data-state-icon',
+  TITLE: 'no-data-state-title',
+  MESSAGE_LINE1: 'no-data-state-message-line1',
+  MESSAGE_LINE2: 'no-data-state-message-line2',
+  BUTTON: 'no-data-state-button',
 }
 
 export const FooterTestIds = {
@@ -75,7 +84,6 @@ export const CloseIconTestIds = { ROOT: 'close-icon' }
 export const DetailItemTestIds = { ROOT: 'detail-item' }
 export const SpinnerTestIds = { ROOT: 'spinner' }
 export const LoadingStateTestIds = { ROOT: 'loading-state' }
-export const NoDataStateTestIds = { ROOT: 'no-data-state' }
 export const BackgroundFetchingIndicatorTestIds = {
   ROOT: 'background-fetching-indicator',
 }

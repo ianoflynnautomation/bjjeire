@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { GymDto } from '../../../types/gyms';
 import { GymCard } from './gym-card';
 import { GymsPageTestIds } from '../../../constants/gymDataTestIds';
-import { LoadingStateTestIds, StateTestIds, NoDataStateTestIds } from '../../../constants/commonDataTestIds';
+import { LoadingStateTestIds, ErrorStateTestIds, NoDataStateTestIds } from '../../../constants/commonDataTestIds';
 
 
 interface GymsListProps {
@@ -35,7 +35,7 @@ export const GymsList: React.FC<GymsListProps> = memo(
       return (
         <div
           className="rounded-md bg-red-50 p-4 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-          data-testid={StateTestIds.ROOT}
+          data-testid={ErrorStateTestIds.ROOT}
         >
           <p className="font-medium">Could not load gyms.</p>
         </div>
