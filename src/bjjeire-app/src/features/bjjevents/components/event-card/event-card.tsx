@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { BjjEventDto } from '../../../../types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
-import { EventsPageTestIds, EventCardTestIds} from '../../../../constants/eventDataTestIds'
+import { EventsPageTestIds, EventCardTestIds } from '../../../../constants/eventDataTestIds'
 
 interface EventCardProps {
   event: BjjEventDto
@@ -10,7 +10,7 @@ interface EventCardProps {
 
 export const EventCard: React.FC<EventCardProps> = memo(
   ({ event, 'data-testid': dataTestId }) => {
-    const { name, eventUrl, schedule, type } = event
+    const { name, eventUrl, schedule, type, county } = event
 
     const rootTestId = dataTestId || EventsPageTestIds.LIST_ITEM
 
@@ -28,16 +28,13 @@ export const EventCard: React.FC<EventCardProps> = memo(
           <EventHeader
             name={name}
             type={type}
+            county={county}
           />
 
-          {/* Event Details Section */}
           <div className="mb-4">
-            <EventDetails
-              event={event}
-            />
+            <EventDetails event={event} />
           </div>
 
-          {/* Event Schedule Section */}
           {schedule && (
             <div
               className="mb-4 text-sm text-slate-600 dark:text-slate-300"
@@ -47,14 +44,9 @@ export const EventCard: React.FC<EventCardProps> = memo(
             </div>
           )}
 
-          {/* Spacer to push footer down */}
           <div className="flex-grow" />
 
-          {/* Event Footer Section */}
-          <EventFooter
-            eventUrl={eventUrl}
-            eventName={name}
-          />
+          <EventFooter eventUrl={eventUrl} eventName={name} />
         </div>
       </article>
     )

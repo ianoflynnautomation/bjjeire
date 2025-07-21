@@ -16,6 +16,7 @@ export const EventsPageTestIds = {
 export const EventCardTestIds = {
   NAME: 'event-card-name',
   TYPE: 'event-card-type',
+   COUNTY: 'event-card-county',
   ADDRESS: 'event-card-address',
   ADDRESS_LINK: 'event-card-address-link',
   ORGANISER: 'event-card-organiser',

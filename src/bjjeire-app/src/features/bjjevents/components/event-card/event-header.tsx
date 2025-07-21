@@ -5,23 +5,21 @@ import {
   getEventTypeColorClasses,
 } from '../../../../utils/eventUtils'
 import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
+import { MapPinIcon } from '@heroicons/react/20/solid'
 
 interface EventHeaderProps {
   name: string
   type: BjjEventType
-  'data-testid'?: string
+  county: string
 }
 
 export const EventHeader: React.FC<EventHeaderProps> = memo(
-  ({
-    name,
-    type,
-  }) => {
+  ({ name, type, county }) => {
     const eventTypeLabel = getEventTypeLabel(type)
     const displayName = name || 'Unnamed Event'
 
     return (
-      <header className="mb-4" >
+      <header className="mb-4">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
           <h3
             data-testid={EventCardTestIds.NAME}
@@ -41,6 +39,19 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(
               {eventTypeLabel}
             </span>
           )}
+        </div>
+        <div className="mt-1 flex items-center text-slate-500 dark:text-slate-400">
+          <MapPinIcon
+            className="mr-1.5 h-4 w-4 flex-shrink-0"
+            aria-hidden="true"
+          />
+          <span
+            data-testid={EventCardTestIds.COUNTY}
+            className="text-sm"
+            aria-label={`Event county: ${county}`}
+          >
+            {county} County
+          </span>
         </div>
       </header>
     )
