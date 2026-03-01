@@ -1,10 +1,10 @@
 import React, { memo } from 'react'
-import { BjjEventType } from '../../../../types/event'
+import { BjjEventType } from '@/types/event'
 import {
   getEventTypeLabel,
   getEventTypeColorClasses,
-} from '../../../../utils/eventUtils'
-import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
+} from '@/utils/eventUtils'
+import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 
 interface EventHeaderProps {

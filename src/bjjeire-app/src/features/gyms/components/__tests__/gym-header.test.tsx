@@ -2,8 +2,8 @@ import { render, } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymHeader } from '../gym-card/gym-header'
 import { MOCK_GYM_FULL } from './mocks/gym.mock'
-import { getGymStatusLabel } from '../../../../utils/gymDisplayUtils'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import { getGymStatusLabel } from '@/utils/gymDisplayUtils'
+import { GymCardTestIds } from '@/constants/gymDataTestIds'
 
 describe('GymHeader Component', () => {
   const defaultProps = {

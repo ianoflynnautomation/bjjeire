@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import {
   ButtonGroupFilterTestIds
-} from '../../../constants/commonDataTestIds'
+} from '@/constants/commonDataTestIds'
 
 export interface ButtonOption<T> {
   value: T

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { EventsPageTestIds } from '../../../constants/eventDataTestIds';
+import { EventsPageTestIds } from '@/constants/eventDataTestIds';
 
 interface EventsPageHeaderProps {
   countyName?: string;

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { CloseIconTestIds } from '../../../constants/commonDataTestIds'
+import { CloseIconTestIds } from '@/constants/commonDataTestIds'
 
 type CloseIconProps = React.SVGProps<SVGSVGElement> & {
   'data-testid'?: string

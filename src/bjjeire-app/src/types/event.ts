@@ -1,10 +1,5 @@
 import { County } from '@/constants/counties'
-import {
-  HateoasPagination,
-  BaseApiEntityModel,
-  LocationDto,
-  SocialMediaDto,
-} from './common'
+import type { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum BjjEventType {
   OpenMat = 0,
@@ -95,9 +90,4 @@ export interface GetBjjEventsPaginationQuery {
   type?: BjjEventType | 'all' | undefined
   page: number
   pageSize: number
-}
-
-export interface BackendBjjEventsResponse {
-  data: BjjEventDto[]
-  pagination: HateoasPagination
 }

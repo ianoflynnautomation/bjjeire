@@ -1,9 +1,7 @@
 import React, { memo } from 'react'
-import { HateoasPagination } from '../../../types/common'
+import { HateoasPagination } from '@/types/common'
 import clsx from 'clsx'
-import {
-  PaginationTestIds
-} from '../../../constants/commonDataTestIds'
+import { PaginationTestIds } from '@/constants/commonDataTestIds'
 
 interface PaginationProps {
   currentPage: number

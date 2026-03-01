@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymFooter } from './../gym-card/gym-footer'
-import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
+import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 
 describe('GymFooter Component', () => {
   const defaultProps = {
