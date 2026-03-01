@@ -1,35 +1,33 @@
-import React, { useCallback, useMemo, memo } from 'react'
-import { County } from '@/constants/counties'
-import {
+import React, { useCallback, useMemo } from 'react'
+import type { County } from '@/constants/counties'
+import type {
   GetBjjEventsPaginationQuery,
-  BjjEventType,
   BjjEventDto,
 } from '@/types/event'
+import { BjjEventType } from '@/types/event'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
-import Pagination from '@/components/ui/grid/pagination';
-import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header';
+import Pagination from '@/components/ui/grid/pagination'
+import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
 import EventsList from '@/features/bjjevents/components/event-list'
 import { env } from '@/config/env'
-import {
-  EventsPageTestIds,
-} from '@/constants/eventDataTestIds'
+import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
-import { ContentRenderer } from '@/components/ui/state/content-renderer-state';
+import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
 import { useScrollToTop } from '@/utils/scrollUtils'
 import { formatFetchError } from '@/utils/errorUtils'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 
+const initialEventFilters: GetBjjEventsPaginationQuery = {
+  county: 'all',
+  type: 'all',
+  page: env.PAGE_NUMBER,
+  pageSize: env.PAGE_SIZE,
+}
+
 const EventsPage: React.FC = () => {
   const scrollToTop = useScrollToTop()
-
-  const initialEventFilters: GetBjjEventsPaginationQuery = {
-    county: 'all',
-    type: 'all',
-    page: env.PAGE_NUMBER,
-    pageSize: env.PAGE_SIZE,
-  }
 
   const {
     data: paginatedEventsData,
@@ -69,10 +67,6 @@ const EventsPage: React.FC = () => {
     [rawHandlePageChange, scrollToTop]
   )
 
-  const handleRetryFetch = useCallback(() => {
-    refetch()
-  }, [refetch])
-
   const formattedErrorMessage = formatFetchError(fetchError)
   const isInitialLoading = isLoading && events.length === 0
 
@@ -96,13 +90,13 @@ const EventsPage: React.FC = () => {
           />
         </div>
 
-        <main className="relative" aria-live="polite" aria-busy={isFetching}>
+        <section className="relative" aria-live="polite" aria-busy={isFetching}>
           <ContentRenderer
             isLoading={isLoading}
             isFetching={isFetching}
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
-            onRetry={handleRetryFetch}
+            onRetry={refetch}
             data={events}
             renderDataComponent={data => <EventsList events={data} />}
             noDataTitle="No Events Found"
@@ -111,7 +105,7 @@ const EventsPage: React.FC = () => {
             isInitialLoad={isInitialLoading}
             showBackgroundFetchingIndicator={events.length > 0}
           />
-        </main>
+        </section>
 
         {paginationInfo &&
           paginationInfo.totalPages > 1 &&
@@ -130,4 +124,4 @@ const EventsPage: React.FC = () => {
   )
 }
 
-export default memo(EventsPage)
+export default EventsPage

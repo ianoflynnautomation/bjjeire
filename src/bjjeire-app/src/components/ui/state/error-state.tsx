@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
-import { ErrorStateTestIds } from '../../../constants/commonDataTestIds'
+import { ErrorStateTestIds } from '@/constants/commonDataTestIds'
 
 interface ErrorStateProps {
   message: string

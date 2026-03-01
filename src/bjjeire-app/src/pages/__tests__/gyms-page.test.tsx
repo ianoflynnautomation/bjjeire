@@ -1,9 +1,9 @@
-import { render, fireEvent, within } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import GymsPage from '../GymsPage'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
-import { HateoasPagination } from '../../types/common'
+import type { HateoasPagination } from '@/types/common'
 
 vi.mock('@/hooks/usePaginatedQuery')
 vi.mock('@/utils/scrollUtils', () => ({
@@ -54,7 +54,7 @@ vi.mock('@/components/ui/grid/pagination', () => ({
   )),
 }))
 
-describe.concurrent('GymsPage Component', () => {
+describe('GymsPage Component', () => {
   const mockUsePaginatedQueryResult = {
     data: [],
     pagination: null,
@@ -77,21 +77,18 @@ describe.concurrent('GymsPage Component', () => {
 
   describe('When in loading state', () => {
     it('should render the loading state via ContentRenderer', () => {
-      // Arrange
       ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
         ...mockUsePaginatedQueryResult,
         isLoading: true,
       })
       const { getByTestId } = render(<GymsPage />)
 
-      // Assert
       expect(getByTestId('mock-content-loading')).toBeInTheDocument()
     })
   })
 
   describe('When data is successfully loaded', () => {
     it('should pass correct props to header, list, and pagination', () => {
-      // Arrange
       const mockPagination: HateoasPagination = {
         totalItems: 2,
         totalPages: 1,
@@ -108,13 +105,9 @@ describe.concurrent('GymsPage Component', () => {
         data: mockGyms,
         pagination: mockPagination,
       })
-      const { container } = render(<GymsPage />)
-      const { getByTestId } = within(container)
+      const { getByTestId } = render(<GymsPage />)
 
-      // Assert
-      expect(getByTestId('mock-header-county')).toHaveTextContent(
-        'All Counties'
-      )
+      expect(getByTestId('mock-header-county')).toHaveTextContent('All Counties')
       expect(getByTestId('mock-header-total')).toHaveTextContent(
         mockPagination.totalItems.toString()
       )
@@ -126,38 +119,30 @@ describe.concurrent('GymsPage Component', () => {
 
   describe('When an error occurs', () => {
     it('should render the error state via ContentRenderer', () => {
-      // Arrange
       ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
         ...mockUsePaginatedQueryResult,
         error: new Error('Network Error'),
       })
 
-      // Act
       const { getByTestId } = render(<GymsPage />)
 
-      // Assert
       expect(getByTestId('mock-content-error')).toBeInTheDocument()
     })
   })
 
   describe('User Interactions', () => {
     it('should call updateFilters when the county filter is changed', () => {
-      // Arrange
-      const { container } = render(<GymsPage />)
-      const { getByTestId } = within(container)
+      const { getByTestId } = render(<GymsPage />)
       const countyFilter = getByTestId('mock-county-filter')
 
-      // Act
       fireEvent.change(countyFilter, { target: { value: 'dublin' } })
 
-      // Assert
       expect(mockUsePaginatedQueryResult.updateFilters).toHaveBeenCalledWith({
         county: 'dublin',
       })
     })
 
     it('should call handlePageChange when pagination is used', () => {
-      // Act
       ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
         ...mockUsePaginatedQueryResult,
         data: [MOCK_GYM_FULL],
@@ -172,14 +157,11 @@ describe.concurrent('GymsPage Component', () => {
           previousPageUrl: null,
         },
       })
-      const { container } = render(<GymsPage />)
-      const { getByTestId } = within(container)
+      const { getByTestId } = render(<GymsPage />)
       const pagination = getByTestId('mock-pagination')
 
-      // Act
       fireEvent.click(pagination)
 
-      // Assert
       expect(mockUsePaginatedQueryResult.handlePageChange).toHaveBeenCalledWith(
         null,
         2

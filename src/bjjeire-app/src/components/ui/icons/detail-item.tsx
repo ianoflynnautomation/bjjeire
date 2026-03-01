@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { IconWrapper } from './icon-wrapper'
-import { DetailItemTestIds } from '../../../constants/commonDataTestIds'
+import { DetailItemTestIds } from '@/constants/commonDataTestIds'
 
 interface DetailItemProps {
   icon: React.ReactNode

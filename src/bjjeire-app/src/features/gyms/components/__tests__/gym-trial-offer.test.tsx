@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymTrialOffer } from './../gym-card/gym-trial-offer'
-import { TrialOfferDto } from '../../../../types/gyms'
+import { TrialOfferDto } from '@/types/gyms'
 
 describe('GymTrialOffer Component', () => {
   describe('Rendering Logic', () => {

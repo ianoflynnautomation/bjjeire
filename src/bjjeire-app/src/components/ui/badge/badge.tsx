@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import clsx from 'clsx'
-import { BadgeTestIds } from '../../../constants/commonDataTestIds'
+import { BadgeTestIds } from '@/constants/commonDataTestIds'
 
 interface BadgeProps {
   text: string
