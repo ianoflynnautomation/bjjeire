@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymsPageHeader } from './../gym-page-header'
-import { GymsPageTestIds } from '../../../../constants/gymDataTestIds'
+import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 
 describe('GymsPageHeader Component', () => {
   describe('Title Rendering', () => {

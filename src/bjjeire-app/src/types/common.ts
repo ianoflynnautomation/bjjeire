@@ -1,40 +1,34 @@
-
-
 export interface HateoasPagination {
-  totalItems: number;
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPageUrl: string | null;
-  previousPageUrl: string | null;
+  totalItems: number
+  currentPage: number
+  pageSize: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+  nextPageUrl: string | null
+  previousPageUrl: string | null
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: HateoasPagination;
+  data: T[]
+  pagination: HateoasPagination
 }
 
-export interface BaseApiEntityModel 
-{
-  id?: string;
+export interface BaseApiEntityModel {
+  id?: string
   createdOnUtc?: string | null
-  updatedOnUtc?: string | null;
-
+  updatedOnUtc?: string | null
 }
 
 export interface MapLocationCoordinates {
-  latitude?: number | null;
-  longitude?: number | null;
-  // placeId?: string;
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface MapLocationData {
-  address?: string | null;
-  venue?: string | null;
-  coordinates?: MapLocationCoordinates | null;
-  //placeName?: string;
+  address?: string | null
+  venue?: string | null
+  coordinates?: MapLocationCoordinates | null
 }
 
 export interface GeoCoordinatesDto {
@@ -46,10 +40,10 @@ export interface GeoCoordinatesDto {
 }
 
 export interface SocialMediaDto {
-  instagram: string;
-  facebook: string;
-  x: string;
-  youTube: string;
+  instagram?: string
+  facebook?: string
+  x?: string
+  youTube?: string
 }
 
 export interface LocationDto {

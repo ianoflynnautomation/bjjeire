@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { BackgroundFetchingIndicatorTestIds } from '../../../constants/commonDataTestIds'
+import { BackgroundFetchingIndicatorTestIds } from '@/constants/commonDataTestIds'
 
 interface BackgroundFetchingIndicatorProps {
   'data-testid'?: string

@@ -4,8 +4,8 @@ import {
   KnownPlatform,
   isKnownPlatform,
 } from './social-media.config'
-import { SocialMediaDto } from '../../../types/common'
-import { SocialMediaLinksTestIds } from '../../../constants/commonDataTestIds'
+import { SocialMediaDto } from '@/types/common'
+import { SocialMediaLinksTestIds } from '@/constants/commonDataTestIds'
 
 interface SocialLinkProps {
   platform: KnownPlatform

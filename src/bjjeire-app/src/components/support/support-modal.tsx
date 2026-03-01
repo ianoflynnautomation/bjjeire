@@ -3,8 +3,8 @@ import React, { useState, useCallback, memo } from 'react'
 import clsx from 'clsx'
 import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
 import { env } from '@/config/env'
-import { CloseIcon } from '../ui/icons/close-icon';
-import { SupportModalTestIds } from '../../constants/commonDataTestIds'
+import { CloseIcon } from '@/components/ui/icons/close-icon';
+import { SupportModalTestIds } from '@/constants/commonDataTestIds'
 
 interface SupportModalProps {
   isOpen: boolean

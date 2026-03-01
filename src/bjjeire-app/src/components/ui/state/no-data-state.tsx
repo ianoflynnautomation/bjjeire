@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
-import { NoDataStateTestIds } from '../../../constants/commonDataTestIds'
+import { NoDataStateTestIds } from '@/constants/commonDataTestIds'
 
 interface NoDataStateProps {
   title?: string

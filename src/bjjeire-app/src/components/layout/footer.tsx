@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { paths } from '../../config/paths';
-import { FooterTestIds } from '../../constants/commonDataTestIds';
+import { paths } from '@/config/paths';
+import { FooterTestIds } from '@/constants/commonDataTestIds';
 
 const footerPathKeys = ['events', 'gyms'] as const;
 

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { GymsPageTestIds } from '../../../constants/gymDataTestIds'
+import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 
 interface GymsPageHeaderProps {
   countyName?: string

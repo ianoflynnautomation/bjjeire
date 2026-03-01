@@ -4,15 +4,15 @@ import {
   CurrencyDollarIcon,
   UserCircleIcon,
 } from '@heroicons/react/20/solid'
-import { BjjEventDto, PricingType, OrganizerDto } from '../../../../types/event'
-import { calculateEventPrice } from '../../../../utils/priceCalculator'
-import { CalculatedPrice } from '../../../../utils/priceCalculator'
-import { SocialMediaLinks } from '../../../../components/ui/social-media/social-media-links'
+import { BjjEventDto, PricingType, OrganizerDto } from '@/types/event'
+import { calculateEventPrice } from '@/utils/priceCalculator'
+import { CalculatedPrice } from '@/utils/priceCalculator'
+import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { DetailItem } from './detail-item'
-import { getGoogleMapsUrl } from '../../../../utils/mapUtils'
-import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
-import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
-import {DetailItemTestIds} from '../../../../constants/commonDataTestIds'
+import { getGoogleMapsUrl } from '@/utils/mapUtils'
+import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { EventCardTestIds } from '@/constants/eventDataTestIds'
+import {DetailItemTestIds} from '@/constants/commonDataTestIds'
 
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,

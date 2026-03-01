@@ -74,7 +74,6 @@ export const calculateEventPrice = (
               differenceInCalendarDays(endDt, startDt) + 1
           }
         }
-      } else {
       }
     }
 

@@ -1,11 +1,11 @@
 import React, { memo } from 'react'
-import { GymStatus } from '../../../../types/gyms'
-import { Badge } from '../../../../components/ui/badge/badge';
+import { GymStatus } from '@/types/gyms'
+import { Badge } from '@/components/ui/badge/badge';
 import {
   getGymStatusLabel,
   getGymStatusColorScheme,
-} from '../../../../utils/gymDisplayUtils'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+} from '@/utils/gymDisplayUtils'
+import { GymCardTestIds } from '@/constants/gymDataTestIds'
 
 interface GymHeaderProps {
   name: string
