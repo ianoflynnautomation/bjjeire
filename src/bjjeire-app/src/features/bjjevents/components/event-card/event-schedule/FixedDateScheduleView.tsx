@@ -1,6 +1,6 @@
 import React from 'react'
-import { ScheduleType, FixedDateSchedule } from '../../../../../types/event'
-import { formatDate } from '../../../../../utils/dateUtils'
+import { ScheduleType, FixedDateSchedule } from '@/types/event'
+import { formatDate } from '@/utils/dateUtils'
 import {
   CalendarDaysIcon,
   ClockIcon as SolidClockIcon,

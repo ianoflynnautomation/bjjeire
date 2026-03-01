@@ -3,8 +3,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { GymDetails } from '../gym-card/gym-details'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 
-vi.mock('../../../../utils/mapUtils')
-vi.mock('../../../../components/ui/social-media/social-media-links', () => ({
+vi.mock('@/utils/mapUtils')
+vi.mock('@/components/ui/social-media/social-media-links', () => ({
   SocialMediaLinks: vi.fn(() => <div data-testid="mock-social-media" />),
 }))
 

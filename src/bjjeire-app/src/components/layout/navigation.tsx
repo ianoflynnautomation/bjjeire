@@ -1,11 +1,10 @@
-// src/components/Navigation.tsx
 import { Link, NavLink } from 'react-router-dom'
 import { useState } from 'react'
-import SupportModal from '../support/support-modal'
+import SupportModal from '@/components/support/support-modal'
 import clsx from 'clsx'
-import { ReactComponent as BitcoinIcon } from '../../assets/bitcoin.svg'
-import { paths } from '../../config/paths'
-import { NavigationTestIds } from '../../constants/commonDataTestIds'
+import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
+import { paths } from '@/config/paths'
+import { NavigationTestIds } from '@/constants/commonDataTestIds'
 
 const HamburgerIcon = ({ className }: { className?: string }) => (
   <svg
@@ -15,7 +14,6 @@ const HamburgerIcon = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
-    data-testid={NavigationTestIds.ROOT}
   >
     <path
       strokeLinecap="round"
@@ -26,25 +24,11 @@ const HamburgerIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-interface NavItemConfig {
-  id: keyof Omit<
-    typeof paths,
-    'home' | 'organizations' | 'articles' | 'contact'
-  >
-  label: string
-}
-
-const navItemConfigs: NavItemConfig[] = [
-  { id: 'events', label: paths.events.label },
-  { id: 'gyms', label: paths.gyms.label },
-  { id: 'about', label: paths.about.label },
+const navItems = [
+  { to: paths.events.getHref(), label: paths.events.label, id: 'events' as const },
+  { to: paths.gyms.getHref(), label: paths.gyms.label, id: 'gyms' as const },
+  { to: paths.about.getHref(), label: paths.about.label, id: 'about' as const },
 ]
-
-const navItems = navItemConfigs.map(config => ({
-  to: paths[config.id].getHref(),
-  label: config.label,
-  id: config.id,
-}))
 
 const Navigation = () => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
@@ -73,10 +57,7 @@ const Navigation = () => {
                   BJJ Éire
                 </Link>
               </div>
-              <div
-                className="hidden sm:ml-6 sm:flex sm:space-x-8"
-                data-testid={NavigationTestIds.DESKTOP_LINK}
-              >
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 {navItems.map(item => (
                   <NavLink
                     key={item.id}
@@ -120,7 +101,6 @@ const Navigation = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Panel */}
         {isMobileMenuOpen && (
           <div
             id="mobile-menu-panel"
@@ -153,7 +133,6 @@ const Navigation = () => {
       <SupportModal
         isOpen={isSupportModalOpen}
         onClose={() => setIsSupportModalOpen(false)}
-        data-testid={NavigationTestIds.SUPPORT_BUTTON}
       />
     </>
   )

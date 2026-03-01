@@ -4,12 +4,12 @@ import {
   ClassCategory,
   AffiliationDto,
   TrialOfferDto,
-} from '../../../../../types/gyms'
+} from '@/types/gyms'
 import {
   LocationDto,
   SocialMediaDto,
   GeoCoordinatesDto,
-} from '../../../../../types/common'
+} from '@/types/common'
 
 const mockCoordinates: GeoCoordinatesDto = {
   type: 'Point',

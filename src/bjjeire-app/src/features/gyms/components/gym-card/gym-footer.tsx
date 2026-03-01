@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
-import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
-import { GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { GymCardTestIds } from '@/constants/gymDataTestIds'
 
 interface GymFooterProps {
   websiteUrl?: string

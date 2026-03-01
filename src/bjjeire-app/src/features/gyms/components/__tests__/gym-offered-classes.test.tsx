@@ -1,8 +1,8 @@
 import { render, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymOfferedClasses } from './../gym-card/gym-offered-classes'
-import { ClassCategory } from '../../../../types/gyms'
-import { getClassCategoryLabel } from '../../../../utils/gymDisplayUtils'
+import { ClassCategory } from '@/types/gyms'
+import { getClassCategoryLabel } from '@/utils/gymDisplayUtils'
 
 describe('GymOfferedClasses Component', () => {
   describe('Rendering Logic', () => {

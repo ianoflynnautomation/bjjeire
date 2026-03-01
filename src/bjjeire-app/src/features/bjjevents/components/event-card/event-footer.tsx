@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import { LinkIcon } from '@heroicons/react/20/solid'
-import { ensureExternalUrlScheme } from '../../../../utils/formattingUtils'
-import { EventCardTestIds } from '../../../../constants/eventDataTestIds'
+import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { EventCardTestIds } from '@/constants/eventDataTestIds'
 
 interface EventFooterProps {
   eventUrl?: string

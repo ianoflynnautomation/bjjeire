@@ -6,7 +6,7 @@ import {
   MOCK_GYM_MINIMAL,
   MOCK_GYM_NO_WEBSITE,
 } from './mocks/gym.mock'
-import { GymsPageTestIds, GymCardTestIds } from '../../../../constants/gymDataTestIds'
+import { GymsPageTestIds, GymCardTestIds } from '@/constants/gymDataTestIds'
 
 describe('GymCard Component', () => {
   describe('Positive Scenarios', () => {
