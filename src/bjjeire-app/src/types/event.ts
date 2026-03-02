@@ -1,4 +1,4 @@
-import { County } from '@/constants/counties'
+import type { County } from '@/constants/counties'
 import type { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum BjjEventType {

@@ -1,4 +1,5 @@
-import { Component, ReactNode } from 'react'
+import type { ReactNode } from 'react';
+import { Component } from 'react'
 import ErrorState from './../ui/state/error-state';
 
 interface PageErrorBoundaryProps {
@@ -22,12 +23,12 @@ class PageErrorBoundary extends Component<
     return { hasError: true }
   }
 
-  private handleRetry = () => {
+  private handleRetry = (): void => {
     this.setState({ hasError: false })
     window.location.reload()
   }
 
-  public render() {
+  public render(): ReactNode {
     if (this.state.hasError) {
       return (
         <ErrorState

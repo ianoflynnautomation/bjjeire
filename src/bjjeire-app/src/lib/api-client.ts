@@ -1,4 +1,5 @@
-import Axios, { AxiosRequestConfig } from 'axios'
+import Axios from 'axios'
+import type { AxiosError, AxiosRequestConfig } from 'axios'
 import { env } from '@/config/env'
 
 const instance = Axios.create({
@@ -7,15 +8,16 @@ const instance = Axios.create({
 })
 
 instance.interceptors.response.use(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   response => response.data,
-  error => {
-    if (error.response) {
+  (error: AxiosError<unknown>) => {
+    if (error.response !== undefined) {
       console.error('API error:', {
         status: error.response.status,
         data: error.response.data,
         headers: error.response.headers,
       })
-    } else if (error.request) {
+    } else if (error.request !== undefined) {
       console.error('No response received:', error.request)
     } else {
       console.error('Error setting up request:', error.message)

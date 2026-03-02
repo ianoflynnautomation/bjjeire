@@ -43,7 +43,7 @@ const GymsPage: React.FC = () => {
   const gyms = useMemo(() => paginatedGymsData ?? [], [paginatedGymsData])
 
   const handleCountyChange = useCallback(
-    (countyValue: string | 'all' | undefined) => {
+    (countyValue: string | undefined) => {
       updateFilters({ county: countyValue } as Partial<GetGymsByCountyPaginationQuery>)
       scrollToTop()
     },
@@ -96,7 +96,7 @@ const GymsPage: React.FC = () => {
             isFetching={isFetching}
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
-            onRetry={refetch}
+            onRetry={() => { void refetch() }}
             data={gyms}
             renderDataComponent={data => <GymsList gyms={data} />}
             noDataTitle="No Gyms Found"

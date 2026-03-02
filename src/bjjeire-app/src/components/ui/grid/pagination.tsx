@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { HateoasPagination } from '@/types/common'
+import type { HateoasPagination } from '@/types/common'
 import clsx from 'clsx'
 import { PaginationTestIds } from '@/constants/commonDataTestIds'
 
@@ -26,7 +26,7 @@ const Pagination: React.FC<PaginationProps> = ({
     pageSize,
   } = pagination
 
-  if (totalPages <= 1) return null
+  if (totalPages <= 1) {return null}
 
   const rootTestId =
     dataTestIdFromProp || PaginationTestIds.ROOT

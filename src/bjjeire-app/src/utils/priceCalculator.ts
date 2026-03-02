@@ -1,6 +1,7 @@
-import {
+import type {
   BjjEventScheduleDto,
-  BjjEventPricingModelDto,
+  BjjEventPricingModelDto} from '@/types/event';
+import {
   PricingType,
 } from '@/types/event'
 import { isValid, parseISO, differenceInCalendarDays } from 'date-fns'
@@ -58,7 +59,7 @@ export const calculateEventPrice = (
     }
     if (type === PricingType.PerDay) {
       const effectiveDays =
-        durationDays != null && durationDays > 0
+        durationDays !== null && durationDays !== undefined && durationDays > 0
           ? durationDays
           : calculatedEventDurationDays
       return { total: (amount || 0) * effectiveDays, unit: 'event', currency }

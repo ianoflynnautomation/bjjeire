@@ -1,5 +1,5 @@
 import React from 'react'
-import { BjjEventScheduleDto } from '@/types/event'
+import type { BjjEventScheduleDto } from '@/types/event'
 import { formatDate } from '@/utils/dateUtils'
 import {
   CalendarDaysIcon,

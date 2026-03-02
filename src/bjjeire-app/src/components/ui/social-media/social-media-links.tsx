@@ -1,10 +1,11 @@
 import React from 'react'
+import type {
+  KnownPlatform} from './social-media.config';
 import {
   platformConfig,
-  KnownPlatform,
   isKnownPlatform,
 } from './social-media.config'
-import { SocialMediaDto } from '@/types/common'
+import type { SocialMediaDto } from '@/types/common'
 import { SocialMediaLinksTestIds } from '@/constants/commonDataTestIds'
 
 interface SocialLinkProps {
