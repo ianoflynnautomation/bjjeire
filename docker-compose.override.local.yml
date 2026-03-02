@@ -13,5 +13,4 @@ services:
       args:
         SERVICES_API_HTTP_0: ${SERVICES_API_HTTP_0}
         SERVICES_API_HTTPS_0: ${SERVICES_API_HTTPS_0}
-        PORT: ${PORT}
 

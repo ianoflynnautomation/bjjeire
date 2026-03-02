@@ -18,16 +18,10 @@ x-healthcheck-curl: &healthcheck-curl
   retries: 3
   start_period: 10s
 
-x-healthcheck-wget: &healthcheck-wget
-  interval: 10s
-  timeout: 5s
-  retries: 5
-  start_period: 10s
-
 services:
   api:
     <<: *default-service
-    profiles: ["app"] 
+    profiles: ["app"]
     container_name: api
     ports:
       - "5003:80"
@@ -66,65 +60,19 @@ services:
       - "60742:80"
       - "60743:443"
     environment:
-      # - BROWSER=${BROWSER}
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
       - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
       - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
-      # - VITE_APP_API_URL=${VITE_APP_API_URL}
-      # - VITE_APP_URL=${VITE_APP_URL}
-    volumes: 
-        - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt:ro
-        - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key:ro
+    volumes:
+      - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt:ro
+      - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key:ro
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
       <<: *healthcheck-curl
       test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
-
-  # frontend:
-  #   <<: *default-service
-  #   profiles: ["app"]
-  #   container_name: web
-  #   volumes:
-  #     - frontend_dist_volume:/app/dist
-  #   command: ["npm", "run", "build"]
-  #   deploy: 
-  #     resources:
-  #       limits:
-  #         cpus: '0.75'
-  #         memory: 2048M
-  #       reservations:
-  #         cpus: '0.50'
-  #         memory: 1024M 
-
-  # nginx:
-  #   <<: *default-service
-  #   profiles: ["app"]
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   ports:
-  #     - "80:80"    
-  #     - "443:443"
-  #   volumes:
-  #     - ${BASE_PATH}/infra/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
-  #     - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt
-  #     - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key
-  #     - ${BASE_PATH}/logs/nginx:/var/log/nginx
-  #     - frontend_dist_volume:/usr/share/nginx/html:ro
-  #   environment:
-  #     - PORT=${PORT}
-  #     - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
-  #     - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
-  #   depends_on:
-  #     frontend:
-  #       condition: service_completed_successfully
-  #     api:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     <<: *healthcheck-curl
-  #     test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
 
   mongodb:
     <<: *default-service
@@ -149,7 +97,6 @@ services:
 
 volumes:
   mongodb_data:
-  frontend_dist_volume:
 
 secrets:
   cert_password:
