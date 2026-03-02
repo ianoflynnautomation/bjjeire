@@ -389,4 +389,5 @@ dotnet_diagnostic.CA1303.severity = warning # Do not pass literals as localized 
 dotnet_diagnostic.CA1822.severity = warning # Mark members as static
 # dotnet_diagnostic.CA2007.severity = warning # Do not directly await a Task
 dotnet_diagnostic.CA5394.severity = warning # Do not use insecure randomness
+dotnet_diagnostic.IDE0032.severity = none   # Suppress "Use auto property" — backing fields with validation setters are intentional
 
