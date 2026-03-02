@@ -4,7 +4,7 @@ import type {
   GetBjjEventsPaginationQuery,
   BjjEventDto,
 } from '@/types/event'
-import { BjjEventType } from '@/types/event'
+import type { BjjEventType } from '@/types/event'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
 import Pagination from '@/components/ui/grid/pagination'
 import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
@@ -96,7 +96,7 @@ const EventsPage: React.FC = () => {
             isFetching={isFetching}
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
-            onRetry={refetch}
+            onRetry={() => { void refetch() }}
             data={events}
             renderDataComponent={data => <EventsList events={data} />}
             noDataTitle="No Events Found"

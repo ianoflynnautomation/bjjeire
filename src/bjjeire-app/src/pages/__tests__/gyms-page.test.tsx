@@ -34,9 +34,9 @@ vi.mock('@/components/ui/filters/select-filter', () => ({
 vi.mock('@/components/ui/state/content-renderer-state', () => ({
   ContentRenderer: vi.fn(
     ({ isLoading, fetchError, data, renderDataComponent }) => {
-      if (isLoading) return <div data-testid="mock-content-loading" />
-      if (fetchError) return <div data-testid="mock-content-error" />
-      if (data && data.length > 0) return renderDataComponent(data)
+      if (isLoading) {return <div data-testid="mock-content-loading" />}
+      if (fetchError) {return <div data-testid="mock-content-error" />}
+      if (data && data.length > 0) {return renderDataComponent(data)}
       return <div data-testid="mock-content-empty" />
     }
   ),

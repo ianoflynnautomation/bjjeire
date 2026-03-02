@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { SparklesIcon } from '@heroicons/react/20/solid'
-import { TrialOfferDto } from '@/types/gyms'
+import type { TrialOfferDto } from '@/types/gyms'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { BjjEventDto } from '@/types/event'
+import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
 import { EventsPageTestIds, EventCardTestIds } from '@/constants/eventDataTestIds'
 

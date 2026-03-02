@@ -1,6 +1,6 @@
 // src/components/Schedule/HoursList.tsx
 import React from 'react'
-import { BjjEventHoursDto } from '@/types/event'
+import type { BjjEventHoursDto } from '@/types/event'
 import { formatTime } from '@/utils/dateUtils'
 import { ScheduleItem } from './ScheduleItem'
 import { ClockIcon } from '@heroicons/react/20/solid'

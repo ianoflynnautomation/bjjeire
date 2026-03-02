@@ -1,9 +1,9 @@
 // src/components/Support/SupportModal.tsx
-import React, { useState, useCallback, memo } from 'react'
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react'
 import clsx from 'clsx'
 import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
 import { env } from '@/config/env'
-import { CloseIcon } from '@/components/ui/icons/close-icon';
+import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
 
 interface SupportModalProps {
@@ -13,13 +13,23 @@ interface SupportModalProps {
 }
 
 const SupportModal: React.FC<SupportModalProps> = memo(
-  ({
-    isOpen,
-    onClose,
-    'data-testid': _baseTestId
-  }) => {
+  ({ isOpen, onClose, 'data-testid': _baseTestId }) => {
     const [copied, setCopied] = useState(false)
     const bitcoinAddress = env.BITCOIN_ADDRESS
+    const closeButtonRef = useRef<HTMLButtonElement>(null)
+    const dialogContentRef = useRef<HTMLDivElement>(null)
+    const previousFocusRef = useRef<HTMLElement | null>(null)
+    const copyResetTimeoutRef = useRef<number | null>(null)
+
+    const mainTitleId = SupportModalTestIds.TITLE
+    const descriptionId = `${SupportModalTestIds.ROOT}-description`
+
+    const clearCopyTimeout = useCallback((): void => {
+      if (copyResetTimeoutRef.current !== null) {
+        window.clearTimeout(copyResetTimeoutRef.current)
+        copyResetTimeoutRef.current = null
+      }
+    }, [])
 
     const copyToClipboard = useCallback(async () => {
       if (!navigator.clipboard) {
@@ -29,26 +39,94 @@ const SupportModal: React.FC<SupportModalProps> = memo(
       try {
         await navigator.clipboard.writeText(bitcoinAddress)
         setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        clearCopyTimeout()
+        copyResetTimeoutRef.current = window.setTimeout(() => {
+          setCopied(false)
+          copyResetTimeoutRef.current = null
+        }, 2000)
       } catch (err) {
         console.error('Failed to copy text: ', err)
       }
-    }, [bitcoinAddress])
+    }, [bitcoinAddress, clearCopyTimeout])
 
-    if (!isOpen) return null
+    useEffect(() => {
+      return (): void => {
+        clearCopyTimeout()
+      }
+    }, [clearCopyTimeout])
 
-    const mainTitleId = SupportModalTestIds.TITLE
+    useEffect(() => {
+      if (!isOpen) {
+        return
+      }
+
+      previousFocusRef.current = document.activeElement as HTMLElement | null
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+
+      const onKeyDown = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          onClose()
+          return
+        }
+
+        if (event.key !== 'Tab' || !dialogContentRef.current) {
+          return
+        }
+
+        const focusableElements = dialogContentRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+
+        if (focusableElements.length === 0) {
+          event.preventDefault()
+          return
+        }
+
+        const first = focusableElements[0]
+        const last = focusableElements[focusableElements.length - 1]
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          last.focus()
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
+
+      document.addEventListener('keydown', onKeyDown)
+      requestAnimationFrame(() => closeButtonRef.current?.focus())
+
+      return (): void => {
+        document.removeEventListener('keydown', onKeyDown)
+        document.body.style.overflow = originalOverflow
+        previousFocusRef.current?.focus()
+      }
+    }, [isOpen, onClose])
+
+    if (!isOpen) {
+      return null
+    }
 
     return (
       <div
+        onMouseDown={event => {
+          if (event.target === event.currentTarget) {
+            onClose()
+          }
+        }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-in-out dark:bg-opacity-75"
-        data-testid= {SupportModalTestIds.OVERLAY}
+        data-testid={SupportModalTestIds.OVERLAY}
         role="dialog"
         aria-modal="true"
         aria-labelledby={mainTitleId}
+        aria-describedby={descriptionId}
       >
         <div
-          className="w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-modalShow dark:bg-slate-800 sm:p-8"
+          ref={dialogContentRef}
+          className="animate-modal-show w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out dark:bg-slate-800 sm:p-8"
           data-testid={SupportModalTestIds.CONTENT}
         >
           <header className="mb-6 flex items-center justify-between">
@@ -63,19 +141,20 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               </h2>
             </div>
             <button
+              ref={closeButtonRef}
               onClick={onClose}
               className="rounded-full p-1 text-slate-500 transition-colors hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-800"
               aria-label="Close support modal"
               data-testid={SupportModalTestIds.CLOSE_BUTTON}
             >
-              <CloseIcon
-                className="h-6 w-6"
-                data-testid={SupportModalTestIds.CLOSE_BUTTON}
-              />
+              <CloseIcon className="h-6 w-6" />
             </button>
           </header>
           <div className="space-y-6">
-            <p className="text-slate-600 dark:text-slate-300">
+            <p
+              className="text-slate-600 dark:text-slate-300"
+              id={descriptionId}
+            >
               Support the BJJ Éire project by donating Bitcoin. Your
               contribution helps us maintain and improve the platform.
             </p>
@@ -93,7 +172,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                   {bitcoinAddress}
                 </code>
                 <button
-                  onClick={copyToClipboard}
+                  onClick={() => { void copyToClipboard() }}
                   className={clsx(
                     'w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-700 sm:w-auto',
                     copied
@@ -140,15 +219,6 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </div>
           </div>
         </div>
-        <style>{`
-        @keyframes modalShow {
-          0% { opacity: 0; transform: scale(0.95); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        .animate-modalShow {
-          animation: modalShow 0.3s ease-out forwards;
-        }
-      `}</style>
       </div>
     )
   }

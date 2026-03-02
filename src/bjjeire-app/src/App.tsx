@@ -17,7 +17,7 @@ import '@/index.css'
 const EventsPage = React.lazy(() => import('@/pages/EventsPage'))
 const GymsPage = React.lazy(() => import('@/pages/GymsPage'))
 
-const PageViewTracker = () => {
+const PageViewTracker = (): null => {
   const location = useLocation()
 
   useEffect(() => {
@@ -27,10 +27,10 @@ const PageViewTracker = () => {
   return null
 }
 
-function App() {
+function App(): React.JSX.Element {
   useEffect(() => {
     if (import.meta.env.PROD) {
-      initGA(import.meta.env.VITE_APP_GA_MEASUREMENT_ID ?? 'G-XXXXXXXXXX')
+      initGA((import.meta.env.VITE_APP_GA_MEASUREMENT_ID as string | undefined) ?? 'G-XXXXXXXXXX')
     }
   }, [])
 

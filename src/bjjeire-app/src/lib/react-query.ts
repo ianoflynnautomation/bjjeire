@@ -8,19 +8,19 @@ export const queryConfig = {
   },
 } satisfies DefaultOptions
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ApiFnReturnType<FnType extends (...args: any) => Promise<any>> =
+type AsyncFn = (...args: readonly unknown[]) => Promise<unknown>
+type GenericFn = (...args: readonly unknown[]) => unknown
+
+export type ApiFnReturnType<FnType extends AsyncFn> =
   Awaited<ReturnType<FnType>>
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type QueryConfig<T extends (...args: any[]) => any> = Omit<
+export type QueryConfig<T extends GenericFn> = Omit<
   ReturnType<T>,
   'queryKey' | 'queryFn'
 >
 
 export type MutationConfig<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  MutationFnType extends (...args: any) => Promise<any>,
+  MutationFnType extends AsyncFn,
 > = UseMutationOptions<
   ApiFnReturnType<MutationFnType>,
   Error,

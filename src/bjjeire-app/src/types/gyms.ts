@@ -1,4 +1,4 @@
-import { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
+import type { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum ClassCategory {
     Uncategorized = 'Uncategorized',

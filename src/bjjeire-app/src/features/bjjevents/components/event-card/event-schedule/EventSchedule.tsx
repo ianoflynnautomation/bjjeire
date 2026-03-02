@@ -1,5 +1,5 @@
 import React from 'react'
-import { BjjEventDto } from '@/types/event'
+import type { BjjEventDto } from '@/types/event'
 import { EmptyScheduleMessage } from './EmptyScheduleMessage'
 import { FixedDateScheduleView } from './FixedDateScheduleView'
 import { CalendarIcon } from '@heroicons/react/20/solid'

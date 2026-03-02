@@ -47,10 +47,12 @@ describe('GymCard Component', () => {
       const card = getByTestId(GymsPageTestIds.LIST_ITEM)
 
       // Assert
+      const websiteLink = within(card).getByTestId(GymCardTestIds.WEBSITE_LINK)
       expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(MOCK_GYM_MINIMAL.name)
       expect(within(card).getByTestId(GymCardTestIds.STATUS_BADGE)).toHaveTextContent('Pending Approval')
       expect(within(card).queryByTestId(GymCardTestIds.AFFILIATION)).not.toBeInTheDocument()
-      expect(within(card).queryByTestId(GymCardTestIds.WEBSITE_LINK)).not.toBeInTheDocument()
+      expect(websiteLink).toBeDisabled()
+      expect(websiteLink).toHaveTextContent('Website Unavailable')
     })
   })
 
