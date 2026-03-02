@@ -1,4 +1,5 @@
-import { render, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import GymsPage from '../GymsPage'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
@@ -55,6 +56,8 @@ vi.mock('@/components/ui/grid/pagination', () => ({
 }))
 
 describe('GymsPage Component', () => {
+  const mockedUsePaginatedQuery = vi.mocked(usePaginatedQuery)
+
   const mockUsePaginatedQueryResult = {
     data: [],
     pagination: null,
@@ -70,20 +73,20 @@ describe('GymsPage Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue(
-      mockUsePaginatedQueryResult
+    mockedUsePaginatedQuery.mockReturnValue(
+      mockUsePaginatedQueryResult as never
     )
   })
 
   describe('When in loading state', () => {
     it('should render the loading state via ContentRenderer', () => {
-      ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
+      mockedUsePaginatedQuery.mockReturnValue({
         ...mockUsePaginatedQueryResult,
         isLoading: true,
-      })
-      const { getByTestId } = render(<GymsPage />)
+      } as never)
+      render(<GymsPage />)
 
-      expect(getByTestId('mock-content-loading')).toBeInTheDocument()
+      expect(screen.getByTestId('mock-content-loading')).toBeInTheDocument()
     })
   })
 
@@ -100,18 +103,18 @@ describe('GymsPage Component', () => {
         previousPageUrl: null,
       }
       const mockGyms = [MOCK_GYM_FULL, MOCK_GYM_MINIMAL]
-      ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
+      mockedUsePaginatedQuery.mockReturnValue({
         ...mockUsePaginatedQueryResult,
         data: mockGyms,
         pagination: mockPagination,
-      })
-      const { getByTestId } = render(<GymsPage />)
+      } as never)
+      render(<GymsPage />)
 
-      expect(getByTestId('mock-header-county')).toHaveTextContent('All Counties')
-      expect(getByTestId('mock-header-total')).toHaveTextContent(
+      expect(screen.getByTestId('mock-header-county')).toHaveTextContent('All Counties')
+      expect(screen.getByTestId('mock-header-total')).toHaveTextContent(
         mockPagination.totalItems.toString()
       )
-      expect(getByTestId('mock-gym-list')).toHaveTextContent(
+      expect(screen.getByTestId('mock-gym-list')).toHaveTextContent(
         `${mockGyms.length} items`
       )
     })
@@ -119,31 +122,33 @@ describe('GymsPage Component', () => {
 
   describe('When an error occurs', () => {
     it('should render the error state via ContentRenderer', () => {
-      ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
+      mockedUsePaginatedQuery.mockReturnValue({
         ...mockUsePaginatedQueryResult,
         error: new Error('Network Error'),
-      })
+      } as never)
 
-      const { getByTestId } = render(<GymsPage />)
+      render(<GymsPage />)
 
-      expect(getByTestId('mock-content-error')).toBeInTheDocument()
+      expect(screen.getByTestId('mock-content-error')).toBeInTheDocument()
     })
   })
 
   describe('User Interactions', () => {
-    it('should call updateFilters when the county filter is changed', () => {
-      const { getByTestId } = render(<GymsPage />)
-      const countyFilter = getByTestId('mock-county-filter')
+    it('should call updateFilters when the county filter is changed', async () => {
+      const user = userEvent.setup()
+      render(<GymsPage />)
+      const countyFilter = screen.getByRole('combobox', { name: /select county/i })
 
-      fireEvent.change(countyFilter, { target: { value: 'dublin' } })
+      await user.selectOptions(countyFilter, 'dublin')
 
       expect(mockUsePaginatedQueryResult.updateFilters).toHaveBeenCalledWith({
         county: 'dublin',
       })
     })
 
-    it('should call handlePageChange when pagination is used', () => {
-      ;(usePaginatedQuery as ReturnType<typeof vi.fn>).mockReturnValue({
+    it('should call handlePageChange when pagination is used', async () => {
+      const user = userEvent.setup()
+      mockedUsePaginatedQuery.mockReturnValue({
         ...mockUsePaginatedQueryResult,
         data: [MOCK_GYM_FULL],
         pagination: {
@@ -156,11 +161,11 @@ describe('GymsPage Component', () => {
           nextPageUrl: null,
           previousPageUrl: null,
         },
-      })
-      const { getByTestId } = render(<GymsPage />)
-      const pagination = getByTestId('mock-pagination')
+      } as never)
+      render(<GymsPage />)
+      const pagination = screen.getByRole('button', { name: /next/i })
 
-      fireEvent.click(pagination)
+      await user.click(pagination)
 
       expect(mockUsePaginatedQueryResult.handlePageChange).toHaveBeenCalledWith(
         null,

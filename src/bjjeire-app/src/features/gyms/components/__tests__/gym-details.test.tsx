@@ -1,43 +1,40 @@
-import { render, within } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
 import { GymDetails } from '../gym-card/gym-details'
 import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 
-vi.mock('@/utils/mapUtils')
-vi.mock('@/components/ui/social-media/social-media-links', () => ({
-  SocialMediaLinks: vi.fn(() => <div data-testid="mock-social-media" />),
-}))
+describe('GymDetails', () => {
+  it('renders links and metadata for full gym details', () => {
+    render(<GymDetails gym={MOCK_GYM_FULL} />)
 
-describe.concurrent('With Full Data', () => {
-  it('should render all sections correctly', () => {
-    //
-    const { container } = render(
-      <GymDetails gym={MOCK_GYM_FULL} />
-    )
-
-    // Act
-    const { getByLabelText, getByTestId } = within(container)
-
-    // Assert
-    expect(getByLabelText(/Location:/)).toBeInTheDocument()
-    expect(getByLabelText(/Affiliation:/)).toBeInTheDocument()
-    expect(getByLabelText(/Timetable:/)).toBeInTheDocument()
-    expect(getByTestId('mock-social-media')).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /view timetable/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /affiliated with global bjj federation/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', {
+        name: new RegExp(MOCK_GYM_FULL.location.address, 'i'),
+      })
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /view on/i })).toHaveLength(4)
   })
-})
 
-describe.concurrent('With Minimal Data', () => {
-  it('should hide sections when their data is missing', () => {
-    // Arrange
-    const { container } = render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
+  it('hides optional sections when data is missing', () => {
+    render(<GymDetails gym={MOCK_GYM_MINIMAL} />)
 
-    // Act
-    const { getByLabelText, getByTestId, queryByLabelText } = within(container)
-
-    // Assert
-    expect(getByLabelText(/Location:/)).toBeInTheDocument()
-    expect(getByTestId('mock-social-media')).toBeInTheDocument()
-    expect(queryByLabelText(/Affiliation:/)).not.toBeInTheDocument()
-    expect(queryByLabelText(/Timetable:/)).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('link', {
+        name: new RegExp(MOCK_GYM_MINIMAL.location.address, 'i'),
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /view timetable/i })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /affiliated with/i })
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /view on/i })).not.toBeInTheDocument()
   })
 })
