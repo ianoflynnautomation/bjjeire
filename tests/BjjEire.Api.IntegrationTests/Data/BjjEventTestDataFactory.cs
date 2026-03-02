@@ -48,7 +48,6 @@ public static class BjjEventTestDataFactory {
                 }
             },
             Schedule = new BjjEventScheduleDto {
-                ScheduleType = ScheduleType.FixedDate,
                 StartDate = DateTime.UtcNow.Date.AddDays(14),
                 EndDate = DateTime.UtcNow.Date.AddDays(14),
                 Hours =
@@ -104,7 +103,6 @@ public static class BjjEventTestDataFactory {
                 }
             },
             Schedule = new BjjEventSchedule {
-                ScheduleType = ScheduleType.FixedDate,
                 StartDate = DateTime.UtcNow.Date.AddDays(14),
                 EndDate = DateTime.UtcNow.Date.AddDays(14),
                 Hours =

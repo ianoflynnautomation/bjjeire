@@ -4,15 +4,16 @@ import {
   CurrencyDollarIcon,
   UserCircleIcon,
 } from '@heroicons/react/20/solid'
-import { BjjEventDto, PricingType, OrganizerDto } from '@/types/event'
+import type { BjjEventDto, OrganizerDto } from '@/types/event';
+import { PricingType } from '@/types/event'
 import { calculateEventPrice } from '@/utils/priceCalculator'
-import { CalculatedPrice } from '@/utils/priceCalculator'
+import type { CalculatedPrice } from '@/utils/priceCalculator'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
-import { DetailItem } from './detail-item'
+import { DetailItem } from '@/components/ui/icons/detail-item'
 import { getGoogleMapsUrl } from '@/utils/mapUtils'
 import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
-import {DetailItemTestIds} from '@/constants/commonDataTestIds'
+import { DetailItemTestIds } from '@/constants/commonDataTestIds'
 
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
@@ -45,13 +46,13 @@ const formatPricingDisplay = (
 const formatOrganiserDisplay = (
   organiser?: OrganizerDto
 ): string | undefined => {
-  if (!organiser || (!organiser.name && !organiser.website)) return undefined
+  if (!organiser || (!organiser.name && !organiser.website)) {return undefined}
   const url = organiser.website
   if (url) {
     try {
       const parsedUrl = new URL(url)
       return parsedUrl.hostname.replace(/^www\./, '')
-    } catch (error) {
+    } catch {
       return (
         organiser.name || url.replace(/^https?:\/\//, '').replace(/^www\./, '')
       )
@@ -66,13 +67,9 @@ interface EventDetailsProps {
 }
 
 export const EventDetails: React.FC<EventDetailsProps> = memo(
-  ({
-    event, 'data-testid': sectionDataTestId }) => {
+  ({ event, 'data-testid': sectionDataTestId }) => {
     const { name, location, socialMedia, pricing, schedule, organiser } = event
-
-    const rootTestId =
-      sectionDataTestId || DetailItemTestIds.ROOT
-
+    const rootTestId = sectionDataTestId || DetailItemTestIds.ROOT
 
     const calculatedPrice = useMemo(
       () => calculateEventPrice(schedule, pricing),
@@ -88,6 +85,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
       () => formatOrganiserDisplay(organiser),
       [organiser]
     )
+    const organiserUrl = ensureExternalUrlScheme(organiser?.website)
 
     return (
       <section
@@ -129,16 +127,22 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             ariaLabel={`Organised by: ${organiserDisplay}`}
             data-testid={EventCardTestIds.ORGANISER}
           >
-            <a
-              href={ensureExternalUrlScheme(organiser.website)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
-              aria-label={`Visit organiser website for ${name || 'this event'}`}
-              data-testid={EventCardTestIds.ORGANISER_LINK}
-            >
-              Organised by: {organiserDisplay}
-            </a>
+            {organiserUrl ? (
+              <a
+                href={organiserUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-emerald-600 transition-colors hover:underline dark:hover:text-emerald-400"
+                aria-label={`Visit organiser website for ${name || 'this event'}`}
+                data-testid={EventCardTestIds.ORGANISER_LINK}
+              >
+                Organised by: {organiserDisplay}
+              </a>
+            ) : (
+              <span data-testid={EventCardTestIds.ORGANISER_LINK}>
+                Organised by: {organiserDisplay}
+              </span>
+            )}
           </DetailItem>
         )}
 

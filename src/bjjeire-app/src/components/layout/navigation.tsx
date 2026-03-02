@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useState } from 'react'
 import SupportModal from '@/components/support/support-modal'
@@ -6,7 +7,7 @@ import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
 import { paths } from '@/config/paths'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
 
-const HamburgerIcon = ({ className }: { className?: string }) => (
+const HamburgerIcon = ({ className }: { className?: string }): React.JSX.Element => (
   <svg
     className={className || 'w-6 h-6'}
     fill="none"
@@ -30,7 +31,7 @@ const navItems = [
   { to: paths.about.getHref(), label: paths.about.label, id: 'about' as const },
 ]
 
-const Navigation = () => {
+const Navigation = (): React.JSX.Element => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 

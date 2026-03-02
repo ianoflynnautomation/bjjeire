@@ -1,3 +1,4 @@
+import type React from 'react'
 import clsx from 'clsx'
 import {
   ButtonGroupFilterTestIds
@@ -27,16 +28,20 @@ const ButtonGroupFilter = <T extends string | number>({
   disabled = false,
   dataTestId = ButtonGroupFilterTestIds.ROOT,
   className,
-}: ButtonGroupFilterProps<T>) => {
+}: ButtonGroupFilterProps<T>): React.JSX.Element => {
   return (
-    <div className={clsx('flex-1', className)} data-testid={dataTestId}>
-      <label
-        className="block text-sm font-medium text-slate-700 dark:text-slate-50 mb-1.5"
+    <fieldset className={clsx('flex-1', className)} data-testid={dataTestId}>
+      <legend
+        className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-50"
         data-testid={ButtonGroupFilterTestIds.LABEL}
       >
         {label}
-      </label>
-      <div className="flex flex-wrap gap-2">
+      </legend>
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label={label}
+      >
         {/* Render all buttons from options, including 'all' */}
         {options.map(option => (
           <button
@@ -44,6 +49,7 @@ const ButtonGroupFilter = <T extends string | number>({
             type="button"
             onClick={() => onValueChange(option.value)}
             disabled={disabled}
+            aria-pressed={selectedValue === option.value}
             data-testid={ButtonGroupFilterTestIds.BUTTON}
             className={clsx(
               'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
@@ -59,7 +65,7 @@ const ButtonGroupFilter = <T extends string | number>({
           </button>
         ))}
       </div>
-    </div>
+    </fieldset>
   )
 }
 

@@ -1,4 +1,4 @@
-import { County } from '@/constants/counties'
+import type { County } from '@/constants/counties'
 import type { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum BjjEventType {
@@ -16,10 +16,6 @@ export enum PricingType {
   PerDay = 3,
 }
 
-export enum ScheduleType {
-  FixedDate = 'FixedDate',
-  Recurring = 'Recurring',
-}
 export enum EventStatus {
   Upcoming = 1,
   RegistrationOpen = 2,
@@ -43,31 +39,16 @@ export interface BjjEventPricingModelDto {
 }
 
 export interface BjjEventHoursDto {
-  dayOfWeek?: number | null
-  date?: string | null
+  day: string
   openTime: string
   closeTime: string
 }
 
-export interface BaseSchedule {
-  scheduleType: ScheduleType
-}
-
-export interface FixedDateSchedule extends BaseSchedule {
-  scheduleType: ScheduleType.FixedDate
-  startDate: string
-  endDate?: string
+export interface BjjEventScheduleDto {
+  startDate?: string | null
+  endDate?: string | null
   hours: BjjEventHoursDto[]
 }
-
-export interface RecurringSchedule extends BaseSchedule {
-  scheduleType: ScheduleType.Recurring
-  hours: BjjEventHoursDto[]
-  startDate?: string
-  endDate?: string
-}
-
-export type EventScheduleUnion = FixedDateSchedule | RecurringSchedule
 
 export interface BjjEventDto extends BaseApiEntityModel {
   name: string
@@ -79,7 +60,7 @@ export interface BjjEventDto extends BaseApiEntityModel {
   socialMedia: SocialMediaDto
   county: County
   location: LocationDto
-  schedule: EventScheduleUnion
+  schedule: BjjEventScheduleDto
   pricing: BjjEventPricingModelDto
   eventUrl: string
   imageUrl: string

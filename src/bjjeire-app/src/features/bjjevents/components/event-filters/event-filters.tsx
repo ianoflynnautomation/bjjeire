@@ -11,14 +11,14 @@ import { SelectFilterTestIds, ButtonGroupFilterTestIds } from '@/constants/commo
 
 const cityOptions = [
   { value: 'all' as const, label: 'All Counties' },
-  ...COUNTIES.map(city => ({ value: city.value as County, label: city.label })),
+  ...COUNTIES.map(city => ({ value: city.value, label: city.label })),
 ]
 
 const eventTypeOptions = [
   { value: 'all' as const, label: 'All Types' },
   ...BJJ_EVENT_TYPES.map(type => ({
-    value: type.value as BjjEventType,
-    label: type.label as string,
+    value: type.value,
+    label: type.label,
   })),
 ]
 

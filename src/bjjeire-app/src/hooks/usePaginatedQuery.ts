@@ -1,12 +1,10 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query'
+import { useQuery, type QueryObserverResult } from '@tanstack/react-query'
 import { useState, useCallback } from 'react'
 import type { HateoasPagination, PaginatedResponse } from '@/types/common'
 
 interface PaginatedQueryParams<T, TParams extends { page?: number }> {
   queryKeyBase: string[]
-  fetchFn: (
-    params: TParams & { url?: string | null; page?: number }
-  ) => Promise<PaginatedResponse<T>>
+  fetchFn: (params: TParams & { page?: number }) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
 
@@ -20,7 +18,7 @@ interface PaginatedQueryResult<T, TParams> {
   params: TParams
   handlePageChange: (url: string | null, page?: number) => void
   updateFilters: (newFilters: Partial<TParams>) => void
-  refetch: () => Promise<UseQueryResult<PaginatedResponse<T>>>
+  refetch: () => Promise<QueryObserverResult<PaginatedResponse<T>, Error>>
 }
 
 export const usePaginatedQuery = <T, TParams extends { page?: number }>({
@@ -32,51 +30,36 @@ export const usePaginatedQuery = <T, TParams extends { page?: number }>({
   const [currentPage, setCurrentPage] = useState<number>(
     initialParams.page ?? 1
   )
-  const [currentUrl, setCurrentUrl] = useState<string | null | undefined>(
-    undefined
-  )
 
   const { data, isLoading, isFetching, error, refetch } = useQuery<
     PaginatedResponse<T>
   >({
-    queryKey: [
-      ...queryKeyBase,
-      { ...params, page: currentPage, url: currentUrl },
-    ],
-    queryFn: () =>
-      fetchFn({ ...params, page: currentPage, url: currentUrl } as TParams & {
-        url?: string | null
-        page?: number
-      }),
+    queryKey: [...queryKeyBase, { ...params, page: currentPage }],
+    queryFn: () => fetchFn({ ...params, page: currentPage }),
     placeholderData: previousData => previousData,
   })
 
   const handlePageChange = useCallback(
     (url: string | null, page?: number) => {
-      setCurrentUrl(url)
-      let newPage = currentPage
+      let newPage = page
       if (page !== undefined) {
-        newPage = page
+        setCurrentPage(page)
+        return
       } else if (url) {
         const pageMatch = url.match(/[?&]page=(\d+)/)
         if (pageMatch) {
           newPage = parseInt(pageMatch[1], 10)
         }
       }
-      setCurrentPage(newPage)
+      setCurrentPage(newPage ?? 1)
     },
-    [currentPage]
+    []
   )
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
     setParams(prev => ({ ...prev, ...newFilters, page: 1 }))
     setCurrentPage(1)
-    setCurrentUrl(undefined)
   }, [])
-
-  const typedRefetch = useCallback(async () => {
-    return refetch()
-  }, [refetch])
 
   return {
     data: data?.data,
@@ -88,6 +71,6 @@ export const usePaginatedQuery = <T, TParams extends { page?: number }>({
     currentPage,
     handlePageChange,
     updateFilters,
-    refetch: typedRefetch,
+    refetch,
   }
 }

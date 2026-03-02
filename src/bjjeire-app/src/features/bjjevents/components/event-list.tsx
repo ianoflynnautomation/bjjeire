@@ -19,9 +19,9 @@ const EventsList = memo(function EventsList({
       className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
       data-testid={rootTestId}
     >
-      {events.map((event, index) => (
+      {events.map(event => (
         <EventCard
-          key={event.id ?? `event-${index}`}
+          key={event.id ?? `${event.name}-${event.eventUrl ?? ''}`}
           event={event}
           data-testid={EventsPageTestIds.LIST_ITEM}
         />

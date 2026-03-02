@@ -16,18 +16,13 @@ describe('GymFooter Component', () => {
     ])(
       'should render a disabled button when websiteUrl is $case',
       ({ websiteUrl }) => {
-        // Arrange
-        const { getByRole } = render(
-          <GymFooter {...defaultProps} websiteUrl={websiteUrl} />
-        )
-
-        // Act
+        const { getByRole } = render(<GymFooter {...defaultProps} websiteUrl={websiteUrl} />)
         const expectedAriaLabel = `No website available for ${defaultProps.gymName}`
         const button = getByRole('button', { name: expectedAriaLabel })
 
-        // Assert
         expect(button).toBeInTheDocument()
         expect(button).toBeDisabled()
+        expect(button).toHaveAccessibleName(expectedAriaLabel)
         expect(button).toHaveAttribute('title', expectedAriaLabel)
         expect(button).toHaveTextContent('Website Unavailable')
       }
@@ -36,20 +31,17 @@ describe('GymFooter Component', () => {
 
   describe('When Website is Available', () => {
     it('should render an active link with all correct attributes', () => {
-      // Arrange
       const website = 'testgym.com'
-      const { getByRole } = render(
-        <GymFooter {...defaultProps} websiteUrl={website} />
-      )
+      const { getByRole } = render(<GymFooter {...defaultProps} websiteUrl={website} />)
 
-      // Act
       const expectedAriaLabel = `Visit website for ${defaultProps.gymName}`
       const link = getByRole('link', { name: expectedAriaLabel })
 
-      // Assert
       expect(link).toBeInTheDocument()
-      expect(link).not.toBeDisabled()
+      expect(link).not.toHaveAttribute('disabled')
       expect(link).toHaveAttribute('href', ensureExternalUrlScheme(website))
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
       expect(link).toHaveAttribute('title', expectedAriaLabel)
       expect(link).toHaveTextContent('Visit Website')
     })
@@ -57,16 +49,13 @@ describe('GymFooter Component', () => {
 
   describe('Edge Cases', () => {
     it('should use a fallback in the aria-label if gymName is empty', () => {
-      // Arrange
       const { getByRole } = render(
         <GymFooter gymName="" websiteUrl={undefined} />
       )
 
-      // Act
       const expectedAriaLabel = 'No website available for this gym'
       const button = getByRole('button', { name: expectedAriaLabel })
 
-      // Assert
       expect(button).toBeInTheDocument()
     })
   })

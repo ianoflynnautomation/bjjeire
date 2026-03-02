@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { BjjEventType } from '@/types/event'
+import type { BjjEventType } from '@/types/event'
 import {
   getEventTypeLabel,
   getEventTypeColorClasses,

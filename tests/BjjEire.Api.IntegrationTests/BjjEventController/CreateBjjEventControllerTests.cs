@@ -529,47 +529,10 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_FixedDate_StartDateNull_ShouldReturnBadRequest() {
+    public async Task CreateBjjEvent_Schedule_EndDateBeforeStartDate_ShouldReturnBadRequest() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
-        command.Data.Schedule.StartDate = null;
-        command.Data.Schedule.EndDate = DateTime.UtcNow.AddDays(1);
-
-        // Act
-        var response = await Http.PostAsJsonAsync("api/bjjevent", command);
-
-        // Assert
-        await AssertValidationErrorAsync(response,
-            (Field: "Data.Schedule.StartDate", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "Start Date is required when schedule type is FixedDate.")
-        );
-    }
-
-    [Fact]
-    public async Task CreateBjjEvent_Schedule_FixedDate_EndDateNull_ShouldReturnBadRequest() {
-        // Arrange
-        await Auth.SetDefaultUserAuthTokenAsync();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
-        command.Data.Schedule.StartDate = DateTime.UtcNow;
-        command.Data.Schedule.EndDate = null;
-
-        // Act
-        var response = await Http.PostAsJsonAsync("api/bjjevent", command);
-
-        // Assert
-        await AssertValidationErrorAsync(response,
-            (Field: "Data.Schedule.EndDate", ValidationMessages.ConditionalRequired.ErrorCode, MessageContains: "End Date is required when schedule type is FixedDate.")
-        );
-    }
-
-    [Fact]
-    public async Task CreateBjjEvent_Schedule_FixedDate_EndDateBeforeStartDate_ShouldReturnBadRequest() {
-        // Arrange
-        await Auth.SetDefaultUserAuthTokenAsync();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
         command.Data.Schedule.StartDate = DateTime.UtcNow.AddDays(1);
         command.Data.Schedule.EndDate = DateTime.UtcNow;
 
@@ -599,33 +562,10 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_FixedDate_HoursListIsNull_ShouldReturnBadRequest() {
+    public async Task CreateBjjEvent_Schedule_HoursListIsEmpty_ShouldReturnBadRequest() {
         // ARRANGE
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
-        command.Data.Schedule.StartDate = DateTime.UtcNow.Date;
-        command.Data.Schedule.EndDate = DateTime.UtcNow.Date.AddDays(1);
-        command.Data.Schedule.Hours = null;
-
-        // ACT
-        var response = await Http.PostAsJsonAsync("api/bjjevent", command);
-
-        // ASSERT
-        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        await AssertValidationErrorAsync(response,
-            (Field: "Data.Schedule.Hours", ValidationMessages.NotNull.ErrorCode, MessageContains: "Event Hours cannot be null.")
-        );
-    }
-
-    [Fact]
-    public async Task CreateBjjEvent_Schedule_FixedDate_HoursListIsEmpty_ShouldReturnBadRequest() {
-        // ARRANGE
-        await Auth.SetDefaultUserAuthTokenAsync();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
-        command.Data.Schedule.StartDate = DateTime.UtcNow.Date;
-        command.Data.Schedule.EndDate = DateTime.UtcNow.Date.AddDays(1);
         command.Data.Schedule.Hours = [];
 
         // ACT
@@ -643,9 +583,6 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         // ARRANGE
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data.Schedule.ScheduleType = ScheduleType.FixedDate;
-        command.Data.Schedule.StartDate = DateTime.UtcNow.Date;
-        command.Data.Schedule.EndDate = DateTime.UtcNow.Date.AddDays(1);
 
         var validHourEntry = new BjjEventHoursDto { Day = DayOfWeek.Monday, OpenTime = new TimeSpan(9, 0, 0), CloseTime = new TimeSpan(10, 0, 0) };
         command.Data.Schedule.Hours =

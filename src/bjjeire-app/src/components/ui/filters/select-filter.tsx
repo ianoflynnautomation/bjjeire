@@ -27,8 +27,8 @@ function SelectFilter<T extends string | number>({
   Icon = MapPinIcon,
   'data-testid': baseTestId = SelectFilterTestIds.ROOT,
   className,
-}: SelectFilterProps<T>) {
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+}: SelectFilterProps<T>): React.JSX.Element {
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const selectedValue = event.target.value
     onChange(selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined)
   }

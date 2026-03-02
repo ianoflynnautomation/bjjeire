@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import LoadingState from './loading-state'
 import ErrorState from './error-state'
 import NoDataState from './no-data-state'
@@ -32,7 +32,7 @@ export function ContentRenderer<T>({
   noDataMessageLine2,
   showBackgroundFetchingIndicator = true,
   isInitialLoad,
-}: ContentRendererProps<T>) {
+}: ContentRendererProps<T>): ReactNode {
   const hasData = data && data.length > 0
 
   if (isInitialLoad && isLoading) {
@@ -64,7 +64,7 @@ export function ContentRenderer<T>({
     )
   }
 
-  if (isLoading) return <LoadingState />
+  if (isLoading) {return <LoadingState />}
 
   return null
 }

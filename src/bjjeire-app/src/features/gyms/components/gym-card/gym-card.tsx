@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { GymDto } from '@/types/gyms'
+import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 

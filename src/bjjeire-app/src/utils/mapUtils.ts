@@ -1,4 +1,4 @@
-import { MapLocationData } from '@/types/common'
+import type { MapLocationData } from '@/types/common'
 
 export const getGoogleMapsUrl = (location?: MapLocationData | null): string => {
   if (!location) {
