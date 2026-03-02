@@ -12,9 +12,9 @@ public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapp
     public async Task<UpdateGymResponse> Handle(UpdateGymCommand request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
 
-        var gymEntity = await _gymService.GetByIdAsync(request.Data.Id) 
+        var gymEntity = await _gymService.GetByIdAsync(request.Data.Id)
         ?? throw new NotFoundException(nameof(Gym), request.Data.Id);
-        
+
         gymEntity = _mapper.Map<Gym>(gymEntity);
         await _gymService.UpdateAsync(gymEntity);
         var resultDto = _mapper.Map<GymDto>(gymEntity);

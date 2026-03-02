@@ -8,6 +8,6 @@ public class GetGymPaginationQueryValidator : AbstractValidator<GetGymPagination
             .IsInEnum()
             .When(x => x.County.HasValue)
             .WithMessage("The provided county is not valid.");
-            
+
     }
 }

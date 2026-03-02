@@ -11,7 +11,7 @@ public sealed class UpdateBjjEventCommandHandler(IBjjEventService bjjEventServic
 
     public async Task<UpdateBjjEventResponse> Handle(UpdateBjjEventCommand request, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(request);
-        
+
         var bjjEventEntity = await _bjjEventService.GetByIdAsync(request.Data.Id)
         ?? throw new NotFoundException(nameof(BjjEvent), request.Data.Id);
 

@@ -50,7 +50,7 @@ public class GymService(
         ArgumentNullException.ThrowIfNull(gym);
 
         _logger.LogInformation(
-            ApplicationLogEvents.GymService.UpdateAttempt, 
+            ApplicationLogEvents.GymService.UpdateAttempt,
             "Attempting to update Gym with ID {GymId}. GymName: {GymName}",
             gym.Id,
             gym.Name);
