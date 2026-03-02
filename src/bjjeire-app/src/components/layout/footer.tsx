@@ -12,13 +12,11 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({
   'data-testid': dataTestIdFromProp
 }) => {
-  const rootTestId =
-    dataTestIdFromProp || FooterTestIds.ROOT;
+  const rootTestId = dataTestIdFromProp || FooterTestIds.ROOT
 
-  const quickLinksSectionMinHeight = 'min-h-[120px]';
+  const quickLinksSectionMinHeight = 'min-h-[120px]'
 
   return (
-
     <footer
       className="bg-slate-100 dark:bg-slate-900 min-h-[280px]"
       data-testid={rootTestId}
@@ -27,42 +25,30 @@ const Footer: React.FC<FooterProps> = ({
         <div
           className={`grid grid-cols-1 gap-8 md:grid-cols-3 ${quickLinksSectionMinHeight}`}
         >
-          {footerPathKeys.length > 0 ? (
-            <div
+          <div>
+            <h3
+              className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100"
               data-testid={FooterTestIds.QUICK_LINKS_HEADING}
             >
-              <h3
-                className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100"
-                data-testid={FooterTestIds.QUICK_LINKS_HEADING}
-              >
-                Quick Links
-              </h3>
-              <ul className="space-y-2">
-                {footerPathKeys.map(pathKey => {
-                  const pathConfig = paths[pathKey as keyof typeof paths];
-                  if (!pathConfig) {
-                    console.warn(
-                      `Path configuration for key "${pathKey}" not found.`
-                    );
-                    return null;
-                  }
-                  return (
-                    <li key={pathKey}>
-                      <Link
-                        to={pathConfig.getHref()}
-                        className="text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        data-testid={FooterTestIds.QUICK_LINK}
-                      >
-                        {pathConfig.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ) : (
-            <div className="animate-pulse bg-gray-200 h-10 w-full rounded"></div>
-          )}
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              {footerPathKeys.map(pathKey => {
+                const pathConfig = paths[pathKey as keyof typeof paths]
+                return (
+                  <li key={pathKey}>
+                    <Link
+                      to={pathConfig.getHref()}
+                      className="text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+                      data-testid={FooterTestIds.QUICK_LINK}
+                    >
+                      {pathConfig.label}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </div>
 
         <div className="mt-8 border-t border-slate-300 pt-8 text-center dark:border-slate-700">
@@ -75,7 +61,7 @@ const Footer: React.FC<FooterProps> = ({
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}
 
-export default memo(Footer);
+export default memo(Footer)

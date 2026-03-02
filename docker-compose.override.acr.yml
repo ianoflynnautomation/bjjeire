@@ -6,6 +6,3 @@ services:
 
   frontend:
     image: ${AZURE_CONTAINER_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG:-latest}
-    environment:
-      NODE_ENV: "production"
-      # VITE_APP_API_URL: "https://your.staging.api.com"

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { GymStatus } from '@/types/gyms'
+import type { GymStatus } from '@/types/gyms'
 import { Badge } from '@/components/ui/badge/badge';
 import {
   getGymStatusLabel,

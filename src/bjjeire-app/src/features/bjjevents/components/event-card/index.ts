@@ -1,6 +1,5 @@
 export { EventCard } from './event-card'
 export { EventFooter } from './event-footer'
 export { EventHeader } from './event-header'
-export { DetailItem } from './detail-item'
 export { EventDetails } from './event-details'
 export { EventSchedule } from './event-schedule/EventSchedule'

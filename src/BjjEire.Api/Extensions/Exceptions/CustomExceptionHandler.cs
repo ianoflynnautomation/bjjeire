@@ -139,17 +139,15 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         );
     }
 
-    private static ProblemDetails HandleConcurrencyException(ConcurrencyException exception, HttpContext httpContext)
-{
-    return new ProblemDetails
-    {
-        Type = "urn:bjjeire:conflict",
-        Title = "Conflict",
-        Status = StatusCodes.Status409Conflict,
-        Detail = exception.Message,
-        Instance = httpContext.TraceIdentifier
-    };
-}
+    private static ProblemDetails HandleConcurrencyException(ConcurrencyException exception, HttpContext httpContext) {
+        return new ProblemDetails {
+            Type = "urn:bjjeire:conflict",
+            Title = "Conflict",
+            Status = StatusCodes.Status409Conflict,
+            Detail = exception.Message,
+            Instance = httpContext.TraceIdentifier
+        };
+    }
 }
 
 public class ValidationErrorResponse : ProblemDetails {

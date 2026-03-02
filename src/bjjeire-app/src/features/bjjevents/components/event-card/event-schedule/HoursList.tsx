@@ -1,20 +1,17 @@
 // src/components/Schedule/HoursList.tsx
 import React from 'react'
-import { BjjEventHoursDto, ScheduleType } from '@/types/event'
-import { formatTime, formatDate } from '@/utils/dateUtils'
+import type { BjjEventHoursDto } from '@/types/event'
+import { formatTime } from '@/utils/dateUtils'
 import { ScheduleItem } from './ScheduleItem'
-import { DAYS_OF_WEEK } from './constants'
 import { ClockIcon } from '@heroicons/react/20/solid'
 
 interface HoursListProps {
   hours: BjjEventHoursDto[]
-  scheduleType: ScheduleType
   'data-testid'?: string
 }
 
 export const HoursList: React.FC<HoursListProps> = ({
   hours,
-  scheduleType,
   'data-testid': dataTestId = 'hours-list',
 }) => {
   if (!hours || hours.length === 0) {
@@ -30,20 +27,11 @@ export const HoursList: React.FC<HoursListProps> = ({
       data-testid={dataTestId}
     >
       {hours.slice(0, MAX_VISIBLE_HOURS).map((hour, index) => {
-        const prefix =
-          scheduleType === ScheduleType.Recurring &&
-          hour.dayOfWeek !== null &&
-          hour.dayOfWeek !== undefined
-            ? `${DAYS_OF_WEEK[hour.dayOfWeek] || 'N/A Day'}: `
-            : scheduleType === ScheduleType.FixedDate && hour.date
-              ? `${formatDate(hour.date)}: `
-              : scheduleType === ScheduleType.FixedDate
-                ? 'Daily: '
-                : ''
+        const prefix = `${hour.day}: `
 
         return (
           <ScheduleItem
-            key={`${scheduleType}-${hour.openTime}-${index}-${hour.dayOfWeek || hour.date}`}
+            key={`${hour.openTime}-${index}-${hour.day}`}
             data-testid={`${dataTestId}-item-${index}`}
             className="flex items-start gap-x-1.5"
           >

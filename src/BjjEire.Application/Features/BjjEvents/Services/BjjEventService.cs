@@ -62,7 +62,7 @@ public sealed class BjjEventService(
             ApplicationLogEvents.BjjEventService.UpdateAttempt,
             "Attempting to update BjjEvent with ID {BjjEventId}", bjjEvent.Id);
 
-      var updatedBjjEvent  = await _bjjEventRepository.UpdateAsync(bjjEvent);
+        var updatedBjjEvent = await _bjjEventRepository.UpdateAsync(bjjEvent);
 
         _logger.LogInformation(
             ApplicationLogEvents.BjjEventService.UpdateSuccess,

@@ -1,251 +1,105 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="45" failures="1" errors="0" time="0.294396793">
-    <testsuite name="src/pages/__tests__/gyms-page.test.tsx" timestamp="2025-07-08T21:28:48.341Z" hostname="Mac.home" tests="5" failures="1" errors="0" skipped="0" time="0.026926125">
-        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When in loading state &gt; should render the loading state via ContentRenderer" time="0.026281083">
+<testsuites name="vitest tests" tests="42" failures="0" errors="0" time="0.437690248">
+    <testsuite name="src/pages/__tests__/gyms-page.test.tsx" timestamp="2026-03-02T21:56:23.417Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.079712916">
+        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When in loading state &gt; should render the loading state via ContentRenderer" time="0.01378425">
         </testcase>
-        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When data is successfully loaded &gt; should pass correct props to header, list, and pagination" time="0.026135958">
+        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When data is successfully loaded &gt; should pass correct props to header, list, and pagination" time="0.002232708">
         </testcase>
-        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When an error occurs &gt; should render the error state via ContentRenderer" time="0.026118541">
+        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; When an error occurs &gt; should render the error state via ContentRenderer" time="0.0013465">
         </testcase>
-        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; User Interactions &gt; should call updateFilters when the county filter is changed" time="0.026109209">
+        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; User Interactions &gt; should call updateFilters when the county filter is changed" time="0.04933">
         </testcase>
-        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; User Interactions &gt; should call handlePageChange when pagination is used" time="0.0260675">
-            <failure message="Unable to find an element by: [data-testid=&quot;mock-pagination_TMP&quot;]
-
-Ignored nodes: comments, script, style
-[36m&lt;div&gt;[39m
-  [36m&lt;div[39m
-    [33mclass[39m=[32m&quot;min-h-screen bg-slate-50 dark:bg-slate-900 sm:py-12&quot;[39m
-  [36m&gt;[39m
-    [36m&lt;div[39m
-      [33mclass[39m=[32m&quot;mx-auto max-w-7xl px-4 sm:px-6 lg:px-8&quot;[39m
-    [36m&gt;[39m
-      [36m&lt;div[39m
-        [33mdata-testid[39m=[32m&quot;mock-header&quot;[39m
-      [36m&gt;[39m
-        [36m&lt;span[39m
-          [33mdata-testid[39m=[32m&quot;mock-header-county&quot;[39m
-        [36m&gt;[39m
-          [0mAll Counties[0m
-        [36m&lt;/span&gt;[39m
-        [36m&lt;span[39m
-          [33mdata-testid[39m=[32m&quot;mock-header-total&quot;[39m
-        [36m&gt;[39m
-          [0m15[0m
-        [36m&lt;/span&gt;[39m
-      [36m&lt;/div&gt;[39m
-      [36m&lt;div[39m
-        [33mclass[39m=[32m&quot;mb-8&quot;[39m
-      [36m&gt;[39m
-        [36m&lt;select[39m
-          [33maria-label[39m=[32m&quot;Select County&quot;[39m
-          [33mdata-testid[39m=[32m&quot;mock-county-filter&quot;[39m
-        [36m&gt;[39m
-          [36m&lt;option[39m
-            [33mvalue[39m=[32m&quot;all&quot;[39m
-          [36m&gt;[39m
-            [0mAll[0m
-          [36m&lt;/option&gt;[39m
-          [36m&lt;option[39m
-            [33mvalue[39m=[32m&quot;dublin&quot;[39m
-          [36m&gt;[39m
-            [0mDublin[0m
-          [36m&lt;/option&gt;[39m
-        [36m&lt;/select&gt;[39m
-      [36m&lt;/div&gt;[39m
-      [36m&lt;main[39m
-        [33maria-busy[39m=[32m&quot;false&quot;[39m
-        [33maria-live[39m=[32m&quot;polite&quot;[39m
-        [33mclass[39m=[32m&quot;relative&quot;[39m
-      [36m&gt;[39m
-        [36m&lt;div[39m
-          [33mdata-testid[39m=[32m&quot;mock-gym-list&quot;[39m
-        [36m&gt;[39m
-          [0m1[0m
-          [0m items[0m
-        [36m&lt;/div&gt;[39m
-      [36m&lt;/main&gt;[39m
-      [36m&lt;div[39m
-        [33mclass[39m=[32m&quot;mt-10 border-t border-slate-200 pt-8 dark:border-slate-700&quot;[39m
-      [36m&gt;[39m
-        [36m&lt;button[39m
-          [33mdata-testid[39m=[32m&quot;mock-pagination&quot;[39m
-        [36m&gt;[39m
-          [0mNext[0m
-        [36m&lt;/button&gt;[39m
-      [36m&lt;/div&gt;[39m
-    [36m&lt;/div&gt;[39m
-  [36m&lt;/div&gt;[39m
-[36m&lt;/div&gt;[39m" type="TestingLibraryElementError">
-TestingLibraryElementError: Unable to find an element by: [data-testid=&quot;mock-pagination_TMP&quot;]
-
-Ignored nodes: comments, script, style
-&lt;div&gt;
-  &lt;div
-    class=&quot;min-h-screen bg-slate-50 dark:bg-slate-900 sm:py-12&quot;
-  &gt;
-    &lt;div
-      class=&quot;mx-auto max-w-7xl px-4 sm:px-6 lg:px-8&quot;
-    &gt;
-      &lt;div
-        data-testid=&quot;mock-header&quot;
-      &gt;
-        &lt;span
-          data-testid=&quot;mock-header-county&quot;
-        &gt;
-          All Counties
-        &lt;/span&gt;
-        &lt;span
-          data-testid=&quot;mock-header-total&quot;
-        &gt;
-          15
-        &lt;/span&gt;
-      &lt;/div&gt;
-      &lt;div
-        class=&quot;mb-8&quot;
-      &gt;
-        &lt;select
-          aria-label=&quot;Select County&quot;
-          data-testid=&quot;mock-county-filter&quot;
-        &gt;
-          &lt;option
-            value=&quot;all&quot;
-          &gt;
-            All
-          &lt;/option&gt;
-          &lt;option
-            value=&quot;dublin&quot;
-          &gt;
-            Dublin
-          &lt;/option&gt;
-        &lt;/select&gt;
-      &lt;/div&gt;
-      &lt;main
-        aria-busy=&quot;false&quot;
-        aria-live=&quot;polite&quot;
-        class=&quot;relative&quot;
-      &gt;
-        &lt;div
-          data-testid=&quot;mock-gym-list&quot;
-        &gt;
-          1
-           items
-        &lt;/div&gt;
-      &lt;/main&gt;
-      &lt;div
-        class=&quot;mt-10 border-t border-slate-200 pt-8 dark:border-slate-700&quot;
-      &gt;
-        &lt;button
-          data-testid=&quot;mock-pagination&quot;
-        &gt;
-          Next
-        &lt;/button&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
- ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
- ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
- ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
- ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
- ❯ src/pages/__tests__/gyms-page.test.tsx:177:26
-            </failure>
+        <testcase classname="src/pages/__tests__/gyms-page.test.tsx" name="GymsPage Component &gt; User Interactions &gt; should call handlePageChange when pagination is used" time="0.012289459">
         </testcase>
     </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-card.test.tsx" timestamp="2025-07-08T21:28:48.343Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.0635215">
-        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Positive Scenarios &gt; should render all sections with correct content for a full gym object" time="0.043766667">
+    <testsuite name="src/features/gyms/components/__tests__/gym-card.test.tsx" timestamp="2026-03-02T21:56:23.417Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.073115666">
+        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Positive Scenarios &gt; should render all sections with correct content for a full gym object" time="0.053475625">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Negative Scenarios &gt; should render correctly with minimal gym data and hide optional sections" time="0.004492166">
+        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Negative Scenarios &gt; should render correctly with minimal gym data and hide optional sections" time="0.005555">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should not render the website link if the website URL is missing" time="0.006352541">
+        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should disable the website link if the website URL is missing" time="0.007430208">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should correctly display a non-active status like &quot;Pending Approval&quot;" time="0.0024315">
+        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should correctly display a non-active status like &quot;Pending Approval&quot;" time="0.002041208">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should render without an affiliation link if affiliation data is missing" time="0.005792459">
-        </testcase>
-    </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-details.test.tsx" timestamp="2025-07-08T21:28:48.344Z" hostname="Mac.home" tests="2" failures="0" errors="0" skipped="0" time="0.02278725">
-        <testcase classname="src/features/gyms/components/__tests__/gym-details.test.tsx" name="With Full Data &gt; should render all sections correctly" time="0.022141333">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-details.test.tsx" name="With Minimal Data &gt; should hide sections when their data is missing" time="0.022028333">
+        <testcase classname="src/features/gyms/components/__tests__/gym-card.test.tsx" name="GymCard Component &gt; Edge Cases &gt; should render without an affiliation section if affiliation data is missing" time="0.003854417">
         </testcase>
     </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-footer.test.tsx" timestamp="2025-07-08T21:28:48.344Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.043016">
-        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;undefined&apos;" time="0.032707709">
+    <testsuite name="src/features/gyms/components/__tests__/gym-details.test.tsx" timestamp="2026-03-02T21:56:23.418Z" hostname="Mac.home" tests="2" failures="0" errors="0" skipped="0" time="0.052068042">
+        <testcase classname="src/features/gyms/components/__tests__/gym-details.test.tsx" name="GymDetails &gt; renders links and metadata for full gym details" time="0.047748792">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;an empty string&apos;" time="0.003034584">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;only whitespace&apos;" time="0.002266583">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Available &gt; should render an active link with all correct attributes" time="0.002392792">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; Edge Cases &gt; should use a fallback in the aria-label if gymName is empty" time="0.001913084">
+        <testcase classname="src/features/gyms/components/__tests__/gym-details.test.tsx" name="GymDetails &gt; hides optional sections when data is missing" time="0.003409708">
         </testcase>
     </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-header.test.tsx" timestamp="2025-07-08T21:28:48.345Z" hostname="Mac.home" tests="4" failures="0" errors="0" skipped="0" time="0.040535084">
-        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Display Logic &gt; should render the name, county, and status correctly" time="0.033290459">
+    <testsuite name="src/features/gyms/components/__tests__/gym-footer.test.tsx" timestamp="2026-03-02T21:56:23.418Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.046056542">
+        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;undefined&apos;" time="0.035091958">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Image Rendering &gt; should render the image with correct alt text and src when imageUrl is provided" time="0.0030855">
+        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;an empty string&apos;" time="0.002919333">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Image Rendering &gt; should not render an image if imageUrl is not provided" time="0.000985625">
+        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Unavailable &gt; should render a disabled button when websiteUrl is &apos;only whitespace&apos;" time="0.002492542">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Edge Cases &gt; should handle an empty name gracefully with a fallback" time="0.002512916">
+        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; When Website is Available &gt; should render an active link with all correct attributes" time="0.002748834">
         </testcase>
-    </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-list.test.tsx" timestamp="2025-07-08T21:28:48.346Z" hostname="Mac.home" tests="5" failures="0" errors="0" skipped="0" time="0.045867042">
-        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; State Handling &gt; should render the loading state when isLoading is true" time="0.010656458">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; State Handling &gt; should render the error state when an error is provided" time="0.00255075">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; State Handling &gt; should render the empty state when gyms prop is &apos;an empty array&apos;" time="0.001431375">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; State Handling &gt; should render the empty state when gyms prop is &apos;undefined&apos;" time="0.001171958">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; Data Display &gt; should render the correct number of GymCard components" time="0.029294292">
+        <testcase classname="src/features/gyms/components/__tests__/gym-footer.test.tsx" name="GymFooter Component &gt; Edge Cases &gt; should use a fallback in the aria-label if gymName is empty" time="0.002139708">
         </testcase>
     </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" timestamp="2025-07-08T21:28:48.346Z" hostname="Mac.home" tests="4" failures="0" errors="0" skipped="0" time="0.0165075">
-        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Rendering Logic &gt; should render nothing if the classes array is undefined" time="0.00589875">
+    <testsuite name="src/features/gyms/components/__tests__/gym-header.test.tsx" timestamp="2026-03-02T21:56:23.419Z" hostname="Mac.home" tests="4" failures="0" errors="0" skipped="0" time="0.048285375">
+        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Display Logic &gt; should render the name, county, and status correctly" time="0.039416791">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Rendering Logic &gt; should render nothing if the classes array is empty" time="0.000641458">
+        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Image Rendering &gt; should render the image with correct alt text and src when imageUrl is provided" time="0.003802583">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Content and Accessibility &gt; should render the correct labels for a given list of classes" time="0.008024333">
+        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Image Rendering &gt; should not render an image if imageUrl is not provided" time="0.001138">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Content and Accessibility &gt; should not render a label for a class that is not provided" time="0.001325833">
-        </testcase>
-    </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-page-header.test.tsx" timestamp="2025-07-08T21:28:48.346Z" hostname="Mac.home" tests="9" failures="0" errors="0" skipped="0" time="0.018265875">
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title when no countyName is provided" time="0.011036917">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title if countyName is &quot;all&quot;" time="0.001137083">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title if countyName is &quot;All&quot; (case-insensitive)" time="0.001267417">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render a county-specific title when a countyName is provided" time="0.000866166">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should not render the total count element if totalGyms is undefined" time="0.000832958">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should not render the total count element if totalGyms is 0" time="0.000569458">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should render the correct singular text for a single gym" time="0.000748708">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should render the correct plural text for multiple gyms" time="0.000513166">
-        </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Data Attributes &gt; should apply a custom data-testid to the root element if provided" time="0.000482959">
+        <testcase classname="src/features/gyms/components/__tests__/gym-header.test.tsx" name="GymHeader Component &gt; Edge Cases &gt; should handle an empty name gracefully with a fallback" time="0.003033166">
         </testcase>
     </testsuite>
-    <testsuite name="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" timestamp="2025-07-08T21:28:48.347Z" hostname="Mac.home" tests="6" failures="0" errors="0" skipped="0" time="0.016970417">
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Rendering Logic &gt; should render nothing if the trialOffer prop is undefined" time="0.0059475">
+    <testsuite name="src/features/gyms/components/__tests__/gym-list.test.tsx" timestamp="2026-03-02T21:56:23.419Z" hostname="Mac.home" tests="2" failures="0" errors="0" skipped="0" time="0.050736916">
+        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; Data Display &gt; should render the correct number of GymCard components" time="0.02111875">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Rendering Logic &gt; should render nothing if the trial is not available" time="0.000640083">
+        <testcase classname="src/features/gyms/components/__tests__/gym-list.test.tsx" name="GymsList Component &gt; Data Display &gt; should pass the correct data down to each GymCard" time="0.028944708">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display the correct text and aria-label for multiple free classes" time="0.006755292">
+    </testsuite>
+    <testsuite name="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" timestamp="2026-03-02T21:56:23.419Z" hostname="Mac.home" tests="4" failures="0" errors="0" skipped="0" time="0.017252292">
+        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Rendering Logic &gt; should render nothing if the classes array is undefined" time="0.005978625">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should handle singular text for one free class" time="0.0012245">
+        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Rendering Logic &gt; should render nothing if the classes array is empty" time="0.000651">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display combined text and aria-label for free days and notes" time="0.000933083">
+        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Content and Accessibility &gt; should render the correct labels for a given list of classes" time="0.008604416">
         </testcase>
-        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display a fallback message and aria-label if trial has no details" time="0.000810334">
+        <testcase classname="src/features/gyms/components/__tests__/gym-offered-classes.test.tsx" name="GymOfferedClasses Component &gt; Content and Accessibility &gt; should not render a label for a class that is not provided" time="0.001337041">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/gyms/components/__tests__/gym-page-header.test.tsx" timestamp="2026-03-02T21:56:23.419Z" hostname="Mac.home" tests="9" failures="0" errors="0" skipped="0" time="0.049434458">
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title when no countyName is provided" time="0.033729625">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title if countyName is &quot;all&quot;" time="0.004580375">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render the default title if countyName is &quot;All&quot; (case-insensitive)" time="0.003870167">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Title Rendering &gt; should render a county-specific title when a countyName is provided" time="0.002135333">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should not render the total count element if totalGyms is undefined" time="0.001065791">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should not render the total count element if totalGyms is 0" time="0.000632791">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should render the correct singular text for a single gym" time="0.001117083">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Total Count Display &gt; should render the correct plural text for multiple gyms" time="0.000715416">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-page-header.test.tsx" name="GymsPageHeader Component &gt; Data Attributes &gt; should apply a custom data-testid to the root element if provided" time="0.000516875">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" timestamp="2026-03-02T21:56:23.420Z" hostname="Mac.home" tests="6" failures="0" errors="0" skipped="0" time="0.021028041">
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Rendering Logic &gt; should render nothing if the trialOffer prop is undefined" time="0.00660375">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Rendering Logic &gt; should render nothing if the trial is not available" time="0.000682708">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display the correct text and aria-label for multiple free classes" time="0.008994709">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should handle singular text for one free class" time="0.0014125">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display combined text and aria-label for free days and notes" time="0.001071833">
+        </testcase>
+        <testcase classname="src/features/gyms/components/__tests__/gym-trial-offer.test.tsx" name="GymTrialOffer Component &gt; Content and Accessibility &gt; should display a fallback message and aria-label if trial has no details" time="0.00080125">
         </testcase>
     </testsuite>
 </testsuites>
