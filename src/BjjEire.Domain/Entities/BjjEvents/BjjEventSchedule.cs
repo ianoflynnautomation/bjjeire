@@ -1,12 +1,7 @@
 
-using BjjEire.Domain.Enums;
-
 namespace BjjEire.Domain.Entities.BjjEvents;
 
 public class BjjEventSchedule {
-    [BsonElement("scheduleType")]
-    public ScheduleType ScheduleType { get; set; }
-
     [BsonElement("startDate")]
     public DateTime? StartDate { get; set; }
 

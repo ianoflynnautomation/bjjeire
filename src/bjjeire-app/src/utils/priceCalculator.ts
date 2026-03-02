@@ -1,10 +1,7 @@
 import {
-  EventScheduleUnion,
-  FixedDateSchedule,
-  RecurringSchedule,
+  BjjEventScheduleDto,
   BjjEventPricingModelDto,
   PricingType,
-  ScheduleType,
 } from '@/types/event'
 import { isValid, parseISO, differenceInCalendarDays } from 'date-fns'
 
@@ -17,7 +14,7 @@ export interface CalculatedPrice {
 const DEFAULT_CURRENCY = 'EUR'
 
 export const calculateEventPrice = (
-  schedule?: EventScheduleUnion,
+  schedule?: BjjEventScheduleDto,
   pricing?: BjjEventPricingModelDto
 ): CalculatedPrice => {
   if (!pricing || pricing.type === PricingType.Free) {
@@ -34,52 +31,30 @@ export const calculateEventPrice = (
     return { total: amount || 0, unit: 'event', currency }
   }
 
-  if (schedule.scheduleType === ScheduleType.Recurring) {
-    const recurringSchedule = schedule as RecurringSchedule
-    const sessionsOrActiveDaysPerWeek = recurringSchedule.hours?.length || 0
+  const { startDate: startDateStr, endDate: endDateStr, hours } = schedule
+  const sessionsCount = hours?.length || 0
 
-    if (type === PricingType.PerSession && sessionsOrActiveDaysPerWeek > 0) {
-      return {
-        total: (amount || 0) * sessionsOrActiveDaysPerWeek,
-        unit: 'weekly',
-        currency,
-      }
+  if (!startDateStr) {
+    // No fixed dates — treat as recurring (weekly)
+    if (type === PricingType.PerSession && sessionsCount > 0) {
+      return { total: (amount || 0) * sessionsCount, unit: 'weekly', currency }
     }
-    if (type === PricingType.PerDay && sessionsOrActiveDaysPerWeek > 0) {
-      return {
-        total: (amount || 0) * sessionsOrActiveDaysPerWeek,
-        unit: 'weekly',
-        currency,
-      }
+    if (type === PricingType.PerDay && sessionsCount > 0) {
+      return { total: (amount || 0) * sessionsCount, unit: 'weekly', currency }
     }
-  }
-
-  if (schedule.scheduleType === ScheduleType.FixedDate) {
-    const fixedSchedule = schedule as FixedDateSchedule
-    const {
-      startDate: startDateStr,
-      endDate: endDateStr,
-      hours,
-    } = fixedSchedule
-
+  } else {
+    // Fixed date event — calculate duration from startDate/endDate
     let calculatedEventDurationDays = 1
-
-    if (startDateStr) {
-      const startDt = parseISO(startDateStr)
-      if (isValid(startDt)) {
-        if (endDateStr) {
-          const endDt = parseISO(endDateStr)
-          if (isValid(endDt) && endDt >= startDt) {
-            calculatedEventDurationDays =
-              differenceInCalendarDays(endDt, startDt) + 1
-          }
-        }
+    const startDt = parseISO(startDateStr)
+    if (isValid(startDt) && endDateStr) {
+      const endDt = parseISO(endDateStr)
+      if (isValid(endDt) && endDt >= startDt) {
+        calculatedEventDurationDays = differenceInCalendarDays(endDt, startDt) + 1
       }
     }
 
     if (type === PricingType.PerSession) {
-      const totalSessions = hours?.length || 0
-      return { total: (amount || 0) * totalSessions, unit: 'event', currency }
+      return { total: (amount || 0) * sessionsCount, unit: 'event', currency }
     }
     if (type === PricingType.PerDay) {
       const effectiveDays =
