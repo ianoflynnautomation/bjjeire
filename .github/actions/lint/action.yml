@@ -24,7 +24,9 @@ runs:
 
     - name: Check .NET Code Formatting
       shell: bash
-      run: dotnet format BjjEire.sln --include ./src/ --exclude ./src/BjjEire.Aspire.AppHost/ --verify-no-changes --verbosity diagnostic
+      run: |
+        dotnet format whitespace BjjEire.sln --include ./src/ --exclude ./src/BjjEire.Aspire.AppHost/ --verify-no-changes --verbosity diagnostic
+        dotnet format style BjjEire.sln --include ./src/ --exclude ./src/BjjEire.Aspire.AppHost/ --verify-no-changes --verbosity diagnostic
 
     # - name: Setup Node.js
     #   uses: actions/setup-node@v4

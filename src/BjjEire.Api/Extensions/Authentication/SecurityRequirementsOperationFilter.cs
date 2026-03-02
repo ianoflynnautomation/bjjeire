@@ -36,7 +36,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
 
             foreach (var attr in authorizeAttributes) {
                 if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes)) {
-                    usesJwt = true; 
+                    usesJwt = true;
                     usesApiKey = true;
                     break;
                 }

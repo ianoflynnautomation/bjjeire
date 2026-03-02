@@ -210,7 +210,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     public virtual void Delete(T entity) => _ = Collection.FindOneAndDelete(e => e.Id == entity.Id);
 
     public virtual async Task<T> DeleteAsync(T entity) {
-      
+
         ArgumentNullException.ThrowIfNull(entity);
 
         var filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);

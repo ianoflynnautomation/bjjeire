@@ -27,7 +27,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [Authorize]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)] 
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command) {
         var response = await _mediator.Send(command);
@@ -43,7 +43,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateGymResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)] 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command) {
         var response = await _mediator.Send(command);
 
@@ -57,7 +57,7 @@ public class GymController(IMediator mediator) : BaseApiController {
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)] 
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteAsync([FromRoute] string id) {
 
         if (string.IsNullOrWhiteSpace(id)) {

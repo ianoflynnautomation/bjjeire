@@ -11,35 +11,35 @@ public static class SecurityHeadersServiceCollectionExtensions {
                 // Override and add specific headers
                 _ = policy.AddStrictTransportSecurity(maxAgeInSeconds: 60 * 60 * 24 * 365, includeSubdomains: true, preload: false);
 
-                _ =  policy.AddXssProtectionBlock();
+                _ = policy.AddXssProtectionBlock();
 
                 _ = policy.AddReferrerPolicyNoReferrer();
-                
+
                 _ = policy.AddPermissionsPolicy(builder => {
-                    builder.AddAccelerometer().None();
-                    builder.AddCamera().None();
-                    builder.AddGeolocation().None();
-                    builder.AddGyroscope().None();
-                    builder.AddMagnetometer().None();
-                    builder.AddMicrophone().None();
-                    builder.AddPayment().None();
-                    builder.AddUsb().None();
+                    _ = builder.AddAccelerometer().None();
+                    _ = builder.AddCamera().None();
+                    _ = builder.AddGeolocation().None();
+                    _ = builder.AddGyroscope().None();
+                    _ = builder.AddMagnetometer().None();
+                    _ = builder.AddMicrophone().None();
+                    _ = builder.AddPayment().None();
+                    _ = builder.AddUsb().None();
                 });
 
                 // Build a strong Content-Security-Policy
                 _ = policy.AddContentSecurityPolicy(builder => {
-                    builder.AddObjectSrc().None();
-                    builder.AddFormAction().Self();
-                    builder.AddFrameAncestors().None();
+                    _ = builder.AddObjectSrc().None();
+                    _ = builder.AddFormAction().Self();
+                    _ = builder.AddFrameAncestors().None();
 
-                    builder.AddDefaultSrc().Self();
+                    _ = builder.AddDefaultSrc().Self();
 
                     // For a standard React/Vite app
-                    builder.AddScriptSrc().Self();
-                    builder.AddStyleSrc().Self();
-                    builder.AddImgSrc().Self().Data();
-                    builder.AddFontSrc().Self();
-                    builder.AddConnectSrc().Self();
+                    _ = builder.AddScriptSrc().Self();
+                    _ = builder.AddStyleSrc().Self();
+                    _ = builder.AddImgSrc().Self().Data();
+                    _ = builder.AddFontSrc().Self();
+                    _ = builder.AddConnectSrc().Self();
                 });
             });
 
