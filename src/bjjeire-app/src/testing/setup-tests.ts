@@ -5,6 +5,7 @@ import '@testing-library/jest-dom/vitest'
 
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
 })
 
 Object.defineProperty(window, 'matchMedia', {
