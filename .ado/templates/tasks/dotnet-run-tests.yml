@@ -40,8 +40,10 @@ steps:
       dotnet vstest "${DLLS[@]}" \
         --logger:"trx;LogFileName=${{ parameters.testResultsNamePrefix }}.trx" \
         --ResultsDirectory:"$TEST_RESULTS_DIR" \
-        --TestCaseFilter:"${{ parameters.testFilterCriteria }}"
+        ${TEST_FILTER:+--TestCaseFilter:"$TEST_FILTER"}
     displayName: 'Run Tests'
+    env:
+      TEST_FILTER: ${{ parameters.testFilterCriteria }}
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
