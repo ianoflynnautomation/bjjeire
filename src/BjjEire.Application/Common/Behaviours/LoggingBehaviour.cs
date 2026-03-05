@@ -16,6 +16,7 @@ public class LoggingBehaviour<TRequest, TResponse>(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken) {
+        ArgumentNullException.ThrowIfNull(next);
         var requestName = typeof(TRequest).Name;
         var responseName = typeof(TResponse).Name;
 
@@ -38,6 +39,7 @@ public class LoggingBehaviour<TRequest, TResponse>(
             success = true;
             return response;
         }
+#pragma warning disable S2139
         catch (Exception ex) {
             logger.LogDebug(ex,
                        "Exception propagated through LoggingBehaviour for {RequestName}. TraceId: {TraceId}. ExceptionType: {ExceptionType}. Will be handled by other behaviors.",
@@ -46,6 +48,7 @@ public class LoggingBehaviour<TRequest, TResponse>(
                        ex.GetType().Name);
             throw;
         }
+#pragma warning restore S2139
         finally {
             stopwatch.Stop();
             var durationMs = stopwatch.ElapsedMilliseconds;
