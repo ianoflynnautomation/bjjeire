@@ -92,7 +92,10 @@ public static class ValidationMessages {
     }
 
     public static class MustBeSpecificValueWhen {
-        public static string ErrorCode(object value) => $"MUST_BE_{value.ToString()?.ToUpper(CultureInfo.CurrentCulture)}_WHEN";
+        public static string ErrorCode(object value) {
+            ArgumentNullException.ThrowIfNull(value);
+            return $"MUST_BE_{value.ToString()?.ToUpper(CultureInfo.CurrentCulture)}_WHEN";
+        }
         public static string Message(object value, string condition) => $"{{PropertyName}} must be {value} when {condition}.";
     }
 

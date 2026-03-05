@@ -69,8 +69,6 @@ public class ApiKeyAuthenticationHandler(
             "Challenge issued for API Key authentication Scheme '{AuthenticationSchemeName}'. Responding with 401 Unauthorized. TraceId: {TraceId}",
             Scheme.Name, Context.TraceIdentifier);
         Response.StatusCode = StatusCodes.Status401Unauthorized;
-        // Consider adding WWW-Authenticate header if appropriate for API key scheme.
-        // Response.Headers.Append("WWW-Authenticate", $"ApiKey realm=\"{Options.Realm}\"");
         return Task.CompletedTask;
     }
 
