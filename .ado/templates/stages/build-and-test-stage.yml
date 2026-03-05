@@ -2,7 +2,7 @@ stages:
   - stage: BuildAndTest
     displayName: 'Build and Test'
     jobs:
-      # - template: ../templates/jobs/lint-check-job.yml
+      - template: ../templates/jobs/lint-check-job.yml
 
       - template: ../jobs/build-dotnet-solution-job.yml
         parameters:

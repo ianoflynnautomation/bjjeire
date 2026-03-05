@@ -1,10 +1,10 @@
 parameters:
   - name: dotnetVersion
     type: string
-    default: '6.x'
+    default: '9.x'
   - name: nodeVersion
     type: string
-    default: '18.x'
+    default: '22.x'
   - name: workingDirectory
     type: string
     default: '.'
@@ -25,10 +25,19 @@ steps:
     displayName: 'Setup Node.js ${{ parameters.nodeVersion }}'
     inputs:
       versionSpec: ${{ parameters.nodeVersion }}
-      checkLatest: true
+      checkLatest: false
 
   - script: |
       npm ci
-      npm run lint
-    displayName: 'Run React Linter'
+    displayName: 'Install Node Dependencies'
+    workingDirectory: '${{ parameters.workingDirectory }}'
+
+  - script: |
+      npx tsc --noEmit
+    displayName: 'TypeScript Type Check'
+    workingDirectory: '${{ parameters.workingDirectory }}'
+
+  - script: |
+      npx eslint src --max-warnings 0
+    displayName: 'ESLint Check'
     workingDirectory: '${{ parameters.workingDirectory }}'
