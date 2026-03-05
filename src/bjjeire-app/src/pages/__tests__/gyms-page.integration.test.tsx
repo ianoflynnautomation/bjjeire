@@ -138,12 +138,12 @@ describe('GymsPage Integration (API + Query + UI)', () => {
 
     expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument()
-    expect(screen.getByText(/page 1 of 2/i)).toBeInTheDocument()
+    expect(screen.getByText('1 / 2')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /next page/i }))
 
     expect(await screen.findByText('Community BJJ Club')).toBeInTheDocument()
-    expect(screen.getByText(/page 2 of 2/i)).toBeInTheDocument()
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(mockedApiGet).toHaveBeenLastCalledWith(
