@@ -3,6 +3,9 @@ import { SparklesIcon } from '@heroicons/react/20/solid'
 import type { TrialOfferDto } from '@/types/gyms'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
+import { uiContent } from '@/config/ui-content'
+
+const gymCard = uiContent.gyms.card
 
 interface GymTrialOfferProps {
   trialOffer?: TrialOfferDto
@@ -43,7 +46,7 @@ export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
     } else if (trialOffer.notes) {
       displayContent = <>{trialOffer.notes}</>
     } else {
-      const fallbackText = 'Trial offer available (details not specified)'
+      const fallbackText = gymCard.trialOfferFallback
       displayContent = fallbackText
       ariaTextParts.push(fallbackText)
     }
@@ -57,8 +60,8 @@ export const GymTrialOffer: React.FC<GymTrialOfferProps> = memo(
         icon={<SparklesIcon />}
         ariaLabel={finalAriaLabel}
         data-testid={actualRootDataTestId}
-        className="mt-1 text-emerald-700 dark:text-emerald-400"
-        iconClassName="h-5 w-5 text-amber-500 dark:text-amber-400"
+        className="mt-1 rounded-xl bg-amber-900/30 px-2 py-1 text-amber-200 ring-1 ring-amber-500/20"
+        iconClassName="h-5 w-5 text-amber-400"
       >
         <span className="font-medium">{displayContent}</span>
       </DetailItem>

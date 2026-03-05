@@ -16,8 +16,10 @@ export const GymsList = memo(function GymsList({
 
   return (
     <div
-      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
+      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center"
       data-testid={rootListTestId}
+      role="list"
+      aria-label="Brazilian Jiu-Jitsu gyms"
     >
       {gyms.map(gym => (
         <GymCard

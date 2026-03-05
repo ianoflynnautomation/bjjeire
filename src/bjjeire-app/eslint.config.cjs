@@ -43,7 +43,9 @@ module.exports = tseslint.config(
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
+      // attributes: false allows async functions as JSX event handlers (onClick, onChange, etc.)
+      // TypeScript itself already permits this — () => void accepts any return value
+      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
 
       // React rules
       'react/prop-types': 'off',

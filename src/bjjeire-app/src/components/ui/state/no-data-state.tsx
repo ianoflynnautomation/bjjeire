@@ -23,28 +23,28 @@ const NoDataState: React.FC<NoDataStateProps> = ({
 
   return (
     <div
-      className="my-10 rounded-md border border-slate-200 bg-slate-50 p-6 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800"
+      className="my-10 rounded-2xl bg-slate-800/40 p-6 text-center backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/[0.08]"
       data-testid={rootTestId}
     >
       <InformationCircleIcon
-        className="mx-auto h-10 w-10 text-emerald-500 dark:text-emerald-400"
+        className="mx-auto h-12 w-12 text-emerald-400"
         aria-hidden="true"
         data-testid={NoDataStateTestIds.ICON}
       />
       <p
-        className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100"
+        className="mt-3 text-lg font-bold text-slate-50"
         data-testid={NoDataStateTestIds.TITLE}
       >
         {title}
       </p>
       <p
-        className="mt-1 text-sm text-slate-600 dark:text-slate-300"
+        className="mt-1 text-sm text-slate-400"
         data-testid={NoDataStateTestIds.MESSAGE_LINE1}
       >
         {messageLine1}
       </p>
       <p
-        className="mt-0.5 text-sm text-slate-600 dark:text-slate-300"
+        className="mt-0.5 text-sm text-slate-400"
         data-testid={NoDataStateTestIds.MESSAGE_LINE2}
       >
         {messageLine2}
@@ -54,7 +54,7 @@ const NoDataState: React.FC<NoDataStateProps> = ({
             Or{' '}
             <button
               onClick={onActionClick}
-              className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 focus:underline focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="font-semibold text-emerald-400 transition-colors hover:text-emerald-300 focus:underline focus:outline-none"
               data-testid={NoDataStateTestIds.BUTTON}
             >
               {actionText}
