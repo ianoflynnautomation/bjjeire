@@ -1,10 +1,12 @@
 // src/components/Support/SupportModal.tsx
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react'
-import clsx from 'clsx'
+import { cn } from '@/lib/utils'
 import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
+import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { env } from '@/config/env'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -19,17 +21,15 @@ const SupportModal: React.FC<SupportModalProps> = memo(
     const closeButtonRef = useRef<HTMLButtonElement>(null)
     const dialogContentRef = useRef<HTMLDivElement>(null)
     const previousFocusRef = useRef<HTMLElement | null>(null)
-    const copyResetTimeoutRef = useRef<number | null>(null)
 
     const mainTitleId = SupportModalTestIds.TITLE
     const descriptionId = `${SupportModalTestIds.ROOT}-description`
-
-    const clearCopyTimeout = useCallback((): void => {
-      if (copyResetTimeoutRef.current !== null) {
-        window.clearTimeout(copyResetTimeoutRef.current)
-        copyResetTimeoutRef.current = null
-      }
-    }, [])
+    const copyButtonBaseClasses =
+      'w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto'
+    const copyButtonCopiedClasses =
+      'bg-emerald-600 focus-visible:ring-emerald-500'
+    const copyButtonDefaultClasses =
+      'border border-orange-500 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 focus-visible:ring-orange-500'
 
     const copyToClipboard = useCallback(async () => {
       if (!navigator.clipboard) {
@@ -39,21 +39,24 @@ const SupportModal: React.FC<SupportModalProps> = memo(
       try {
         await navigator.clipboard.writeText(bitcoinAddress)
         setCopied(true)
-        clearCopyTimeout()
-        copyResetTimeoutRef.current = window.setTimeout(() => {
-          setCopied(false)
-          copyResetTimeoutRef.current = null
-        }, 2000)
       } catch (err) {
         console.error('Failed to copy text: ', err)
       }
-    }, [bitcoinAddress, clearCopyTimeout])
+    }, [bitcoinAddress])
 
     useEffect(() => {
-      return (): void => {
-        clearCopyTimeout()
+      if (!copied) {
+        return
       }
-    }, [clearCopyTimeout])
+
+      const timeoutId = window.setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+
+      return (): void => {
+        window.clearTimeout(timeoutId)
+      }
+    }, [copied])
 
     useEffect(() => {
       if (!isOpen) {
@@ -117,7 +120,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             onClose()
           }
         }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4 transition-opacity duration-300 ease-in-out dark:bg-opacity-75"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
         data-testid={SupportModalTestIds.OVERLAY}
         role="dialog"
         aria-modal="true"
@@ -126,7 +129,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
       >
         <div
           ref={dialogContentRef}
-          className="animate-modal-show w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-in-out dark:bg-slate-800 sm:p-8"
+          className="animate-modal-show w-full max-w-md transform rounded-3xl border border-emerald-100/80 bg-gradient-to-b from-white to-emerald-50/40 p-6 shadow-2xl shadow-emerald-900/10 transition-all duration-300 ease-in-out sm:p-8"
           data-testid={SupportModalTestIds.CONTENT}
         >
           <header className="mb-6 flex items-center justify-between">
@@ -134,17 +137,17 @@ const SupportModal: React.FC<SupportModalProps> = memo(
               <BitcoinIcon className="h-8 w-8" />{' '}
               <h2
                 id={mainTitleId}
-                className="text-2xl font-bold text-slate-900 dark:text-white"
+                className="text-2xl font-bold text-slate-900"
                 data-testid={mainTitleId}
               >
-                Support Bjj Éire
+                {uiContent.supportModal.title}
               </h2>
             </div>
             <button
               ref={closeButtonRef}
               onClick={onClose}
-              className="rounded-full p-1 text-slate-500 transition-colors hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-800"
-              aria-label="Close support modal"
+              className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-emerald-100 hover:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+              aria-label={uiContent.supportModal.closeLabel}
               data-testid={SupportModalTestIds.CLOSE_BUTTON}
             >
               <CloseIcon className="h-6 w-6" />
@@ -152,68 +155,60 @@ const SupportModal: React.FC<SupportModalProps> = memo(
           </header>
           <div className="space-y-6">
             <p
-              className="text-slate-600 dark:text-slate-300"
+              className="text-slate-700"
               id={descriptionId}
             >
-              Support the BJJ Éire project by donating Bitcoin. Your
-              contribution helps us maintain and improve the platform.
+              {uiContent.supportModal.description}
             </p>
             <div
-              className="rounded-lg bg-slate-50 p-4 shadow-inner dark:bg-slate-700"
+              className="rounded-2xl bg-white/90 p-4 shadow-inner ring-1 ring-emerald-100/70"
             >
-              <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
-                Bitcoin Address:
+              <p className="mb-2 text-sm text-slate-600">
+                {uiContent.supportModal.addressLabel}
               </p>
               <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                 <code
-                  className="flex-1 rounded border border-slate-200 bg-white p-3 text-sm text-slate-700 break-all dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                  className="flex-1 break-all rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 font-mono text-sm text-slate-800"
                   data-testid={SupportModalTestIds.BTC_ADDRESS}
                 >
                   {bitcoinAddress}
                 </code>
                 <button
-                  onClick={() => { void copyToClipboard() }}
-                  className={clsx(
-                    'w-full rounded-md px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-700 sm:w-auto',
+                  onClick={copyToClipboard}
+                  className={cn(
+                    copyButtonBaseClasses,
                     copied
-                      ? 'bg-emerald-600 focus-visible:ring-emerald-500 dark:bg-emerald-500'
-                      : 'border border-orange-600 bg-[#F7931A] hover:bg-[#E67E00] focus-visible:ring-orange-500 dark:border-orange-700 dark:bg-orange-500 dark:hover:bg-orange-600'
+                      ? copyButtonCopiedClasses
+                      : copyButtonDefaultClasses
                   )}
                   data-testid={SupportModalTestIds.COPY_BUTTON}
                 >
-                  {copied ? 'Copied!' : 'Copy Address'}
+                  {copied
+                    ? uiContent.supportModal.copiedButtonText
+                    : uiContent.supportModal.copyButtonText}
                 </button>
               </div>
               {copied && (
                 <p
-                  className="mt-2 text-center text-xs text-emerald-600 dark:text-emerald-400 sm:text-right"
+                  className="mt-2 text-center text-xs text-emerald-700 sm:text-right"
                   data-testid={SupportModalTestIds.COPIED_CONFIRMATION}
                 >
-                  Address copied to clipboard!
+                  {uiContent.supportModal.copiedConfirmation}
                 </p>
               )}
             </div>
             <div
-              className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/30"
+              className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4"
               data-testid={SupportModalTestIds.WARNING}
             >
-              <p className="flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-200">
-                <svg
-                  className="h-5 w-5 flex-shrink-0 text-yellow-500 dark:text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+              <p className="flex items-start gap-2 text-sm text-yellow-900">
+                <ExclamationTriangleIcon
+                  className="h-5 w-5 flex-shrink-0 text-yellow-600"
                   aria-hidden="true"
                   data-testid={`${SupportModalTestIds.WARNING}-icon`}
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.001-1.742 3.001H4.42c-1.53 0-2.493-1.667-1.743-3.001l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1.75-5.75a.75.75 0 00-1.5 0v3a.75.75 0 001.5 0v-3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                />
                 <span>
-                  Please double-check the address before sending any funds. We
-                  cannot recover funds sent to incorrect addresses.
+                  {uiContent.supportModal.warning}
                 </span>
               </p>
             </div>

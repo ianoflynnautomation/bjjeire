@@ -1,21 +1,12 @@
 import { memo } from 'react'
-import {
-  MapPinIcon,
-  BuildingLibraryIcon,
-  ClipboardDocumentListIcon,
-} from '@heroicons/react/20/solid'
+import { MapPinIcon } from '@heroicons/react/20/solid'
 import type { GymDto } from '@/types/gyms'
-import {
-  formatDisplayUrl,
-  ensureExternalUrlScheme,
-} from '@/utils/formattingUtils'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { GymOfferedClasses, GymTrialOffer } from '.'
 import { getGoogleMapsUrl } from '@/utils/mapUtils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
-
 interface GymDetailsProps {
   gym: GymDto
   'data-testid'?: string
@@ -27,8 +18,6 @@ export const GymDetails = memo(function GymDetails({
 }: GymDetailsProps) {
   const {
     location,
-    affiliation,
-    timetableUrl,
     socialMedia,
     offeredClasses,
     trialOffer,
@@ -36,12 +25,12 @@ export const GymDetails = memo(function GymDetails({
 
   const headingId = `gym-details-heading-${gym.id ?? gym.name.replace(/\s+/g, '-')}`
 
-  return (
-    <section
-      className="space-y-2.5 text-sm"
-      aria-labelledby={headingId}
-      data-testid={rootDataTestId || DetailItemTestIds.ROOT}
-    >
+    return (
+      <section
+        className="space-y-2 text-sm"
+        aria-labelledby={headingId}
+        data-testid={rootDataTestId || DetailItemTestIds.ROOT}
+      >
       <h2 id={headingId} className="sr-only">
         Details for {gym.name || 'this gym'}
       </h2>
@@ -56,7 +45,7 @@ export const GymDetails = memo(function GymDetails({
             href={getGoogleMapsUrl(gym.location)}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-emerald-600 hover:underline dark:hover:text-emerald-400"
+            className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
             data-testid={GymCardTestIds.ADDRESS_LINK}
           >
             {location.address} {location.venue && `(${location.venue})`}
@@ -64,47 +53,7 @@ export const GymDetails = memo(function GymDetails({
         </DetailItem>
       )}
 
-      {affiliation?.name && (
-        <DetailItem
-          icon={<BuildingLibraryIcon />}
-          ariaLabel={`Affiliation: ${affiliation.name}`}
-          data-testid={GymCardTestIds.AFFILIATION}
-        >
-          {affiliation.website ? (
-            <a
-              href={ensureExternalUrlScheme(affiliation.website)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-emerald-600 hover:underline dark:hover:text-emerald-400"
-              data-testid={GymCardTestIds.AFFILIATION_LINK}
-            >
-              Affiliated with {affiliation.name}
-            </a>
-          ) : (
-            `Affiliated with ${affiliation.name}`
-          )}
-        </DetailItem>
-      )}
-
-      {timetableUrl && (
-        <DetailItem
-          icon={<ClipboardDocumentListIcon />}
-          ariaLabel={`Timetable: ${formatDisplayUrl(timetableUrl)}`}
-          data-testid={GymCardTestIds.TIMETABLE}
-        >
-          <a
-            href={ensureExternalUrlScheme(timetableUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-emerald-600 hover:underline dark:hover:text-emerald-400"
-            data-testid={GymCardTestIds.TIMETABLE_LINK}
-          >
-            View Timetable
-          </a>
-        </DetailItem>
-      )}
-
-      <GymOfferedClasses
+<GymOfferedClasses
         classes={offeredClasses}
         data-testid={GymCardTestIds.CLASSES}
       />

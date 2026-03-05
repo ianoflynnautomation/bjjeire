@@ -1,9 +1,11 @@
 export const ensureExternalUrlScheme = (url?: string): string | undefined => {
-  if (!url || url.trim() === '') {return undefined}
-  if (!/^https?:\/\//i.test(url)) {
-    return `https://${url}`
+  const trimmedUrl = url?.trim()
+  if (!trimmedUrl) {return undefined}
+
+  if (!/^https?:\/\//i.test(trimmedUrl)) {
+    return `https://${trimmedUrl}`
   }
-  return url
+  return trimmedUrl
 }
 
 export const formatDisplayUrl = (url?: string): string | undefined => {
@@ -15,11 +17,10 @@ export const formatDisplayUrl = (url?: string): string | undefined => {
   try {
     const parsedUrl = new URL(ensuredUrl)
     const displayHost = parsedUrl.hostname.replace(/^www\./, '')
-    let displayPath = parsedUrl.pathname.replace(/\/$/, '')
-    if (displayPath === '/') {displayPath = ''}
+    const displayPath = parsedUrl.pathname.replace(/\/$/, '')
     return displayHost + displayPath
   } catch {
-    return url
+    return ensuredUrl
       .replace(/^https?:\/\//, '')
       .replace(/^www\./, '')
       .replace(/\/$/, '')

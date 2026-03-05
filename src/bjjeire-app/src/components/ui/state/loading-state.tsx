@@ -16,11 +16,11 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 
   return (
     <div
-      className="flex w-full justify-center rounded-md bg-slate-50 p-10 shadow-sm dark:bg-slate-800"
+      className="flex w-full justify-center rounded-2xl bg-slate-800/40 p-10 backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/[0.08]"
       data-testid={rootTestId}
     >
       <LoadingSpinner
-        color="text-emerald-600 dark:text-emerald-400"
+        color="text-emerald-400"
         text={message}
         size="lg"
         data-testid={LoadingStateTestIds.ROOT}

@@ -1,8 +1,7 @@
 import React from 'react'
 import type { BjjEventDto } from '@/types/event'
-import { EmptyScheduleMessage } from './EmptyScheduleMessage'
-import { FixedDateScheduleView } from './FixedDateScheduleView'
-import { CalendarIcon } from '@heroicons/react/20/solid'
+import { formatDate, formatTime } from '@/utils/dateUtils'
+import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 
 interface EventScheduleProps {
   schedule: BjjEventDto['schedule'] | null | undefined
@@ -11,26 +10,42 @@ interface EventScheduleProps {
 
 export const EventSchedule: React.FC<EventScheduleProps> = ({
   schedule,
-  'data-testid': baseTestId = 'event-schedule',
+  'data-testid': dataTestId = 'event-schedule',
 }) => {
-  if (!schedule) {
-    return (
-      <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-        <EmptyScheduleMessage
-          message="No schedule information provided for this event."
-          icon={
-            <CalendarIcon className="h-5 w-5 flex-shrink-0 text-slate-400 dark:text-slate-500" />
-          }
-          data-testid={`${baseTestId}-no-schedule-provided`}
-        />
-      </div>
-    )
+  if (!schedule) { return null }
+
+  let dateText = ''
+  if (schedule.startDate) {
+    dateText = formatDate(schedule.startDate)
+    if (schedule.endDate && schedule.endDate !== schedule.startDate) {
+      dateText += ` – ${formatDate(schedule.endDate)}`
+    }
+  } else if (schedule.endDate) {
+    dateText = `Ends ${formatDate(schedule.endDate)}`
   }
 
+  const hours = schedule.hours?.slice(0, 3) ?? []
+  const extraCount = (schedule.hours?.length ?? 0) - hours.length
+
   return (
-    <FixedDateScheduleView
-      schedule={schedule}
-      data-testid={`${baseTestId}-view`}
-    />
+    <div className="space-y-1.5" data-testid={dataTestId}>
+      {dateText && (
+        <div className="flex items-center gap-1.5" data-testid={`${dataTestId}-dates`}>
+          <CalendarDaysIcon className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" aria-hidden="true" />
+          <span>{dateText}</span>
+        </div>
+      )}
+      {hours.map((hour, i) => (
+        <div key={`${hour.day}-${i}`} className="flex items-center gap-1.5" data-testid={`${dataTestId}-hour-${i}`}>
+          <ClockIcon className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400" aria-hidden="true" />
+          <span>{hour.day}: {formatTime(hour.openTime)}–{formatTime(hour.closeTime)}</span>
+        </div>
+      ))}
+      {extraCount > 0 && (
+        <p className="pl-5 text-xs italic text-slate-500" data-testid={`${dataTestId}-more`}>
+          +{extraCount} more
+        </p>
+      )}
+    </div>
   )
 }
