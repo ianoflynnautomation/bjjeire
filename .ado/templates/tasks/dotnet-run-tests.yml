@@ -30,30 +30,30 @@ steps:
     inputs:
       buildType: 'current'
       artifact: ${{ parameters.testArtifactName }}
-      :  ${{ parameters.testAssemblyPattern }}
+      patterns:  ${{ parameters.testAssemblyPattern }}
       targetPath: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
 
-  - script: |
-      TEST_RESULTS_DIR="$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}"
-      mkdir -p "$TEST_RESULTS_DIR"
+  # - script: |
+  #     TEST_RESULTS_DIR="$(Agent.TempDirectory)/TestResults/${{ parameters.testResultsNamePrefix }}"
+  #     mkdir -p "$TEST_RESULTS_DIR"
 
-      dotnet test "**\*Tests.dll" \
-      --logger "trx;LogFileName=${{ parameters.testResultsNamePrefix }}.trx" \
-      --results-directory "$TEST_RESULTS_DIR" \
-      --filter "${{ parameters.testFilterCriteria }}"
-    displayName: 'Run Tests'
-    workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
-
-  # - task: DotNetCoreCLI@2
+  #     dotnet test "**\*Tests.dll" \
+  #     --logger "trx;LogFileName=${{ parameters.testResultsNamePrefix }}.trx" \
+  #     --results-directory "$TEST_RESULTS_DIR" \
+  #     --filter "${{ parameters.testFilterCriteria }}"
   #   displayName: 'Run Tests'
-  #   inputs:
-  #     command: 'test'
-  #     pathToTestAssemblies: '**/*Tests.dll'
-  #     workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
-  #     arguments: '--no-build --logger "trx;LogFileName=test-results.trx"'
-  #     filter: ${{ parameters.testFilterCriteria }}
-  #     rerunFailedTests: true
-  #     rerunMaxAttempts: 2 
+  #   workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Tests'
+    inputs:
+      command: 'test'
+      pathToTestAssemblies: '**/*Tests.dll'
+      workingDirectory: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
+      arguments: '--no-build --logger "trx;LogFileName=test-results.trx"'
+      filter: ${{ parameters.testFilterCriteria }}
+      rerunFailedTests: true
+      rerunMaxAttempts: 2 
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
