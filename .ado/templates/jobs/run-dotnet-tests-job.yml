@@ -32,5 +32,5 @@ jobs:
         testArtifactName: $(testArtifactName)
         testAssemblyPattern: $(testAssemblyPattern)
         testResultsNamePrefix: $(testType)
-        testFilterCriteria: '$(SetFinalTestFilter.finalTestFilter)'
+        testFilterCriteria: '$(testFilterCriteria)'
         downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'

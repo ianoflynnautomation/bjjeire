@@ -17,11 +17,6 @@ jobs:
   steps:
     - checkout: self
 
-    # - task: UseNode@1
-    #   displayName: 'Use Node.js $(NODE_VERSION)'
-    #   inputs:
-    #     versionSpec: '$(NODE_VERSION)'ß
-
     - script: |
         export NVM_DIR="/usr/local/lib/nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
