@@ -1,12 +1,17 @@
 import { memo } from 'react'
-import { MapPinIcon } from '@heroicons/react/20/solid'
+import { MapPinIcon, ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
 import type { GymDto } from '@/types/gyms'
+import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { GymOfferedClasses, GymTrialOffer } from '.'
 import { getGoogleMapsUrl } from '@/utils/mapUtils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
+
+const gymCard = uiContent.gyms.card
+
 interface GymDetailsProps {
   gym: GymDto
   'data-testid'?: string
@@ -18,6 +23,7 @@ export const GymDetails = memo(function GymDetails({
 }: GymDetailsProps) {
   const {
     location,
+    timetableUrl,
     socialMedia,
     offeredClasses,
     trialOffer,
@@ -53,7 +59,25 @@ export const GymDetails = memo(function GymDetails({
         </DetailItem>
       )}
 
-<GymOfferedClasses
+      {timetableUrl && (
+        <DetailItem
+          icon={<ClipboardDocumentListIcon />}
+          ariaLabel="View Timetable"
+          data-testid={GymCardTestIds.TIMETABLE}
+        >
+          <a
+            href={ensureExternalUrlScheme(timetableUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
+            data-testid={GymCardTestIds.TIMETABLE_LINK}
+          >
+            {gymCard.viewTimetableLink}
+          </a>
+        </DetailItem>
+      )}
+
+      <GymOfferedClasses
         classes={offeredClasses}
         data-testid={GymCardTestIds.CLASSES}
       />
