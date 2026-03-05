@@ -30,7 +30,7 @@ steps:
     inputs:
       buildType: 'current'
       artifact: ${{ parameters.testArtifactName }}
-      patterns:  ${{ parameters.testAssemblyPattern }}}
+      :  ${{ parameters.testAssemblyPattern }}
       targetPath: '${{ parameters.downloadPath }}/${{ parameters.testArtifactName }}'
 
   # - script: |
