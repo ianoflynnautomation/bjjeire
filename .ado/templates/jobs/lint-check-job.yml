@@ -1,0 +1,24 @@
+parameters:
+  dependsOn: []
+  condition: 'succeeded()'
+  name: 'lint_check'
+  pool:
+    vmImage: 'ubuntu-latest'
+
+jobs:
+- job: ${{ parameters.name }}
+  displayName: 'Lint & Format Check'
+  timeoutInMinutes: 10
+  cancelTimeoutInMinutes: 2
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: ${{ parameters.condition }}
+  pool: ${{ parameters.pool }}
+
+  steps:
+    - checkout: self
+
+    - template: ../tasks/lint-check.yml
+      parameters:
+        dotnetVersion: $(DOTNET_VERSION)
+        nodeVersion: $(NODE_VERSION)
+        workingDirectory: '$(Build.SourcesDirectory)/$(REACT_APP_PATH)'
