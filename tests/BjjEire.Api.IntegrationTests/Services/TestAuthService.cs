@@ -21,7 +21,7 @@ public class TestAuthService(HttpClient httpClient, ILogger<TestAuthService> log
         var queryParams = new Dictionary<string, string> { { "userId", userId }, { "role", role } };
         var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
         var baseAddress = httpClient.BaseAddress?.ToString().TrimEnd('/') ?? throw new InvalidOperationException("HttpClient BaseAddress is not set.");
-        var tokenUrl = new Uri($"{baseAddress}/generate-token?{queryString}");
+        var tokenUrl = new Uri($"{baseAddress}/api/developmentutils/generate-token?{queryString}");
 
         using var request = new HttpRequestMessage(HttpMethod.Get, tokenUrl);
         if (customHeaders != null)
