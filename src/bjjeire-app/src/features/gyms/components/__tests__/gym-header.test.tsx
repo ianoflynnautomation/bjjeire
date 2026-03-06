@@ -25,7 +25,7 @@ describe('GymHeader Component', () => {
       expect(
         screen.getByText(
           `${defaultProps.county} County`,
-          { selector: 'p' }
+          { selector: 'span' }
         )
       ).toBeInTheDocument()
       expect(screen.getByText(

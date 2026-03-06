@@ -79,7 +79,7 @@ const EventsPage: React.FC = () => {
           dataTestId={EventsPageTestIds.HEADER}
         />
 
-        <div className="mb-8">
+        <div className="mb-8 pb-8 border-b border-white/[0.08]">
           <EventFilters
             selectedCity={activeFilters.county}
             selectedType={activeFilters.type}
@@ -96,7 +96,7 @@ const EventsPage: React.FC = () => {
             isFetching={isFetching}
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
-            onRetry={() => { void refetch() }}
+            onRetry={refetch}
             data={events}
             renderDataComponent={data => <EventsList events={data} />}
             noDataTitle="No Events Found"
@@ -111,7 +111,7 @@ const EventsPage: React.FC = () => {
           paginationInfo.totalPages > 1 &&
           !fetchError &&
           events.length > 0 && (
-            <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
+            <div className="mt-10 border-t border-white/[0.08] pt-8">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}

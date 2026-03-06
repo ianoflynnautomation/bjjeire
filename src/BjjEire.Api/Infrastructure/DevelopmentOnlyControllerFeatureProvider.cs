@@ -12,12 +12,9 @@ public class DevelopmentOnlyControllerFeatureProvider(IWebHostEnvironment enviro
         ArgumentNullException.ThrowIfNull(feature);
 
         if (!_environment.IsDevelopment()) {
-            var controllersToRemove = new List<TypeInfo>();
-            foreach (var controllerTypeInfo in feature.Controllers.ToList()) {
-                if (controllerTypeInfo.IsDefined(typeof(DevelopmentOnlyAttribute), inherit: true)) {
-                    controllersToRemove.Add(controllerTypeInfo);
-                }
-            }
+            var controllersToRemove = feature.Controllers
+                .Where(c => c.IsDefined(typeof(DevelopmentOnlyAttribute), inherit: true))
+                .ToList();
             foreach (var controllerTypeInfo in controllersToRemove) {
                 _ = feature.Controllers.Remove(controllerTypeInfo);
             }

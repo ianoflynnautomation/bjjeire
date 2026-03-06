@@ -22,6 +22,11 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
+Object.defineProperty(window, 'scrollTo', {
+  writable: true,
+  value: vi.fn(),
+})
+
 const mockIntersectionObserver = vi.fn()
 mockIntersectionObserver.mockReturnValue({
   observe: vi.fn(),

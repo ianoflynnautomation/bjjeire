@@ -78,7 +78,7 @@ const GymsPage: React.FC = () => {
           totalGyms={paginationInfo?.totalItems}
         />
 
-        <div className="mb-8">
+        <div className="mb-8 pb-8 border-b border-white/[0.08]">
           <SelectFilter
             id="county-filter"
             label="Select County"
@@ -96,7 +96,7 @@ const GymsPage: React.FC = () => {
             isFetching={isFetching}
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
-            onRetry={() => { void refetch() }}
+            onRetry={refetch}
             data={gyms}
             renderDataComponent={data => <GymsList gyms={data} />}
             noDataTitle="No Gyms Found"
@@ -111,7 +111,7 @@ const GymsPage: React.FC = () => {
           paginationInfo.totalPages > 1 &&
           !fetchError &&
           gyms.length > 0 && (
-            <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-700">
+            <div className="mt-10 border-t border-white/[0.08] pt-8">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}

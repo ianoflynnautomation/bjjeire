@@ -1,5 +1,6 @@
 import type React from 'react'
-import clsx from 'clsx'
+import { buttonVariants } from '@/lib/button-variants'
+import { cn } from '@/lib/utils'
 import {
   ButtonGroupFilterTestIds
 } from '@/constants/commonDataTestIds'
@@ -30,9 +31,9 @@ const ButtonGroupFilter = <T extends string | number>({
   className,
 }: ButtonGroupFilterProps<T>): React.JSX.Element => {
   return (
-    <fieldset className={clsx('flex-1', className)} data-testid={dataTestId}>
+    <fieldset className={cn('flex-1', className)} data-testid={dataTestId}>
       <legend
-        className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-50"
+        className="mb-1.5 block text-sm font-semibold text-slate-300"
         data-testid={ButtonGroupFilterTestIds.LABEL}
       >
         {label}
@@ -42,7 +43,6 @@ const ButtonGroupFilter = <T extends string | number>({
         role="group"
         aria-label={label}
       >
-        {/* Render all buttons from options, including 'all' */}
         {options.map(option => (
           <button
             key={String(option.value)}
@@ -51,14 +51,11 @@ const ButtonGroupFilter = <T extends string | number>({
             disabled={disabled}
             aria-pressed={selectedValue === option.value}
             data-testid={ButtonGroupFilterTestIds.BUTTON}
-            className={clsx(
-              'rounded-md px-3 py-1.5 text-sm font-medium border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
-              selectedValue === option.value
-                ? 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:border-emerald-500 dark:hover:bg-emerald-600'
-                : 'bg-white text-slate-700 border-slate-300 hover:bg-emerald-50 hover:border-emerald-400 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-600 dark:hover:border-emerald-500',
-              disabled
-                ? 'opacity-50 cursor-not-allowed hover:bg-white dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                : ''
+            className={cn(
+              buttonVariants({
+                variant: selectedValue === option.value ? 'solid' : 'outline',
+                size: 'sm',
+              })
             )}
           >
             {option.label}

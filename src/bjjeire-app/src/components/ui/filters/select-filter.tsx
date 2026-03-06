@@ -1,6 +1,6 @@
 import type React from 'react'
 import { MapPinIcon } from '@heroicons/react/20/solid'
-import clsx from 'clsx'
+import { cn } from '@/lib/utils'
 import { SelectFilterTestIds } from '@/constants/commonDataTestIds'
 
 interface SelectFilterProps<T> {
@@ -36,10 +36,10 @@ function SelectFilter<T extends string | number>({
   const iconPadding = Icon ? 'pl-10' : 'pl-4'
 
   return (
-    <div className={clsx('flex flex-col', className)} data-testid={baseTestId}>
+    <div className={cn('flex flex-col', className)} data-testid={baseTestId}>
       <label
         htmlFor={id}
-        className="text-sm font-medium text-slate-700 dark:text-slate-50"
+        className="text-sm font-semibold text-slate-300"
         data-testid={SelectFilterTestIds.LABEL}
       >
         {label}
@@ -47,7 +47,7 @@ function SelectFilter<T extends string | number>({
       <div className="relative mt-1">
         {Icon && (
           <Icon
-            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-500 dark:text-emerald-400"
+            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-400"
             aria-hidden="true"
             data-testid={SelectFilterTestIds.ICON}
           />
@@ -58,10 +58,10 @@ function SelectFilter<T extends string | number>({
           onChange={handleChange}
           disabled={disabled}
           data-testid={SelectFilterTestIds.SELECT}
-          className={clsx(
-            'block w-full rounded-md border-slate-300 py-2 pr-4 text-base focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-50 dark:focus:border-emerald-500 dark:focus:ring-emerald-500',
+          className={cn(
+            'block w-full rounded-xl border border-white/[0.10] bg-slate-700/50 py-2 pr-4 text-base text-slate-200 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm',
             iconPadding,
-            disabled && 'cursor-not-allowed bg-slate-100 opacity-70 dark:bg-slate-800'
+            disabled && 'cursor-not-allowed bg-slate-800/50 opacity-70'
           )}
         >
           {placeholderOptionLabel && (

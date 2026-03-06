@@ -26,24 +26,11 @@ jobs:
   steps:
     - checkout: self
 
-    - task: PowerShell@2
-      name: SetFinalTestFilter
-      displayName: 'Generate and Combine Test Exclusion Filter'
-      inputs:
-        filePath: '$(System.DefaultWorkingDirectory)/.ado/scripts/Generate-Quarantine-Filter.ps1'
-        arguments: >
-          -Organization "$(ORGANISATION_NAME)"
-          -Project "$(System.TeamProject)"
-          -Pat "$(System.AccessToken)"
-          -BaseFilter "$(testFilterCriteria)"
-      env:
-        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-
     - template: ../tasks/dotnet-run-tests.yml
       parameters:
         dotnetVersion: $(DOTNET_VERSION)
         testArtifactName: $(testArtifactName)
         testAssemblyPattern: $(testAssemblyPattern)
         testResultsNamePrefix: $(testType)
-        testFilterCriteria: '$(SetFinalTestFilter.finalTestFilter)'
+        testFilterCriteria: '$(testFilterCriteria)'
         downloadPath: '$(TEST_ARTIFACTS_DOWNLOAD_PATH)'

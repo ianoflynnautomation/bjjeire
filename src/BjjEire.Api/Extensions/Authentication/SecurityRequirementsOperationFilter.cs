@@ -34,6 +34,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
             bool usesJwt = false;
             bool usesApiKey = false;
 
+#pragma warning disable S3267
             foreach (var attr in authorizeAttributes) {
                 if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes)) {
                     usesJwt = true;
@@ -53,6 +54,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
                     usesApiKey = true;
                 }
             }
+#pragma warning restore S3267
 
             // If no schemes were explicitly found but [Authorize] is present,
             // you might default to adding your primary scheme (e.g., JWT).
@@ -67,9 +69,6 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
                 // Add JWT Bearer Authentication
                 securityRequirement.Add(new OpenApiSecurityScheme {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "BearerAuth" },
-                    // Scheme = "oauth2", // Not strictly necessary here if type is http/bearer
-                    // Name = "Bearer", // Not strictly necessary here
-                    // In = ParameterLocation.Header // Defined in AddSecurityDefinition
                 }, []);
             }
 

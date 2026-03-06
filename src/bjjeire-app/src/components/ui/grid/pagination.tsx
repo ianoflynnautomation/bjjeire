@@ -1,6 +1,8 @@
 import React, { memo } from 'react'
 import type { HateoasPagination } from '@/types/common'
-import clsx from 'clsx'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { buttonVariants } from '@/lib/button-variants'
+import { cn } from '@/lib/utils'
 import { PaginationTestIds } from '@/constants/commonDataTestIds'
 
 interface PaginationProps {
@@ -31,32 +33,6 @@ const Pagination: React.FC<PaginationProps> = ({
   const rootTestId =
     dataTestIdFromProp || PaginationTestIds.ROOT
 
-  const buttonBaseClasses = clsx(
-    'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
-    'dark:focus-visible:ring-offset-slate-900'
-  )
-
-  const activeClasses = clsx(
-    'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-600',
-    'dark:from-emerald-500 dark:to-emerald-600 dark:border-emerald-500',
-    'hover:bg-gradient-to-r hover:from-emerald-700 hover:to-emerald-800',
-    'dark:hover:from-emerald-600 dark:hover:to-emerald-700'
-  )
-
-  const inactiveClasses = clsx(
-    'bg-white text-slate-700 border-slate-300',
-    'hover:bg-emerald-50 hover:border-emerald-400',
-    'dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600',
-    'dark:hover:bg-slate-600 dark:hover:border-emerald-500'
-  )
-
-  const disabledClasses = clsx(
-    'opacity-50 cursor-not-allowed',
-    'bg-slate-100 border-slate-300 text-slate-500',
-    'dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500'
-  )
-
   const itemsStart =
     totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null
   const itemsEnd =
@@ -68,26 +44,26 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <nav
-      data-testid={rootTestId} 
-      className="flex flex-col items-center justify-center gap-3 py-6 bg-emerald-50 dark:bg-slate-800 rounded-md shadow-sm"
+      data-testid={rootTestId}
+      className="flex flex-col items-center justify-center gap-4 py-8"
       aria-label="Pagination navigation"
     >
       {itemsText && (
-        <div
+        <p
           data-testid={PaginationTestIds.ITEMS_TEXT}
-          className="mb-2 text-sm text-slate-600 dark:text-slate-300"
+          className="inline-flex items-center rounded-full bg-emerald-900/40 px-3 py-1 text-xs font-medium tabular-nums text-emerald-300 ring-1 ring-emerald-500/30"
           aria-live="polite"
         >
           {itemsText}
-        </div>
+        </p>
       )}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Previous Page */}
         <button
           data-testid={PaginationTestIds.PREV_BUTTON}
-          className={clsx(
-            buttonBaseClasses,
-            hasPreviousPage ? inactiveClasses : disabledClasses
+          className={cn(
+            buttonVariants({ variant: 'outline', size: 'sm' }),
+            'gap-1.5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'
           )}
           onClick={() =>
             hasPreviousPage && onPageChange(previousPageUrl, currentPage - 1)
@@ -95,27 +71,29 @@ const Pagination: React.FC<PaginationProps> = ({
           disabled={!hasPreviousPage}
           aria-label="Previous page"
         >
-          « Prev
+          <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
+          Prev
         </button>
 
         {/* Current Page Indicator */}
         <span
           data-testid={PaginationTestIds.PAGE_INDICATOR}
-          className={clsx(
-            'px-3 py-1.5 text-sm font-medium rounded-md border',
-            activeClasses
+          className={cn(
+            buttonVariants({ variant: 'gradient', size: 'sm' }),
+            'min-w-[6rem] tabular-nums'
           )}
           aria-current="page"
+          aria-label={`Page ${currentPage} of ${totalPages}`}
         >
-          Page {currentPage} of {totalPages}
+          {currentPage} / {totalPages}
         </span>
 
         {/* Next Page */}
         <button
           data-testid={PaginationTestIds.NEXT_BUTTON}
-          className={clsx(
-            buttonBaseClasses,
-            hasNextPage ? inactiveClasses : disabledClasses
+          className={cn(
+            buttonVariants({ variant: 'outline', size: 'sm' }),
+            'gap-1.5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'
           )}
           onClick={() =>
             hasNextPage && onPageChange(nextPageUrl, currentPage + 1)
@@ -123,7 +101,8 @@ const Pagination: React.FC<PaginationProps> = ({
           disabled={!hasNextPage}
           aria-label="Next page"
         >
-          Next »
+          Next
+          <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     </nav>
