@@ -4,7 +4,6 @@ using BjjEire.Api.Extensions.Authentication;
 namespace BjjEire.Api.Extensions.OpenApi;
 
 public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeProvider) : IOpenApiOperationTransformer {
-    private readonly IAuthenticationSchemeProvider _schemeProvider = schemeProvider;
     private const string OpenApiBearerSchemeId = "BearerAuth";
     private const string OpenApiApiKeySchemeId = "ApiKeyAuth";
 
@@ -25,8 +24,8 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
         var securityRequirement = new OpenApiSecurityRequirement();
         bool schemeAddedToRequirement = false;
 
-        var allRegisteredSchemes = await _schemeProvider.GetAllSchemesAsync();
-        var defaultAuthenticateScheme = await _schemeProvider.GetDefaultAuthenticateSchemeAsync();
+        var allRegisteredSchemes = await schemeProvider.GetAllSchemesAsync();
+        var defaultAuthenticateScheme = await schemeProvider.GetDefaultAuthenticateSchemeAsync();
 
         var specifiedSchemes = authorizeData
             .Select(ad => ad.AuthenticationSchemes?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))

@@ -58,8 +58,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     public async Task CreateGym_WithNullData_ShouldReturnBadRequest() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
-        command.Data = null!;
+        var command = new CreateGymCommand { Data = null! };
 
         // Act
         var response = await Http.PostAsJsonAsync("api/gym", command);

@@ -1,6 +1,7 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.FunctionalTests.Data;
 using BjjEire.Domain.Entities.Gyms;
@@ -37,8 +38,7 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     public async Task CreateGym_WithNullData_ShouldReturnBadRequest()
     {
         // Arrange
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
-        command.Data = null!;
+        var command = new CreateGymCommand { Data = null! };
 
         // Act
         var exception = await Should.ThrowAsync<ValidationException>(async () =>

@@ -7,8 +7,6 @@ namespace BjjEire.Api.Extensions.Exceptions;
 
 public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHostEnvironment environment)
     : IExceptionHandler {
-    private readonly ILogger<CustomExceptionHandler> _logger = logger;
-    private readonly IHostEnvironment _environment = environment;
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
         ArgumentNullException.ThrowIfNull(httpContext);
@@ -101,11 +99,11 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
     private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext, string userId) {
         var errorId = Guid.NewGuid().ToString();
         const string title = "Internal Server Error";
-        var detail = _environment.IsDevelopment() || _environment.IsEnvironment("Docker")
+        var detail = environment.IsDevelopment() || environment.IsEnvironment("Docker")
             ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
             : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
 
-        _logger.LogError(ApplicationLogEvents.ExceptionHandling.UnexpectedExceptionOccurred, exception,
+        logger.LogError(ApplicationLogEvents.ExceptionHandling.UnexpectedExceptionOccurred, exception,
             "Unexpected error occurred. ErrorId: {ErrorId}, Request: {RequestMethod} {RequestPath}, ASPNetTraceId: {ASPNetTraceId}, UserId: {UserId}",
             errorId,
             httpContext.Request.Method,
@@ -125,7 +123,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
     private void LogHandledException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails, string userId) {
         var logLevel = problemDetails.Status >= 500 ? LogLevel.Error : LogLevel.Warning;
 
-        _logger.Log(logLevel, ApplicationLogEvents.ExceptionHandling.ExceptionHandled, exception,
+        logger.Log(logLevel, ApplicationLogEvents.ExceptionHandling.ExceptionHandled, exception,
             "ExceptionHandler handled an error. ExceptionType: {ExceptionType}, OriginalExceptionMessage: \"{OriginalExceptionMessage}\", UserId: {UserId}, Request: {RequestMethod} {RequestPath}, ResponseStatus: {ResponseStatusCode}, ResponseTitle: \"{ResponseErrorTitle}\", ClientFacingDetail: \"{ClientFacingDetail}\", ASPNetTraceId: {ASPNetTraceId}",
             exception.GetType().FullName,
             exception.Message,
