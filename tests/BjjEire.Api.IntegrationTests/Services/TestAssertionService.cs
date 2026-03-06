@@ -31,7 +31,9 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
         errorResponse.Title.ShouldBe("Validation Failed");
         _ = errorResponse.Errors.ShouldNotBeNull();
 
-        string actualErrorsForDisplay() => $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
+        string actualErrorsForDisplay() {
+            return $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
+        }
 
         errorResponse.Errors.Count.ShouldBe(expectedErrors.Length,
             $"Expected {expectedErrors.Length} validation errors, but found {errorResponse.Errors.Count}. {actualErrorsForDisplay()}");
@@ -49,7 +51,7 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
     }
 
 
-    public async Task AssertRateLimitHeadersAsync(
+    public Task AssertRateLimitHeadersAsync(
     HttpResponseMessage response,
     int expectedPermitLimit,
     int expectedWindowInSeconds,
@@ -67,6 +69,7 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
         var currentUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         resetTimestamp.ShouldBeGreaterThan(currentUnixTime - 10, "X-RateLimit-Reset timestamp seems too far in the past.");
         resetTimestamp.ShouldBeLessThanOrEqualTo(currentUnixTime + expectedWindowInSeconds + 10, "X-RateLimit-Reset timestamp seems too far in the future.");
+        return Task.CompletedTask;
     }
 
     public async Task AssertRateLimitProblemDetailsAsync(

@@ -20,7 +20,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     : SequentialTestBase(fixture, output) {
 
     [Fact]
-    public async Task GetAllGyms_WhenNoGymsExist_ShouldReturnOkAndEmptyList() {
+    public async Task GetAllGyms_WhenNoGymsExist_ShouldReturnOkAndEmptyListAsync() {
         // Arrange
 
         // Act
@@ -36,7 +36,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     }
 
     [Fact]
-    public async Task GetAllGyms_WhenGymsExist_ShouldReturnAllActiveGyms() {
+    public async Task GetAllGyms_WhenGymsExist_ShouldReturnAllActiveGymsAsync() {
         // Arrange
         var inactiveGym = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.PermanentlyClosed);
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
@@ -56,7 +56,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
 
     [Fact]
-    public async Task GetAllGyms_WithCountyFilter_ShouldReturnOnlyGymsFromThatCounty() {
+    public async Task GetAllGyms_WithCountyFilter_ShouldReturnOnlyGymsFromThatCountyAsync() {
         // Arrange
         var gym1 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
         var gym2 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
@@ -79,7 +79,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
 
     [Fact]
-    public async Task GetAllGyms_WithPagination_ShouldRespectPageSizeAndNumber() {
+    public async Task GetAllGyms_WithPagination_ShouldRespectPageSizeAndNumberAsync() {
 
         // Arrange
         var gyms = Enumerable.Range(1, 5).Select(_ => GymTestDataFactory.GetValidGym()).ToArray();
@@ -102,7 +102,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     }
 
     [Fact]
-    public async Task GetAllGyms_WithPageSizeLargerThanTotalItems_ShouldReturnAllItems() {
+    public async Task GetAllGyms_WithPageSizeLargerThanTotalItems_ShouldReturnAllItemsAsync() {
 
         // Arrange
         var gym1 = GymTestDataFactory.CreateGym(g => g.County = County.Cork);
@@ -125,7 +125,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     [Theory]
     [InlineData("page=0")]
     [InlineData("page=-1")]
-    public async Task GetAllGyms_WithInvalidPageNumber_ShouldUseDefaultPageNumber(string invalidPageQuery) {
+    public async Task GetAllGyms_WithInvalidPageNumber_ShouldUseDefaultPageNumberAsync(string invalidPageQuery) {
 
         // Arrange
         await Database.SeedEntitiesAsync(GymTestDataFactory.GetValidGym());
@@ -145,7 +145,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     [InlineData("pageSize=0")]
     [InlineData("pageSize=-1")]
     [InlineData("pageSize=101")]
-    public async Task GetAllGyms_WithInvalidPageSize_ShouldUseDefaultPageSize(string invalidPageSizeQuery) {
+    public async Task GetAllGyms_WithInvalidPageSize_ShouldUseDefaultPageSizeAsync(string invalidPageSizeQuery) {
         // Arrange
         var gymsToSeed = Enumerable.Range(1, 25)
             .Select(_ => GymTestDataFactory.GetValidGym())
@@ -166,7 +166,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     }
 
     [Fact]
-    public async Task GetAllGyms_WithFilterAndPagination_ShouldReturnCorrectSubset() {
+    public async Task GetAllGyms_WithFilterAndPagination_ShouldReturnCorrectSubsetAsync() {
         // Arrange
         var gymsInCork = Enumerable.Range(1, 5).Select(i => GymTestDataFactory.CreateGym(g => {
             g.Name = $"Cork Gym {i}";
@@ -188,7 +188,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     }
 
     [Fact]
-    public async Task GetAllGyms_ShouldReturnGymsSortedByName() {
+    public async Task GetAllGyms_ShouldReturnGymsSortedByNameAsync() {
         // Arrange
         var gymC = GymTestDataFactory.CreateGym(g => g.Name = "C-Team Gym");
         var gymA = GymTestDataFactory.CreateGym(g => g.Name = "A-Team Gym");
@@ -216,7 +216,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     // }
 
     [Fact]
-    public async Task GetAllGyms_WithFilterThatHasNoMatches_ShouldReturnOkAndEmptyList() {
+    public async Task GetAllGyms_WithFilterThatHasNoMatches_ShouldReturnOkAndEmptyListAsync() {
         // Arrange
         await Database.SeedEntitiesAsync(GymTestDataFactory.CreateGym(g => g.County = County.Dublin));
 
@@ -231,7 +231,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     }
 
     [Fact]
-    public async Task GetAllGyms_WhenOnLastPage_ShouldHaveHasNextPageFalse() {
+    public async Task GetAllGyms_WhenOnLastPage_ShouldHaveHasNextPageFalseAsync() {
         // Arrange
         var gyms = Enumerable.Range(1, 4).Select(_ => GymTestDataFactory.GetValidGym()).ToArray();
         await Database.SeedEntitiesAsync(gyms);
