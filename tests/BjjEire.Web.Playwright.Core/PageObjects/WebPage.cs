@@ -2,8 +2,7 @@ using Microsoft.Playwright;
 
 namespace BjjEire.Web.Playwright.Core.PageObjects;
 
-public class WebPage(IPage page)
-{
+public class WebPage(IPage page) {
     private IPage Page { get; } = page;
 
     protected IPageAssertions Expect() => Assertions.Expect(Page);

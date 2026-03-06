@@ -5,8 +5,7 @@ using BjjEire.Domain.Entities;
 
 namespace BjjEire.Api.IntegrationTests.Interfaces;
 
-public interface ITestDatabaseService
-{
+public interface ITestDatabaseService {
     Task ClearCollectionsAsync();
     Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity;
 }

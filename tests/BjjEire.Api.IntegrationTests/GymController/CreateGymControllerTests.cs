@@ -34,8 +34,8 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
 
         //NOTE: Failing test to test flaky test pipeline
         //createdGymResponse.ShouldBeNull();
-        createdGymResponse.ShouldNotBeNull();
-        createdGymResponse.Data.ShouldNotBeNull();
+        _ = createdGymResponse.ShouldNotBeNull();
+        _ = createdGymResponse.Data.ShouldNotBeNull();
         createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
     }
 

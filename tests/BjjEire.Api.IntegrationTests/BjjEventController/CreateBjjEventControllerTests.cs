@@ -33,8 +33,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
         var createdBjjEventResponse = await Http.ReadAsJsonAsync<CreateBjjEventResponse>(response);
 
-        createdBjjEventResponse.ShouldNotBeNull();
-        createdBjjEventResponse.Data.ShouldNotBeNull();
+        _ = createdBjjEventResponse.ShouldNotBeNull();
+        _ = createdBjjEventResponse.Data.ShouldNotBeNull();
         createdBjjEventResponse.Data.ShouldBeEquivalentTo(command.Data);
     }
 

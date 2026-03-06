@@ -12,10 +12,8 @@ using MongoDB.Driver;
 
 namespace BjjEire.Api.IntegrationTests;
 
-public static class DependencyInjection
-{
-    public static IServiceCollection AddApiTestServices(this IServiceCollection services)
-    {
+public static class DependencyInjection {
+    public static IServiceCollection AddApiTestServices(this IServiceCollection services) {
         ArgumentNullException.ThrowIfNull(services);
 
         _ = services.AddScoped<ITestDatabaseService, TestDatabaseService>();
@@ -25,8 +23,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddTestDatabaseServices(this IServiceCollection services,string databaseName, string connectionString)
-    {
+    public static IServiceCollection AddTestDatabaseServices(this IServiceCollection services, string databaseName, string connectionString) {
         ArgumentNullException.ThrowIfNull(services);
 
         _ = services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
@@ -37,8 +34,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection RemoveTestServices(this IServiceCollection services)
-    {
+    public static IServiceCollection RemoveTestServices(this IServiceCollection services) {
         ArgumentNullException.ThrowIfNull(services);
 
         _ = services.RemoveAll<IMongoClient>();

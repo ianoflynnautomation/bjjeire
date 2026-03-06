@@ -50,13 +50,16 @@ public static class AuthenticationExtensions {
         var errors = new List<string>();
         if (string.IsNullOrWhiteSpace(options.Issuer)) { errors.Add($"{nameof(options.Issuer)} is missing."); }
         if (string.IsNullOrWhiteSpace(options.Audience)) { errors.Add($"{nameof(options.Audience)} is missing."); }
-        if (string.IsNullOrWhiteSpace(options.Key))
+        if (string.IsNullOrWhiteSpace(options.Key)) {
             errors.Add($"{nameof(options.Key)} is missing.");
-        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_", StringComparison.Ordinal))
+        }
+        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_", StringComparison.Ordinal)) {
             errors.Add($"{nameof(options.Key)} must be at least 32 bytes (256 bits) and not a debug key in production.");
+        }
 
-        if (errors.Count > 0)
+        if (errors.Count > 0) {
             throw new InvalidOperationException($"Invalid JWT configuration: {string.Join(" ", errors)}");
+        }
     }
 
     private static void ValidateApiKeyOptions(ApiKeyOptions options) {
@@ -66,7 +69,8 @@ public static class AuthenticationExtensions {
         if (string.IsNullOrWhiteSpace(options.HeaderName)) { errors.Add($"{nameof(options.HeaderName)} is missing."); }
         if (string.IsNullOrWhiteSpace(options.ApiKeyValue)) { errors.Add($"{nameof(options.ApiKeyValue)} is missing."); }
 
-        if (errors.Count > 0)
+        if (errors.Count > 0) {
             throw new InvalidOperationException($"Invalid API Key configuration: {string.Join(" ", errors)}");
+        }
     }
 }

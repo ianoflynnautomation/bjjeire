@@ -4,26 +4,22 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace BjjEire.Api.IntegrationTests.Extensions;
 
-public static class TestCacheExtension
-{
-    public static IServiceCollection AddTestCacheServices(this IServiceCollection services)
-    {
-        services.RemoveAll<HybridCache>();
+public static class TestCacheExtension {
+    public static IServiceCollection AddTestCacheServices(this IServiceCollection services) {
+        _ = services.RemoveAll<HybridCache>();
         _ = services.AddSingleton<HybridCache, NoOpHybridCache>();
 
         return services;
     }
 
-    public static IServiceCollection RemoveTestCacheServices(this IServiceCollection services)
-    {
+    public static IServiceCollection RemoveTestCacheServices(this IServiceCollection services) {
         ArgumentNullException.ThrowIfNull(services);
-        services.RemoveAll<HybridCache>();
+        _ = services.RemoveAll<HybridCache>();
 
         return services;
     }
 
-    public sealed class NoOpHybridCache : HybridCache
-    {
+    public sealed class NoOpHybridCache : HybridCache {
         public override ValueTask<T> GetOrCreateAsync<TState, T>(
             string key, TState state, Func<TState, CancellationToken, ValueTask<T>> factory,
             HybridCacheEntryOptions? options = null, IEnumerable<string>? tags = null,

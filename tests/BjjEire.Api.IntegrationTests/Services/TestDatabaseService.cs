@@ -22,10 +22,9 @@ public class TestDatabaseService(IMongoDatabase database, ILogger<TestDatabaseSe
     public async Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity {
         //ArgumentNullException.ThrowIfNull(entities);
 
-        if (entities == null || entities.Length == 0)
-    {
-        return;
-    }
+        if (entities == null || entities.Length == 0) {
+            return;
+        }
 
         var collectionName = typeof(TEntity).Name;
         logger.LogInformation("Seeding {Count} entities into collection {CollectionName}", entities.Length, collectionName);

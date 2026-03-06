@@ -38,14 +38,16 @@ public class LoggingBehaviour<TRequest, TResponse>(
             TResponse response = await next(cancellationToken);
             success = true;
             return response;
-        } finally {
+        }
+        finally {
             stopwatch.Stop();
             if (success) {
                 logger.LogInformation(
                     ApplicationLogEvents.RequestHandling.Success,
                     "Handled {RequestName}; Returned {ResponseName}; Duration: {DurationMs}ms",
                     requestName, responseName, stopwatch.ElapsedMilliseconds);
-            } else {
+            }
+            else {
                 logger.LogWarning(
                     ApplicationLogEvents.RequestHandling.Failure,
                     "Handling {RequestName} failed; Duration: {DurationMs}ms",

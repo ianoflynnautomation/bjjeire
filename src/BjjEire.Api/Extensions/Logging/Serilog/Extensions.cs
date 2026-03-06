@@ -54,11 +54,9 @@ public static class Extensions {
             return LogEventLevel.Error;
         }
 
-        if (httpContext.Response.StatusCode >= 400) {
-            return LogEventLevel.Warning;
-        }
-
-        return (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
+        return httpContext.Response.StatusCode >= 400
+            ? LogEventLevel.Warning
+            : (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
             httpContext.Response.StatusCode < 400)
             ? LogEventLevel.Verbose
             : LogEventLevel.Information;
