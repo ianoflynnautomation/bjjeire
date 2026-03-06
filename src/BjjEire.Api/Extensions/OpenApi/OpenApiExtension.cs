@@ -12,7 +12,6 @@ public static class OpenApiExtensions {
 
     public static IServiceCollection AddAppOpenApiServices(this IServiceCollection services) {
         ArgumentNullException.ThrowIfNull(services);
-        var logger = services.BuildServiceProvider().GetService<ILoggerFactory>()?.CreateLogger(nameof(OpenApiExtensions));
 
         _ = services.AddEndpointsApiExplorer();
 
@@ -37,13 +36,11 @@ public static class OpenApiExtensions {
                     });
                 }
 
-                var apiKeyOptions = context.ApplicationServices.GetRequiredService<IOptions<ApiKeyOptions>>()?.Value;
-                var apiKeyHeaderName = apiKeyOptions?.HeaderName;
+                var apiKeyHeaderName = context.ApplicationServices
+                    .GetRequiredService<IOptions<ApiKeyOptions>>().Value.HeaderName;
 
-                if (string.IsNullOrWhiteSpace(apiKeyHeaderName)) {
-                    logger?.LogWarning("ApiKeyOptions.HeaderName is not configured. Using default 'X-API-KEY' for OpenAPI documentation. Actual authentication may fail if not properly configured.");
+                if (string.IsNullOrWhiteSpace(apiKeyHeaderName))
                     apiKeyHeaderName = "X-API-KEY";
-                }
 
                 if (!document.Components.SecuritySchemes.ContainsKey(ApiKeyAuthSchemeId)) {
                     document.Components.SecuritySchemes.Add(ApiKeyAuthSchemeId, new OpenApiSecurityScheme {
@@ -63,8 +60,8 @@ public static class OpenApiExtensions {
         return services;
     }
 
+    // NOTE: Review whether this Swashbuckle setup is still needed alongside AddAppOpenApiServices above.
     internal static IHostApplicationBuilder ConfigureSwaggerGenWithDoc(this IHostApplicationBuilder builder) {
-
         _ = builder.Services.AddSwaggerGen(options => {
             options.SwaggerDoc("v1", new OpenApiInfo {
                 Version = "v1",
@@ -72,7 +69,7 @@ public static class OpenApiExtensions {
                 Description = "API for BjjEire services (with Auth)"
             });
 
-            options.AddSecurityDefinition("BearerAuth", new OpenApiSecurityScheme {
+            options.AddSecurityDefinition(BearerAuthSchemeId, new OpenApiSecurityScheme {
                 Name = "Authorization",
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
@@ -84,13 +81,12 @@ public static class OpenApiExtensions {
             var apiKeyOptions = builder.Configuration.GetSection(ApiKeyOptions.SectionName).Get<ApiKeyOptions>();
             var apiKeyHeaderName = apiKeyOptions?.HeaderName ?? "X-API-KEY";
 
-            options.AddSecurityDefinition("ApiKeyAuth", new OpenApiSecurityScheme {
+            options.AddSecurityDefinition(ApiKeyAuthSchemeId, new OpenApiSecurityScheme {
                 Type = SecuritySchemeType.ApiKey,
                 In = ParameterLocation.Header,
                 Name = apiKeyHeaderName,
                 Description = $"API Key Authentication using the '{apiKeyHeaderName}' header."
             });
-            // This filter will add the lock icon and security context to endpoints with [Authorize]
             options.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 

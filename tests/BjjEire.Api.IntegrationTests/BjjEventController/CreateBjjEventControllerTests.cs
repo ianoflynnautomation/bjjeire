@@ -55,8 +55,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     public async Task CreateBjjEvent_WithNullData_ShouldReturnBadRequest() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        command.Data = null!;
+        var command = new CreateBjjEventCommand { Data = null! };
 
         // Act
         var response = await Http.PostAsJsonAsync("api/bjjevent", command);

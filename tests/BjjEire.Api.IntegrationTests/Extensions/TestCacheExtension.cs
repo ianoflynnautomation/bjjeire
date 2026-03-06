@@ -1,7 +1,4 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
-// Licensed under the MIT License.
-
-using BjjEire.Application.Common.Interfaces;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -11,7 +8,8 @@ public static class TestCacheExtension
 {
     public static IServiceCollection AddTestCacheServices(this IServiceCollection services)
     {
-        _ = services.AddSingleton<ICacheBase, NoOpCache>();
+        services.RemoveAll<HybridCache>();
+        _ = services.AddSingleton<HybridCache, NoOpHybridCache>();
 
         return services;
     }
@@ -19,25 +17,29 @@ public static class TestCacheExtension
     public static IServiceCollection RemoveTestCacheServices(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
-        _ = services.RemoveAll<ICacheBase>();
+        services.RemoveAll<HybridCache>();
 
         return services;
     }
 
-    public class NoOpCache : ICacheBase
+    public sealed class NoOpHybridCache : HybridCache
     {
-        public Task ClearAsync(bool publisher = true) => Task.CompletedTask;
+        public override ValueTask<T> GetOrCreateAsync<TState, T>(
+            string key, TState state, Func<TState, CancellationToken, ValueTask<T>> factory,
+            HybridCacheEntryOptions? options = null, IEnumerable<string>? tags = null,
+            CancellationToken cancellationToken = default)
+            => factory(state, cancellationToken);
 
-        public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire) => acquire();
+        public override ValueTask SetAsync<T>(
+            string key, T value,
+            HybridCacheEntryOptions? options = null, IEnumerable<string>? tags = null,
+            CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
 
-        public Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime) => acquire();
+        public override ValueTask RemoveAsync(string key, CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
 
-        public Task RemoveAsync(string key, bool publisher = true) => Task.CompletedTask;
-
-        public Task RemoveByPrefixAsync(string prefix, bool publisher = true) => Task.CompletedTask;
-
-        public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire) => acquire();
-
-        public Task<T> SetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime) => acquire();
+        public override ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
     }
 }
