@@ -5,10 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Api.IntegrationTests.Common;
 
-public class TestLoggingEvents
-{
-    public static class Fixture
-    {
+public class TestLoggingEvents {
+    public static class Fixture {
         private const int BaseId = 12000;
         public static readonly EventId SetupStarting = new(BaseId + 1, nameof(SetupStarting));
         public static readonly EventId ContainerStarting = new(BaseId + 2, nameof(ContainerStarting));
@@ -16,8 +14,7 @@ public class TestLoggingEvents
         public static readonly EventId TeardownStarting = new(BaseId + 6, nameof(TeardownStarting));
         public static readonly EventId TeardownComplete = new(BaseId + 10, nameof(TeardownComplete));
     }
-    public static class TestLifecycle
-    {
+    public static class TestLifecycle {
         private const int BaseId = 13000;
         public static readonly EventId TestStarted = new(BaseId + 1, nameof(TestStarted));
         public static readonly EventId TestFinished = new(BaseId + 2, nameof(TestFinished));

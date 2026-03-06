@@ -232,7 +232,7 @@ public static class GymTestDataFactory {
         }
 
         if (tempStr.Length > max) {
-            tempStr = tempStr.Substring(0, max);
+            tempStr = tempStr[..max];
         }
 
         if (tempStr.Length < min) {

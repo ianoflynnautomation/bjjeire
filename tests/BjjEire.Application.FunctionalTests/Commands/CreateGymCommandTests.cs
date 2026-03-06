@@ -12,11 +12,9 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Application.FunctionalTests.Commands;
 
-public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
-{
+public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper) {
     [Fact]
-    public async Task CreateGym_WithValidData_ShouldCreateGym()
-    {
+    public async Task CreateGym_WithValidData_ShouldCreateGym() {
         // Arrange
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
@@ -35,20 +33,16 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     }
 
     [Fact]
-    public async Task CreateGym_WithNullData_ShouldReturnBadRequest()
-    {
+    public async Task CreateGym_WithNullData_ShouldReturnBadRequest() {
         // Arrange
         var command = new CreateGymCommand { Data = null! };
 
         // Act
-        var exception = await Should.ThrowAsync<ValidationException>(async () =>
-        {
-            await SendAsync(command);
-        });
+        var exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command));
 
         // Assert
         exception.Errors.ShouldNotBeEmpty();
-        exception.Errors.ShouldHaveSingleItem();
+        _ = exception.Errors.ShouldHaveSingleItem();
         exception.Errors.First().PropertyName.ShouldBe("Data");
         exception.Errors.First().ErrorMessage.ShouldContain("cannot be null");
 

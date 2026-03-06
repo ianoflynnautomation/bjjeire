@@ -14,9 +14,9 @@ public static class ApiConfiguration {
         var contextPath = solutionRoot;
         var dockerfilePath = Path.Combine(solutionRoot, "src/BjjEire.Api/Dockerfile");
 
-        var certPath = builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"] 
+        var certPath = builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"]
             ?? throw new InvalidOperationException("Certificate path is not configured.");
-        var certPassword = builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"] 
+        var certPassword = builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"]
             ?? throw new InvalidOperationException("Certificate password is not configured.");
 
         var api = builder.AddDockerfile("api", contextPath, dockerfilePath)

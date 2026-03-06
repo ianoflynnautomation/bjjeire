@@ -6,7 +6,7 @@ using Testcontainers.MongoDb;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>  {
+public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer> {
 
     public MongoDbTestContainerFixture() {
 

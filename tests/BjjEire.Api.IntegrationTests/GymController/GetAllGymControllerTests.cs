@@ -29,7 +29,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-        pagedResponse.ShouldNotBeNull();
+        _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.ShouldBeEmpty();
         pagedResponse.Pagination.TotalItems.ShouldBe(0);
 
@@ -92,7 +92,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-        pagedResponse.ShouldNotBeNull();
+        _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(5);
         pagedResponse.Pagination.CurrentPage.ShouldBe(2);
@@ -136,7 +136,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
-        pagedResponse.ShouldNotBeNull();
+        _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.CurrentPage.ShouldBe(1);
 
     }
@@ -159,7 +159,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var pagedResponse = await Http.ReadAsJsonAsync<GetGymPaginatedResponse>(response);
 
-        pagedResponse.ShouldNotBeNull();
+        _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.PageSize.ShouldBe(20);
         pagedResponse.Data.Count.ShouldBe(20);
 
