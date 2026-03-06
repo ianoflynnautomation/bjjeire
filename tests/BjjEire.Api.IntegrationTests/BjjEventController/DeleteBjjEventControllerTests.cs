@@ -18,7 +18,7 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
     : ParallelTestBase(fixture, output) {
 
     [Fact]
-    public async Task DeleteBjjEvent_WithValidId_ShouldDeleteBjjEvent() {
+    public async Task DeleteBjjEvent_WithValidId_ShouldDeleteBjjEventAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
@@ -32,7 +32,7 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
     }
 
     [Fact]
-    public async Task DeleteBjjEvent_WithoutAuthentication_ShouldReturnUnauthorized() {
+    public async Task DeleteBjjEvent_WithoutAuthentication_ShouldReturnUnauthorizedAsync() {
         // Arrange
         var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
         await Database.SeedEntitiesAsync(bjjevent1);
@@ -47,7 +47,7 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
 
 
     [Fact]
-    public async Task DeleteBjjEvent_WithInvalidId_ShouldReturnNotFound() {
+    public async Task DeleteBjjEvent_WithInvalidId_ShouldReturnNotFoundAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
@@ -65,7 +65,7 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
     [InlineData("36f1dd1e11ad1a1bf11111a00")]
     [InlineData("f1dd1e11ad1a1bf11111a00")]
     [InlineData("not-a-valid-id")]
-    public async Task DeleteBjjEvent_WithInvalidIdFormat_ShouldReturnBadRequest(string invalidId) {
+    public async Task DeleteBjjEvent_WithInvalidIdFormat_ShouldReturnBadRequestAsync(string invalidId) {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
 
@@ -77,7 +77,7 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
     }
 
     [Fact]
-    public async Task DeleteBjjEvent_CalledTwiceOnSameId_ShouldBeIdempotent() {
+    public async Task DeleteBjjEvent_CalledTwiceOnSameId_ShouldBeIdempotentAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent();
@@ -92,8 +92,8 @@ public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHel
         secondResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
-
-    public async Task DeleteBjjEvent_ConcurrentRequests_ShouldHandleCorrectly() {
+    [Fact]
+    public async Task DeleteBjjEvent_ConcurrentRequests_ShouldHandleCorrectlyAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);

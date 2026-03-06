@@ -16,7 +16,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     : ParallelTestBase(fixture, output) {
 
     [Fact]
-    public async Task DeleteGym_WithValidId_ShouldDeleteGym() {
+    public async Task DeleteGym_WithValidId_ShouldDeleteGymAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
@@ -30,7 +30,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     }
 
     [Fact]
-    public async Task DeleteGym_WithoutAuthentication_ShouldReturnUnauthorized() {
+    public async Task DeleteGym_WithoutAuthentication_ShouldReturnUnauthorizedAsync() {
         // Arrange
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
         await Database.SeedEntitiesAsync(gym1);
@@ -44,7 +44,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     }
 
     [Fact]
-    public async Task DeleteGym_WithInvalidId_ShouldReturnNotFound() {
+    public async Task DeleteGym_WithInvalidId_ShouldReturnNotFoundAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
@@ -62,7 +62,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("36f1dd1e11ad1a1bf11111a00")]
     [InlineData("f1dd1e11ad1a1bf11111a00")]
     [InlineData("not-a-valid-id")]
-    public async Task DeleteGym_WithInvalidIdFormat_ShouldReturnBadRequest(string invalidId) {
+    public async Task DeleteGym_WithInvalidIdFormat_ShouldReturnBadRequestAsync(string invalidId) {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
 
@@ -74,7 +74,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     }
 
     [Fact]
-    public async Task DeleteGym_CalledTwiceOnSameId_ShouldBeIdempotent() {
+    public async Task DeleteGym_CalledTwiceOnSameId_ShouldBeIdempotentAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var gym1 = GymTestDataFactory.CreateGym();
@@ -89,7 +89,8 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         secondResponse.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
-    public async Task DeleteGym_ConcurrentRequests_ShouldHandleCorrectly() {
+    [Fact]
+    public async Task DeleteGym_ConcurrentRequests_ShouldHandleCorrectlyAsync() {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var gym1 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);

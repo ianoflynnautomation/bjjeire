@@ -19,7 +19,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     private const int ExpectedRejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     [Fact]
-    public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeaders() {
+    public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeadersAsync() {
         // Arrange & Act
         HttpResponseMessage? lastResponse = null;
         for (var i = 0; i <= ConfiguredPermitLimit; i++) {
@@ -43,7 +43,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task GetGym_WhenUnderRateLimit_ShouldSucceed() {
+    public async Task GetGym_WhenUnderRateLimit_ShouldSucceedAsync() {
         // Arrange
         var requestsToMake = ConfiguredPermitLimit;
 
@@ -60,7 +60,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgain() {
+    public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgainAsync() {
         // Arrange
         for (var i = 0; i <= ConfiguredPermitLimit; i++) {
             _ = await HttpClient.GetAsync("api/gym");

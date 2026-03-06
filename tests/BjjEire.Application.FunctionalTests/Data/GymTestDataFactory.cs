@@ -54,23 +54,4 @@ public static class GymTestDataFactory {
             OfferedClasses = [ClassCategory.BJJGiAllLevels, ClassCategory.BJJGiFundamentals]
         };
     }
-
-    private static string SetMinMaxLength(this string? str, int min, int max) {
-        var tempStr = str;
-        if (string.IsNullOrEmpty(tempStr)) {
-            tempStr = new Faker().Lorem.Word().ToLower(CultureInfo.InvariantCulture);
-            if (string.IsNullOrEmpty(tempStr)) {
-                tempStr = "default";
-            }
-        }
-
-        if (tempStr.Length > max) {
-            tempStr = tempStr[..max];
-        }
-
-        if (tempStr.Length < min) {
-            tempStr = tempStr.PadRight(min, 'a');
-        }
-        return tempStr;
-    }
 }

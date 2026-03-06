@@ -50,11 +50,9 @@ public static class Extensions {
 
 
     private static LogEventLevel GetRequestLogLevel(HttpContext httpContext, double elapsed, Exception? ex) {
-        if (ex != null || httpContext.Response.StatusCode >= 500) {
-            return LogEventLevel.Error;
-        }
-
-        return httpContext.Response.StatusCode >= 400
+        return ex != null || httpContext.Response.StatusCode >= 500
+            ? LogEventLevel.Error
+            : httpContext.Response.StatusCode >= 400
             ? LogEventLevel.Warning
             : (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
             httpContext.Response.StatusCode < 400)

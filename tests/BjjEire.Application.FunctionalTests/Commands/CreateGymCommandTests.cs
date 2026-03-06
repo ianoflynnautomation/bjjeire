@@ -14,7 +14,7 @@ namespace BjjEire.Application.FunctionalTests.Commands;
 
 public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper) {
     [Fact]
-    public async Task CreateGym_WithValidData_ShouldCreateGym() {
+    public async Task CreateGym_WithValidData_ShouldCreateGymAsync() {
         // Arrange
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
@@ -33,7 +33,7 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     }
 
     [Fact]
-    public async Task CreateGym_WithNullData_ShouldReturnBadRequest() {
+    public async Task CreateGym_WithNullData_ShouldReturnBadRequestAsync() {
         // Arrange
         var command = new CreateGymCommand { Data = null! };
 

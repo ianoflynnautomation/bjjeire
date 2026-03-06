@@ -10,12 +10,13 @@ public class LoggingBehaviour<TRequest, TResponse>(
     ILogger<LoggingBehaviour<TRequest, TResponse>> logger,
     IHttpContextAccessor? httpContextAccessor = null)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse> {
-
+    where TRequest : IRequest<TResponse>
+{
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken) {
+        CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(next);
         var requestName = typeof(TRequest).Name;
         var responseName = typeof(TResponse).Name;
@@ -34,20 +35,25 @@ public class LoggingBehaviour<TRequest, TResponse>(
 
         var stopwatch = Stopwatch.StartNew();
         bool success = false;
-        try {
+        try
+        {
             TResponse response = await next(cancellationToken);
             success = true;
             return response;
         }
-        finally {
+        finally
+        {
             stopwatch.Stop();
-            if (success) {
+
+            if (success)
+            {
                 logger.LogInformation(
                     ApplicationLogEvents.RequestHandling.Success,
                     "Handled {RequestName}; Returned {ResponseName}; Duration: {DurationMs}ms",
                     requestName, responseName, stopwatch.ElapsedMilliseconds);
             }
-            else {
+            else
+            {
                 logger.LogWarning(
                     ApplicationLogEvents.RequestHandling.Failure,
                     "Handling {RequestName} failed; Duration: {DurationMs}ms",
