@@ -39,8 +39,9 @@ public static class OpenApiExtensions {
                 var apiKeyHeaderName = context.ApplicationServices
                     .GetRequiredService<IOptions<ApiKeyOptions>>().Value.HeaderName;
 
-                if (string.IsNullOrWhiteSpace(apiKeyHeaderName))
+                if (string.IsNullOrWhiteSpace(apiKeyHeaderName)) {
                     apiKeyHeaderName = "X-API-KEY";
+                }
 
                 if (!document.Components.SecuritySchemes.ContainsKey(ApiKeyAuthSchemeId)) {
                     document.Components.SecuritySchemes.Add(ApiKeyAuthSchemeId, new OpenApiSecurityScheme {

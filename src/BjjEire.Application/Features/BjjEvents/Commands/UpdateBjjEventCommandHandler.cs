@@ -14,7 +14,7 @@ public sealed class UpdateBjjEventCommandHandler(IBjjEventService bjjEventServic
         var bjjEventEntity = await bjjEventService.GetByIdAsync(request.Data.Id)
             ?? throw new NotFoundException(nameof(BjjEvent), request.Data.Id);
 
-        mapper.Map(request.Data, bjjEventEntity);
+        _ = mapper.Map(request.Data, bjjEventEntity);
         await bjjEventService.UpdateAsync(bjjEventEntity);
         var resultDto = mapper.Map<BjjEventDto>(bjjEventEntity);
 

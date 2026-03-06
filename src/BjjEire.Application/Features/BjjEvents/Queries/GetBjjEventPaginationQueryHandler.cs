@@ -41,11 +41,13 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
                 var query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-                if (request.County.HasValue)
+                if (request.County.HasValue) {
                     query = query.Where(x => x.County == request.County.Value);
+                }
 
-                if (request.Type.HasValue)
+                if (request.Type.HasValue) {
                     query = query.Where(x => x.Type == request.Type.Value);
+                }
 
                 query = query.OrderBy(x => x.CreatedOnUtc);
 

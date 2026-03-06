@@ -27,8 +27,9 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
         };
 
         if (additionalRouteValues != null) {
-            foreach (var (key, value) in additionalRouteValues)
+            foreach (var (key, value) in additionalRouteValues) {
                 routeValues[key] = value;
+            }
         }
 
         return linkGenerator.GetUriByAction(httpContext, action: actionName, controller: controllerName, values: routeValues)
