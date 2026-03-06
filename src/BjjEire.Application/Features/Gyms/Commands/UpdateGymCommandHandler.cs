@@ -14,7 +14,7 @@ public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapp
         var gymEntity = await gymService.GetByIdAsync(request.Data.Id)
             ?? throw new NotFoundException(nameof(Gym), request.Data.Id);
 
-        mapper.Map(request.Data, gymEntity);
+        _ = mapper.Map(request.Data, gymEntity);
         await gymService.UpdateAsync(gymEntity);
         var resultDto = mapper.Map<GymDto>(gymEntity);
 

@@ -34,12 +34,11 @@ public static class DependencyInjection {
             _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
             _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
         }
-        _ = builder.Services.AddHybridCache(options => {
+        _ = builder.Services.AddHybridCache(options =>
             options.DefaultEntryOptions = new HybridCacheEntryOptions {
                 Expiration = TimeSpan.FromMinutes(5),
                 LocalCacheExpiration = TimeSpan.FromMinutes(5)
-            };
-        });
+            });
 
         return builder;
     }

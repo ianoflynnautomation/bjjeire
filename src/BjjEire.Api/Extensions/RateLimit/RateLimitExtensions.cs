@@ -71,7 +71,9 @@ public static class RateLimitExtensions {
                     Instance = traceId
                 };
 
-                if (retryAfterSeconds.HasValue) problemDetails.Extensions["retryAfterSeconds"] = retryAfterSeconds.Value;
+                if (retryAfterSeconds.HasValue) {
+                    problemDetails.Extensions["retryAfterSeconds"] = retryAfterSeconds.Value;
+                }
                 problemDetails.Extensions["limit"] = options.PermitLimit;
                 problemDetails.Extensions["windowSeconds"] = options.WindowInSeconds;
                 problemDetails.Extensions["resource"] = requestHost;

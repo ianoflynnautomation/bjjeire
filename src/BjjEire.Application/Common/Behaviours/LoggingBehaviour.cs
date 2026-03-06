@@ -35,42 +35,21 @@ public class LoggingBehaviour<TRequest, TResponse>(
         var stopwatch = Stopwatch.StartNew();
         bool success = false;
         try {
-            TResponse response = await next();
+            TResponse response = await next(cancellationToken);
             success = true;
             return response;
-        }
-#pragma warning disable S2139
-        catch (Exception ex) {
-            logger.LogDebug(ex,
-                       "Exception propagated through LoggingBehaviour for {RequestName}. TraceId: {TraceId}. ExceptionType: {ExceptionType}. Will be handled by other behaviors.",
-                       requestName,
-                       traceId,
-                       ex.GetType().Name);
-            throw;
-        }
-#pragma warning restore S2139
-        finally {
+        } finally {
             stopwatch.Stop();
-            var durationMs = stopwatch.ElapsedMilliseconds;
-
             if (success) {
                 logger.LogInformation(
                     ApplicationLogEvents.RequestHandling.Success,
-                    "Handled {RequestName}; Returned {ResponseName}; Duration: {DurationMs}ms; TraceId: {TraceId}; UserId: {UserId}",
-                    requestName,
-                    responseName,
-                    durationMs,
-                    traceId,
-                    userId);
-            }
-            else {
+                    "Handled {RequestName}; Returned {ResponseName}; Duration: {DurationMs}ms",
+                    requestName, responseName, stopwatch.ElapsedMilliseconds);
+            } else {
                 logger.LogWarning(
                     ApplicationLogEvents.RequestHandling.Failure,
-                    "Handling {RequestName} failed (an exception was thrown); Duration: {DurationMs}ms; TraceId: {TraceId}; UserId: {UserId}",
-                    requestName,
-                    durationMs,
-                    traceId,
-                    userId);
+                    "Handling {RequestName} failed; Duration: {DurationMs}ms",
+                    requestName, stopwatch.ElapsedMilliseconds);
             }
         }
     }

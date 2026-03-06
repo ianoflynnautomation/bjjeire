@@ -8,8 +8,9 @@ public static class Extensions {
     public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
 
-        if (builder.Environment.IsDevelopment())
+        if (builder.Environment.IsDevelopment()) {
             SelfLog.Enable(Console.Error);
+        }
 
         _ = builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
                 .ReadFrom.Configuration(context.Configuration)
@@ -37,8 +38,9 @@ public static class Extensions {
                 diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
 
                 var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId))
+                if (!string.IsNullOrEmpty(userId)) {
                     diagnosticContext.Set("UserId", userId);
+                }
             };
             options.GetLevel = GetRequestLogLevel;
         });
@@ -48,16 +50,17 @@ public static class Extensions {
 
 
     private static LogEventLevel GetRequestLogLevel(HttpContext httpContext, double elapsed, Exception? ex) {
-        if (ex != null || httpContext.Response.StatusCode >= 500)
+        if (ex != null || httpContext.Response.StatusCode >= 500) {
             return LogEventLevel.Error;
+        }
 
-        if (httpContext.Response.StatusCode >= 400)
+        if (httpContext.Response.StatusCode >= 400) {
             return LogEventLevel.Warning;
+        }
 
-        if (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
+        return (httpContext.Request.Path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) &&
             httpContext.Response.StatusCode < 400)
-            return LogEventLevel.Verbose;
-
-        return LogEventLevel.Information;
+            ? LogEventLevel.Verbose
+            : LogEventLevel.Information;
     }
 }

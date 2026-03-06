@@ -41,8 +41,9 @@ public sealed class GetGymPaginationQueryHandler(
 
                 var query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-                if (request.County.HasValue)
+                if (request.County.HasValue) {
                     query = query.Where(x => x.County == request.County.Value);
+                }
 
                 query = query.OrderBy(x => x.Name);
 
