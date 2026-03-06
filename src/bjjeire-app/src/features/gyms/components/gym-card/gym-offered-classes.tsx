@@ -4,6 +4,9 @@ import { getClassCategoryLabel } from '@/utils/gymDisplayUtils'
 import { TagIcon } from '@heroicons/react/20/solid'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
+import { uiContent } from '@/config/ui-content'
+
+const gymCard = uiContent.gyms.card
 
 interface GymOfferedClassesProps {
   classes?: ClassCategory[]
@@ -22,7 +25,7 @@ export const GymOfferedClasses: React.FC<GymOfferedClassesProps> = memo(
     return (
       <DetailItem
         icon={<TagIcon />}
-        ariaLabel="Offered Classes"
+        ariaLabel={gymCard.offeredClassesLabel}
         data-testid={actualRootDataTestId}
         className="mt-1"
       >
@@ -30,7 +33,7 @@ export const GymOfferedClasses: React.FC<GymOfferedClassesProps> = memo(
           {classes.map(category => (
             <span
               key={category}
-              className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-800 dark:text-emerald-200"
+              className="rounded-full bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/30 transition-colors hover:bg-emerald-900/60"
               data-testid={GymCardTestIds.CLASSES_ITEM}
             >
               {getClassCategoryLabel(category)}

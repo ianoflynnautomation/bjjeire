@@ -34,15 +34,15 @@ const SocialLink: React.FC<SocialLinkProps> = ({
       title={`View on ${label}`}
       data-testid={rootDataTestId}
       className={`
-        group rounded-full p-1.5 transition-all duration-200 ease-in-out
+        group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
         focus-visible:ring-emerald-500 focus-visible:ring-offset-white
-        dark:focus-visible:ring-offset-slate-900
+        hover:ring-emerald-200/70
       `}
     >
       <IconComponent
         className={`
-          h-5 w-5 text-slate-500 group-hover:scale-110 dark:text-slate-400
+          h-5 w-5 text-slate-600 group-hover:scale-110
           ${hoverTextColorClass}
           transition-all duration-200 ease-in-out
         `}

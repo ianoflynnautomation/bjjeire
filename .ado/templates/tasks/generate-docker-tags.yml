@@ -1,0 +1,42 @@
+steps:
+  - script: |
+      set -euo pipefail
+
+      if [ -z "$ACR" ]; then
+        echo "##vso[task.logissue type=error]AZURE_CONTAINER_REGISTRY is not set."
+        exit 1
+      fi
+
+      SHORT_SHA="${BUILD_SOURCE_VERSION:0:7}"
+      if [ -z "$SHORT_SHA" ]; then
+        echo "##vso[task.logissue type=error]BUILD_SOURCE_VERSION is not set."
+        exit 1
+      fi
+
+      CLEAN_BRANCH=$(echo "$BUILD_SOURCE_BRANCH" | \
+          sed 's|^refs/[^/]*/||' | \
+          tr '[:upper:]/' '[:lower:]-' | \
+          sed 's/[^a-z0-9.-]//g')
+      CLEAN_BRANCH="${CLEAN_BRANCH:-unknown-branch}"
+
+      TAGS="${SHORT_SHA},${CLEAN_BRANCH}-${SHORT_SHA}"
+
+      if [[ "$BUILD_SOURCE_BRANCH" == refs/tags/v* ]]; then
+        VERSION="${BUILD_SOURCE_BRANCH#refs/tags/v}"
+        TAGS="${TAGS},${VERSION},latest"
+        echo "Git tag push — version '${VERSION}' and 'latest' added."
+      elif [[ "$BUILD_SOURCE_BRANCH_NAME" == "main" ]]; then
+        TAGS="${TAGS},latest-main"
+        echo "Main branch — 'latest-main' added."
+      fi
+
+      echo "Image tags: $TAGS"
+      echo "##vso[task.setvariable variable=apiImageTags;isOutput=true]$TAGS"
+      echo "##vso[task.setvariable variable=frontendImageTags;isOutput=true]$TAGS"
+    displayName: 'Generate Docker Image Tags'
+    name: generate_tags
+    env:
+      ACR: $(AZURE_CONTAINER_REGISTRY)
+      BUILD_SOURCE_VERSION: $(Build.SourceVersion)
+      BUILD_SOURCE_BRANCH: $(Build.SourceBranch)
+      BUILD_SOURCE_BRANCH_NAME: $(Build.SourceBranchName)

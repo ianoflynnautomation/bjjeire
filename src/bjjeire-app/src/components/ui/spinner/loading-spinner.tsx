@@ -2,6 +2,7 @@ import React, { memo } from 'react'
 import {
   SpinnerTestIds
 } from '@/constants/commonDataTestIds'
+import { cn } from '@/lib/utils'
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'
@@ -13,7 +14,7 @@ interface LoadingSpinnerProps {
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
-  color = 'text-blue-600',
+  color = 'text-emerald-600',
   text,
   className = '',
   'data-testid': dataTestIdFromProp
@@ -30,17 +31,21 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   return (
     <div
       data-testid={rootTestId}
-      className={`flex flex-col items-center justify-center p-4 ${className}`}
+      className={cn('flex flex-col items-center justify-center p-4', className)}
       role="status"
       aria-live="polite"
     >
       <div
-        className={`animate-spin rounded-full ${sizeClasses[size]} ${color} border-t-transparent border-solid`}
+        className={cn(
+          'animate-spin rounded-full border-solid border-t-transparent',
+          sizeClasses[size],
+          color
+        )}
         aria-hidden="true"
-      ></div>
+      />
       {text && (
         <p
-          className={`mt-3 text-sm font-medium text-gray-600 ${color}`}
+          className={cn('mt-3 text-sm font-medium', color)}
         >
           {text}
         </p>

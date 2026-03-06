@@ -12,6 +12,9 @@ const EnvSchema = z.object({
   PAGE_SIZE: z.string().regex(/^\d+$/).transform(Number).optional().default('20'),
   PAGE_NUMBER: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
   BITCOIN_ADDRESS: z.string().optional().default('not_provided'),
+  CONTACT_EMAIL: z.string().email().optional().default('info@bjj-eire.com'),
+  SOCIAL_INSTAGRAM_URL: z.union([z.string().url(), z.literal('')]).optional().default(''),
+  SOCIAL_FACEBOOK_URL: z.union([z.string().url(), z.literal('')]).optional().default(''),
 })
 
 export type Env = z.infer<typeof EnvSchema>

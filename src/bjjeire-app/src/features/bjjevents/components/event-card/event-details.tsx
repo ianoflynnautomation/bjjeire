@@ -14,26 +14,29 @@ import { getGoogleMapsUrl } from '@/utils/mapUtils'
 import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
+
+const { card: eventCard } = uiContent.events
 
 const formatPricingDisplay = (
   calculatedPrice: CalculatedPrice,
   originalPricingType?: PricingType
 ): string => {
   if (originalPricingType === PricingType.Free) {
-    return 'Free'
+    return eventCard.pricingFree
   }
   if (calculatedPrice.total === 0 && originalPricingType === undefined) {
-    return 'Pricing details unavailable'
+    return eventCard.pricingUnavailable
   }
   const formattedTotal = calculatedPrice.total.toFixed(2)
   const currencyDisplay = calculatedPrice.currency || ''
   let unitText = ''
   switch (calculatedPrice.unit) {
     case 'PerDay':
-      unitText = 'per day'
+      unitText = eventCard.pricingPerDay
       break
     case 'PerSession':
-      unitText = 'per session'
+      unitText = eventCard.pricingPerSession
       break
     case 'FlatRate':
     default:
@@ -89,7 +92,7 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
 
     return (
       <section
-        className="space-y-2.5 text-sm"
+        className="space-y-2 text-sm"
         aria-labelledby={`event-details-heading-${event.id || event.name}`}
         data-testid={rootTestId}
       >
@@ -112,11 +115,11 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
               href={getGoogleMapsUrl(location)}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline transition-colors"
+              className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
               aria-label={`View ${name || 'event'} location on Google Maps`}
               data-testid={EventCardTestIds.ADDRESS_LINK}
             >
-              {location.address || location.venue || 'View on map'}
+              {location.address || location.venue || eventCard.viewOnMap}
             </a>
           </DetailItem>
         )}
@@ -132,15 +135,15 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
                 href={organiserUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-emerald-600 transition-colors hover:underline dark:hover:text-emerald-400"
+                className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
                 aria-label={`Visit organiser website for ${name || 'this event'}`}
                 data-testid={EventCardTestIds.ORGANISER_LINK}
               >
-                Organised by: {organiserDisplay}
+                {eventCard.organisedByLabel}: {organiserDisplay}
               </a>
             ) : (
               <span data-testid={EventCardTestIds.ORGANISER_LINK}>
-                Organised by: {organiserDisplay}
+                {eventCard.organisedByLabel}: {organiserDisplay}
               </span>
             )}
           </DetailItem>

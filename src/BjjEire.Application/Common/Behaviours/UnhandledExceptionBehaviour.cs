@@ -39,6 +39,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
         try {
             return await next(cancellationToken);
         }
+#pragma warning disable S2139
         catch (Exception ex) {
 
             _logger.LogError(ApplicationLogEvents.UnhandledExceptions.HandleExceptionError, ex,
@@ -51,6 +52,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
 
             throw;
         }
+#pragma warning restore S2139
 
         finally {
             stopwatch.Stop();

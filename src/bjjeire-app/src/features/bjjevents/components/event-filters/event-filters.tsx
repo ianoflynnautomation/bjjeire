@@ -8,14 +8,17 @@ import ButtonGroupFilter from '@/components/ui/filters/button-group-filter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import { SelectFilterTestIds, ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
+
+const { filters } = uiContent.events
 
 const cityOptions = [
-  { value: 'all' as const, label: 'All Counties' },
+  { value: 'all' as const, label: filters.allCountiesOption },
   ...COUNTIES.map(city => ({ value: city.value, label: city.label })),
 ]
 
 const eventTypeOptions = [
-  { value: 'all' as const, label: 'All Types' },
+  { value: 'all' as const, label: filters.allTypesOption },
   ...BJJ_EVENT_TYPES.map(type => ({
     value: type.value,
     label: type.label,
@@ -41,22 +44,23 @@ const EventFilters = memo(function EventFilters({
 }: EventFiltersProps) {
   return (
     <div
-      className="flex flex-col gap-6 sm:flex-row sm:gap-4"
+      className="rounded-2xl bg-slate-800/40 p-4 backdrop-blur-sm ring-1 ring-white/[0.06] shadow-sm shadow-black/20 sm:flex sm:flex-row sm:items-end sm:gap-4"
       data-testid={dataTestId || EventsPageTestIds.FILTERS}
+      aria-label="Event filters"
     >
       <SelectFilter
         id="city-filter"
-        label="Select County"
+        label={filters.countyLabel}
         value={selectedCity ?? 'all'}
         onChange={onCityChange}
         options={cityOptions}
         disabled={disabled}
         Icon={MapPinIcon}
         data-testid={SelectFilterTestIds.ROOT}
-        className="flex-1"
+        className="flex-1 min-w-0"
       />
       <ButtonGroupFilter<BjjEventType | 'all'>
-        label="Event Type"
+        label={filters.eventTypeLabel}
         options={eventTypeOptions}
         selectedValue={selectedType ?? 'all'}
         onValueChange={onTypeChange}

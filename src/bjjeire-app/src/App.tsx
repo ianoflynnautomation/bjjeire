@@ -37,13 +37,13 @@ function App(): React.JSX.Element {
   return (
     <Router>
       <PageViewTracker />
-      <div className="flex flex-col min-h-screen">
+      <div className="dark min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-emerald-950/30 text-slate-100">
         <Navigation />
         <main className="flex-grow">
           <Suspense
             fallback={
-              <div className="flex h-full items-center justify-center p-8">
-                <LoadingSpinner size="lg" text="Loading page..." />
+              <div className="flex min-h-[60vh] items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/20 p-8">
+                <LoadingSpinner size="lg" color="text-emerald-300" text="Loading page..." />
               </div>
             }
           >

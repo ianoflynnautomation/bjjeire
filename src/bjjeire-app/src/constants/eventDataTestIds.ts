@@ -14,6 +14,7 @@ export const EventsPageTestIds = {
 }
 
 export const EventCardTestIds = {
+  IMAGE: 'event-card-image',
   NAME: 'event-card-name',
   TYPE: 'event-card-type',
    COUNTY: 'event-card-county',

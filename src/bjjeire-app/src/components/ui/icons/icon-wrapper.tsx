@@ -1,5 +1,5 @@
-import React, { memo } from 'react'
-import clsx from 'clsx'
+import React from 'react'
+import { cn } from '@/lib/utils'
 
 interface IconWrapperProps {
   children: React.ReactNode
@@ -9,13 +9,13 @@ interface IconWrapperProps {
 
 export const IconWrapper: React.FC<IconWrapperProps> = ({
   children,
-  className = 'h-5 w-5 text-emerald-600 dark:text-emerald-400',
+  className = 'h-5 w-5 text-emerald-400',
   'aria-hidden': ariaHidden = true,
 }) => {
 
   return (
     <span
-      className={clsx('mt-0.5 flex-shrink-0', className)}
+      className={cn('mt-0.5 flex-shrink-0', className)}
       aria-hidden={ariaHidden}
     >
       {children}
@@ -23,4 +23,4 @@ export const IconWrapper: React.FC<IconWrapperProps> = ({
   )
 }
 
-export default memo(IconWrapper)
+export default IconWrapper

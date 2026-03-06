@@ -11,9 +11,6 @@ describe('GymDetails', () => {
       screen.getByRole('link', { name: /view timetable/i })
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /affiliated with global bjj federation/i })
-    ).toBeInTheDocument()
-    expect(
       screen.getByRole('link', {
         name: new RegExp(MOCK_GYM_FULL.location.address, 'i'),
       })

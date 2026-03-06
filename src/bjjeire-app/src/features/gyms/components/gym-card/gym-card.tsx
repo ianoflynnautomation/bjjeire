@@ -2,6 +2,7 @@ import React, { memo } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
+import { Card, CardContent } from '@/components/ui/card/card'
 
 interface GymCardProps {
   gym: GymDto
@@ -11,39 +12,37 @@ interface GymCardProps {
 export const GymCard: React.FC<GymCardProps> = memo(
   ({ gym, 'data-testid': dataTestId }) => {
     const { name, county, status, imageUrl, website } = gym
+    const headingId = `gym-card-heading-${gym.id ?? name.replace(/\s+/g, '-').toLowerCase()}`
 
     const rootTestId = dataTestId || GymsPageTestIds.LIST_ITEM
 
     return (
-      <article
+      <Card
+        className="relative isolate focus-within:ring-2 focus-within:ring-emerald-400/60"
         data-testid={rootTestId}
-        className="
-          flex h-full flex-col rounded-lg
-          bg-white border border-slate-200 dark:border-slate-700 dark:bg-slate-800
-          shadow-lg transition-all duration-300 ease-in-out
-          hover:shadow-emerald-200/50 dark:hover:shadow-emerald-700/30 hover:-translate-y-1
-          overflow-hidden group"
+        role="listitem"
+        aria-labelledby={headingId}
       >
+        <div
+          className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent"
+          aria-hidden="true"
+        />
         <GymHeader
           name={name}
           county={county}
           status={status}
           imageUrl={imageUrl}
+          headingId={headingId}
         />
 
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <CardContent>
           <div className="mb-4">
-            <GymDetails
-              gym={gym}
-            />
+            <GymDetails gym={gym} />
           </div>
           <div className="flex-grow" />
-          <GymFooter
-            websiteUrl={website}
-            gymName={name}
-          />
-        </div>
-      </article>
+          <GymFooter websiteUrl={website} gymName={name} />
+        </CardContent>
+      </Card>
     )
   }
 )

@@ -4,9 +4,7 @@ namespace BjjEire.Infrastructure;
 
 public class AuditInfoProvider(IHttpContextAccessor contextAccessor) : IAuditInfoProvider {
 
-    public string GetCurrentUser() =>
-        //return _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
-        string.Empty;
+    public string GetCurrentUser() => string.Empty;
 
     public DateTime GetCurrentDateTime() => DateTime.UtcNow;
 }
