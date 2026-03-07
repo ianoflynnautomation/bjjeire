@@ -10,7 +10,9 @@ public class OrderBuilder<T>
 
     public IEnumerable<(Expression<Func<T, object>>? selector, bool value, string fieldName)> Fields => _list;
 
+#pragma warning disable CA1000 // Static factory on generic type is the intended fluent-builder API
     public static OrderBuilder<T> Create() => new();
+#pragma warning restore CA1000
 
     public OrderBuilder<T> Ascending(Expression<Func<T, object>> selector)
     {
