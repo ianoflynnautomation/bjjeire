@@ -5,11 +5,8 @@ using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.FunctionalTests.Data;
 using BjjEire.Domain.Entities.Gyms;
-
 using FluentValidation;
-
 using Shouldly;
-
 using Xunit;
 using Xunit.Abstractions;
 
