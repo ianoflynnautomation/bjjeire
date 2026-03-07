@@ -42,6 +42,9 @@
     <!-- Keep missing docs non-blocking in developer loops and tests -->
     <NoWarn Condition="'$(Configuration)' == 'Debug'">$(NoWarn);CS1591</NoWarn>
     <NoWarn Condition="'$(IsTestProject)' == 'true'">$(NoWarn);CS1591</NoWarn>
+    <!-- CA1014: CLSCompliant is only relevant for public cross-language .NET libraries;
+         not applicable to internal service/API/test projects in this solution. -->
+    <NoWarn>$(NoWarn);CA1014</NoWarn>
   </PropertyGroup>
 
   <!--

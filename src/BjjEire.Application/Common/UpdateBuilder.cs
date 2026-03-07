@@ -15,7 +15,9 @@ public class UpdateBuilder<T>
 
     public IEnumerable<ExpressionFieldDefinition<T, object>> ExpressionFields => _expressionFieldDefinitions;
 
+#pragma warning disable CA1000 // Static factory on generic type is the intended fluent-builder API
     public static UpdateBuilder<T> Create() => new();
+#pragma warning restore CA1000
 
     public UpdateBuilder<T> Set<TProperty>(Expression<Func<T, TProperty>> selector, TProperty value)
     {
