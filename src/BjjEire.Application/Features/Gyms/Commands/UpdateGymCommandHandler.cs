@@ -1,24 +1,25 @@
-using Ardalis.GuardClauses;
+using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Domain.Entities.Gyms;
 
 namespace BjjEire.Application.Features.Gyms.Commands;
 
-public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapper) : IRequestHandler<UpdateGymCommand, UpdateGymResponse> {
-    private readonly IGymService _gymService = gymService;
-    private readonly IMapper _mapper = mapper;
+public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapper)
+    : IRequestHandler<UpdateGymCommand, UpdateGymResponse>
+{
 
-    public async Task<UpdateGymResponse> Handle(UpdateGymCommand request, CancellationToken cancellationToken) {
+    public async Task<UpdateGymResponse> Handle(UpdateGymCommand request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
 
-        var gymEntity = await _gymService.GetByIdAsync(request.Data.Id)
-        ?? throw new NotFoundException(nameof(Gym), request.Data.Id);
+        var gymEntity = await gymService.GetByIdAsync(request.Data.Id)
+ ?? throw new NotFoundException(nameof(Gym), request.Data.Id);
 
-        gymEntity = _mapper.Map<Gym>(gymEntity);
-        await _gymService.UpdateAsync(gymEntity);
-        var resultDto = _mapper.Map<GymDto>(gymEntity);
+        _ = mapper.Map(request.Data, gymEntity);
+        await gymService.UpdateAsync(gymEntity);
+        var resultDto = mapper.Map<GymDto>(gymEntity);
 
-        return new UpdateGymResponse() { Data = resultDto };
+        return new UpdateGymResponse { Data = resultDto };
     }
 }

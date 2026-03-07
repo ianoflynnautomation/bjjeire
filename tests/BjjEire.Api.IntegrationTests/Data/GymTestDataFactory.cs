@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
@@ -6,14 +7,19 @@ using BjjEire.Application.Features.Gyms.Queries;
 using BjjEire.Domain.Entities.Common;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
+
 using Bogus;
+
 using MongoDB.Bson;
 
 namespace BjjEire.Api.IntegrationTests.Data;
 
-public static class GymTestDataFactory {
-    private static string SanitizeForUrlComponent(string? input, string fallback = "random") {
-        if (string.IsNullOrWhiteSpace(input)) {
+public static class GymTestDataFactory
+{
+    private static string SanitizeForUrlComponent(string? input, string fallback = "random")
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
             return fallback;
         }
         var sanitized = input.ToLower(CultureInfo.InvariantCulture)
@@ -24,13 +30,15 @@ public static class GymTestDataFactory {
         return string.IsNullOrWhiteSpace(sanitized) ? fallback : sanitized;
     }
 
-    private static string GenerateSafeUrl(Faker faker, string domainPrefix, string path = "") {
+    private static string GenerateSafeUrl(Faker faker, string domainPrefix, string path = "")
+    {
         var randomWord = SanitizeForUrlComponent(faker.Lorem.Word(), "defaultword");
         var sanitizedDomainPrefix = SanitizeForUrlComponent(domainPrefix, "defaultprefix");
         return $"https://www.{sanitizedDomainPrefix}{randomWord}.com{path}";
     }
 
-    private static string GenerateCityBasedUrl(string prefix, string? city, string path = "", string extension = ".ie") {
+    private static string GenerateCityBasedUrl(string prefix, string? city, string path = "", string extension = ".ie")
+    {
         var sanitizedCity = SanitizeForUrlComponent(city, "defaultcity");
         var sanitizedPrefix = SanitizeForUrlComponent(prefix, "defaultprefix");
         return $"https://www.{sanitizedPrefix}{sanitizedCity}{extension}{path}";
@@ -77,7 +85,8 @@ public static class GymTestDataFactory {
         .RuleFor(x => x.Website, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/home"))
         .RuleFor(x => x.TimetableUrl, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/schedule"))
         .RuleFor(x => x.ImageUrl, (f, u) => GenerateCityBasedUrl("gym", f.Address.City(), "/images/main.jpg"))
-        .RuleFor(x => x.OfferedClasses, faker => {
+        .RuleFor(x => x.OfferedClasses, faker =>
+        {
             var availableClasses = Enum.GetValues<ClassCategory>().ToList();
             return faker.PickRandom(availableClasses, faker.Random.Int(1, Math.Min(3, availableClasses.Count)))
                   .Distinct()
@@ -93,28 +102,34 @@ public static class GymTestDataFactory {
 
     public static CreateGymCommand GetValidCreateGymCommand() => new() { Data = GetValidGymDto() };
 
-    public static GymDto GetValidGymDto() {
+    public static GymDto GetValidGymDto()
+    {
         var faker = new Faker();
-        return new GymDto {
+        return new GymDto
+        {
             Id = ObjectId.GenerateNewId().ToString(),
             Name = "Valid Gym Name",
             Description = "Valid gym description, not too long.",
             Status = GymStatus.Active,
             County = County.Dublin,
-            Affiliation = new AffiliationDto {
+            Affiliation = new AffiliationDto
+            {
                 Name = "Valid Affiliation Name",
                 Website = "https://www.validaffiliation.com"
             },
-            TrialOffer = new TrialOfferDto {
+            TrialOffer = new TrialOfferDto
+            {
                 IsAvailable = true,
                 FreeClasses = 3,
                 FreeDays = null,
                 Notes = "Valid trial notes, well within length limits."
             },
-            Location = new LocationDto {
+            Location = new LocationDto
+            {
                 Address = "123 Valid Street, Valid Town",
                 Venue = "Valid Venue Hall",
-                Coordinates = new GeoCoordinatesDto {
+                Coordinates = new GeoCoordinatesDto
+                {
                     Type = "Point",
                     Latitude = 53.349805,
                     Longitude = -6.260273,
@@ -122,7 +137,8 @@ public static class GymTestDataFactory {
                     PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
                 }
             },
-            SocialMedia = new SocialMediaDto {
+            SocialMedia = new SocialMediaDto
+            {
                 Instagram = "https://www.instagram.com/validgymprofile",
                 Facebook = "https://www.facebook.com/validgympage",
                 X = "https://www.x.com/validgymhandle",
@@ -135,35 +151,42 @@ public static class GymTestDataFactory {
         };
     }
 
-    public static Gym GetValidGym() {
+    public static Gym GetValidGym()
+    {
         var faker = new Faker();
-        return new Gym {
+        return new Gym
+        {
             Id = ObjectId.GenerateNewId().ToString(),
             Name = "Valid Gym Name",
             Description = "Valid gym description, not too long.",
             Status = GymStatus.Active,
             County = County.Dublin,
-            Affiliation = new Affiliation {
+            Affiliation = new Affiliation
+            {
                 Name = "Valid Affiliation Name",
                 Website = "https://www.validaffiliation.com"
             },
-            TrialOffer = new TrialOffer {
+            TrialOffer = new TrialOffer
+            {
                 IsAvailable = true,
                 FreeClasses = 3,
                 FreeDays = null,
                 Notes = "Valid trial notes, well within length limits."
             },
-            Location = new Location {
+            Location = new Location
+            {
                 Address = "123 Valid Street, Valid Town",
                 Venue = "Valid Venue Hall",
-                Coordinates = new GeoCoordinates {
+                Coordinates = new GeoCoordinates
+                {
                     Latitude = 53.349805,
                     Longitude = -6.260273,
                     PlaceName = "Central Dublin Point",
                     PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
                 }
             },
-            SocialMedia = new SocialMedia {
+            SocialMedia = new SocialMedia
+            {
                 Instagram = "https://www.instagram.com/validgymprofile",
                 Facebook = "https://www.facebook.com/validgympage",
                 X = "https://www.x.com/validgymhandle",
@@ -176,35 +199,42 @@ public static class GymTestDataFactory {
         };
     }
 
-    public static Gym CreateGym(Action<Gym>? configure = null) {
+    public static Gym CreateGym(Action<Gym>? configure = null)
+    {
         var faker = new Faker();
-        var gym = new Gym {
+        var gym = new Gym
+        {
             Id = ObjectId.GenerateNewId().ToString(),
             Name = "Default Valid Gym",
             Description = "A valid default gym description.",
             Status = GymStatus.Active,
             County = County.Dublin,
-            Affiliation = new Affiliation {
+            Affiliation = new Affiliation
+            {
                 Name = "Valid Affiliation Name",
                 Website = "https://www.validaffiliation.com"
             },
-            TrialOffer = new TrialOffer {
+            TrialOffer = new TrialOffer
+            {
                 IsAvailable = true,
                 FreeClasses = 3,
                 FreeDays = null,
                 Notes = "Valid trial notes, well within length limits."
             },
-            Location = new Location {
+            Location = new Location
+            {
                 Address = "123 Valid Street, Valid Town",
                 Venue = "Valid Venue Hall",
-                Coordinates = new GeoCoordinates {
+                Coordinates = new GeoCoordinates
+                {
                     Latitude = 53.349805,
                     Longitude = -6.260273,
                     PlaceName = "Central Dublin Point",
                     PlaceId = $"ChIJ{faker.Random.String2(20, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_")}"
                 }
             },
-            SocialMedia = new SocialMedia {
+            SocialMedia = new SocialMedia
+            {
                 Instagram = "https://www.instagram.com/validgymprofile",
                 Facebook = "https://www.facebook.com/validgympage",
                 X = "https://www.x.com/validgymhandle",
@@ -222,20 +252,25 @@ public static class GymTestDataFactory {
         return gym;
     }
 
-    private static string SetMinMaxLength(this string? str, int min, int max) {
+    private static string SetMinMaxLength(this string? str, int min, int max)
+    {
         var tempStr = str;
-        if (string.IsNullOrEmpty(tempStr)) {
+        if (string.IsNullOrEmpty(tempStr))
+        {
             tempStr = new Faker().Lorem.Word().ToLower(CultureInfo.InvariantCulture);
-            if (string.IsNullOrEmpty(tempStr)) {
+            if (string.IsNullOrEmpty(tempStr))
+            {
                 tempStr = "default";
             }
         }
 
-        if (tempStr.Length > max) {
-            tempStr = tempStr.Substring(0, max);
+        if (tempStr.Length > max)
+        {
+            tempStr = tempStr[..max];
         }
 
-        if (tempStr.Length < min) {
+        if (tempStr.Length < min)
+        {
             tempStr = tempStr.PadRight(min, 'a');
         }
         return tempStr;

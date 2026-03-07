@@ -2,7 +2,8 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Domain.Entities.Common;
 
-public class PricingModel {
+public class PricingModel
+{
     [BsonElement("type")]
     public PricingType Type { get; set; }
 

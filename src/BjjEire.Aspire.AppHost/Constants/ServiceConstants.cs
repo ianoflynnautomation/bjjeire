@@ -1,6 +1,7 @@
 namespace BjjEire.Aspire.AppHost.Constants;
 
-public static class ServiceConstants {
+public static class ServiceConstants
+{
     public const string NetworkName = "bjj-network";
     public const string BasePath = "../../";
 

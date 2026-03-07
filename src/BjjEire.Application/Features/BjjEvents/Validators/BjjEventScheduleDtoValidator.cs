@@ -4,8 +4,10 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto> {
-    public BjjEventScheduleDtoValidator() {
+public class BjjEventScheduleDtoValidator : AbstractValidator<BjjEventScheduleDto>
+{
+    public BjjEventScheduleDtoValidator()
+    {
         _ = RuleFor(x => x.EndDate)
                 .ApplyGreaterThanOrEqualValidator(x => x.StartDate, "End Date", "Start Date")
                 .When(x => x.StartDate.HasValue && x.EndDate.HasValue);

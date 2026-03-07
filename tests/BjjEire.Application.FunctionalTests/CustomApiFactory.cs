@@ -1,6 +1,7 @@
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.FunctionalTests.Common;
 using BjjEire.Infrastructure.Data.Mongo;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -9,8 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using MongoDB.Driver;
+
 using Testcontainers.MongoDb;
+
 using Xunit;
 
 namespace BjjEire.Application.FunctionalTests;
@@ -23,6 +27,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private const string MongoConnectionStringKey = "ConnectionStrings:Mongodb";
     private const string DefaultTestDatabaseName = "bjjworld_ft";
 
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<CustomApiFactory> _fixtureLogger;
 
     private readonly MongoDbContainer _dbContainer = new MongoDbBuilder()
@@ -30,11 +35,9 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         .WithUsername(MongoUsername)
         .WithPassword(MongoPassword)
         .Build();
-  public CustomApiFactory()
+    public CustomApiFactory()
     {
-        var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            _ =builder
+        _loggerFactory = LoggerFactory.Create(builder => _ = builder
                 .AddFilter("Microsoft", LogLevel.Warning)
                 .AddFilter("System", LogLevel.Warning)
                 .AddFilter(typeof(CustomApiFactory).FullName, LogLevel.Information)
@@ -44,9 +47,8 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
                     options.IncludeScopes = false;
                     options.SingleLine = true;
                     options.TimestampFormat = "[FIXTURE HH:mm:ss] ";
-                });
-        });
-        _fixtureLogger = loggerFactory.CreateLogger<CustomApiFactory>();
+                }));
+        _fixtureLogger = _loggerFactory.CreateLogger<CustomApiFactory>();
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.SetupStarting, "CustomApiFactory instance created.");
     }
 
@@ -57,7 +59,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
 
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.AppConfigurationModifying, "Modifying app configuration for tests (MongoDB ConnectionString, RateLimiting).");
-       _ = builder.ConfigureAppConfiguration((context, config) =>
+        _ = builder.ConfigureAppConfiguration((context, config) =>
         {
             var mongoConnectionString = _dbContainer.GetConnectionString();
             _fixtureLogger.LogInformation("Overriding MongoDB connection string with Testcontainer: {MongoConnectionString}", mongoConnectionString);
@@ -69,7 +71,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         });
 
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.TestServicesConfiguring, "Configuring test services (replacing MongoDB services, removing IHostedService instances).");
-        _ =builder.ConfigureTestServices(services =>
+        _ = builder.ConfigureTestServices(services =>
         {
             _ = services.RemoveAll<IMongoClient>();
             _ = services.RemoveAll<IMongoDatabase>();
@@ -116,6 +118,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.ContainerStopped, "MongoDB Testcontainer stopped.");
         await _dbContainer.DisposeAsync().ConfigureAwait(false);
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.TeardownComplete, "CustomApiFactory DisposeAsync complete.");
-        await base.DisposeAsync();
+        _loggerFactory.Dispose();
+        await base.DisposeAsync().ConfigureAwait(false);
     }
 }

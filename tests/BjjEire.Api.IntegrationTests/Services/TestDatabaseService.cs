@@ -3,34 +3,39 @@
 
 using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using MongoDB.Driver;
-using Shouldly;
 
 namespace BjjEire.Api.IntegrationTests.Services;
 
 public class TestDatabaseService(IMongoDatabase database, ILogger<TestDatabaseService> logger)
-    : ITestDatabaseService {
-    public async Task ClearCollectionsAsync() {
+    : ITestDatabaseService
+{
+    public async Task ClearCollectionsAsync()
+    {
         logger.LogDebug("Clearing all collections from database: {DatabaseName}", database.DatabaseNamespace.DatabaseName);
-        var collectionNames = await (await database.ListCollectionNamesAsync()).ToListAsync();
-        foreach (var collectionName in collectionNames) {
-            await database.DropCollectionAsync(collectionName);
+        var collectionNames = await (await database.ListCollectionNamesAsync().ConfigureAwait(false)).ToListAsync().ConfigureAwait(false);
+        foreach (var collectionName in collectionNames)
+        {
+            await database.DropCollectionAsync(collectionName).ConfigureAwait(false);
         }
     }
 
-    public async Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity {
+    public async Task SeedEntitiesAsync<TEntity>(params TEntity[] entities) where TEntity : BaseEntity
+    {
         //ArgumentNullException.ThrowIfNull(entities);
 
         if (entities == null || entities.Length == 0)
-    {
-        return;
-    }
+        {
+            return;
+        }
 
         var collectionName = typeof(TEntity).Name;
         logger.LogInformation("Seeding {Count} entities into collection {CollectionName}", entities.Length, collectionName);
         var collection = database.GetCollection<TEntity>(collectionName);
-        await collection.InsertManyAsync(entities);
+        await collection.InsertManyAsync(entities).ConfigureAwait(false);
         // var seededCount = await collection.CountDocumentsAsync(_ => true); // use for debugging.
         // seededCount.ShouldBe(entities.Length);
     }

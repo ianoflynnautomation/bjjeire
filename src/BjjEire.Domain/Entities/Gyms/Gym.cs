@@ -3,7 +3,8 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Domain.Entities.Gyms;
 
-public class Gym : BaseEntity {
+public class Gym : BaseEntity
+{
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
 

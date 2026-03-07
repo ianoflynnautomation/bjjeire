@@ -3,11 +3,13 @@ using BjjEire.Aspire.AppHost.Constants;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class FrontendConfiguration {
+public static class FrontendConfiguration
+{
 
     public static IResourceBuilder<ContainerResource> AddFrontend(
     IDistributedApplicationBuilder builder,
-    IResourceBuilder<ContainerResource> api) {
+    IResourceBuilder<ContainerResource> api)
+    {
 
         ArgumentNullException.ThrowIfNull(builder);
 

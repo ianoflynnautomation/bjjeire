@@ -1,129 +1,91 @@
 using BjjEire.Infrastructure.Configuration;
-using BjjEire.SharedKernel.Logging;
 
 namespace BjjEire.Api.Extensions.Authentication;
 
-public static class AuthenticationExtensions {
-    public static IServiceCollection AddAppAuthentication(this IServiceCollection services, IConfiguration configuration) {
+public static class AuthenticationExtensions
+{
+    public static IServiceCollection AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var loggerFactory = services.BuildServiceProvider().GetService<ILoggerFactory>();
-        var logger = loggerFactory?.CreateLogger(nameof(AuthenticationExtensions));
-
         var jwtOptionsSection = configuration.GetSection(JwtOptions.SectionName);
-        if (!jwtOptionsSection.Exists()) {
-            var ex = new InvalidOperationException($"Configuration section '{JwtOptions.SectionName}' not found. JWT authentication cannot be configured.");
-            logger?.LogCritical(ApplicationLogEvents.Auth.ConfigSectionNotFound, ex, "Configuration section {ConfigSectionName} not found. JWT authentication cannot be configured.", JwtOptions.SectionName);
-            throw ex;
+        if (!jwtOptionsSection.Exists())
+        {
+            throw new InvalidOperationException($"Configuration section '{JwtOptions.SectionName}' not found. JWT authentication cannot be configured.");
         }
+
         _ = services.Configure<JwtOptions>(jwtOptionsSection);
         var jwtOptions = jwtOptionsSection.Get<JwtOptions>()!;
-        ValidateJwtOptions(jwtOptions, logger);
+        ValidateJwtOptions(jwtOptions);
 
         var apiKeyOptionsSection = configuration.GetSection(ApiKeyOptions.SectionName);
-        if (!apiKeyOptionsSection.Exists()) {
-            var ex = new InvalidOperationException($"Configuration section '{ApiKeyOptions.SectionName}' not found. API Key authentication cannot be configured.");
-            logger?.LogCritical(ApplicationLogEvents.Auth.ConfigSectionNotFound, ex, "Configuration section {ConfigSectionName} not found. API Key authentication cannot be configured.", ApiKeyOptions.SectionName);
-            throw ex;
+        if (!apiKeyOptionsSection.Exists())
+        {
+            throw new InvalidOperationException($"Configuration section '{ApiKeyOptions.SectionName}' not found. API Key authentication cannot be configured.");
         }
+
         _ = services.Configure<ApiKeyOptions>(apiKeyOptionsSection);
-        var apiKeyOptions = apiKeyOptionsSection.Get<ApiKeyOptions>()!;
-        ValidateApiKeyOptions(apiKeyOptions, logger);
+        ValidateApiKeyOptions(apiKeyOptionsSection.Get<ApiKeyOptions>()!);
 
-        _ = services.AddAuthentication(options => {
-        })
-        .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt => {
-            opt.TokenValidationParameters = new TokenValidationParameters {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtOptions.Issuer,
-                ValidAudience = jwtOptions.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-                ClockSkew = TimeSpan.FromSeconds(30)
-            };
+        _ = services.AddAuthentication()
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ClockSkew = TimeSpan.FromSeconds(30)
+                })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+                ApiKeyAuthenticationDefaults.AuthenticationScheme,
+                displayName: "API Key Authentication",
+                configureOptions: _ => { });
 
-            opt.Events = new JwtBearerEvents {
-                OnAuthenticationFailed = context => {
-                    logger?.LogError(ApplicationLogEvents.Auth.JwtAuthFailed, context.Exception,
-                        "JWT Authentication Failed. Path: {RequestPath}, Error: {ErrorMessage}",
-                        context.Request.Path, context.Exception?.Message ?? "N/A");
-                    return Task.CompletedTask;
-                },
-                OnTokenValidated = context => {
-                    var userName = context.Principal?.Identity?.Name ?? "[UnknownUser]";
-                    logger?.LogInformation(ApplicationLogEvents.Auth.JwtTokenValidated,
-                        "JWT Token Validated for User: {UserName}, Path: {RequestPath}, Scheme: {AuthenticationScheme}",
-                        userName, context.Request.Path, context.Scheme.Name);
-                    return Task.CompletedTask;
-                },
-                OnChallenge = context => {
-                    logger?.LogWarning(ApplicationLogEvents.Auth.JwtChallengeIssued,
-                        "JWT Authentication Challenge for Path: {RequestPath}. Scheme: {AuthenticationScheme}. Client needs to authenticate or re-authenticate.",
-                        context.Request.Path, context.Scheme.Name);
-                    return Task.CompletedTask;
-                }
-            };
-        })
-        .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
-            ApiKeyAuthenticationDefaults.AuthenticationScheme,
-            displayName: "API Key Authentication",
-            configureOptions: options => { /* API Key specific options could be configured here if needed */ });
-
-        logger?.LogInformation("Application authentication schemes (JWT Bearer, API Key) configured.");
         return services;
     }
 
-    private static void ValidateJwtOptions(JwtOptions options, ILogger? logger) {
+    private static void ValidateJwtOptions(JwtOptions options)
+    {
         ArgumentNullException.ThrowIfNull(options);
 
-        var validationErrors = new List<string>();
-        if (string.IsNullOrWhiteSpace(options.Issuer)) {
-            validationErrors.Add($"{nameof(options.Issuer)} is missing.");
+        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(options.Issuer))
+        { errors.Add($"{nameof(options.Issuer)} is missing."); }
+        if (string.IsNullOrWhiteSpace(options.Audience))
+        { errors.Add($"{nameof(options.Audience)} is missing."); }
+        if (string.IsNullOrWhiteSpace(options.Key))
+        {
+            errors.Add($"{nameof(options.Key)} is missing.");
+        }
+        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_", StringComparison.Ordinal))
+        {
+            errors.Add($"{nameof(options.Key)} must be at least 32 bytes (256 bits) and not a debug key in production.");
         }
 
-        if (string.IsNullOrWhiteSpace(options.Audience)) {
-            validationErrors.Add($"{nameof(options.Audience)} is missing.");
-        }
-
-        if (string.IsNullOrWhiteSpace(options.Key)) {
-            validationErrors.Add($"{nameof(options.Key)} is missing.");
-        }
-        else if (Encoding.UTF8.GetBytes(options.Key).Length < 32 && !options.Key.StartsWith("GENERATED_DEBUG_KEY_", StringComparison.Ordinal)) {
-            validationErrors.Add($"{nameof(options.Key)} must be at least 32 bytes (256 bits) and not a debug key in production.");
-        }
-
-        if (validationErrors.Count > 0) {
-            var errorMessage = $"Invalid JWT configuration: {string.Join(" ", validationErrors)}";
-            logger?.LogCritical(
-                ApplicationLogEvents.Auth.OptionValidationFailed,
-                "Invalid JWT configuration: {ErrorMessage}, Source: JWT",
-                errorMessage);
-            throw new InvalidOperationException(errorMessage);
+        if (errors.Count > 0)
+        {
+            throw new InvalidOperationException($"Invalid JWT configuration: {string.Join(" ", errors)}");
         }
     }
 
-    private static void ValidateApiKeyOptions(ApiKeyOptions options, ILogger? logger) {
+    private static void ValidateApiKeyOptions(ApiKeyOptions options)
+    {
         ArgumentNullException.ThrowIfNull(options);
 
-        var validationErrors = new List<string>();
-        if (string.IsNullOrWhiteSpace(options.HeaderName)) {
-            validationErrors.Add($"{nameof(options.HeaderName)} is missing.");
-        }
+        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(options.HeaderName))
+        { errors.Add($"{nameof(options.HeaderName)} is missing."); }
+        if (string.IsNullOrWhiteSpace(options.ApiKeyValue))
+        { errors.Add($"{nameof(options.ApiKeyValue)} is missing."); }
 
-        if (string.IsNullOrWhiteSpace(options.ApiKeyValue)) {
-            validationErrors.Add($"{nameof(options.ApiKeyValue)} is missing.");
-        }
-
-        if (validationErrors.Count > 0) {
-            var errorMessage = $"Invalid API Key configuration: {string.Join(" ", validationErrors)}";
-            logger?.LogCritical(
-                ApplicationLogEvents.Auth.OptionValidationFailed,
-                "Invalid API Key configuration: {ErrorMessage}, Source: APIKey",
-                errorMessage);
-            throw new InvalidOperationException(errorMessage);
+        if (errors.Count > 0)
+        {
+            throw new InvalidOperationException($"Invalid API Key configuration: {string.Join(" ", errors)}");
         }
     }
 }

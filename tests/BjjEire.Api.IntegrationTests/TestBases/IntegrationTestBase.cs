@@ -2,21 +2,25 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Extensions;
 using BjjEire.Api.IntegrationTests.Fixtures;
-using BjjEire.Api.IntegrationTests.Services;
 using BjjEire.Api.IntegrationTests.Interfaces;
+using BjjEire.Api.IntegrationTests.Services;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
 using Serilog.Context;
 using Serilog.Core.Enrichers;
+
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.TestBases;
 
-public abstract class ApiIntegrationTestBase: IAsyncLifetime
+public abstract class ApiIntegrationTestBase : IAsyncLifetime
 {
     private readonly IServiceScope _scope;
     private IDisposable? _logContext;
@@ -30,7 +34,7 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
     protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
-      ArgumentNullException.ThrowIfNull(fixture);
+        ArgumentNullException.ThrowIfNull(fixture);
 
         _output = output;
         HttpClient = fixture.Factory.CreateClient();
@@ -48,7 +52,7 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
 
     public virtual async Task InitializeAsync()
     {
-        var test = (ITest) _output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
+        var test = (ITest)_output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
         var correlationId = Guid.NewGuid();
 
@@ -61,7 +65,7 @@ public abstract class ApiIntegrationTestBase: IAsyncLifetime
             "Test execution started: {TestName} | CorrelationId: {CorrelationId}", testName, correlationId);
 
         Logger.LogInformation("Clearing database for test...");
-        await Database.ClearCollectionsAsync();
+        await Database.ClearCollectionsAsync().ConfigureAwait(false);
         Logger.LogInformation("Database cleared. Test initialized.");
     }
 

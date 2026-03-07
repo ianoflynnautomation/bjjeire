@@ -1,12 +1,13 @@
 
 using System.Linq.Expressions;
-using FluentValidation;
 
 namespace BjjEire.Application.Common.Extensions;
 
-public static class ValidationRuleExtensions {
+public static class ValidationRuleExtensions
+{
     public static IRuleBuilderOptions<T, TProperty> ApplyRequiredValidator<T, TProperty>(
-        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName) {
+        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName)
+    {
         return ruleBuilder
             .NotEmpty()
             .WithName(fieldName)
@@ -17,7 +18,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, string> ApplyMaxLengthValidator<T>(
         this IRuleBuilderOptions<T, string> ruleBuilder,
         string fieldName,
-        int maxLength) {
+        int maxLength)
+    {
         return ruleBuilder
             .MaximumLength(maxLength)
             .WithName(fieldName)
@@ -28,7 +30,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, string> ApplyMaxLengthValidator<T>(
         this IRuleBuilderInitial<T, string> ruleBuilder,
         string fieldName,
-        int maxLength) {
+        int maxLength)
+    {
         return ruleBuilder
             .MaximumLength(maxLength)
             .WithName(fieldName)
@@ -37,14 +40,16 @@ public static class ValidationRuleExtensions {
     }
 
     public static IRuleBuilderOptions<T, string> ApplyRequiredString<T>(
-        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, int maxLength) {
+        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, int maxLength)
+    {
         return ruleBuilder
             .ApplyRequiredValidator(fieldName)
             .ApplyMaxLengthValidator(fieldName, maxLength);
     }
 
     public static IRuleBuilderOptions<T, TProperty> ApplyEnumValidator<T, TProperty>(
-        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName) where TProperty : Enum {
+        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName) where TProperty : Enum
+    {
         return ruleBuilder
             .IsInEnum()
             .WithName(fieldName)
@@ -53,7 +58,8 @@ public static class ValidationRuleExtensions {
     }
 
     public static IRuleBuilderOptions<T, string> ApplyUrlValidator<T>(
-        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName) {
+        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName)
+    {
         return ruleBuilder
             .Must(url => string.IsNullOrEmpty(url) || ValidationExtension.IsValidUrl(url))
             .WithName(fieldName)
@@ -62,7 +68,8 @@ public static class ValidationRuleExtensions {
     }
 
     public static IRuleBuilderOptions<T, TProperty> ApplyNotNullValidator<T, TProperty>(
-        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName) where TProperty : class {
+        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName) where TProperty : class
+    {
         return ruleBuilder
             .NotNull()
             .WithName(fieldName)
@@ -73,7 +80,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TCollection> ApplyNoNullEntriesValidator<T, TCollection, TElement>(
         this IRuleBuilderInitial<T, TCollection> ruleBuilder, string fieldName)
         where TCollection : IEnumerable<TElement?>
-        where TElement : class {
+        where TElement : class
+    {
         return ruleBuilder
             .Must(collection => object.Equals(collection, default(TCollection)) || collection.All(item => item != null))
             .WithName(fieldName)
@@ -84,7 +92,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TCollection> ApplyNoNullEntriesValidatorForValueTypes<T, TCollection, TElement>(
         this IRuleBuilderInitial<T, TCollection> ruleBuilder, string fieldName)
         where TCollection : IEnumerable<TElement?>
-        where TElement : struct {
+        where TElement : struct
+    {
         return ruleBuilder
             .Must(collection => object.Equals(collection, default(TCollection)) || collection.All(item => item != null))
             .WithName(fieldName)
@@ -95,7 +104,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty> ApplyGreaterThanValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty> ruleBuilder, Expression<Func<T, TProperty>> expression,
         string fieldName, string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThan(expression)
             .WithName(fieldName)
@@ -106,7 +116,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty?> ApplyGreaterThanValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty?> ruleBuilder, Expression<Func<T, TProperty?>> expression,
         string fieldName, string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThan(expression)
             .WithName(fieldName)
@@ -116,7 +127,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty?> ApplyGreaterThanValidator<T, TProperty>(
        this IRuleBuilderInitial<T, TProperty?> ruleBuilder, Expression<Func<T, TProperty>> expression,
        string fieldName, string comparedToFieldName)
-       where TProperty : struct, IComparable<TProperty>, IComparable {
+       where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThan(expression)
             .WithName(fieldName)
@@ -127,7 +139,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty> ApplyGreaterThanOrEqualValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty> ruleBuilder, Expression<Func<T, TProperty>> expression,
         string fieldName, string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -140,7 +153,8 @@ public static class ValidationRuleExtensions {
         Expression<Func<T, TProperty>> expression,
         string fieldName,
         string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -153,7 +167,8 @@ public static class ValidationRuleExtensions {
         Expression<Func<T, TProperty?>> expression,
         string fieldName,
         string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -164,7 +179,8 @@ public static class ValidationRuleExtensions {
     public static IRuleBuilderOptions<T, TProperty> ApplyGreaterThanOrEqualValidator<T, TProperty>(
         this IRuleBuilderOptions<T, TProperty> ruleBuilder, Expression<Func<T, TProperty>> expression,
         string fieldName, string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -177,7 +193,8 @@ public static class ValidationRuleExtensions {
         Expression<Func<T, TProperty>> expression,
         string fieldName,
         string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -190,7 +207,8 @@ public static class ValidationRuleExtensions {
         Expression<Func<T, TProperty?>> expression,
         string fieldName,
         string comparedToFieldName)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(expression)
             .WithName(fieldName)
@@ -199,7 +217,8 @@ public static class ValidationRuleExtensions {
     }
 
     public static IRuleBuilderOptions<T, string> ApplyRegexMatchValidator<T>(
-        this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, string regexPattern, string formatDescription) {
+        this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, string regexPattern, string formatDescription)
+    {
         return ruleBuilder
             .Matches(regexPattern)
             .WithName(fieldName)
@@ -207,7 +226,8 @@ public static class ValidationRuleExtensions {
             .WithErrorCode(ValidationMessages.InvalidFormat.ErrorCode);
     }
     public static IRuleBuilderOptions<T, string> ApplyRegexMatchValidator<T>(
-       this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, string regexPattern, string formatDescription) {
+       this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, string regexPattern, string formatDescription)
+    {
         return ruleBuilder
             .Matches(regexPattern)
             .WithName(fieldName)
@@ -217,7 +237,8 @@ public static class ValidationRuleExtensions {
 
 
     public static IRuleBuilderOptions<T, string> ApplyLengthRangeValidator<T>(
-        this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, int min, int max) {
+        this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, int min, int max)
+    {
         return ruleBuilder
             .Length(min, max)
             .WithName(fieldName)
@@ -225,7 +246,8 @@ public static class ValidationRuleExtensions {
             .WithErrorCode(ValidationMessages.LengthRange.ErrorCode);
     }
     public static IRuleBuilderOptions<T, string> ApplyLengthRangeValidator<T>(
-        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, int min, int max) {
+        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, int min, int max)
+    {
         return ruleBuilder
             .Length(min, max)
             .WithName(fieldName)
@@ -235,7 +257,8 @@ public static class ValidationRuleExtensions {
 
 
     public static IRuleBuilderOptions<T, string> ApplyEmailAddressValidator<T>(
-        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName) {
+        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName)
+    {
         return ruleBuilder
             .EmailAddress()
             .WithName(fieldName)
@@ -245,7 +268,8 @@ public static class ValidationRuleExtensions {
 
     public static IRuleBuilderOptions<T, TProperty> ApplyNonNegativeValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName)
-        where TProperty : struct, IComparable, IComparable<TProperty>, IEquatable<TProperty> {
+        where TProperty : struct, IComparable, IComparable<TProperty>, IEquatable<TProperty>
+    {
         return ruleBuilder
             .GreaterThanOrEqualTo(default(TProperty))
             .WithName(fieldName)
@@ -257,7 +281,8 @@ public static class ValidationRuleExtensions {
         this IRuleBuilderInitial<T, TProperty?> ruleBuilder,
         string fieldName,
         string conditionDescription)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .Must(value => !value.HasValue || Comparer<TProperty>.Default.Compare(value.Value, default) > 0)
             .WithName(fieldName)
@@ -269,7 +294,8 @@ public static class ValidationRuleExtensions {
         this IRuleBuilderOptions<T, TProperty?> ruleBuilder,
         string fieldName,
         string conditionDescription)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .Must(value => !value.HasValue || Comparer<TProperty>.Default.Compare(value.Value, default) > 0)
             .WithName(fieldName)
@@ -279,7 +305,8 @@ public static class ValidationRuleExtensions {
 
     public static IRuleBuilderOptions<T, string> ApplyMustBeInSetValidator<T>(
         this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, IEnumerable<string> validSet,
-        string formatDescription) {
+        string formatDescription)
+    {
         var localSet = new HashSet<string>(validSet);
         return ruleBuilder
             .Must(item => string.IsNullOrEmpty(item) || localSet.Contains(item))
@@ -289,7 +316,8 @@ public static class ValidationRuleExtensions {
     }
     public static IRuleBuilderOptions<T, string> ApplyMustBeInSetValidator<T>(
        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, IEnumerable<string> validSet,
-       string formatDescription) {
+       string formatDescription)
+    {
         var localSet = new HashSet<string>(validSet);
         return ruleBuilder
             .Must(item => string.IsNullOrEmpty(item) || localSet.Contains(item))
@@ -301,7 +329,8 @@ public static class ValidationRuleExtensions {
 
     public static IRuleBuilderOptions<T, TProperty> ApplyMustBeNullValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName, string condition)
-        where TProperty : class {
+        where TProperty : class
+    {
         return ruleBuilder
             .Null()
             .WithName(fieldName)
@@ -311,7 +340,8 @@ public static class ValidationRuleExtensions {
 
     public static IRuleBuilderOptions<T, TProperty?> ApplyMustBeNullValidator<T, TProperty>(
         this IRuleBuilderInitial<T, TProperty?> ruleBuilder, string fieldName, string condition)
-        where TProperty : struct {
+        where TProperty : struct
+    {
         return ruleBuilder
             .Null()
             .WithName(fieldName)
@@ -320,7 +350,8 @@ public static class ValidationRuleExtensions {
     }
 
     public static IRuleBuilderOptions<T, string> ApplyMustBeEqualValidator<T>(
-        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, string expectedValue) {
+        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, string expectedValue)
+    {
         return ruleBuilder
             .Must(val => val == expectedValue)
             .WithName(fieldName)
@@ -333,7 +364,8 @@ public static class ValidationRuleExtensions {
         string fieldName,
         TProperty from,
         TProperty to)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .InclusiveBetween(from, to)
             .WithName(fieldName)
@@ -346,7 +378,8 @@ public static class ValidationRuleExtensions {
         string fieldName,
         TProperty from,
         TProperty to)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .InclusiveBetween(from, to)
             .WithName(fieldName)
@@ -359,7 +392,8 @@ public static class ValidationRuleExtensions {
         string fieldName,
         TProperty from,
         TProperty to)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .InclusiveBetween(from, to)
             .WithName(fieldName)
@@ -372,7 +406,8 @@ public static class ValidationRuleExtensions {
         string fieldName,
         TProperty from,
         TProperty to)
-        where TProperty : struct, IComparable<TProperty>, IComparable {
+        where TProperty : struct, IComparable<TProperty>, IComparable
+    {
         return ruleBuilder
             .InclusiveBetween(from, to)
             .WithName(fieldName)
@@ -382,7 +417,8 @@ public static class ValidationRuleExtensions {
 
 
     public static IRuleBuilderOptions<T, TProperty> ApplyConditionalRequiredValidator<T, TProperty>(
-        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName, string condition) {
+        this IRuleBuilderInitial<T, TProperty> ruleBuilder, string fieldName, string condition)
+    {
         return ruleBuilder
             .NotNull()
             .WithName(fieldName)

@@ -1,15 +1,19 @@
 namespace BjjEire.Application.Common.Exceptions;
 
-public class ConcurrencyException : Exception {
+public class ConcurrencyException : Exception
+{
     public ConcurrencyException()
-        : base("A concurrency conflict occurred.") {
+        : base("A concurrency conflict occurred.")
+    {
     }
 
     public ConcurrencyException(string message)
-        : base(message) {
+        : base(message)
+    {
     }
 
     public ConcurrencyException(string message, Exception innerException)
-        : base(message, innerException) {
+        : base(message, innerException)
+    {
     }
 }

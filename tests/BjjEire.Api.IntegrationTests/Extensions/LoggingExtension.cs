@@ -3,17 +3,41 @@
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+
 using Serilog;
 using Serilog.Formatting.Compact;
+
 using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.Extensions;
 
-public static class LoggingExtension {
-    public static IWebHostBuilder ConfigureCustomLogging(this IWebHostBuilder builder) {
+public static class LoggingExtension
+{
+    private static readonly object SyncRoot = new();
+    private static readonly List<ILoggerFactory> LoggerFactories = [];
+
+    static LoggingExtension()
+    {
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            lock (SyncRoot)
+            {
+                foreach (var factory in LoggerFactories)
+                {
+                    factory.Dispose();
+                }
+
+                LoggerFactories.Clear();
+            }
+        };
+    }
+
+    public static IWebHostBuilder ConfigureCustomLogging(this IWebHostBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
-        _ = builder.ConfigureLogging((context, loggingBuilder) => {
+        _ = builder.ConfigureLogging((context, loggingBuilder) =>
+        {
             _ = loggingBuilder.ClearProviders();
 
             var loggerConfiguration = new LoggerConfiguration()
@@ -56,7 +80,8 @@ public static class LoggingExtension {
     //     return builder;
     // }
 
-    public static Microsoft.Extensions.Logging.ILogger ConfigureTestLogger(ITestOutputHelper output) {
+    public static Microsoft.Extensions.Logging.ILogger ConfigureTestLogger(ITestOutputHelper output)
+    {
         var serilogLogger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .Enrich.FromLogContext()
@@ -66,7 +91,15 @@ public static class LoggingExtension {
             .WriteTo.Console(new CompactJsonFormatter())
             .CreateLogger();
 
+        // Lifetime is managed centrally in this static helper and disposed on ProcessExit.
+#pragma warning disable CA2000
         var loggerFactory = new LoggerFactory().AddSerilog(serilogLogger);
+#pragma warning restore CA2000
+        lock (SyncRoot)
+        {
+            LoggerFactories.Add(loggerFactory);
+        }
+
         return loggerFactory.CreateLogger("TestLogger");
     }
 }

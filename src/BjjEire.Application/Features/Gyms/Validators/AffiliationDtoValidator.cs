@@ -4,8 +4,10 @@ using BjjEire.Application.Features.Gyms.DTOs;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class AffiliationDtoValidator : AbstractValidator<AffiliationDto> {
-    public AffiliationDtoValidator() {
+public class AffiliationDtoValidator : AbstractValidator<AffiliationDto>
+{
+    public AffiliationDtoValidator()
+    {
         _ = RuleFor(x => x.Name)
             .ApplyMaxLengthValidator("Name", 100);
 

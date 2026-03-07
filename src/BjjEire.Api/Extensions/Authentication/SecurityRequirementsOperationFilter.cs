@@ -1,8 +1,10 @@
 
 namespace BjjEire.Api.Extensions.Authentication;
 
-public class SecurityRequirementsOperationFilter : IOperationFilter {
-    public void Apply(OpenApiOperation operation, OperationFilterContext context) {
+public class SecurityRequirementsOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
         ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(context);
 
@@ -11,7 +13,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
             .OfType<AllowAnonymousAttribute>()
             .Any();
 
-        if (hasAllowAnonymous) {
+        if (hasAllowAnonymous)
+        {
             operation.Security = []; // No security for AllowAnonymous
             return;
         }
@@ -26,7 +29,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
             .OfType<AuthorizeAttribute>() ?? Enumerable.Empty<AuthorizeAttribute>());
 
 
-        if (authorizeAttributes.Count > 0) {
+        if (authorizeAttributes.Count > 0)
+        {
             operation.Security ??= [];
 
             // Determine which schemes are applicable from the [Authorize] attributes
@@ -35,8 +39,10 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
             bool usesApiKey = false;
 
 #pragma warning disable S3267
-            foreach (var attr in authorizeAttributes) {
-                if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes)) {
+            foreach (var attr in authorizeAttributes)
+            {
+                if (string.IsNullOrWhiteSpace(attr.AuthenticationSchemes))
+                {
                     usesJwt = true;
                     usesApiKey = true;
                     break;
@@ -46,11 +52,13 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
                                   .Select(s => s.Trim())
                                   .ToList();
 
-                if (schemes.Contains(JwtBearerDefaults.AuthenticationScheme)) {
+                if (schemes.Contains(JwtBearerDefaults.AuthenticationScheme))
+                {
                     usesJwt = true;
                 }
 
-                if (schemes.Contains(ApiKeyAuthenticationDefaults.AuthenticationScheme)) {
+                if (schemes.Contains(ApiKeyAuthenticationDefaults.AuthenticationScheme))
+                {
                     usesApiKey = true;
                 }
             }
@@ -58,28 +66,34 @@ public class SecurityRequirementsOperationFilter : IOperationFilter {
 
             // If no schemes were explicitly found but [Authorize] is present,
             // you might default to adding your primary scheme (e.g., JWT).
-            if (!usesJwt && !usesApiKey && authorizeAttributes.Count > 0) {
+            if (!usesJwt && !usesApiKey && authorizeAttributes.Count > 0)
+            {
                 usesJwt = true; // Fallback for a plain [Authorize]
             }
 
 
             var securityRequirement = new OpenApiSecurityRequirement();
 
-            if (usesJwt) {
+            if (usesJwt)
+            {
                 // Add JWT Bearer Authentication
-                securityRequirement.Add(new OpenApiSecurityScheme {
+                securityRequirement.Add(new OpenApiSecurityScheme
+                {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "BearerAuth" },
                 }, []);
             }
 
-            if (usesApiKey) {
+            if (usesApiKey)
+            {
                 // Add API Key Authentication
-                securityRequirement.Add(new OpenApiSecurityScheme {
+                securityRequirement.Add(new OpenApiSecurityScheme
+                {
                     Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKeyAuth" }
                 }, []);
             }
 
-            if (securityRequirement.Any()) {
+            if (securityRequirement.Any())
+            {
                 operation.Security.Add(securityRequirement);
             }
         }

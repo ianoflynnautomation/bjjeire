@@ -2,9 +2,11 @@ using BjjEire.Aspire.AppHost.Constants;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class PostgresConfiguration {
+public static class PostgresConfiguration
+{
     public static IResourceBuilder<ContainerResource> AddPostgres(
-        IDistributedApplicationBuilder builder) {
+        IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
 

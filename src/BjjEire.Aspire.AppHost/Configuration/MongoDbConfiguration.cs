@@ -1,10 +1,13 @@
 using BjjEire.Aspire.AppHost.Constants;
+
 using Microsoft.Extensions.Configuration;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class MongoDbConfiguration {
-    public static IResourceBuilder<MongoDBDatabaseResource> AddMongoDb(IDistributedApplicationBuilder builder) {
+public static class MongoDbConfiguration
+{
+    public static IResourceBuilder<MongoDBDatabaseResource> AddMongoDb(IDistributedApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var mongo = builder.AddMongoDB("mongo")
@@ -27,7 +30,8 @@ public static class MongoDbConfiguration {
         return mongodb;
     }
 
-    private static string BuildMongoConnectionString(ConfigurationManager configuration) {
+    private static string BuildMongoConnectionString(ConfigurationManager configuration)
+    {
         var user = configuration["MONGODB_USER"] ?? "admin";
         var password = configuration["MONGODB_PASSWORD"] ?? "password";
         var host = configuration["MONGODB_HOST"] ?? "mongodb";

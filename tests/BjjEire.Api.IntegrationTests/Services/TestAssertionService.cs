@@ -4,12 +4,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+
 using BjjEire.Api.Extensions.Exceptions;
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Interfaces;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Shouldly;
 
 namespace BjjEire.Api.IntegrationTests.Services;
@@ -23,40 +26,43 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(logger);
 
-        var responseContentForError = await response.Content.ReadAsStringAsync();
+        var responseContentForError = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest, $"Response: {responseContentForError}");
 
         var errorResponse = JsonSerializer.Deserialize<ValidationErrorResponse>(responseContentForError, TestJsonHelper.SerializerOptions);
 
-            errorResponse.ShouldNotBeNull();
-            errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest);
-            errorResponse.Title.ShouldBe("Validation Failed");
-            errorResponse.Errors.ShouldNotBeNull();
+        _ = errorResponse.ShouldNotBeNull();
+        errorResponse.Status.ShouldBe(StatusCodes.Status400BadRequest);
+        errorResponse.Title.ShouldBe("Validation Failed");
+        _ = errorResponse.Errors.ShouldNotBeNull();
 
-            var actualErrorsForDisplay = () => $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
+        string actualErrorsForDisplay()
+        {
+            return $"Actual errors: [{string.Join("; ", errorResponse.Errors.Select(err => $"Field: '{err.Field}', Code: '{err.ErrorCode}', Msg: '{err.Message}'"))}]";
+        }
 
-            errorResponse.Errors.Count.ShouldBe(expectedErrors.Length,
-                $"Expected {expectedErrors.Length} validation errors, but found {errorResponse.Errors.Count}. {actualErrorsForDisplay()}");
+        errorResponse.Errors.Count.ShouldBe(expectedErrors.Length,
+            $"Expected {expectedErrors.Length} validation errors, but found {errorResponse.Errors.Count}. {actualErrorsForDisplay()}");
 
-            foreach (var (field, errorCode, messageContains) in expectedErrors)
-            {
-                var foundMatch = errorResponse.Errors.Any(actualError =>
-                    string.Equals(actualError.Field, field, StringComparison.OrdinalIgnoreCase) &&
-                    (string.IsNullOrEmpty(errorCode) || string.Equals(actualError.ErrorCode, errorCode, StringComparison.OrdinalIgnoreCase)) &&
-                    (string.IsNullOrEmpty(messageContains) || (actualError.Message?.Contains(messageContains, StringComparison.OrdinalIgnoreCase) ?? false))
-                );
+        foreach (var (field, errorCode, messageContains) in expectedErrors)
+        {
+            var foundMatch = errorResponse.Errors.Any(actualError =>
+                string.Equals(actualError.Field, field, StringComparison.OrdinalIgnoreCase) &&
+                (string.IsNullOrEmpty(errorCode) || string.Equals(actualError.ErrorCode, errorCode, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(messageContains) || (actualError.Message?.Contains(messageContains, StringComparison.OrdinalIgnoreCase) ?? false))
+            );
 
-                foundMatch.ShouldBeTrue(
-                    $"Did not find expected validation error for Field: '{field}', ErrorCode: '{errorCode ?? "N/A"}'. {actualErrorsForDisplay()}");
-            }
+            foundMatch.ShouldBeTrue(
+                $"Did not find expected validation error for Field: '{field}', ErrorCode: '{errorCode ?? "N/A"}'. {actualErrorsForDisplay()}");
+        }
     }
 
 
-        public async Task AssertRateLimitHeadersAsync(
-        HttpResponseMessage response,
-        int expectedPermitLimit,
-        int expectedWindowInSeconds,
-        string expectedRemaining = "0")
+    public Task AssertRateLimitHeadersAsync(
+    HttpResponseMessage response,
+    int expectedPermitLimit,
+    int expectedWindowInSeconds,
+    string expectedRemaining = "0")
     {
         ArgumentNullException.ThrowIfNull(response);
 
@@ -71,6 +77,7 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
         var currentUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         resetTimestamp.ShouldBeGreaterThan(currentUnixTime - 10, "X-RateLimit-Reset timestamp seems too far in the past.");
         resetTimestamp.ShouldBeLessThanOrEqualTo(currentUnixTime + expectedWindowInSeconds + 10, "X-RateLimit-Reset timestamp seems too far in the future.");
+        return Task.CompletedTask;
     }
 
     public async Task AssertRateLimitProblemDetailsAsync(
@@ -81,9 +88,9 @@ public class TestAssertionService(ILogger<TestAssertionService> logger) : ITestA
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestJsonHelper.SerializerOptions);
+        var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
 
-        problemDetails.ShouldNotBeNull();
+        _ = problemDetails.ShouldNotBeNull();
         problemDetails.Status.ShouldBe(expectedStatusCode, $"ProblemDetails status should be {expectedStatusCode}.");
         problemDetails.Title.ShouldBe("API Rate Limit Exceeded");
         problemDetails.Type.ShouldBe("urn:bjjeire:rate-limit-exceeded");
