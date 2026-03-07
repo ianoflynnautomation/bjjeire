@@ -3,8 +3,10 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto> {
-    public BjjEventHoursDtoValidator() {
+public class BjjEventHoursDtoValidator : AbstractValidator<BjjEventHoursDto>
+{
+    public BjjEventHoursDtoValidator()
+    {
         _ = RuleFor(x => x.Day)
             .ApplyEnumValidator("Day");
 

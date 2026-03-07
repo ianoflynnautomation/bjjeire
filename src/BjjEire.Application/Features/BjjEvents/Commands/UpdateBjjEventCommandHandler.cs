@@ -6,13 +6,15 @@ using BjjEire.Domain.Entities.BjjEvents;
 namespace BjjEire.Application.Features.BjjEvents.Commands;
 
 public sealed class UpdateBjjEventCommandHandler(IBjjEventService bjjEventService, IMapper mapper)
-    : IRequestHandler<UpdateBjjEventCommand, UpdateBjjEventResponse> {
+    : IRequestHandler<UpdateBjjEventCommand, UpdateBjjEventResponse>
+{
 
-    public async Task<UpdateBjjEventResponse> Handle(UpdateBjjEventCommand request, CancellationToken cancellationToken) {
+    public async Task<UpdateBjjEventResponse> Handle(UpdateBjjEventCommand request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
 
         var bjjEventEntity = await bjjEventService.GetByIdAsync(request.Data.Id)
-            ?? throw new NotFoundException(nameof(BjjEvent), request.Data.Id);
+ ?? throw new NotFoundException(nameof(BjjEvent), request.Data.Id);
 
         _ = mapper.Map(request.Data, bjjEventEntity);
         await bjjEventService.UpdateAsync(bjjEventEntity);

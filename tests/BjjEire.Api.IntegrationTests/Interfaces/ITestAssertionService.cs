@@ -3,7 +3,8 @@
 
 namespace BjjEire.Api.IntegrationTests.Interfaces;
 
-public interface ITestAssertionService {
+public interface ITestAssertionService
+{
     Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors);
     Task AssertRateLimitHeadersAsync(HttpResponseMessage response, int expectedPermitLimit, int expectedWindowInSeconds, string expectedRemaining = "0");
     Task AssertRateLimitProblemDetailsAsync(HttpResponseMessage response, int expectedStatusCode, int expectedPermitLimit, int expectedWindowInSeconds);

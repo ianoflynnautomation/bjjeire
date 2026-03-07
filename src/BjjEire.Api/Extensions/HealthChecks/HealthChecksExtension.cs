@@ -1,22 +1,29 @@
 
 namespace BjjEire.Api.Extensions.HealthChecks;
 
-public static class HealthChecksExtensions {
-    private static readonly JsonSerializerOptions HealthCheckSerializerOptions = new() {
+public static class HealthChecksExtensions
+{
+    private static readonly JsonSerializerOptions HealthCheckSerializerOptions = new()
+    {
         WriteIndented = false,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public static WebApplication UseAppHealthChecks(this WebApplication app) {
+    public static WebApplication UseAppHealthChecks(this WebApplication app)
+    {
         ArgumentNullException.ThrowIfNull(app);
 
-        _ = app.MapHealthChecks("/health", new HealthCheckOptions {
-            ResponseWriter = static async (context, report) => {
+        _ = app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = static async (context, report) =>
+            {
                 context.Response.ContentType = "application/json";
 
-                var response = new {
+                var response = new
+                {
                     Status = report.Status.ToString(),
-                    Checks = report.Entries.Select(entry => new {
+                    Checks = report.Entries.Select(entry => new
+                    {
                         Name = entry.Key,
                         Status = entry.Value.Status.ToString(),
                         entry.Value.Description,
@@ -40,7 +47,8 @@ public static class HealthChecksExtensions {
     }
 
 
-    public static IServiceCollection AddAppHealthChecks(this IServiceCollection services) {
+    public static IServiceCollection AddAppHealthChecks(this IServiceCollection services)
+    {
         _ = services.AddHealthChecks();
         return services;
     }

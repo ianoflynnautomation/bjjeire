@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities;
 
-public interface IPagedList<T> : IList<T> {
+public interface IPagedList<T> : IList<T>
+{
     public int PageIndex { get; }
 
     public int PageSize { get; }

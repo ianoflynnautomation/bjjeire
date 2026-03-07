@@ -1,4 +1,5 @@
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Common.Behaviours;
@@ -7,15 +8,18 @@ public class ValidationBehaviour<TRequest, TResponse>(
     IEnumerable<IValidator<TRequest>> validators,
     ILogger<ValidationBehaviour<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull {
+    where TRequest : notnull
+{
 
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken) {
+        CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(next);
 
-        if (!validators.Any()) {
+        if (!validators.Any())
+        {
             return await next(cancellationToken);
         }
 
@@ -29,7 +33,8 @@ public class ValidationBehaviour<TRequest, TResponse>(
             .Where(f => f != null)
             .ToList();
 
-        if (failures.Count != 0) {
+        if (failures.Count != 0)
+        {
             logger.LogWarning(
                 ApplicationLogEvents.Validation.Failed,
                 "Validation failed for {RequestName}. ErrorCount: {ErrorCount}, Errors: \"{ErrorsSummary}\"",

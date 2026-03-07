@@ -4,7 +4,8 @@ using BjjEire.Application.Features.Gyms.Queries;
 
 namespace BjjEire.Api.Controllers;
 
-public class GymController(IMediator mediator) : BaseApiController {
+public class GymController(IMediator mediator) : BaseApiController
+{
     private readonly IMediator _mediator = mediator;
 
     [EndpointDescription("Get Gym entitys")]
@@ -13,7 +14,8 @@ public class GymController(IMediator mediator) : BaseApiController {
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] GetGymPaginationQuery query) {
+    public async Task<IActionResult> GetAllAsync([FromQuery] GetGymPaginationQuery query)
+    {
         var response = await _mediator.Send(query);
 
         return Ok(response);
@@ -29,7 +31,8 @@ public class GymController(IMediator mediator) : BaseApiController {
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command) {
+    public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command)
+    {
         var response = await _mediator.Send(command);
 
         return Created(string.Empty, response);
@@ -44,7 +47,8 @@ public class GymController(IMediator mediator) : BaseApiController {
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command) {
+    public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command)
+    {
         var response = await _mediator.Send(command);
 
         return Ok(response);
@@ -58,9 +62,11 @@ public class GymController(IMediator mediator) : BaseApiController {
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] string id) {
+    public async Task<IActionResult> DeleteAsync([FromRoute] string id)
+    {
 
-        if (string.IsNullOrWhiteSpace(id)) {
+        if (string.IsNullOrWhiteSpace(id))
+        {
             return BadRequest();
         }
 

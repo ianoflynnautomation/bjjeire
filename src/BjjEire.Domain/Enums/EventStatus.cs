@@ -1,6 +1,7 @@
 namespace BjjEire.Domain.Enums;
 
-public enum EventStatus {
+public enum EventStatus
+{
     Postponed = 0,
     Upcoming = 1,
     RegistrationOpen = 2,

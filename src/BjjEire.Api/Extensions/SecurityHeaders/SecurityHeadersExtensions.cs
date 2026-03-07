@@ -1,11 +1,12 @@
-using NetEscapades.AspNetCore.SecurityHeaders;
-
 namespace BjjEire.Api.Extensions.SecurityHeaders;
 
-public static class SecurityHeadersServiceCollectionExtensions {
-    public static IServiceCollection AddCustomSecurityHeaders(this IServiceCollection services) {
+public static class SecurityHeadersServiceCollectionExtensions
+{
+    public static IServiceCollection AddCustomSecurityHeaders(this IServiceCollection services)
+    {
         _ = services.AddSecurityHeaderPolicies()
-            .SetDefaultPolicy(policy => {
+            .SetDefaultPolicy(policy =>
+            {
                 _ = policy.AddDefaultSecurityHeaders();
 
                 // Override and add specific headers
@@ -15,7 +16,8 @@ public static class SecurityHeadersServiceCollectionExtensions {
 
                 _ = policy.AddReferrerPolicyNoReferrer();
 
-                _ = policy.AddPermissionsPolicy(builder => {
+                _ = policy.AddPermissionsPolicy(builder =>
+                {
                     _ = builder.AddAccelerometer().None();
                     _ = builder.AddCamera().None();
                     _ = builder.AddGeolocation().None();
@@ -27,7 +29,8 @@ public static class SecurityHeadersServiceCollectionExtensions {
                 });
 
                 // Build a strong Content-Security-Policy
-                _ = policy.AddContentSecurityPolicy(builder => {
+                _ = policy.AddContentSecurityPolicy(builder =>
+                {
                     _ = builder.AddObjectSrc().None();
                     _ = builder.AddFormAction().Self();
                     _ = builder.AddFrameAncestors().None();

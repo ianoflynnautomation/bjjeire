@@ -7,6 +7,7 @@ using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
@@ -18,9 +19,11 @@ public sealed class GetGymPaginationQueryHandler(
     HybridCache hybridCache,
     IUriService uriService,
     ILogger<GetGymPaginationQueryHandler> logger)
-    : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse> {
+    : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse>
+{
 
-    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken) {
+    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
 
         var cacheKey = CacheKey.GymsAll(request.Page, request.PageSize, request.County);
@@ -33,7 +36,8 @@ public sealed class GetGymPaginationQueryHandler(
 
         var result = await hybridCache.GetOrCreateAsync(
             cacheKey,
-            async ct => {
+            async ct =>
+            {
                 logger.LogInformation(
                     ApplicationLogEvents.QueryHandling.FetchingFromRepositoryOnCacheMiss,
                     "Cache miss for {CacheKey}. Fetching Gyms from repository.",
@@ -41,7 +45,8 @@ public sealed class GetGymPaginationQueryHandler(
 
                 var query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
-                if (request.County.HasValue) {
+                if (request.County.HasValue)
+                {
                     query = query.Where(x => x.County == request.County.Value);
                 }
 

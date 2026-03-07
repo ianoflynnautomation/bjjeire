@@ -2,16 +2,19 @@
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.DTOs;
+
 using MongoDB.Bson;
 
 namespace BjjEire.Application.Features.BjjEvents.Validators;
 
-public class BjjEventDtoValidator : AbstractValidator<BjjEventDto> {
+public class BjjEventDtoValidator : AbstractValidator<BjjEventDto>
+{
     public BjjEventDtoValidator(IValidator<OrganizerDto> organizerDtoValidator,
                                 IValidator<SocialMediaDto> socialMediaDtoValidator,
                                 IValidator<BjjEventScheduleDto> bjjEventScheduleDtoValidator,
                                 IValidator<PricingModelDto> pricingModelDtoValidator,
-                                IValidator<LocationDto> locationDtoValidator) {
+                                IValidator<LocationDto> locationDtoValidator)
+    {
 
         _ = RuleFor(x => x.Id)
             .Must(id => ObjectId.TryParse(id, out _))

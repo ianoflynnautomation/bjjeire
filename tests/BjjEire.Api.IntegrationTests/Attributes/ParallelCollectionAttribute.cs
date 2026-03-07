@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Fixtures;
+
 using Xunit;
 
 namespace BjjEire.Api.IntegrationTests.Attributes;

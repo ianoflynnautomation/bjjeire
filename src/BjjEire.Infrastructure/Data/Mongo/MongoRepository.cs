@@ -6,14 +6,16 @@ using BjjEire.Domain.Entities;
 
 namespace BjjEire.Infrastructure.Data.Mongo;
 
-public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
+public class MongoRepository<T> : IRepository<T> where T : BaseEntity
+{
     private readonly IAuditInfoProvider _auditInfoProvider;
 
     public IMongoCollection<T> Collection { get; }
 
     protected IMongoDatabase Database { get; }
 
-    public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider) {
+    public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
+    {
         ArgumentNullException.ThrowIfNull(database);
         ArgumentNullException.ThrowIfNull(auditInfoProvider);
 
@@ -29,7 +31,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
 
     public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate) => Collection.Find(predicate).FirstOrDefaultAsync();
 
-    public virtual T Insert(T entity) {
+    public virtual T Insert(T entity)
+    {
         ArgumentNullException.ThrowIfNull(entity);
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
@@ -37,7 +40,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         return entity;
     }
 
-    public virtual async Task<T> InsertAsync(T entity) {
+    public virtual async Task<T> InsertAsync(T entity)
+    {
         ArgumentNullException.ThrowIfNull(entity);
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
@@ -45,7 +49,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         return entity;
     }
 
-    public virtual T Update(T entity) {
+    public virtual T Update(T entity)
+    {
         ArgumentNullException.ThrowIfNull(entity);
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
@@ -53,7 +58,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         return entity;
     }
 
-    public virtual async Task<T> UpdateAsync(T entity) {
+    public virtual async Task<T> UpdateAsync(T entity)
+    {
         ArgumentNullException.ThrowIfNull(entity);
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
@@ -62,7 +68,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         return entity;
     }
 
-    public virtual async Task UpdateFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value) {
+    public virtual async Task UpdateFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
+    {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
         var update = Builders<T>.Update
@@ -73,7 +80,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         _ = await Collection.UpdateOneAsync(filter, update);
     }
 
-    public virtual async Task IncFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value) {
+    public virtual async Task IncFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
+    {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
         var update = Builders<T>.Update
@@ -83,7 +91,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     }
 
     public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression,
-        UpdateBuilder<T> updateBuilder) {
+        UpdateBuilder<T> updateBuilder)
+    {
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
@@ -92,7 +101,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     }
 
     public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression,
-        UpdateBuilder<T> updateBuilder) {
+        UpdateBuilder<T> updateBuilder)
+    {
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
@@ -100,7 +110,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         _ = await Collection.UpdateManyAsync(filterexpression, update);
     }
 
-    public virtual async Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value) {
+    public virtual async Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value)
+    {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
         var update = Builders<T>.Update.AddToSet(field, value);
@@ -112,7 +123,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     }
 
     public virtual async Task UpdateToSetAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
-        Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch, TU value) {
+        Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch, TU value)
+    {
         var filter = Builders<T>.Filter.Eq(x => x.Id, id)
                      & Builders<T>.Filter.ElemMatch(field, Builders<TU>.Filter.Eq(elemFieldMatch, elemMatch));
 
@@ -128,7 +140,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     }
 
     public virtual async Task UpdateToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
-        Expression<Func<TU, bool>> elemFieldMatch, TU value) {
+        Expression<Func<TU, bool>> elemFieldMatch, TU value)
+    {
         var filter = string.IsNullOrEmpty(id)
             ? Builders<T>.Filter.Where(x => true)
             : Builders<T>.Filter.Eq(x => x.Id, id)
@@ -144,10 +157,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
-            : await Collection.UpdateOneAsync(filter, combinedUpdate);
+ : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value) {
+    public virtual async Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value)
+    {
         ArgumentNullException.ThrowIfNull(field);
         var me = (MemberExpression)field.Body;
         var minfo = me.Member;
@@ -168,7 +182,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
     }
 
     public virtual async Task PullFilterAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
-        Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch) {
+        Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch)
+    {
         var filter = string.IsNullOrEmpty(id)
             ? Builders<T>.Filter.Where(x => true)
             : Builders<T>.Filter.Eq(x => x.Id, id);
@@ -180,11 +195,12 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
-            : await Collection.UpdateOneAsync(filter, combinedUpdate);
+ : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     public virtual async Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
-        Expression<Func<TU, bool>> elemFieldMatch) {
+        Expression<Func<TU, bool>> elemFieldMatch)
+    {
         var filter = Builders<T>.Filter.Eq(x => x.Id, id);
         var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
@@ -195,7 +211,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
-    public virtual async Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element) {
+    public virtual async Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
+    {
         var update = Builders<T>.Update.Pull(field, element);
 
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
@@ -204,12 +221,13 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate)
-            : await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
+ : await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
     }
 
     public virtual void Delete(T entity) => _ = Collection.FindOneAndDelete(e => e.Id == entity.Id);
 
-    public virtual async Task<T> DeleteAsync(T entity) {
+    public virtual async Task<T> DeleteAsync(T entity)
+    {
 
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -221,9 +239,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity {
         : entity;
     }
 
-    public virtual async Task DeleteAsync(IEnumerable<T> entities) {
+    public virtual async Task DeleteAsync(IEnumerable<T> entities)
+    {
         ArgumentNullException.ThrowIfNull(entities);
-        foreach (var entity in entities) {
+        foreach (var entity in entities)
+        {
             _ = await DeleteAsync(entity);
         }
     }

@@ -6,8 +6,10 @@ using System.Text.Json.Serialization;
 
 namespace BjjEire.Api.IntegrationTests.Common;
 
-public static class TestJsonHelper {
-    public static readonly JsonSerializerOptions SerializerOptions = new() {
+public static class TestJsonHelper
+{
+    public static readonly JsonSerializerOptions SerializerOptions = new()
+    {
         PropertyNameCaseInsensitive = true,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false) }
     };

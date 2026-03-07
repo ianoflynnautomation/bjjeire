@@ -1,6 +1,7 @@
 namespace BjjEire.Application.Features.Gyms.Commands;
 
-public sealed record DeleteGymCommand : IRequest<DeleteGymResponse> {
+public sealed record DeleteGymCommand : IRequest<DeleteGymResponse>
+{
     public required string Id { get; init; }
 }
 

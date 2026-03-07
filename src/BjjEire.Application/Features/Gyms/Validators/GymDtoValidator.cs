@@ -1,15 +1,18 @@
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.Gyms.DTOs;
+
 using MongoDB.Bson;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class GymDtoValidator : AbstractValidator<GymDto> {
+public class GymDtoValidator : AbstractValidator<GymDto>
+{
     public GymDtoValidator(IValidator<SocialMediaDto> socialMediaDtoValidator,
                                 IValidator<LocationDto> locationDtoValidator,
                                 IValidator<AffiliationDto?> affiliationDtoValidator,
-                                IValidator<TrialOfferDto> trialOfferDtoValidator) {
+                                IValidator<TrialOfferDto> trialOfferDtoValidator)
+    {
 
         _ = RuleFor(x => x.Id)
             .Must(id => ObjectId.TryParse(id, out _))

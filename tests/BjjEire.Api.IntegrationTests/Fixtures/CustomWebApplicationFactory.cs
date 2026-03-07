@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Extensions;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -9,10 +10,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public class CustomWebApplicationFactory(string connectionString) : WebApplicationFactory<Program> {
+public class CustomWebApplicationFactory(string connectionString) : WebApplicationFactory<Program>
+{
     private readonly string _databaseName = $"bjjeire_it_{Guid.NewGuid():N}";
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder) {
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.UseEnvironment("Development");
@@ -26,7 +29,8 @@ public class CustomWebApplicationFactory(string connectionString) : WebApplicati
                 { "RateLimitOptions:EnableRateLimiting", "false" }
             }));
 
-        _ = builder.ConfigureTestServices(services => {
+        _ = builder.ConfigureTestServices(services =>
+        {
             _ = services.RemoveTestServices();
             _ = services.RemoveTestCacheServices();
             _ = services.AddTestDatabaseServices(_databaseName, connectionString);

@@ -7,6 +7,7 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
@@ -18,9 +19,11 @@ public sealed class GetBjjEventByPaginationQueryHandler(
     HybridCache hybridCache,
     IUriService uriService,
     ILogger<GetBjjEventByPaginationQueryHandler> logger)
-    : IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse> {
+    : IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse>
+{
 
-    public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken) {
+    public async Task<GetBjjEventPaginatedResponse> Handle(GetBjjEventPaginationQuery request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
 
         var cacheKey = CacheKey.BjjEventsAll(request.Page, request.PageSize, request.County, request.Type);
@@ -33,7 +36,8 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
         var result = await hybridCache.GetOrCreateAsync(
             cacheKey,
-            async ct => {
+            async ct =>
+            {
                 logger.LogInformation(
                     ApplicationLogEvents.QueryHandling.FetchingFromRepositoryOnCacheMiss,
                     "Cache miss for {CacheKey}. Fetching BJJ events from repository.",
@@ -41,11 +45,13 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
                 var query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
-                if (request.County.HasValue) {
+                if (request.County.HasValue)
+                {
                     query = query.Where(x => x.County == request.County.Value);
                 }
 
-                if (request.Type.HasValue) {
+                if (request.Type.HasValue)
+                {
                     query = query.Where(x => x.Type == request.Type.Value);
                 }
 

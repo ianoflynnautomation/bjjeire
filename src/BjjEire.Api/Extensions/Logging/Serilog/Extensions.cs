@@ -4,11 +4,14 @@ using Serilog.Events;
 
 namespace BjjEire.Api.Extensions.Logging.Serilog;
 
-public static class Extensions {
-    public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder) {
+public static class Extensions
+{
+    public static WebApplicationBuilder AddCustomSerilog(this WebApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
-        if (builder.Environment.IsDevelopment()) {
+        if (builder.Environment.IsDevelopment())
+        {
             SelfLog.Enable(Console.Error);
         }
 
@@ -23,12 +26,15 @@ public static class Extensions {
         return builder;
     }
 
-    public static WebApplication UseCustomSerilogRequestLogging(this WebApplication app) {
+    public static WebApplication UseCustomSerilogRequestLogging(this WebApplication app)
+    {
         ArgumentNullException.ThrowIfNull(app);
 
-        _ = app.UseSerilogRequestLogging(options => {
+        _ = app.UseSerilogRequestLogging(options =>
+        {
             options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms for TraceId {TraceId}";
-            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) => {
+            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+            {
                 diagnosticContext.Set("RequestMethod", httpContext.Request.Method);
                 diagnosticContext.Set("RequestPath", httpContext.Request.Path.Value ?? string.Empty);
                 diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown");
@@ -38,7 +44,8 @@ public static class Extensions {
                 diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
 
                 var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId)) {
+                if (!string.IsNullOrEmpty(userId))
+                {
                     diagnosticContext.Set("UserId", userId);
                 }
             };
@@ -49,7 +56,8 @@ public static class Extensions {
     }
 
 
-    private static LogEventLevel GetRequestLogLevel(HttpContext httpContext, double elapsed, Exception? ex) {
+    private static LogEventLevel GetRequestLogLevel(HttpContext httpContext, double elapsed, Exception? ex)
+    {
         return ex != null || httpContext.Response.StatusCode >= 500
             ? LogEventLevel.Error
             : httpContext.Response.StatusCode >= 400

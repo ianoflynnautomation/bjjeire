@@ -5,8 +5,10 @@ using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.FunctionalTests.Common;
 
-public class TestLoggingEvents {
-    public static class Fixture {
+public class TestLoggingEvents
+{
+    public static class Fixture
+    {
         private const int BaseId = 12000;
 
         public static readonly EventId SetupStarting = new(BaseId + 1, nameof(SetupStarting));

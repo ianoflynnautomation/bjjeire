@@ -7,8 +7,10 @@ using BjjEire.Application.Features.Gyms.DTOs;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class CreateGymCommandValidator : AbstractValidator<CreateGymCommand> {
-    public CreateGymCommandValidator(IValidator<GymDto> gymDtoValidator) {
+public class CreateGymCommandValidator : AbstractValidator<CreateGymCommand>
+{
+    public CreateGymCommandValidator(IValidator<GymDto> gymDtoValidator)
+    {
         _ = RuleFor(x => x.Data)
             .ApplyNotNullValidator("Data")
             .SetValidator(gymDtoValidator);

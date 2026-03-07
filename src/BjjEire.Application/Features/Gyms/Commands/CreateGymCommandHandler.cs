@@ -5,9 +5,11 @@ using BjjEire.Domain.Entities.Gyms;
 namespace BjjEire.Application.Features.Gyms.Commands;
 
 public sealed class CreateGymCommandHandler(IGymService gymService, IMapper mapper)
-    : IRequestHandler<CreateGymCommand, CreateGymResponse> {
+    : IRequestHandler<CreateGymCommand, CreateGymResponse>
+{
 
-    public async Task<CreateGymResponse> Handle(CreateGymCommand request, CancellationToken cancellationToken) {
+    public async Task<CreateGymResponse> Handle(CreateGymCommand request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
         var gymEntity = mapper.Map<Gym>(request.Data);
         await gymService.InsertAsync(gymEntity);

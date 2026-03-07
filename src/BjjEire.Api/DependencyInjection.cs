@@ -13,21 +13,25 @@ using BjjEire.Api.Infrastructure;
 namespace Microsoft.Extensions.DependencyInjection;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection {
-    public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder) {
+public static class DependencyInjection
+{
+    public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         var env = builder.Environment;
 
         _ = builder.AddCustomSerilog();
         _ = builder.Services.AddHttpContextAccessor();
 
-        _ = builder.Services.Configure<RouteOptions>(options => {
+        _ = builder.Services.Configure<RouteOptions>(options =>
+        {
             options.LowercaseUrls = true;
             options.LowercaseQueryStrings = true;
         });
 
         _ = builder.Services.AddControllers(options => options.Conventions.Add(new GlobalProducesResponseTypeConvention()))
-            .AddJsonOptions(jsonOptions => {
+            .AddJsonOptions(jsonOptions =>
+            {
                 jsonOptions.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             })
@@ -53,7 +57,8 @@ public static class DependencyInjection {
         return builder;
     }
 
-    public static WebApplication UseBjjEiredApp(this WebApplication app) {
+    public static WebApplication UseBjjEiredApp(this WebApplication app)
+    {
         ArgumentNullException.ThrowIfNull(app);
 
         // NOTE: Middleware Order is IMPORTANT!

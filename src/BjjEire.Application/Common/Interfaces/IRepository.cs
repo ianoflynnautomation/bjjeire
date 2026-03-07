@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
+
 using BjjEire.Domain.Entities;
 
 namespace BjjEire.Application.Common.Interfaces;
 
-public interface IRepository<T> where T : BaseEntity {
+public interface IRepository<T> where T : BaseEntity
+{
     public IQueryable<T> Table { get; }
 
     public T GetById(string id);

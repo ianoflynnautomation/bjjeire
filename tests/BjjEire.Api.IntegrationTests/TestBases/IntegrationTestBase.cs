@@ -2,21 +2,26 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Extensions;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.Interfaces;
 using BjjEire.Api.IntegrationTests.Services;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
 using Serilog.Context;
 using Serilog.Core.Enrichers;
+
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.TestBases;
 
-public abstract class ApiIntegrationTestBase : IAsyncLifetime {
+public abstract class ApiIntegrationTestBase : IAsyncLifetime
+{
     private readonly IServiceScope _scope;
     private IDisposable? _logContext;
     private readonly ITestOutputHelper _output;
@@ -27,7 +32,8 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime {
     protected ITestAuthService Auth { get; }
     protected ITestAssertionService Assertions { get; }
 
-    protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output) {
+    protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
+    {
         ArgumentNullException.ThrowIfNull(fixture);
 
         _output = output;
@@ -44,7 +50,8 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime {
         Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
     }
 
-    public virtual async Task InitializeAsync() {
+    public virtual async Task InitializeAsync()
+    {
         var test = (ITest)_output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
         var correlationId = Guid.NewGuid();
@@ -58,11 +65,12 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime {
             "Test execution started: {TestName} | CorrelationId: {CorrelationId}", testName, correlationId);
 
         Logger.LogInformation("Clearing database for test...");
-        await Database.ClearCollectionsAsync();
+        await Database.ClearCollectionsAsync().ConfigureAwait(false);
         Logger.LogInformation("Database cleared. Test initialized.");
     }
 
-    public virtual Task DisposeAsync() {
+    public virtual Task DisposeAsync()
+    {
         Logger.LogInformation(TestLoggingEvents.TestLifecycle.TestFinished, "Test execution scope finished.");
 
         _logContext?.Dispose();

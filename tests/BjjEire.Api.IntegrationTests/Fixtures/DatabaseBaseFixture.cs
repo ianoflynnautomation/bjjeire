@@ -3,7 +3,8 @@
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public abstract class DatabaseBaseFixture<T> {
+public abstract class DatabaseBaseFixture<T>
+{
 
     public T Container = default!;
 
