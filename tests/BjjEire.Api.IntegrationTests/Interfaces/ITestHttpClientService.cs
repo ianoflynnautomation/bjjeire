@@ -3,7 +3,8 @@
 
 namespace BjjEire.Api.IntegrationTests.Interfaces;
 
-public interface ITestHttpClientService {
+public interface ITestHttpClientService
+{
     Task<HttpResponseMessage> DeleteAsync(string requestUri);
     Task<HttpResponseMessage> GetAsync(string requestUri);
     Task<T> ReadAsJsonAsync<T>(HttpResponseMessage response);

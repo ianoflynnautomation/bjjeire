@@ -3,7 +3,8 @@
 
 namespace BjjEire.Domain.Enums;
 
-public enum County {
+public enum County
+{
     None = 0,
     Carlow = 1,
     Cavan = 2,

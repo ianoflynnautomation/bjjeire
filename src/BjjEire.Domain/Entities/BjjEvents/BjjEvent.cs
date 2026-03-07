@@ -4,7 +4,8 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Domain.Entities.BjjEvents;
 
-public class BjjEvent : BaseEntity {
+public class BjjEvent : BaseEntity
+{
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
 

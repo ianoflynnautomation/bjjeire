@@ -1,7 +1,8 @@
 namespace BjjEire.Domain.Entities;
 
 [Serializable]
-public class PagedList<T> : List<T>, IPagedList<T> {
+public class PagedList<T> : List<T>, IPagedList<T>
+{
     public int PageIndex { get; protected set; } // 0-based index
 
     public int PageSize { get; protected set; }
@@ -14,10 +15,12 @@ public class PagedList<T> : List<T>, IPagedList<T> {
 
     public bool HasNextPage => PageIndex + 1 < TotalPages;
 
-    public PagedList() : base() {
+    public PagedList() : base()
+    {
     }
 
-    public PagedList(List<T> items, int count, int pageIndex, int pageSize) : base(items) {
+    public PagedList(List<T> items, int count, int pageIndex, int pageSize) : base(items)
+    {
         PageIndex = pageIndex;
         PageSize = pageSize;
         TotalCount = count;

@@ -1,25 +1,27 @@
 
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure;
-using BjjEire.Infrastructure.Caching;
 using BjjEire.Infrastructure.Configuration;
 using BjjEire.Infrastructure.Data.Mongo;
+
+using Microsoft.Extensions.Caching.Hybrid;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 
-public static class DependencyInjection {
+public static class DependencyInjection
+{
     private const string MongoDbConnectionStringName = "Mongodb";
 
     private static bool s_mongoDbConventionsRegistered;
     private static readonly Lock MongoDbRegistrationLock = new();
 
-    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder) {
+    public static IHostApplicationBuilder AddInfrastructureServices(this IHostApplicationBuilder builder)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         _ = builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
-        _ = builder.Services.AddOptions<CacheOptions>().Bind(builder.Configuration.GetSection(CacheOptions.SectionName)).ValidateOnStart();
         _ = builder.Services.AddOptions<JwtOptions>().Bind(builder.Configuration.GetSection(JwtOptions.SectionName)).ValidateOnStart();
 
         _ = builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<DatabaseOptions>>().Value);
@@ -30,31 +32,39 @@ public static class DependencyInjection {
         var dbConfig = builder.Configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
                          ?? new DatabaseOptions { UseLiteDb = false };
 
-        if (!dbConfig.UseLiteDb) {
+        if (!dbConfig.UseLiteDb)
+        {
             ConfigureMongoDb(builder.Services, builder.Configuration);
             _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
             _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
         }
-        _ = builder.Services.AddMemoryCache(options => options.SizeLimit = 1024);
-        _ = builder.Services.AddSingleton<CacheOptions>(new CacheOptions { DefaultCacheTimeMinutes = 5 });
-        builder.Services.RegisterCache();
+        _ = builder.Services.AddHybridCache(options =>
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromMinutes(5),
+                LocalCacheExpiration = TimeSpan.FromMinutes(5)
+            });
 
         return builder;
     }
 
-    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration) {
+    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
+    {
         var connectionString = configuration.GetConnectionString(MongoDbConnectionStringName);
 
-        if (string.IsNullOrWhiteSpace(connectionString)) {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
             throw new InvalidOperationException($"Connection string '{MongoDbConnectionStringName}' not found or is empty in ConnectionStrings.");
         }
 
-        _ = services.AddSingleton<IMongoClient>(sp => {
+        _ = services.AddSingleton<IMongoClient>(sp =>
+        {
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
             return new MongoClient(clientSettings);
         });
 
-        _ = services.AddScoped<IMongoDatabase>(sp => {
+        _ = services.AddScoped<IMongoDatabase>(sp =>
+        {
             var client = sp.GetRequiredService<IMongoClient>();
             var mongoUrl = MongoUrl.Create(connectionString);
             var databaseName = mongoUrl.DatabaseName;
@@ -67,10 +77,12 @@ public static class DependencyInjection {
         RegisterMongoDbSerializationConventions();
     }
 
-    private static void RegisterMongoDbSerializationConventions() {
+    private static void RegisterMongoDbSerializationConventions()
+    {
         lock (MongoDbRegistrationLock) // Ensures thread-safety
         {
-            if (s_mongoDbConventionsRegistered) {
+            if (s_mongoDbConventionsRegistered)
+            {
                 // Conventions and serializers have already been registered, so skip.
                 return;
             }
@@ -92,7 +104,5 @@ public static class DependencyInjection {
             s_mongoDbConventionsRegistered = true;
         }
     }
-
-    private static void RegisterCache(this IServiceCollection serviceCollection) => _ = serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
 
 }

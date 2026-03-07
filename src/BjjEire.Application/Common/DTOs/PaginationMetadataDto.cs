@@ -1,7 +1,8 @@
 
 namespace BjjEire.Application.Common.DTOs;
 
-public class PaginationMetadataDto {
+public class PaginationMetadataDto
+{
 
     public PaginationMetadataDto() { }
 

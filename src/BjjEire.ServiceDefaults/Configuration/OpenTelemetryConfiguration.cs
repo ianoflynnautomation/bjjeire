@@ -1,8 +1,11 @@
 using System.Reflection;
+
 using BjjEire.ServiceDefaults.Constants;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -10,10 +13,12 @@ using OpenTelemetry.Trace;
 
 namespace BjjEire.ServiceDefaults.Configuration;
 
-public static class OpenTelemetryConfiguration {
+public static class OpenTelemetryConfiguration
+{
     public static IHostApplicationBuilder ConfigureOpenTelemetry(
         this IHostApplicationBuilder builder,
-        ServiceDefaultsOptions options) {
+        ServiceDefaultsOptions options)
+    {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(options);
 
@@ -28,14 +33,16 @@ public static class OpenTelemetryConfiguration {
         var resourceBuilder = ResourceBuilder.CreateDefault()
             .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
             .AddTelemetrySdk()
-            .AddAttributes(new Dictionary<string, object> {
+            .AddAttributes(new Dictionary<string, object>
+            {
                 ["host.name"] = Environment.MachineName,
                 ["os.description"] = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
                 ["deployment.environment"] = builder.Environment.EnvironmentName
             });
 
         // Configure logging
-        _ = builder.Logging.AddOpenTelemetry(logging => {
+        _ = builder.Logging.AddOpenTelemetry(logging =>
+        {
             logging.IncludeFormattedMessage = true;
             logging.IncludeScopes = true;
             _ = logging.SetResourceBuilder(resourceBuilder);
@@ -62,16 +69,20 @@ public static class OpenTelemetryConfiguration {
         return builder;
     }
 
-    private static void AddOpenTelemetryExporters(IHostApplicationBuilder builder, ServiceDefaultsOptions options) {
+    private static void AddOpenTelemetryExporters(IHostApplicationBuilder builder, ServiceDefaultsOptions options)
+    {
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration[ServiceDefaultsConstants.OtlpEndpointKey]);
 
-        if (useOtlpExporter) {
+        if (useOtlpExporter)
+        {
             _ = builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
 
-        if (options.EnablePrometheus) {
+        if (options.EnablePrometheus)
+        {
             _ = builder.Services.AddOpenTelemetry()
-                .WithMetrics(metrics => metrics.AddPrometheusExporter(options => {
+                .WithMetrics(metrics => metrics.AddPrometheusExporter(options =>
+                {
                     options.DisableTotalNameSuffixForCounters = true;
                     options.ScrapeEndpointPath = "/metrics";
                 }));

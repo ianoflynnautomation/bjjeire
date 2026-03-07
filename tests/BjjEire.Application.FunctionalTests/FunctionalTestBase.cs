@@ -2,16 +2,20 @@
 // Licensed under the MIT License.
 
 using AutoMapper;
+
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Application.FunctionalTests;
 
-public class FunctionalTestBase: IClassFixture<CustomApiFactory>
+public class FunctionalTestBase : IClassFixture<CustomApiFactory>
 {
     protected readonly CustomApiFactory _apiFactory;
     protected readonly ITestOutputHelper _testOutputHelper;
@@ -25,7 +29,7 @@ public class FunctionalTestBase: IClassFixture<CustomApiFactory>
     protected async Task<T> ExecuteScopeAsync<T>(Func<IServiceProvider, Task<T>> action)
     {
         using var scope = _apiFactory.Services.CreateScope();
-        return await action(scope.ServiceProvider);
+        return await action(scope.ServiceProvider).ConfigureAwait(false);
     }
 
     protected Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
@@ -46,12 +50,8 @@ public class FunctionalTestBase: IClassFixture<CustomApiFactory>
             var repository = sp.GetRequiredService<IRepository<TEntity>>();
             var mapper = sp.GetRequiredService<IMapper>();
 
-            var entity = await repository.GetByIdAsync(id.ToString()!);
-            if (entity == null)
-            {
-                return default;
-            }
-            return mapper.Map<TDto>(entity);
+            var entity = await repository.GetByIdAsync(id.ToString()!).ConfigureAwait(false);
+            return entity == null ? default : mapper.Map<TDto>(entity);
         });
     }
 }

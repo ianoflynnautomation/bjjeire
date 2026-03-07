@@ -4,9 +4,12 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+
 using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Interfaces;
+
 using Microsoft.Extensions.Logging;
+
 using Shouldly;
 
 namespace BjjEire.Api.IntegrationTests.Services;
@@ -28,7 +31,7 @@ public class TestAuthService(HttpClient httpClient, ILogger<TestAuthService> log
         {
             foreach (var header in customHeaders)
             {
-                request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                _ = request.Headers.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
 
@@ -36,8 +39,8 @@ public class TestAuthService(HttpClient httpClient, ILogger<TestAuthService> log
         string responseContentForError;
         try
         {
-            response = await httpClient.SendAsync(request);
-            responseContentForError = await response.Content.ReadAsStringAsync();
+            response = await httpClient.SendAsync(request).ConfigureAwait(false);
+            responseContentForError = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -51,8 +54,8 @@ public class TestAuthService(HttpClient httpClient, ILogger<TestAuthService> log
             response.StatusCode.ShouldBe(HttpStatusCode.OK,
                 $"Failed to get auth token. Status: {response.StatusCode}, Content: {responseContentForError}");
 
-            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(TestJsonHelper.SerializerOptions);
-            tokenResponse.ShouldNotBeNull("Token response from API should not be null.");
+            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+            _ = tokenResponse.ShouldNotBeNull("Token response from API should not be null.");
             tokenResponse.Token.ShouldNotBeNullOrEmpty("Token from API should not be null or empty.");
 
             return tokenResponse.Token;
@@ -74,7 +77,7 @@ public class TestAuthService(HttpClient httpClient, ILogger<TestAuthService> log
 
     public async Task SetDefaultUserAuthTokenAsync()
     {
-        var token = await GetAuthTokenAsync();
+        var token = await GetAuthTokenAsync().ConfigureAwait(false);
         SetAuthToken(token);
     }
 

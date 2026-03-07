@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities.BjjEvents;
 
-public class BjjEventHours {
+public class BjjEventHours
+{
     [BsonElement("day")]
     public DayOfWeek Day { get; set; }
 

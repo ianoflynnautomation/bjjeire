@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 using DotNet.Testcontainers.Builders;
+
 using Testcontainers.MongoDb;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
-public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>  {
+public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>
+{
 
-    public MongoDbTestContainerFixture() {
+    public MongoDbTestContainerFixture()
+    {
 
         Container = new MongoDbBuilder()
             .WithImage("mongo:7.0")
@@ -21,9 +24,9 @@ public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>
 
     public string ConnectionString => Container.GetConnectionString();
 
-    public override async Task StartContainerAsync() => await Container.StartAsync();
+    public override async Task StartContainerAsync() => await Container.StartAsync().ConfigureAwait(false);
 
-    public override async Task StopContainerAsync() => await Container.StopAsync();
+    public override async Task StopContainerAsync() => await Container.StopAsync().ConfigureAwait(false);
 
-    public override async Task DisposeAsync() => await Container.DisposeAsync();
+    public override async Task DisposeAsync() => await Container.DisposeAsync().ConfigureAwait(false);
 }

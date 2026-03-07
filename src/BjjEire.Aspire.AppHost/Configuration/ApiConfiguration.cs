@@ -1,22 +1,25 @@
 using BjjEire.Aspire.AppHost.Constants;
+
 using Microsoft.Extensions.Configuration;
 
 namespace BjjEire.Aspire.AppHost.Configuration;
 
-public static class ApiConfiguration {
+public static class ApiConfiguration
+{
 
     public static IResourceBuilder<ContainerResource> AddApi(
       IDistributedApplicationBuilder builder,
-      IResourceBuilder<MongoDBDatabaseResource> mongo) {
+      IResourceBuilder<MongoDBDatabaseResource> mongo)
+    {
         ArgumentNullException.ThrowIfNull(builder);
 
         var solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
         var contextPath = solutionRoot;
         var dockerfilePath = Path.Combine(solutionRoot, "src/BjjEire.Api/Dockerfile");
 
-        var certPath = builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"] 
+        var certPath = builder.Configuration["ASPNETCORE_KESTREL_CERT_PATH"]
             ?? throw new InvalidOperationException("Certificate path is not configured.");
-        var certPassword = builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"] 
+        var certPassword = builder.Configuration["ASPNETCORE_KESTREL_CERT_PASSWORD"]
             ?? throw new InvalidOperationException("Certificate password is not configured.");
 
         var api = builder.AddDockerfile("api", contextPath, dockerfilePath)
@@ -41,7 +44,8 @@ public static class ApiConfiguration {
         return api;
     }
 
-    private static string BuildMongoConnectionString(ConfigurationManager configuration) {
+    private static string BuildMongoConnectionString(ConfigurationManager configuration)
+    {
         var user = configuration["MONGODB_USER"] ?? "admin";
         var password = configuration["MONGODB_PASSWORD"] ?? "password";
         var host = configuration["MONGODB_HOST"] ?? "mongodb";

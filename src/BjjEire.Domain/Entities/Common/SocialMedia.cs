@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities.Common;
 
-public class SocialMedia {
+public class SocialMedia
+{
     [BsonElement("instagram")]
     public string? Instagram { get; set; } = string.Empty;
 

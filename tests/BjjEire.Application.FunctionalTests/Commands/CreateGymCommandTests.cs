@@ -1,6 +1,7 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.FunctionalTests.Data;
 using BjjEire.Domain.Entities.Gyms;
@@ -14,7 +15,7 @@ namespace BjjEire.Application.FunctionalTests.Commands;
 public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
 {
     [Fact]
-    public async Task CreateGym_WithValidData_ShouldCreateGym()
+    public async Task CreateGym_WithValidData_ShouldCreateGymAsync()
     {
         // Arrange
         var command = GymTestDataFactory.GetValidCreateGymCommand();
@@ -34,21 +35,17 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     }
 
     [Fact]
-    public async Task CreateGym_WithNullData_ShouldReturnBadRequest()
+    public async Task CreateGym_WithNullData_ShouldReturnBadRequestAsync()
     {
         // Arrange
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
-        command.Data = null!;
+        var command = new CreateGymCommand { Data = null! };
 
         // Act
-        var exception = await Should.ThrowAsync<ValidationException>(async () =>
-        {
-            await SendAsync(command);
-        });
+        var exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command).ConfigureAwait(false));
 
         // Assert
         exception.Errors.ShouldNotBeEmpty();
-        exception.Errors.ShouldHaveSingleItem();
+        _ = exception.Errors.ShouldHaveSingleItem();
         exception.Errors.First().PropertyName.ShouldBe("Data");
         exception.Errors.First().ErrorMessage.ShouldContain("cannot be null");
 

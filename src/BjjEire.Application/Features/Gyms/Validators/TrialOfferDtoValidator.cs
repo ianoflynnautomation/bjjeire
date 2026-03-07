@@ -4,8 +4,10 @@ using BjjEire.Application.Features.Gyms.DTOs;
 
 namespace BjjEire.Application.Features.Gyms.Validators;
 
-public class TrialOfferDtoValidator : AbstractValidator<TrialOfferDto> {
-    public TrialOfferDtoValidator() {
+public class TrialOfferDtoValidator : AbstractValidator<TrialOfferDto>
+{
+    public TrialOfferDtoValidator()
+    {
         _ = When(dto => dto.IsAvailable, () => _ = RuleFor(x => x)
                 .Must(x => x.FreeClasses.HasValue || x.FreeDays.HasValue)
                 .WithMessage(ValidationMessages.ConditionalRequired.Message("Trial Offer (FreeClasses or FreeDays)", "IsAvailable is true"))

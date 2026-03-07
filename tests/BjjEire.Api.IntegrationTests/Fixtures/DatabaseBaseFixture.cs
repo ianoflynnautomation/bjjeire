@@ -6,7 +6,7 @@ namespace BjjEire.Api.IntegrationTests.Fixtures;
 public abstract class DatabaseBaseFixture<T>
 {
 
-    public T Container  = default!;
+    public T Container = default!;
 
     public abstract Task StartContainerAsync();
 

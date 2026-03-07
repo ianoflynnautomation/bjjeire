@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Net;
+
 using BjjEire.Api.IntegrationTests.TestBases;
+
 using Microsoft.AspNetCore.Http;
+
 using Shouldly;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,19 +17,23 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 [Trait("Category", "Sequential")]
 [Trait("Category", "Gym")]
 public class GetGymControllerRateLimitTests(ITestOutputHelper output)
-: RateLimitSequentialIntegrationTestBase(output) {
+: RateLimitSequentialIntegrationTestBase(output)
+{
     private const int ConfiguredPermitLimit = 2;
     private const int ConfiguredWindowInSeconds = 5;
     private const int ExpectedRejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     [Fact]
-    public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeaders() {
+    public async Task GetGym_WhenRateLimitExceeded_ShouldReturnProblemDetailsAndRateLimitHeadersAsync()
+    {
         // Arrange & Act
         HttpResponseMessage? lastResponse = null;
-        for (var i = 0; i <= ConfiguredPermitLimit; i++) {
+        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        {
             lastResponse = await HttpClient.GetAsync("api/gym");
 
-            if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode) {
+            if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode)
+            {
                 break;
             }
             await Task.Delay(50);
@@ -43,13 +51,15 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task GetGym_WhenUnderRateLimit_ShouldSucceed() {
+    public async Task GetGym_WhenUnderRateLimit_ShouldSucceedAsync()
+    {
         // Arrange
         var requestsToMake = ConfiguredPermitLimit;
 
         // Act
         var responses = new List<HttpResponseMessage>();
-        for (var i = 0; i < requestsToMake; i++) {
+        for (var i = 0; i < requestsToMake; i++)
+        {
             responses.Add(await HttpClient.GetAsync("api/gym"));
             await Task.Delay(50);
         }
@@ -60,9 +70,11 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgain() {
+    public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgainAsync()
+    {
         // Arrange
-        for (var i = 0; i <= ConfiguredPermitLimit; i++) {
+        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        {
             _ = await HttpClient.GetAsync("api/gym");
         }
 

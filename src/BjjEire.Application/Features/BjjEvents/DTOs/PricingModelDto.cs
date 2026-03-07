@@ -3,7 +3,8 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
-public class PricingModelDto {
+public class PricingModelDto
+{
     public PricingType Type { get; set; }
 
     public decimal Amount { get; set; }
@@ -13,8 +14,10 @@ public class PricingModelDto {
     public string? Currency { get; set; } = "EUR";
 }
 
-public class PricingModelMapping : Profile {
-    public PricingModelMapping() {
+public class PricingModelMapping : Profile
+{
+    public PricingModelMapping()
+    {
         _ = CreateMap<PricingModel, PricingModelDto>();
         _ = CreateMap<PricingModelDto, PricingModel>();
     }

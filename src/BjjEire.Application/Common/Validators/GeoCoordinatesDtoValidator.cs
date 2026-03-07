@@ -4,8 +4,10 @@ using BjjEire.Application.Common.Extensions;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class GeoCoordinatesDtoValidator : AbstractValidator<GeoCoordinatesDto> {
-    public GeoCoordinatesDtoValidator() {
+public class GeoCoordinatesDtoValidator : AbstractValidator<GeoCoordinatesDto>
+{
+    public GeoCoordinatesDtoValidator()
+    {
 
         _ = RuleFor(x => x.Type)
             .ApplyRequiredString("Type", 50);

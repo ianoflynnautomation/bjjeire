@@ -12,14 +12,14 @@ public class RateLimitApiTestFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _dbContainerFixture.StartContainerAsync();
+        await _dbContainerFixture.StartContainerAsync().ConfigureAwait(false);
         Factory = new RateLimitWebApplicationFactory(_dbContainerFixture.ConnectionString);
     }
 
     public async Task DisposeAsync()
     {
-        await Factory.DisposeAsync();
-        await _dbContainerFixture.StopContainerAsync();
-        await _dbContainerFixture.DisposeAsync();
+        await Factory.DisposeAsync().ConfigureAwait(false);
+        await _dbContainerFixture.StopContainerAsync().ConfigureAwait(false);
+        await _dbContainerFixture.DisposeAsync().ConfigureAwait(false);
     }
 }

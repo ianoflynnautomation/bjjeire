@@ -2,11 +2,14 @@ using BjjEire.Api.Constants;
 
 namespace BjjEire.Api.Extensions.Cors;
 
-public static class CorsExtensions {
-    internal static IHostApplicationBuilder ConfigureCors(this IHostApplicationBuilder builder) {
+public static class CorsExtensions
+{
+    internal static IHostApplicationBuilder ConfigureCors(this IHostApplicationBuilder builder)
+    {
         var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>() ?? [];
 
-        _ = builder.Services.AddCors(options => {
+        _ = builder.Services.AddCors(options =>
+        {
             options.AddPolicy(ConfigurationsConstants.DevelopmentCorsPolicyName,
                 builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             options.AddPolicy(ConfigurationsConstants.ProductionCorsPolicyName,
@@ -16,7 +19,8 @@ public static class CorsExtensions {
         return builder;
     }
 
-    internal static WebApplication UseCors(this WebApplication app) {
+    internal static WebApplication UseCors(this WebApplication app)
+    {
         _ = app.Environment.IsDevelopment()
             ? app.UseCors(ConfigurationsConstants.DevelopmentCorsPolicyName)
             : app.UseCors(ConfigurationsConstants.ProductionCorsPolicyName);

@@ -2,77 +2,94 @@
 using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Infrastructure.Data.Mongo;
 
-public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext> logger) : IDatabaseContext {
+public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext> logger) : IDatabaseContext
+{
     private readonly IMongoDatabase _database = mongodatabase;
     private readonly ILogger<MongoDBContext> _logger = logger;
 
-    public async Task<bool> DatabaseExistAsync() {
+    public async Task<bool> DatabaseExistAsync()
+    {
         var filter = new BsonDocument("name", "BjjWorldVersion");
         var found = await _database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
         return await found.AnyAsync();
     }
 
-    public async Task CreateCollectionAsync(string name, string collation) {
+    public async Task CreateCollectionAsync(string name, string collation)
+    {
         ArgumentException.ThrowIfNullOrEmpty(name);
 
-        if (!string.IsNullOrEmpty(collation)) {
-            var options = new CreateCollectionOptions {
+        if (!string.IsNullOrEmpty(collation))
+        {
+            var options = new CreateCollectionOptions
+            {
                 Collation = new Collation(collation)
             };
             await _database.CreateCollectionAsync(name, options);
         }
-        else {
+        else
+        {
             await _database.CreateCollectionAsync(name);
         }
     }
 
-    public async Task DeleteCollectionAsync(string name) {
+    public async Task DeleteCollectionAsync(string name)
+    {
         ArgumentNullException.ThrowIfNullOrEmpty(name);
         await _database.DropCollectionAsync(name);
     }
 
     public async Task CreateIndexAsync<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
-        bool unique = false) where T : BaseEntity {
+        bool unique = false) where T : BaseEntity
+    {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
         ArgumentNullException.ThrowIfNull(orderBuilder);
 
         IList<IndexKeysDefinition<T>> keys = [];
-        foreach (var (selector, value, fieldName) in orderBuilder.Fields) {
-            if (selector != null) {
+        foreach (var (selector, value, fieldName) in orderBuilder.Fields)
+        {
+            if (selector != null)
+            {
                 keys.Add(value
                     ? Builders<T>.IndexKeys.Ascending(selector)
                     : Builders<T>.IndexKeys.Descending(selector));
             }
-            else {
+            else
+            {
                 keys.Add(value
                     ? Builders<T>.IndexKeys.Ascending(fieldName)
                     : Builders<T>.IndexKeys.Descending(fieldName));
             }
         }
 
-        try {
+        try
+        {
             ArgumentNullException.ThrowIfNull(repository);
             _ = await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
                 Builders<T>.IndexKeys.Combine(keys),
                 new CreateIndexOptions { Name = indexName, Unique = unique }));
         }
-        catch (InvalidCastException ex) {
+        catch (InvalidCastException ex)
+        {
             _logger.LogError(ex, "Invalid repository type for index creation {IndexName} on {CollectionName}", indexName, typeof(T).Name);
             throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
         }
     }
 
-    public async Task DeleteIndexAsync<T>(IRepository<T> repository, string indexName) where T : BaseEntity {
+    public async Task DeleteIndexAsync<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    {
         ArgumentNullException.ThrowIfNullOrEmpty(indexName);
-        try {
+        try
+        {
             ArgumentNullException.ThrowIfNull(repository);
             await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
         }
-        catch (MongoException ex) {
+        catch (MongoException ex)
+        {
             _logger.LogError(ex, "Failed to delete index {IndexName} from collection {CollectionName}", indexName, typeof(T).Name);
             throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
         }

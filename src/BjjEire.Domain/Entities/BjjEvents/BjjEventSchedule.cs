@@ -1,7 +1,8 @@
 
 namespace BjjEire.Domain.Entities.BjjEvents;
 
-public class BjjEventSchedule {
+public class BjjEventSchedule
+{
     [BsonElement("startDate")]
     public DateTime? StartDate { get; set; }
 

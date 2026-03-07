@@ -2,7 +2,8 @@ using BjjEire.Domain.Entities.BjjEvents;
 
 namespace BjjEire.Application.Features.BjjEvents.DTOs;
 
-public class BjjEventScheduleDto {
+public class BjjEventScheduleDto
+{
     public DateTime? StartDate { get; set; }
 
     public DateTime? EndDate { get; set; }
@@ -10,8 +11,10 @@ public class BjjEventScheduleDto {
     public List<BjjEventHoursDto>? Hours { get; set; }
 }
 
-public class BjjEventScheduleMapping : Profile {
-    public BjjEventScheduleMapping() {
+public class BjjEventScheduleMapping : Profile
+{
+    public BjjEventScheduleMapping()
+    {
         _ = CreateMap<BjjEventSchedule, BjjEventScheduleDto>();
         _ = CreateMap<BjjEventScheduleDto, BjjEventSchedule>();
     }

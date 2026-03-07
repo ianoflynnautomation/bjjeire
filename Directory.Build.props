@@ -1,114 +1,95 @@
-﻿<!-- See https://aka.ms/dotnet/msbuild/customize for more details on customizing your build -->
+<!-- Central build defaults for all .NET projects in this repo -->
 <Project>
+  <!--
+    Core SDK / language defaults
+    Keep project files minimal and consistent across services/libraries/tests.
+  -->
   <PropertyGroup>
-
-     <!-- Target framework -->
-    <TargetFramework>net9.0</TargetFramework>
-
-    <!-- Enable latest C# features and diagnostics -->
-    <LangVersion>latest</LangVersion>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net9.0</TargetFramework>
+    <LangVersion>latestMajor</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <!-- Code quality & analysis -->
-    <NullableContextOptions>enable</NullableContextOptions>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest-recommended</AnalysisLevel>
-    <AnalysisMode>All</AnalysisMode>
-    <!-- Enable runtime code contracts for critical projects -->
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <!-- Ensure consistent code style across the team -->
-    <!-- <EditorConfigFiles>.editorconfig</EditorConfigFiles> -->
-    <!-- <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)stylecop.ruleset</CodeAnalysisRuleSet> -->
-
-    <!-- Documentation -->
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- <NoWarn>CS1591</NoWarn> -->
-    <!-- Warn on missing XML docs only in Release builds -->
-    <NoWarn Condition="'$(Configuration)' == 'Debug'">CS1591</NoWarn>
-
-    <!-- Deterministic builds for reproducibility -->
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <Deterministic>true</Deterministic>
-    <EmbedAllSources>true</EmbedAllSources>
-
-    <!-- Security and performance -->
-    <PublishAot>false</PublishAot> <!-- Enable AOT for performance (if applicable) -->
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks> <!-- Disable unsafe code unless required -->
-    <CheckEolTargetFramework>true</CheckEolTargetFramework> <!-- Warn on deprecated frameworks -->
-
-    <!-- Container settings -->
-    <ContainerImageTags Condition="'$(Configuration)' == 'Release'">$(Version);latest</ContainerImageTags>
-    <ContainerImageTags Condition="'$(Configuration)' == 'Debug'">$(Version)-debug</ContainerImageTags>
-    <!-- <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:9.0</ContainerBaseImage> -->
-
-    <!-- Optimize for production -->
-    <Optimize>true</Optimize>
-    <TieredCompilation>true</TieredCompilation>
-    <TieredPgo>true</TieredPgo> 
-    <!-- Enable profile-guided optimization -->
-
-    <!-- Prevent MSBuild from excluding common folders (optional) -->
-    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <DebugType>portable</DebugType>
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == ''">false</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
 
-    <!-- Package References for Analyzers and Tools -->
-  <ItemGroup>
-    <!-- SonarAnalyzer for static analysis (unchanged) -->
-    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
-    <!-- StyleCop for consistent code style -->
-    <!-- <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" /> -->
-    <!-- Security analysis -->
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
-    <!-- Performance and reliability analyzers -->
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
-  </ItemGroup>
-
-  <!-- NuGet Package Metadata -->
+  <!--
+    Analyzer / style policy
+    Enforced in build so local + CI behavior is aligned.
+  -->
   <PropertyGroup>
-    <Authors>Team BjjEire</Authors>
-    <Company>BjjEire</Company>
-    <Version>1.0.0</Version>
-    <RepositoryUrl>https://github.com/ianoflynnautomation/BjjEire</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>dotnet;api;microservices</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <!-- <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild> -->
-    <!-- Include symbols for debugging -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- latest-recommended already implies Recommended mode; AnalysisMode is redundant -->
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!--
+    Build reproducibility + source metadata
+    CI builds are reproducible and source-link friendly.
+  -->
+  <PropertyGroup>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(TF_BUILD)' == 'true' or '$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EmbedAllSources Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</EmbedAllSources>
+    <CheckEolTargetFramework>true</CheckEolTargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Keep missing docs non-blocking in developer loops and tests -->
+    <NoWarn Condition="'$(Configuration)' == 'Debug'">$(NoWarn);CS1591</NoWarn>
+    <NoWarn Condition="'$(IsTestProject)' == 'true'">$(NoWarn);CS1591</NoWarn>
+    <!-- CA1014: CLSCompliant is only relevant for public cross-language .NET libraries;
+         not applicable to internal service/API/test projects in this solution. -->
+    <NoWarn>$(NoWarn);CA1014</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    CI strictness
+    Fail builds on warnings in CI while preserving local ergonomics.
+  -->
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!--
+    Security / runtime defaults
+  -->
+  <PropertyGroup>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <!--
+    Packaging defaults (only applied to packable projects)
+  -->
+  <PropertyGroup Condition="'$(IsPackable)' == 'true'">
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
-    <!-- Source Control Integration -->
+  <!--
+    Repository metadata defaults (safe global values; can be overridden per project)
+  -->
   <PropertyGroup>
-    <!-- Embed SCM info for traceability -->
-    <GenerateGitMetadata>true</GenerateGitMetadata>
-    <SourceLinkEnabled>true</SourceLinkEnabled>
+    <Authors Condition="'$(Authors)' == ''">Team BjjEire</Authors>
+    <Company Condition="'$(Company)' == ''">BjjEire</Company>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/ianoflynnautomation/BjjEire</RepositoryUrl>
+    <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">MIT</PackageLicenseExpression>
   </PropertyGroup>
 
-    <!-- Conditional Compilation for CI/CD -->
-  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn></NoWarn> <!-- Enforce all warnings in CI -->
-  </PropertyGroup>
-
-  <!-- Custom MSBuild Tasks for Team Productivity -->
-  <Target Name="GenerateVersion" BeforeTargets="Build">
-    <PropertyGroup>
-      <Version Condition="'$(GITHUB_RUN_NUMBER)' != ''">1.0.$(GITHUB_RUN_NUMBER)</Version>
-      <Version Condition="'$(Version)' == ''">1.0.0-local</Version>
-    </PropertyGroup>
-  </Target>
-
-  <!-- Enforce EditorConfig and Code Style -->
-  <ItemGroup>
-    <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory).editorconfig" /> -->
-    <!-- <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" /> -->
+  <!--
+    Analyzer packages
+    Versions are managed via Directory.Packages.props (central package management).
+  -->
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(UsingMicrosoftNETSdk)' == 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" />
   </ItemGroup>
-
 </Project>

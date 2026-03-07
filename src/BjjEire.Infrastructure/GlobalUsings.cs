@@ -1,9 +1,10 @@
 global using System.Linq.Expressions;
-global using MediatR;
+
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Options;
+
 global using MongoDB.Bson;
 global using MongoDB.Bson.Serialization;
 global using MongoDB.Bson.Serialization.Conventions;
