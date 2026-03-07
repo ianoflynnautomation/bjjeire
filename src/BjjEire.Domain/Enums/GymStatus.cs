@@ -1,7 +1,8 @@
 namespace BjjEire.Domain.Enums;
 
 [FlagsAttribute]
-public enum GymStatus {
+public enum GymStatus
+{
     None = 0,
     Active = 1,
     PendingApproval = 2,

@@ -5,9 +5,11 @@ using BjjEire.Domain.Entities.BjjEvents;
 namespace BjjEire.Application.Features.BjjEvents.Commands;
 
 public sealed class CreateBjjEventCommandHandler(IBjjEventService bjjEventService, IMapper mapper)
-    : IRequestHandler<CreateBjjEventCommand, CreateBjjEventResponse> {
+    : IRequestHandler<CreateBjjEventCommand, CreateBjjEventResponse>
+{
 
-    public async Task<CreateBjjEventResponse> Handle(CreateBjjEventCommand request, CancellationToken cancellationToken) {
+    public async Task<CreateBjjEventResponse> Handle(CreateBjjEventCommand request, CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(request);
         var bjjEventEntity = mapper.Map<BjjEvent>(request.Data);
         await bjjEventService.InsertAsync(bjjEventEntity);

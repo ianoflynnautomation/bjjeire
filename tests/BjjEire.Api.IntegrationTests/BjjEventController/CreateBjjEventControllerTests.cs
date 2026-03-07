@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net;
+
 using BjjEire.Api.IntegrationTests.Data;
 using BjjEire.Api.IntegrationTests.Fixtures;
 using BjjEire.Api.IntegrationTests.TestBases;
@@ -9,7 +10,9 @@ using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Enums;
+
 using Shouldly;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,10 +21,12 @@ namespace BjjEire.Api.IntegrationTests.BjjEventController;
 [Trait("Category", "Parallel")]
 [Trait("Category", "BjjEvent")]
 public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
-    : ParallelTestBase(fixture, output) {
+    : ParallelTestBase(fixture, output)
+{
 
     [Fact]
-    public async Task CreateBjjEvent_WithValidData_ShouldCreateBjjEventAsync() {
+    public async Task CreateBjjEvent_WithValidData_ShouldCreateBjjEventAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -39,7 +44,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_WithoutAuthentication_ShouldReturnUnauthorizedAsync() {
+    public async Task CreateBjjEvent_WithoutAuthentication_ShouldReturnUnauthorizedAsync()
+    {
         // Arrange
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
         HttpClient.DefaultRequestHeaders.Authorization = null;
@@ -52,7 +58,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_WithNullData_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_WithNullData_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = new CreateBjjEventCommand { Data = null! };
@@ -72,7 +79,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task CreateBjjEvent_Name_Invalid_ShouldReturnBadRequestAsync(string? invalidName) {
+    public async Task CreateBjjEvent_Name_Invalid_ShouldReturnBadRequestAsync(string? invalidName)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -88,7 +96,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Name_TooLong_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Name_TooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -104,7 +113,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Description_TooLong_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Description_TooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -162,7 +172,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // }
 
     [Fact]
-    public async Task CreateBjjEvent_StatusReason_TooLong_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_StatusReason_TooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -200,11 +211,13 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData("Data.EventUrl", "not-a-valid-url", "Event URL must be a valid URL.")]
     [InlineData("Data.ImageUrl", "htp://www.domain.com", "Image URL must be a valid URL.")]
-    public async Task CreateBjjEvent_UrlFields_Invalid_ShouldReturnBadRequestAsync(string fieldPath, string invalidUrl, string expectedMessage) {
+    public async Task CreateBjjEvent_UrlFields_Invalid_ShouldReturnBadRequestAsync(string fieldPath, string invalidUrl, string expectedMessage)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
-        switch (fieldPath) {
+        switch (fieldPath)
+        {
             case "Data.EventUrl":
                 command.Data.EventUrl = invalidUrl;
                 break;
@@ -227,7 +240,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     #region Organiser Validations (BjjEventDto.Organiser)
 
     [Fact]
-    public async Task CreateBjjEvent_Organiser_Null_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Organiser_Null_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -246,7 +260,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task CreateBjjEvent_Organiser_Name_Invalid_ShouldReturnBadRequestAsync(string? invalidName) {
+    public async Task CreateBjjEvent_Organiser_Name_Invalid_ShouldReturnBadRequestAsync(string? invalidName)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -262,7 +277,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Organiser_Name_TooLong_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Organiser_Name_TooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -278,7 +294,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Organiser_Website_InvalidUrl_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Organiser_Website_InvalidUrl_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -297,7 +314,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
     #region BjjEventDto SocialMedia Validations
     [Fact]
-    public async Task BjjEvent_WithNullSocialMedia_ShouldReturnBadRequestAsync() {
+    public async Task BjjEvent_WithNullSocialMedia_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -317,12 +335,14 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [InlineData("Instagram", "not_a_url_insta")]
     [InlineData("X", "htp://x.com/invalid")]
     [InlineData("YouTube", "www.youtube.com/missingScheme")]
-    public async Task BjjEvent_SocialMediaWithInvalidUrlField_ShouldReturnBadRequestAsync(string socialMediaField, string invalidUrl) {
+    public async Task BjjEvent_SocialMediaWithInvalidUrlField_ShouldReturnBadRequestAsync(string socialMediaField, string invalidUrl)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
 
-        switch (socialMediaField) {
+        switch (socialMediaField)
+        {
             case "Facebook":
                 command.Data.SocialMedia.Facebook = invalidUrl;
                 break;
@@ -349,7 +369,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task BjjEvent_SocialMediaWithEmptyUrlFields_ShouldBeAllowedAsync() {
+    public async Task BjjEvent_SocialMediaWithEmptyUrlFields_ShouldBeAllowedAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -366,7 +387,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task BjjEvent_SocialMediaWithNullUrlFields_ShouldBeAllowedAsync() {
+    public async Task BjjEvent_SocialMediaWithNullUrlFields_ShouldBeAllowedAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -387,7 +409,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     #region GymDto Location Validations
 
     [Fact]
-    public async Task BjjEvent_WithNullLocation_ShouldReturnBadRequestAsync() {
+    public async Task BjjEvent_WithNullLocation_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -406,7 +429,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task BjjEvent_LocationAddressInvalid_ShouldReturnBadRequestAsync(string? invalidAddress) {
+    public async Task BjjEvent_LocationAddressInvalid_ShouldReturnBadRequestAsync(string? invalidAddress)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -422,7 +446,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task BjjEvent_LocationAddressTooLong_ShouldReturnBadRequestAsync() {
+    public async Task BjjEvent_LocationAddressTooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -441,7 +466,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task BjjEvent_LocationVenueInvalid_ShouldReturnBadRequestAsync(string? invalidVenue) {
+    public async Task BjjEvent_LocationVenueInvalid_ShouldReturnBadRequestAsync(string? invalidVenue)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -457,7 +483,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task BjjEvent_LocationVenueTooLong_ShouldReturnBadRequestAsync() {
+    public async Task BjjEvent_LocationVenueTooLong_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -473,7 +500,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task BjjEvent_LocationCoordinatesNull_ShouldReturnBadRequestAsync() {
+    public async Task BjjEvent_LocationCoordinatesNull_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -493,7 +521,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     #region Schedule Validations (BjjEventDto.Schedule)
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_Null_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_Null_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -529,7 +558,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_EndDateBeforeStartDate_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_EndDateBeforeStartDate_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -546,7 +576,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_Hours_Null_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_Hours_Null_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -562,7 +593,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_HoursListIsEmpty_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_HoursListIsEmpty_ShouldReturnBadRequestAsync()
+    {
         // ARRANGE
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -579,7 +611,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_HoursListContainsNullEntry_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_HoursListContainsNullEntry_ShouldReturnBadRequestAsync()
+    {
         // ARRANGE
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -630,7 +663,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // }
 
     [Fact]
-    public async Task CreateBjjEvent_Schedule_Hours_InvalidEntry_CloseTimeBeforeOpenTime_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Schedule_Hours_InvalidEntry_CloseTimeBeforeOpenTime_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -651,7 +685,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     #region Pricing Validations (BjjEventDto.Pricing) - REFACTORED
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_Null_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_Null_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -690,7 +725,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     // }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_TypeFree_AmountNotZero_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_TypeFree_AmountNotZero_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -709,7 +745,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_TypeFree_CurrencyNotNull_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_TypeFree_CurrencyNotNull_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -728,7 +765,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_TypeFree_DurationDaysNotNull_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_TypeFree_DurationDaysNotNull_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -747,7 +785,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_TypeFree_Valid_ShouldPassAsync() {
+    public async Task CreateBjjEvent_Pricing_TypeFree_Valid_ShouldPassAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -766,7 +805,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(0.0)]
     [InlineData(-10.0)]
-    public async Task CreateBjjEvent_Pricing_PaidType_AmountNotPositive_ShouldReturnBadRequestAsync(decimal invalidAmount) {
+    public async Task CreateBjjEvent_Pricing_PaidType_AmountNotPositive_ShouldReturnBadRequestAsync(decimal invalidAmount)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -787,7 +827,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public async Task CreateBjjEvent_Pricing_PaidType_Currency_NullOrEmpty_ShouldReturnBadRequestAsync(string? invalidCurrency) {
+    public async Task CreateBjjEvent_Pricing_PaidType_Currency_NullOrEmpty_ShouldReturnBadRequestAsync(string? invalidCurrency)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -806,7 +847,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_PaidType_Currency_InvalidFormat_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_PaidType_Currency_InvalidFormat_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -825,7 +867,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     }
 
     [Fact]
-    public async Task CreateBjjEvent_Pricing_TypeFlatRate_DurationDaysNull_ShouldReturnBadRequestAsync() {
+    public async Task CreateBjjEvent_Pricing_TypeFlatRate_DurationDaysNull_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -846,7 +889,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public async Task CreateBjjEvent_Pricing_TypeFlatRate_DurationDaysNotPositive_ShouldReturnBadRequestAsync(int invalidDuration) {
+    public async Task CreateBjjEvent_Pricing_TypeFlatRate_DurationDaysNotPositive_ShouldReturnBadRequestAsync(int invalidDuration)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -867,7 +911,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(PricingType.PerSession)]
     [InlineData(PricingType.PerDay)]
-    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysNull_ShouldPassAsync(PricingType perType) {
+    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysNull_ShouldPassAsync(PricingType perType)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -886,7 +931,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(PricingType.PerSession, 1)]
     [InlineData(PricingType.PerDay, 5)]
-    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysPositive_ShouldPassAsync(PricingType perType, int validDuration) {
+    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysPositive_ShouldPassAsync(PricingType perType, int validDuration)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
@@ -905,7 +951,8 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     [Theory]
     [InlineData(PricingType.PerSession, 0)]
     [InlineData(PricingType.PerDay, -1)]
-    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysNotPositiveIfProvided_ShouldReturnBadRequestAsync(PricingType perType, int invalidDuration) {
+    public async Task CreateBjjEvent_Pricing_PerSessionOrDay_DurationDaysNotPositiveIfProvided_ShouldReturnBadRequestAsync(PricingType perType, int invalidDuration)
+    {
         // Arrange
         await Auth.SetDefaultUserAuthTokenAsync();
         var command = BjjEventTestDataFactory.GetValidBjjEventCommand();

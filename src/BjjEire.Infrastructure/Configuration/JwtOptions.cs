@@ -1,6 +1,7 @@
 namespace BjjEire.Infrastructure.Configuration;
 
-public class JwtOptions {
+public class JwtOptions
+{
     public const string SectionName = "JwtOptions";
 
     public string Issuer { get; set; } = string.Empty;

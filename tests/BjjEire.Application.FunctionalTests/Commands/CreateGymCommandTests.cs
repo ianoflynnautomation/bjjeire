@@ -5,16 +5,21 @@ using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.FunctionalTests.Data;
 using BjjEire.Domain.Entities.Gyms;
+
 using FluentValidation;
+
 using Shouldly;
+
 using Xunit;
 using Xunit.Abstractions;
 
 namespace BjjEire.Application.FunctionalTests.Commands;
 
-public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper) {
+public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
+{
     [Fact]
-    public async Task CreateGym_WithValidData_ShouldCreateGymAsync() {
+    public async Task CreateGym_WithValidData_ShouldCreateGymAsync()
+    {
         // Arrange
         var command = GymTestDataFactory.GetValidCreateGymCommand();
 
@@ -33,12 +38,13 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     }
 
     [Fact]
-    public async Task CreateGym_WithNullData_ShouldReturnBadRequestAsync() {
+    public async Task CreateGym_WithNullData_ShouldReturnBadRequestAsync()
+    {
         // Arrange
         var command = new CreateGymCommand { Data = null! };
 
         // Act
-        var exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command));
+        var exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command).ConfigureAwait(false));
 
         // Assert
         exception.Errors.ShouldNotBeEmpty();

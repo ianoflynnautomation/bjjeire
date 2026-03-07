@@ -4,7 +4,8 @@ using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.BjjEvents.Queries;
 
-public record GetBjjEventPaginationQuery : BasePaginationQuery, IRequest<GetBjjEventPaginatedResponse> {
+public record GetBjjEventPaginationQuery : BasePaginationQuery, IRequest<GetBjjEventPaginatedResponse>
+{
     public County? County { get; set; }
     public BjjEventType? Type { get; set; }
 }

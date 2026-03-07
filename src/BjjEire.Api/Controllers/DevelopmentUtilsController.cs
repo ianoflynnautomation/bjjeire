@@ -5,7 +5,8 @@ using BjjEire.Infrastructure.Configuration;
 
 namespace BjjEire.Api.Controllers;
 
-public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor, IWebHostEnvironment env) : BaseApiController {
+public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor, IWebHostEnvironment env) : BaseApiController
+{
     private readonly JwtOptions _jwtOptions = jwtOptionsAccessor.Value;
     private readonly IWebHostEnvironment _env = env;
 
@@ -15,15 +16,18 @@ public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor,
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GenerateToken([FromQuery] string? userId = "dev-user@example.com", [FromQuery] string? role = null) {
+    public IActionResult GenerateToken([FromQuery] string? userId = "dev-user@example.com", [FromQuery] string? role = null)
+    {
         ArgumentNullException.ThrowIfNull(userId);
-        if (!_env.IsDevelopment()) {
+        if (!_env.IsDevelopment())
+        {
             return NotFound("This endpoint is only available in the Development environment.");
         }
 
         if (string.IsNullOrWhiteSpace(_jwtOptions.Key) ||
             string.IsNullOrWhiteSpace(_jwtOptions.Issuer) ||
-            string.IsNullOrWhiteSpace(_jwtOptions.Audience)) {
+            string.IsNullOrWhiteSpace(_jwtOptions.Audience))
+        {
             return Problem("JWT options (Key, Issuer, Audience) are not configured correctly on the server.",
                            statusCode: StatusCodes.Status500InternalServerError,
                            title: "JWT Configuration Error");
@@ -37,7 +41,8 @@ public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor,
                 new(ClaimTypes.Name, userId)
             };
 
-        if (!string.IsNullOrWhiteSpace(role)) {
+        if (!string.IsNullOrWhiteSpace(role))
+        {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
         // Add any other claims you need for testing
@@ -46,7 +51,8 @@ public class DevelopmentUtilsController(IOptions<JwtOptions> jwtOptionsAccessor,
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var expires = DateTime.UtcNow.AddMinutes(_jwtOptions.DurationInMinutes);
 
-        var tokenDescriptor = new SecurityTokenDescriptor {
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
             Subject = new ClaimsIdentity(claims),
             Issuer = _jwtOptions.Issuer,
             Audience = _jwtOptions.Audience,

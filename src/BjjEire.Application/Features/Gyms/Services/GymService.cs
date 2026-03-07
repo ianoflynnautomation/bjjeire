@@ -2,6 +2,7 @@ using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +11,11 @@ namespace BjjEire.Application.Features.Gyms.Services;
 public class GymService(
     IRepository<Gym> gymRepository,
     HybridCache hybridCache,
-    ILogger<GymService> logger) : IGymService {
+    ILogger<GymService> logger) : IGymService
+{
 
-    public virtual async Task<Gym> GetByIdAsync(string id) {
+    public virtual async Task<Gym> GetByIdAsync(string id)
+    {
         ArgumentNullException.ThrowIfNull(id);
 
         logger.LogInformation(ApplicationLogEvents.GymService.GetByIdAttempt,
@@ -24,7 +27,8 @@ public class GymService(
             tags: [CacheKey.GymsTag]);
     }
 
-    public virtual async Task InsertAsync(Gym gym) {
+    public virtual async Task InsertAsync(Gym gym)
+    {
         ArgumentNullException.ThrowIfNull(gym);
 
         logger.LogInformation(ApplicationLogEvents.GymService.InsertAttempt,
@@ -38,7 +42,8 @@ public class GymService(
         await hybridCache.RemoveByTagAsync(CacheKey.GymsTag);
     }
 
-    public virtual async Task UpdateAsync(Gym gym) {
+    public virtual async Task UpdateAsync(Gym gym)
+    {
         ArgumentNullException.ThrowIfNull(gym);
 
         logger.LogInformation(ApplicationLogEvents.GymService.UpdateAttempt,
@@ -52,7 +57,8 @@ public class GymService(
         await hybridCache.RemoveByTagAsync(CacheKey.GymsTag);
     }
 
-    public virtual async Task DeleteAsync(Gym gym) {
+    public virtual async Task DeleteAsync(Gym gym)
+    {
         ArgumentNullException.ThrowIfNull(gym);
 
         logger.LogInformation(ApplicationLogEvents.GymService.DeleteAttempt,

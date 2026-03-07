@@ -4,7 +4,8 @@ using BjjEire.Application.Common.Models;
 
 namespace BjjEire.Application.Common;
 
-public static class PaginationHelper {
+public static class PaginationHelper
+{
     public static async Task<PagedResponse<T>> CreatePagedResponseAsync<T>(
         IQueryable<T> source,
         PaginationFilter filter,
@@ -12,7 +13,8 @@ public static class PaginationHelper {
         string actionName,
         IUriService uriService,
         IDictionary<string, object?>? additionalRouteValues = null,
-        CancellationToken cancellationToken = default) {
+        CancellationToken cancellationToken = default)
+    {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(filter);
         ArgumentNullException.ThrowIfNull(controllerName);
@@ -27,9 +29,11 @@ public static class PaginationHelper {
 
         int totalPages = (int)Math.Ceiling(totalRecords / (double)filter.PageSize);
 
-        return new PagedResponse<T> {
+        return new PagedResponse<T>
+        {
             Data = pagedData,
-            Pagination = new PaginationMetadataDto {
+            Pagination = new PaginationMetadataDto
+            {
                 TotalItems = totalRecords,
                 CurrentPage = filter.PageNumber,
                 PageSize = filter.PageSize,

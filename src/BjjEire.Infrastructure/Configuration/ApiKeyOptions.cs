@@ -1,6 +1,7 @@
 namespace BjjEire.Infrastructure.Configuration;
 
-public class ApiKeyOptions {
+public class ApiKeyOptions
+{
     public const string SectionName = "ApiKeyOptions";
 
     public string HeaderName { get; set; } = "X-API-KEY";

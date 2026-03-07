@@ -1,11 +1,13 @@
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Models;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace BjjEire.Application.Common.Services;
 
-public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator) : IUriService {
+public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator) : IUriService
+{
     private HttpContext GetCurrentHttpContext() =>
         httpContextAccessor.HttpContext
             ?? throw new InvalidOperationException("HttpContext is not available. This service requires an active HTTP request context to generate absolute URIs.");
@@ -14,7 +16,8 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
         PaginationFilter filter,
         string controllerName,
         string actionName,
-        IDictionary<string, object?>? additionalRouteValues = null) {
+        IDictionary<string, object?>? additionalRouteValues = null)
+    {
         ArgumentNullException.ThrowIfNull(filter);
         ArgumentException.ThrowIfNullOrWhiteSpace(controllerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
@@ -26,8 +29,10 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
             { "pageSize", filter.PageSize }
         };
 
-        if (additionalRouteValues != null) {
-            foreach (var (key, value) in additionalRouteValues) {
+        if (additionalRouteValues != null)
+        {
+            foreach (var (key, value) in additionalRouteValues)
+            {
                 routeValues[key] = value;
             }
         }

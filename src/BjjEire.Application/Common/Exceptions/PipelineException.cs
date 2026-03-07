@@ -8,7 +8,8 @@ public class PipelineException(
     string userId,
     string requestPath,
     string requestMethod,
-    Exception innerException) : Exception(message, innerException) {
+    Exception innerException) : Exception(message, innerException)
+{
     public string RequestName { get; } = requestName;
     public string TraceId { get; } = traceId;
     public string UserId { get; } = userId;

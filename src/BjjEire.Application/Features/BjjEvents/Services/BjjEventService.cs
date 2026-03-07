@@ -2,6 +2,7 @@ using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
@@ -10,9 +11,11 @@ namespace BjjEire.Application.Features.BjjEvents.Services;
 public sealed class BjjEventService(
     IRepository<BjjEvent> bjjEventRepository,
     HybridCache hybridCache,
-    ILogger<BjjEventService> logger) : IBjjEventService {
+    ILogger<BjjEventService> logger) : IBjjEventService
+{
 
-    public async Task<BjjEvent> GetByIdAsync(string id) {
+    public async Task<BjjEvent> GetByIdAsync(string id)
+    {
         ArgumentNullException.ThrowIfNull(id);
 
         logger.LogInformation(ApplicationLogEvents.BjjEventService.GetByIdAttempt,
@@ -24,7 +27,8 @@ public sealed class BjjEventService(
             tags: [CacheKey.BjjEventsTag]);
     }
 
-    public async Task InsertAsync(BjjEvent bjjEvent) {
+    public async Task InsertAsync(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         logger.LogInformation(ApplicationLogEvents.BjjEventService.InsertAttempt,
@@ -39,7 +43,8 @@ public sealed class BjjEventService(
         await hybridCache.RemoveByTagAsync(CacheKey.BjjEventsTag);
     }
 
-    public async Task UpdateAsync(BjjEvent bjjEvent) {
+    public async Task UpdateAsync(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         logger.LogInformation(ApplicationLogEvents.BjjEventService.UpdateAttempt,
@@ -53,7 +58,8 @@ public sealed class BjjEventService(
         await hybridCache.RemoveByTagAsync(CacheKey.BjjEventsTag);
     }
 
-    public async Task DeleteAsync(BjjEvent bjjEvent) {
+    public async Task DeleteAsync(BjjEvent bjjEvent)
+    {
         ArgumentNullException.ThrowIfNull(bjjEvent);
 
         logger.LogInformation(ApplicationLogEvents.BjjEventService.DeleteAttempt,

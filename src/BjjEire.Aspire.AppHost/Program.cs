@@ -15,4 +15,3 @@ var api = ApiConfiguration.AddApi(builder, mongo);
 FrontendConfiguration.AddFrontend(builder, api);
 
 await builder.Build().RunAsync();
-

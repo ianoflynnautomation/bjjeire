@@ -1,18 +1,19 @@
 // BjjEire.Application.Common.Validators.PricingModelDtoValidator
-using System.Collections.Generic;
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Enums;
-using FluentValidation;
 
 namespace BjjEire.Application.Common.Validators;
 
-public class PricingModelDtoValidator : AbstractValidator<PricingModelDto> {
-    public PricingModelDtoValidator() {
+public class PricingModelDtoValidator : AbstractValidator<PricingModelDto>
+{
+    public PricingModelDtoValidator()
+    {
         _ = RuleFor(x => x.Type)
             .ApplyEnumValidator("Pricing Type");
 
-        _ = When(x => x.Type == PricingType.Free, () => {
+        _ = When(x => x.Type == PricingType.Free, () =>
+        {
             _ = RuleFor(x => x.Amount)
                 .Equal(0m)
                 .WithName("Amount")
@@ -26,7 +27,8 @@ public class PricingModelDtoValidator : AbstractValidator<PricingModelDto> {
                 .ApplyMustBeNullValidator("Duration Days", "Pricing Type is Free");
         });
 
-        _ = When(x => x.Type != PricingType.Free, () => {
+        _ = When(x => x.Type != PricingType.Free, () =>
+        {
             _ = RuleFor(x => x.Amount)
                 .GreaterThan(0m)
                 .WithName("Amount")
@@ -38,7 +40,8 @@ public class PricingModelDtoValidator : AbstractValidator<PricingModelDto> {
                 .ApplyMustBeInSetValidator("Currency", ValidCurrencies, "ISO 4217 currency code (e.g., EUR, USD)");
         });
 
-        _ = When(x => x.Type == PricingType.FlatRate, () => {
+        _ = When(x => x.Type == PricingType.FlatRate, () =>
+        {
             _ = RuleFor(x => x.DurationDays)
                 .ApplyConditionalRequiredValidator("Duration Days", "FlatRate pricing type");
 

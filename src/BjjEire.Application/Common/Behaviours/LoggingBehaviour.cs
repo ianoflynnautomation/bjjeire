@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Security.Claims;
+
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

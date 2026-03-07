@@ -1,4 +1,5 @@
 using BjjEire.SharedKernel.Logging;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -8,19 +9,23 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
     ILogger<UnhandledExceptionBehaviour<TRequest, TResponse>> logger,
     IHttpContextAccessor httpContextAccessor)
     : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull {
+    where TRequest : notnull
+{
 
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken) {
+        CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(next);
 
-        try {
+        try
+        {
             return await next(cancellationToken);
         }
 #pragma warning disable S2139
-        catch (Exception ex) when (ex is not ValidationException) {
+        catch (Exception ex) when (ex is not ValidationException)
+        {
             var httpContext = httpContextAccessor.HttpContext;
             logger.LogError(ApplicationLogEvents.UnhandledExceptions.HandleExceptionError, ex,
                 "Unhandled exception for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}",
