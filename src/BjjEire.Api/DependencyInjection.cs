@@ -7,7 +7,6 @@ using BjjEire.Api.Extensions.Logging.Serilog;
 using BjjEire.Api.Extensions.OpenApi;
 using BjjEire.Api.Extensions.RateLimit;
 using BjjEire.Api.Extensions.SecurityHeaders;
-using BjjEire.Api.Infrastructure;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection;
@@ -18,7 +17,6 @@ public static class DependencyInjection
     public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        var env = builder.Environment;
 
         _ = builder.AddCustomSerilog();
         _ = builder.Services.AddHttpContextAccessor();
@@ -34,9 +32,7 @@ public static class DependencyInjection
             {
                 jsonOptions.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            })
-            .ConfigureApplicationPartManager(manager =>
-                manager.FeatureProviders.Add(new DevelopmentOnlyControllerFeatureProvider(env)));
+            });
 
         _ = builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
@@ -53,11 +49,12 @@ public static class DependencyInjection
         _ = builder.Services.ConfigureRateLimit(builder.Configuration);
         _ = builder.Services.AddCustomSecurityHeaders();
         _ = builder.Services.AddAppAuthentication(builder.Configuration);
+        _ = builder.Services.AddAppAuthorization();
 
         return builder;
     }
 
-    public static WebApplication UseBjjEiredApp(this WebApplication app)
+    public static WebApplication UseBjjEireApp(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);
 

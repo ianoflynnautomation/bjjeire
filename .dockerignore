@@ -1,48 +1,38 @@
 
-# --- .NET Build Artifacts & User Files ---
 **/bin
 **/obj
 *.csproj.user
 *.suo
-# Publish profiles are for host-based publishing, not Docker builds
 *.pubxml
-# Nuget packages will be restored inside the container
 *.nupkg
-# VS installer config
 *.vsconfig
 
-# --- IDE Folders & Config ---
 .vs/
 .vscode/
 .idea/
 *.DotSettings
 *.ncrunch*
 
-# --- Source Control ---
 .git/
 .gitignore
 .github/
 
-# --- Node.js / Frontend ---
-# This is the most important folder to ignore for Node projects
 node_modules/
-# These are build output folders, they will be created in the container
+
 dist/
 build/
 coverage/
-# Local cache files
+
 .vite/
 .eslintcache
-# Logs
+
 *.log
 npm-debug.log
 yarn-error.log
 
-# --- Local Environment & Secrets (SECURITY) ---
-# Environment variables should be passed in at RUNTIME, not built into the image.
 .env
 .env.*
-# The secrets folder should never be in the image. They are mounted at runtime.
+
 secrets/
 *.secret
 *.p12
@@ -54,7 +44,6 @@ secrets/
 *.cer
 *.pfx
 
-# --- Database Files (should not be in an app image) ---
 data/
 mongo-data/
 *.mdf
@@ -64,7 +53,6 @@ mongo-data/
 *.sqlite
 *.sqlite3
 
-# --- OS-specific & Temporary Files ---
 *.bak
 *.tmp
 *.temp

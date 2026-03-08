@@ -13,7 +13,7 @@ builder.AddApplicationServices();
 builder.AddApiServices();
 
 var app = builder.Build();
-app.UseBjjEiredApp();
+app.UseBjjEireApp();
 await app.RunAsync();
 
 public partial class Program;
