@@ -28,7 +28,6 @@ public static class SecurityHeadersServiceCollectionExtensions
                     _ = builder.AddUsb().None();
                 });
 
-                // Build a strong Content-Security-Policy
                 _ = policy.AddContentSecurityPolicy(builder =>
                 {
                     _ = builder.AddObjectSrc().None();
@@ -40,9 +39,9 @@ public static class SecurityHeadersServiceCollectionExtensions
                     // For a standard React/Vite app
                     _ = builder.AddScriptSrc().Self();
                     _ = builder.AddStyleSrc().Self();
-                    _ = builder.AddImgSrc().Self().Data();
+                    _ = builder.AddImgSrc().Self().Data().From("https:");
                     _ = builder.AddFontSrc().Self();
-                    _ = builder.AddConnectSrc().Self();
+                    _ = builder.AddConnectSrc().Self().From("https://login.microsoftonline.com");
                 });
             });
 

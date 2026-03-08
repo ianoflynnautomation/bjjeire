@@ -1,12 +1,18 @@
 // Copyright (c) {year} BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using BjjEire.Api.IntegrationTests.Common;
 using BjjEire.Api.IntegrationTests.Extensions;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BjjEire.Api.IntegrationTests.Fixtures;
 
@@ -18,7 +24,7 @@ public class RateLimitWebApplicationFactory(string connectionString) : WebApplic
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        _ = builder.UseEnvironment("Development");
+        _ = builder.UseEnvironment("Test");
 
         _ = builder.ConfigureCustomLogging();
 
@@ -37,6 +43,25 @@ public class RateLimitWebApplicationFactory(string connectionString) : WebApplic
             _ = services.RemoveTestServices();
             _ = services.AddTestDatabaseServices(_databaseName, connectionString);
             _ = services.AddApiTestServices();
+
+            // Strip all Microsoft.Identity.Web JwtBearer options (including ConfigurationManager
+            // that would try to fetch JWKS from Entra at test time) and replace with a plain
+            // symmetric-key setup backed by TestTokenFactory.
+            services.RemoveAll<IConfigureOptions<JwtBearerOptions>>();
+            services.RemoveAll<IPostConfigureOptions<JwtBearerOptions>>();
+
+            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = TestTokenFactory.SigningKey,
+                    ValidIssuer = TestTokenFactory.TestIssuer,
+                    ValidAudience = TestTokenFactory.TestAudience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
         });
     }
 }

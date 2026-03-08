@@ -4,10 +4,3 @@
 namespace BjjEire.Api.IntegrationTests.Common;
 
 public record FieldError(string Field, string Message, string? ErrorCode = null);
-
-public record TokenResponse(
-    string Token,
-    DateTime ExpiresUtc,
-    string UserId,
-    string Role
-);

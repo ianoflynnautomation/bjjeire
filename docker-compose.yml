@@ -35,6 +35,9 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=${ASPNETCORE_KESTREL_CERT_PATH}
       - ConnectionStrings__Mongodb=mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@${MONGODB_HOST:-mongodb}:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
       - CorsOptions__AllowedOrigins=${CORS_ORIGINS}
+      - AzureAd__TenantId=${AZURE_AD_TENANT_ID}
+      - AzureAd__ClientId=${AZURE_AD_CLIENT_ID}
+      - AzureAd__Audience=${AZURE_AD_AUDIENCE}
       - Serilog__WriteTo__1__Args__endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT}
       - Serilog__Properties__Application=${OTEL_SERVICE_NAME}
       - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
