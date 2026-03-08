@@ -1,10 +1,24 @@
 import Axios from 'axios'
 import type { AxiosError, AxiosRequestConfig } from 'axios'
 import { env } from '@/config/env'
+import { msalInstance, loginRequest } from '@/lib/msal-config'
 
 const instance = Axios.create({
   baseURL: env.API_URL,
   headers: { 'Content-Type': 'application/json' },
+})
+
+instance.interceptors.request.use(async (config) => {
+  const account = msalInstance.getAllAccounts()[0]
+  if (account !== undefined) {
+    try {
+      const result = await msalInstance.acquireTokenSilent({ ...loginRequest, account })
+      config.headers.set('Authorization', `Bearer ${result.accessToken}`)
+    } catch {
+      // Silent acquisition failed — proceed without auth (server returns 401 for protected routes)
+    }
+  }
+  return config
 })
 
 instance.interceptors.response.use(
