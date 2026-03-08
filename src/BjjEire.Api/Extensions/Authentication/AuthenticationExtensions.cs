@@ -1,4 +1,5 @@
 using BjjEire.Infrastructure.Configuration;
+
 using Microsoft.Identity.Web;
 
 namespace BjjEire.Api.Extensions.Authentication;

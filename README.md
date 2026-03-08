@@ -112,19 +112,6 @@ VITE_APP_MSAL_API_SCOPE=api://your-api-client-id/Events.ReadWrite
 
 ---
 
-## ☸️ Kubernetes (Minikube)
-
-```bash
-./setup-helm.sh
-./setup-minikube.sh
-```
-
-The script starts Minikube, loads local Docker images, installs the NGINX ingress controller, deploys via Helm, and updates `/etc/hosts` with `api.bjj.local` and `app.bjj.local`. Requires `sudo` for the hosts file step.
-
-See [`charts/README.md`](charts/README.md) for verification and cleanup.
-
----
-
 ## Contributing
 
 Open an issue or pull request on GitHub.
