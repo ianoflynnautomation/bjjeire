@@ -24,7 +24,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [EndpointDescription("Add new entity to Bjj Event")]
     [EndpointName("InsertBjjEvent")]
     [HttpPost]
-    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
+    [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -39,7 +39,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [EndpointDescription("Update entity in Bjj Event")]
     [EndpointName("UpdateBjjEvent")]
     [HttpPut]
-    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
+    [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateBjjEventResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -55,7 +55,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [EndpointDescription("Delete entity in Bjj Event")]
     [EndpointName("DeleteBjjEvent")]
     [HttpDelete("{id}")]
-    [Authorize(AuthenticationSchemes = $"{JwtBearerDefaults.AuthenticationScheme},{ApiKeyAuthenticationDefaults.AuthenticationScheme}")]
+    [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,4 +74,3 @@ public class BjjEventController(IMediator mediator) : BaseApiController
         return NoContent();
     }
 }
-

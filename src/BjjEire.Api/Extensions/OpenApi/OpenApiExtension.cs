@@ -1,7 +1,6 @@
 
 using BjjEire.Api.Attributes;
 using BjjEire.Api.Extensions.Authentication;
-using BjjEire.Infrastructure.Configuration;
 
 namespace BjjEire.Api.Extensions.OpenApi;
 
@@ -9,7 +8,6 @@ public static class OpenApiExtensions
 {
     public const string ApiGroupNameV1 = "v1";
     private const string BearerAuthSchemeId = "BearerAuth";
-    private const string ApiKeyAuthSchemeId = "ApiKeyAuth";
 
     public static IServiceCollection AddAppOpenApiServices(this IServiceCollection services)
     {
@@ -38,26 +36,7 @@ public static class OpenApiExtensions
                         Type = SecuritySchemeType.Http,
                         Scheme = "bearer",
                         BearerFormat = "JWT",
-                        Description = "Enter JWT Bearer token. Example: \"Authorization: Bearer {token}\""
-                    });
-                }
-
-                var apiKeyHeaderName = context.ApplicationServices
-                    .GetRequiredService<IOptions<ApiKeyOptions>>().Value.HeaderName;
-
-                if (string.IsNullOrWhiteSpace(apiKeyHeaderName))
-                {
-                    apiKeyHeaderName = "X-API-KEY";
-                }
-
-                if (!document.Components.SecuritySchemes.ContainsKey(ApiKeyAuthSchemeId))
-                {
-                    document.Components.SecuritySchemes.Add(ApiKeyAuthSchemeId, new OpenApiSecurityScheme
-                    {
-                        Type = SecuritySchemeType.ApiKey,
-                        In = ParameterLocation.Header,
-                        Name = apiKeyHeaderName,
-                        Description = $"API Key Authentication. Provide the key in the '{apiKeyHeaderName}' header."
+                        Description = "Microsoft Entra ID Bearer token. Example: \"Authorization: Bearer {token}\""
                     });
                 }
                 return Task.CompletedTask;
@@ -70,7 +49,6 @@ public static class OpenApiExtensions
         return services;
     }
 
-    // NOTE: Review whether this Swashbuckle setup is still needed alongside AddAppOpenApiServices above.
     internal static IHostApplicationBuilder ConfigureSwaggerGenWithDoc(this IHostApplicationBuilder builder)
     {
         _ = builder.Services.AddSwaggerGen(options =>
@@ -89,19 +67,9 @@ public static class OpenApiExtensions
                 Scheme = "bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+                Description = "Microsoft Entra ID Bearer token. Example: \"Authorization: Bearer {token}\""
             });
 
-            var apiKeyOptions = builder.Configuration.GetSection(ApiKeyOptions.SectionName).Get<ApiKeyOptions>();
-            var apiKeyHeaderName = apiKeyOptions?.HeaderName ?? "X-API-KEY";
-
-            options.AddSecurityDefinition(ApiKeyAuthSchemeId, new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.ApiKey,
-                In = ParameterLocation.Header,
-                Name = apiKeyHeaderName,
-                Description = $"API Key Authentication using the '{apiKeyHeaderName}' header."
-            });
             options.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 

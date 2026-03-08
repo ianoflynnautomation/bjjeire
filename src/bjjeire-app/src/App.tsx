@@ -55,6 +55,7 @@ function App(): React.JSX.Element {
               <Route path={paths.events.path} element={<EventsPage />} />
               <Route path={paths.gyms.path} element={<GymsPage />} />
               <Route path={paths.about.path} element={<AboutPage />} />
+              <Route path="*" element={<Navigate to={paths.events.path} replace />} />
             </Routes>
           </Suspense>
         </main>
