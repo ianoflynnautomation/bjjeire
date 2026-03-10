@@ -10,7 +10,6 @@ namespace BjjEire.ServiceDefaults.Configuration;
 
 public static class HealthCheckConfiguration
 {
-
     public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
@@ -21,18 +20,15 @@ public static class HealthCheckConfiguration
         return builder;
     }
 
-    public static WebApplication MapDefaultEndpoints(WebApplication app)
+    public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        if (app.Environment.IsDevelopment())
+        _ = app.MapHealthChecks(ServiceDefaultsConstants.HealthCheckPath);
+        _ = app.MapHealthChecks(ServiceDefaultsConstants.LivenessCheckPath, new HealthCheckOptions
         {
-            _ = app.MapHealthChecks(ServiceDefaultsConstants.HealthCheckPath);
-            _ = app.MapHealthChecks(ServiceDefaultsConstants.LivenessCheckPath, new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains(ServiceDefaultsConstants.LivenessTag)
-            });
-        }
+            Predicate = r => r.Tags.Contains(ServiceDefaultsConstants.LivenessTag)
+        });
 
         return app;
     }
