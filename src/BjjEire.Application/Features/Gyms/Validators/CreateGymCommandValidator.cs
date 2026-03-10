@@ -1,5 +1,3 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
-// Licensed under the MIT License.
 
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.Gyms.Commands;

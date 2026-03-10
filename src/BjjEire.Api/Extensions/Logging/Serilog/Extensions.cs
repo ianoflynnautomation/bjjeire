@@ -1,5 +1,6 @@
 using Serilog;
 using Serilog.Debugging;
+using Serilog.Enrichers.Span;
 using Serilog.Events;
 
 namespace BjjEire.Api.Extensions.Logging.Serilog;
@@ -21,6 +22,10 @@ public static class Extensions
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("ApplicationName", context.HostingEnvironment.ApplicationName)
                 .Enrich.WithProperty("EnvironmentName", context.HostingEnvironment.EnvironmentName)
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId()
+                .Enrich.WithSpan()
+                .Enrich.WithCorrelationId()
         );
 
         return builder;

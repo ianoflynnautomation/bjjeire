@@ -21,14 +21,14 @@ public class EndpointMetadataTransformer : IOpenApiOperationTransformer
         ArgumentNullException.ThrowIfNull(operation);
         if (context.Description.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
         {
-            var descriptionAttr = actionDescriptor.EndpointMetadata.OfType<EndpointDescriptionAttribute>().FirstOrDefault();
+            EndpointDescriptionAttribute? descriptionAttr = actionDescriptor.EndpointMetadata.OfType<EndpointDescriptionAttribute>().FirstOrDefault();
             if (descriptionAttr != null)
             {
                 operation.Description = descriptionAttr.Description;
                 operation.Summary = descriptionAttr.Description;
             }
 
-            var nameAttr = actionDescriptor.EndpointMetadata.OfType<EndpointNameAttribute>().FirstOrDefault();
+            EndpointNameAttribute? nameAttr = actionDescriptor.EndpointMetadata.OfType<EndpointNameAttribute>().FirstOrDefault();
             if (nameAttr != null)
             {
                 operation.OperationId = nameAttr.Name;

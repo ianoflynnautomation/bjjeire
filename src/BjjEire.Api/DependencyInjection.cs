@@ -38,9 +38,7 @@ public static class DependencyInjection
             options.SuppressModelStateInvalidFilter = true);
 
         _ = builder.ConfigureCors();
-        _ = builder.Services.AddEndpointsApiExplorer();
         _ = builder.Services.AddAppOpenApiServices();
-        _ = builder.ConfigureSwaggerGenWithDoc();
         _ = builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         _ = builder.Services.AddProblemDetails();
         _ = builder.Services.AddAppHealthChecks();

@@ -1,5 +1,3 @@
-using BjjEire.SharedKernel.Logging;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -27,8 +25,8 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
         catch (Exception ex) when (ex is not ValidationException)
         {
             var httpContext = httpContextAccessor.HttpContext;
-            logger.LogError(ApplicationLogEvents.UnhandledExceptions.HandleExceptionError, ex,
-                "Unhandled exception for {RequestName}. Path: {RequestPath}, Method: {RequestMethod}",
+            UnhandledExceptionBehaviourLog.UnhandledException(
+                logger, ex,
                 typeof(TRequest).Name,
                 httpContext?.Request.Path.Value ?? "Unknown",
                 httpContext?.Request.Method ?? "Unknown");

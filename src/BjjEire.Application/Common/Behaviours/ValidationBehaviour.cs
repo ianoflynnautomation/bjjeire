@@ -1,5 +1,3 @@
-using BjjEire.SharedKernel.Logging;
-
 using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Common.Behaviours;
@@ -35,9 +33,8 @@ public class ValidationBehaviour<TRequest, TResponse>(
 
         if (failures.Count != 0)
         {
-            logger.LogWarning(
-                ApplicationLogEvents.Validation.Failed,
-                "Validation failed for {RequestName}. ErrorCount: {ErrorCount}, Errors: \"{ErrorsSummary}\"",
+            ValidationBehaviourLog.ValidationFailed(
+                logger,
                 typeof(TRequest).Name,
                 failures.Count,
                 string.Join("; ", failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}")));

@@ -8,17 +8,11 @@ public interface IRepository<T> where T : BaseEntity
 {
     public IQueryable<T> Table { get; }
 
-    public T GetById(string id);
-
     public Task<T> GetByIdAsync(string id);
 
     public Task<T> GetOneAsync(Expression<Func<T, bool>> predicate);
 
-    public T Insert(T entity);
-
     public Task<T> InsertAsync(T entity);
-
-    public T Update(T entity);
 
     public Task<T> UpdateAsync(T entity);
 
@@ -46,8 +40,6 @@ public interface IRepository<T> where T : BaseEntity
     public Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, Expression<Func<TU, bool>> elemFieldMatch);
 
     public Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
-
-    public void Delete(T entity);
 
     public Task<T> DeleteAsync(T entity);
 

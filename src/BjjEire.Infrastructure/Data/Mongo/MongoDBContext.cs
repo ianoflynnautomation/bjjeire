@@ -75,7 +75,7 @@ public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext
         }
         catch (InvalidCastException ex)
         {
-            _logger.LogError(ex, "Invalid repository type for index creation {IndexName} on {CollectionName}", indexName, typeof(T).Name);
+            MongoDBContextLog.InvalidRepositoryTypeForIndex(_logger, ex, indexName, typeof(T).Name);
             throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
         }
     }
@@ -90,7 +90,7 @@ public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext
         }
         catch (MongoException ex)
         {
-            _logger.LogError(ex, "Failed to delete index {IndexName} from collection {CollectionName}", indexName, typeof(T).Name);
+            MongoDBContextLog.IndexDeleteFailed(_logger, ex, indexName, typeof(T).Name);
             throw new InvalidOperationException($"Repository for {typeof(T).Name} is not a MongoRepository.", ex);
         }
     }
