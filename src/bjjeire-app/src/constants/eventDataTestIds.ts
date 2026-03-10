@@ -1,8 +1,3 @@
-// ========================================================================
-// Events Page Test IDs
-//
-// Convention: events-[component]-[element]
-// ========================================================================
 
 export const EventsPageTestIds = {
   HEADER: 'events-page-header',

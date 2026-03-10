@@ -1,9 +1,3 @@
-// ========================================================================
-// Gyms Page Test IDs
-//
-// Convention: gyms-[component]-[element]
-// ========================================================================
-
 export const GymsPageTestIds = {
   HEADER: 'gyms-page-header',
   HEADER_TITLE: 'gyms-page-header-title',

@@ -1,9 +1,3 @@
-// ========================================================================
-// Global Reusable Component Test IDs
-//
-// Convention: [component-name]-[element]
-// ========================================================================
-
 export const NavigationTestIds = {
   ROOT: 'navigation',
   LOGO_LINK: 'navigation-logo-link',
@@ -42,7 +36,7 @@ export const PaginationTestIds = {
   NEXT_BUTTON: 'pagination-next-button',
 }
 
-export const  ErrorStateTestIds = {
+export const ErrorStateTestIds = {
   ROOT: 'error-state',
   ICON: 'error-state-icon',
   TITLE: 'error-state-title',
@@ -51,7 +45,7 @@ export const  ErrorStateTestIds = {
   BUTTON: 'error-state-button',
 }
 
-export const  NoDataStateTestIds = {
+export const NoDataStateTestIds = {
   ROOT: 'no-data-state',
   ICON: 'no-data-state-icon',
   TITLE: 'no-data-state-title',

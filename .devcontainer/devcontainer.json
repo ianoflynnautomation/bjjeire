@@ -1,19 +1,26 @@
 {
-    "name": "BJJ App Development Environment",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "name": "BJJ Éire Development Environment",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+    "workspaceFolder": "/workspaces/BjjEire",
 
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {
-            "version": "latest"
+            "version": "27.5"
         },
         "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-            "version": "latest",
-            "helm": "latest",
-            "kubectl": "latest",
-            "minikube": "latest"
+            "version": "1.31",
+            "helm": "3.16",
+            "kubectl": "1.31",
+            "minikube": "1.34"
+        },
+        "ghcr.io/devcontainers/features/azure-cli:1": {
+            "version": "2.70"
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "2.67"
         },
         "ghcr.io/devcontainers/features/dotnet:2": {
-            "version": "9.0" 
+            "version": "9.0"
         },
         "ghcr.io/devcontainers/features/node:1": {
             "version": "24",
@@ -22,25 +29,46 @@
     },
 
     "remoteUser": "vscode",
-    "postCreateCommand": "bash ./post-create-commands.sh",
+    "postCreateCommand": "bash .devcontainer/post-create-commands.sh",
+
+    "remoteEnv": {
+        "BJJ_PROVISIONING_METHOD": "helm"
+    },
 
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-kubernetes-tools.vscode-kubernetes-tools",
-                "ms-azuretools.vscode-docker",
-                "redhat.vscode-yaml",
                 "ms-dotnettools.csharp",
+                "ms-dotnettools.csdevkit",
+                "ms-dotnettools.vscode-dotnet-runtime",
+                "formulahendry.dotnet-test-explorer",
                 "dbaeumer.vscode-eslint",
                 "esbenp.prettier-vscode",
-                "chakroun-hadrien.pascal-case",
-                "formulahendry.dotnet-test-explorer",
+                "bradlc.vscode-tailwindcss",
+                "vitest.explorer",
+                "ms-azuretools.vscode-docker",
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "ms-kubernetes-tools.vscode-aks-tools",
+                "Tim-Koehler.helm-intellisense",
+                "mongodb.mongodb-vscode",
+                "ms-vscode.azure-account",
+                "ms-vscode.azurecli",
+                "ms-azure-devops.azure-pipelines",
+                "redhat.vscode-yaml",
+                "EditorConfig.EditorConfig",
+                "humao.rest-client",
+                "cucumberopen.cucumber-official",
+                "SonarSource.sonarlint-vscode",
+                "usernamehw.errorlens",
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "github.vscode-pull-request-github",
                 "streetsidesoftware.code-spell-checker"
             ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "editor.formatOnSave": true,
-                "dotnet.defaultSolution": "./BjjEire.sln", 
+                "dotnet.defaultSolution": "./BjjEire.sln",
                 "editor.codeActionsOnSave": {
                     "source.fixAll.eslint": "explicit"
                 }
@@ -49,15 +77,10 @@
     },
 
     "portsAttributes": {
-        "5003": { "label": "API (HTTP)", "onAutoForward": "notify" },
-        "5001": { "label": "API (HTTPS)", "onAutoForward": "notify" },
-        "60742": { "label": "Frontend (HTTP)", "onAutoForward": "notify" },
-        "60743": { "label": "Frontend (HTTPS)", "onAutoForward": "notify" },
-        "27017": { "label": "MongoDB", "onAutoForward": "notify" }
-    },
-    "forwardPorts": [5003, 5001, 60742, 60743, 27017],
-
-    "containerEnv": {
-        "BJJ_PROVISIONING_METHOD": "helm"
+        "5003":  { "label": "API (HTTP)",        "onAutoForward": "notify" },
+        "5001":  { "label": "API (HTTPS)",       "onAutoForward": "notify" },
+        "60742": { "label": "Frontend (HTTP)",   "onAutoForward": "notify" },
+        "60743": { "label": "Frontend (HTTPS)",  "onAutoForward": "notify" },
+        "27017": { "label": "MongoDB",           "onAutoForward": "notify" }
     }
 }

@@ -1,7 +1,6 @@
 
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Infrastructure;
-using BjjEire.Infrastructure.Configuration;
 using BjjEire.Infrastructure.Data.Mongo;
 
 using Microsoft.Extensions.Caching.Hybrid;
@@ -21,22 +20,13 @@ public static class DependencyInjection
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        _ = builder.Services.AddOptions<DatabaseOptions>().Bind(builder.Configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
-
-        _ = builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<DatabaseOptions>>().Value);
-
         _ = builder.Services.AddSingleton<IAuditInfoProvider, AuditInfoProvider>();
         _ = builder.Services.AddHttpContextAccessor();
 
-        var dbConfig = builder.Configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
-                         ?? new DatabaseOptions { UseLiteDb = false };
+        ConfigureMongoDb(builder.Services, builder.Configuration);
+        _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
+        _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
 
-        if (!dbConfig.UseLiteDb)
-        {
-            ConfigureMongoDb(builder.Services, builder.Configuration);
-            _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
-            _ = builder.Services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
-        }
         _ = builder.Services.AddHybridCache(options =>
             options.DefaultEntryOptions = new HybridCacheEntryOptions
             {
@@ -56,13 +46,15 @@ public static class DependencyInjection
             throw new InvalidOperationException($"Connection string '{MongoDbConnectionStringName}' not found or is empty in ConnectionStrings.");
         }
 
-        _ = services.AddSingleton<IMongoClient>(sp =>
+        _ = services.AddSingleton<IMongoClient>(_ =>
         {
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+            clientSettings.ServerApi = new ServerApi(ServerApiVersion.V1);
+            clientSettings.MaxConnectionPoolSize = 100;
             return new MongoClient(clientSettings);
         });
 
-        _ = services.AddScoped<IMongoDatabase>(sp =>
+        _ = services.AddSingleton<IMongoDatabase>(sp =>
         {
             var client = sp.GetRequiredService<IMongoClient>();
             var mongoUrl = MongoUrl.Create(connectionString);
@@ -103,5 +95,4 @@ public static class DependencyInjection
             s_mongoDbConventionsRegistered = true;
         }
     }
-
 }
