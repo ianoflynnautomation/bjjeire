@@ -6,7 +6,7 @@
   -->
   <PropertyGroup>
     <TargetFramework Condition="'$(TargetFramework)' == ''">net9.0</TargetFramework>
-    <LangVersion>latestMajor</LangVersion>
+    <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>

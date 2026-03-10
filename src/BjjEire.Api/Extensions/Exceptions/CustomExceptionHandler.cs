@@ -1,6 +1,5 @@
 
 using BjjEire.Application.Common.Exceptions;
-using BjjEire.SharedKernel.Logging;
 
 
 namespace BjjEire.Api.Extensions.Exceptions;
@@ -57,7 +56,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ProblemDetails HandleCustomException(CustomException exception, HttpContext httpContext)
     {
-        var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Type = exception.Type ?? "urn:bjjeire:application-error",
             Title = exception.Title ?? "Application Error",
@@ -118,14 +117,6 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
             : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
 
-        logger.LogError(ApplicationLogEvents.ExceptionHandling.UnexpectedExceptionOccurred, exception,
-            "Unexpected error occurred. ErrorId: {ErrorId}, Request: {RequestMethod} {RequestPath}, ASPNetTraceId: {ASPNetTraceId}, UserId: {UserId}",
-            errorId,
-            httpContext.Request.Method,
-            httpContext.Request.Path,
-            httpContext.TraceIdentifier,
-            userId);
-
         return new ProblemDetails
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
@@ -138,20 +129,25 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private void LogHandledException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails, string userId)
     {
-        var logLevel = problemDetails.Status >= 500 ? LogLevel.Error : LogLevel.Warning;
+        var exType = exception.GetType().FullName ?? exception.GetType().Name;
+        var traceId = httpContext.TraceIdentifier;
 
-        logger.Log(logLevel, ApplicationLogEvents.ExceptionHandling.ExceptionHandled, exception,
-            "ExceptionHandler handled an error. ExceptionType: {ExceptionType}, OriginalExceptionMessage: \"{OriginalExceptionMessage}\", UserId: {UserId}, Request: {RequestMethod} {RequestPath}, ResponseStatus: {ResponseStatusCode}, ResponseTitle: \"{ResponseErrorTitle}\", ClientFacingDetail: \"{ClientFacingDetail}\", ASPNetTraceId: {ASPNetTraceId}",
-            exception.GetType().FullName,
-            exception.Message,
-            userId,
-            httpContext.Request.Method,
-            httpContext.Request.Path,
-            problemDetails.Status,
-            problemDetails.Title,
-            problemDetails.Detail,
-            httpContext.TraceIdentifier
-        );
+        if (problemDetails.Status >= 500)
+        {
+            CustomExceptionHandlerLog.ExceptionHandledError(
+                logger, exception,
+                exType, exception.Message, userId,
+                httpContext.Request.Method, httpContext.Request.Path,
+                problemDetails.Status, problemDetails.Title, traceId);
+        }
+        else
+        {
+            CustomExceptionHandlerLog.ExceptionHandledWarning(
+                logger, exception,
+                exType, exception.Message, userId,
+                httpContext.Request.Method, httpContext.Request.Path,
+                problemDetails.Status, problemDetails.Title, traceId);
+        }
     }
 
     private static ProblemDetails HandleConcurrencyException(ConcurrencyException exception, HttpContext httpContext)

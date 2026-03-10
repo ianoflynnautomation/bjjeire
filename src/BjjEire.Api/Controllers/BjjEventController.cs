@@ -8,7 +8,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
 
-    [EndpointDescription("Get Bjj Event entitys")]
+    [EndpointDescription("Get All Bjj Events")]
     [EndpointName("GetAllBjjEvents")]
     [HttpGet()]
     [AllowAnonymous]
