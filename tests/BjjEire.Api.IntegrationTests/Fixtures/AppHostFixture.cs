@@ -1,5 +1,8 @@
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 
@@ -12,6 +15,8 @@ namespace BjjEire.Api.IntegrationTests.Fixtures;
 /// </summary>
 public sealed class AppHostFixture : IAsyncLifetime
 {
+    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(5);
+
     private DistributedApplication? _app;
 
     public HttpClient ApiClient { get; private set; } = null!;
@@ -22,7 +27,18 @@ public sealed class AppHostFixture : IAsyncLifetime
             .CreateAsync<Projects.BjjEire_Aspire_AppHost>();
 
         _app = await appHost.BuildAsync();
+
+        var notifications = _app.Services.GetRequiredService<ResourceNotificationService>();
+
         await _app.StartAsync();
+
+        await notifications
+            .WaitForResourceAsync("mongo", KnownResourceStates.Running)
+            .WaitAsync(StartupTimeout);
+
+        await notifications
+            .WaitForResourceAsync("api", KnownResourceStates.Running)
+            .WaitAsync(StartupTimeout);
 
         ApiClient = _app.CreateHttpClient("api");
     }
