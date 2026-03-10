@@ -17,7 +17,7 @@ public class BjjEvent : BaseEntity
 
     [BsonElement("organiser")]
     public Organizer Organiser { get; set; } = new();
-    
+
     [BsonElement("status")]
     public EventStatus Status { get; set; }
 
