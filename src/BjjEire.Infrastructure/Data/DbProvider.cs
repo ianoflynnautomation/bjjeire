@@ -4,7 +4,5 @@ public enum DbProvider
 {
     MongoDB,
 
-    CosmosDB,
-
-    LiteDB
+    CosmosDB
 }

@@ -6,7 +6,6 @@ using BjjEire.Application.Features.Gyms.Constants;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
-using BjjEire.SharedKernel.Logging;
 
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -28,20 +27,16 @@ public sealed class GetGymPaginationQueryHandler(
 
         var cacheKey = CacheKey.GymsAll(request.Page, request.PageSize, request.County);
 
-        logger.LogInformation(
-            ApplicationLogEvents.QueryHandling.Start,
-            "Handling {QueryName}. Page: {PageNumber}, PageSize: {PageSize}, County: {County}, CacheKey: {CacheKey}",
-            nameof(GetGymPaginationQuery), request.Page, request.PageSize,
+        GetGymPaginationQueryHandlerLog.QueryStart(
+            logger, nameof(GetGymPaginationQuery),
+            request.Page, request.PageSize,
             request.County?.ToString() ?? "N/A", cacheKey);
 
         var result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
-                logger.LogInformation(
-                    ApplicationLogEvents.QueryHandling.FetchingFromRepositoryOnCacheMiss,
-                    "Cache miss for {CacheKey}. Fetching Gyms from repository.",
-                    cacheKey);
+                GetGymPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
                 var query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
@@ -65,11 +60,10 @@ public sealed class GetGymPaginationQueryHandler(
             tags: [CacheKey.GymsTag],
             cancellationToken: cancellationToken);
 
-        logger.LogInformation(
-            ApplicationLogEvents.QueryHandling.Success,
-            "Successfully handled {QueryName}. Returned {ReturnedCount} gyms for Page {PageNumber} (Total: {TotalRecords}). CacheKey: {CacheKey}",
-            nameof(GetGymPaginationQuery), result.Data.Count,
-            result.Pagination.CurrentPage, result.Pagination.TotalItems, cacheKey);
+        GetGymPaginationQueryHandlerLog.QuerySuccess(
+            logger, nameof(GetGymPaginationQuery),
+            result.Data.Count, result.Pagination.CurrentPage,
+            result.Pagination.TotalItems, cacheKey);
 
         return result;
     }

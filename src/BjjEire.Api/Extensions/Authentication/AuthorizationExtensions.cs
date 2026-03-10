@@ -8,13 +8,10 @@ public static class AuthorizationExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        _ = services.AddAuthorization(options =>
-        {
-            options.AddPolicy(RequireWriterPolicy, policy =>
+        _ = services.AddAuthorization(options => options.AddPolicy(RequireWriterPolicy, policy =>
                 policy
                     .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser());
-        });
+                    .RequireAuthenticatedUser()));
 
         return services;
     }

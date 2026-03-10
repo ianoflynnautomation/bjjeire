@@ -6,7 +6,6 @@ using BjjEire.Application.Features.BjjEvents.Constants;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
-using BjjEire.SharedKernel.Logging;
 
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -28,20 +27,17 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
         var cacheKey = CacheKey.BjjEventsAll(request.Page, request.PageSize, request.County, request.Type);
 
-        logger.LogInformation(
-            ApplicationLogEvents.QueryHandling.Start,
-            "Handling {QueryName}. Page: {PageNumber}, PageSize: {PageSize}, County: {County}, Type: {EventType}, CacheKey: {CacheKey}",
-            nameof(GetBjjEventPaginationQuery), request.Page, request.PageSize,
-            request.County?.ToString() ?? "N/A", request.Type?.ToString() ?? "N/A", cacheKey);
+        GetBjjEventPaginationQueryHandlerLog.QueryStart(
+            logger, nameof(GetBjjEventPaginationQuery),
+            request.Page, request.PageSize,
+            request.County?.ToString() ?? "N/A",
+            request.Type?.ToString() ?? "N/A", cacheKey);
 
         var result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
-                logger.LogInformation(
-                    ApplicationLogEvents.QueryHandling.FetchingFromRepositoryOnCacheMiss,
-                    "Cache miss for {CacheKey}. Fetching BJJ events from repository.",
-                    cacheKey);
+                GetBjjEventPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
                 var query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
@@ -70,11 +66,10 @@ public sealed class GetBjjEventByPaginationQueryHandler(
             tags: [CacheKey.BjjEventsTag],
             cancellationToken: cancellationToken);
 
-        logger.LogInformation(
-            ApplicationLogEvents.QueryHandling.Success,
-            "Successfully handled {QueryName}. Returned {ReturnedCount} items for Page {PageNumber} (Total: {TotalRecords}). CacheKey: {CacheKey}",
-            nameof(GetBjjEventPaginationQuery), result.Data.Count,
-            result.Pagination.CurrentPage, result.Pagination.TotalItems, cacheKey);
+        GetBjjEventPaginationQueryHandlerLog.QuerySuccess(
+            logger, nameof(GetBjjEventPaginationQuery),
+            result.Data.Count, result.Pagination.CurrentPage,
+            result.Pagination.TotalItems, cacheKey);
 
         return result;
     }

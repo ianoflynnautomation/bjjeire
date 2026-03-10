@@ -1,6 +1,6 @@
-
 using BjjEire.Api.Attributes;
-using BjjEire.Api.Extensions.Authentication;
+
+using Scalar.AspNetCore;
 
 namespace BjjEire.Api.Extensions.OpenApi;
 
@@ -12,8 +12,6 @@ public static class OpenApiExtensions
     public static IServiceCollection AddAppOpenApiServices(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
-
-        _ = services.AddEndpointsApiExplorer();
 
         _ = services.AddTransient<AuthSecuritySchemeTransformer>();
         _ = services.AddTransient<EndpointMetadataTransformer>();
@@ -49,41 +47,14 @@ public static class OpenApiExtensions
         return services;
     }
 
-    internal static IHostApplicationBuilder ConfigureSwaggerGenWithDoc(this IHostApplicationBuilder builder)
-    {
-        _ = builder.Services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Version = "v1",
-                Title = "BjjEire API",
-                Description = "API for BjjEire services (with Auth)"
-            });
-
-            options.AddSecurityDefinition(BearerAuthSchemeId, new OpenApiSecurityScheme
-            {
-                Name = "Authorization",
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header,
-                Description = "Microsoft Entra ID Bearer token. Example: \"Authorization: Bearer {token}\""
-            });
-
-            options.OperationFilter<SecurityRequirementsOperationFilter>();
-        });
-
-        return builder;
-    }
-
     public static WebApplication UseAppOpenApi(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
         if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
         {
-            _ = app.UseSwagger();
-            _ = app.UseSwaggerUI();
+            _ = app.MapOpenApi();
+            _ = app.MapScalarApiReference();
         }
         return app;
     }

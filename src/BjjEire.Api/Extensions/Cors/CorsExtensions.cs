@@ -6,14 +6,24 @@ public static class CorsExtensions
 {
     internal static IHostApplicationBuilder ConfigureCors(this IHostApplicationBuilder builder)
     {
-        var allowedOrigins = builder.Configuration.GetSection("CorsOptions:AllowedOrigins").Get<string[]>() ?? [];
+        var corsOptions = builder.Configuration
+            .GetSection(CorsOptions.SectionName)
+            .Get<CorsOptions>() ?? new CorsOptions();
 
         _ = builder.Services.AddCors(options =>
         {
-            options.AddPolicy(ConfigurationsConstants.DevelopmentCorsPolicyName,
-                builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            options.AddPolicy(ConfigurationsConstants.ProductionCorsPolicyName,
-                builder => builder.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader());
+            options.AddPolicy(ConfigurationsConstants.CorsPolicyName, policy =>
+            {
+                _ = policy.WithOrigins(corsOptions.AllowedOrigins)
+                    .WithMethods(corsOptions.AllowedMethods)
+                    .WithHeaders(corsOptions.AllowedHeaders)
+                    .WithExposedHeaders(
+                        "X-RateLimit-Limit",
+                        "X-RateLimit-Remaining",
+                        "X-RateLimit-Reset",
+                        "Retry-After")
+                    .DisallowCredentials();
+            });
         });
 
         return builder;
@@ -21,12 +31,7 @@ public static class CorsExtensions
 
     internal static WebApplication UseCors(this WebApplication app)
     {
-        _ = app.Environment.IsDevelopment()
-            ? app.UseCors(ConfigurationsConstants.DevelopmentCorsPolicyName)
-            : app.UseCors(ConfigurationsConstants.ProductionCorsPolicyName);
-
+        _ = app.UseCors(ConfigurationsConstants.CorsPolicyName);
         return app;
-
     }
-
 }

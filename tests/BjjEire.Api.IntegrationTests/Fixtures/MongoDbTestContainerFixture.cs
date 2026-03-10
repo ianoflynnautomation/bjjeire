@@ -18,7 +18,7 @@ public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>
             .WithUsername("testUserMongo")
             .WithPassword("testPassMongo")
             .WithWaitStrategy(Wait.ForUnixContainer()
-                .UntilPortIsAvailable(MongoDbBuilder.MongoDbPort))
+                .UntilCommandIsCompleted("mongosh", "--eval", "db.adminCommand('ping')"))
             .Build();
     }
 

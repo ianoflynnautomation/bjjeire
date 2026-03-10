@@ -4,41 +4,35 @@ using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities;
 
+using Microsoft.Extensions.Logging;
+
 namespace BjjEire.Infrastructure.Data.Mongo;
 
 public class MongoRepository<T> : IRepository<T> where T : BaseEntity
 {
     private readonly IAuditInfoProvider _auditInfoProvider;
+    private readonly ILogger<MongoRepository<T>> _logger;
 
     public IMongoCollection<T> Collection { get; }
 
     protected IMongoDatabase Database { get; }
 
-    public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
+    public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider, ILogger<MongoRepository<T>> logger)
     {
         ArgumentNullException.ThrowIfNull(database);
         ArgumentNullException.ThrowIfNull(auditInfoProvider);
+        ArgumentNullException.ThrowIfNull(logger);
 
         Database = database;
         _auditInfoProvider = auditInfoProvider;
+        _logger = logger;
         var collectionName = typeof(T).Name;
         Collection = Database.GetCollection<T>(collectionName);
     }
 
-    public virtual T GetById(string id) => Collection.Find(e => e.Id == id).FirstOrDefault();
-
     public virtual Task<T> GetByIdAsync(string id) => Collection.Find(e => e.Id == id).FirstOrDefaultAsync();
 
     public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate) => Collection.Find(predicate).FirstOrDefaultAsync();
-
-    public virtual T Insert(T entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-        entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
-        entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.InsertOne(entity);
-        return entity;
-    }
 
     public virtual async Task<T> InsertAsync(T entity)
     {
@@ -46,15 +40,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
         await Collection.InsertOneAsync(entity);
-        return entity;
-    }
-
-    public virtual T Update(T entity)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-        entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
-        entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
-        _ = Collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });
         return entity;
     }
 
@@ -157,7 +142,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
- : await Collection.UpdateOneAsync(filter, combinedUpdate);
+            : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     public virtual async Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value)
@@ -195,7 +180,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
- : await Collection.UpdateOneAsync(filter, combinedUpdate);
+            : await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     public virtual async Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
@@ -221,39 +206,39 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate)
- : await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
+            : await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
     }
-
-    public virtual void Delete(T entity) => _ = Collection.FindOneAndDelete(e => e.Id == entity.Id);
 
     public virtual async Task<T> DeleteAsync(T entity)
     {
-
         ArgumentNullException.ThrowIfNull(entity);
 
         var filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
         var result = await Collection.DeleteOneAsync(filter);
 
-        return result.IsAcknowledged && result.DeletedCount == 0
-        ? throw new ConcurrencyException($"Concurrency conflict for entity with ID {entity.Id}.")
-        : entity;
+        if (result.IsAcknowledged && result.DeletedCount == 0)
+        {
+            MongoRepositoryLog.ConcurrencyConflict(_logger, entity.Id, typeof(T).Name);
+            throw new ConcurrencyException($"Concurrency conflict for entity with ID {entity.Id}.");
+        }
+
+        return entity;
     }
 
     public virtual async Task DeleteAsync(IEnumerable<T> entities)
     {
         ArgumentNullException.ThrowIfNull(entities);
-        foreach (var entity in entities)
-        {
-            _ = await DeleteAsync(entity);
-        }
+        var ids = entities.Select(e => e.Id).ToList();
+        if (ids.Count == 0)
+            return;
+        var filter = Builders<T>.Filter.In(e => e.Id, ids);
+        _ = await Collection.DeleteManyAsync(filter);
     }
 
     public virtual async Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression) => _ = await Collection.DeleteManyAsync(filterExpression);
     public Task ClearAsync() => Collection.DeleteManyAsync(Builders<T>.Filter.Empty);
 
-
     public virtual IQueryable<T> Table => Collection.AsQueryable();
 
     public virtual IQueryable<TC> TableCollection<TC>() where TC : class => Database.GetCollection<TC>(typeof(T).Name).AsQueryable();
-
 }
