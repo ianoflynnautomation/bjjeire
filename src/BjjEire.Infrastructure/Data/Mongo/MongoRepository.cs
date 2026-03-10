@@ -229,7 +229,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNull(entities);
         var ids = entities.Select(e => e.Id).ToList();
-        if (ids.Count == 0) return;
+        if (ids.Count == 0)
+            return;
         var filter = Builders<T>.Filter.In(e => e.Id, ids);
         _ = await Collection.DeleteManyAsync(filter);
     }

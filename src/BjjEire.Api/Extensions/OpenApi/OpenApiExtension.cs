@@ -1,4 +1,5 @@
 using BjjEire.Api.Attributes;
+
 using Scalar.AspNetCore;
 
 namespace BjjEire.Api.Extensions.OpenApi;
@@ -52,7 +53,7 @@ public static class OpenApiExtensions
 
         if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
         {
-            _ = app.MapOpenApi();         
+            _ = app.MapOpenApi();
             _ = app.MapScalarApiReference();
         }
         return app;
