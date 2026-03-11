@@ -80,19 +80,18 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
         };
     }
 
-    /// <summary>
-    /// Configures the HybridCache mock to return <paramref name="response"/>
-    /// directly (simulating a cache hit) without invoking the factory.
-    /// </summary>
+    // HybridCache.GetOrCreateAsync<T> (no state) is a non-virtual wrapper that calls
+    // the abstract GetOrCreateAsync<TState, T> with TState = Func<CancellationToken, ValueTask<T>>.
+    // Moq can only intercept the abstract overload, so we match TState explicitly.
     private void SetupCacheHit(GetBjjEventPaginatedResponse response)
     {
         _cacheMock
-            .Setup(h => h.GetOrCreateAsync<object, GetBjjEventPaginatedResponse>(
+            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
                 It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<Func<object, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
                 It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IReadOnlyCollection<string>?>(),
+                It.IsAny<IEnumerable<string>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(response));
     }
@@ -163,17 +162,18 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
         var expected = BuildCachedResponse(1);
 
         _cacheMock
-            .Setup(h => h.GetOrCreateAsync<object, GetBjjEventPaginatedResponse>(
+            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
                 It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<Func<object, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
                 It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IReadOnlyCollection<string>?>(),
+                It.IsAny<IEnumerable<string>?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, object,
-                Func<object, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
+            .Callback<string,
+                Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
+                Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
                 HybridCacheEntryOptions?,
-                IReadOnlyCollection<string>?,
+                IEnumerable<string>?,
                 CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
 
@@ -194,17 +194,18 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
         var expected = BuildCachedResponse(1);
 
         _cacheMock
-            .Setup(h => h.GetOrCreateAsync<object, GetBjjEventPaginatedResponse>(
+            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
                 It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<Func<object, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
                 It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IReadOnlyCollection<string>?>(),
+                It.IsAny<IEnumerable<string>?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, object,
-                Func<object, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
+            .Callback<string,
+                Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
+                Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
                 HybridCacheEntryOptions?,
-                IReadOnlyCollection<string>?,
+                IEnumerable<string>?,
                 CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
 

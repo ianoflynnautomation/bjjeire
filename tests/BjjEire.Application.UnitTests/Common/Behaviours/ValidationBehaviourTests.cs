@@ -13,8 +13,8 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Common.Behaviours;
 
-internal sealed record TestRequest(string? Value) : IRequest<TestResponse>;
-internal sealed record TestResponse(bool Success);
+public sealed record TestRequest(string? Value) : IRequest<TestResponse>;
+public sealed record TestResponse(bool Success);
 
 public sealed class ValidationBehaviourTests
 {

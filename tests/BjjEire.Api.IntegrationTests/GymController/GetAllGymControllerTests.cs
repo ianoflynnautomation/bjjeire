@@ -18,7 +18,7 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 
 [Trait("Category", "Sequential")]
 [Trait("Category", "Gym")]
-[Trait("Category", "Test")]
+[Trait("Category", "Integration")]
 public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
     : SequentialTestBase(fixture, output)
 {
