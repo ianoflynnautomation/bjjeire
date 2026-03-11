@@ -1,7 +1,7 @@
 parameters:
   - name: dotnetVersion
     type: string
-    default: '9.x'
+    default: '10.x'
   - name: projectPath
     type: string
     default: ''

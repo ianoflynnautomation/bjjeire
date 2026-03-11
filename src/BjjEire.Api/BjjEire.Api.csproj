@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <Nullable>enable</Nullable>
@@ -27,9 +27,7 @@
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
-    <PackageReference Include="Microsoft.Net.Http.Headers" />
-    <PackageReference Include="FluentValidation.AspNetCore" />
+<PackageReference Include="FluentValidation.AspNetCore" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.AspNetCore" />

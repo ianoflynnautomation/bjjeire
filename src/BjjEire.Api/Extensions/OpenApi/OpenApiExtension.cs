@@ -25,7 +25,7 @@ public static class OpenApiExtensions
             {
                 document.Info ??= new OpenApiInfo { Title = "BjjEire API", Version = ApiGroupNameV1, Description = "API for BjjEire services." };
                 document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes ??= new Dictionary<string, OpenApiSecurityScheme>(StringComparer.OrdinalIgnoreCase);
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>(StringComparer.OrdinalIgnoreCase);
 
                 if (!document.Components.SecuritySchemes.ContainsKey(BearerAuthSchemeId))
                 {
