@@ -3,7 +3,8 @@ const js = require('@eslint/js')
 const tseslint = require('typescript-eslint')
 const reactPlugin = require('eslint-plugin-react')
 const reactHooksPlugin = require('eslint-plugin-react-hooks')
-const reactRefreshPlugin = require('eslint-plugin-react-refresh')
+const _reactRefreshPlugin = require('eslint-plugin-react-refresh')
+const reactRefreshPlugin = _reactRefreshPlugin.default ?? _reactRefreshPlugin
 const globals = require('globals')
 
 module.exports = tseslint.config(
