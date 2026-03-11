@@ -19,7 +19,7 @@ public static class GymTestDataFactory
         var faker = new Faker();
         return new GymDto
         {
-            Id = faker.Random.Hexadecimal(24, "").ToLower(),
+            Id = faker.Random.Hexadecimal(24, "").ToLowerInvariant(),
             Name = "Valid Gym Name",
             Description = "Valid gym description, not too long.",
             Status = GymStatus.Active,
