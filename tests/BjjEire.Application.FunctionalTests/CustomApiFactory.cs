@@ -30,8 +30,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<CustomApiFactory> _fixtureLogger;
 
-    private readonly MongoDbContainer _dbContainer = new MongoDbBuilder()
-        .WithImage(MongoImage)
+    private readonly MongoDbContainer _dbContainer = new MongoDbBuilder(MongoImage)
         .WithUsername(MongoUsername)
         .WithPassword(MongoPassword)
         .Build();

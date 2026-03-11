@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  DOTNET_VERSION: "9.x"
+  DOTNET_VERSION: "10.x"
   NODE_VERSION: "24.x"
   SOLUTION_PATH: "BjjEire.sln"
   REACT_APP_PATH: "src/bjjeire-app"

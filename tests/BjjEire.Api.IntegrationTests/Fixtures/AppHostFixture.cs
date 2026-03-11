@@ -1,3 +1,5 @@
+extern alias AppHost;
+
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
@@ -24,7 +26,7 @@ public sealed class AppHostFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var appHost = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.BjjEire_Aspire_AppHost>();
+            .CreateAsync<AppHost::Projects.BjjEire_Aspire_AppHost>();
 
         // Session lifetime: containers always start fresh so Running state events fire correctly.
         appHost.Configuration["Testing:UseSessionLifetime"] = "true";
