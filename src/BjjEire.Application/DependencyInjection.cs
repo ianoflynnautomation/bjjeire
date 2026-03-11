@@ -23,7 +23,7 @@ public static class DependencyInjection
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        _ = builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        _ = builder.Services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));
         _ = builder.Services.AddScoped<IUriService, UriService>();
 
         _ = builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

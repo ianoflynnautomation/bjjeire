@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BjjEire.Api\BjjEire.Api.csproj" />
-    <ProjectReference Include="..\..\src\BjjEire.Aspire.AppHost\BjjEire.Aspire.AppHost.csproj" IsAspireHost="true" />
+    <ProjectReference Include="..\..\src\BjjEire.Aspire.AppHost\BjjEire.Aspire.AppHost.csproj" IsAspireHost="true" Aliases="AppHost" />
   </ItemGroup>
 
 </Project>
