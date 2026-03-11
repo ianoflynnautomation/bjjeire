@@ -16,6 +16,7 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 
 [Trait("Category", "Sequential")]
 [Trait("Category", "Gym")]
+[Trait("Category", "Integration")]
 public class GetGymControllerRateLimitTests(ITestOutputHelper output)
 : RateLimitSequentialIntegrationTestBase(output)
 {

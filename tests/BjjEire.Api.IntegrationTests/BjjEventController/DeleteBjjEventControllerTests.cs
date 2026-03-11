@@ -17,6 +17,7 @@ namespace BjjEire.Api.IntegrationTests.BjjEventController;
 
 [Trait("Category", "Parallel")]
 [Trait("Category", "BjjEvent")]
+[Trait("Category", "Integration")]
 public class DeletejjEventControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
     : ParallelTestBase(fixture, output)
 {

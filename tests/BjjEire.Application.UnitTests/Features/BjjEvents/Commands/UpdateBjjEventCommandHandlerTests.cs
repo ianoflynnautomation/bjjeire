@@ -68,7 +68,7 @@ public sealed class UpdateBjjEventCommandHandlerTests
 
         _serviceMock
             .Setup(s => s.GetByIdAsync(ObjectIds.Valid1))
-            .Returns(Task.FromResult(default(BjjEvent)));
+            .Returns(Task.FromResult<BjjEvent>(null!));
 
         // Act & Assert
         var ex = await Should.ThrowAsync<NotFoundException>(
