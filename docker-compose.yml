@@ -40,10 +40,9 @@ services:
       - AzureAd__TenantId=${AZURE_AD_TENANT_ID}
       - AzureAd__ClientId=${AZURE_AD_CLIENT_ID}
       - AzureAd__Audience=${AZURE_AD_AUDIENCE}
-      - Serilog__WriteTo__1__Args__endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT}
       - Serilog__Properties__Application=${OTEL_SERVICE_NAME}
       - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
-      - OTEL_RESOURCE_ATTRIBUTES__service.name=${OTEL_SERVICE_NAME}
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME}
     volumes:
       - ./logs:/app/logs
       - ./certs:/https:ro
@@ -85,7 +84,7 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}

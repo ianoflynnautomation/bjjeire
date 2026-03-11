@@ -26,15 +26,16 @@ public sealed class AppHostFixture : IAsyncLifetime
         var appHost = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.BjjEire_Aspire_AppHost>();
 
+        // Session lifetime: containers always start fresh so Running state events fire correctly.
+        appHost.Configuration["Testing:UseSessionLifetime"] = "true";
+        // Skip the frontend — smoke tests only need API + MongoDB.
+        appHost.Configuration["Testing:SkipFrontend"] = "true";
+
         _app = await appHost.BuildAsync();
 
         var notifications = _app.Services.GetRequiredService<ResourceNotificationService>();
 
         await _app.StartAsync();
-
-        await notifications
-            .WaitForResourceAsync("mongo", KnownResourceStates.Running)
-            .WaitAsync(StartupTimeout);
 
         await notifications
             .WaitForResourceAsync("api", KnownResourceStates.Running)
