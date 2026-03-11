@@ -42,7 +42,10 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(
               aria-hidden="true"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent" aria-hidden="true" />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent"
+            aria-hidden="true"
+          />
         </div>
 
         <div className="flex flex-col gap-1.5 p-3 pb-2">
@@ -66,7 +69,10 @@ export const EventHeader: React.FC<EventHeaderProps> = memo(
             )}
           </div>
           <div className="flex items-center text-slate-400">
-            <MapPinIcon className="mr-1 h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+            <MapPinIcon
+              className="mr-1 h-3.5 w-3.5 flex-shrink-0"
+              aria-hidden="true"
+            />
             <span
               data-testid={EventCardTestIds.COUNTY}
               className="text-xs"

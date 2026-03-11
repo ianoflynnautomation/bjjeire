@@ -34,12 +34,8 @@ const AboutPage: React.FC = () => {
               {uiContent.about.missionTitle}
             </h2>
             <div className="space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed">
-              <p>
-                {uiContent.about.missionParagraph1}
-              </p>
-              <p>
-                {uiContent.about.missionParagraph2}
-              </p>
+              <p>{uiContent.about.missionParagraph1}</p>
+              <p>{uiContent.about.missionParagraph2}</p>
             </div>
           </section>
 

@@ -8,11 +8,14 @@ const instance = Axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-instance.interceptors.request.use(async (config) => {
+instance.interceptors.request.use(async config => {
   const account = msalInstance.getAllAccounts()[0]
   if (account !== undefined) {
     try {
-      const result = await msalInstance.acquireTokenSilent({ ...loginRequest, account })
+      const result = await msalInstance.acquireTokenSilent({
+        ...loginRequest,
+        account,
+      })
       config.headers.set('Authorization', `Bearer ${result.accessToken}`)
     } catch {
       // Silent acquisition failed — proceed without auth (server returns 401 for protected routes)

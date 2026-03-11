@@ -5,7 +5,7 @@
         <AssemblyName>BjjEire.Application.UnitTests</AssemblyName>
     </PropertyGroup>
 
-     <ItemGroup>
+    <ItemGroup>
         <PackageReference Include="Shouldly" />
         <PackageReference Include="Bogus" />
         <PackageReference Include="Testcontainers" />

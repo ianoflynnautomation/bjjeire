@@ -1,7 +1,9 @@
 import { BjjEventType } from '@/types/event'
 import { BJJ_EVENT_TYPES } from '@/constants/eventTypes'
 
-const resolveEventType = (eventType: BjjEventType | string): BjjEventType | undefined =>
+const resolveEventType = (
+  eventType: BjjEventType | string
+): BjjEventType | undefined =>
   BJJ_EVENT_TYPES.find(
     t =>
       t.value === eventType ||

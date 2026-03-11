@@ -1,4 +1,3 @@
-
 export const EventsPageTestIds = {
   HEADER: 'events-page-header',
   HEADER_TITLE: 'events-page-header-title',
@@ -12,7 +11,7 @@ export const EventCardTestIds = {
   IMAGE: 'event-card-image',
   NAME: 'event-card-name',
   TYPE: 'event-card-type',
-   COUNTY: 'event-card-county',
+  COUNTY: 'event-card-county',
   ADDRESS: 'event-card-address',
   ADDRESS_LINK: 'event-card-address-link',
   ORGANISER: 'event-card-organiser',

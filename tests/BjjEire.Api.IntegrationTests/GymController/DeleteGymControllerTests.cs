@@ -15,6 +15,7 @@ namespace BjjEire.Api.IntegrationTests.GymController;
 
 [Trait("Category", "Parallel")]
 [Trait("Category", "Gym")]
+[Trait("Category", "Integration")]
 public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
     : ParallelTestBase(fixture, output)
 {

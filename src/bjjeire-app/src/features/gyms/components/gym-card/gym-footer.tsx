@@ -13,10 +13,7 @@ interface GymFooterProps {
 }
 
 export const GymFooter: React.FC<GymFooterProps> = memo(
-  ({
-    websiteUrl,
-    gymName,
-  }) => {
+  ({ websiteUrl, gymName }) => {
     const externalWebsiteUrl =
       websiteUrl && websiteUrl.trim() !== ''
         ? ensureExternalUrlScheme(websiteUrl)
@@ -37,7 +34,12 @@ export const GymFooter: React.FC<GymFooterProps> = memo(
       <div className="mt-auto border-t border-white/[0.08] pt-3">
         <CardActionButton
           href={externalWebsiteUrl}
-          icon={<ArrowTopRightOnSquareIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />}
+          icon={
+            <ArrowTopRightOnSquareIcon
+              className="-ml-0.5 h-5 w-5"
+              aria-hidden="true"
+            />
+          }
           aria-label={ariaLabel}
           title={title}
           data-testid={GymCardTestIds.WEBSITE_LINK}

@@ -70,7 +70,9 @@ describe('GymsPage Integration (API + Query + UI)', () => {
         const page = Number(params?.page ?? 1)
 
         if (county === 'Dublin') {
-          return Promise.resolve(createPaginatedResponse([MOCK_GYM_FULL], page, 1))
+          return Promise.resolve(
+            createPaginatedResponse([MOCK_GYM_FULL], page, 1)
+          )
         }
 
         return Promise.resolve(
@@ -82,7 +84,9 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     const user = userEvent.setup()
     renderWithQueryClient()
 
-    expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
     expect(await screen.findByText('Community BJJ Club')).toBeInTheDocument()
     expect(screen.getByText('Found 2 gyms.')).toBeInTheDocument()
     expect(mockedApiGet).toHaveBeenCalledWith(
@@ -97,7 +101,9 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       'Dublin'
     )
 
-    expect(await screen.findByRole('heading', { name: /bjj gyms in dublin/i })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /bjj gyms in dublin/i })
+    ).toBeInTheDocument()
     expect(screen.getByText('Found 1 gym.')).toBeInTheDocument()
     expect(screen.getByText('Elite Fighters Academy')).toBeInTheDocument()
     expect(screen.queryByText('Community BJJ Club')).not.toBeInTheDocument()
@@ -126,7 +132,9 @@ describe('GymsPage Integration (API + Query + UI)', () => {
         const page = Number(params?.page ?? 1)
 
         if (page === 2) {
-          return Promise.resolve(createPaginatedResponse([MOCK_GYM_MINIMAL], 2, 2))
+          return Promise.resolve(
+            createPaginatedResponse([MOCK_GYM_MINIMAL], 2, 2)
+          )
         }
 
         return Promise.resolve(createPaginatedResponse([MOCK_GYM_FULL], 1, 2))
@@ -136,8 +144,12 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     const user = userEvent.setup()
     renderWithQueryClient()
 
-    expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument()
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /next page/i })
+    ).toBeInTheDocument()
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /next page/i }))

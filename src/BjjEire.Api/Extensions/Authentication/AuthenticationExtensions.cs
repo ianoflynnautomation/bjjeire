@@ -18,7 +18,7 @@ public static class AuthenticationExtensions
         }
 
         _ = services.Configure<AzureAdOptions>(azureAdSection);
-        ValidateAzureAdOptions(azureAdSection.Get<AzureAdOptions>()!);
+        ValidateAzureAdOptions(azureAdSection.Get<AzureAdOptions>()!, configuration);
 
         _ = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(configuration, AzureAdOptions.SectionName, JwtBearerDefaults.AuthenticationScheme);
@@ -26,9 +26,16 @@ public static class AuthenticationExtensions
         return services;
     }
 
-    private static void ValidateAzureAdOptions(AzureAdOptions options)
+    private static void ValidateAzureAdOptions(AzureAdOptions options, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(options);
+
+        var isDevelopment = string.Equals(
+            configuration["ASPNETCORE_ENVIRONMENT"], "Development",
+            StringComparison.OrdinalIgnoreCase);
+
+        if (isDevelopment)
+            return; // Allow missing values in Development; Entra auth will fail per-request but ApiKey remains functional
 
         var errors = new List<string>();
         if (string.IsNullOrWhiteSpace(options.TenantId))

@@ -23,10 +23,10 @@ public static class GymTestDataFactory
             return fallback;
         }
         var sanitized = input.ToLower(CultureInfo.InvariantCulture)
-            .Replace(" ", "")
-            .Replace("'", "")
-            .Replace(".", "")
-            .Replace(",", "");
+            .Replace(" ", "", StringComparison.Ordinal)
+            .Replace("'", "", StringComparison.Ordinal)
+            .Replace(".", "", StringComparison.Ordinal)
+            .Replace(",", "", StringComparison.Ordinal);
         return string.IsNullOrWhiteSpace(sanitized) ? fallback : sanitized;
     }
 

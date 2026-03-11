@@ -27,7 +27,7 @@ public static class OpenTelemetryConfiguration
         var versionAttribute = entryAssembly?.GetCustomAttributes(false)
             .OfType<AssemblyInformationalVersionAttribute>()
             .FirstOrDefault();
-        var serviceName = options.ServiceName ?? entryAssemblyName?.Name ?? ServiceDefaultsConstants.DefaultServiceName;
+        var serviceName = options.ServiceName ?? entryAssemblyName?.Name ?? "unknown";
         var serviceVersion = versionAttribute?.InformationalVersion ?? entryAssemblyName?.Version?.ToString();
 
         var resourceBuilder = ResourceBuilder.CreateDefault()
@@ -40,7 +40,6 @@ public static class OpenTelemetryConfiguration
                 ["deployment.environment"] = builder.Environment.EnvironmentName
             });
 
-        // Configure logging
         _ = builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.IncludeFormattedMessage = true;
@@ -48,44 +47,43 @@ public static class OpenTelemetryConfiguration
             _ = logging.SetResourceBuilder(resourceBuilder);
         });
 
-        // Configure OpenTelemetry
-        _ = builder.Services.AddOpenTelemetry()
-            .ConfigureResource(r => r.AddService(serviceName))
+        var otelBuilder = builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics => metrics
                 .SetResourceBuilder(resourceBuilder)
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()
-                .AddMeter("gyms, bjjevents"))
+                .AddMeter("gyms")
+                .AddMeter("bjjevents"))
             .WithTracing(tracing => tracing
                 .SetResourceBuilder(resourceBuilder)
                 .AddAspNetCoreInstrumentation(o => o.RecordException = true)
                 .AddHttpClientInstrumentation()
-                .SetSampler(builder.Environment.IsDevelopment() ? new AlwaysOnSampler() : new TraceIdRatioBasedSampler(0.1)));
+                .SetSampler(builder.Environment.IsDevelopment()
+                    ? new AlwaysOnSampler()
+                    : new TraceIdRatioBasedSampler(0.1)));
 
-        // Add exporters
-        AddOpenTelemetryExporters(builder, options);
+        AddOpenTelemetryExporters(otelBuilder, builder, options);
 
         return builder;
     }
 
-    private static void AddOpenTelemetryExporters(IHostApplicationBuilder builder, ServiceDefaultsOptions options)
+    private static void AddOpenTelemetryExporters(
+        OpenTelemetryBuilder otelBuilder,
+        IHostApplicationBuilder builder,
+        ServiceDefaultsOptions options)
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration[ServiceDefaultsConstants.OtlpEndpointKey]);
-
-        if (useOtlpExporter)
+        if (!string.IsNullOrWhiteSpace(builder.Configuration[ServiceDefaultsConstants.OtlpEndpointKey]))
         {
-            _ = builder.Services.AddOpenTelemetry().UseOtlpExporter();
+            _ = otelBuilder.UseOtlpExporter();
         }
 
         if (options.EnablePrometheus)
         {
-            _ = builder.Services.AddOpenTelemetry()
-                .WithMetrics(metrics => metrics.AddPrometheusExporter(options =>
-                {
-                    options.DisableTotalNameSuffixForCounters = true;
-                    options.ScrapeEndpointPath = "/metrics";
-                }));
+            _ = otelBuilder.WithMetrics(metrics => metrics.AddPrometheusExporter(prometheusOptions =>
+            {
+                prometheusOptions.DisableTotalNameSuffixForCounters = true;
+            }));
         }
     }
 }

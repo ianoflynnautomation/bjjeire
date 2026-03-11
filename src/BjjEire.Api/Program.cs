@@ -3,11 +3,7 @@ using BjjEire.ServiceDefaults;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(options =>
-{
-    options.ServiceName = "BjjEire.Api";
-    options.EnablePrometheus = true;
-    options.AllowedSchemes = ["https"];
-});
+    builder.Configuration.GetSection("ServiceDefaults").Bind(options));
 builder.AddInfrastructureServices();
 builder.AddApplicationServices();
 builder.AddApiServices();

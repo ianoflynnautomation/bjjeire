@@ -4,7 +4,9 @@ import type { HateoasPagination, PaginatedResponse } from '@/types/common'
 
 interface PaginatedQueryParams<T, TParams extends { page?: number }> {
   queryKeyBase: string[]
-  fetchFn: (params: TParams & { page?: number }) => Promise<PaginatedResponse<T>>
+  fetchFn: (
+    params: TParams & { page?: number }
+  ) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
 
@@ -39,22 +41,19 @@ export const usePaginatedQuery = <T, TParams extends { page?: number }>({
     placeholderData: previousData => previousData,
   })
 
-  const handlePageChange = useCallback(
-    (url: string | null, page?: number) => {
-      let newPage = page
-      if (page !== undefined) {
-        setCurrentPage(page)
-        return
-      } else if (url) {
-        const pageMatch = url.match(/[?&]page=(\d+)/)
-        if (pageMatch) {
-          newPage = parseInt(pageMatch[1], 10)
-        }
+  const handlePageChange = useCallback((url: string | null, page?: number) => {
+    let newPage = page
+    if (page !== undefined) {
+      setCurrentPage(page)
+      return
+    } else if (url) {
+      const pageMatch = url.match(/[?&]page=(\d+)/)
+      if (pageMatch) {
+        newPage = parseInt(pageMatch[1], 10)
       }
-      setCurrentPage(newPage ?? 1)
-    },
-    []
-  )
+    }
+    setCurrentPage(newPage ?? 1)
+  }, [])
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
     setParams(prev => ({ ...prev, ...newFilters, page: 1 }))

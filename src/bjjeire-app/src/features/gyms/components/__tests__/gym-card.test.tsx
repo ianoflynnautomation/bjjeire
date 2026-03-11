@@ -11,7 +11,9 @@ import { GymsPageTestIds, GymCardTestIds } from '@/constants/gymDataTestIds'
 describe('GymCard Component', () => {
   describe('Positive Scenarios', () => {
     it('should render all sections with correct content for a full gym object', () => {
-      render(<GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />)
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
       const expectedAddress = `${MOCK_GYM_FULL.location.address} (${MOCK_GYM_FULL.location.venue})`
 
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
@@ -40,15 +42,26 @@ describe('GymCard Component', () => {
 
   describe('Negative Scenarios', () => {
     it('should render correctly with minimal gym data and hide optional sections', () => {
-      render(<GymCard gym={MOCK_GYM_MINIMAL} data-testid={GymsPageTestIds.LIST_ITEM} />)
+      render(
+        <GymCard
+          gym={MOCK_GYM_MINIMAL}
+          data-testid={GymsPageTestIds.LIST_ITEM}
+        />
+      )
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
 
       const websiteLink = within(card).getByRole('button', {
         name: /no website available for community bjj club/i,
       })
-      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(MOCK_GYM_MINIMAL.name)
-      expect(within(card).getByTestId(GymCardTestIds.STATUS_BADGE)).toHaveTextContent('Pending Approval')
-      expect(within(card).queryByTestId(GymCardTestIds.AFFILIATION)).not.toBeInTheDocument()
+      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(
+        MOCK_GYM_MINIMAL.name
+      )
+      expect(
+        within(card).getByTestId(GymCardTestIds.STATUS_BADGE)
+      ).toHaveTextContent('Pending Approval')
+      expect(
+        within(card).queryByTestId(GymCardTestIds.AFFILIATION)
+      ).not.toBeInTheDocument()
       expect(websiteLink).toBeDisabled()
       expect(websiteLink).toHaveTextContent('Website Unavailable')
     })
@@ -56,19 +69,31 @@ describe('GymCard Component', () => {
 
   describe('Edge Cases', () => {
     it('should disable the website link if the website URL is missing', () => {
-      render(<GymCard gym={MOCK_GYM_NO_WEBSITE} data-testid={GymsPageTestIds.LIST_ITEM} />)
+      render(
+        <GymCard
+          gym={MOCK_GYM_NO_WEBSITE}
+          data-testid={GymsPageTestIds.LIST_ITEM}
+        />
+      )
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
       const websiteLink = within(card).getByRole('button', {
         name: /no website available for elite fighters academy/i,
       })
-      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(MOCK_GYM_NO_WEBSITE.name)
+      expect(within(card).getByTestId(GymCardTestIds.NAME)).toHaveTextContent(
+        MOCK_GYM_NO_WEBSITE.name
+      )
 
       expect(websiteLink.tagName).toBe('BUTTON')
       expect(websiteLink).toBeDisabled()
     })
 
     it('should correctly display a non-active status like "Pending Approval"', () => {
-      render(<GymCard gym={MOCK_GYM_MINIMAL} data-testid={GymsPageTestIds.LIST_ITEM} />)
+      render(
+        <GymCard
+          gym={MOCK_GYM_MINIMAL}
+          data-testid={GymsPageTestIds.LIST_ITEM}
+        />
+      )
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
       const statusBadge = within(card).getByTestId(GymCardTestIds.STATUS_BADGE)
 
@@ -83,10 +108,17 @@ describe('GymCard Component', () => {
         id: 'gym-no-affiliation',
         affiliation: undefined,
       }
-      render(<GymCard gym={gymWithoutAffiliation} data-testid={GymsPageTestIds.LIST_ITEM} />)
+      render(
+        <GymCard
+          gym={gymWithoutAffiliation}
+          data-testid={GymsPageTestIds.LIST_ITEM}
+        />
+      )
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
 
-      expect(within(card).queryByTestId(GymCardTestIds.AFFILIATION)).not.toBeInTheDocument()
+      expect(
+        within(card).queryByTestId(GymCardTestIds.AFFILIATION)
+      ).not.toBeInTheDocument()
       expect(within(card).getByTestId(GymCardTestIds.NAME)).toBeInTheDocument()
     })
   })

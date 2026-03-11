@@ -30,7 +30,10 @@ const PageViewTracker = (): null => {
 function App(): React.JSX.Element {
   useEffect(() => {
     if (import.meta.env.PROD) {
-      initGA((import.meta.env.VITE_APP_GA_MEASUREMENT_ID as string | undefined) ?? 'G-XXXXXXXXXX')
+      initGA(
+        (import.meta.env.VITE_APP_GA_MEASUREMENT_ID as string | undefined) ??
+          'G-XXXXXXXXXX'
+      )
     }
   }, [])
 
@@ -43,7 +46,11 @@ function App(): React.JSX.Element {
           <Suspense
             fallback={
               <div className="flex min-h-[60vh] items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/20 p-8">
-                <LoadingSpinner size="lg" color="text-emerald-300" text="Loading page..." />
+                <LoadingSpinner
+                  size="lg"
+                  color="text-emerald-300"
+                  text="Loading page..."
+                />
               </div>
             }
           >
@@ -55,7 +62,10 @@ function App(): React.JSX.Element {
               <Route path={paths.events.path} element={<EventsPage />} />
               <Route path={paths.gyms.path} element={<GymsPage />} />
               <Route path={paths.about.path} element={<AboutPage />} />
-              <Route path="*" element={<Navigate to={paths.events.path} replace />} />
+              <Route
+                path="*"
+                element={<Navigate to={paths.events.path} replace />}
+              />
             </Routes>
           </Suspense>
         </main>

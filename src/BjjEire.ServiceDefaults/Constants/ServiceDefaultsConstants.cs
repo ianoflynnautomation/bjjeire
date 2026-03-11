@@ -10,6 +10,4 @@ public static class ServiceDefaultsConstants
     public const string LivenessTag = "live";
 
     public const string OtlpEndpointKey = "OTEL_EXPORTER_OTLP_ENDPOINT";
-
-    public const string DefaultServiceName = "BjjEire.Api";
 }
