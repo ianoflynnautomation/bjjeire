@@ -11,7 +11,11 @@ import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 
 const navItems = [
-  { to: paths.events.getHref(), label: paths.events.label, id: 'events' as const },
+  {
+    to: paths.events.getHref(),
+    label: paths.events.label,
+    id: 'events' as const,
+  },
   { to: paths.gyms.getHref(), label: paths.gyms.label, id: 'gyms' as const },
   { to: paths.about.getHref(), label: paths.about.label, id: 'about' as const },
 ]
@@ -20,8 +24,7 @@ const Navigation = (): React.JSX.Element => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const activeClassName =
-    'border-b-2 border-emerald-500 text-emerald-400'
+  const activeClassName = 'border-b-2 border-emerald-500 text-emerald-400'
   const inactiveClassName =
     'border-b-2 border-transparent text-slate-400 hover:border-emerald-500/50 hover:text-emerald-300'
 
@@ -81,7 +84,9 @@ const Navigation = (): React.JSX.Element => {
                   aria-controls="mobile-menu-panel"
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}
                 >
-                  <span className="sr-only">{uiContent.navigation.openMobileMenuLabel}</span>
+                  <span className="sr-only">
+                    {uiContent.navigation.openMobileMenuLabel}
+                  </span>
                   <Bars3Icon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>

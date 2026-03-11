@@ -41,3 +41,8 @@ steps:
       npx eslint src --max-warnings 0
     displayName: 'ESLint Check'
     workingDirectory: '${{ parameters.workingDirectory }}'
+
+  - script: |
+      npx prettier --check src/
+    displayName: 'Prettier Format Check'
+    workingDirectory: '${{ parameters.workingDirectory }}'

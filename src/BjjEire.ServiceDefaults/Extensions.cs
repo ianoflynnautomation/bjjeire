@@ -19,9 +19,9 @@ public static class Extensions
         var defaultsOptions = new ServiceDefaultsOptions();
         options?.Invoke(defaultsOptions);
 
-        _ = OpenTelemetryConfiguration.ConfigureOpenTelemetry(builder, defaultsOptions);
-        _ = HealthCheckConfiguration.AddDefaultHealthChecks(builder);
-        ServiceDiscoveryConfiguration.ConfigureServiceDiscovery(builder);
+        _ = builder.ConfigureOpenTelemetry(defaultsOptions);
+        _ = builder.AddDefaultHealthChecks();
+        builder.ConfigureServiceDiscovery(defaultsOptions);
 
         return builder;
     }

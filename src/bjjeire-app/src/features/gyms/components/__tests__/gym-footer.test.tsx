@@ -16,7 +16,9 @@ describe('GymFooter Component', () => {
     ])(
       'should render a disabled button when websiteUrl is $case',
       ({ websiteUrl }) => {
-        const { getByRole } = render(<GymFooter {...defaultProps} websiteUrl={websiteUrl} />)
+        const { getByRole } = render(
+          <GymFooter {...defaultProps} websiteUrl={websiteUrl} />
+        )
         const expectedAriaLabel = `No website available for ${defaultProps.gymName}`
         const button = getByRole('button', { name: expectedAriaLabel })
 
@@ -32,7 +34,9 @@ describe('GymFooter Component', () => {
   describe('When Website is Available', () => {
     it('should render an active link with all correct attributes', () => {
       const website = 'testgym.com'
-      const { getByRole } = render(<GymFooter {...defaultProps} websiteUrl={website} />)
+      const { getByRole } = render(
+        <GymFooter {...defaultProps} websiteUrl={website} />
+      )
 
       const expectedAriaLabel = `Visit website for ${defaultProps.gymName}`
       const link = getByRole('link', { name: expectedAriaLabel })

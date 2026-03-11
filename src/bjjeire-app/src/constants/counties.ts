@@ -27,8 +27,9 @@ export enum County {
   Monaghan = 'Monaghan',
 }
 
-export const COUNTIES: { value: County; label: string }[] = Object.values(County).map((city) => ({
+export const COUNTIES: { value: County; label: string }[] = Object.values(
+  County
+).map(city => ({
   value: city,
   label: city,
-}));
-
+}))

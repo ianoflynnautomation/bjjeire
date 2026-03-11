@@ -1,7 +1,10 @@
 import React, { memo } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
-import { EventsPageTestIds, EventCardTestIds } from '@/constants/eventDataTestIds'
+import {
+  EventsPageTestIds,
+  EventCardTestIds,
+} from '@/constants/eventDataTestIds'
 import { Card, CardContent } from '@/components/ui/card/card'
 
 interface EventCardProps {

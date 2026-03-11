@@ -32,3 +32,8 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: npx eslint src --max-warnings 0
+
+    - name: Prettier Format Check
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx prettier --check src/

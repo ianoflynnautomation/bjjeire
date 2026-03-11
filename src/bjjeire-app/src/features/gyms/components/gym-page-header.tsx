@@ -31,9 +31,18 @@ export const GymsPageHeader: React.FC<GymsPageHeaderProps> = memo(
         data-testid={baseTestId}
       >
         {/* Subtle Irish tricolor top accent */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500 via-white/30 to-orange-500" aria-hidden="true" />
-        <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-teal-500/10 blur-2xl" aria-hidden="true" />
-        <div className="absolute -bottom-8 left-10 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500 via-white/30 to-orange-500"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-teal-500/10 blur-2xl"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-8 left-10 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl"
+          aria-hidden="true"
+        />
         <div className="relative">
           <h1
             className="text-3xl font-black tracking-tight text-white sm:text-4xl"

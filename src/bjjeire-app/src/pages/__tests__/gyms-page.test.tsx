@@ -35,9 +35,15 @@ vi.mock('@/components/ui/filters/select-filter', () => ({
 vi.mock('@/components/ui/state/content-renderer-state', () => ({
   ContentRenderer: vi.fn(
     ({ isLoading, fetchError, data, renderDataComponent }) => {
-      if (isLoading) {return <div data-testid="mock-content-loading" />}
-      if (fetchError) {return <div data-testid="mock-content-error" />}
-      if (data && data.length > 0) {return renderDataComponent(data)}
+      if (isLoading) {
+        return <div data-testid="mock-content-loading" />
+      }
+      if (fetchError) {
+        return <div data-testid="mock-content-error" />
+      }
+      if (data && data.length > 0) {
+        return renderDataComponent(data)
+      }
       return <div data-testid="mock-content-empty" />
     }
   ),
@@ -110,7 +116,9 @@ describe('GymsPage Component', () => {
       } as never)
       render(<GymsPage />)
 
-      expect(screen.getByTestId('mock-header-county')).toHaveTextContent('All Counties')
+      expect(screen.getByTestId('mock-header-county')).toHaveTextContent(
+        'All Counties'
+      )
       expect(screen.getByTestId('mock-header-total')).toHaveTextContent(
         mockPagination.totalItems.toString()
       )
@@ -137,7 +145,9 @@ describe('GymsPage Component', () => {
     it('should call updateFilters when the county filter is changed', async () => {
       const user = userEvent.setup()
       render(<GymsPage />)
-      const countyFilter = screen.getByRole('combobox', { name: /select county/i })
+      const countyFilter = screen.getByRole('combobox', {
+        name: /select county/i,
+      })
 
       await user.selectOptions(countyFilter, 'dublin')
 

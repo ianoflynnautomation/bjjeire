@@ -1,17 +1,13 @@
 import React from 'react'
-import type {
-  KnownPlatform} from './social-media.config';
-import {
-  platformConfig,
-  isKnownPlatform,
-} from './social-media.config'
+import type { KnownPlatform } from './social-media.config'
+import { platformConfig, isKnownPlatform } from './social-media.config'
 import type { SocialMediaDto } from '@/types/common'
 import { SocialMediaLinksTestIds } from '@/constants/commonDataTestIds'
 
 interface SocialLinkProps {
   platform: KnownPlatform
   url: string
-  'data-testid'?: string 
+  'data-testid'?: string
 }
 
 const SocialLink: React.FC<SocialLinkProps> = ({
@@ -55,7 +51,6 @@ const SocialLink: React.FC<SocialLinkProps> = ({
 interface SocialMediaLinksProps {
   socialMedia?: SocialMediaDto
   'data-testid'?: string
-  
 }
 
 export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
@@ -85,8 +80,7 @@ export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   }
 
   const actualRootDataTestId =
-    rootDataTestIdFromParent ||
-    SocialMediaLinksTestIds.ROOT
+    rootDataTestIdFromParent || SocialMediaLinksTestIds.ROOT
 
   return (
     <div

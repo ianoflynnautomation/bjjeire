@@ -11,17 +11,16 @@ export const queryConfig = {
 type AsyncFn = (...args: readonly unknown[]) => Promise<unknown>
 type GenericFn = (...args: readonly unknown[]) => unknown
 
-export type ApiFnReturnType<FnType extends AsyncFn> =
-  Awaited<ReturnType<FnType>>
+export type ApiFnReturnType<FnType extends AsyncFn> = Awaited<
+  ReturnType<FnType>
+>
 
 export type QueryConfig<T extends GenericFn> = Omit<
   ReturnType<T>,
   'queryKey' | 'queryFn'
 >
 
-export type MutationConfig<
-  MutationFnType extends AsyncFn,
-> = UseMutationOptions<
+export type MutationConfig<MutationFnType extends AsyncFn> = UseMutationOptions<
   ApiFnReturnType<MutationFnType>,
   Error,
   Parameters<MutationFnType>[0]

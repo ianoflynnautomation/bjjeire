@@ -6,7 +6,7 @@ namespace BjjEire.ServiceDefaults.Configuration;
 
 public static class ServiceDiscoveryConfiguration
 {
-    public static void ConfigureServiceDiscovery(IHostApplicationBuilder builder, ServiceDefaultsOptions? options = null)
+    public static void ConfigureServiceDiscovery(this IHostApplicationBuilder builder, ServiceDefaultsOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
 

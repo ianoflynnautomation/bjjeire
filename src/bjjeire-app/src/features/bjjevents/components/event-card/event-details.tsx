@@ -4,7 +4,7 @@ import {
   CurrencyDollarIcon,
   UserCircleIcon,
 } from '@heroicons/react/20/solid'
-import type { BjjEventDto, OrganizerDto } from '@/types/event';
+import type { BjjEventDto, OrganizerDto } from '@/types/event'
 import { PricingType } from '@/types/event'
 import { calculateEventPrice } from '@/utils/priceCalculator'
 import type { CalculatedPrice } from '@/utils/priceCalculator'
@@ -49,7 +49,9 @@ const formatPricingDisplay = (
 const formatOrganiserDisplay = (
   organiser?: OrganizerDto
 ): string | undefined => {
-  if (!organiser || (!organiser.name && !organiser.website)) {return undefined}
+  if (!organiser || (!organiser.name && !organiser.website)) {
+    return undefined
+  }
   const url = organiser.website
   if (url) {
     try {
@@ -109,7 +111,6 @@ export const EventDetails: React.FC<EventDetailsProps> = memo(
             ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
             // DetailItem's root test ID
             data-testid={EventCardTestIds.ADDRESS}
-
           >
             <a
               href={getGoogleMapsUrl(location)}

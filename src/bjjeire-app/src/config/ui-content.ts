@@ -78,8 +78,7 @@ export const uiContent = {
       'Make contribution and correction workflows straightforward.',
     ],
     contactTitle: 'Contact',
-    contactPrefix:
-      'For updates, corrections, or partnership requests, email',
+    contactPrefix: 'For updates, corrections, or partnership requests, email',
   },
   supportModal: {
     title: 'Support BJJ Eire',
@@ -94,4 +93,3 @@ export const uiContent = {
       'Please double-check the address before sending any funds. We cannot recover funds sent to incorrect addresses.',
   },
 } as const
-
