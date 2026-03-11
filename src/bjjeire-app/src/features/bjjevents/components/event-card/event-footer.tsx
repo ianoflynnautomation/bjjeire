@@ -13,10 +13,7 @@ interface EventFooterProps {
 }
 
 export const EventFooter: React.FC<EventFooterProps> = memo(
-  ({
-    eventUrl,
-    eventName,
-  }) => {
+  ({ eventUrl, eventName }) => {
     const externalEventUrl = eventUrl
       ? ensureExternalUrlScheme(eventUrl)
       : undefined

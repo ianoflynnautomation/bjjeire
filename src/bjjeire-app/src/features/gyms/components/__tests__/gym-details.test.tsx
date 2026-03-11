@@ -32,6 +32,8 @@ describe('GymDetails', () => {
     expect(
       screen.queryByRole('link', { name: /affiliated with/i })
     ).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /view on/i })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: /view on/i })
+    ).not.toBeInTheDocument()
   })
 })

@@ -7,8 +7,16 @@ interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-export const Button: React.FC<ButtonProps> = ({ variant, size, className, ...props }) => (
-  <button className={cn(buttonVariants({ variant, size }), className)} {...props} />
+export const Button: React.FC<ButtonProps> = ({
+  variant,
+  size,
+  className,
+  ...props
+}) => (
+  <button
+    className={cn(buttonVariants({ variant, size }), className)}
+    {...props}
+  />
 )
 
 const cardActionVariants = cva(
@@ -18,7 +26,8 @@ const cardActionVariants = cva(
       variant: {
         primary:
           'bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 hover:scale-[1.02] hover:from-emerald-700 hover:to-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 focus-visible:ring-offset-2',
-        unavailable: 'cursor-not-allowed bg-slate-300 text-slate-100 opacity-70',
+        unavailable:
+          'cursor-not-allowed bg-slate-300 text-slate-100 opacity-70',
       },
     },
     defaultVariants: { variant: 'primary' },

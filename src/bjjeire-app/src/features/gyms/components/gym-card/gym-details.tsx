@@ -1,5 +1,8 @@
 import { memo } from 'react'
-import { MapPinIcon, ClipboardDocumentListIcon } from '@heroicons/react/20/solid'
+import {
+  MapPinIcon,
+  ClipboardDocumentListIcon,
+} from '@heroicons/react/20/solid'
 import type { GymDto } from '@/types/gyms'
 import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 import { DetailItem } from '@/components/ui/icons/detail-item'
@@ -21,22 +24,17 @@ export const GymDetails = memo(function GymDetails({
   gym,
   'data-testid': rootDataTestId,
 }: GymDetailsProps) {
-  const {
-    location,
-    timetableUrl,
-    socialMedia,
-    offeredClasses,
-    trialOffer,
-  } = gym
+  const { location, timetableUrl, socialMedia, offeredClasses, trialOffer } =
+    gym
 
   const headingId = `gym-details-heading-${gym.id ?? gym.name.replace(/\s+/g, '-')}`
 
-    return (
-      <section
-        className="space-y-2 text-sm"
-        aria-labelledby={headingId}
-        data-testid={rootDataTestId || DetailItemTestIds.ROOT}
-      >
+  return (
+    <section
+      className="space-y-2 text-sm"
+      aria-labelledby={headingId}
+      data-testid={rootDataTestId || DetailItemTestIds.ROOT}
+    >
       <h2 id={headingId} className="sr-only">
         Details for {gym.name || 'this gym'}
       </h2>

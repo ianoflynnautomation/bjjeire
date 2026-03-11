@@ -16,7 +16,7 @@ const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   pagination,
   onPageChange,
-  'data-testid': dataTestIdFromProp
+  'data-testid': dataTestIdFromProp,
 }) => {
   const {
     totalPages,
@@ -28,10 +28,11 @@ const Pagination: React.FC<PaginationProps> = ({
     pageSize,
   } = pagination
 
-  if (totalPages <= 1) {return null}
+  if (totalPages <= 1) {
+    return null
+  }
 
-  const rootTestId =
-    dataTestIdFromProp || PaginationTestIds.ROOT
+  const rootTestId = dataTestIdFromProp || PaginationTestIds.ROOT
 
   const itemsStart =
     totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null

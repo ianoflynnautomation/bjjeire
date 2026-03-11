@@ -23,14 +23,11 @@ describe('GymHeader Component', () => {
         })
       ).toBeInTheDocument()
       expect(
-        screen.getByText(
-          `${defaultProps.county} County`,
-          { selector: 'span' }
-        )
+        screen.getByText(`${defaultProps.county} County`, { selector: 'span' })
       ).toBeInTheDocument()
-      expect(screen.getByText(
-        getGymStatusLabel(defaultProps.status)
-      )).toBeInTheDocument()
+      expect(
+        screen.getByText(getGymStatusLabel(defaultProps.status))
+      ).toBeInTheDocument()
     })
   })
 
@@ -62,9 +59,11 @@ describe('GymHeader Component', () => {
           level: 3,
         })
       ).toBeInTheDocument()
-      expect(screen.getByRole('img', {
-        name: 'Exterior or interior of Unnamed Gym',
-      })).toBeInTheDocument()
+      expect(
+        screen.getByRole('img', {
+          name: 'Exterior or interior of Unnamed Gym',
+        })
+      ).toBeInTheDocument()
     })
   })
 })

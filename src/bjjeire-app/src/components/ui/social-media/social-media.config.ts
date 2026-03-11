@@ -1,4 +1,4 @@
-import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si';
+import { SiInstagram, SiFacebook, SiX, SiYoutube } from 'react-icons/si'
 
 export const platformConfig = {
   instagram: {
@@ -21,10 +21,10 @@ export const platformConfig = {
     hoverTextColorClass: 'hover:text-[#FF0000]',
     label: 'YouTube',
   },
-} as const;
+} as const
 
-export type KnownPlatform = keyof typeof platformConfig;
+export type KnownPlatform = keyof typeof platformConfig
 
 export function isKnownPlatform(platform: string): platform is KnownPlatform {
-  return platform in platformConfig;
+  return platform in platformConfig
 }

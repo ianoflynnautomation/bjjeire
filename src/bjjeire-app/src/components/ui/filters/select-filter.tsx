@@ -30,7 +30,9 @@ function SelectFilter<T extends string | number>({
 }: SelectFilterProps<T>): React.JSX.Element {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const selectedValue = event.target.value
-    onChange(selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined)
+    onChange(
+      selectedValue === 'all' ? 'all' : (selectedValue as T) || undefined
+    )
   }
 
   const iconPadding = Icon ? 'pl-10' : 'pl-4'

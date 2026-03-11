@@ -7,7 +7,10 @@ import SelectFilter from '@/components/ui/filters/select-filter'
 import ButtonGroupFilter from '@/components/ui/filters/button-group-filter'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
-import { SelectFilterTestIds, ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
+import {
+  SelectFilterTestIds,
+  ButtonGroupFilterTestIds,
+} from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
 const { filters } = uiContent.events

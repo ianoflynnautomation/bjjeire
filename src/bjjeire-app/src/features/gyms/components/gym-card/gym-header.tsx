@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import type { GymStatus } from '@/types/gyms'
-import { Badge } from '@/components/ui/badge/badge';
+import { Badge } from '@/components/ui/badge/badge'
 import {
   getGymStatusLabel,
   getGymStatusColorScheme,
@@ -22,13 +22,7 @@ interface GymHeaderProps {
 }
 
 export const GymHeader: React.FC<GymHeaderProps> = memo(
-  ({
-    name,
-    county,
-    status,
-    imageUrl,
-    headingId,
-  }) => {
+  ({ name, county, status, imageUrl, headingId }) => {
     const statusLabel = getGymStatusLabel(status)
     const statusColorScheme = getGymStatusColorScheme(status)
     const displayName = name || gymCard.fallbackName
@@ -50,7 +44,10 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
               aria-hidden="true"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" aria-hidden="true" />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"
+            aria-hidden="true"
+          />
         </div>
         <div className="flex flex-col gap-1.5 p-3 pb-2">
           <div className="flex items-center justify-between gap-2">
@@ -72,8 +69,13 @@ export const GymHeader: React.FC<GymHeaderProps> = memo(
             className="flex items-center gap-1 text-xs text-slate-400"
             data-testid={GymCardTestIds.COUNTY}
           >
-            <MapPinIcon className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
-            <span>{county} {shared.countySuffix}</span>
+            <MapPinIcon
+              className="h-3.5 w-3.5 flex-shrink-0"
+              aria-hidden="true"
+            />
+            <span>
+              {county} {shared.countySuffix}
+            </span>
           </div>
         </div>
       </header>

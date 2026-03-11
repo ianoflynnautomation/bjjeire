@@ -6,12 +6,20 @@ import {
   MOCK_EVENT_MINIMAL,
   MOCK_EVENT_NO_URL,
 } from './mocks/bjjevent.mocks'
-import { EventsPageTestIds, EventCardTestIds } from '@/constants/eventDataTestIds'
+import {
+  EventsPageTestIds,
+  EventCardTestIds,
+} from '@/constants/eventDataTestIds'
 
 describe('EventCard Component', () => {
   describe('Positive Scenarios', () => {
     it('should render all sections with correct content for a full event object', () => {
-      render(<EventCard event={MOCK_EVENT_FULL} data-testid={EventsPageTestIds.LIST_ITEM} />)
+      render(
+        <EventCard
+          event={MOCK_EVENT_FULL}
+          data-testid={EventsPageTestIds.LIST_ITEM}
+        />
+      )
 
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
 
@@ -20,7 +28,9 @@ describe('EventCard Component', () => {
         level: 3,
       })
       const county = within(card).getByTestId(EventCardTestIds.COUNTY)
-      const addressLink = within(card).getByTestId(EventCardTestIds.ADDRESS_LINK)
+      const addressLink = within(card).getByTestId(
+        EventCardTestIds.ADDRESS_LINK
+      )
       const infoLink = within(card).getByRole('link', {
         name: /get more information about/i,
       })
@@ -34,7 +44,12 @@ describe('EventCard Component', () => {
 
   describe('Negative Scenarios', () => {
     it('should render a disabled button when the event has no URL', () => {
-      render(<EventCard event={MOCK_EVENT_NO_URL} data-testid={EventsPageTestIds.LIST_ITEM} />)
+      render(
+        <EventCard
+          event={MOCK_EVENT_NO_URL}
+          data-testid={EventsPageTestIds.LIST_ITEM}
+        />
+      )
 
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
       const button = within(card).getByRole('button', {
@@ -46,7 +61,12 @@ describe('EventCard Component', () => {
     })
 
     it('should render a disabled button when eventUrl is an empty string', () => {
-      render(<EventCard event={MOCK_EVENT_MINIMAL} data-testid={EventsPageTestIds.LIST_ITEM} />)
+      render(
+        <EventCard
+          event={MOCK_EVENT_MINIMAL}
+          data-testid={EventsPageTestIds.LIST_ITEM}
+        />
+      )
 
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
       const button = within(card).getByRole('button', {
@@ -61,7 +81,9 @@ describe('EventCard Component', () => {
     it('should use the default test ID when none is provided', () => {
       render(<EventCard event={MOCK_EVENT_FULL} />)
 
-      expect(screen.getByTestId(EventsPageTestIds.LIST_ITEM)).toBeInTheDocument()
+      expect(
+        screen.getByTestId(EventsPageTestIds.LIST_ITEM)
+      ).toBeInTheDocument()
     })
 
     it('should render with a custom data-testid', () => {

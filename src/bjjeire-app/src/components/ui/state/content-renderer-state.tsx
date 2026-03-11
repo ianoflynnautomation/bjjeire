@@ -64,7 +64,9 @@ export function ContentRenderer<T>({
     )
   }
 
-  if (isLoading) {return <LoadingState />}
+  if (isLoading) {
+    return <LoadingState />
+  }
 
   return null
 }

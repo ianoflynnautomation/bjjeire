@@ -33,7 +33,6 @@ export const getGymStatusColorScheme = (
   }
 }
 
-
 export const getClassCategoryLabel = (category: ClassCategory): string => {
   const labels: Record<ClassCategory, string> = {
     [ClassCategory.Uncategorized]: 'Uncategorized',
@@ -53,6 +52,6 @@ export const getClassCategoryLabel = (category: ClassCategory): string => {
     [ClassCategory.CompetitionTraining]: 'Competition Training',
     [ClassCategory.ProTraining]: 'Pro Training',
     [ClassCategory.Other]: 'Other',
-  };
-  return labels[category] || category.toString();
-};
+  }
+  return labels[category] || category.toString()
+}

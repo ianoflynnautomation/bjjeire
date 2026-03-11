@@ -1,9 +1,7 @@
 import type React from 'react'
 import { buttonVariants } from '@/lib/button-variants'
 import { cn } from '@/lib/utils'
-import {
-  ButtonGroupFilterTestIds
-} from '@/constants/commonDataTestIds'
+import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
 
 export interface ButtonOption<T> {
   value: T
@@ -38,11 +36,7 @@ const ButtonGroupFilter = <T extends string | number>({
       >
         {label}
       </legend>
-      <div
-        className="flex flex-wrap gap-2"
-        role="group"
-        aria-label={label}
-      >
+      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
         {options.map(option => (
           <button
             key={String(option.value)}

@@ -19,21 +19,16 @@ export const DetailItem: React.FC<DetailItemProps> = memo(
     className,
     iconClassName,
     ariaLabel,
-    'data-testid': rootDataTestId
+    'data-testid': rootDataTestId,
   }) => {
-    const actualRootDataTestId =
-      rootDataTestId || DetailItemTestIds.ROOT
+    const actualRootDataTestId = rootDataTestId || DetailItemTestIds.ROOT
 
     return (
       <div
         className={cn('flex items-start gap-x-2.5 text-slate-300', className)}
         data-testid={actualRootDataTestId}
       >
-        <IconWrapper
-          className={iconClassName}
-        >
-          {icon}
-        </IconWrapper>
+        <IconWrapper className={iconClassName}>{icon}</IconWrapper>
         <div
           className="flex-grow"
           {...(ariaLabel && { 'aria-label': ariaLabel })}

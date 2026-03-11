@@ -44,7 +44,9 @@ const GymsPage: React.FC = () => {
 
   const handleCountyChange = useCallback(
     (countyValue: string | undefined) => {
-      updateFilters({ county: countyValue } as Partial<GetGymsByCountyPaginationQuery>)
+      updateFilters({
+        county: countyValue,
+      } as Partial<GetGymsByCountyPaginationQuery>)
       scrollToTop()
     },
     [updateFilters, scrollToTop]
