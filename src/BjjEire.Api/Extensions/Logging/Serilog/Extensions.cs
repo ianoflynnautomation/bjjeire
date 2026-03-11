@@ -2,6 +2,7 @@ using Serilog;
 using Serilog.Debugging;
 using Serilog.Enrichers.Span;
 using Serilog.Events;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace BjjEire.Api.Extensions.Logging.Serilog;
 
@@ -16,7 +17,9 @@ public static class Extensions
             SelfLog.Enable(Console.Error);
         }
 
-        _ = builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
+        _ = builder.Host.UseSerilog((context, services, loggerConfiguration) =>
+        {
+            loggerConfiguration
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
@@ -25,8 +28,24 @@ public static class Extensions
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
                 .Enrich.WithSpan()
-                .Enrich.WithCorrelationId()
-        );
+                .Enrich.WithCorrelationId();
+
+            var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+            if (!string.IsNullOrWhiteSpace(otlpEndpoint))
+            {
+                loggerConfiguration.WriteTo.OpenTelemetry(options =>
+                {
+                    options.Endpoint = otlpEndpoint;
+                    options.Protocol = OtlpProtocol.HttpProtobuf;
+                    options.RestrictedToMinimumLevel = LogEventLevel.Information;
+                    options.ResourceAttributes = new Dictionary<string, object>
+                    {
+                        ["service.name"] = context.HostingEnvironment.ApplicationName,
+                        ["deployment.environment"] = context.HostingEnvironment.EnvironmentName
+                    };
+                });
+            }
+        });
 
         return builder;
     }

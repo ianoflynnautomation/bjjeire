@@ -1,5 +1,7 @@
 using BjjEire.Aspire.AppHost.Constants;
 
+using Microsoft.Extensions.Configuration;
+
 namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class MongoDbConfiguration
@@ -8,12 +10,16 @@ public static class MongoDbConfiguration
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var mongo = builder.AddMongoDB("mongo")
-            .WithLifetime(ContainerLifetime.Persistent)
-            .WithVolume(ServiceConstants.MongoDbVolume, "/data/db")
-            .WithHttpEndpoint(port: ServiceConstants.MongoDbPort, targetPort: 27017, name: "mongodb")
-            .WithEnvironment("MONGO_INITDB_ROOT_USERNAME", builder.Configuration["MONGODB_USER"] ?? "admin")
-            .WithEnvironment("MONGO_INITDB_ROOT_PASSWORD", builder.Configuration["MONGODB_PASSWORD"] ?? "password");
+        var lifetime = builder.Configuration.GetValue<bool>("Testing:UseSessionLifetime", false)
+            ? ContainerLifetime.Session
+            : ContainerLifetime.Persistent;
+
+        var mongoUser = builder.AddParameter("mongo-user");
+        var mongoPassword = builder.AddParameter("mongo-password", secret: true);
+
+        var mongo = builder.AddMongoDB("mongo", userName: mongoUser, password: mongoPassword)
+            .WithLifetime(lifetime)
+            .WithVolume(ServiceConstants.MongoDbVolume, "/data/db");
 
         return mongo.AddDatabase("Mongodb");
     }

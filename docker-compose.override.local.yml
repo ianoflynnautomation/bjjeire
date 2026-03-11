@@ -5,6 +5,7 @@ services:
       dockerfile: ./src/BjjEire.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
 
   frontend:
     build:
