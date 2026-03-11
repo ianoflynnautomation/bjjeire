@@ -9,7 +9,7 @@ var api = ApiConfiguration.AddApi(builder, mongo);
 
 if (!builder.Configuration.GetValue<bool>("Testing:SkipFrontend", false))
 {
-    FrontendConfiguration.AddFrontend(builder, api);
+    _ = FrontendConfiguration.AddFrontend(builder, api);
 }
 
 await builder.Build().RunAsync();

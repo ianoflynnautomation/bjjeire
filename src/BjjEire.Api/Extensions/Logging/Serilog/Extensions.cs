@@ -19,7 +19,7 @@ public static class Extensions
 
         _ = builder.Host.UseSerilog((context, services, loggerConfiguration) =>
         {
-            loggerConfiguration
+            _ = loggerConfiguration
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
@@ -33,7 +33,7 @@ public static class Extensions
             var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
             if (!string.IsNullOrWhiteSpace(otlpEndpoint))
             {
-                loggerConfiguration.WriteTo.OpenTelemetry(options =>
+                _ = loggerConfiguration.WriteTo.OpenTelemetry(options =>
                 {
                     options.Endpoint = otlpEndpoint;
                     options.Protocol = OtlpProtocol.HttpProtobuf;
