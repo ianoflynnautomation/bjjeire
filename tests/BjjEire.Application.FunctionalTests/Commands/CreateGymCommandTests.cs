@@ -15,6 +15,7 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Application.FunctionalTests.Commands;
 
+[Trait("Category", "Functional")]
 public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
 {
     [Fact]

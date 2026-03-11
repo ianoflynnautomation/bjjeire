@@ -13,8 +13,7 @@ public class MongoDbTestContainerFixture : DatabaseBaseFixture<MongoDbContainer>
     public MongoDbTestContainerFixture()
     {
 
-        Container = new MongoDbBuilder()
-            .WithImage("mongo:7.0")
+        Container = new MongoDbBuilder("mongo:7.0")
             .WithUsername("testUserMongo")
             .WithPassword("testPassMongo")
             .WithWaitStrategy(Wait.ForUnixContainer()
