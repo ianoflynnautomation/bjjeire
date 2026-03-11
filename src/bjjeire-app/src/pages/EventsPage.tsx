@@ -1,9 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import type { County } from '@/constants/counties'
-import type {
-  GetBjjEventsPaginationQuery,
-  BjjEventDto,
-} from '@/types/event'
+import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
 import type { BjjEventType } from '@/types/event'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
 import Pagination from '@/components/ui/grid/pagination'

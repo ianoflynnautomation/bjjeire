@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import LoadingSpinner from '@/components/ui/spinner/loading-spinner';
+import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 import { LoadingStateTestIds } from '@/constants/commonDataTestIds'
 
 interface LoadingStateProps {
@@ -9,10 +9,9 @@ interface LoadingStateProps {
 
 const LoadingState: React.FC<LoadingStateProps> = ({
   message = 'Loading data...',
-  'data-testid': dataTestIdFromProp
+  'data-testid': dataTestIdFromProp,
 }) => {
-  const rootTestId =
-    dataTestIdFromProp || LoadingStateTestIds.ROOT
+  const rootTestId = dataTestIdFromProp || LoadingStateTestIds.ROOT
 
   return (
     <div

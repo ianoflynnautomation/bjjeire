@@ -1,4 +1,7 @@
-import { PublicClientApplication, type Configuration } from '@azure/msal-browser'
+import {
+  PublicClientApplication,
+  type Configuration,
+} from '@azure/msal-browser'
 import { env } from '@/config/env'
 
 const msalConfig: Configuration = {

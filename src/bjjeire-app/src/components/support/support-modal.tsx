@@ -78,9 +78,10 @@ const SupportModal: React.FC<SupportModalProps> = memo(
           return
         }
 
-        const focusableElements = dialogContentRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )
+        const focusableElements =
+          dialogContentRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
 
         if (focusableElements.length === 0) {
           event.preventDefault()
@@ -154,15 +155,10 @@ const SupportModal: React.FC<SupportModalProps> = memo(
             </button>
           </header>
           <div className="space-y-6">
-            <p
-              className="text-slate-700"
-              id={descriptionId}
-            >
+            <p className="text-slate-700" id={descriptionId}>
               {uiContent.supportModal.description}
             </p>
-            <div
-              className="rounded-2xl bg-white/90 p-4 shadow-inner ring-1 ring-emerald-100/70"
-            >
+            <div className="rounded-2xl bg-white/90 p-4 shadow-inner ring-1 ring-emerald-100/70">
               <p className="mb-2 text-sm text-slate-600">
                 {uiContent.supportModal.addressLabel}
               </p>
@@ -177,9 +173,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                   onClick={copyToClipboard}
                   className={cn(
                     copyButtonBaseClasses,
-                    copied
-                      ? copyButtonCopiedClasses
-                      : copyButtonDefaultClasses
+                    copied ? copyButtonCopiedClasses : copyButtonDefaultClasses
                   )}
                   data-testid={SupportModalTestIds.COPY_BUTTON}
                 >
@@ -207,9 +201,7 @@ const SupportModal: React.FC<SupportModalProps> = memo(
                   aria-hidden="true"
                   data-testid={`${SupportModalTestIds.WARNING}-icon`}
                 />
-                <span>
-                  {uiContent.supportModal.warning}
-                </span>
+                <span>{uiContent.supportModal.warning}</span>
               </p>
             </div>
           </div>

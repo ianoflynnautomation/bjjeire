@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'react'
 import { Component } from 'react'
-import ErrorState from './../ui/state/error-state';
+import ErrorState from './../ui/state/error-state'
 
 interface PageErrorBoundaryProps {
   children: ReactNode

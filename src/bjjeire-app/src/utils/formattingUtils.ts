@@ -1,6 +1,8 @@
 export const ensureExternalUrlScheme = (url?: string): string | undefined => {
   const trimmedUrl = url?.trim()
-  if (!trimmedUrl) {return undefined}
+  if (!trimmedUrl) {
+    return undefined
+  }
 
   if (!/^https?:\/\//i.test(trimmedUrl)) {
     return `https://${trimmedUrl}`
@@ -9,10 +11,14 @@ export const ensureExternalUrlScheme = (url?: string): string | undefined => {
 }
 
 export const formatDisplayUrl = (url?: string): string | undefined => {
-  if (!url) {return undefined}
+  if (!url) {
+    return undefined
+  }
 
   const ensuredUrl = ensureExternalUrlScheme(url)
-  if (!ensuredUrl) {return undefined}
+  if (!ensuredUrl) {
+    return undefined
+  }
 
   try {
     const parsedUrl = new URL(ensuredUrl)

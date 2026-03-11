@@ -12,7 +12,9 @@ const queryClient = new QueryClient({
 })
 
 const root = document.getElementById('root')
-if (!root) { throw new Error('No root element found') }
+if (!root) {
+  throw new Error('No root element found')
+}
 
 const reactRoot = createRoot(root)
 
@@ -24,7 +26,7 @@ const render = (): void => {
           <App />
         </QueryClientProvider>
       </MsalProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
   )
 }
 

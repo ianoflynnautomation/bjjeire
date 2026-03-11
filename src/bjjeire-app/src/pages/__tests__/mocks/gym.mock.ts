@@ -1,11 +1,5 @@
-import type {
-  GymDto,
-  AffiliationDto,
-  TrialOfferDto} from '@/types/gyms';
-import {
-  GymStatus,
-  ClassCategory
-} from '@/types/gyms'
+import type { GymDto, AffiliationDto, TrialOfferDto } from '@/types/gyms'
+import { GymStatus, ClassCategory } from '@/types/gyms'
 import type {
   LocationDto,
   SocialMediaDto,

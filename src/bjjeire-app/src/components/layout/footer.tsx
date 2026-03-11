@@ -1,17 +1,17 @@
-import React, { memo } from 'react';
-import { Link } from 'react-router-dom';
-import { paths } from '@/config/paths';
-import { FooterTestIds } from '@/constants/commonDataTestIds';
-import { uiContent } from '@/config/ui-content';
+import React, { memo } from 'react'
+import { Link } from 'react-router-dom'
+import { paths } from '@/config/paths'
+import { FooterTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
-const footerPathKeys = ['events', 'gyms'] as const;
+const footerPathKeys = ['events', 'gyms'] as const
 
 interface FooterProps {
-  'data-testid'?: string;
+  'data-testid'?: string
 }
 
 const Footer: React.FC<FooterProps> = ({
-  'data-testid': dataTestIdFromProp
+  'data-testid': dataTestIdFromProp,
 }) => {
   const rootTestId = dataTestIdFromProp || FooterTestIds.ROOT
 
@@ -57,7 +57,8 @@ const Footer: React.FC<FooterProps> = ({
             className="text-sm text-slate-500"
             data-testid={FooterTestIds.COPYRIGHT}
           >
-            © {new Date().getFullYear()} {uiContent.brand.displayName}. {uiContent.footer.copyrightSuffix}
+            © {new Date().getFullYear()} {uiContent.brand.displayName}.{' '}
+            {uiContent.footer.copyrightSuffix}
           </p>
         </div>
       </div>

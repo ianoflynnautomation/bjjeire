@@ -1,54 +1,67 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 REACT_APP_DIR="src/bjjeire-app"
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}=====================================${NC}"
-echo -e "${BLUE} Starting React App Build Process    ${NC}"
-echo -e "${BLUE}=====================================${NC}"
-echo
+print_header() {
+    printf "\n${GREEN}=====================================${NC}\n"
+    printf "${GREEN} %s${NC}\n" "$1"
+    printf "${GREEN}=====================================${NC}\n\n"
+}
 
-if [ ! -d "$REACT_APP_DIR" ]; then
-    echo -e "${RED}[ERROR] React app directory not found at: $REACT_APP_DIR${NC}"
+print_step() {
+    printf "${YELLOW}[%s] %s...${NC}\n" "$1" "$2"
+}
+
+print_success() {
+    printf "\n${GREEN}=====================================${NC}\n"
+    printf "${GREEN} %-37s${NC}\n" "$1"
+    printf "${GREEN}=====================================${NC}\n\n"
+}
+
+print_error() {
+    printf "\n${RED}=====================================${NC}\n"
+    printf "${RED} %-37s${NC}\n" "$1"
+    printf "${RED}=====================================${NC}\n\n"
+}
+
+if [[ ! -d "${REACT_APP_DIR}" ]]; then
+    print_error "ERROR: Directory not found: ${REACT_APP_DIR}"
     exit 1
 fi
 
-echo "Changing directory to ${BLUE}$REACT_APP_DIR${NC}"
-cd "$REACT_APP_DIR" || exit
+print_header "Starting React Build Process"
+printf "Directory: %s\n\n" "${REACT_APP_DIR}"
 
-echo
-echo -e "${GREEN}[1/2] Installing npm dependencies...${NC}"
-echo "This might take a moment."
+cd "${REACT_APP_DIR}"
+
+print_step "1/5" "Installing npm dependencies"
 npm install
 
-if [ $? -ne 0 ]; then
-    echo
-    echo -e "${RED}[ERROR] 'npm install' failed. Please check for errors above.${NC}"
+print_step "2/5" "Checking format (Prettier)"
+if ! npx prettier --check src/ 2>&1; then
+    printf "\n${YELLOW}Auto-fixing format issues...${NC}\n"
+    npx prettier --write src/
+    printf "${YELLOW}Re-run the script after reviewing the auto-fixed files.${NC}\n"
+    print_error "Format check failed — files were auto-fixed, please review and re-run."
     exit 1
 fi
-echo -e "${GREEN}Dependencies installed successfully.${NC}"
+printf "${GREEN}Format OK${NC}\n\n"
 
+print_step "3/5" "Running ESLint"
+npm run lint
+printf "${GREEN}Lint OK${NC}\n\n"
 
-echo
-echo -e "${GREEN}[2/2] Building the React application...${NC}"
-npm run build
+print_step "4/5" "Type checking (tsc --noEmit)"
+npm run typecheck
+printf "${GREEN}Type check OK${NC}\n\n"
 
-if [ $? -eq 0 ]; then
-    echo
-    echo -e "${GREEN}=====================================${NC}"
-    echo -e "${GREEN} React Build Completed Successfully! ${NC}"
-    echo -e "${GREEN}=====================================${NC}"
-else
-    echo
-    echo -e "${RED}=====================================${NC}"
-    echo -e "${RED}      React Build FAILED!          ${NC}"
-    echo -e "${RED}=====================================${NC}"
-    exit 1
-fi
+print_step "5/5" "Running tests (vitest)"
+npm test
 
-cd - > /dev/null
-exit 0
+print_success "Build & checks passed successfully!"
