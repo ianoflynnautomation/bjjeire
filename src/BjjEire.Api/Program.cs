@@ -11,5 +11,3 @@ builder.AddApiServices();
 var app = builder.Build();
 app.UseBjjEireApp();
 await app.RunAsync();
-
-public partial class Program;

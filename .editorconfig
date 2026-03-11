@@ -334,6 +334,8 @@ dotnet_style_require_accessibility_modifiers = never:silent
 dotnet_diagnostic.IDE0058.severity = none
 # [LoggerMessage] source generators are a production perf concern; not relevant in test code
 dotnet_diagnostic.CA1848.severity = none
+# Logging argument evaluation cost is irrelevant in test infrastructure
+dotnet_diagnostic.CA1873.severity = none
 # Locale-aware formatting is a non-issue in test helpers
 dotnet_diagnostic.CA1305.severity = none
 # Visible fields are acceptable in test fixture base classes

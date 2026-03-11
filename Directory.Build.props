@@ -1,11 +1,7 @@
-<!-- Central build defaults for all .NET projects in this repo -->
+
 <Project>
-  <!--
-    Core SDK / language defaults
-    Keep project files minimal and consistent across services/libraries/tests.
-  -->
   <PropertyGroup>
-    <TargetFramework Condition="'$(TargetFramework)' == ''">net9.0</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net10.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -14,11 +10,6 @@
     <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == ''">false</TreatWarningsAsErrors>
     <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
   </PropertyGroup>
-
-  <!--
-    Analyzer / style policy
-    Enforced in build so local + CI behavior is aligned.
-  -->
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <!-- latest-recommended already implies Recommended mode; AnalysisMode is redundant -->
@@ -27,11 +18,6 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
-
-  <!--
-    Build reproducibility + source metadata
-    CI builds are reproducible and source-link friendly.
-  -->
   <PropertyGroup>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(TF_BUILD)' == 'true' or '$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -41,41 +27,25 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Keep missing docs non-blocking in developer loops and tests -->
     <NoWarn Condition="'$(Configuration)' == 'Debug'">$(NoWarn);CS1591</NoWarn>
-    <NoWarn Condition="'$(IsTestProject)' == 'true'">$(NoWarn);CS1591</NoWarn>
+    <!-- CA1873: test infrastructure logging doesn't need high-perf LoggerMessage pattern -->
+    <NoWarn Condition="'$(IsTestProject)' == 'true'">$(NoWarn);CS1591;CA1873</NoWarn>
     <!-- CA1014: CLSCompliant is only relevant for public cross-language .NET libraries;
          not applicable to internal service/API/test projects in this solution. -->
     <NoWarn>$(NoWarn);CA1014</NoWarn>
   </PropertyGroup>
-
-  <!--
-    CI strictness
-    Fail builds on warnings in CI while preserving local ergonomics.
-  -->
   <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-
-  <!--
-    Security / runtime defaults
-  -->
   <PropertyGroup>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
   </PropertyGroup>
-
-  <!--
-    Packaging defaults (only applied to packable projects)
-  -->
   <PropertyGroup Condition="'$(IsPackable)' == 'true'">
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-
-  <!--
-    Repository metadata defaults (safe global values; can be overridden per project)
-  -->
   <PropertyGroup>
     <Authors Condition="'$(Authors)' == ''">Team BjjEire</Authors>
     <Company Condition="'$(Company)' == ''">BjjEire</Company>
@@ -83,11 +53,6 @@
     <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
     <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">MIT</PackageLicenseExpression>
   </PropertyGroup>
-
-  <!--
-    Analyzer packages
-    Versions are managed via Directory.Packages.props (central package management).
-  -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(UsingMicrosoftNETSdk)' == 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" />

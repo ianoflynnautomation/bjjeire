@@ -28,8 +28,8 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
         if (allRegisteredSchemes.Any(s => s.Name == JwtBearerDefaults.AuthenticationScheme))
         {
             securityRequirement.Add(
-                new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = OpenApiBearerSchemeId, Type = ReferenceType.SecurityScheme } },
-                Array.Empty<string>()
+                new OpenApiSecuritySchemeReference(OpenApiBearerSchemeId),
+                []
             );
         }
 
