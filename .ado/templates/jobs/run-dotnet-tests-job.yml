@@ -16,6 +16,11 @@ jobs:
 
   strategy:
       matrix:
+        ApplicationUnitTests:
+          testType: 'ApplicationUnitTests'
+          testArtifactName: 'published_ApplicationUnitTests'
+          testAssemblyPattern: 'BjjEire.Application.UnitTests/**/*'
+          testFilterCriteria: 'TestCategory!=Ignore'
         IntegrationTests:
           testType: 'IntegrationTests'
           testArtifactName: 'published_ApiIntegrationTests'

@@ -16,6 +16,10 @@ jobs:
 
   strategy:
     matrix:
+      ApplicationUnitTests:
+        testType: 'ApplicationUnitTests'
+        artifactName: 'published_ApplicationUnitTests'
+        projectPath: 'tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj'
       ApiIntegrationTests:
         testType: 'ApiIntegrationTests'
         artifactName: 'published_ApiIntegrationTests'

@@ -1,13 +1,10 @@
 // Copyright (c) BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Net.Http.Headers;
 using System.Reflection;
 
-using BjjEire.Api.IntegrationTests.Common;
-using BjjEire.Api.IntegrationTests.Extensions;
 using BjjEire.Api.IntegrationTests.Fixtures;
-using BjjEire.Api.IntegrationTests.Interfaces;
-using BjjEire.Api.IntegrationTests.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,9 +25,6 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime
     protected ILogger Logger { get; }
     protected HttpClient HttpClient { get; }
     protected ITestDatabaseService Database { get; }
-    protected ITestHttpClientService Http { get; }
-    protected ITestAuthService Auth { get; }
-    protected ITestAssertionService Assertions { get; }
 
     protected ApiIntegrationTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     {
@@ -41,13 +35,18 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime
         Logger = LoggingExtension.ConfigureTestLogger(_output);
 
         _scope = fixture.Factory.Services.CreateScope();
-        var serviceProvider = _scope.ServiceProvider;
+        Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
+    }
 
-        Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
-        Assertions = serviceProvider.GetRequiredService<ITestAssertionService>();
+    protected void SetBearerToken(string token) =>
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        Http = new TestHttpClientService(HttpClient);
-        Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
+    protected void SetDefaultUserToken() => SetBearerToken(TestTokenFactory.Generate());
+
+    protected static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
+    {
+        var result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+        return result!;
     }
 
     public virtual async Task InitializeAsync()
@@ -80,6 +79,6 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    protected Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>
-        Assertions.AssertValidationErrorAsync(response, expectedErrors);
+    protected static Task AssertValidationErrorAsync(HttpResponseMessage response, params (string Field, string? ErrorCode, string? MessageContains)[] expectedErrors) =>
+        HttpResponseAssertions.AssertValidationErrorAsync(response, expectedErrors);
 }

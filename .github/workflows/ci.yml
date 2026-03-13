@@ -115,6 +115,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - test-type: UnitTests
+            artifact-name: published_UnitTests
+            project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj"
           - test-type: ApiIntegrationTests
             artifact-name: published_ApiIntegrationTests
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
@@ -138,10 +141,15 @@ jobs:
       fail-fast: true
       matrix:
         include:
+          - test-type: UnitTests
+            test-artifact-name: published_UnitTests
+            test-assembly-pattern: "*UnitTests.dll"
+            test-filter-criteria: ""
           - test-type: IntegrationTests
             test-artifact-name: published_ApiIntegrationTests
             test-assembly-pattern: "*IntegrationTests.dll"
             test-filter-criteria: ""
+
     steps:
       - uses: actions/checkout@v4
       - name: Run .NET Tests - ${{ matrix.test-type }}

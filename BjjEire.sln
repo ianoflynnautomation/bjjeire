@@ -4,7 +4,7 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{313F8151-4915-C42A-1EB1-D9B832018ED3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Infrastructure.IntegrationTests", "tests\BjjEire.Infrastructure.IntegrationTests\BjjEire.Infrastructure.IntegrationTests.csproj", "{7725793B-239C-5879-963E-0758E8997B53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Infrastructure.UnitTests", "tests\BjjEire.Infrastructure.UnitTests\BjjEire.Infrastructure.UnitTests.csproj", "{7725793B-239C-5879-963E-0758E8997B53}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BjjEire.Application.UnitTests", "tests\BjjEire.Application.UnitTests\BjjEire.Application.UnitTests.csproj", "{7E16E5A8-68B4-7694-49AA-FFD3B6257213}"
 EndProject
