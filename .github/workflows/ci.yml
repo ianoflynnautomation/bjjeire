@@ -23,6 +23,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   DOTNET_VERSION: "10.x"
   NODE_VERSION: "24.x"
   SOLUTION_PATH: "BjjEire.sln"
