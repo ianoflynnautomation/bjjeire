@@ -59,7 +59,6 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: ${{ inputs.test-command }}
-      # Add test result upload if your test runner produces standard reports (e.g., JUnit XML)
 
     - name: Upload React Build Artifact
       if: ${{ inputs.build-artifact-name != '' && inputs.build-output-path != '' }}
