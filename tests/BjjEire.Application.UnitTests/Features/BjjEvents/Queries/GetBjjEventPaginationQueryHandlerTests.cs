@@ -17,7 +17,6 @@ using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Queries;
-using BjjEire.Application.UnitTests.Common.TestBuilders;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
 
@@ -30,6 +29,8 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Queries;
 
+[Trait("Category", "BjjEvent")]
+[Trait("Category", "Unit")]
 public sealed class GetBjjEventPaginationQueryHandlerTests
 {
     private readonly Mock<IRepository<BjjEvent>> _repoMock = new();

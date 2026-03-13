@@ -61,7 +61,7 @@ print_step "5/5" "Running unit tests"
 dotnet test "${solution_file}" \
     --no-build \
     -c Release \
-    --filter "Category!=Integration&Category!=Functional&Category!=Acceptance&Category!=Smoke" \
+    --filter "Category=Unit" \
     --logger "console;verbosity=minimal" \
     --nologo
 

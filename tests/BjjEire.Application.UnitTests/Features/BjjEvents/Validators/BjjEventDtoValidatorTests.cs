@@ -6,13 +6,14 @@ using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Validators;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Validators;
-using BjjEire.Application.UnitTests.Common.TestBuilders;
 using BjjEire.Domain.Enums;
 
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
+[Trait("Category", "BjjEvent")]
+[Trait("Category", "Unit")]
 public sealed class BjjEventDtoValidatorTests
 {
     private readonly BjjEventDtoValidator _validator;

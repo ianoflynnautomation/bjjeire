@@ -1,36 +1,46 @@
 # BJJ Éire
 
-A directory of Brazilian Jiu-Jitsu events and gyms in Ireland — React SPA + .NET 9 API + MongoDB.
+> A community directory of Brazilian Jiu-Jitsu events and gyms across Ireland.
 
-<!-- Badges -->
-[![CI Pipeline](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
-
-
----
-
-## ✨ Key Features
-
-- Browse and filter BJJ events and gyms across Ireland
-- .NET 9 REST API with Microsoft Entra ID (Azure AD) authentication
-- React 19 + Vite SPA with MSAL browser authentication
-- MongoDB with Docker Compose or Kubernetes (Minikube + Helm)
-- Observability stack: OpenTelemetry, Prometheus, Grafana, Jaeger, Loki, Seq
-- Dev Container ready (VS Code / GitHub Codespaces)
+[![CI Pipeline](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org)
 
 ---
 
-## 📦 Prerequisites
+## Overview
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- A `.env` file (see [⚡ Configuration](#️-configuration))
-- A `secrets/` directory with `cert_password.txt` and `mongodb_password.txt`
-- Azure AD app registration (for API authentication)
+BJJ Éire is an open-source web application that helps the Irish BJJ community discover gyms and stay up to date with upcoming events. It is built as a modern full-stack application — a React SPA served behind Nginx, backed by a .NET 10 REST API and MongoDB.
 
 ---
 
-## ⚡ Quick Start
+## Tech Stack
 
-### Local build (from source)
+| Layer          | Technology                                                                 |
+|----------------|----------------------------------------------------------------------------|
+| Frontend       | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
+| Backend        | .NET 10 Web API, MediatR, AutoMapper, MongoDB.Driver                       |
+| Auth           | Microsoft Entra ID (Azure AD), MSAL Browser                               |
+| Observability  | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki, Seq                      |
+| Infrastructure | Docker Compose, Kubernetes (Minikube + Helm), Azure Container Registry     |
+| Dev Tooling    | .NET Aspire, Dev Container (VS Code / GitHub Codespaces)                   |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (or Docker + Docker Compose v2)
+- A `.env` file — copy from `.env.example` (see [Configuration](#configuration))
+- A `secrets/` directory containing `cert_password.txt` and `mongodb_password.txt`
+- An Azure AD app registration for API and SPA authentication
+
+### Quick Start
+
+**Build and run locally from source:**
 
 ```bash
 docker compose --profile app \
@@ -46,7 +56,7 @@ docker compose --profile app \
   down
 ```
 
-### Pull from Azure Container Registry
+**Pull pre-built images from Azure Container Registry:**
 
 ```bash
 docker login youracrname.azurecr.io
@@ -57,14 +67,7 @@ docker compose --profile app \
   up --pull always --wait
 ```
 
-```bash
-docker compose --profile app \
-  -f docker-compose.yml \
-  -f docker-compose.override.acr.yml \
-  down
-```
-
-### With observability stack
+**With the full observability stack:**
 
 ```bash
 docker compose --profile app --profile monitoring \
@@ -74,46 +77,120 @@ docker compose --profile app --profile monitoring \
   up --build --wait
 ```
 
-```bash
-docker compose --profile app --profile monitoring \
-  -f docker-compose.yml \
-  -f docker-compose.override.local.yml \
-  -f docker-compose.override.observability.yml \
-  down
-```
+**Service endpoints:**
 
-| Service  | URL                    |
-|----------|------------------------|
-| API      | https://localhost:5001 |
-| Frontend | https://localhost:60743|
-| MongoDB  | localhost:27017        |
+| Service          | URL                       |
+|------------------|---------------------------|
+| Frontend         | https://localhost:60743   |
+| API              | https://localhost:5001    |
+| MongoDB          | localhost:27017           |
+| Grafana          | http://localhost:3000     |
+| Jaeger           | http://localhost:16686    |
+| Seq              | http://localhost:5341     |
 
 ---
 
-## 🛠 Configuration
+## Configuration
 
-Copy `.env.example` to `.env` and fill in the values:
+Copy `.env.example` to `.env` and populate the values:
 
 ```env
 ASPNETCORE_ENVIRONMENT=Development
+
+# MongoDB
 MONGODB_USER=admin
 MONGODB_PASSWORD=your-password
+
+# Azure Entra ID — API
 AZURE_AD_TENANT_ID=your-tenant-id
-AZURE_AD_CLIENT_ID=your-client-id
-AZURE_AD_AUDIENCE=api://your-client-id
+AZURE_AD_CLIENT_ID=your-api-client-id
+AZURE_AD_AUDIENCE=api://your-api-client-id
+
+# MSAL — SPA (baked in at Docker build time via ARG/ENV)
 VITE_APP_MSAL_CLIENT_ID=your-spa-client-id
 VITE_APP_MSAL_AUTHORITY=https://login.microsoftonline.com/your-tenant-id
 VITE_APP_MSAL_API_SCOPE=api://your-api-client-id/Events.ReadWrite
 ```
 
-> **Note:** MSAL env vars are baked into the frontend at Docker build time via `ARG`/`ENV` in the Dockerfile.
+> The `VITE_APP_*` variables are injected as Docker build arguments and embedded into the frontend bundle at image build time.
+
+---
+
+## Local Development
+
+The project supports .NET Aspire for an orchestrated local development experience:
+
+```bash
+dotnet run --project src/BjjEire.Aspire.AppHost
+```
+
+This starts the API, wires up service discovery, and opens the Aspire dashboard at `https://localhost:17191`.
+
+For frontend development:
+
+```bash
+cd src/bjjeire-app
+npm install
+npm run dev
+```
+
+Trust the ASP.NET Core developer certificate if you haven't already:
+
+```bash
+dotnet dev-certs https --trust
+```
+
+---
+
+## Testing
+
+**Backend:**
+
+```bash
+bash build-dotnet.sh
+```
+
+This runs restore, build, format checks, and the full test suite (excluding Docker-dependent functional tests in CI).
+
+**Frontend:**
+
+```bash
+bash build-react.sh
+```
+
+Runs TypeScript type-checking, ESLint, Prettier, and Vitest.
+
+**Unit and integration tests directly:**
+
+```bash
+dotnet test BjjEire.sln --filter "Category!=Functional"
+```
+
+---
+
+## CI/CD
+
+GitHub Actions runs the full pipeline on every push and pull request to `main`:
+
+- .NET restore, build, format, and test
+- React type-check, lint, format, and test
+- Docker image build and push to Azure Container Registry (on `main`)
+
+Pipeline configuration: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
 ---
 
 ## Contributing
 
-Open an issue or pull request on GitHub.
+Contributions are welcome. Please open an issue to discuss any significant changes before submitting a pull request.
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org)
+4. Open a pull request against `main`
+
+---
 
 ## License
 
-MIT — Copyright (c) BjjWorld. All rights reserved.
+MIT — Copyright (c) BJJ Éire contributors. See [LICENSE](LICENSE) for details.
