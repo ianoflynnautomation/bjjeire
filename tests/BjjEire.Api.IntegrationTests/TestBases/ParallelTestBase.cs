@@ -1,4 +1,4 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Fixtures;

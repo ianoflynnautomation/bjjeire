@@ -10,6 +10,8 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
+[Trait("Category", "BjjEvent")]
+[Trait("Category", "Unit")]
 public sealed class GetBjjEventPaginationQueryValidatorTests
 {
     private readonly GetBjjEventPaginationQueryValidator _validator = new();

@@ -56,7 +56,6 @@ public static class DependencyInjection
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        // NOTE: Middleware Order is IMPORTANT!
         _ = app.UseExceptionHandler();
         _ = app.UseSecurityHeaders();
         _ = app.UseCustomSerilogRequestLogging();

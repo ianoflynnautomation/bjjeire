@@ -1,8 +1,8 @@
 // Copyright (c) {year} BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Api.IntegrationTests.Common;
-using BjjEire.Api.IntegrationTests.Extensions;
+
+using BjjEire.Core;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
