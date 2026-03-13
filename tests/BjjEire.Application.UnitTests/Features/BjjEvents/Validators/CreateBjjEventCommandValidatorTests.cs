@@ -2,12 +2,13 @@
 using BjjEire.Application.Common.Validators;
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.Validators;
-using BjjEire.Application.UnitTests.Common.TestBuilders;
 
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
+[Trait("Category", "BjjEvent")]
+[Trait("Category", "Unit")]
 public sealed class CreateBjjEventCommandValidatorTests
 {
     private readonly CreateBjjEventCommandValidator _validator;

@@ -1,4 +1,4 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
 using BjjEire.Api.IntegrationTests.Fixtures;
@@ -14,7 +14,5 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 /// do not run in parallel. This is the recommended approach for most sequential tests.
 /// </summary>
 [Collection("Sequential")]
-
 public class SequentialTestBase(ApiTestFixture fixture, ITestOutputHelper output)
     : ApiIntegrationTestBase(fixture, output);
-

@@ -3,7 +3,6 @@ using AutoMapper;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Features.Gyms.Commands;
 using BjjEire.Application.Features.Gyms.DTOs;
-using BjjEire.Application.UnitTests.Common.TestBuilders;
 using BjjEire.Domain.Entities.Gyms;
 using BjjEire.Domain.Enums;
 
@@ -13,6 +12,8 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.Gyms.Commands;
 
+[Trait("Category", "Gym")]
+[Trait("Category", "Unit")]
 public sealed class CreateGymCommandHandlerTests
 {
     private readonly Mock<IGymService> _serviceMock = new();

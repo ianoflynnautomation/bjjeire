@@ -1,11 +1,9 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Api.IntegrationTests.Common;
-using BjjEire.Api.IntegrationTests.Extensions;
+using System.Net.Http.Headers;
+
 using BjjEire.Api.IntegrationTests.Fixtures;
-using BjjEire.Api.IntegrationTests.Interfaces;
-using BjjEire.Api.IntegrationTests.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,20 +28,26 @@ public abstract class IsolationTestBase : IAsyncLifetime
     protected ILogger Logger { get; }
     protected HttpClient HttpClient { get; private set; } = null!;
     protected ITestDatabaseService Database { get; private set; } = null!;
-    protected ITestHttpClientService Http { get; private set; } = null!;
-    protected ITestAuthService Auth { get; private set; } = null!;
-    protected ITestAssertionService Assertions { get; private set; } = null!;
 
     protected IsolationTestBase(ITestOutputHelper output)
     {
         _output = output;
         Logger = LoggingExtension.ConfigureTestLogger(_output);
+    }
 
+    protected void SetBearerToken(string token) =>
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+    protected void SetDefaultUserToken() => SetBearerToken(TestTokenFactory.Generate());
+
+    protected static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
+    {
+        var result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+        return result!;
     }
 
     public async Task InitializeAsync()
     {
-
         var test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
         var testName = test.DisplayName;
         var correlationId = Guid.NewGuid();
@@ -63,13 +67,8 @@ public abstract class IsolationTestBase : IAsyncLifetime
         var serviceProvider = _scope.ServiceProvider;
 
         Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
-        Assertions = serviceProvider.GetRequiredService<ITestAssertionService>();
-
-        Http = new TestHttpClientService(HttpClient);
-        Auth = new TestAuthService(HttpClient, serviceProvider.GetRequiredService<ILogger<TestAuthService>>());
 
         Logger.LogInformation("Isolated fixture and services initialized successfully.");
-
     }
 
     public async Task DisposeAsync()
@@ -86,5 +85,4 @@ public abstract class IsolationTestBase : IAsyncLifetime
 
         Logger.LogInformation("Isolated fixture torn down successfully.");
     }
-
 }

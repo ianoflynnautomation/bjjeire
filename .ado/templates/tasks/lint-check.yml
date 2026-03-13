@@ -4,7 +4,7 @@ parameters:
     default: '10.x'
   - name: nodeVersion
     type: string
-    default: '22.x'
+    default: '24.x'
   - name: workingDirectory
     type: string
     default: '.'

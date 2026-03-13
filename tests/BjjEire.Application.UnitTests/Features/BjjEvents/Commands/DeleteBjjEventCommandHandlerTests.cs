@@ -5,7 +5,6 @@
 using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Features.BjjEvents.Commands;
-using BjjEire.Application.UnitTests.Common.TestBuilders;
 using BjjEire.Domain.Entities.BjjEvents;
 
 using Moq;
@@ -14,6 +13,8 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Commands;
 
+[Trait("Category", "BjjEvent")]
+[Trait("Category", "Unit")]
 public sealed class DeleteBjjEventCommandHandlerTests
 {
     private readonly Mock<IBjjEventService> _serviceMock = new();
