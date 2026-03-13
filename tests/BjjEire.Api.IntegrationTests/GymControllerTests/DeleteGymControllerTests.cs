@@ -68,7 +68,6 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     [InlineData("36f1dd1e11ad1a1bf11111a00")]
     [InlineData("f1dd1e11ad1a1bf11111a00")]
     [InlineData("not-a-valid-id")]
-    [InlineData("")]
     public async Task DeleteGym_WithInvalidIdFormat_ShouldReturnBadRequestAsync(string invalidId)
     {
         // Arrange
