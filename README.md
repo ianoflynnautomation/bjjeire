@@ -200,3 +200,4 @@ Contributions are welcome. Please open an issue to discuss any significant chang
 ## License
 
 MIT — Copyright (c) BJJ Éire contributors. See [LICENSE](LICENSE) for details.
+
