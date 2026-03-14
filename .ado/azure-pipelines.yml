@@ -6,20 +6,24 @@ trigger:
     include:
       - 'v*.*.*'
   paths:
-    exclude:
-      - '**.md'
-      - '.gitattributes'
-      - '.gitignore'
+    include:
+      - "src/**"
+      - "tests/**"
+      - ".ado/**"
+      - "Directory.*.props"
+      - "*.sln"
 
 pr:
   branches:
     include:
       - main
   paths:
-    exclude:
-      - '**.md'
-      - '.gitattributes'
-      - '.gitignore'
+    include:
+      - "src/**"
+      - "tests/**"
+      - ".ado/**"
+      - "Directory.*.props"
+      - "*.sln"
 
 
 variables:
