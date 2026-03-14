@@ -16,6 +16,12 @@ jobs:
 
   strategy:
       matrix:
+        DomainUnitTests:
+          testType: 'DomainUnitTests'
+          testArtifactName: 'published_DomainUnitTests'
+          testAssemblyPattern: |
+              BjjEire.Domain.UnitTests/**/*
+          testFilterCriteria: 'TestCategory!=Ignore'
         ApplicationUnitTests:
           testType: 'ApplicationUnitTests'
           testArtifactName: 'published_ApplicationUnitTests'
