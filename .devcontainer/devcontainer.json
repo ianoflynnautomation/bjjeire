@@ -25,6 +25,10 @@
         "ghcr.io/devcontainers/features/node:1": {
             "version": "24",
             "nodeGypDependencies": true
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "21",
+            "jdkDistro": "ms"
         }
     },
 
@@ -63,7 +67,13 @@
                 "eamodio.gitlens",
                 "mhutchie.git-graph",
                 "github.vscode-pull-request-github",
-                "streetsidesoftware.code-spell-checker"
+                "streetsidesoftware.code-spell-checker",
+                "ms-windows-ai-studio.windows-ai-studio",
+                "anthropic.claude-code",
+                "docker.docker",
+                "github.vscode-github-actions",
+                "christian-kohler.path-intellisense",
+                "ms-vscode.test-adapter-converter"
             ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "bash",
@@ -71,7 +81,13 @@
                 "dotnet.defaultSolution": "./BjjEire.sln",
                 "editor.codeActionsOnSave": {
                     "source.fixAll.eslint": "explicit"
-                }
+                },
+                "eslint.workingDirectories": [
+                    "src/bjjeire-app"
+                ],
+                "dotnet-test-explorer.testProjectPath": "tests/**/*.csproj",
+                "dotnet-test-explorer.autoExpandTree": true,
+                "sonarlint.ls.javaHome": "/usr/local/sdkman/candidates/java/current"
             }
         }
     },
