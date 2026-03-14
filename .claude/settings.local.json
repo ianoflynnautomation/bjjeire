@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(find /Users/ianoflynn/Sources/BjjEire/src -name \"*.cs\" -exec perl -i -pe 's/\\\\.ConfigureAwait\\\\\\(false\\\\\\)//g' {} +)",
-      "Bash(dotnet build src/BjjEire.Api/BjjEire.Api.csproj --no-restore)"
-    ]
-  }
-}
