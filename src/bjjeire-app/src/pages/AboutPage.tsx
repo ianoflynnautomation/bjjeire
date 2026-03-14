@@ -1,39 +1,43 @@
-import React from 'react'
+import { type ReactElement } from 'react'
 import PageLayout from '@/components/layout/page-layout'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { uiContent } from '@/config/ui-content'
 import { env } from '@/config/env'
 
-const AboutPage: React.FC = () => {
-  const socialMedia = {
-    instagram: env.SOCIAL_INSTAGRAM_URL || undefined,
-    facebook: env.SOCIAL_FACEBOOK_URL || undefined,
-  }
+const socialMedia = {
+  instagram: env.SOCIAL_INSTAGRAM_URL || undefined,
+  facebook: env.SOCIAL_FACEBOOK_URL || undefined,
+}
 
+export default function AboutPage(): ReactElement {
   return (
     <PageLayout>
       <div className="mx-auto max-w-4xl py-10 sm:py-12">
         <header className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl bg-gradient-to-r from-emerald-700 to-sky-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-sky-400">
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
             {uiContent.about.title}
           </h1>
-          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
+          <p className="mt-4 text-lg text-slate-400">
             {uiContent.about.subtitle}
           </p>
         </header>
 
-        <main className="space-y-6">
+        <div className="space-y-6">
           <section
             aria-labelledby="about-mission-heading"
-            className="rounded-xl bg-white p-6 shadow-md border border-slate-200 border-t-2 border-t-emerald-500/70 dark:border-slate-700 dark:border-t-emerald-500/40 dark:bg-slate-800/60"
+            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
           >
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
+              aria-hidden="true"
+            />
             <h2
               id="about-mission-heading"
-              className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100"
+              className="mb-4 text-2xl font-bold text-white"
             >
               {uiContent.about.missionTitle}
             </h2>
-            <div className="space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+            <div className="space-y-4 leading-relaxed text-slate-300">
               <p>{uiContent.about.missionParagraph1}</p>
               <p>{uiContent.about.missionParagraph2}</p>
             </div>
@@ -41,15 +45,19 @@ const AboutPage: React.FC = () => {
 
           <section
             aria-labelledby="about-values-heading"
-            className="rounded-xl bg-gradient-to-br from-slate-50 to-emerald-50/40 p-6 shadow-md ring-1 ring-slate-200/60 dark:from-slate-800 dark:to-slate-700/40 dark:ring-slate-700/40"
+            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
           >
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
+              aria-hidden="true"
+            />
             <h2
               id="about-values-heading"
-              className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100"
+              className="mb-4 text-2xl font-bold text-white"
             >
               {uiContent.about.principlesTitle}
             </h2>
-            <ul className="list-disc space-y-2 pl-6 text-slate-700 dark:text-slate-300 marker:text-emerald-500 dark:marker:text-emerald-400">
+            <ul className="list-disc space-y-2 pl-6 text-slate-300 marker:text-emerald-400">
               {uiContent.about.principles.map(item => (
                 <li key={item}>{item}</li>
               ))}
@@ -58,19 +66,23 @@ const AboutPage: React.FC = () => {
 
           <section
             aria-labelledby="about-contact-heading"
-            className="rounded-xl bg-white p-6 shadow-md border border-slate-200 border-t-2 border-t-emerald-500/70 dark:border-slate-700 dark:border-t-emerald-500/40 dark:bg-slate-800/60"
+            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
           >
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
+              aria-hidden="true"
+            />
             <h2
               id="about-contact-heading"
-              className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100"
+              className="mb-4 text-2xl font-bold text-white"
             >
               {uiContent.about.contactTitle}
             </h2>
-            <p className="text-slate-700 dark:text-slate-300">
+            <p className="text-slate-300">
               {uiContent.about.contactPrefix}{' '}
               <a
                 href={`mailto:${env.CONTACT_EMAIL}`}
-                className="font-medium text-emerald-600 hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+                className="font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline"
               >
                 {env.CONTACT_EMAIL}
               </a>
@@ -80,10 +92,8 @@ const AboutPage: React.FC = () => {
               <SocialMediaLinks socialMedia={socialMedia} />
             </div>
           </section>
-        </main>
+        </div>
       </div>
     </PageLayout>
   )
 }
-
-export default AboutPage

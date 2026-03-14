@@ -8,21 +8,21 @@ describe('GymsPageHeader Component', () => {
     it('should render the default title when no countyName is provided', () => {
       render(<GymsPageHeader />)
       expect(
-        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 1 })
+        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 2 })
       ).toBeInTheDocument()
     })
 
     it('should render the default title if countyName is "all"', () => {
       render(<GymsPageHeader countyName="all" />)
       expect(
-        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 1 })
+        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 2 })
       ).toBeInTheDocument()
     })
 
     it('should render the default title if countyName is "All" (case-insensitive)', () => {
       render(<GymsPageHeader countyName="All" />)
       expect(
-        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 1 })
+        screen.getByRole('heading', { name: 'All BJJ Gyms', level: 2 })
       ).toBeInTheDocument()
     })
 
@@ -30,7 +30,7 @@ describe('GymsPageHeader Component', () => {
       const county = 'Dublin'
       render(<GymsPageHeader countyName={county} />)
       expect(
-        screen.getByRole('heading', { name: `BJJ Gyms in ${county}`, level: 1 })
+        screen.getByRole('heading', { name: `BJJ Gyms in ${county}`, level: 2 })
       ).toBeInTheDocument()
     })
   })
