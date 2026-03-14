@@ -6,6 +6,8 @@ trigger:
     include:
       - 'v*.*.*'
   paths:
+    include:
+      - '**'
     exclude:
       - "**.md"
       - "logs/**"
@@ -18,6 +20,8 @@ pr:
     include:
       - main
   paths:
+    include:
+      - '**'
     exclude:
       - "**.md"
       - "logs/**"
