@@ -117,6 +117,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - test-type: ApiUnitTests
+            artifact-name: published_ApiUnitTests
+            project-path: "tests/BjjEire.Api.UnitTests/BjjEire.Api.UnitTests.csproj"
           - test-type: DomainUnitTests
             artifact-name: published_DomainUnitTests
             project-path: "tests/BjjEire.Domain.UnitTests/BjjEire.Domain.UnitTests.csproj"
@@ -149,6 +152,10 @@ jobs:
       fail-fast: true
       matrix:
         include:
+          - test-type: ApiUnitTests
+            test-artifact-name: published_ApiUnitTests
+            test-assembly-pattern: "*Api.UnitTests.dll"
+            test-filter-criteria: "Category!=Ignore"
           - test-type: DomainUnitTests
             test-artifact-name: published_DomainUnitTests
             test-assembly-pattern: "*Domain.UnitTests.dll"
