@@ -7,6 +7,7 @@ export const NavigationTestIds = {
   MOBILE_PANEL: 'navigation-mobile-panel',
   MOBILE_LINK: 'navigation-mobile-link',
   SUPPORT_BUTTON: 'navigation-support-button',
+  GITHUB_LINK: 'navigation-github-link',
 }
 
 export const ButtonGroupFilterTestIds = {
@@ -59,6 +60,8 @@ export const FooterTestIds = {
   QUICK_LINKS_HEADING: 'footer-quick-links-heading',
   QUICK_LINK: 'footer-quick-link',
   COPYRIGHT: 'footer-copyright',
+  GITHUB_LINK: 'footer-github-link',
+  GITHUB_STARS: 'footer-github-stars',
 }
 
 export const SupportModalTestIds = {

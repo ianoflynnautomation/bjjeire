@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, type ReactElement } from 'react'
 import type { County } from '@/constants/counties'
 import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
 import type { BjjEventType } from '@/types/event'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
 import Pagination from '@/components/ui/grid/pagination'
 import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
+import { EventsHeroBanner } from '@/features/bjjevents/components/events-hero-banner'
 import EventsList from '@/features/bjjevents/components/event-list'
 import { env } from '@/config/env'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
@@ -23,7 +24,7 @@ const initialEventFilters: GetBjjEventsPaginationQuery = {
   pageSize: env.PAGE_SIZE,
 }
 
-const EventsPage: React.FC = () => {
+export default function EventsPage(): ReactElement {
   const scrollToTop = useScrollToTop()
 
   const {
@@ -43,7 +44,7 @@ const EventsPage: React.FC = () => {
     initialParams: initialEventFilters,
   })
 
-  const events = useMemo(() => paginatedEventsData ?? [], [paginatedEventsData])
+  const events = paginatedEventsData ?? []
 
   const handleFilterChange = useCallback(
     (
@@ -70,6 +71,8 @@ const EventsPage: React.FC = () => {
   return (
     <PageErrorBoundary errorMessage="Failed to load events. Please try again.">
       <PageLayout>
+        <EventsHeroBanner />
+
         <EventsPageHeader
           countyName={activeFilters.county}
           totalEvents={paginationInfo?.totalItems}
@@ -120,5 +123,3 @@ const EventsPage: React.FC = () => {
     </PageErrorBoundary>
   )
 }
-
-export default EventsPage

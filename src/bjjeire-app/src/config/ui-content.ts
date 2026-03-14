@@ -33,11 +33,25 @@ export const uiContent = {
       allCountiesOption: 'All Counties',
       allTypesOption: 'All Types',
     },
+    hero: {
+      tagline: 'Find BJJ Events Across Ireland',
+      subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
+      imageAlt: 'BJJ Éire logo',
+    },
   },
   gyms: {
     pageTitle: {
       all: 'All BJJ Gyms',
       prefix: 'BJJ Gyms in',
+    },
+    filters: {
+      countyLabel: 'Select County',
+      allCountiesOption: 'All Counties',
+    },
+    hero: {
+      tagline: 'Find BJJ Gyms Across Ireland',
+      subtitle: 'Browse clubs, academies, and training centres near you.',
+      imageAlt: 'BJJ Éire gym banner',
     },
     card: {
       fallbackName: 'Unnamed Gym',
@@ -57,10 +71,14 @@ export const uiContent = {
   navigation: {
     supportButtonLabel: 'Support',
     openMobileMenuLabel: 'Open main menu',
+    githubLinkLabel: 'Contribute on GitHub',
   },
   footer: {
     quickLinksTitle: 'Quick Links',
     copyrightSuffix: 'All rights reserved.',
+    githubTitle: 'Contribute',
+    githubLinkLabel: 'View on GitHub',
+    githubStarsLabel: 'stars',
   },
   about: {
     title: 'About BJJ Eire',

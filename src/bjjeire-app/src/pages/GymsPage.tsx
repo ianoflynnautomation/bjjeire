@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, type ReactElement } from 'react'
 import { COUNTIES } from '@/constants/counties'
 import { GymsList } from '@/features/gyms/components/gym-list'
 import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
+import { GymsHeroBanner } from '@/features/gyms/components/gyms-hero-banner'
 import SelectFilter from '@/components/ui/filters/select-filter'
 import Pagination from '@/components/ui/grid/pagination'
 import { env } from '@/config/env'
@@ -13,6 +14,9 @@ import { useScrollToTop } from '@/utils/scrollUtils'
 import { formatFetchError } from '@/utils/errorUtils'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
 import { getGyms } from '@/features/gyms/api/get-gyms'
+import { uiContent } from '@/config/ui-content'
+
+const { filters } = uiContent.gyms
 
 const initialGymFilters: GetGymsByCountyPaginationQuery = {
   county: 'all',
@@ -20,7 +24,7 @@ const initialGymFilters: GetGymsByCountyPaginationQuery = {
   pageSize: env.PAGE_SIZE,
 }
 
-const GymsPage: React.FC = () => {
+export default function GymsPage(): ReactElement {
   const scrollToTop = useScrollToTop()
 
   const {
@@ -40,13 +44,16 @@ const GymsPage: React.FC = () => {
     initialParams: initialGymFilters,
   })
 
-  const gyms = useMemo(() => paginatedGymsData ?? [], [paginatedGymsData])
+  const gyms = paginatedGymsData ?? []
+
+  const countyLabel =
+    COUNTIES.find(c => c.value === activeFilters.county)?.label ??
+    (activeFilters.county === 'all' ? filters.allCountiesOption : activeFilters.county) ??
+    filters.allCountiesOption
 
   const handleCountyChange = useCallback(
     (countyValue: string | undefined) => {
-      updateFilters({
-        county: countyValue,
-      } as Partial<GetGymsByCountyPaginationQuery>)
+      updateFilters({ county: countyValue } as Partial<GetGymsByCountyPaginationQuery>)
       scrollToTop()
     },
     [updateFilters, scrollToTop]
@@ -60,34 +67,27 @@ const GymsPage: React.FC = () => {
     [rawHandlePageChange, scrollToTop]
   )
 
-  const countyLabel = useMemo(() => {
-    const selected = activeFilters.county
-    return (
-      COUNTIES.find(c => c.value === selected)?.label ||
-      (selected === 'all' ? 'All Counties' : selected) ||
-      'All Counties'
-    )
-  }, [activeFilters.county])
-
   const formattedErrorMessage = formatFetchError(fetchError)
   const isInitialLoading = isLoading && gyms.length === 0
 
   return (
     <PageErrorBoundary errorMessage="Failed to load gyms. Please try again.">
       <PageLayout>
+        <GymsHeroBanner />
+
         <GymsPageHeader
           countyName={countyLabel}
           totalGyms={paginationInfo?.totalItems}
         />
 
-        <div className="mb-8 pb-8 border-b border-white/[0.08]">
+        <div className="mb-8 pb-8 border-b border-white/8">
           <SelectFilter
             id="county-filter"
-            label="Select County"
+            label={filters.countyLabel}
             value={activeFilters.county}
             onChange={handleCountyChange}
             options={COUNTIES}
-            placeholderOptionLabel="All Counties"
+            placeholderOptionLabel={filters.allCountiesOption}
             disabled={isFetching || isLoading}
           />
         </div>
@@ -113,7 +113,7 @@ const GymsPage: React.FC = () => {
           paginationInfo.totalPages > 1 &&
           !fetchError &&
           gyms.length > 0 && (
-            <div className="mt-10 border-t border-white/[0.08] pt-8">
+            <div className="mt-10 border-t border-white/8 pt-8">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}
@@ -125,5 +125,3 @@ const GymsPage: React.FC = () => {
     </PageErrorBoundary>
   )
 }
-
-export default GymsPage
