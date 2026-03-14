@@ -73,7 +73,8 @@ const Footer = memo(function Footer({
                     className="ml-1 rounded-full bg-slate-700 px-2 py-0.5 text-xs font-semibold text-slate-300"
                     data-testid={FooterTestIds.GITHUB_STARS}
                   >
-                    ★ {stars.toLocaleString()} {uiContent.footer.githubStarsLabel}
+                    ★ {stars.toLocaleString()}{' '}
+                    {uiContent.footer.githubStarsLabel}
                   </span>
                 )}
               </a>

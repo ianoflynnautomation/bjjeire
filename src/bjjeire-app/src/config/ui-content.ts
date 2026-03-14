@@ -35,7 +35,8 @@ export const uiContent = {
     },
     hero: {
       tagline: 'Find BJJ Events Across Ireland',
-      subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
+      subtitle:
+        'Discover tournaments, seminars, open mats, and camps near you.',
       imageAlt: 'BJJ Éire logo',
     },
   },

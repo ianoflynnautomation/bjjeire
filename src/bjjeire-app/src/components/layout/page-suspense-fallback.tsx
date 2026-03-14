@@ -4,7 +4,11 @@ import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 export const PageSuspenseFallback = memo(function PageSuspenseFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center p-8">
-      <LoadingSpinner size="lg" color="text-emerald-300" text="Loading page..." />
+      <LoadingSpinner
+        size="lg"
+        color="text-emerald-300"
+        text="Loading page..."
+      />
     </div>
   )
 })

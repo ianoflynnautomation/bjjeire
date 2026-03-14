@@ -83,7 +83,10 @@ export default function AboutPage(): ReactElement {
               <a
                 href={`mailto:${env.CONTACT_EMAIL}`}
                 className="font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline"
-              >{env.CONTACT_EMAIL}</a>.
+              >
+                {env.CONTACT_EMAIL}
+              </a>
+              .
             </p>
             <div className="mt-4">
               <SocialMediaLinks socialMedia={socialMedia} />

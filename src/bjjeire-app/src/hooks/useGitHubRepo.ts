@@ -14,14 +14,18 @@ interface UseGitHubRepoResult {
   stars: number | undefined
 }
 
-export function useGitHubRepo(githubUrl: string | undefined): UseGitHubRepoResult {
+export function useGitHubRepo(
+  githubUrl: string | undefined
+): UseGitHubRepoResult {
   const repoPath = githubUrl ? parseRepoPath(githubUrl) : undefined
 
   const { data } = useQuery<GitHubRepo>({
     queryKey: ['github-repo', repoPath],
     queryFn: async () => {
       const res = await fetch(`https://api.github.com/repos/${repoPath}`)
-      if (!res.ok) { throw new Error('GitHub API error') }
+      if (!res.ok) {
+        throw new Error('GitHub API error')
+      }
       return res.json() as Promise<GitHubRepo>
     },
     enabled: Boolean(repoPath),

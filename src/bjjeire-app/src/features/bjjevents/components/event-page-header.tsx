@@ -16,7 +16,9 @@ export const EventsPageHeader = memo(function EventsPageHeader({
   dataTestId = EventsPageTestIds.HEADER,
 }: EventsPageHeaderProps) {
   const isAllCounties = !countyName || countyName.toLowerCase() === 'all'
-  const title = isAllCounties ? pageTitle.all : `${pageTitle.prefix} ${countyName}`
+  const title = isAllCounties
+    ? pageTitle.all
+    : `${pageTitle.prefix} ${countyName}`
 
   const plural = totalEvents === 1 ? '' : 's'
   const totalEventsLabel =
