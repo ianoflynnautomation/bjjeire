@@ -56,5 +56,12 @@
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(UsingMicrosoftNETSdk)' == 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="MinVer" PrivateAssets="all" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj' and '$(IsTestProject)' != 'true'">
+    <!-- MinVer: read version from git tag api-v* (e.g. api-v1.2.3) -->
+    <MinVerTagPrefix>api-v</MinVerTagPrefix>
+    <MinVerMinimumMajorMinor>0.1</MinVerMinimumMajorMinor>
+    <MinVerVerbosity>minimal</MinVerVerbosity>
+  </PropertyGroup>
 </Project>
