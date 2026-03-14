@@ -19,7 +19,14 @@ jobs:
         ApplicationUnitTests:
           testType: 'ApplicationUnitTests'
           testArtifactName: 'published_ApplicationUnitTests'
-          testAssemblyPattern: 'BjjEire.Application.UnitTests/**/*'
+          testAssemblyPattern: |
+              BjjEire.Application.UnitTests/**/*
+          testFilterCriteria: 'TestCategory!=Ignore'
+        InfrastructureUnitTests:
+          testType: 'InfrastructureUnitTests'
+          testArtifactName: 'published_InfrastructureUnitTests'
+          testAssemblyPattern: |
+              BjjEire.Infrastructure.UnitTests/**/*
           testFilterCriteria: 'TestCategory!=Ignore'
         IntegrationTests:
           testType: 'IntegrationTests'
