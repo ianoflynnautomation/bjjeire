@@ -1,29 +1,32 @@
-trigger:
-  branches:
-    include:
-      - main
-  tags:
-    include:
-      - 'v*.*.*'
-  paths:
-    include:
-      - "src/**"
-      - "tests/**"
-      - ".ado/**"
-      - "Directory.*.props"
-      - "*.sln"
+trigger: none
+pr: none
 
-pr:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - "src/**"
-      - "tests/**"
-      - ".ado/**"
-      - "Directory.*.props"
-      - "*.sln"
+# trigger:
+#   branches:
+#     include:
+#       - main
+#   tags:
+#     include:
+#       - 'v*.*.*'
+#   paths:
+#     include:
+#       - "src/**"
+#       - "tests/**"
+#       - ".ado/**"
+#       - "Directory.*.props"
+#       - "*.sln"
+
+# pr:
+#   branches:
+#     include:
+#       - main
+#   paths:
+#     include:
+#       - "src/**"
+#       - "tests/**"
+#       - ".ado/**"
+#       - "Directory.*.props"
+#       - "*.sln"
 
 
 variables:

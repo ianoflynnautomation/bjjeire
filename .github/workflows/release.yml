@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      api_released: ${{ steps.release.outputs['src/BjjEire.Api--release_created'] }}
+      api_tag: ${{ steps.release.outputs['src/BjjEire.Api--tag_name'] }}
+      api_version: ${{ steps.release.outputs['src/BjjEire.Api--version'] }}
+      frontend_released: ${{ steps.release.outputs['src/bjjeire-app--release_created'] }}
+      frontend_tag: ${{ steps.release.outputs['src/bjjeire-app--tag_name'] }}
+      frontend_version: ${{ steps.release.outputs['src/bjjeire-app--version'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-api-artifacts:
+    name: Publish API Artifacts
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: needs.release-please.outputs.api_released == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Pack
+        run: >
+          dotnet pack src/BjjEire.Api/BjjEire.Api.csproj
+          -c Release
+          -p:PackageVersion=${{ needs.release-please.outputs.api_version }}
+          -o ./artifacts
+
+      - name: Upload artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.api_tag }}
+          files: ./artifacts/*.nupkg
+
+  publish-frontend-artifacts:
+    name: Publish Frontend Artifacts
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: needs.release-please.outputs.frontend_released == 'true'
+    env:
+      SERVICES_API_HTTPS_0: "https://api-placeholder:443"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Install dependencies
+        working-directory: src/bjjeire-app
+        run: npm ci
+
+      - name: Build
+        working-directory: src/bjjeire-app
+        env:
+          VITE_APP_MSAL_CLIENT_ID: ${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
+          VITE_APP_MSAL_AUTHORITY: ${{ secrets.VITE_APP_MSAL_AUTHORITY }}
+          VITE_APP_MSAL_API_SCOPE: ${{ secrets.VITE_APP_MSAL_API_SCOPE }}
+        run: npm run build
+
+      - name: Archive dist
+        run: tar -czf frontend-dist.tar.gz -C src/bjjeire-app dist
+
+      - name: Upload artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.frontend_tag }}
+          files: frontend-dist.tar.gz

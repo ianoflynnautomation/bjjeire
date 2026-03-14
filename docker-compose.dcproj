@@ -17,8 +17,7 @@
   <ItemGroup>
     <None Include="docker-compose.yml" />
     <None Include="docker-compose.override.local.yml" />
-    <None Include="docker-compose.override.acr.yml" />
-    <None Include="docker-compose.override.observability.yml" />
+    <None Include="docker-compose.override.ghcr.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
 

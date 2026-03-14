@@ -1,8 +1,0 @@
-services:
-  api:
-    image: ${AZURE_CONTAINER_REGISTRY}/${API_IMAGE_NAME}:${API_IMAGE_TAG:-latest}
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Staging"
-
-  frontend:
-    image: ${AZURE_CONTAINER_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG:-latest}

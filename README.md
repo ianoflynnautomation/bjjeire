@@ -9,6 +9,7 @@
 > A community directory of Brazilian Jiu-Jitsu events and gyms across Ireland.
 
 [![CI Pipeline](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/ci.yml)
+[![Release](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/release.yml/badge.svg)](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
@@ -30,7 +31,7 @@ BJJ Éire is an open-source web application that helps the Irish BJJ community d
 | Backend        | .NET 10 Web API, MediatR, AutoMapper, MongoDB.Driver                       |
 | Auth           | Microsoft Entra ID (Azure AD), MSAL Browser                               |
 | Observability  | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki, Seq                      |
-| Infrastructure | Docker Compose, Kubernetes (Minikube + Helm), Azure Container Registry     |
+| Infrastructure | Docker Compose, Kubernetes (Minikube + Helm), GitHub Container Registry    |
 | Dev Tooling    | .NET Aspire, Dev Container (VS Code / GitHub Codespaces)                   |
 
 ---
@@ -62,25 +63,23 @@ docker compose --profile app \
   down
 ```
 
-**Pull pre-built images from Azure Container Registry:**
+**Pull pre-built images from GitHub Container Registry:**
 
 ```bash
-docker login youracrname.azurecr.io
+docker login ghcr.io
 
+GHCR_OWNER=ianoflynnautomation \
 docker compose --profile app \
   -f docker-compose.yml \
-  -f docker-compose.override.acr.yml \
+  -f docker-compose.override.ghcr.yml \
   up --pull always --wait
 ```
 
-**With the full observability stack:**
-
 ```bash
-docker compose --profile app --profile monitoring \
+docker compose --profile app \
   -f docker-compose.yml \
-  -f docker-compose.override.local.yml \
-  -f docker-compose.override.observability.yml \
-  up --build --wait
+  -f docker-compose.override.ghcr.yml \
+  down
 ```
 
 **Service endpoints:**
@@ -116,6 +115,11 @@ AZURE_AD_AUDIENCE=api://your-api-client-id
 VITE_APP_MSAL_CLIENT_ID=your-spa-client-id
 VITE_APP_MSAL_AUTHORITY=https://login.microsoftonline.com/your-tenant-id
 VITE_APP_MSAL_API_SCOPE=api://your-api-client-id/Events.ReadWrite
+
+# GitHub Container Registry (for docker-compose.override.ghcr.yml)
+GHCR_OWNER=your-github-username-or-org
+API_IMAGE_TAG=latest
+FRONTEND_IMAGE_TAG=latest
 ```
 
 > The `VITE_APP_*` variables are injected as Docker build arguments and embedded into the frontend bundle at image build time.
@@ -156,7 +160,7 @@ dotnet dev-certs https --trust
 bash build-dotnet.sh
 ```
 
-This runs restore, build, format checks, and the full test suite (excluding Docker-dependent functional tests in CI).
+This runs restore, build, format checks, and the full test suite (unit + integration).
 
 **Frontend:**
 
@@ -169,20 +173,62 @@ Runs TypeScript type-checking, ESLint, Prettier, and Vitest.
 **Unit and integration tests directly:**
 
 ```bash
-dotnet test BjjEire.sln --filter "Category!=Functional"
+dotnet test BjjEire.sln --filter "Category!=Ignore"
 ```
 
 ---
 
 ## CI/CD
 
-GitHub Actions runs the full pipeline on every push and pull request to `main`:
+Two GitHub Actions workflows run on every push and pull request to `main`:
 
-- .NET restore, build, format, and test
-- React type-check, lint, format, and test
-- Docker image build and push to Azure Container Registry (on `main`)
+| Workflow | File | Purpose |
+|---|---|---|
+| CI Pipeline | [`ci.yml`](.github/workflows/ci.yml) | Lint, build, and test (.NET + React) |
+| Build & Push | [`build-push-ghcr.yml`](.github/workflows/build-push-ghcr.yml) | Build multi-platform Docker images and push to GHCR |
+| Release | [`release.yml`](.github/workflows/release.yml) | Automate versioned releases via release-please |
 
-Pipeline configuration: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+Docker images are published to `ghcr.io/ianoflynnautomation/bjjeire-api` and `ghcr.io/ianoflynnautomation/bjjeire-frontend`. Images are tagged with the git SHA, semver version (on tags), and `latest` on `main`.
+
+---
+
+## Versioning & Releases
+
+This project follows [Semantic Versioning 2.0](https://semver.org) and [Conventional Commits](https://www.conventionalcommits.org).
+
+### How it works
+
+- **API** is versioned independently with the tag prefix `api-v` (e.g. `api-v1.2.3`). Version is resolved at build time by [MinVer](https://github.com/adamralph/minver) — no manual `.csproj` edits needed.
+- **Frontend** is versioned independently with the tag prefix `frontend-v` (e.g. `frontend-v1.2.3`). Version is tracked in `package.json` and exposed at runtime as `__APP_VERSION__`.
+- [release-please](https://github.com/googleapis/release-please) opens a PR automatically when conventional commits land on `main`. Merging the PR creates the git tag, GitHub Release, and CHANGELOG.
+
+### Commit message format
+
+```
+<type>(<optional scope>): <description>
+
+[optional body]
+
+[optional footer — BREAKING CHANGE: ...]
+```
+
+| Type | Effect |
+|---|---|
+| `feat:` | bumps MINOR |
+| `fix:` | bumps PATCH |
+| `feat!:` / `BREAKING CHANGE:` | bumps MAJOR |
+| `chore:`, `docs:`, `refactor:`, `ci:` | no version bump |
+
+### Creating a prerelease
+
+Tag manually with the appropriate suffix:
+
+```bash
+git tag api-v1.2.0-beta.1
+git push origin api-v1.2.0-beta.1
+```
+
+The Docker image will be tagged `1.2.0-beta.1` and the GitHub Release will be marked as a prerelease automatically.
 
 ---
 
@@ -191,8 +237,8 @@ Pipeline configuration: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 Contributions are welcome. Please open an issue to discuss any significant changes before submitting a pull request.
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org)
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org) — enforced by commitlint
 4. Open a pull request against `main`
 
 ---
@@ -200,4 +246,3 @@ Contributions are welcome. Please open an issue to discuss any significant chang
 ## License
 
 MIT — Copyright (c) BJJ Éire contributors. See [LICENSE](LICENSE) for details.
-
