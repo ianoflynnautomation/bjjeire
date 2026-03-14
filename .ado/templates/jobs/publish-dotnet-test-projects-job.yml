@@ -40,7 +40,12 @@ jobs:
         testType: 'ApiIntegrationTests'
         artifactName: 'published_ApiIntegrationTests'
         projectPath: |
-            **/*IntegrationTests.csproj
+            **/*Api.IntegrationTests.csproj
+      ApplicationIntegrationTests:
+        testType: 'ApplicationIntegrationTests'
+        artifactName: 'published_ApplicationIntegrationTests'
+        projectPath: |
+            **/*Application.IntegrationTests.csproj
     maxParallel: 6
 
   steps:

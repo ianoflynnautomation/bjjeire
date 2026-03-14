@@ -39,11 +39,17 @@ jobs:
           testAssemblyPattern: |
               BjjEire.Infrastructure.UnitTests/**/*
           testFilterCriteria: 'TestCategory!=Ignore'
-        IntegrationTests:
-          testType: 'IntegrationTests'
+        ApiIntegrationTests:
+          testType: 'ApiIntegrationTests'
           testArtifactName: 'published_ApiIntegrationTests'
           testAssemblyPattern: |
               BjjEire.Api.IntegrationTests/**/*
+          testFilterCriteria: 'TestCategory!=Ignore'
+        ApplicationIntegrationTests:
+          testType: 'ApplicationIntegrationTests'
+          testArtifactName: 'published_ApplicationIntegrationTests'
+          testAssemblyPattern: |
+              BjjEire.Application.IntegrationTests/**/*
           testFilterCriteria: 'TestCategory!=Ignore'
 
   steps:
