@@ -16,6 +16,11 @@ jobs:
 
   strategy:
       matrix:
+        ApiUnitTests:
+          testType: 'ApiUnitTests'
+          testArtifactName: 'published_ApiUnitTests'
+          testAssemblyPattern: |
+              BjjEire.Api.UnitTests/**/*
         DomainUnitTests:
           testType: 'DomainUnitTests'
           testArtifactName: 'published_DomainUnitTests'
