@@ -147,15 +147,15 @@ jobs:
           - test-type: ApplicationUnitTests
             test-artifact-name: published_ApplicationUnitTests
             test-assembly-pattern: "*Application.UnitTests.dll"
-            test-filter-criteria: "TestCategory!=Ignore"
+            test-filter-criteria: "Category!=Ignore"
           - test-type: InfrastructureUnitTests
             test-artifact-name: published_InfrastructureUnitTests
-            test-assembly-pattern: "*InfrastructureUnitTests.UnitTests.dll"
-            test-filter-criteria: "TestCategory!=Ignore"
-          - test-type: IntegrationTests
+            test-assembly-pattern: "*Infrastructure.UnitTests.dll"
+            test-filter-criteria: "Category!=Ignore"
+          - test-type: ApiIntegrationTests
             test-artifact-name: published_ApiIntegrationTests
-            test-assembly-pattern: "*IntegrationTests.dll"
-            test-filter-criteria: "TestCategory!=Ignore"
+            test-assembly-pattern: "*Api.IntegrationTests.dll"
+            test-filter-criteria: "Category!=Ignore"
 
     steps:
       - uses: actions/checkout@v4
