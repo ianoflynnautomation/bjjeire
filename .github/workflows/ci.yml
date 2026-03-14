@@ -10,6 +10,7 @@ on:
       - "logs/**"
       - ".gitattributes"
       - ".gitignore"
+      - "docs/**"
   pull_request:
     branches: [main]
     paths-ignore:
@@ -17,6 +18,7 @@ on:
       - "logs/**"
       - ".gitattributes"
       - ".gitignore"
+      - "docs/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
