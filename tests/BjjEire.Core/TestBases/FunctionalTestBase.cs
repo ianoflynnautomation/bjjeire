@@ -1,10 +1,11 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
 using AutoMapper;
 
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Core.Factories;
+using BjjEire.Core.Interfaces;
 using BjjEire.Domain.Entities;
 
 using MediatR;
@@ -16,43 +17,44 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Core.TestBases;
 
-public class FunctionalTestBase : IClassFixture<CustomApiFactory>
+public class ApplicationTestBase : IAsyncLifetime
 {
-    protected readonly CustomApiFactory _apiFactory;
+    private readonly IServiceScope _scope;
     protected readonly ITestOutputHelper _testOutputHelper;
+    protected ITestDatabaseService Database { get; }
 
-    protected FunctionalTestBase(CustomApiFactory apiFactory, ITestOutputHelper testOutputHelper)
+    protected ApplicationTestBase(CustomApiFactory apiFactory, ITestOutputHelper testOutputHelper)
     {
-        _apiFactory = apiFactory;
         _testOutputHelper = testOutputHelper;
+        _scope = apiFactory.Services.CreateScope();
+        Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
     }
 
-    protected async Task<T> ExecuteScopeAsync<T>(Func<IServiceProvider, Task<T>> action)
+    public virtual async Task InitializeAsync()
     {
-        using var scope = _apiFactory.Services.CreateScope();
-        return await action(scope.ServiceProvider).ConfigureAwait(false);
+        await Database.ClearCollectionsAsync().ConfigureAwait(false);
+    }
+
+    public virtual Task DisposeAsync()
+    {
+        _scope.Dispose();
+        return Task.CompletedTask;
     }
 
     protected Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
-        return ExecuteScopeAsync(sp =>
-        {
-            var mediator = sp.GetRequiredService<IMediator>();
-            return mediator.Send(request);
-        });
+        var mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
+        return mediator.Send(request);
     }
 
-    protected Task<TDto?> FindAsync<TEntity, TDto>(object id)
+    protected async Task<TDto?> FindAsync<TEntity, TDto>(object id)
         where TEntity : BaseEntity
         where TDto : class
     {
-        return ExecuteScopeAsync(async sp =>
-        {
-            var repository = sp.GetRequiredService<IRepository<TEntity>>();
-            var mapper = sp.GetRequiredService<IMapper>();
+        var repository = _scope.ServiceProvider.GetRequiredService<IRepository<TEntity>>();
+        var mapper = _scope.ServiceProvider.GetRequiredService<IMapper>();
 
-            var entity = await repository.GetByIdAsync(id.ToString()!).ConfigureAwait(false);
-            return entity == null ? default : mapper.Map<TDto>(entity);
-        });
+        var entity = await repository.GetByIdAsync(id.ToString()!).ConfigureAwait(false);
+        return entity == null ? default : mapper.Map<TDto>(entity);
     }
 }

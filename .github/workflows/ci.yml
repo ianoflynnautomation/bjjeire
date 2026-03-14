@@ -129,6 +129,9 @@ jobs:
           - test-type: InfrastructureUnitTests
             artifact-name: published_InfrastructureUnitTests
             project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
+          - test-type: ApplicationIntegrationTests
+            artifact-name: published_ApplicationIntegrationTests
+            project-path: "tests/BjjEire.Application.IntegrationTests/BjjEire.Application.IntegrationTests.csproj"
           - test-type: ApiIntegrationTests
             artifact-name: published_ApiIntegrationTests
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
@@ -167,6 +170,10 @@ jobs:
           - test-type: InfrastructureUnitTests
             test-artifact-name: published_InfrastructureUnitTests
             test-assembly-pattern: "*Infrastructure.UnitTests.dll"
+            test-filter-criteria: "Category!=Ignore"
+          - test-type: ApplicationIntegrationTests
+            test-artifact-name: published_ApplicationIntegrationTests
+            test-assembly-pattern: "*Application.IntegrationTests.dll"
             test-filter-criteria: "Category!=Ignore"
           - test-type: ApiIntegrationTests
             test-artifact-name: published_ApiIntegrationTests

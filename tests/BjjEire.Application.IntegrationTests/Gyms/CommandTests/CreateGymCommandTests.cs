@@ -1,21 +1,11 @@
 // Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
 // Licensed under the MIT License.
 
-using BjjEire.Application.Features.Gyms.Commands;
-using BjjEire.Application.Features.Gyms.DTOs;
-using BjjEire.Domain.Entities.Gyms;
+namespace BjjEire.Application.IntegrationTests.Gyms.CommandTests;
 
-using FluentValidation;
-
-using Shouldly;
-
-using Xunit;
-using Xunit.Abstractions;
-
-namespace BjjEire.Application.FunctionalTests.CommandTests;
-
-[Trait("Category", "Functional")]
-public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : FunctionalTestBase(apiFactory, outputHelper)
+[Collection(AppIntegrationCollection.Name)]
+[Trait("Category", "Integration")]
+public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : ApplicationTestBase(apiFactory, outputHelper)
 {
     [Fact]
     public async Task CreateGym_WithValidData_ShouldCreateGymAsync()
