@@ -7,9 +7,11 @@ trigger:
       - 'v*.*.*'
   paths:
     exclude:
-      - '**.md'
-      - '.gitattributes'
-      - '.gitignore'
+      - "**.md"
+      - "logs/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "docs/**"
 
 pr:
   branches:
@@ -17,9 +19,11 @@ pr:
       - main
   paths:
     exclude:
-      - '**.md'
-      - '.gitattributes'
-      - '.gitignore'
+      - "**.md"
+      - "logs/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "docs/**"
 
 
 variables:
