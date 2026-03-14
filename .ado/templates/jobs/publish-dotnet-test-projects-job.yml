@@ -16,6 +16,11 @@ jobs:
 
   strategy:
     matrix:
+      ApiUnitTests:
+        testType: 'ApiUnitTests'
+        artifactName: 'published_ApiUnitTests'
+        projectPath: |
+            **/*Api.UnitTests.csproj
       DomainUnitTests:
         testType: 'DomainUnitTests'
         artifactName: 'published_DomainUnitTests'
