@@ -1,4 +1,10 @@
+
+
 # BJJ Éire
+
+<p align="center">
+  <img src="docs/bjjeire.jpg" alt="BJJ Éire" width="800" />
+</p>
 
 > A community directory of Brazilian Jiu-Jitsu events and gyms across Ireland.
 
