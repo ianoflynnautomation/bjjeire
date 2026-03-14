@@ -1,10 +1,13 @@
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Core.Common;
+using BjjEire.Core.Interfaces;
+using BjjEire.Core.Services;
 using BjjEire.Infrastructure.Data.Mongo;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -97,6 +100,13 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
             _fixtureLogger.LogInformation("Removing all IHostedService implementations for test run.");
             _ = services.RemoveAll<IHostedService>();
+            _ = services.AddScoped<ITestDatabaseService, TestDatabaseService>();
+
+            _ = services.RemoveAll<IUriService>();
+            _ = services.AddSingleton<IUriService, FakeUriService>();
+
+            _ = services.RemoveAll<HybridCache>();
+            _ = services.AddSingleton<HybridCache, NoOpHybridCache>();
         });
         _fixtureLogger.LogInformation("WebHost configuration for integration tests complete.");
     }
