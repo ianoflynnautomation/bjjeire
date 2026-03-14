@@ -36,6 +36,10 @@ const EnvSchema = z.object({
     .union([z.string().url(), z.literal('')])
     .optional()
     .default(''),
+  GITHUB_URL: z
+    .union([z.string().url(), z.literal('')])
+    .optional()
+    .default(''),
 })
 
 export type Env = z.infer<typeof EnvSchema>

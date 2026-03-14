@@ -30,8 +30,6 @@ env:
   SOLUTION_PATH: "BjjEire.sln"
   REACT_APP_PATH: "src/bjjeire-app"
   CONFIGURATION: Release
-  AZURE_CONTAINER_REGISTRY: "bjjeireshareddevacr-h7e7c2fkdwbme0gc.azurecr.io"
-  AZURE_CONTAINER_REGISTRY_SHORT_NAME: "bjjeireshareddevacr"
   API_IMAGE_NAME: "bjjeire-api"
   FRONTEND_IMAGE_NAME: "bjjeire-frontend"
 

@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 import SupportModal from '@/components/support/support-modal'
 import { cn } from '@/lib/utils'
-import { ReactComponent as BitcoinIcon } from '@/assets/bitcoin.svg'
+import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
+import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { paths } from '@/config/paths'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
+import { env } from '@/config/env'
 
 const navItems = [
   {
@@ -64,12 +66,24 @@ const Navigation = (): React.JSX.Element => {
                 ))}
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+              {env.GITHUB_URL && (
+                <a
+                  href={env.GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
+                  aria-label={uiContent.navigation.githubLinkLabel}
+                  data-testid={NavigationTestIds.GITHUB_LINK}
+                >
+                  <GitHubIcon className="h-5 w-5" />
+                </a>
+              )}
               <Button
                 onClick={() => setIsSupportModalOpen(true)}
                 variant="gradient"
                 size="lg"
-                className="ml-4 gap-3"
+                className="ml-2 gap-3"
                 data-testid={NavigationTestIds.SUPPORT_BUTTON}
               >
                 <BitcoinIcon className="h-5 w-5" aria-hidden="true" />
@@ -119,6 +133,19 @@ const Navigation = (): React.JSX.Element => {
                   {item.label}
                 </NavLink>
               ))}
+              {env.GITHUB_URL && (
+                <a
+                  href={env.GITHUB_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-md border-l-4 border-transparent px-3 py-2 text-base font-medium text-slate-400 transition-colors hover:border-emerald-500/40 hover:bg-white/4 hover:text-emerald-300"
+                  aria-label={uiContent.navigation.githubLinkLabel}
+                  data-testid={NavigationTestIds.GITHUB_LINK}
+                >
+                  <GitHubIcon className="h-5 w-5" />
+                  {uiContent.navigation.githubLinkLabel}
+                </a>
+              )}
             </div>
           </div>
         )}

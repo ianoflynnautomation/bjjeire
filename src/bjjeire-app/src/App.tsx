@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, type ReactElement } from 'react'
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,16 +8,17 @@ import {
 } from 'react-router-dom'
 import Navigation from '@/components/layout/navigation'
 import Footer from '@/components/layout/footer'
-import AboutPage from '@/pages/AboutPage'
-import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
-import { initGA, trackPageView } from '@/utils/telemetry'
+import { PageSuspenseFallback } from '@/components/layout/page-suspense-fallback'
+import { trackPageView } from '@/utils/telemetry'
 import { paths } from '@/config/paths'
+import { useAnalytics } from '@/hooks/useAnalytics'
 import '@/index.css'
 
-const EventsPage = React.lazy(() => import('@/pages/EventsPage'))
-const GymsPage = React.lazy(() => import('@/pages/GymsPage'))
+const EventsPage = lazy(() => import('@/pages/EventsPage'))
+const GymsPage = lazy(() => import('@/pages/GymsPage'))
+const AboutPage = lazy(() => import('@/pages/AboutPage'))
 
-const PageViewTracker = (): null => {
+function PageViewTracker(): null {
   const location = useLocation()
 
   useEffect(() => {
@@ -27,15 +28,8 @@ const PageViewTracker = (): null => {
   return null
 }
 
-function App(): React.JSX.Element {
-  useEffect(() => {
-    if (import.meta.env.PROD) {
-      initGA(
-        (import.meta.env.VITE_APP_GA_MEASUREMENT_ID as string | undefined) ??
-          'G-XXXXXXXXXX'
-      )
-    }
-  }, [])
+export default function App(): ReactElement {
+  useAnalytics()
 
   return (
     <Router>
@@ -43,17 +37,7 @@ function App(): React.JSX.Element {
       <div className="dark min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-emerald-950/30 text-slate-100">
         <Navigation />
         <main className="flex-grow">
-          <Suspense
-            fallback={
-              <div className="flex min-h-[60vh] items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/20 p-8">
-                <LoadingSpinner
-                  size="lg"
-                  color="text-emerald-300"
-                  text="Loading page..."
-                />
-              </div>
-            }
-          >
+          <Suspense fallback={<PageSuspenseFallback />}>
             <Routes>
               <Route
                 path={paths.home.path}
@@ -74,5 +58,3 @@ function App(): React.JSX.Element {
     </Router>
   )
 }
-
-export default App

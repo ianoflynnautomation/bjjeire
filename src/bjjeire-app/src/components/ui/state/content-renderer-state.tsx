@@ -32,7 +32,7 @@ export function ContentRenderer<T>({
   noDataMessageLine2,
   showBackgroundFetchingIndicator = true,
   isInitialLoad,
-}: ContentRendererProps<T>): ReactNode {
+}: Readonly<ContentRendererProps<T>>): ReactNode {
   const hasData = data && data.length > 0
 
   if (isInitialLoad && isLoading) {
