@@ -19,7 +19,13 @@ jobs:
       ApplicationUnitTests:
         testType: 'ApplicationUnitTests'
         artifactName: 'published_ApplicationUnitTests'
-        projectPath: 'tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj'
+        projectPath: |
+            **/*Application.UnitTests.csproj
+      InfrastructureUnitTests:
+        testType: 'InfrastructureUnitTests'
+        artifactName: 'published_InfrastructureUnitTests'
+        projectPath: |
+            **/*Infrastructure.UnitTests.csproj
       ApiIntegrationTests:
         testType: 'ApiIntegrationTests'
         artifactName: 'published_ApiIntegrationTests'

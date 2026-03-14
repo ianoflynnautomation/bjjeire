@@ -115,9 +115,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - test-type: UnitTests
-            artifact-name: published_UnitTests
+          - test-type: ApplicationUnitTests
+            artifact-name: published_ApplicationUnitTests
             project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj"
+          - test-type: InfrastructureUnitTests
+            artifact-name: published_InfrastructureUnitTests
+            project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
           - test-type: ApiIntegrationTests
             artifact-name: published_ApiIntegrationTests
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
@@ -141,14 +144,18 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - test-type: UnitTests
-            test-artifact-name: published_UnitTests
-            test-assembly-pattern: "*UnitTests.dll"
-            test-filter-criteria: ""
+          - test-type: ApplicationUnitTests
+            test-artifact-name: published_ApplicationUnitTests
+            test-assembly-pattern: "*Application.UnitTests.dll"
+            test-filter-criteria: "TestCategory!=Ignore"
+          - test-type: InfrastructureUnitTests
+            test-artifact-name: published_InfrastructureUnitTests
+            test-assembly-pattern: "*InfrastructureUnitTests.UnitTests.dll"
+            test-filter-criteria: "TestCategory!=Ignore"
           - test-type: IntegrationTests
             test-artifact-name: published_ApiIntegrationTests
             test-assembly-pattern: "*IntegrationTests.dll"
-            test-filter-criteria: ""
+            test-filter-criteria: "TestCategory!=Ignore"
 
     steps:
       - uses: actions/checkout@v4
