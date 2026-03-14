@@ -1,6 +1,7 @@
 
 **/bin
 **/obj
+tests/
 *.csproj.user
 *.suo
 *.pubxml
@@ -13,6 +14,7 @@
 *.DotSettings
 *.ncrunch*
 
+.ado/
 .git/
 .gitignore
 .github/

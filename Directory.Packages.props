@@ -93,6 +93,9 @@
     <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="$(AspireVersion)" />
   </ItemGroup>
+  <ItemGroup Label="Versioning">
+    <PackageVersion Include="MinVer" Version="5.0.0" />
+  </ItemGroup>
   <ItemGroup Label="Test">
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />

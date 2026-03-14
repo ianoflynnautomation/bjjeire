@@ -1,0 +1,8 @@
+services:
+  api:
+    image: ${GHCR_REGISTRY:-ghcr.io}/${GHCR_OWNER}/bjjeire-api:${API_IMAGE_TAG:-latest}
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Staging"
+
+  frontend:
+    image: ${GHCR_REGISTRY:-ghcr.io}/${GHCR_OWNER}/bjjeire-frontend:${FRONTEND_IMAGE_TAG:-latest}
