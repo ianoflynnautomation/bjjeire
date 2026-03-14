@@ -27,6 +27,8 @@ ENV VITE_APP_MSAL_API_SCOPE=${VITE_APP_MSAL_API_SCOPE}
 RUN npm run build
 
 FROM nginx:stable-alpine
+ARG APP_VERSION=dev
+LABEL org.opencontainers.image.version="${APP_VERSION}"
 
 RUN addgroup -g 101 -S nginx 2>/dev/null || true && \
     adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx 2>/dev/null || true && \

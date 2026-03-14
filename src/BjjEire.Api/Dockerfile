@@ -27,6 +27,8 @@ COPY src/ src/
 RUN dotnet publish src/BjjEire.Api/BjjEire.Api.csproj -c Release -o /app/publish --no-restore
 
 FROM base AS final
+ARG APP_VERSION=dev
+LABEL org.opencontainers.image.version="${APP_VERSION}"
 WORKDIR /app
 
 COPY --from=build --chown=appuser:appgroup /app/publish .
