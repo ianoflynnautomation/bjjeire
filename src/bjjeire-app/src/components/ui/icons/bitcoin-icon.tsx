@@ -1,6 +1,9 @@
 import type { ReactElement, SVGProps } from 'react'
 
-export function BitcoinIcon({ className, ...props }: SVGProps<SVGSVGElement>): ReactElement {
+export function BitcoinIcon({
+  className,
+  ...props
+}: SVGProps<SVGSVGElement>): ReactElement {
   return (
     <svg
       viewBox="0 0 24 24"

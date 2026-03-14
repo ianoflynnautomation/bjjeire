@@ -1,6 +1,9 @@
 import type { ReactElement, SVGProps } from 'react'
 
-export function GitHubIcon({ className, ...props }: Readonly<SVGProps<SVGSVGElement>>): ReactElement {
+export function GitHubIcon({
+  className,
+  ...props
+}: Readonly<SVGProps<SVGSVGElement>>): ReactElement {
   return (
     <svg
       viewBox="0 0 24 24"

@@ -48,12 +48,16 @@ export default function GymsPage(): ReactElement {
 
   const countyLabel =
     COUNTIES.find(c => c.value === activeFilters.county)?.label ??
-    (activeFilters.county === 'all' ? filters.allCountiesOption : activeFilters.county) ??
+    (activeFilters.county === 'all'
+      ? filters.allCountiesOption
+      : activeFilters.county) ??
     filters.allCountiesOption
 
   const handleCountyChange = useCallback(
     (countyValue: string | undefined) => {
-      updateFilters({ county: countyValue } as Partial<GetGymsByCountyPaginationQuery>)
+      updateFilters({
+        county: countyValue,
+      } as Partial<GetGymsByCountyPaginationQuery>)
       scrollToTop()
     },
     [updateFilters, scrollToTop]
