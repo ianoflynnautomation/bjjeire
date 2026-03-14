@@ -7,13 +7,11 @@ trigger:
       - 'v*.*.*'
   paths:
     include:
-      - '**'
-    exclude:
-      - "**.md"
-      - "logs/**"
-      - ".gitattributes"
-      - ".gitignore"
-      - "docs/**"
+      - "src/**"
+      - "tests/**"
+      - ".ado/**"
+      - "Directory.*.props"
+      - "*.sln"
 
 pr:
   branches:
@@ -21,13 +19,11 @@ pr:
       - main
   paths:
     include:
-      - '**'
-    exclude:
-      - "**.md"
-      - "logs/**"
-      - ".gitattributes"
-      - ".gitignore"
-      - "docs/**"
+      - "src/**"
+      - "tests/**"
+      - ".ado/**"
+      - "Directory.*.props"
+      - "*.sln"
 
 
 variables:
