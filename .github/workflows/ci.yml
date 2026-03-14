@@ -120,7 +120,7 @@ jobs:
             project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj"
           - test-type: InfrastructureUnitTests
             artifact-name: published_InfrastructureUnitTests
-            project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
+            project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
           - test-type: ApiIntegrationTests
             artifact-name: published_ApiIntegrationTests
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
