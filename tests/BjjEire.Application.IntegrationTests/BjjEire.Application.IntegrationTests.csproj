@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>BjjEire.Application.FunctionalTests</RootNamespace>
-        <PackageId>BjjEire.Application.FunctionalTests</PackageId>
+        <RootNamespace>BjjEire.Application.IntegrationTests</RootNamespace>
+        <AssemblyName>BjjEire.Application.IntegrationTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
