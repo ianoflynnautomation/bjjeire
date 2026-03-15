@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import type { ClassCategory } from '@/types/gyms'
 import { getClassCategoryLabel } from '@/utils/gymDisplayUtils'
 import { TagIcon } from '@heroicons/react/20/solid'
@@ -13,34 +13,32 @@ interface GymOfferedClassesProps {
   'data-testid'?: string
 }
 
-export const GymOfferedClasses: React.FC<GymOfferedClassesProps> = memo(
-  ({ classes, 'data-testid': rootDataTestId }) => {
-    if (!classes || classes.length === 0) {
-      return null
-    }
-
-    // The root test ID now defaults to the static constant for the classes section.
-    const actualRootDataTestId = rootDataTestId || GymCardTestIds.CLASSES
-
-    return (
-      <DetailItem
-        icon={<TagIcon />}
-        ariaLabel={gymCard.offeredClassesLabel}
-        data-testid={actualRootDataTestId}
-        className="mt-1"
-      >
-        <div className="flex flex-wrap gap-1.5">
-          {classes.map(category => (
-            <span
-              key={category}
-              className="rounded-full bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/30 transition-colors hover:bg-emerald-900/60"
-              data-testid={GymCardTestIds.CLASSES_ITEM}
-            >
-              {getClassCategoryLabel(category)}
-            </span>
-          ))}
-        </div>
-      </DetailItem>
-    )
+export const GymOfferedClasses = memo(function GymOfferedClasses({
+  classes,
+  'data-testid': rootDataTestId,
+}: GymOfferedClassesProps) {
+  if (!classes || classes.length === 0) {
+    return null
   }
-)
+
+  return (
+    <DetailItem
+      icon={<TagIcon />}
+      ariaLabel={gymCard.offeredClassesLabel}
+      data-testid={rootDataTestId ?? GymCardTestIds.CLASSES}
+      className="mt-1"
+    >
+      <div className="flex flex-wrap gap-1.5">
+        {classes.map(category => (
+          <span
+            key={category}
+            className="rounded-full bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/30 transition-colors hover:bg-emerald-900/60"
+            data-testid={GymCardTestIds.CLASSES_ITEM}
+          >
+            {getClassCategoryLabel(category)}
+          </span>
+        ))}
+      </div>
+    </DetailItem>
+  )
+})

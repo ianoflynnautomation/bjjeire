@@ -12,30 +12,25 @@ interface DetailItemProps {
   'data-testid'?: string
 }
 
-export const DetailItem: React.FC<DetailItemProps> = memo(
-  ({
-    icon,
-    children,
-    className,
-    iconClassName,
-    ariaLabel,
-    'data-testid': rootDataTestId,
-  }) => {
-    const actualRootDataTestId = rootDataTestId || DetailItemTestIds.ROOT
+export const DetailItem = memo(function DetailItem({
+  icon,
+  children,
+  className,
+  iconClassName,
+  ariaLabel,
+  'data-testid': rootDataTestId,
+}: DetailItemProps) {
+  const actualRootDataTestId = rootDataTestId ?? DetailItemTestIds.ROOT
 
-    return (
-      <div
-        className={cn('flex items-start gap-x-2.5 text-slate-300', className)}
-        data-testid={actualRootDataTestId}
-      >
-        <IconWrapper className={iconClassName}>{icon}</IconWrapper>
-        <div
-          className="flex-grow"
-          {...(ariaLabel && { 'aria-label': ariaLabel })}
-        >
-          {children}
-        </div>
+  return (
+    <div
+      className={cn('flex items-start gap-x-2.5 text-slate-300', className)}
+      data-testid={actualRootDataTestId}
+    >
+      <IconWrapper className={iconClassName}>{icon}</IconWrapper>
+      <div className="grow" {...(ariaLabel && { 'aria-label': ariaLabel })}>
+        {children}
       </div>
-    )
-  }
-)
+    </div>
+  )
+})

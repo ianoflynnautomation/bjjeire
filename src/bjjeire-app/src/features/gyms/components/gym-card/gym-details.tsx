@@ -27,16 +27,16 @@ export const GymDetails = memo(function GymDetails({
   const { location, timetableUrl, socialMedia, offeredClasses, trialOffer } =
     gym
 
-  const headingId = `gym-details-heading-${gym.id ?? gym.name.replace(/\s+/g, '-')}`
+  const headingId = `gym-details-heading-${gym.id ?? gym.name.replaceAll(/\s+/gu, '-')}`
 
   return (
     <section
       className="space-y-2 text-sm"
       aria-labelledby={headingId}
-      data-testid={rootDataTestId || DetailItemTestIds.ROOT}
+      data-testid={rootDataTestId ?? DetailItemTestIds.ROOT}
     >
       <h2 id={headingId} className="sr-only">
-        Details for {gym.name || 'this gym'}
+        {gymCard.detailsSrLabel} {gym.name || gymCard.fallbackRef}
       </h2>
 
       {location?.address && (
@@ -60,7 +60,7 @@ export const GymDetails = memo(function GymDetails({
       {timetableUrl && (
         <DetailItem
           icon={<ClipboardDocumentListIcon />}
-          ariaLabel="View Timetable"
+          ariaLabel={gymCard.viewTimetableLink}
           data-testid={GymCardTestIds.TIMETABLE}
         >
           <a

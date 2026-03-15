@@ -1,8 +1,9 @@
-import React from 'react'
+import type React from 'react'
 import type { KnownPlatform } from './social-media.config'
 import { platformConfig, isKnownPlatform } from './social-media.config'
 import type { SocialMediaDto } from '@/types/common'
 import { SocialMediaLinksTestIds } from '@/constants/commonDataTestIds'
+import { cn } from '@/lib/utils'
 
 interface SocialLinkProps {
   platform: KnownPlatform
@@ -10,11 +11,11 @@ interface SocialLinkProps {
   'data-testid'?: string
 }
 
-const SocialLink: React.FC<SocialLinkProps> = ({
+function SocialLink({
   platform,
   url,
   'data-testid': rootDataTestId,
-}) => {
+}: SocialLinkProps): React.JSX.Element | null {
   const config = platformConfig[platform]
   if (!config) {
     return null
@@ -29,19 +30,18 @@ const SocialLink: React.FC<SocialLinkProps> = ({
       aria-label={`View on ${label}`}
       title={`View on ${label}`}
       data-testid={rootDataTestId}
-      className={`
-        group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
-        focus-visible:ring-emerald-500 focus-visible:ring-offset-white
-        hover:ring-emerald-200/70
-      `}
+      className={cn(
+        'group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+        'focus-visible:ring-emerald-500 focus-visible:ring-offset-slate-900',
+        'hover:ring-emerald-500/30'
+      )}
     >
       <IconComponent
-        className={`
-          h-5 w-5 text-slate-600 group-hover:scale-110
-          ${hoverTextColorClass}
-          transition-all duration-200 ease-in-out
-        `}
+        className={cn(
+          'h-5 w-5 text-slate-400 group-hover:scale-110 transition-all duration-200 ease-in-out',
+          hoverTextColorClass
+        )}
         aria-hidden="true"
       />
     </a>
@@ -53,10 +53,10 @@ interface SocialMediaLinksProps {
   'data-testid'?: string
 }
 
-export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
+export function SocialMediaLinks({
   socialMedia,
   'data-testid': rootDataTestIdFromParent,
-}) => {
+}: SocialMediaLinksProps): React.JSX.Element | null {
   if (!socialMedia) {
     return null
   }
@@ -80,7 +80,7 @@ export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   }
 
   const actualRootDataTestId =
-    rootDataTestIdFromParent || SocialMediaLinksTestIds.ROOT
+    rootDataTestIdFromParent ?? SocialMediaLinksTestIds.ROOT
 
   return (
     <div

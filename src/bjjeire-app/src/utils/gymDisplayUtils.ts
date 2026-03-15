@@ -1,6 +1,6 @@
 import { GymStatus, ClassCategory } from '@/types/gyms'
 
-export const getGymStatusLabel = (status: GymStatus): string => {
+export function getGymStatusLabel(status: GymStatus): string {
   const labels: Record<GymStatus, string> = {
     [GymStatus.Active]: 'Active',
     [GymStatus.PendingApproval]: 'Pending Approval',
@@ -10,12 +10,12 @@ export const getGymStatusLabel = (status: GymStatus): string => {
     [GymStatus.Draft]: 'Draft',
     [GymStatus.Rejected]: 'Rejected',
   }
-  return labels[status] || 'Unknown Status'
+  return labels[status] ?? 'Unknown Status'
 }
 
-export const getGymStatusColorScheme = (
+export function getGymStatusColorScheme(
   status: GymStatus
-): 'emerald' | 'amber' | 'red' | 'slate' | 'blue' => {
+): 'emerald' | 'amber' | 'red' | 'slate' | 'blue' {
   switch (status) {
     case GymStatus.Active:
     case GymStatus.OpeningSoon:
@@ -33,7 +33,7 @@ export const getGymStatusColorScheme = (
   }
 }
 
-export const getClassCategoryLabel = (category: ClassCategory): string => {
+export function getClassCategoryLabel(category: ClassCategory): string {
   const labels: Record<ClassCategory, string> = {
     [ClassCategory.Uncategorized]: 'Uncategorized',
     [ClassCategory.BJJGiAllLevels]: 'BJJ Gi (All Levels)',
@@ -53,5 +53,5 @@ export const getClassCategoryLabel = (category: ClassCategory): string => {
     [ClassCategory.ProTraining]: 'Pro Training',
     [ClassCategory.Other]: 'Other',
   }
-  return labels[category] || category.toString()
+  return labels[category] ?? category.toString()
 }

@@ -1,23 +1,24 @@
 import { BjjEventType } from '@/types/event'
 import { BJJ_EVENT_TYPES } from '@/constants/eventTypes'
 
-const resolveEventType = (
+function resolveEventType(
   eventType: BjjEventType | string
-): BjjEventType | undefined =>
-  BJJ_EVENT_TYPES.find(
+): BjjEventType | undefined {
+  return BJJ_EVENT_TYPES.find(
     t =>
       t.value === eventType ||
       t.label.toLowerCase() === String(eventType).toLowerCase()
   )?.value
-
-export const getEventTypeLabel = (eventType: BjjEventType | string): string => {
-  const matchedType = resolveEventType(eventType)
-  return BJJ_EVENT_TYPES.find(t => t.value === matchedType)?.label || 'Event'
 }
 
-export const getEventTypeBannerGradient = (
+export function getEventTypeLabel(eventType: BjjEventType | string): string {
+  const matchedType = resolveEventType(eventType)
+  return BJJ_EVENT_TYPES.find(t => t.value === matchedType)?.label ?? 'Event'
+}
+
+export function getEventTypeBannerGradient(
   eventType: BjjEventType | string
-): string => {
+): string {
   const typeValue = resolveEventType(eventType)
   switch (typeValue) {
     case BjjEventType.OpenMat:
@@ -34,22 +35,21 @@ export const getEventTypeBannerGradient = (
   }
 }
 
-export const getEventTypeColorClasses = (
+export function getEventTypeColorClasses(
   eventType: BjjEventType | string
-): string => {
+): string {
   const typeValue = resolveEventType(eventType)
-
   switch (typeValue) {
     case BjjEventType.OpenMat:
-      return 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300/60 dark:bg-emerald-900/50 dark:text-emerald-300 dark:ring-emerald-700/50'
+      return 'bg-emerald-900/50 text-emerald-300 ring-1 ring-emerald-700/50'
     case BjjEventType.Camp:
-      return 'bg-violet-100 text-violet-800 ring-1 ring-violet-300/60 dark:bg-violet-900/50 dark:text-violet-300 dark:ring-violet-700/50'
+      return 'bg-violet-900/50 text-violet-300 ring-1 ring-violet-700/50'
     case BjjEventType.Tournament:
-      return 'bg-rose-100 text-rose-800 ring-1 ring-rose-300/60 dark:bg-rose-900/50 dark:text-rose-300 dark:ring-rose-700/50'
+      return 'bg-rose-900/50 text-rose-300 ring-1 ring-rose-700/50'
     case BjjEventType.Seminar:
-      return 'bg-amber-100 text-amber-800 ring-1 ring-amber-300/60 dark:bg-amber-900/50 dark:text-amber-300 dark:ring-amber-700/50'
+      return 'bg-amber-900/50 text-amber-300 ring-1 ring-amber-700/50'
     case BjjEventType.Other:
     default:
-      return 'bg-slate-100 text-slate-600 ring-1 ring-slate-300/60 dark:bg-slate-700/60 dark:text-slate-300 dark:ring-slate-600/60'
+      return 'bg-slate-700/60 text-slate-300 ring-1 ring-slate-600/60'
   }
 }
