@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 import { LoadingStateTestIds } from '@/constants/commonDataTestIds'
 
@@ -7,15 +7,15 @@ interface LoadingStateProps {
   'data-testid'?: string
 }
 
-const LoadingState: React.FC<LoadingStateProps> = ({
+export default memo(function LoadingState({
   message = 'Loading data...',
   'data-testid': dataTestIdFromProp,
-}) => {
-  const rootTestId = dataTestIdFromProp || LoadingStateTestIds.ROOT
+}: LoadingStateProps) {
+  const rootTestId = dataTestIdFromProp ?? LoadingStateTestIds.ROOT
 
   return (
     <div
-      className="flex w-full justify-center rounded-2xl bg-slate-800/40 p-10 backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/[0.08]"
+      className="flex w-full justify-center rounded-2xl bg-slate-800/40 p-10 backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/8"
       data-testid={rootTestId}
     >
       <LoadingSpinner
@@ -26,6 +26,4 @@ const LoadingState: React.FC<LoadingStateProps> = ({
       />
     </div>
   )
-}
-
-export default memo(LoadingState)
+})

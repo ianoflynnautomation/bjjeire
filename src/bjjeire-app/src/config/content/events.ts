@@ -1,0 +1,42 @@
+export const events = {
+  pageTitle: {
+    all: 'All BJJ Events',
+    prefix: 'BJJ Events in',
+    foundPrefix: 'Found',
+    foundSuffixSingular: 'event.',
+    foundSuffixPlural: 'events.',
+  },
+  card: {
+    fallbackName: 'Unnamed Event',
+    fallbackRef: 'this event',
+    detailsSrLabel: 'Event Details for',
+    viewOnMap: 'View on map',
+    organisedByLabel: 'Organised by',
+    moreInfoButton: 'More Information',
+    noInfoButton: 'Information Unavailable',
+    pricingFree: 'Free',
+    pricingUnavailable: 'Pricing details unavailable',
+    pricingPerDay: 'per day',
+    pricingPerSession: 'per session',
+  },
+  schedule: {
+    fixedDatesTitle: 'Event Dates & Times',
+    weeklyTitle: 'Weekly Schedule',
+    noScheduleMessage: 'No schedule information provided for this event.',
+    noTimingsMessage: 'Timings not specified. Check event page for details.',
+    noHoursMessage: 'Schedule hours not yet specified.',
+    endsPrefix: 'Ends',
+    moreHoursSuffix: 'more',
+  },
+  filters: {
+    countyLabel: 'Select County',
+    eventTypeLabel: 'Event Type',
+    allCountiesOption: 'All Counties',
+    allTypesOption: 'All Types',
+  },
+  hero: {
+    tagline: 'Find BJJ Events Across Ireland',
+    subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
+    imageAlt: 'BJJ Éire logo',
+  },
+} as const

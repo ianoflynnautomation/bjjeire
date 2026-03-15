@@ -1,17 +1,20 @@
-import React from 'react'
+import { memo } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { formatDate, formatTime } from '@/utils/dateUtils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
+import { uiContent } from '@/config/ui-content'
+
+const { schedule: scheduleContent } = uiContent.events
 
 interface EventScheduleProps {
   schedule: BjjEventDto['schedule'] | null | undefined
   'data-testid'?: string
 }
 
-export const EventSchedule: React.FC<EventScheduleProps> = ({
+export const EventSchedule = memo(function EventSchedule({
   schedule,
   'data-testid': dataTestId = 'event-schedule',
-}) => {
+}: EventScheduleProps) {
   if (!schedule) {
     return null
   }
@@ -23,7 +26,7 @@ export const EventSchedule: React.FC<EventScheduleProps> = ({
       dateText += ` – ${formatDate(schedule.endDate)}`
     }
   } else if (schedule.endDate) {
-    dateText = `Ends ${formatDate(schedule.endDate)}`
+    dateText = `${scheduleContent.endsPrefix} ${formatDate(schedule.endDate)}`
   }
 
   const hours = schedule.hours?.slice(0, 3) ?? []
@@ -37,7 +40,7 @@ export const EventSchedule: React.FC<EventScheduleProps> = ({
           data-testid={`${dataTestId}-dates`}
         >
           <CalendarDaysIcon
-            className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-emerald-400"
             aria-hidden="true"
           />
           <span>{dateText}</span>
@@ -50,7 +53,7 @@ export const EventSchedule: React.FC<EventScheduleProps> = ({
           data-testid={`${dataTestId}-hour-${i}`}
         >
           <ClockIcon
-            className="h-3.5 w-3.5 flex-shrink-0 text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-emerald-400"
             aria-hidden="true"
           />
           <span>
@@ -63,9 +66,9 @@ export const EventSchedule: React.FC<EventScheduleProps> = ({
           className="pl-5 text-xs italic text-slate-500"
           data-testid={`${dataTestId}-more`}
         >
-          +{extraCount} more
+          +{extraCount} {scheduleContent.moreHoursSuffix}
         </p>
       )}
     </div>
   )
-}
+})

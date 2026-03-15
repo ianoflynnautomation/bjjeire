@@ -23,7 +23,7 @@ class PageErrorBoundary extends Component<
     return { hasError: true }
   }
 
-  private handleRetry = (): void => {
+  private readonly handleRetry = (): void => {
     this.setState({ hasError: false })
     window.location.reload()
   }
