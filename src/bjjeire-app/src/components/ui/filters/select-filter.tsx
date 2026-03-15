@@ -61,7 +61,7 @@ function SelectFilter<T extends string | number>({
           disabled={disabled}
           data-testid={SelectFilterTestIds.SELECT}
           className={cn(
-            'block w-full rounded-xl border border-white/[0.10] bg-slate-700/50 py-2 pr-4 text-base text-slate-200 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm',
+            'block w-full rounded-xl border border-white/10 bg-slate-700/50 py-2 pr-4 text-base text-slate-200 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm',
             iconPadding,
             disabled && 'cursor-not-allowed bg-slate-800/50 opacity-70'
           )}

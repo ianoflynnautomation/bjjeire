@@ -33,16 +33,16 @@ const Navigation = (): React.JSX.Element => {
   return (
     <>
       <nav
-        className="sticky top-0 z-40 border-b border-white/[0.06] bg-slate-950/80 shadow-sm shadow-black/20 backdrop-blur-xl"
+        className="sticky top-0 z-40 border-b border-white/6 bg-slate-950/80 shadow-sm shadow-black/20 backdrop-blur-xl"
         data-testid={NavigationTestIds.ROOT}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">
             <div className="flex">
-              <div className="flex flex-shrink-0 items-center">
+              <div className="flex shrink-0 items-center">
                 <Link
                   to={paths.home.getHref()}
-                  className="bg-gradient-to-r from-emerald-400 to-orange-400 bg-clip-text text-2xl font-black text-transparent transition-opacity hover:opacity-85"
+                  className="bg-linear-to-r from-emerald-400 to-orange-400 bg-clip-text text-2xl font-black text-transparent transition-opacity hover:opacity-85"
                   data-testid={NavigationTestIds.LOGO_LINK}
                 >
                   {uiContent.brand.displayName}
@@ -93,7 +93,7 @@ const Navigation = (): React.JSX.Element => {
               <div className="ml-2 flex items-center sm:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/[0.06] hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
+                  className="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}
@@ -111,7 +111,7 @@ const Navigation = (): React.JSX.Element => {
         {isMobileMenuOpen && (
           <div
             id="mobile-menu-panel"
-            className="absolute z-30 w-full bg-slate-900/95 shadow-xl ring-1 ring-white/[0.06] backdrop-blur-xl sm:hidden"
+            className="absolute z-30 w-full bg-slate-900/95 shadow-xl ring-1 ring-white/6 backdrop-blur-xl sm:hidden"
             data-testid={NavigationTestIds.MOBILE_PANEL}
           >
             <div className="space-y-1 px-2 pb-3 pt-2">
@@ -125,7 +125,7 @@ const Navigation = (): React.JSX.Element => {
                       'block rounded-md border-l-4 px-3 py-2 text-base font-medium transition-colors',
                       isActive
                         ? 'border-emerald-500 bg-emerald-900/30 text-emerald-300'
-                        : 'border-transparent text-slate-400 hover:border-emerald-500/40 hover:bg-white/[0.04] hover:text-emerald-300'
+                        : 'border-transparent text-slate-400 hover:border-emerald-500/40 hover:bg-white/4 hover:text-emerald-300'
                     )
                   }
                   data-testid={NavigationTestIds.MOBILE_LINK}

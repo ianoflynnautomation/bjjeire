@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import type { HateoasPagination } from '@/types/common'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { buttonVariants } from '@/lib/button-variants'
@@ -12,12 +12,12 @@ interface PaginationProps {
   'data-testid'?: string
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+export default memo(function Pagination({
   currentPage,
   pagination,
   onPageChange,
   'data-testid': dataTestIdFromProp,
-}) => {
+}: PaginationProps) {
   const {
     totalPages,
     hasNextPage,
@@ -32,7 +32,7 @@ const Pagination: React.FC<PaginationProps> = ({
     return null
   }
 
-  const rootTestId = dataTestIdFromProp || PaginationTestIds.ROOT
+  const rootTestId = dataTestIdFromProp ?? PaginationTestIds.ROOT
 
   const itemsStart =
     totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null
@@ -108,6 +108,4 @@ const Pagination: React.FC<PaginationProps> = ({
       </div>
     </nav>
   )
-}
-
-export default memo(Pagination)
+})

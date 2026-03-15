@@ -12,7 +12,7 @@ import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
 import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
-import { useScrollToTop } from '@/utils/scrollUtils'
+import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { formatFetchError } from '@/utils/errorUtils'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
@@ -76,7 +76,7 @@ export default function EventsPage(): ReactElement {
         <EventsPageHeader
           countyName={activeFilters.county}
           totalEvents={paginationInfo?.totalItems}
-          dataTestId={EventsPageTestIds.HEADER}
+          data-testid={EventsPageTestIds.HEADER}
         />
 
         <div className="mb-8 pb-8 border-b border-white/[0.08]">

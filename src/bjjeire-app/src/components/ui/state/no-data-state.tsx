@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
 import { NoDataStateTestIds } from '@/constants/commonDataTestIds'
 
@@ -11,19 +11,19 @@ interface NoDataStateProps {
   'data-testid'?: string
 }
 
-const NoDataState: React.FC<NoDataStateProps> = ({
+export default memo(function NoDataState({
   title = 'No Items Found',
   messageLine1 = 'There are currently no items to display.',
   messageLine2 = 'Try adjusting your filters or check back later.',
   actionText,
   onActionClick,
   'data-testid': dataTestIdFromProp,
-}) => {
-  const rootTestId = dataTestIdFromProp || NoDataStateTestIds.ROOT
+}: NoDataStateProps) {
+  const rootTestId = dataTestIdFromProp ?? NoDataStateTestIds.ROOT
 
   return (
     <div
-      className="my-10 rounded-2xl bg-slate-800/40 p-6 text-center backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/[0.08]"
+      className="my-10 rounded-2xl bg-slate-800/40 p-6 text-center backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/8"
       data-testid={rootTestId}
     >
       <InformationCircleIcon
@@ -59,12 +59,10 @@ const NoDataState: React.FC<NoDataStateProps> = ({
             >
               {actionText}
             </button>
-            .
+            {'.'}
           </>
         )}
       </p>
     </div>
   )
-}
-
-export default memo(NoDataState)
+})

@@ -18,9 +18,14 @@ export const GymsPageHeader = memo(function GymsPageHeader({
   const hasCounty = countyName && countyName.toLowerCase() !== 'all'
   const title = hasCounty ? `${pageTitle.prefix} ${countyName}` : pageTitle.all
 
-  const plural = totalGyms === 1 ? '' : 's'
+  const suffix =
+    totalGyms === 1
+      ? pageTitle.foundSuffixSingular
+      : pageTitle.foundSuffixPlural
   const totalGymsLabel =
-    totalGyms !== undefined ? `Found ${totalGyms} gym${plural}.` : ''
+    totalGyms === undefined
+      ? ''
+      : `${pageTitle.foundPrefix} ${totalGyms} ${suffix}`
 
   return (
     <header

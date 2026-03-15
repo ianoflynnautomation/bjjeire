@@ -13,48 +13,45 @@ export interface CalculatedPrice {
 
 const DEFAULT_CURRENCY = 'EUR'
 
-const getEventDurationDays = (
+function getEventDurationDays(
   startDate?: string | null,
   endDate?: string | null
-): number => {
+): number {
   if (!startDate) {
     return 1
   }
-
   const startDt = parseISO(startDate)
   if (!isValid(startDt) || !endDate) {
     return 1
   }
-
   const endDt = parseISO(endDate)
   if (!isValid(endDt) || endDt < startDt) {
     return 1
   }
-
   return differenceInCalendarDays(endDt, startDt) + 1
 }
 
-export const calculateEventPrice = (
+export function calculateEventPrice(
   schedule?: BjjEventScheduleDto,
   pricing?: BjjEventPricingModelDto
-): CalculatedPrice => {
+): CalculatedPrice {
   if (!pricing || pricing.type === PricingType.Free) {
     return {
       total: 0,
       unit: 'event',
-      currency: pricing?.currency || DEFAULT_CURRENCY,
+      currency: pricing?.currency ?? DEFAULT_CURRENCY,
     }
   }
 
   const { type, amount, durationDays, currency = DEFAULT_CURRENCY } = pricing
-  const amountValue = amount || 0
+  const amountValue = amount ?? 0
 
   if (type === PricingType.FlatRate || !schedule) {
     return { total: amountValue, unit: 'event', currency }
   }
 
   const { startDate: startDateStr, endDate: endDateStr, hours } = schedule
-  const sessionsCount = hours?.length || 0
+  const sessionsCount = hours?.length ?? 0
 
   if (
     !startDateStr &&

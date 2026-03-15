@@ -15,13 +15,12 @@ export const GymCard = memo(function GymCard({
 }: GymCardProps) {
   const { name, county, status, imageUrl, website } = gym
   const headingId = `gym-card-heading-${gym.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
-  const rootTestId = dataTestId || GymsPageTestIds.LIST_ITEM
+  const rootTestId = dataTestId ?? GymsPageTestIds.LIST_ITEM
 
   return (
     <Card
       className="relative isolate focus-within:ring-2 focus-within:ring-emerald-400/60"
       data-testid={rootTestId}
-      role="listitem"
       aria-labelledby={headingId}
     >
       <div

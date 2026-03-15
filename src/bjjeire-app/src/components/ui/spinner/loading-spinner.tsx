@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { SpinnerTestIds } from '@/constants/commonDataTestIds'
 import { cn } from '@/lib/utils'
 
@@ -10,14 +10,14 @@ interface LoadingSpinnerProps {
   'data-testid'?: string
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export default memo(function LoadingSpinner({
   size = 'md',
   color = 'text-emerald-600',
   text,
   className = '',
   'data-testid': dataTestIdFromProp,
-}) => {
-  const rootTestId = dataTestIdFromProp || SpinnerTestIds.ROOT
+}: LoadingSpinnerProps) {
+  const rootTestId = dataTestIdFromProp ?? SpinnerTestIds.ROOT
 
   const sizeClasses = {
     sm: 'w-5 h-5 border-2',
@@ -41,9 +41,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         aria-hidden="true"
       />
       {text && <p className={cn('mt-3 text-sm font-medium', color)}>{text}</p>}
-      <span className="sr-only">{text || 'Loading...'}</span>
+      <span className="sr-only">{text ?? 'Loading...'}</span>
     </div>
   )
-}
-
-export default memo(LoadingSpinner)
+})
