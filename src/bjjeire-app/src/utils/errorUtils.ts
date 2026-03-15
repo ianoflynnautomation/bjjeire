@@ -1,4 +1,4 @@
-export const formatFetchError = (error: unknown): string => {
+export function formatFetchError(error: unknown): string {
   const defaultMessage = 'An unexpected error occurred. Please try again.'
 
   if (!error) {

@@ -1,6 +1,6 @@
 import { format, parseISO, isValid } from 'date-fns'
 
-export const formatTime = (time: string): string => {
+export function formatTime(time: string): string {
   try {
     const [hours, minutes] = time.split(':')
     if (hours === undefined || minutes === undefined) {
@@ -17,7 +17,7 @@ export const formatTime = (time: string): string => {
   }
 }
 
-export const formatDate = (dateString: string): string => {
+export function formatDate(dateString: string): string {
   try {
     const date = parseISO(dateString)
     if (!isValid(date)) {

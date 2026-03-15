@@ -1,29 +1,22 @@
 import ReactGA from 'react-ga4'
 
-export const initGA = (measurementId: string): void => {
+export function initGA(measurementId: string): void {
   ReactGA.initialize(measurementId)
 }
 
-export const trackPageView = (path: string): void => {
+export function trackPageView(path: string): void {
   ReactGA.send({ hitType: 'pageview', page: path })
 }
 
-export const trackEvent = (
+export function trackEvent(
   category: string,
   action: string,
   label?: string
-): void => {
-  ReactGA.event({
-    category,
-    action,
-    label,
-  })
+): void {
+  ReactGA.event({ category, action, label })
 }
 
-export const trackFormSubmission = (
-  formName: string,
-  success: boolean
-): void => {
+export function trackFormSubmission(formName: string, success: boolean): void {
   trackEvent(
     'Form',
     'Submit',
@@ -31,10 +24,10 @@ export const trackFormSubmission = (
   )
 }
 
-export const trackNavigation = (from: string, to: string): void => {
+export function trackNavigation(from: string, to: string): void {
   trackEvent('Navigation', 'Route Change', `${from} -> ${to}`)
 }
 
-export const trackUserInteraction = (element: string, action: string): void => {
+export function trackUserInteraction(element: string, action: string): void {
   trackEvent('User Interaction', action, element)
 }

@@ -7,16 +7,13 @@ interface IconWrapperProps {
   'aria-hidden'?: boolean
 }
 
-export const IconWrapper: React.FC<IconWrapperProps> = ({
+export function IconWrapper({
   children,
   className = 'h-5 w-5 text-emerald-400',
   'aria-hidden': ariaHidden = true,
-}) => {
+}: IconWrapperProps): React.JSX.Element {
   return (
-    <span
-      className={cn('mt-0.5 flex-shrink-0', className)}
-      aria-hidden={ariaHidden}
-    >
+    <span className={cn('mt-0.5 shrink-0', className)} aria-hidden={ariaHidden}>
       {children}
     </span>
   )

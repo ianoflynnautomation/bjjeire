@@ -1,6 +1,6 @@
 import type { MapLocationData } from '@/types/common'
 
-export const getGoogleMapsUrl = (location?: MapLocationData | null): string => {
+export function getGoogleMapsUrl(location?: MapLocationData | null): string {
   if (!location) {
     return '#'
   }
@@ -17,12 +17,11 @@ export const getGoogleMapsUrl = (location?: MapLocationData | null): string => {
   }
 
   const queryParts: string[] = []
-  if (address && address.trim()) {
+  if (address?.trim()) {
     queryParts.push(address.trim())
   }
   if (
-    venue &&
-    venue.trim() &&
+    venue?.trim() &&
     venue.trim().toLowerCase() !== address?.trim().toLowerCase()
   ) {
     queryParts.push(venue.trim())

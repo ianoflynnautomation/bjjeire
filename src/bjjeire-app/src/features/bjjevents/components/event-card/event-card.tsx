@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
 import {
@@ -12,47 +12,45 @@ interface EventCardProps {
   'data-testid'?: string
 }
 
-export const EventCard: React.FC<EventCardProps> = memo(
-  ({ event, 'data-testid': dataTestId }) => {
-    const { name, eventUrl, schedule, type, county, imageUrl } = event
-    const headingId = `event-card-heading-${event.id ?? name.replace(/\s+/g, '-').toLowerCase()}`
+export const EventCard = memo(function EventCard({
+  event,
+  'data-testid': dataTestId,
+}: EventCardProps) {
+  const { name, eventUrl, schedule, type, county, imageUrl } = event
+  const headingId = `event-card-heading-${event.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const rootTestId = dataTestId ?? EventsPageTestIds.LIST_ITEM
 
-    const rootTestId = dataTestId || EventsPageTestIds.LIST_ITEM
+  return (
+    <Card
+      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      data-testid={rootTestId}
+      role="listitem"
+      aria-labelledby={headingId}
+    >
+      <EventHeader
+        name={name}
+        type={type}
+        county={county}
+        imageUrl={imageUrl}
+        headingId={headingId}
+      />
 
-    return (
-      <Card
-        className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
-        data-testid={rootTestId}
-        role="listitem"
-        aria-labelledby={headingId}
-      >
-        <EventHeader
-          name={name}
-          type={type}
-          county={county}
-          imageUrl={imageUrl}
-          headingId={headingId}
-        />
+      <CardContent>
+        <div className="mb-4">
+          <EventDetails event={event} />
+        </div>
 
-        <CardContent>
-          <div className="mb-4">
-            <EventDetails event={event} />
+        {schedule && (
+          <div
+            className="mb-4 text-sm text-slate-300"
+            data-testid={EventCardTestIds.SCHEDULE}
+          >
+            <EventSchedule schedule={schedule} />
           </div>
+        )}
 
-          {schedule && (
-            <div
-              className="mb-4 text-sm text-slate-300"
-              data-testid={EventCardTestIds.SCHEDULE}
-            >
-              <EventSchedule schedule={schedule} />
-            </div>
-          )}
-
-          <div className="flex-grow" />
-
-          <EventFooter eventUrl={eventUrl} eventName={name} />
-        </CardContent>
-      </Card>
-    )
-  }
-)
+        <EventFooter eventUrl={eventUrl} eventName={name} />
+      </CardContent>
+    </Card>
+  )
+})

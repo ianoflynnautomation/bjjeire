@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { ErrorStateTestIds } from '@/constants/commonDataTestIds'
 import { Button } from '@/components/ui/button/button'
@@ -10,33 +10,33 @@ interface ErrorStateProps {
   'data-testid'?: string
 }
 
-export const ErrorState: React.FC<ErrorStateProps> = ({
+export default memo(function ErrorState({
   message,
   title = 'Error Loading Data',
   onRetry,
   'data-testid': dataTestIdFromProp,
-}) => {
-  const rootTestId = dataTestIdFromProp || ErrorStateTestIds.ROOT
+}: ErrorStateProps) {
+  const rootTestId = dataTestIdFromProp ?? ErrorStateTestIds.ROOT
 
   return (
     <div
       role="alert"
-      className="my-10 rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50 to-orange-50 p-6 text-center shadow-md ring-1 ring-amber-100/80"
+      className="my-10 rounded-2xl border border-red-500/30 bg-slate-800/40 p-6 text-center backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/8"
       data-testid={rootTestId}
     >
       <ExclamationTriangleIcon
-        className="mx-auto h-12 w-12 text-amber-600"
+        className="mx-auto h-12 w-12 text-red-400"
         aria-hidden="true"
         data-testid={ErrorStateTestIds.ICON}
       />
       <h3
-        className="mt-3 text-lg font-bold text-amber-900"
+        className="mt-3 text-lg font-bold text-slate-50"
         data-testid={ErrorStateTestIds.TITLE}
       >
         {title}
       </h3>
       <p
-        className="mt-1 text-sm text-amber-800"
+        className="mt-1 text-sm text-slate-400"
         data-testid={ErrorStateTestIds.MESSAGE_LINE1}
       >
         {message}
@@ -50,6 +50,4 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       </Button>
     </div>
   )
-}
-
-export default memo(ErrorState)
+})

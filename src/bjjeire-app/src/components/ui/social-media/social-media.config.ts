@@ -13,7 +13,7 @@ export const platformConfig = {
   },
   x: {
     IconComponent: SiX,
-    hoverTextColorClass: 'hover:text-black dark:hover:text-white',
+    hoverTextColorClass: 'hover:text-white',
     label: 'X',
   },
   youTube: {

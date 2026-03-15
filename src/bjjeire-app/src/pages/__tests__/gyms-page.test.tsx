@@ -7,7 +7,7 @@ import { MOCK_GYM_FULL, MOCK_GYM_MINIMAL } from './mocks/gym.mock'
 import type { HateoasPagination } from '@/types/common'
 
 vi.mock('@/hooks/usePaginatedQuery')
-vi.mock('@/utils/scrollUtils', () => ({
+vi.mock('@/hooks/useScrollToTop', () => ({
   useScrollToTop: vi.fn(() => vi.fn()),
 }))
 vi.mock('@/features/gyms/components/gym-page-header', () => ({

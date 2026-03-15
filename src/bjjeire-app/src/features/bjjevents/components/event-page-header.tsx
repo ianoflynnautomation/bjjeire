@@ -7,27 +7,32 @@ const { pageTitle } = uiContent.events
 interface EventsPageHeaderProps {
   countyName?: string
   totalEvents?: number
-  dataTestId?: string
+  'data-testid'?: string
 }
 
 export const EventsPageHeader = memo(function EventsPageHeader({
   countyName,
   totalEvents,
-  dataTestId = EventsPageTestIds.HEADER,
+  'data-testid': baseTestId = EventsPageTestIds.HEADER,
 }: EventsPageHeaderProps) {
   const isAllCounties = !countyName || countyName.toLowerCase() === 'all'
   const title = isAllCounties
     ? pageTitle.all
     : `${pageTitle.prefix} ${countyName}`
 
-  const plural = totalEvents === 1 ? '' : 's'
+  const suffix =
+    totalEvents === 1
+      ? pageTitle.foundSuffixSingular
+      : pageTitle.foundSuffixPlural
   const totalEventsLabel =
-    totalEvents !== undefined ? `Found ${totalEvents} event${plural}.` : ''
+    totalEvents === undefined
+      ? ''
+      : `${pageTitle.foundPrefix} ${totalEvents} ${suffix}`
 
   return (
     <header
       className="relative mb-8 overflow-hidden rounded-3xl bg-slate-800/40 px-5 py-6 backdrop-blur-sm ring-1 ring-white/8 sm:px-7"
-      data-testid={dataTestId}
+      data-testid={baseTestId}
     >
       {/* Subtle Irish tricolor top accent */}
       <div
