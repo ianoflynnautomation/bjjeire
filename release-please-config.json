@@ -28,7 +28,6 @@
       "component": "frontend",
       "tag-name": "frontend-v${version}",
       "changelog-path": "CHANGELOG.md"
-    },
-    "_note": "Helm charts live in ianoflynnautomation/bjjeire-deploy — versioned independently there"
+    }
   }
 }
