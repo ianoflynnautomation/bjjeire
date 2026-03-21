@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using BjjEire.Domain.Entities;
 
 namespace BjjEire.Seeder;
@@ -25,7 +26,8 @@ public class SeederService(IMongoDatabase db, bool dryRun)
         await Console.Out.WriteLineAsync($"\n── {collectionName} ({jsonPath}) ──");
 
         var entities = await LoadEntitiesAsync<T>(jsonPath);
-        if (entities is null) return 1;
+        if (entities is null)
+            return 1;
         if (entities.Count == 0)
         {
             await Console.Out.WriteLineAsync("  No documents found — skipping.");
@@ -73,9 +75,15 @@ public class SeederService(IMongoDatabase db, bool dryRun)
 
             switch (outcome)
             {
-                case UpsertOutcome.Inserted:    inserted++; break;
-                case UpsertOutcome.Replaced:    replaced++; break;
-                case UpsertOutcome.Failed:      failed++;   break;
+                case UpsertOutcome.Inserted:
+                    inserted++;
+                    break;
+                case UpsertOutcome.Replaced:
+                    replaced++;
+                    break;
+                case UpsertOutcome.Failed:
+                    failed++;
+                    break;
             }
         }
 
@@ -109,11 +117,11 @@ public class SeederService(IMongoDatabase db, bool dryRun)
     private static void LogOutcome(string id, UpsertOutcome outcome, string? error) =>
         Console.WriteLine(outcome switch
         {
-            UpsertOutcome.Inserted      => $"  INSERTED      {id}",
-            UpsertOutcome.Replaced      => $"  REPLACED      {id}",
-            UpsertOutcome.DryRunInsert  => $"  [DRY RUN]     {id} — would insert",
+            UpsertOutcome.Inserted => $"  INSERTED      {id}",
+            UpsertOutcome.Replaced => $"  REPLACED      {id}",
+            UpsertOutcome.DryRunInsert => $"  [DRY RUN]     {id} — would insert",
             UpsertOutcome.DryRunReplace => $"  [DRY RUN]     {id} — would replace",
-            UpsertOutcome.Failed        => $"  FAILED        {id} — {error}",
-            _                           => $"  UNKNOWN       {id}",
+            UpsertOutcome.Failed => $"  FAILED        {id} — {error}",
+            _ => $"  UNKNOWN       {id}",
         });
 }

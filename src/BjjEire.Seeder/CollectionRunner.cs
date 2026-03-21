@@ -19,7 +19,7 @@ internal static class CollectionRunner
 
         if (toRun.Length == 0)
         {
-            Console.Error.WriteLine($"ERROR: Unknown collection '{filter}'. Valid values: {string.Join(", ", Collections.Select(c => c.name))}");
+            await Console.Error.WriteLineAsync($"ERROR: Unknown collection '{filter}'. Valid values: {string.Join(", ", Collections.Select(c => c.name))}");
             return 1;
         }
 

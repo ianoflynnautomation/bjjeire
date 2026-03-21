@@ -1,7 +1,7 @@
 using BjjEire.Seeder;
 
-var isDryRun         = args.Contains("--dry-run");
-var isForce          = args.Contains("--force");
+var isDryRun = args.Contains("--dry-run");
+var isForce = args.Contains("--force");
 var collectionFilter = args.SkipWhile(a => a != "--collection").Skip(1).FirstOrDefault();
 
 if (!EnvironmentGuard.IsAllowed(isForce)) return 1;
