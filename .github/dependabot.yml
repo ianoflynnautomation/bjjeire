@@ -1,19 +1,112 @@
 version: 2
 updates:
-  - package-ecosystem: "nuget"
-    directory: "/"
+
+  - package-ecosystem: nuget
+    directory: /
     schedule:
-      interval: "weekly"
-    target-branch: "main"
+      interval: weekly
+      day: monday
     open-pull-requests-limit: 10
     labels:
-      - "dependencies"
-      - "nuget"
+      - dependencies
+      - dotnet
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: chore
+      include: scope
+    groups:
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+          - "Microsoft.AspNetCore.*"
+      aspire:
+        patterns:
+          - "Aspire.*"
+      opentelemetry:
+        patterns:
+          - "OpenTelemetry*"
+      testing:
+        patterns:
+          - "xunit*"
+          - "FluentAssertions*"
+          - "NSubstitute*"
+          - "coverlet*"
+          - "Testcontainers*"
     ignore:
       - dependency-name: "Microsoft.*"
-        versions: ["10.x"]
+        update-types: ["version-update:semver-major"]
       - dependency-name: "Aspire.*"
-        versions: ["10.x"]
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm
+    directory: /src/bjjeire-app
+    schedule:
+      interval: weekly
+      day: tuesday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      testing:
+        patterns:
+          - "vitest*"
+          - "@testing-library/*"
+          - "@vitest/*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: docker
+    directory: /src/BjjEire.Api
+    schedule:
+      interval: weekly
+      day: thursday
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: docker
+    directory: /src/bjjeire-app
+    schedule:
+      interval: weekly
+      day: thursday
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: docker
+    directory: /src/BjjEire.Seeder
+    schedule:
+      interval: weekly
+      day: thursday
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
