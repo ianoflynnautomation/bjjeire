@@ -6,8 +6,12 @@ const STORAGE_KEY = 'bjjeire-theme'
 
 function getInitialTheme(): Theme {
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
-  if (stored === 'light' || stored === 'dark') {return stored}
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  if (stored === 'light' || stored === 'dark') {
+    return stored
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
 }
 
 export function useTheme(): { theme: Theme; toggleTheme: () => void } {
@@ -20,7 +24,8 @@ export function useTheme(): { theme: Theme; toggleTheme: () => void } {
     localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 
-  const toggleTheme = (): void => setTheme((t: Theme): Theme => (t === 'dark' ? 'light' : 'dark'))
+  const toggleTheme = (): void =>
+    setTheme((t: Theme): Theme => (t === 'dark' ? 'light' : 'dark'))
 
   return { theme, toggleTheme }
 }
