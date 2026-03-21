@@ -28,7 +28,8 @@ const Navigation = (): React.JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
 
-  const activeClassName = 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
+  const activeClassName =
+    'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
   const inactiveClassName =
     'border-b-2 border-transparent text-slate-500 hover:border-emerald-500/50 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-300'
 
@@ -72,7 +73,11 @@ const Navigation = (): React.JSX.Element => {
               <button
                 onClick={toggleTheme}
                 className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-black/6 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-400 dark:hover:bg-white/6 dark:hover:text-slate-100"
-                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                aria-label={
+                  theme === 'dark'
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode'
+                }
               >
                 {theme === 'dark' ? (
                   <SunIcon className="h-5 w-5" aria-hidden="true" />
