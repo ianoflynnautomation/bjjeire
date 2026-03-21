@@ -21,7 +21,10 @@ internal static class DatabaseFactory
 
         RegisterConventions();
 
+        // MongoClient owns the connection pool and must remain alive for the process lifetime — do not dispose.
+#pragma warning disable CA2000
         return new MongoClient(connectionString).GetDatabase(dbName);
+#pragma warning restore CA2000
     }
 
     private static void RegisterConventions()
