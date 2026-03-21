@@ -84,7 +84,7 @@ export default function GymsPage(): ReactElement {
           totalGyms={paginationInfo?.totalItems}
         />
 
-        <div className="mb-8 pb-8 border-b border-white/8">
+        <div className="mb-8 pb-8 border-b border-black/8 dark:border-white/8">
           <SelectFilter
             id="county-filter"
             label={filters.countyLabel}
@@ -117,7 +117,7 @@ export default function GymsPage(): ReactElement {
           paginationInfo.totalPages > 1 &&
           !fetchError &&
           gyms.length > 0 && (
-            <div className="mt-10 border-t border-white/8 pt-8">
+            <div className="mt-10 border-t border-black/8 dark:border-white/8 pt-8">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}

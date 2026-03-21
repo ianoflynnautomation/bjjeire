@@ -21,7 +21,7 @@ export default memo(function ErrorState({
   return (
     <div
       role="alert"
-      className="my-10 rounded-2xl border border-red-500/30 bg-slate-800/40 p-6 text-center backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/8"
+      className="my-10 rounded-2xl border border-red-500/30 bg-white/80 p-6 text-center backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-black/8 dark:bg-slate-800/40 dark:shadow-black/20 dark:ring-white/8"
       data-testid={rootTestId}
     >
       <ExclamationTriangleIcon
@@ -30,13 +30,13 @@ export default memo(function ErrorState({
         data-testid={ErrorStateTestIds.ICON}
       />
       <h3
-        className="mt-3 text-lg font-bold text-slate-50"
+        className="mt-3 text-lg font-bold text-slate-900 dark:text-slate-50"
         data-testid={ErrorStateTestIds.TITLE}
       >
         {title}
       </h3>
       <p
-        className="mt-1 text-sm text-slate-400"
+        className="mt-1 text-sm text-slate-500 dark:text-slate-400"
         data-testid={ErrorStateTestIds.MESSAGE_LINE1}
       >
         {message}

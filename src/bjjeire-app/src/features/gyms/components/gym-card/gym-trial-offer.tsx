@@ -43,8 +43,8 @@ export const GymTrialOffer = memo(function GymTrialOffer({
       icon={<SparklesIcon />}
       ariaLabel={ariaLabel}
       data-testid={rootDataTestId ?? GymCardTestIds.TRIAL_OFFER}
-      className="mt-1 rounded-xl bg-amber-900/30 px-2 py-1 text-amber-200 ring-1 ring-amber-500/20"
-      iconClassName="h-5 w-5 text-amber-400"
+      className="mt-1 rounded-xl bg-amber-50 px-2 py-1 text-amber-800 ring-1 ring-amber-500/20 dark:bg-amber-900/30 dark:text-amber-200"
+      iconClassName="h-5 w-5 text-amber-500 dark:text-amber-400"
     >
       <span className="font-medium">{displayContent}</span>
     </DetailItem>

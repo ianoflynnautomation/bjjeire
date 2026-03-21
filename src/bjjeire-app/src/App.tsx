@@ -34,7 +34,7 @@ export default function App(): ReactElement {
   return (
     <Router>
       <PageViewTracker />
-      <div className="dark min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-emerald-950/30 text-slate-100">
+      <div className="min-h-screen text-slate-900 dark:text-slate-100">
         <Navigation />
         <main className="flex-grow">
           <Suspense fallback={<PageSuspenseFallback />}>

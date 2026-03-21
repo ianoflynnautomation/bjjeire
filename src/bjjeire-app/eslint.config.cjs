@@ -13,7 +13,10 @@ module.exports = tseslint.config(
   },
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+    ],
     plugins: {
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
@@ -36,7 +39,10 @@ module.exports = tseslint.config(
       // TypeScript rules
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-unsafe-assignment': 'error',
       '@typescript-eslint/no-unsafe-call': 'error',
       '@typescript-eslint/no-unsafe-member-access': 'error',
@@ -46,7 +52,10 @@ module.exports = tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
       // attributes: false allows async functions as JSX event handlers (onClick, onChange, etc.)
       // TypeScript itself already permits this — () => void accepts any return value
-      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { attributes: false } },
+      ],
 
       // React rules
       'react/prop-types': 'off',
@@ -54,7 +63,10 @@ module.exports = tseslint.config(
       'react/react-in-jsx-scope': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
 
       // General rules
       'no-console': ['error', { allow: ['warn', 'error'] }],
@@ -65,7 +77,11 @@ module.exports = tseslint.config(
   },
   // Relax unsafe-* rules for test and setup files where vi.fn() mocking produces any-typed params
   {
-    files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}', '**/setup-tests.ts'],
+    files: [
+      '**/*.test.{ts,tsx}',
+      '**/__tests__/**/*.{ts,tsx}',
+      '**/setup-tests.ts',
+    ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
@@ -73,5 +89,5 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/unbound-method': 'off',
     },
-  },
+  }
 )

@@ -49,7 +49,7 @@ export const GymDetails = memo(function GymDetails({
             href={getGoogleMapsUrl(gym.location)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
+            className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
             data-testid={GymCardTestIds.ADDRESS_LINK}
           >
             {location.address} {location.venue && `(${location.venue})`}
@@ -67,7 +67,7 @@ export const GymDetails = memo(function GymDetails({
             href={ensureExternalUrlScheme(timetableUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm text-slate-300 underline-offset-2 transition-colors hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60"
+            className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
             data-testid={GymCardTestIds.TIMETABLE_LINK}
           >
             {gymCard.viewTimetableLink}
