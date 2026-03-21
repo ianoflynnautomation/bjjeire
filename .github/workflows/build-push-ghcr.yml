@@ -3,8 +3,6 @@ name: Build & Push to GHCR
 on:
   push:
     branches: [main]
-    tags:
-      - "v*.*.*"
     paths-ignore:
       - "**.md"
       - "logs/**"
