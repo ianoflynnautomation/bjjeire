@@ -14,10 +14,10 @@ export default function AboutPage(): ReactElement {
     <PageLayout>
       <div className="mx-auto max-w-4xl py-10 sm:py-12">
         <header className="mb-10 text-center">
-          <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white">
             {uiContent.about.title}
           </h1>
-          <p className="mt-4 text-lg text-slate-400">
+          <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">
             {uiContent.about.subtitle}
           </p>
         </header>
@@ -25,7 +25,7 @@ export default function AboutPage(): ReactElement {
         <div className="space-y-6">
           <section
             aria-labelledby="about-mission-heading"
-            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
+            className="relative overflow-hidden rounded-3xl bg-white/80 p-6 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/40 dark:ring-white/8"
           >
             <div
               className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
@@ -33,11 +33,11 @@ export default function AboutPage(): ReactElement {
             />
             <h2
               id="about-mission-heading"
-              className="mb-4 text-2xl font-bold text-white"
+              className="mb-4 text-2xl font-bold text-slate-900 dark:text-white"
             >
               {uiContent.about.missionTitle}
             </h2>
-            <div className="space-y-4 leading-relaxed text-slate-300">
+            <div className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-300">
               <p>{uiContent.about.missionParagraph1}</p>
               <p>{uiContent.about.missionParagraph2}</p>
             </div>
@@ -45,7 +45,7 @@ export default function AboutPage(): ReactElement {
 
           <section
             aria-labelledby="about-values-heading"
-            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
+            className="relative overflow-hidden rounded-3xl bg-white/80 p-6 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/40 dark:ring-white/8"
           >
             <div
               className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
@@ -53,11 +53,11 @@ export default function AboutPage(): ReactElement {
             />
             <h2
               id="about-values-heading"
-              className="mb-4 text-2xl font-bold text-white"
+              className="mb-4 text-2xl font-bold text-slate-900 dark:text-white"
             >
               {uiContent.about.principlesTitle}
             </h2>
-            <ul className="list-disc space-y-2 pl-6 text-slate-300 marker:text-emerald-400">
+            <ul className="list-disc space-y-2 pl-6 text-slate-700 marker:text-emerald-500 dark:text-slate-300 dark:marker:text-emerald-400">
               {uiContent.about.principles.map(item => (
                 <li key={item}>{item}</li>
               ))}
@@ -66,7 +66,7 @@ export default function AboutPage(): ReactElement {
 
           <section
             aria-labelledby="about-contact-heading"
-            className="relative overflow-hidden rounded-3xl bg-slate-800/40 p-6 backdrop-blur-sm ring-1 ring-white/8"
+            className="relative overflow-hidden rounded-3xl bg-white/80 p-6 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/40 dark:ring-white/8"
           >
             <div
               className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
@@ -74,15 +74,15 @@ export default function AboutPage(): ReactElement {
             />
             <h2
               id="about-contact-heading"
-              className="mb-4 text-2xl font-bold text-white"
+              className="mb-4 text-2xl font-bold text-slate-900 dark:text-white"
             >
               {uiContent.about.contactTitle}
             </h2>
-            <p className="text-slate-300">
+            <p className="text-slate-700 dark:text-slate-300">
               {uiContent.about.contactPrefix}{' '}
               <a
                 href={`mailto:${env.CONTACT_EMAIL}`}
-                className="font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline"
+                className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
               >
                 {env.CONTACT_EMAIL}
               </a>

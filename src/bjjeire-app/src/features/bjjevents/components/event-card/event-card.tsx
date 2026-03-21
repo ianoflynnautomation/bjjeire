@@ -42,7 +42,7 @@ export const EventCard = memo(function EventCard({
 
         {schedule && (
           <div
-            className="mb-4 text-sm text-slate-300"
+            className="mb-4 text-sm text-slate-600 dark:text-slate-300"
             data-testid={EventCardTestIds.SCHEDULE}
           >
             <EventSchedule schedule={schedule} />

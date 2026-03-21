@@ -1,26 +1,35 @@
 @import 'tailwindcss';
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
 
-:root {
-  --irish-green-400: #34d399;
-  --irish-green-500: #10b981;
-  --irish-green-700: #047857;
-  --irish-orange-300: #fdba74;
-  --irish-orange-500: #f97316;
-  --irish-slate-50: #f8fafc;
-  --irish-slate-200: #e2e8f0;
-  --irish-slate-900: #0f172a;
-  --irish-slate-950: #020617;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
   }
+
+  /* Light mode (default) */
   body {
-    font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
-    color: var(--irish-slate-50);
+    font-family: 'Manrope', system-ui, 'Segoe UI', sans-serif;
+    color: #0f172a;
+    background:
+      radial-gradient(
+        48rem 20rem at 100% -5%,
+        rgba(16, 185, 129, 0.07),
+        transparent 68%
+      ),
+      radial-gradient(
+        36rem 18rem at -5% 100%,
+        rgba(249, 115, 22, 0.05),
+        transparent 70%
+      ),
+      #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Dark mode */
+  html.dark body {
+    color: #f8fafc;
     background:
       radial-gradient(
         56rem 28rem at 100% -10%,
@@ -33,13 +42,11 @@
         transparent 70%
       ),
       linear-gradient(180deg, #020617 0%, #0b1220 48%, #052e2b 100%);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    color: #ecfeff;
-    background: rgba(16, 185, 129, 0.35);
+    color: #ffffff;
+    background: #047857;
   }
 
   a:focus-visible,
@@ -52,17 +59,19 @@
   }
 }
 
-@keyframes modal-show {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
+@layer utilities {
+  @keyframes modal-show {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
-.animate-modal-show {
-  animation: modal-show 0.3s ease-out forwards;
+  .animate-modal-show {
+    animation: modal-show 0.3s ease-out forwards;
+  }
 }

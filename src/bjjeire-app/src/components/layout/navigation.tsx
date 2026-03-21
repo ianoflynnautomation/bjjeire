@@ -1,7 +1,7 @@
 import type React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useState } from 'react'
-import { Bars3Icon } from '@heroicons/react/24/outline'
+import { Bars3Icon, SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import SupportModal from '@/components/support/support-modal'
 import { cn } from '@/lib/utils'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
@@ -11,6 +11,7 @@ import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 import { env } from '@/config/env'
+import { useTheme } from '@/hooks/useTheme'
 
 const navItems = [
   {
@@ -25,15 +26,16 @@ const navItems = [
 const Navigation = (): React.JSX.Element => {
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
-  const activeClassName = 'border-b-2 border-emerald-500 text-emerald-400'
+  const activeClassName = 'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
   const inactiveClassName =
-    'border-b-2 border-transparent text-slate-400 hover:border-emerald-500/50 hover:text-emerald-300'
+    'border-b-2 border-transparent text-slate-500 hover:border-emerald-500/50 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-300'
 
   return (
     <>
       <nav
-        className="sticky top-0 z-40 border-b border-white/6 bg-slate-950/80 shadow-sm shadow-black/20 backdrop-blur-xl"
+        className="sticky top-0 z-40 border-b border-black/6 bg-white/80 shadow-sm shadow-black/10 backdrop-blur-xl dark:border-white/6 dark:bg-slate-950/80 dark:shadow-black/20"
         data-testid={NavigationTestIds.ROOT}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -67,12 +69,23 @@ const Navigation = (): React.JSX.Element => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-black/6 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-400 dark:hover:bg-white/6 dark:hover:text-slate-100"
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? (
+                  <SunIcon className="h-5 w-5" aria-hidden="true" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" aria-hidden="true" />
+                )}
+              </button>
               {env.GITHUB_URL && (
                 <a
                   href={env.GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
+                  className="rounded-xl p-2 text-slate-500 transition-colors hover:bg-black/6 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-400 dark:hover:bg-white/6 dark:hover:text-slate-100"
                   aria-label={uiContent.navigation.githubLinkLabel}
                   data-testid={NavigationTestIds.GITHUB_LINK}
                 >
@@ -93,7 +106,7 @@ const Navigation = (): React.JSX.Element => {
               <div className="ml-2 flex items-center sm:hidden">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 transition-colors hover:bg-white/6 hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70"
+                  className="inline-flex items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-black/6 hover:text-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-400 dark:hover:bg-white/6 dark:hover:text-emerald-400"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}
@@ -111,7 +124,7 @@ const Navigation = (): React.JSX.Element => {
         {isMobileMenuOpen && (
           <div
             id="mobile-menu-panel"
-            className="absolute z-30 w-full bg-slate-900/95 shadow-xl ring-1 ring-white/6 backdrop-blur-xl sm:hidden"
+            className="absolute z-30 w-full bg-white/95 shadow-xl ring-1 ring-black/6 backdrop-blur-xl sm:hidden dark:bg-slate-900/95 dark:ring-white/6"
             data-testid={NavigationTestIds.MOBILE_PANEL}
           >
             <div className="space-y-1 px-2 pb-3 pt-2">
@@ -124,8 +137,8 @@ const Navigation = (): React.JSX.Element => {
                     cn(
                       'block rounded-md border-l-4 px-3 py-2 text-base font-medium transition-colors',
                       isActive
-                        ? 'border-emerald-500 bg-emerald-900/30 text-emerald-300'
-                        : 'border-transparent text-slate-400 hover:border-emerald-500/40 hover:bg-white/4 hover:text-emerald-300'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                        : 'border-transparent text-slate-500 hover:border-emerald-500/40 hover:bg-black/4 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-white/4 dark:hover:text-emerald-300'
                     )
                   }
                   data-testid={NavigationTestIds.MOBILE_LINK}
@@ -138,7 +151,7 @@ const Navigation = (): React.JSX.Element => {
                   href={env.GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-md border-l-4 border-transparent px-3 py-2 text-base font-medium text-slate-400 transition-colors hover:border-emerald-500/40 hover:bg-white/4 hover:text-emerald-300"
+                  className="flex items-center gap-3 rounded-md border-l-4 border-transparent px-3 py-2 text-base font-medium text-slate-500 transition-colors hover:border-emerald-500/40 hover:bg-black/4 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-white/4 dark:hover:text-emerald-300"
                   aria-label={uiContent.navigation.githubLinkLabel}
                   data-testid={NavigationTestIds.GITHUB_LINK}
                 >

@@ -27,7 +27,7 @@ function SelectFilter<T extends string | number>({
   Icon = MapPinIcon,
   'data-testid': baseTestId = SelectFilterTestIds.ROOT,
   className,
-}: SelectFilterProps<T>): React.JSX.Element {
+}: Readonly<SelectFilterProps<T>>): React.JSX.Element {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const selectedValue = event.target.value
     onChange(
@@ -41,7 +41,7 @@ function SelectFilter<T extends string | number>({
     <div className={cn('flex flex-col', className)} data-testid={baseTestId}>
       <label
         htmlFor={id}
-        className="text-sm font-semibold text-slate-300"
+        className="text-sm font-semibold text-slate-600 dark:text-slate-300"
         data-testid={SelectFilterTestIds.LABEL}
       >
         {label}
@@ -61,9 +61,9 @@ function SelectFilter<T extends string | number>({
           disabled={disabled}
           data-testid={SelectFilterTestIds.SELECT}
           className={cn(
-            'block w-full rounded-xl border border-white/10 bg-slate-700/50 py-2 pr-4 text-base text-slate-200 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm',
+            'block w-full rounded-xl border border-black/10 bg-white py-2 pr-4 text-base text-slate-700 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm dark:border-white/10 dark:bg-slate-700/50 dark:text-slate-200',
             iconPadding,
-            disabled && 'cursor-not-allowed bg-slate-800/50 opacity-70'
+            disabled && 'cursor-not-allowed opacity-70 bg-slate-100 dark:bg-slate-800/50'
           )}
         >
           {placeholderOptionLabel && (

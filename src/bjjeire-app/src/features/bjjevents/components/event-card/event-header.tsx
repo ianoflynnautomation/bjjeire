@@ -58,7 +58,7 @@ export const EventHeader = memo(function EventHeader({
           <h3
             id={headingId}
             data-testid={EventCardTestIds.NAME}
-            className="text-base font-semibold leading-tight text-slate-50 transition-colors"
+            className="text-base font-semibold leading-tight text-slate-900 transition-colors dark:text-slate-50"
             aria-label={`Event name: ${displayName}`}
           >
             {displayName}
@@ -73,7 +73,7 @@ export const EventHeader = memo(function EventHeader({
             </span>
           )}
         </div>
-        <div className="flex items-center text-slate-400">
+        <div className="flex items-center text-slate-500 dark:text-slate-400">
           <MapPinIcon
             className="mr-1 h-3.5 w-3.5 shrink-0"
             aria-hidden="true"
