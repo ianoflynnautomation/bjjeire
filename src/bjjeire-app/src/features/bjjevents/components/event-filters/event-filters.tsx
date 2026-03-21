@@ -47,7 +47,7 @@ const EventFilters = memo(function EventFilters({
 }: EventFiltersProps) {
   return (
     <div
-      className="rounded-2xl bg-slate-800/40 p-4 backdrop-blur-sm ring-1 ring-white/6 shadow-sm shadow-black/20 sm:flex sm:flex-row sm:items-end sm:gap-4"
+      className="rounded-2xl bg-white/80 p-4 backdrop-blur-sm shadow-sm shadow-black/10 ring-1 ring-black/6 sm:flex sm:flex-row sm:items-end sm:gap-4 dark:bg-slate-800/40 dark:shadow-black/20 dark:ring-white/6"
       data-testid={dataTestId || EventsPageTestIds.FILTERS}
       aria-label="Event filters"
     >

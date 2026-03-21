@@ -1,0 +1,144 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "SBG Ireland",
+    "description": "Straight Blast Gym Ireland, founded by John Kavanagh. One of the world's most recognised BJJ and MMA gyms, home to many elite competitors.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": {
+      "name": "SBG International",
+      "website": "https://www.sbgireland.com"
+    },
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": "Contact the gym to book your free trial class."
+    },
+    "location": {
+      "address": "Unit 1A, Concorde Industrial Estate, Naas Road, Dublin 22",
+      "venue": "SBG Ireland",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 53.3178,
+        "longitude": -6.3731,
+        "placeName": "Concorde Industrial Estate, Naas Road, Dublin 22",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/sbgireland",
+      "facebook": "https://www.facebook.com/SBGIreland",
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "Wrestling",
+      "MuayThai",
+      "KidsBJJ",
+      "CompetitionTraining"
+    ],
+    "website": "https://www.sbgireland.com",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "507f1f77bcf86cd799439012",
+    "name": "Gracie Barra Cork",
+    "description": "Gracie Barra Cork is part of the world's largest BJJ organisation. Offering structured classes for all ages and levels in a welcoming environment.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": {
+      "name": "Gracie Barra",
+      "website": "https://graciebarra.com"
+    },
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 2,
+      "freeDays": null,
+      "notes": "First two classes free for new students."
+    },
+    "location": {
+      "address": "Unit 5, Kinsale Road Business Park, Cork",
+      "venue": "Gracie Barra Cork",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 51.8862,
+        "longitude": -8.4756,
+        "placeName": "Kinsale Road Business Park, Cork",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJGiFundamentals",
+      "BJJNoGiAllLevels",
+      "KidsBJJ",
+      "WomensOnly"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "507f1f77bcf86cd799439013",
+    "name": "Galway BJJ Academy",
+    "description": "A community-focused BJJ academy in the heart of Galway city, offering gi and no-gi classes for adults and children.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Upper Abbeygate Street, Galway City",
+      "venue": "Galway BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 53.2707,
+        "longitude": -9.0568,
+        "placeName": "Galway City Centre",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "KidsBJJ"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

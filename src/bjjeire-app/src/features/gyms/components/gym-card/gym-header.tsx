@@ -44,7 +44,7 @@ export const GymHeader = memo(function GymHeader({
           />
         ) : (
           <div
-            className="h-full w-full bg-linear-to-br from-emerald-900/70 via-slate-800/40 to-slate-900/20"
+            className="h-full w-full bg-linear-to-br from-emerald-100 via-slate-100 to-white dark:from-emerald-900/70 dark:via-slate-800/40 dark:to-slate-900/20"
             aria-hidden="true"
           />
         )}
@@ -57,7 +57,7 @@ export const GymHeader = memo(function GymHeader({
         <div className="flex items-center justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-semibold leading-tight text-slate-50"
+            className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-50"
             aria-label={`Gym name: ${displayName}`}
             data-testid={GymCardTestIds.NAME}
           >
@@ -70,7 +70,7 @@ export const GymHeader = memo(function GymHeader({
           />
         </div>
         <div
-          className="flex items-center gap-1 text-xs text-slate-400"
+          className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400"
           data-testid={GymCardTestIds.COUNTY}
         >
           <MapPinIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
