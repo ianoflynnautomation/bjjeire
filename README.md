@@ -232,6 +232,63 @@ The Docker image will be tagged `1.2.0-beta.1` and the GitHub Release will be ma
 
 ---
 
+## Seed Data
+
+The project ships with example gyms and events in `src/BjjEire.Seeder/data/` so the app is useful out of the box. The seeder is idempotent — running it multiple times is safe.
+
+### Run locally (Docker Compose)
+
+Start the app stack first, then seed on demand:
+
+```bash
+docker compose --profile app \
+  -f docker-compose.yml \
+  -f docker-compose.override.local.yml \
+  up --build --wait
+```
+
+```bash
+docker compose --profile seed \
+  -f docker-compose.yml \
+  -f docker-compose.override.local.yml \
+  run --rm seeder
+```
+
+### Run locally (dotnet)
+
+```bash
+# Preview what would change — no writes
+dotnet run --project src/BjjEire.Seeder -- --dry-run
+
+# Seed all collections
+dotnet run --project src/BjjEire.Seeder
+
+# Seed a single collection
+dotnet run --project src/BjjEire.Seeder -- --collection Gym
+
+# Override environment gate (e.g. pointing at a staging DB)
+ConnectionStrings__Mongodb="mongodb://user:pass@host:27017/bjjeire" \
+  dotnet run --project src/BjjEire.Seeder -- --force
+```
+
+### Adding new data
+
+1. Edit `src/BjjEire.Seeder/data/gyms.json` or `data/bjj-events.json`
+2. Each document must have a stable `id` field (24-character hex ObjectId) — generate one with `python3 -c "from bson import ObjectId; print(ObjectId())"`
+3. Open a pull request — CI validates JSON schema on every PR
+4. After merge, a maintainer applies the seed to production
+
+### Seed a new collection type
+
+1. Add a JSON file to `src/BjjEire.Seeder/data/`
+2. Register it in `src/BjjEire.Seeder/CollectionRunner.cs`:
+
+```csharp
+("Instructor", s => s.SeedAsync<Instructor>("Instructor", "data/instructors.json")),
+```
+
+---
+
 ## Contributing
 
 Contributions are welcome. Please open an issue to discuss any significant changes before submitting a pull request.
