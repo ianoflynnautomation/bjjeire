@@ -18,3 +18,19 @@ services:
         VITE_APP_MSAL_AUTHORITY: ${VITE_APP_MSAL_AUTHORITY}
         VITE_APP_MSAL_API_SCOPE: ${VITE_APP_MSAL_API_SCOPE}
 
+  seeder:
+    build:
+      context: .
+      dockerfile: ./src/BjjEire.Seeder/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Mongodb=mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@mongodb:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - bjj-network
+    profiles:
+      - seed
+    restart: "no"
+
