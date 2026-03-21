@@ -40,7 +40,7 @@ export const EventSchedule = memo(function EventSchedule({
           data-testid={`${dataTestId}-dates`}
         >
           <CalendarDaysIcon
-            className="h-3.5 w-3.5 shrink-0 text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
             aria-hidden="true"
           />
           <span>{dateText}</span>
@@ -53,7 +53,7 @@ export const EventSchedule = memo(function EventSchedule({
           data-testid={`${dataTestId}-hour-${i}`}
         >
           <ClockIcon
-            className="h-3.5 w-3.5 shrink-0 text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
             aria-hidden="true"
           />
           <span>

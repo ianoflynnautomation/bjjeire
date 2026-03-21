@@ -6,7 +6,7 @@ export const PageSuspenseFallback = memo(function PageSuspenseFallback() {
     <div className="flex min-h-[60vh] items-center justify-center p-8">
       <LoadingSpinner
         size="lg"
-        color="text-emerald-300"
+        color="text-emerald-500 dark:text-emerald-300"
         text="Loading page..."
       />
     </div>

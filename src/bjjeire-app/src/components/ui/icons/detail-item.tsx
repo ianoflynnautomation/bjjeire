@@ -24,7 +24,7 @@ export const DetailItem = memo(function DetailItem({
 
   return (
     <div
-      className={cn('flex items-start gap-x-2.5 text-slate-300', className)}
+      className={cn('flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300', className)}
       data-testid={actualRootDataTestId}
     >
       <IconWrapper className={iconClassName}>{icon}</IconWrapper>

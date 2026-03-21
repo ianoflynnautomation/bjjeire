@@ -6,7 +6,7 @@ const { hero } = uiContent.gyms
 export const GymsHeroBanner = memo(function GymsHeroBanner() {
   return (
     <section
-      className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-white/8"
+      className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-black/8 dark:ring-white/8"
       aria-label="BJJ Éire — Find gyms across Ireland"
     >
       {/* Banner image */}

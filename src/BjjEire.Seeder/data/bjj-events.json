@@ -1,0 +1,113 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439021",
+    "name": "Dublin BJJ Open 2026",
+    "description": "One of Ireland's biggest annual BJJ tournaments. Open to all ages and belt levels with divisions for gi and no-gi. IBJJF rules apply.",
+    "type": "Tournament",
+    "organiser": {
+      "name": "Irish BJJ Federation",
+      "website": "https://www.irishbjj.ie"
+    },
+    "status": "RegistrationOpen",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Dublin",
+    "location": {
+      "address": "National Indoor Arena, National Sports Campus, Abbotstown, Dublin 15",
+      "venue": "National Indoor Arena",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 53.3808,
+        "longitude": -6.3592,
+        "placeName": "National Sports Campus, Abbotstown, Dublin",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "startDate": "2026-06-13T08:00:00Z",
+      "endDate": "2026-06-14T18:00:00Z",
+      "hours": [
+        {
+          "day": "Saturday",
+          "openTime": "08:00:00",
+          "closeTime": "18:00:00"
+        },
+        {
+          "day": "Sunday",
+          "openTime": "08:00:00",
+          "closeTime": "17:00:00"
+        }
+      ]
+    },
+    "pricing": {
+      "type": "FlatRate",
+      "amount": 45.00,
+      "durationDays": null,
+      "currency": "EUR"
+    },
+    "eventUrl": "https://smoothcomp.com",
+    "imageUrl": "",
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "507f1f77bcf86cd799439022",
+    "name": "John Kavanagh Seminar — Dublin 2026",
+    "description": "A rare opportunity to train directly under SBG Ireland head coach John Kavanagh. Covering guard passing, leg locks, and competition strategy.",
+    "type": "Seminar",
+    "organiser": {
+      "name": "SBG Ireland",
+      "website": "https://www.sbgireland.com"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/sbgireland",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Dublin",
+    "location": {
+      "address": "Unit 1A, Concorde Industrial Estate, Naas Road, Dublin 22",
+      "venue": "SBG Ireland",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 53.3178,
+        "longitude": -6.3731,
+        "placeName": "SBG Ireland, Naas Road, Dublin 22",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "startDate": "2026-04-19T10:00:00Z",
+      "endDate": "2026-04-19T14:00:00Z",
+      "hours": [
+        {
+          "day": "Sunday",
+          "openTime": "10:00:00",
+          "closeTime": "14:00:00"
+        }
+      ]
+    },
+    "pricing": {
+      "type": "FlatRate",
+      "amount": 60.00,
+      "durationDays": null,
+      "currency": "EUR"
+    },
+    "eventUrl": "https://www.sbgireland.com",
+    "imageUrl": "",
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

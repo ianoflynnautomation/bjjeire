@@ -10,9 +10,9 @@ export const buttonVariants = cva(
         solid:
           'border border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700',
         outline:
-          'border border-white/[0.12] bg-white/[0.05] text-slate-200 hover:border-emerald-500/50 hover:bg-emerald-900/30 hover:text-emerald-300',
+          'border border-black/10 bg-black/5 text-slate-700 hover:border-emerald-500/50 hover:bg-emerald-50 hover:text-emerald-700 dark:border-white/[0.12] dark:bg-white/[0.05] dark:text-slate-200 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-300',
         ghost:
-          'border border-transparent bg-transparent text-emerald-400 hover:bg-white/[0.06] hover:text-emerald-300',
+          'border border-transparent bg-transparent text-emerald-600 hover:bg-black/[0.06] hover:text-emerald-700 dark:text-emerald-400 dark:hover:bg-white/[0.06] dark:hover:text-emerald-300',
       },
       size: {
         sm: 'px-3 py-1.5 text-sm',

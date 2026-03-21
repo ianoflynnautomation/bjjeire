@@ -29,7 +29,7 @@ export const GymsPageHeader = memo(function GymsPageHeader({
 
   return (
     <header
-      className="relative mb-8 overflow-hidden rounded-3xl bg-slate-800/40 px-5 py-6 backdrop-blur-sm ring-1 ring-white/8 sm:px-7"
+      className="relative mb-8 overflow-hidden rounded-3xl bg-white/80 px-5 py-6 backdrop-blur-sm ring-1 ring-black/8 sm:px-7 dark:bg-slate-800/40 dark:ring-white/8"
       data-testid={baseTestId}
     >
       {/* Subtle Irish tricolor top accent */}
@@ -47,14 +47,14 @@ export const GymsPageHeader = memo(function GymsPageHeader({
       />
       <div className="relative">
         <h2
-          className="text-3xl font-black tracking-tight text-white sm:text-4xl"
+          className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white"
           data-testid={GymsPageTestIds.HEADER_TITLE}
         >
           {title}
         </h2>
         {totalGyms !== undefined && totalGyms > 0 && (
           <p
-            className="mt-3 inline-flex items-center rounded-full bg-emerald-900/40 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-500/30"
+            className="mt-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-300"
             data-testid={GymsPageTestIds.HEADER_TOTAL}
             aria-live="polite"
           >
