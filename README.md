@@ -30,6 +30,7 @@ BJJ Éire is an open-source web application that helps the Irish BJJ community d
 | Frontend       | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
 | Backend        | .NET 10 Web API, MediatR, AutoMapper, MongoDB.Driver                       |
 | Auth           | Microsoft Entra ID (Azure AD), MSAL Browser                               |
+| Analytics      | Cloudflare Web Analytics (cookieless, GDPR-compliant)                      |
 | Observability  | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki, Seq                      |
 | Infrastructure | Docker Compose, Kubernetes (Minikube + Helm), GitHub Container Registry    |
 | Dev Tooling    | .NET Aspire, Dev Container (VS Code / GitHub Codespaces)                   |
@@ -116,13 +117,16 @@ VITE_APP_MSAL_CLIENT_ID=your-spa-client-id
 VITE_APP_MSAL_AUTHORITY=https://login.microsoftonline.com/your-tenant-id
 VITE_APP_MSAL_API_SCOPE=api://your-api-client-id/Events.ReadWrite
 
+# Cloudflare Web Analytics (baked in at Docker build time — get token from Cloudflare dashboard)
+VITE_APP_CF_BEACON_TOKEN=your-cf-beacon-token
+
 # GitHub Container Registry (for docker-compose.override.ghcr.yml)
 GHCR_OWNER=your-github-username-or-org
 API_IMAGE_TAG=latest
 FRONTEND_IMAGE_TAG=latest
 ```
 
-> The `VITE_APP_*` variables are injected as Docker build arguments and embedded into the frontend bundle at image build time.
+> The `VITE_APP_*` variables are injected as Docker build arguments and embedded into the frontend bundle at image build time. `VITE_APP_CF_BEACON_TOKEN` is a public token — safe to commit to `.env.example` but keep your real token out of source control. The analytics beacon only loads in production builds and is silently skipped if the token is absent.
 
 ---
 
