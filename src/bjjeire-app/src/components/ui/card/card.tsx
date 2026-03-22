@@ -24,6 +24,6 @@ export function CardContent({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
-    <div className={cn('flex flex-1 flex-col p-3', className)} {...props} />
+    <div className={cn('flex flex-1 flex-col p-2 sm:p-3', className)} {...props} />
   )
 }
