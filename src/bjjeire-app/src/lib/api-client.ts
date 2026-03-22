@@ -34,10 +34,10 @@ instance.interceptors.response.use(
         data: error.response.data,
         headers: error.response.headers,
       })
-    } else if (error.request !== undefined) {
-      console.error('No response received:', error.request)
-    } else {
+    } else if (error.request === undefined) {
       console.error('Error setting up request:', error.message)
+    } else {
+      console.error('No response received:', error.request)
     }
     return Promise.reject(error)
   }

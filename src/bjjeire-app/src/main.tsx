@@ -1,11 +1,14 @@
 import * as React from 'react'
 import { createRoot } from 'react-dom/client'
+import { initCloudflareAnalytics } from '@/utils/cloudflare-analytics'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MsalProvider } from '@azure/msal-react'
 import { queryConfig } from '@/lib/react-query'
 import { msalInstance } from '@/lib/msal-config'
 import './index.css'
 import App from './App.tsx'
+
+initCloudflareAnalytics()
 
 const queryClient = new QueryClient({
   defaultOptions: queryConfig,
