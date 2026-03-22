@@ -13,7 +13,7 @@ export const GymsHeroBanner = memo(function GymsHeroBanner() {
       <img
         src="/bjjeiregym.jpg"
         alt={hero.imageAlt}
-        className="h-64 w-full object-cover sm:h-80 md:h-96"
+        className="h-44 w-full object-cover sm:h-64 md:h-80 lg:h-96"
       />
 
       {/* Dark gradient overlay so text is legible */}
@@ -29,8 +29,8 @@ export const GymsHeroBanner = memo(function GymsHeroBanner() {
       />
 
       {/* Text content anchored to bottom of banner */}
-      <div className="absolute inset-x-0 bottom-0 px-6 py-8 sm:px-10">
-        <h1 className="text-3xl font-black tracking-tight text-white drop-shadow-lg sm:text-4xl lg:text-5xl">
+      <div className="absolute inset-x-0 bottom-0 px-4 py-5 sm:px-6 sm:py-8 lg:px-10">
+        <h1 className="text-2xl font-black tracking-tight text-white drop-shadow-lg sm:text-3xl lg:text-5xl">
           {hero.tagline}
         </h1>
         <p className="mt-2 text-base text-slate-300 drop-shadow sm:text-lg">

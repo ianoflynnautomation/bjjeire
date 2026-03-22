@@ -17,7 +17,7 @@ export const GymsList = memo(function GymsList({
 
   return (
     <ul
-      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center list-none"
+      className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center list-none"
       data-testid={rootListTestId}
       aria-label={uiContent.gyms.list.ariaLabel}
     >

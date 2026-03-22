@@ -23,7 +23,7 @@ export function Button({
 }
 
 const cardActionVariants = cva(
-  'inline-flex w-full items-center justify-center gap-x-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200',
+  'inline-flex min-h-11 w-full items-center justify-center gap-x-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200',
   {
     variants: {
       variant: {
