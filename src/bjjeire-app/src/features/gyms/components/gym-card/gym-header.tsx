@@ -33,7 +33,7 @@ export const GymHeader = memo(function GymHeader({
 
   return (
     <header className="relative">
-      <div className="relative h-40 w-full overflow-hidden">
+      <div className="relative h-28 w-full overflow-hidden sm:h-36 md:h-40">
         {imageUrl ? (
           <img
             src={imageUrl}
