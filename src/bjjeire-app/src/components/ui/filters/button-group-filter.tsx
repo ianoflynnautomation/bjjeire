@@ -49,7 +49,8 @@ const ButtonGroupFilter = <T extends string | number>({
               buttonVariants({
                 variant: selectedValue === option.value ? 'solid' : 'outline',
                 size: 'sm',
-              })
+              }),
+              'min-h-11'
             )}
           >
             {option.label}
