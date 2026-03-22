@@ -8,7 +8,7 @@ const msalConfig: Configuration = {
   auth: {
     clientId: env.MSAL_CLIENT_ID,
     authority: env.MSAL_AUTHORITY,
-    redirectUri: window.location.origin,
+    redirectUri: globalThis.location.origin,
   },
   cache: { cacheLocation: 'sessionStorage' },
 }

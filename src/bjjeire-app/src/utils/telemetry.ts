@@ -1,33 +1,31 @@
-import ReactGA from 'react-ga4'
+import type { CloudflareZaraz } from '@/types/cloudflare'
 
-export function initGA(measurementId: string): void {
-  ReactGA.initialize(measurementId)
+function send(eventName: string, properties?: Record<string, string>): void {
+  const zaraz = (globalThis as { zaraz?: CloudflareZaraz }).zaraz
+  zaraz?.track(eventName, properties)
 }
 
-export function trackPageView(path: string): void {
-  ReactGA.send({ hitType: 'pageview', page: path })
-}
+export function trackPageView(_path: string): void {}
 
 export function trackEvent(
   category: string,
   action: string,
   label?: string
 ): void {
-  ReactGA.event({ category, action, label })
+  send('custom_event', { category, action, ...(label ? { label } : {}) })
 }
 
 export function trackFormSubmission(formName: string, success: boolean): void {
-  trackEvent(
-    'Form',
-    'Submit',
-    `${formName} - ${success ? 'Success' : 'Failure'}`
-  )
+  send('form_submit', {
+    form: formName,
+    result: success ? 'success' : 'failure',
+  })
 }
 
 export function trackNavigation(from: string, to: string): void {
-  trackEvent('Navigation', 'Route Change', `${from} -> ${to}`)
+  send('navigation', { from, to })
 }
 
 export function trackUserInteraction(element: string, action: string): void {
-  trackEvent('User Interaction', action, element)
+  send('user_interaction', { element, action })
 }
