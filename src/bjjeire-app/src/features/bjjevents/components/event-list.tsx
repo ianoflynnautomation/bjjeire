@@ -21,11 +21,11 @@ const EventsList = memo(function EventsList({
       aria-label="Brazilian Jiu-Jitsu events"
     >
       {events.map(event => (
-        <li key={event.id ?? `${event.name}-${event.eventUrl ?? ''}`} className="w-full">
-          <EventCard
-            event={event}
-            data-testid={EventsPageTestIds.LIST_ITEM}
-          />
+        <li
+          key={event.id ?? `${event.name}-${event.eventUrl ?? ''}`}
+          className="w-full"
+        >
+          <EventCard event={event} data-testid={EventsPageTestIds.LIST_ITEM} />
         </li>
       ))}
     </ul>
