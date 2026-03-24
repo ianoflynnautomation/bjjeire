@@ -48,13 +48,20 @@ describe('GymsPage Integration (API + Query + UI)', () => {
   })
 
   it('renders gym cards when data loads successfully', async () => {
-    const dublinGym = createGym({ name: 'Elite Fighters Academy', county: 'Dublin' })
+    const dublinGym = createGym({
+      name: 'Elite Fighters Academy',
+      county: 'Dublin',
+    })
     const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
-    mockedApiGet.mockResolvedValue(createPaginatedGyms([dublinGym, corkGym], 1, 1))
+    mockedApiGet.mockResolvedValue(
+      createPaginatedGyms([dublinGym, corkGym], 1, 1)
+    )
 
     renderWithProviders(<GymsPage />)
 
-    expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
     expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
   })
 
@@ -70,24 +77,34 @@ describe('GymsPage Integration (API + Query + UI)', () => {
   })
 
   it('fetches gyms and updates results when county filter changes', async () => {
-    const dublinGym = createGym({ name: 'Elite Fighters Academy', county: 'Dublin' })
+    const dublinGym = createGym({
+      name: 'Elite Fighters Academy',
+      county: 'Dublin',
+    })
     const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
 
     mockedApiGet.mockImplementation(
-      (_url: string, config?: AxiosRequestConfig): Promise<PaginatedResponse<GymDto>> => {
+      (
+        _url: string,
+        config?: AxiosRequestConfig
+      ): Promise<PaginatedResponse<GymDto>> => {
         const params = config?.params as Record<string, unknown> | undefined
         const county = params?.county
         const page = Number(params?.page ?? 1)
         if (county === 'Dublin') {
           return Promise.resolve(createPaginatedGyms([dublinGym], page, 1))
         }
-        return Promise.resolve(createPaginatedGyms([dublinGym, corkGym], page, 1))
+        return Promise.resolve(
+          createPaginatedGyms([dublinGym, corkGym], page, 1)
+        )
       }
     )
 
     const { user } = renderWithProviders(<GymsPage />)
 
-    expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
     expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
     expect(screen.getByText('Found 2 gyms.')).toBeInTheDocument()
     expect(mockedApiGet).toHaveBeenCalledWith(
@@ -113,7 +130,11 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       expect(mockedApiGet).toHaveBeenLastCalledWith(
         'api/gym',
         expect.objectContaining({
-          params: expect.objectContaining({ county: 'Dublin', page: 1, pageSize: 20 }),
+          params: expect.objectContaining({
+            county: 'Dublin',
+            page: 1,
+            pageSize: 20,
+          }),
         })
       )
     })
@@ -124,7 +145,10 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     const gymPage2 = createGym({ name: 'Community BJJ Club' })
 
     mockedApiGet.mockImplementation(
-      (_url: string, config?: AxiosRequestConfig): Promise<PaginatedResponse<GymDto>> => {
+      (
+        _url: string,
+        config?: AxiosRequestConfig
+      ): Promise<PaginatedResponse<GymDto>> => {
         const params = config?.params as Record<string, unknown> | undefined
         const page = Number(params?.page ?? 1)
         if (page === 2) {
@@ -136,8 +160,12 @@ describe('GymsPage Integration (API + Query + UI)', () => {
 
     const { user } = renderWithProviders(<GymsPage />)
 
-    expect(await screen.findByText('Elite Fighters Academy')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument()
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /next page/i })
+    ).toBeInTheDocument()
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /next page/i }))

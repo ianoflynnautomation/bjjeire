@@ -15,7 +15,9 @@ describe('EventSchedule Component', () => {
 
   it('shows formatted startDate when only startDate is provided', () => {
     render(
-      <EventSchedule schedule={{ startDate: '2026-04-01T10:00:00Z', hours: [] }} />
+      <EventSchedule
+        schedule={{ startDate: '2026-04-01T10:00:00Z', hours: [] }}
+      />
     )
     expect(screen.getByText('April 1, 2026')).toBeInTheDocument()
   })
@@ -51,7 +53,9 @@ describe('EventSchedule Component', () => {
 
   it('shows "Ends {date}" when only endDate is provided', () => {
     render(
-      <EventSchedule schedule={{ endDate: '2026-04-05T10:00:00Z', hours: [] }} />
+      <EventSchedule
+        schedule={{ endDate: '2026-04-05T10:00:00Z', hours: [] }}
+      />
     )
     expect(screen.getByText('Ends April 5, 2026')).toBeInTheDocument()
   })

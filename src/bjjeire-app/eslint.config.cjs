@@ -89,5 +89,13 @@ module.exports = tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/unbound-method': 'off',
     },
+  },
+  // Test utility files export helper functions alongside internal components (e.g. Providers wrapper).
+  // react-refresh only applies to production component files, not test utilities.
+  {
+    files: ['**/testing/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   }
 )

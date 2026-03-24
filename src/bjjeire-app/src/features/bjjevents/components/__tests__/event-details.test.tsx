@@ -37,9 +37,7 @@ describe('EventDetails Component', () => {
 
     it('hides organiser section when organiser is absent', () => {
       render(<EventDetails event={{ ...baseEvent }} />)
-      expect(
-        screen.queryByText(/Organised by/i)
-      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/Organised by/i)).not.toBeInTheDocument()
     })
   })
 

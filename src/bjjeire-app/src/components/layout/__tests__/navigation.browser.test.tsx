@@ -11,7 +11,7 @@ import { NavigationTestIds } from '@/constants/commonDataTestIds'
 // 3. Logo link is keyboard-reachable (real Tab; jsdom tab order is approximate)
 // 4. Focus lands on interactive elements in the expected order
 
-function renderNav() {
+function renderNav(): ReturnType<typeof render> {
   return render(
     <MemoryRouter>
       <Navigation />
@@ -97,7 +97,9 @@ describe('Navigation (browser)', () => {
 
       for (let i = 0; i < mobileLinks.length + 5; i++) {
         await user.tab()
-        if (document.activeElement) { focusedElements.push(document.activeElement) }
+        if (document.activeElement) {
+          focusedElements.push(document.activeElement)
+        }
       }
 
       for (const link of mobileLinks) {
@@ -118,7 +120,9 @@ describe('Navigation (browser)', () => {
         await user.tab()
         if (mobileLinks.includes(document.activeElement as HTMLElement)) {
           landed = true
-          expect((document.activeElement as HTMLElement).matches(':focus-visible')).toBe(true)
+          expect(
+            (document.activeElement as HTMLElement).matches(':focus-visible')
+          ).toBe(true)
           break
         }
       }
