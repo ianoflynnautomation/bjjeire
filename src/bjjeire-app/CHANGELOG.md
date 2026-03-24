@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.3...frontend-v0.1.4) (2026-03-24)
+
+
+### ### Features
+
+* add playwright vite tests ([#41](https://github.com/ianoflynnautomation/bjjeire/issues/41)) ([5ac9187](https://github.com/ianoflynnautomation/bjjeire/commit/5ac9187e9652a8ea2b343faa30d8bd323ff29849))
+
 ## [0.1.3](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.2...frontend-v0.1.3) (2026-03-22)
 
 
