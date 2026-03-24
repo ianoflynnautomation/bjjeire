@@ -153,4 +153,8 @@ node_modules/
 /playwright/.cache/
 allure*
 
+# Vitest browser test output
+**/__screenshots__/
+**/__traces__/
+
 .claude/*

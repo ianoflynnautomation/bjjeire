@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 export function Card({
   className,
   ...props
-}: React.HTMLAttributes<HTMLElement>): React.JSX.Element {
+}: Readonly<React.HTMLAttributes<HTMLElement>>): React.JSX.Element {
   return (
     <article
       className={cn(
@@ -22,7 +22,7 @@ export function Card({
 export function CardContent({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
+}: Readonly<React.HTMLAttributes<HTMLDivElement>>): React.JSX.Element {
   return (
     <div
       className={cn('flex flex-1 flex-col p-2 sm:p-3', className)}
