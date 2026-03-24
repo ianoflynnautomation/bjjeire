@@ -11,7 +11,7 @@ export function IconWrapper({
   children,
   className = 'h-5 w-5 text-emerald-500 dark:text-emerald-400',
   'aria-hidden': ariaHidden = true,
-}: IconWrapperProps): React.JSX.Element {
+}: Readonly<IconWrapperProps>): React.JSX.Element {
   return (
     <span className={cn('mt-0.5 shrink-0', className)} aria-hidden={ariaHidden}>
       {children}

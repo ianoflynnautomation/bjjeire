@@ -13,7 +13,7 @@ export function Button({
   size,
   className,
   ...props
-}: ButtonProps): React.JSX.Element {
+}: Readonly<ButtonProps>): React.JSX.Element {
   return (
     <button
       className={cn(buttonVariants({ variant, size }), className)}
@@ -55,7 +55,7 @@ export function CardActionButton({
   title,
   'data-testid': dataTestId,
   className,
-}: CardActionButtonProps): React.JSX.Element {
+}: Readonly<CardActionButtonProps>): React.JSX.Element {
   const classes = cn(
     cardActionVariants({ variant: href ? 'primary' : 'unavailable' }),
     className
