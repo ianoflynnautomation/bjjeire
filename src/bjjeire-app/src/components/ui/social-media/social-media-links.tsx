@@ -15,7 +15,7 @@ function SocialLink({
   platform,
   url,
   'data-testid': rootDataTestId,
-}: SocialLinkProps): React.JSX.Element | null {
+}: Readonly<SocialLinkProps>): React.JSX.Element | null {
   const config = platformConfig[platform]
   if (!config) {
     return null
@@ -56,7 +56,7 @@ interface SocialMediaLinksProps {
 export function SocialMediaLinks({
   socialMedia,
   'data-testid': rootDataTestIdFromParent,
-}: SocialMediaLinksProps): React.JSX.Element | null {
+}: Readonly<SocialMediaLinksProps>): React.JSX.Element | null {
   if (!socialMedia) {
     return null
   }

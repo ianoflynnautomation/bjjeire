@@ -189,8 +189,8 @@ jobs:
           test-results-name-prefix: ${{ matrix.test-type }}
           test-filter-criteria: ${{ matrix.test-filter-criteria }}
 
-  build_test_frontend:
-    name: Build & Test Frontend
+  build_frontend:
+    name: Build Frontend
     runs-on: ubuntu-latest
     needs: [detect-changes, lint_frontend]
     if: needs.detect-changes.outputs.frontend == 'true'
@@ -200,12 +200,56 @@ jobs:
       SERVICES_API_HTTPS_0: "https://api-ci-placeholder:443"
     steps:
       - uses: actions/checkout@v4
-      - name: Build & Test React Application
-        uses: ./.github/actions/react-build-test
+      - uses: ./.github/actions/react-build-test
         with:
           node-version: ${{ env.NODE_VERSION }}
           working-directory: ${{ env.REACT_APP_PATH }}
-          test-command: "npm test"
+
+  test_frontend_unit:
+    name: Test Frontend (Unit)
+    runs-on: ubuntu-latest
+    needs: [detect-changes, lint_frontend]
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/react-test-unit
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          working-directory: ${{ env.REACT_APP_PATH }}
+
+  test_frontend_integration:
+    name: Test Frontend (Integration)
+    runs-on: ubuntu-latest
+    needs: [detect-changes, lint_frontend]
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/react-test-integration
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          working-directory: ${{ env.REACT_APP_PATH }}
+
+  test_frontend_browser:
+    name: Test Frontend (Browser)
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    needs: [detect-changes, lint_frontend]
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 15
+    env:
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/react-test-browser
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
 
   publish_reports:
     name: Publish Test Reports

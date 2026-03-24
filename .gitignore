@@ -116,6 +116,7 @@ test-results/
 *.coveragexml
 *.lcov
 *.testlog
+junit.xml
 
 # Package Manager Files
 *.lock
@@ -152,5 +153,9 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 allure*
+
+# Vitest browser test output
+**/__screenshots__/
+**/__traces__/
 
 .claude/*
