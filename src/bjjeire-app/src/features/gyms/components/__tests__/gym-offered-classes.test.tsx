@@ -7,16 +7,14 @@ import { getClassCategoryLabel } from '@/utils/gymDisplayUtils'
 describe('GymOfferedClasses Component', () => {
   describe('Rendering Logic', () => {
     it('should render nothing if the classes array is undefined', () => {
-      // Arrange
       const { container } = render(<GymOfferedClasses classes={undefined} />)
-      // Assert
+
       expect(container).toBeEmptyDOMElement()
     })
 
     it('should render nothing if the classes array is empty', () => {
-      // Arrange
       const { container } = render(<GymOfferedClasses classes={[]} />)
-      // Assert
+
       expect(container).toBeEmptyDOMElement()
     })
   })

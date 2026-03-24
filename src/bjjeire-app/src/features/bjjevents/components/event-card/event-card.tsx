@@ -24,7 +24,6 @@ export const EventCard = memo(function EventCard({
     <Card
       className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
       data-testid={rootTestId}
-      role="listitem"
       aria-labelledby={headingId}
     >
       <EventHeader

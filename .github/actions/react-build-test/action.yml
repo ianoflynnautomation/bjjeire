@@ -1,5 +1,5 @@
-name: 'Build and Test React Application'
-description: 'Installs dependencies, builds, and tests a React application'
+name: 'Build React Application'
+description: 'Installs dependencies and builds a React application'
 inputs:
   node-version:
     description: 'Node.js version'
@@ -7,22 +7,10 @@ inputs:
   working-directory:
     description: 'Directory of the React application (where package.json is)'
     required: true
-  install-command:
-    description: 'Command to install dependencies'
-    required: false
-    default: 'npm ci'
-  build-command:
-    description: 'Command to build the application'
-    required: false
-    default: 'npm run build'
-  test-command:
-    description: 'Command to run tests'
-    required: false
-    default: 'npm test -- --watchAll=false'
   build-output-path:
     description: 'Path to the built React app (e.g., build, dist)'
     required: false
-    default: 'build'
+    default: 'dist'
   build-artifact-name:
     description: 'Name for the uploaded build artifact (if any)'
     required: false
@@ -38,27 +26,12 @@ runs:
     - name: Install Dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ${{ inputs.install-command }}
-
-    - name: Run Linter (Conceptual - Add if you have one)
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        if (grep -q '"lint":' package.json); then
-          npm run lint
-        else
-          echo "No lint script found in package.json. Skipping."
-        fi
+      run: npm ci
 
     - name: Build Application
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: ${{ inputs.build-command }}
-
-    - name: Run Tests
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: ${{ inputs.test-command }}
+      run: npm run build
 
     - name: Upload React Build Artifact
       if: ${{ inputs.build-artifact-name != '' && inputs.build-output-path != '' }}

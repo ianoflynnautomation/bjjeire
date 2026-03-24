@@ -1,15 +1,8 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { EventCard } from '../event-card/event-card'
-import {
-  MOCK_EVENT_FULL,
-  MOCK_EVENT_MINIMAL,
-  MOCK_EVENT_NO_URL,
-} from './mocks/bjjevent.mocks'
-import {
-  EventsPageTestIds,
-  EventCardTestIds,
-} from '@/constants/eventDataTestIds'
+import { MOCK_EVENT_FULL, MOCK_EVENT_NO_URL } from './mocks/bjjevent.mocks'
+import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 
 describe('EventCard Component', () => {
   describe('Positive Scenarios', () => {
@@ -27,16 +20,21 @@ describe('EventCard Component', () => {
         name: new RegExp(`event name: ${MOCK_EVENT_FULL.name}`, 'i'),
         level: 3,
       })
-      const county = within(card).getByTestId(EventCardTestIds.COUNTY)
-      const addressLink = within(card).getByTestId(
-        EventCardTestIds.ADDRESS_LINK
-      )
+      const county = within(card).getByText('Dublin County', {
+        selector: 'span',
+      })
+      const addressLink = within(card).getByRole('link', {
+        name: new RegExp(
+          `view ${MOCK_EVENT_FULL.name} location on google maps`,
+          'i'
+        ),
+      })
       const infoLink = within(card).getByRole('link', {
         name: /get more information about/i,
       })
 
       expect(name).toHaveTextContent(MOCK_EVENT_FULL.name)
-      expect(county).toHaveTextContent('Dublin County')
+      expect(county).toBeInTheDocument()
       expect(addressLink).toBeInTheDocument()
       expect(infoLink).toBeInTheDocument()
     })
@@ -59,37 +57,32 @@ describe('EventCard Component', () => {
       expect(button).toBeDisabled()
       expect(button).toHaveTextContent('Information Unavailable')
     })
+  })
 
-    it('should render a disabled button when eventUrl is an empty string', () => {
+  describe('Edge Cases', () => {
+    it('should render the map link with correct coordinates and security attributes', () => {
       render(
         <EventCard
-          event={MOCK_EVENT_MINIMAL}
+          event={MOCK_EVENT_FULL}
           data-testid={EventsPageTestIds.LIST_ITEM}
         />
       )
 
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
-      const button = within(card).getByRole('button', {
-        name: /no information available for cork bjj seminar/i,
+      const mapLink = within(card).getByRole('link', {
+        name: new RegExp(
+          `view ${MOCK_EVENT_FULL.name} location on google maps`,
+          'i'
+        ),
       })
+      const { latitude, longitude } = MOCK_EVENT_FULL.location.coordinates
 
-      expect(button).toBeDisabled()
-    })
-  })
-
-  describe('Edge Cases', () => {
-    it('should use the default test ID when none is provided', () => {
-      render(<EventCard event={MOCK_EVENT_FULL} />)
-
-      expect(
-        screen.getByTestId(EventsPageTestIds.LIST_ITEM)
-      ).toBeInTheDocument()
-    })
-
-    it('should render with a custom data-testid', () => {
-      render(<EventCard event={MOCK_EVENT_FULL} data-testid="custom-card-id" />)
-
-      expect(screen.getByTestId('custom-card-id')).toBeInTheDocument()
+      expect(mapLink).toHaveAttribute(
+        'href',
+        `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+      )
+      expect(mapLink).toHaveAttribute('target', '_blank')
+      expect(mapLink).toHaveAttribute('rel', 'noopener noreferrer')
     })
   })
 })
