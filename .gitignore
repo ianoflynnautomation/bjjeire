@@ -116,6 +116,7 @@ test-results/
 *.coveragexml
 *.lcov
 *.testlog
+junit.xml
 
 # Package Manager Files
 *.lock

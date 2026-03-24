@@ -7,7 +7,10 @@ import {
   MOCK_EVENT_MINIMAL,
   MOCK_EVENT_NO_URL,
 } from './mocks/bjjevent.mocks'
-import { EventsPageTestIds, EventCardTestIds } from '@/constants/eventDataTestIds'
+import {
+  EventsPageTestIds,
+  EventCardTestIds,
+} from '@/constants/eventDataTestIds'
 
 // These tests verify browser-native behaviors that jsdom cannot reliably model:
 // 1. :focus-within pseudo-class — the browser computes this from the real focus state
@@ -68,7 +71,9 @@ describe('EventCard (browser)', () => {
       while (tabCount < 10) {
         await user.tab()
         expect(document.activeElement).not.toBe(disabledButton)
-        if (document.activeElement === document.body) {break}
+        if (document.activeElement === document.body) {
+          break
+        }
         tabCount++
       }
     })

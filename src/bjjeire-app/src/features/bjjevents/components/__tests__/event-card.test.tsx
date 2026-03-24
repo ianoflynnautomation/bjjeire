@@ -20,9 +20,14 @@ describe('EventCard Component', () => {
         name: new RegExp(`event name: ${MOCK_EVENT_FULL.name}`, 'i'),
         level: 3,
       })
-      const county = within(card).getByText('Dublin County', { selector: 'span' })
+      const county = within(card).getByText('Dublin County', {
+        selector: 'span',
+      })
       const addressLink = within(card).getByRole('link', {
-        name: new RegExp(`view ${MOCK_EVENT_FULL.name} location on google maps`, 'i'),
+        name: new RegExp(
+          `view ${MOCK_EVENT_FULL.name} location on google maps`,
+          'i'
+        ),
       })
       const infoLink = within(card).getByRole('link', {
         name: /get more information about/i,
@@ -65,7 +70,10 @@ describe('EventCard Component', () => {
 
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
       const mapLink = within(card).getByRole('link', {
-        name: new RegExp(`view ${MOCK_EVENT_FULL.name} location on google maps`, 'i'),
+        name: new RegExp(
+          `view ${MOCK_EVENT_FULL.name} location on google maps`,
+          'i'
+        ),
       })
       const { latitude, longitude } = MOCK_EVENT_FULL.location.coordinates
 

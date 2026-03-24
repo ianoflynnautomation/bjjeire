@@ -41,7 +41,10 @@ export const MOCK_EVENT_MINIMAL: BjjEventDto = {
   type: BjjEventType.Seminar,
   status: EventStatus.RegistrationOpen,
   county: County.Cork,
-  organiser: { name: 'Cork Grappling Club', website: 'https://corkgrappling.ie' },
+  organiser: {
+    name: 'Cork Grappling Club',
+    website: 'https://corkgrappling.ie',
+  },
   socialMedia: { instagram: '', facebook: '', x: '', youTube: '' },
   location: {
     address: '10 Patrick Street, Cork',

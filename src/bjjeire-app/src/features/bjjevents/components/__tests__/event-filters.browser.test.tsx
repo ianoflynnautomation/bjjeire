@@ -29,7 +29,10 @@ describe('EventFilters (browser)', () => {
       // Tab enough times to pass the county select + all type buttons
       for (let i = 0; i < typeButtons.length + 2; i++) {
         await user.tab()
-        if (document.activeElement && document.activeElement !== document.body) {
+        if (
+          document.activeElement &&
+          document.activeElement !== document.body
+        ) {
           focusedElements.push(document.activeElement)
         }
       }
@@ -96,9 +99,9 @@ describe('EventFilters (browser)', () => {
       const typeButtons = screen.getAllByTestId(ButtonGroupFilterTestIds.BUTTON)
       // First button is "All Types" which matches selectedType="all"
       expect(typeButtons[0]).toHaveAttribute('aria-pressed', 'true')
-      typeButtons.slice(1).forEach(btn =>
-        expect(btn).toHaveAttribute('aria-pressed', 'false')
-      )
+      typeButtons
+        .slice(1)
+        .forEach(btn => expect(btn).toHaveAttribute('aria-pressed', 'false'))
     })
   })
 })
