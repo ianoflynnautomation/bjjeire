@@ -15,9 +15,8 @@ export default defineConfig({
       '**/dist/**',
       '**/e2e/**',
       '**/*.browser.test.{ts,tsx}',
+      '**/*.integration.test.{ts,tsx}',
     ],
-    reporters: ['default', 'junit'],
-    outputFile: 'junit.xml',
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.d.ts', 'src/testing/**'],
