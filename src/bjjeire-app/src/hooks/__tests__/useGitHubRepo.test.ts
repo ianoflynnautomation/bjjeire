@@ -18,7 +18,7 @@ describe('parseRepoPath', () => {
     ['https://gitlab.com/owner/repo'],
     ['not-a-url'],
     ['https://github.com/owner'],
-  ])('returns undefined for "%s"', (url) => {
+  ])('returns undefined for "%s"', url => {
     expect(parseRepoPath(url)).toBeUndefined()
   })
 })

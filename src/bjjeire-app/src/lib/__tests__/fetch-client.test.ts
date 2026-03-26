@@ -34,7 +34,7 @@ describe('fetchJson', () => {
 
   it.each([400, 401, 403, 404, 500, 503])(
     'throws FetchError for status %i',
-    async (status) => {
+    async status => {
       mockFetchError(status)
       await expect(fetchJson('https://example.com/api')).rejects.toThrow(
         FetchError
@@ -115,7 +115,10 @@ describe('fetchJson', () => {
     expect(caught).toBe(networkError)
     expect(consoleSpy).toHaveBeenCalledWith(
       'Network error — request could not be sent:',
-      expect.objectContaining({ url: 'https://example.com/api', cause: networkError })
+      expect.objectContaining({
+        url: 'https://example.com/api',
+        cause: networkError,
+      })
     )
   })
 })

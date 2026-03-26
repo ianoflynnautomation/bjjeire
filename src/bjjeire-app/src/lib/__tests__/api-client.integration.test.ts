@@ -1,6 +1,14 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
-import { describe, it, expect, vi, beforeAll, afterAll, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest'
 
 const { mockMsalInstance } = vi.hoisted(() => ({
   mockMsalInstance: {
@@ -34,7 +42,9 @@ afterAll(() => server.close())
 describe('api.get', () => {
   it('returns the response data', async () => {
     server.use(
-      http.get(`${BASE}/items`, () => HttpResponse.json({ id: 1, name: 'Test' }))
+      http.get(`${BASE}/items`, () =>
+        HttpResponse.json({ id: 1, name: 'Test' })
+      )
     )
     const result = await api.get<{ id: number; name: string }>('items')
     expect(result).toEqual({ id: 1, name: 'Test' })
@@ -54,12 +64,16 @@ describe('api.get', () => {
   })
 
   it('rejects on a 404 response', async () => {
-    server.use(http.get(`${BASE}/items`, () => HttpResponse.json(null, { status: 404 })))
+    server.use(
+      http.get(`${BASE}/items`, () => HttpResponse.json(null, { status: 404 }))
+    )
     await expect(api.get('items')).rejects.toThrow()
   })
 
   it('rejects on a 500 response', async () => {
-    server.use(http.get(`${BASE}/items`, () => HttpResponse.json(null, { status: 500 })))
+    server.use(
+      http.get(`${BASE}/items`, () => HttpResponse.json(null, { status: 500 }))
+    )
     await expect(api.get('items')).rejects.toThrow()
   })
 })
@@ -108,8 +122,12 @@ describe('api.delete', () => {
 
 describe('request interceptor — auth', () => {
   it('adds Authorization header when an MSAL account is present', async () => {
-    mockMsalInstance.getAllAccounts.mockReturnValue([{ username: 'user@test.com' }])
-    mockMsalInstance.acquireTokenSilent.mockResolvedValue({ accessToken: 'test-token' })
+    mockMsalInstance.getAllAccounts.mockReturnValue([
+      { username: 'user@test.com' },
+    ])
+    mockMsalInstance.acquireTokenSilent.mockResolvedValue({
+      accessToken: 'test-token',
+    })
 
     let authHeader: string | null = null
     server.use(
@@ -139,8 +157,12 @@ describe('request interceptor — auth', () => {
   })
 
   it('proceeds without Authorization header when acquireTokenSilent throws', async () => {
-    mockMsalInstance.getAllAccounts.mockReturnValue([{ username: 'user@test.com' }])
-    mockMsalInstance.acquireTokenSilent.mockRejectedValue(new Error('Token expired'))
+    mockMsalInstance.getAllAccounts.mockReturnValue([
+      { username: 'user@test.com' },
+    ])
+    mockMsalInstance.acquireTokenSilent.mockRejectedValue(
+      new Error('Token expired')
+    )
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     let authHeader: string | null = null

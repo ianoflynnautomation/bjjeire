@@ -24,10 +24,16 @@ export function createTestQueryClient(): QueryClient {
   })
 }
 
-export function makeHookWrapper(): ({ children }: { children: ReactNode }) => ReactElement {
+export function makeHookWrapper(): ({
+  children,
+}: {
+  children: ReactNode
+}) => ReactElement {
   const queryClient = createTestQueryClient()
   return function Wrapper({ children }: { children: ReactNode }): ReactElement {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
   }
 }
 
