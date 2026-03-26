@@ -123,7 +123,9 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(result.current.theme).toBe('dark')
   })
@@ -132,7 +134,9 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('dark')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(result.current.theme).toBe('light')
   })
@@ -141,7 +145,9 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
@@ -150,7 +156,9 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('dark')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
@@ -159,7 +167,9 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith(STORAGE_KEY, 'dark')
   })
@@ -168,8 +178,12 @@ describe('useTheme — toggleTheme', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
-    act(() => { result.current.toggleTheme() })
-    act(() => { result.current.toggleTheme() })
+    act(() => {
+      result.current.toggleTheme()
+    })
+    act(() => {
+      result.current.toggleTheme()
+    })
 
     expect(result.current.theme).toBe('light')
   })

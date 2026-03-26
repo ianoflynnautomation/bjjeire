@@ -41,7 +41,9 @@ describe('usePaginatedQuery', () => {
   })
 
   it('returns undefined data while loading', () => {
-    const fetchFn = vi.fn(() => new Promise<PaginatedResponse<TestItem>>(() => {}))
+    const fetchFn = vi.fn(
+      () => new Promise<PaginatedResponse<TestItem>>(() => {})
+    )
     const { result } = renderHook(
       () =>
         usePaginatedQuery({
@@ -209,7 +211,10 @@ describe('usePaginatedQuery', () => {
         usePaginatedQuery({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { category: 'gi', page: 3 } as { category: string; page?: number },
+          initialParams: { category: 'gi', page: 3 } as {
+            category: string
+            page?: number
+          },
         }),
       { wrapper: makeHookWrapper() }
     )
@@ -232,7 +237,10 @@ describe('usePaginatedQuery', () => {
         usePaginatedQuery({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { category: 'gi' } as { category: string; page?: number },
+          initialParams: { category: 'gi' } as {
+            category: string
+            page?: number
+          },
         }),
       { wrapper: makeHookWrapper() }
     )
@@ -299,7 +307,10 @@ describe('usePaginatedQuery', () => {
         usePaginatedQuery({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { search: 'bjj', page: 1 } as { search: string; page?: number },
+          initialParams: { search: 'bjj', page: 1 } as {
+            search: string
+            page?: number
+          },
         }),
       { wrapper: makeHookWrapper() }
     )

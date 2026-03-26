@@ -65,9 +65,7 @@ describe('useGitHubRepo', () => {
       { wrapper: makeHookWrapper() }
     )
 
-    await waitFor(() =>
-      expect(vi.mocked(globalThis.fetch)).toHaveBeenCalled()
-    )
+    await waitFor(() => expect(vi.mocked(globalThis.fetch)).toHaveBeenCalled())
     expect(result.current.stars).toBeUndefined()
   })
 
@@ -79,9 +77,7 @@ describe('useGitHubRepo', () => {
       { wrapper: makeHookWrapper() }
     )
 
-    await waitFor(() =>
-      expect(vi.mocked(globalThis.fetch)).toHaveBeenCalled()
-    )
+    await waitFor(() => expect(vi.mocked(globalThis.fetch)).toHaveBeenCalled())
     expect(result.current.stars).toBeUndefined()
   })
 

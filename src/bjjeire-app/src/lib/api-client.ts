@@ -70,11 +70,7 @@ class ApiService {
     return this.instance.post<T>(url, data, config) as Promise<T>
   }
 
-  put<T>(
-    url: string,
-    data?: unknown,
-    config?: AxiosRequestConfig
-  ): Promise<T> {
+  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     return this.instance.put<T>(url, data, config) as Promise<T>
   }
 
