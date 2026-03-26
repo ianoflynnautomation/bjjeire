@@ -1,4 +1,7 @@
-export class FetchError extends Error {
+import { AppError } from '@/lib/errors'
+import { logger } from '@/lib/logger'
+
+export class FetchError extends AppError {
   constructor(
     message: string,
     public readonly status: number,
@@ -13,7 +16,14 @@ export async function fetchJson<T>(
   url: string,
   options?: RequestInit
 ): Promise<T> {
-  const res = await fetch(url, options)
+  let res: Response
+  try {
+    res = await fetch(url, options)
+  } catch (cause) {
+    logger.error('Network error — request could not be sent:', { url, cause })
+    throw cause
+  }
+
   if (!res.ok) {
     let message = `Request failed with status ${res.status}`
     try {
@@ -24,7 +34,10 @@ export async function fetchJson<T>(
     } catch {
       // Response body is not JSON — keep the default message
     }
-    throw new FetchError(message, res.status, url)
+    const error = new FetchError(message, res.status, url)
+    logger.error('Fetch error:', { url, status: res.status, message })
+    throw error
   }
+
   return res.json() as Promise<T>
 }
