@@ -92,4 +92,30 @@ describe('fetchJson', () => {
     )
     expect((error as FetchError).message).toBe('Request failed with status 500')
   })
+
+  it('logs a console.error when a FetchError is thrown', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockFetchError(404)
+    await fetchJson('https://example.com/api').catch(() => {})
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Fetch error:',
+      expect.objectContaining({ url: 'https://example.com/api', status: 404 })
+    )
+  })
+
+  it('re-throws and logs a console.error on a network-level failure', async () => {
+    const networkError = new TypeError('Failed to fetch')
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(networkError)
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const caught = await fetchJson('https://example.com/api').catch(
+      (e: unknown) => e
+    )
+
+    expect(caught).toBe(networkError)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Network error — request could not be sent:',
+      expect.objectContaining({ url: 'https://example.com/api', cause: networkError })
+    )
+  })
 })
