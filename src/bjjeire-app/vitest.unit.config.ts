@@ -10,7 +10,9 @@ export default defineConfig({
     environment: 'jsdom',
     restoreMocks: true,
     setupFiles: './src/testing/setup-tests.ts',
-    reporters: process.env.GITHUB_ACTIONS ? ['default', 'github-actions'] : ['default'],
+    reporters: process.env.GITHUB_ACTIONS
+      ? ['default', 'github-actions']
+      : ['default'],
     maxWorkers: process.env.CI ? 4 : undefined,
     maxConcurrency: process.env.CI ? 5 : 10,
     slowTestThreshold: 500,
@@ -23,8 +25,6 @@ export default defineConfig({
       '**/*.integration.test.{ts,tsx}',
     ],
     coverage: {
-      // Focus coverage on logic-heavy code where line/branch metrics are meaningful.
-      // Components are excluded — rendering coverage tells you little; use browser tests for that.
       include: [
         'src/utils/**',
         'src/lib/**',
