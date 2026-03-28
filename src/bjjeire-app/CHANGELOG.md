@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.4...frontend-v0.1.5) (2026-03-28)
+
+
+### ### Features
+
+* clean up UI components ([#44](https://github.com/ianoflynnautomation/bjjeire/issues/44)) ([8023126](https://github.com/ianoflynnautomation/bjjeire/commit/802312608b0391185cb6f5b2802e3f570640027e))
+
 ## [0.1.4](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.3...frontend-v0.1.4) (2026-03-24)
 
 
