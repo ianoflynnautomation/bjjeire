@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ReactNode } from 'react'
 import LoadingState from './loading-state'
 import ErrorState from './error-state'
@@ -19,7 +20,7 @@ interface ContentRendererProps<T> {
   isInitialLoad: boolean
 }
 
-export function ContentRenderer<T>({
+function ContentRendererBase<T>({
   isLoading,
   isFetching,
   fetchError,
@@ -32,7 +33,7 @@ export function ContentRenderer<T>({
   noDataMessageLine2,
   showBackgroundFetchingIndicator = true,
   isInitialLoad,
-}: Readonly<ContentRendererProps<T>>): ReactNode {
+}: ContentRendererProps<T>): ReactNode {
   const hasData = data && data.length > 0
 
   if (isInitialLoad && isLoading) {
@@ -70,3 +71,7 @@ export function ContentRenderer<T>({
 
   return null
 }
+
+export const ContentRenderer = memo(
+  ContentRendererBase
+) as typeof ContentRendererBase

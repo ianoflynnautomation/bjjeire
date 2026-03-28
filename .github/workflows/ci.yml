@@ -105,77 +105,33 @@ jobs:
           path: ${{ env.SOLUTION_PATH }}
           configuration: ${{ env.CONFIGURATION }}
 
-  publish_dotnet_test_projects:
-    name: Publish .NET Test Projects
-    runs-on: ubuntu-latest
-    needs: build_dotnet_solution
-    if: needs.build_dotnet_solution.outputs.build_successful == 'true'
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - test-type: ApiUnitTests
-            artifact-name: published_ApiUnitTests
-            project-path: "tests/BjjEire.Api.UnitTests/BjjEire.Api.UnitTests.csproj"
-          - test-type: DomainUnitTests
-            artifact-name: published_DomainUnitTests
-            project-path: "tests/BjjEire.Domain.UnitTests/BjjEire.Domain.UnitTests.csproj"
-          - test-type: ApplicationUnitTests
-            artifact-name: published_ApplicationUnitTests
-            project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj"
-          - test-type: InfrastructureUnitTests
-            artifact-name: published_InfrastructureUnitTests
-            project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
-          - test-type: ApplicationIntegrationTests
-            artifact-name: published_ApplicationIntegrationTests
-            project-path: "tests/BjjEire.Application.IntegrationTests/BjjEire.Application.IntegrationTests.csproj"
-          - test-type: ApiIntegrationTests
-            artifact-name: published_ApiIntegrationTests
-            project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
-    steps:
-      - uses: actions/checkout@v4
-      - name: Publish .NET Test Project - ${{ matrix.test-type }}
-        uses: ./.github/actions/dotnet-publish
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-          project-path: ${{ matrix.project-path }}
-          configuration: ${{ env.CONFIGURATION }}
-          output-path: ${{ github.workspace }}/published_tests/${{ matrix.artifact-name }}
-          artifact-name: ${{ matrix.artifact-name }}
-
   run_dotnet_tests:
     name: Run .NET Tests
     runs-on: ubuntu-latest
-    needs: publish_dotnet_test_projects
+    needs: build_dotnet_solution
+    if: needs.build_dotnet_solution.outputs.build_successful == 'true'
     timeout-minutes: 30
     strategy:
       fail-fast: true
       matrix:
         include:
           - test-type: ApiUnitTests
-            test-artifact-name: published_ApiUnitTests
-            test-assembly-pattern: "*Api.UnitTests.dll"
+            project-path: "tests/BjjEire.Api.UnitTests/BjjEire.Api.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
           - test-type: DomainUnitTests
-            test-artifact-name: published_DomainUnitTests
-            test-assembly-pattern: "*Domain.UnitTests.dll"
+            project-path: "tests/BjjEire.Domain.UnitTests/BjjEire.Domain.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
           - test-type: ApplicationUnitTests
-            test-artifact-name: published_ApplicationUnitTests
-            test-assembly-pattern: "*Application.UnitTests.dll"
+            project-path: "tests/BjjEire.Application.UnitTests/BjjEire.Application.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
           - test-type: InfrastructureUnitTests
-            test-artifact-name: published_InfrastructureUnitTests
-            test-assembly-pattern: "*Infrastructure.UnitTests.dll"
+            project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
           - test-type: ApplicationIntegrationTests
-            test-artifact-name: published_ApplicationIntegrationTests
-            test-assembly-pattern: "*Application.IntegrationTests.dll"
+            project-path: "tests/BjjEire.Application.IntegrationTests/BjjEire.Application.IntegrationTests.csproj"
             test-filter-criteria: "Category!=Ignore"
           - test-type: ApiIntegrationTests
-            test-artifact-name: published_ApiIntegrationTests
-            test-assembly-pattern: "*Api.IntegrationTests.dll"
+            project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
             test-filter-criteria: "Category!=Ignore"
 
     steps:
@@ -184,8 +140,7 @@ jobs:
         uses: ./.github/actions/dotnet-run-tests
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          test-artifact-name: ${{ matrix.test-artifact-name }}
-          test-assembly-pattern: ${{ matrix.test-assembly-pattern }}
+          project-path: ${{ matrix.project-path }}
           test-results-name-prefix: ${{ matrix.test-type }}
           test-filter-criteria: ${{ matrix.test-filter-criteria }}
 

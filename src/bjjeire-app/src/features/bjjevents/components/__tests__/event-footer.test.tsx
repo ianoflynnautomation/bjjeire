@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { EventFooter } from '../event-card/event-footer'
-import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 
 describe('EventFooter Component', () => {
   const defaultProps = {

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
@@ -12,7 +13,7 @@ interface GymCardProps {
 export const GymCard = memo(function GymCard({
   gym,
   'data-testid': dataTestId,
-}: GymCardProps) {
+}: GymCardProps): JSX.Element {
   const { name, county, status, imageUrl, website } = gym
   const headingId = `gym-card-heading-${gym.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? GymsPageTestIds.LIST_ITEM

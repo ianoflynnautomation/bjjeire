@@ -1,10 +1,11 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { GymStatus } from '@/types/gyms'
 import { Badge } from '@/components/ui/badge/badge'
 import {
   getGymStatusLabel,
   getGymStatusColorScheme,
-} from '@/utils/gymDisplayUtils'
+} from '@/utils/gym-display-utils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { MapPinIcon } from '@heroicons/react/20/solid'
@@ -26,7 +27,7 @@ export const GymHeader = memo(function GymHeader({
   status,
   imageUrl,
   headingId,
-}: GymHeaderProps) {
+}: GymHeaderProps): JSX.Element {
   const statusLabel = getGymStatusLabel(status)
   const statusColorScheme = getGymStatusColorScheme(status)
   const displayName = name || gymCard.fallbackName

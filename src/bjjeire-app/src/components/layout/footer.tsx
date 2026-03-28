@@ -68,14 +68,15 @@ const Footer = memo(function Footer({
               >
                 <GitHubIcon className="h-5 w-5 shrink-0" />
                 {uiContent.footer.githubLinkLabel}
-                <span
-                  className={`ml-1 min-w-16 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300 ${stars === undefined ? 'invisible' : ''}`}
-                  aria-hidden={stars === undefined}
-                  data-testid={FooterTestIds.GITHUB_STARS}
-                >
-                  ★ {stars?.toLocaleString() ?? '0'}{' '}
-                  {uiContent.footer.githubStarsLabel}
-                </span>
+                {stars !== undefined && (
+                  <span
+                    className="ml-1 min-w-16 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                    data-testid={FooterTestIds.GITHUB_STARS}
+                  >
+                    ★ {stars.toLocaleString()}{' '}
+                    {uiContent.footer.githubStarsLabel}
+                  </span>
+                )}
               </a>
             </div>
           )}

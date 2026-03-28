@@ -1,10 +1,11 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { BjjEventType } from '@/types/event'
 import {
   getEventTypeLabel,
   getEventTypeColorClasses,
   getEventTypeBannerGradient,
-} from '@/utils/eventUtils'
+} from '@/utils/event-utils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
@@ -26,7 +27,7 @@ export const EventHeader = memo(function EventHeader({
   county,
   imageUrl,
   headingId,
-}: EventHeaderProps) {
+}: EventHeaderProps): JSX.Element {
   const eventTypeLabel = getEventTypeLabel(type)
   const displayName = name || eventCard.fallbackName
 

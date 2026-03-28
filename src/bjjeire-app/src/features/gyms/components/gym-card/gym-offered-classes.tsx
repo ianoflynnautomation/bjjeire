@@ -1,6 +1,7 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { ClassCategory } from '@/types/gyms'
-import { getClassCategoryLabel } from '@/utils/gymDisplayUtils'
+import { getClassCategoryLabel } from '@/utils/gym-display-utils'
 import { TagIcon } from '@heroicons/react/20/solid'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
@@ -16,7 +17,7 @@ interface GymOfferedClassesProps {
 export const GymOfferedClasses = memo(function GymOfferedClasses({
   classes,
   'data-testid': rootDataTestId,
-}: GymOfferedClassesProps) {
+}: GymOfferedClassesProps): JSX.Element | null {
   if (!classes || classes.length === 0) {
     return null
   }

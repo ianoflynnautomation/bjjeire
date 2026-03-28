@@ -1,10 +1,11 @@
 import { memo } from 'react'
+import type { ReactNode, JSX } from 'react'
 import { SparklesIcon } from '@heroicons/react/20/solid'
 import type { TrialOfferDto } from '@/types/gyms'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
-import { buildTrialOfferText } from '@/utils/formatGymDetails'
+import { buildTrialOfferText } from '@/utils/format-gym-details'
 
 const gymCard = uiContent.gyms.card
 
@@ -16,14 +17,14 @@ interface GymTrialOfferProps {
 export const GymTrialOffer = memo(function GymTrialOffer({
   trialOffer,
   'data-testid': rootDataTestId,
-}: GymTrialOfferProps) {
+}: GymTrialOfferProps): JSX.Element | null {
   if (!trialOffer?.isAvailable) {
     return null
   }
 
   const { primaryPart, ariaLabel } = buildTrialOfferText(trialOffer)
 
-  let displayContent: React.ReactNode
+  let displayContent: ReactNode
   if (primaryPart && trialOffer.notes) {
     displayContent = (
       <>

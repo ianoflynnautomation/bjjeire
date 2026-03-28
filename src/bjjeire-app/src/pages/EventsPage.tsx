@@ -1,72 +1,30 @@
-import { useCallback, type ReactElement } from 'react'
-import type { County } from '@/constants/counties'
-import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
-import type { BjjEventType } from '@/types/event'
+import type { JSX } from 'react'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
 import Pagination from '@/components/ui/grid/pagination'
 import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
 import { EventsHeroBanner } from '@/features/bjjevents/components/events-hero-banner'
 import EventsList from '@/features/bjjevents/components/event-list'
-import { env } from '@/config/env'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
 import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
-import { useScrollToTop } from '@/hooks/useScrollToTop'
-import { formatFetchError } from '@/utils/errorUtils'
-import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
-import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
+import { useEventsPage } from '@/features/bjjevents/hooks/useEventsPage'
 
-const initialEventFilters: GetBjjEventsPaginationQuery = {
-  county: 'all',
-  type: 'all',
-  page: env.PAGE_NUMBER,
-  pageSize: env.PAGE_SIZE,
-}
-
-export default function EventsPage(): ReactElement {
-  const scrollToTop = useScrollToTop()
-
+export default function EventsPage(): JSX.Element {
   const {
-    data: paginatedEventsData,
-    pagination: paginationInfo,
+    events,
+    paginationInfo,
     isLoading,
     isFetching,
-    error: fetchError,
-    params: activeFilters,
+    activeFilters,
     currentPage,
-    handlePageChange: rawHandlePageChange,
-    updateFilters,
+    formattedErrorMessage,
+    isInitialLoading,
+    fetchError,
+    handleFilterChange,
+    onPageChange,
     refetch,
-  } = usePaginatedQuery<BjjEventDto, GetBjjEventsPaginationQuery>({
-    queryKeyBase: ['bjjevents'],
-    fetchFn: getBjjEvents,
-    initialParams: initialEventFilters,
-  })
-
-  const events = paginatedEventsData ?? []
-
-  const handleFilterChange = useCallback(
-    (
-      key: keyof Omit<GetBjjEventsPaginationQuery, 'page' | 'pageSize'>,
-      value: County | BjjEventType | 'all' | undefined
-    ) => {
-      updateFilters({ [key]: value } as Partial<GetBjjEventsPaginationQuery>)
-      scrollToTop()
-    },
-    [updateFilters, scrollToTop]
-  )
-
-  const onPageChange = useCallback(
-    (url: string | null, page?: number) => {
-      rawHandlePageChange(url, page)
-      scrollToTop()
-    },
-    [rawHandlePageChange, scrollToTop]
-  )
-
-  const formattedErrorMessage = formatFetchError(fetchError)
-  const isInitialLoading = isLoading && events.length === 0
+  } = useEventsPage()
 
   return (
     <PageErrorBoundary errorMessage="Failed to load events. Please try again.">

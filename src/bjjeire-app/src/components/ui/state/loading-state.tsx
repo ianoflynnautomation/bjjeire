@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 import { LoadingStateTestIds } from '@/constants/commonDataTestIds'
 
@@ -7,10 +8,10 @@ interface LoadingStateProps {
   'data-testid'?: string
 }
 
-export default memo(function LoadingState({
+const LoadingState = memo(function LoadingState({
   message = 'Loading data...',
   'data-testid': dataTestIdFromProp,
-}: LoadingStateProps) {
+}: LoadingStateProps): JSX.Element {
   const rootTestId = dataTestIdFromProp ?? LoadingStateTestIds.ROOT
 
   return (
@@ -27,3 +28,5 @@ export default memo(function LoadingState({
     </div>
   )
 })
+
+export default LoadingState

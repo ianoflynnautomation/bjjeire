@@ -1,6 +1,7 @@
-import type React from 'react'
+import { memo } from 'react'
+import type { JSX } from 'react'
 import { buttonVariants } from '@/lib/button-variants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
 
 export interface ButtonOption<T> {
@@ -15,11 +16,10 @@ interface ButtonGroupFilterProps<T> {
   onValueChange: (value: T | 'all') => void
   disabled?: boolean
   dataTestId?: string
-  testIdInstanceSuffix?: string
   className?: string
 }
 
-const ButtonGroupFilter = <T extends string | number>({
+function ButtonGroupFilterBase<T extends string | number>({
   label,
   options,
   selectedValue,
@@ -27,7 +27,7 @@ const ButtonGroupFilter = <T extends string | number>({
   disabled = false,
   dataTestId = ButtonGroupFilterTestIds.ROOT,
   className,
-}: ButtonGroupFilterProps<T>): React.JSX.Element => {
+}: ButtonGroupFilterProps<T>): JSX.Element {
   return (
     <fieldset className={cn('flex-1', className)} data-testid={dataTestId}>
       <legend
@@ -60,5 +60,9 @@ const ButtonGroupFilter = <T extends string | number>({
     </fieldset>
   )
 }
+
+const ButtonGroupFilter = memo(
+  ButtonGroupFilterBase
+) as typeof ButtonGroupFilterBase
 
 export default ButtonGroupFilter

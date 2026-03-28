@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { EventHeader } from '../event-card/event-header'
 import { BjjEventType } from '@/types/event'
-import { getEventTypeLabel } from '@/utils/eventUtils'
+import { getEventTypeLabel } from '@/utils/event-utils'
 import { County } from '@/constants/counties'
 
 describe('EventHeader Component', () => {
