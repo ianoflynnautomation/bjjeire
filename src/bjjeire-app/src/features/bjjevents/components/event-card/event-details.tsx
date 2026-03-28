@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react'
+import type { JSX } from 'react'
 import {
   MapPinIcon,
   CurrencyDollarIcon,
@@ -28,7 +29,7 @@ interface EventDetailsProps {
 export const EventDetails = memo(function EventDetails({
   event,
   'data-testid': sectionDataTestId,
-}: EventDetailsProps) {
+}: EventDetailsProps): JSX.Element {
   const { name, location, socialMedia, pricing, schedule, organiser } = event
   const rootTestId = sectionDataTestId ?? DetailItemTestIds.ROOT
 
@@ -45,11 +46,11 @@ export const EventDetails = memo(function EventDetails({
   return (
     <section
       className="space-y-2 text-sm"
-      aria-labelledby={`event-details-heading-${event.id || event.name}`}
+      aria-labelledby={`event-details-heading-${event.id ?? event.name}`}
       data-testid={rootTestId}
     >
       <h2
-        id={`event-details-heading-${event.id || event.name}`}
+        id={`event-details-heading-${event.id ?? event.name}`}
         className="sr-only"
       >
         {eventCard.detailsSrLabel} {name || eventCard.fallbackRef}

@@ -1,7 +1,7 @@
-import { memo } from 'react'
+import type { JSX } from 'react'
 import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 
-export const PageSuspenseFallback = memo(function PageSuspenseFallback() {
+export function PageSuspenseFallback(): JSX.Element {
   return (
     <div className="flex min-h-[60vh] items-center justify-center p-8">
       <LoadingSpinner
@@ -11,4 +11,4 @@ export const PageSuspenseFallback = memo(function PageSuspenseFallback() {
       />
     </div>
   )
-})
+}

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
 import {
@@ -15,7 +16,7 @@ interface EventCardProps {
 export const EventCard = memo(function EventCard({
   event,
   'data-testid': dataTestId,
-}: EventCardProps) {
+}: EventCardProps): JSX.Element {
   const { name, eventUrl, schedule, type, county, imageUrl } = event
   const headingId = `event-card-heading-${event.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? EventsPageTestIds.LIST_ITEM

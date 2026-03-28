@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { BjjEventType } from '@/types/event'
 import {
   getEventTypeLabel,
@@ -26,7 +27,7 @@ export const EventHeader = memo(function EventHeader({
   county,
   imageUrl,
   headingId,
-}: EventHeaderProps) {
+}: EventHeaderProps): JSX.Element {
   const eventTypeLabel = getEventTypeLabel(type)
   const displayName = name || eventCard.fallbackName
 

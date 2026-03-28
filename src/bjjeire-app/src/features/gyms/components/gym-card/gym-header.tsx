@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { GymStatus } from '@/types/gyms'
 import { Badge } from '@/components/ui/badge/badge'
 import {
@@ -26,7 +27,7 @@ export const GymHeader = memo(function GymHeader({
   status,
   imageUrl,
   headingId,
-}: GymHeaderProps) {
+}: GymHeaderProps): JSX.Element {
   const statusLabel = getGymStatusLabel(status)
   const statusColorScheme = getGymStatusColorScheme(status)
   const displayName = name || gymCard.fallbackName

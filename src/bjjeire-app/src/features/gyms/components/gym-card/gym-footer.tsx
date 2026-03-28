@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
 import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
@@ -15,7 +16,7 @@ interface GymFooterProps {
 export const GymFooter = memo(function GymFooter({
   websiteUrl,
   gymName,
-}: GymFooterProps) {
+}: GymFooterProps): JSX.Element {
   const externalWebsiteUrl =
     websiteUrl && websiteUrl.trim() !== ''
       ? ensureExternalUrlScheme(websiteUrl)

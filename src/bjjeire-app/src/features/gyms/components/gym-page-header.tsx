@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
@@ -14,7 +15,7 @@ export const GymsPageHeader = memo(function GymsPageHeader({
   countyName,
   totalGyms,
   'data-testid': baseTestId = GymsPageTestIds.HEADER,
-}: GymsPageHeaderProps) {
+}: GymsPageHeaderProps): JSX.Element {
   const hasCounty = countyName && countyName.toLowerCase() !== 'all'
   const title = hasCounty ? `${pageTitle.prefix} ${countyName}` : pageTitle.all
 

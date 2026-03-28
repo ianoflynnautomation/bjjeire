@@ -1,9 +1,10 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { HateoasPagination } from '@/types/common'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { buttonVariants } from '@/lib/button-variants'
 import { cn } from '@/lib/utils'
 import { PaginationTestIds } from '@/constants/commonDataTestIds'
+import { PaginationButton } from './pagination-button'
 
 interface PaginationProps {
   currentPage: number
@@ -12,12 +13,12 @@ interface PaginationProps {
   'data-testid'?: string
 }
 
-export default memo(function Pagination({
+const Pagination = memo(function Pagination({
   currentPage,
   pagination,
   onPageChange,
   'data-testid': dataTestIdFromProp,
-}: PaginationProps) {
+}: PaginationProps): JSX.Element | null {
   const {
     totalPages,
     hasNextPage,
@@ -28,18 +29,18 @@ export default memo(function Pagination({
     pageSize,
   } = pagination
 
+  const rootTestId = dataTestIdFromProp ?? PaginationTestIds.ROOT
+
   if (totalPages <= 1) {
     return null
   }
-
-  const rootTestId = dataTestIdFromProp ?? PaginationTestIds.ROOT
 
   const itemsStart =
     totalItems && pageSize ? (currentPage - 1) * pageSize + 1 : null
   const itemsEnd =
     totalItems && pageSize ? Math.min(currentPage * pageSize, totalItems) : null
   const itemsText =
-    itemsStart && itemsEnd && totalItems
+    itemsStart && itemsEnd
       ? `Showing ${itemsStart}-${itemsEnd} of ${totalItems} items`
       : ''
 
@@ -59,24 +60,12 @@ export default memo(function Pagination({
         </p>
       )}
       <div className="flex items-center gap-2">
-        {/* Previous Page */}
-        <button
-          data-testid={PaginationTestIds.PREV_BUTTON}
-          className={cn(
-            buttonVariants({ variant: 'outline', size: 'sm' }),
-            'gap-1.5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'
-          )}
-          onClick={() =>
-            hasPreviousPage && onPageChange(previousPageUrl, currentPage - 1)
-          }
+        <PaginationButton
+          direction="prev"
           disabled={!hasPreviousPage}
-          aria-label="Previous page"
-        >
-          <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
-          Prev
-        </button>
-
-        {/* Current Page Indicator */}
+          onClick={() => onPageChange(previousPageUrl, currentPage - 1)}
+          data-testid={PaginationTestIds.PREV_BUTTON}
+        />
         <span
           data-testid={PaginationTestIds.PAGE_INDICATOR}
           className={cn(
@@ -88,24 +77,15 @@ export default memo(function Pagination({
         >
           {currentPage} / {totalPages}
         </span>
-
-        {/* Next Page */}
-        <button
-          data-testid={PaginationTestIds.NEXT_BUTTON}
-          className={cn(
-            buttonVariants({ variant: 'outline', size: 'sm' }),
-            'gap-1.5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'
-          )}
-          onClick={() =>
-            hasNextPage && onPageChange(nextPageUrl, currentPage + 1)
-          }
+        <PaginationButton
+          direction="next"
           disabled={!hasNextPage}
-          aria-label="Next page"
-        >
-          Next
-          <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
-        </button>
+          onClick={() => onPageChange(nextPageUrl, currentPage + 1)}
+          data-testid={PaginationTestIds.NEXT_BUTTON}
+        />
       </div>
     </nav>
   )
 })
+
+export default Pagination

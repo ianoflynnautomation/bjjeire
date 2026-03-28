@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { formatDate, formatTime } from '@/utils/dateUtils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
@@ -14,7 +15,7 @@ interface EventScheduleProps {
 export const EventSchedule = memo(function EventSchedule({
   schedule,
   'data-testid': dataTestId = 'event-schedule',
-}: EventScheduleProps) {
+}: EventScheduleProps): JSX.Element | null {
   if (!schedule) {
     return null
   }

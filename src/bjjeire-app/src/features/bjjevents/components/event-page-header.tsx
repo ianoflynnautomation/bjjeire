@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
@@ -14,7 +15,7 @@ export const EventsPageHeader = memo(function EventsPageHeader({
   countyName,
   totalEvents,
   'data-testid': baseTestId = EventsPageTestIds.HEADER,
-}: EventsPageHeaderProps) {
+}: EventsPageHeaderProps): JSX.Element {
   const isAllCounties = !countyName || countyName.toLowerCase() === 'all'
   const title = isAllCounties
     ? pageTitle.all

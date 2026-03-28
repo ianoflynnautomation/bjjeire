@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, ErrorInfo } from 'react'
 import { Component } from 'react'
+import { logger } from '@/lib/logger'
 import ErrorState from './../ui/state/error-state'
 
 interface PageErrorBoundaryProps {
@@ -21,6 +22,10 @@ class PageErrorBoundary extends Component<
 
   public static getDerivedStateFromError(_: Error): PageErrorBoundaryState {
     return { hasError: true }
+  }
+
+  public componentDidCatch(error: Error, info: ErrorInfo): void {
+    logger.error('Unhandled error caught by PageErrorBoundary', { error, info })
   }
 
   private readonly handleRetry = (): void => {
