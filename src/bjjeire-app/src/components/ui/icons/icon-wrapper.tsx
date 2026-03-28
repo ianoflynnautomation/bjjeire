@@ -1,8 +1,8 @@
-import React from 'react'
+import type { ReactNode, JSX } from 'react'
 import { cn } from '@/lib/utils'
 
 interface IconWrapperProps {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
   'aria-hidden'?: boolean
 }
@@ -11,12 +11,10 @@ export function IconWrapper({
   children,
   className = 'h-5 w-5 text-emerald-500 dark:text-emerald-400',
   'aria-hidden': ariaHidden = true,
-}: Readonly<IconWrapperProps>): React.JSX.Element {
+}: IconWrapperProps): JSX.Element {
   return (
     <span className={cn('mt-0.5 shrink-0', className)} aria-hidden={ariaHidden}>
       {children}
     </span>
   )
 }
-
-export default IconWrapper

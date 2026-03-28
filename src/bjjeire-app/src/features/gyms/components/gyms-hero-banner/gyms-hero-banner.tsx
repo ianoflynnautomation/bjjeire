@@ -1,9 +1,10 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import { uiContent } from '@/config/ui-content'
 
 const { hero } = uiContent.gyms
 
-export const GymsHeroBanner = memo(function GymsHeroBanner() {
+export const GymsHeroBanner = memo(function GymsHeroBanner(): JSX.Element {
   return (
     <section
       className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-black/8 dark:ring-white/8"

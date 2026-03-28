@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import {
   MapPinIcon,
   ClipboardDocumentListIcon,
@@ -23,7 +24,7 @@ interface GymDetailsProps {
 export const GymDetails = memo(function GymDetails({
   gym,
   'data-testid': rootDataTestId,
-}: GymDetailsProps) {
+}: GymDetailsProps): JSX.Element {
   const { location, timetableUrl, socialMedia, offeredClasses, trialOffer } =
     gym
 

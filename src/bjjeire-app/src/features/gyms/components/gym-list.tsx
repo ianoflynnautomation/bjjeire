@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymCard } from './gym-card'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
@@ -12,7 +13,7 @@ interface GymsListProps {
 export const GymsList = memo(function GymsList({
   gyms,
   'data-testid': dataTestId,
-}: GymsListProps) {
+}: GymsListProps): JSX.Element {
   const rootListTestId = dataTestId ?? GymsPageTestIds.LIST
 
   return (

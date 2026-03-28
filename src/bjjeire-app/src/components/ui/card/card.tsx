@@ -1,10 +1,11 @@
-import React from 'react'
+import { memo } from 'react'
+import type { HTMLAttributes, JSX } from 'react'
 import { cn } from '@/lib/utils'
 
-export function Card({
+export const Card = memo(function Card({
   className,
   ...props
-}: Readonly<React.HTMLAttributes<HTMLElement>>): React.JSX.Element {
+}: HTMLAttributes<HTMLElement>): JSX.Element {
   return (
     <article
       className={cn(
@@ -17,16 +18,6 @@ export function Card({
       {...props}
     />
   )
-}
+})
 
-export function CardContent({
-  className,
-  ...props
-}: Readonly<React.HTMLAttributes<HTMLDivElement>>): React.JSX.Element {
-  return (
-    <div
-      className={cn('flex flex-1 flex-col p-2 sm:p-3', className)}
-      {...props}
-    />
-  )
-}
+export { CardContent } from './card-content'
