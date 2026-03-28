@@ -1,18 +1,20 @@
 export const about = {
-  title: 'About BJJ Eire',
+  title: 'About BJJ Éire',
   subtitle:
-    'A community-first directory for Brazilian Jiu-Jitsu gyms and events across Ireland.',
-  missionTitle: 'What We Do',
+    'A community-built, open source directory for Brazilian Jiu-Jitsu gyms and events across Ireland.',
+  missionTitle: 'Our Mission',
   missionParagraph1:
-    'BJJ Eire helps practitioners discover gyms, seminars, tournaments, camps, and open mats in a single place. The project aims to make finding accurate local training information fast and simple.',
+    'BJJ Éire exists to make Irish Jiu-Jitsu more accessible. Whether you are looking for a gym to train at, a tournament to compete in, or an open mat to visit, this is the place to find it — accurate, up to date, and free.',
   missionParagraph2:
-    'We focus on clear listings, practical filtering, and links that take people directly to gym and event sources for up-to-date details.',
-  principlesTitle: 'Project Principles',
+    'The goal is simple: help the Irish BJJ community train more, compete more, and connect more. Every listing, filter, and fix moves that mission forward.',
+  principlesTitle: 'Open Source Philosophy',
   principles: [
-    'Keep data easy to browse and compare.',
-    'Prioritize accessibility across devices and input methods.',
-    'Make contribution and correction workflows straightforward.',
+    'BJJ Éire is fully open source — the code, the data model, and the roadmap are all public.',
+    'Anyone can contribute: add a gym, report a correction, suggest a feature, or submit a pull request.',
+    'No ads, no paywalls, no trackers — built by the community, for the community.',
+    'The project grows through participation. If you train BJJ in Ireland, this is your directory too.',
   ],
-  contactTitle: 'Contact',
-  contactPrefix: 'For updates, corrections, or partnership requests, email',
+  contactTitle: 'Get Involved',
+  contactPrefix:
+    'Have a gym to add, a correction to report, or want to contribute? Email',
 } as const
