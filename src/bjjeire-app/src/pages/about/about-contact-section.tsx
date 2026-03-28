@@ -7,7 +7,7 @@ import { AboutContactTestIds } from '@/constants/aboutDataTestIds'
 
 const socialMedia = {
   instagram: env.SOCIAL_INSTAGRAM_URL || undefined,
-  x: env.SOCIAL_INSTAGRAM_URL || undefined
+  x: env.SOCIAL_INSTAGRAM_URL || undefined,
 }
 
 export function AboutContactSection(): JSX.Element {
