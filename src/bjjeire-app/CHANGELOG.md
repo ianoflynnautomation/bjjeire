@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.5...frontend-v0.1.6) (2026-03-28)
+
+
+### ### Features
+
+* add serach filter for gyms and events ([#47](https://github.com/ianoflynnautomation/bjjeire/issues/47)) ([dd69b15](https://github.com/ianoflynnautomation/bjjeire/commit/dd69b154e9a73e0b73e40f1e5c217b8256f61b68))
+
 ## [0.1.5](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.4...frontend-v0.1.5) (2026-03-28)
 
 
