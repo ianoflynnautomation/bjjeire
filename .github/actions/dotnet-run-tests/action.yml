@@ -1,26 +1,18 @@
-name: 'Run .NET Tests from Published Artifact'
-description: 'Downloads a published test artifact and runs .NET tests'
+name: 'Run .NET Tests'
+description: 'Restores, builds, and runs .NET tests for a specific project'
 inputs:
   dotnet-version:
     description: '.NET SDK version'
     required: true
-  test-artifact-name:
-    description: 'Name of the test artifact to download'
+  project-path:
+    description: 'Path to the .NET test project file (csproj)'
     required: true
-  test-assembly-pattern:
-    description: 'Pattern for test DLLs within the artifact (e.g., *Tests.dll)'
-    required: true
-    default: '*Tests.dll'
   test-results-name-prefix:
     description: 'Prefix for the TRX test results file and artifact name'
     required: true
   test-filter-criteria:
-    description: 'Filter criteria for dotnet test'
+    description: 'Filter criteria for dotnet test (e.g. Category!=Ignore)'
     required: false
-  download-path:
-    description: 'Path to download the artifact'
-    required: false
-    default: 'test_artifacts'
 runs:
   using: "composite"
   steps:
@@ -29,39 +21,23 @@ runs:
       with:
         dotnet-version: ${{ inputs.dotnet-version }}
 
-    - name: Download Test Artifact - ${{ inputs.test-artifact-name }}
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ inputs.test-artifact-name }}
-        path: ${{ inputs.download-path }}/${{ inputs.test-artifact-name }}
-
     - name: Run Tests
       shell: bash
-      working-directory: ${{ inputs.download-path }}/${{ inputs.test-artifact-name }}
       run: |
         FILTER_ARG=""
         if [ -n "${{ inputs.test-filter-criteria }}" ]; then
           FILTER_ARG="--filter ${{ inputs.test-filter-criteria }}"
         fi
-        dotnet test *Tests.dll \
+        dotnet test "${{ inputs.project-path }}" \
+          --configuration Release \
           --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" \
-          --results-directory ${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }} \
+          --results-directory "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}" \
           $FILTER_ARG
 
-    - name: Publish Test Results Artifact
+    - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test_results_${{ inputs.test-results-name-prefix }}
         path: "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}"
-        retention-days: 7
-
-    # - name: Report Test Results
-    #   if: always()
-    #   uses: dorny/test-reporter@v2
-    #   with:
-    #     artifact: test_results_${{ inputs.test-results-name-prefix }}
-    #     name: Test Results - ${{ inputs.test-results-name-prefix }}
-    #     path: '*.trx'
-    #     reporter: dotnet-trx
-    #     fail-on-error: true
+        retention-days: 1
