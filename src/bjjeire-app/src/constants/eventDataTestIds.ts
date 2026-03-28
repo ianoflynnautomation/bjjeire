@@ -3,6 +3,7 @@ export const EventsPageTestIds = {
   HEADER_TITLE: 'events-page-header-title',
   HEADER_TOTAL: 'events-page-header-total',
   FILTERS: 'events-page-filters',
+  SEARCH: 'events-page-search',
   LIST: 'events-page-list',
   LIST_ITEM: 'events-list-item',
 }
