@@ -9,6 +9,13 @@ export const GymsPageTestIds = {
   LIST_EMPTY: 'gyms-list-empty',
 }
 
+export const GymsHeroBannerTestIds = {
+  BANNER: 'gyms-hero-banner',
+  IMAGE: 'gyms-hero-banner-image',
+  TAGLINE: 'gyms-hero-banner-tagline',
+  SUBTITLE: 'gyms-hero-banner-subtitle',
+}
+
 export const GymCardTestIds = {
   IMAGE: 'gym-card-image',
   NAME: 'gym-card-name',
@@ -16,8 +23,6 @@ export const GymCardTestIds = {
   COUNTY: 'gym-card-county',
   ADDRESS: 'gym-card-address',
   ADDRESS_LINK: 'gym-card-address-link',
-  AFFILIATION: 'gym-card-affiliation',
-  AFFILIATION_LINK: 'gym-card-affiliation-link',
   TIMETABLE: 'gym-card-timetable',
   TIMETABLE_LINK: 'gym-card-timetable-link',
   CLASSES: 'gym-card-classes',
