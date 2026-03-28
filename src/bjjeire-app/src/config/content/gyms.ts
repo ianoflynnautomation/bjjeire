@@ -18,6 +18,15 @@ export const gyms = {
   list: {
     ariaLabel: 'Brazilian Jiu-Jitsu gyms',
   },
+  search: {
+    label: 'Search gyms',
+    placeholder: 'Search gyms...',
+    clearLabel: 'Clear search',
+    noResultsTitle: 'No gyms match your search',
+    noResultsMessage: 'Try a different search term or clear the filter.',
+    resultsSrPrefix: 'Showing',
+    resultsSrSuffix: 'gyms',
+  },
   card: {
     fallbackName: 'Unnamed Gym',
     fallbackRef: 'this gym',

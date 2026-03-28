@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { County } from '@/constants/counties'
 import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
 import type { BjjEventType } from '@/types/event'
@@ -10,6 +10,10 @@ import { useScrollToTop } from '@/hooks/useScrollToTop'
 import type { HateoasPagination } from '@/types/common'
 import type { QueryObserverResult } from '@tanstack/react-query'
 import type { PaginatedResponse } from '@/types/common'
+import { useEventSearch } from './useEventSearch'
+import type { UseEventSearchResult } from './useEventSearch'
+
+const SEARCH_PAGE_SIZE = 200
 
 const initialEventFilters: GetBjjEventsPaginationQuery = {
   county: 'all',
@@ -20,6 +24,7 @@ const initialEventFilters: GetBjjEventsPaginationQuery = {
 
 interface UseEventsPageResult {
   events: BjjEventDto[]
+  filteredEvents: BjjEventDto[]
   paginationInfo: HateoasPagination | undefined
   isLoading: boolean
   isFetching: boolean
@@ -36,10 +41,12 @@ interface UseEventsPageResult {
   refetch: () => Promise<
     QueryObserverResult<PaginatedResponse<BjjEventDto>, Error>
   >
+  search: UseEventSearchResult
 }
 
 export function useEventsPage(): UseEventsPageResult {
   const scrollToTop = useScrollToTop()
+  const eventSearch = useEventSearch()
 
   const {
     data: paginatedEventsData,
@@ -58,7 +65,19 @@ export function useEventsPage(): UseEventsPageResult {
     initialParams: initialEventFilters,
   })
 
-  const events = paginatedEventsData ?? []
+  useEffect(() => {
+    updateFilters({
+      page: 1,
+      pageSize: eventSearch.isSearchActive ? SEARCH_PAGE_SIZE : env.PAGE_SIZE,
+    } as Partial<GetBjjEventsPaginationQuery>)
+  }, [eventSearch.isSearchActive, updateFilters])
+
+  const events = useMemo(() => paginatedEventsData ?? [], [paginatedEventsData])
+
+  const filteredEvents = useMemo(
+    () => eventSearch.filterEvents(events),
+    [eventSearch, events]
+  )
 
   const handleFilterChange = useCallback(
     (
@@ -81,6 +100,7 @@ export function useEventsPage(): UseEventsPageResult {
 
   return {
     events,
+    filteredEvents,
     paginationInfo,
     isLoading,
     isFetching,
@@ -92,5 +112,6 @@ export function useEventsPage(): UseEventsPageResult {
     handleFilterChange,
     onPageChange,
     refetch,
+    search: eventSearch,
   }
 }
