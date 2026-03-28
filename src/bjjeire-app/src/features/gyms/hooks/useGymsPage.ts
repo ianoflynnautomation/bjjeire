@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { COUNTIES } from '@/constants/counties'
 import { env } from '@/config/env'
 import type { GymDto, GetGymsByCountyPaginationQuery } from '@/types/gyms'
@@ -10,8 +10,12 @@ import { uiContent } from '@/config/ui-content'
 import type { HateoasPagination } from '@/types/common'
 import type { QueryObserverResult } from '@tanstack/react-query'
 import type { PaginatedResponse } from '@/types/common'
+import { useGymSearch } from './useGymSearch'
+import type { UseGymSearchResult } from './useGymSearch'
 
 const { filters } = uiContent.gyms
+
+const SEARCH_PAGE_SIZE = 200
 
 const initialGymFilters: GetGymsByCountyPaginationQuery = {
   county: 'all',
@@ -21,6 +25,7 @@ const initialGymFilters: GetGymsByCountyPaginationQuery = {
 
 interface UseGymsPageResult {
   gyms: GymDto[]
+  filteredGyms: GymDto[]
   paginationInfo: HateoasPagination | undefined
   isLoading: boolean
   isFetching: boolean
@@ -33,10 +38,12 @@ interface UseGymsPageResult {
   handleCountyChange: (countyValue: string | undefined) => void
   onPageChange: (url: string | null, page?: number) => void
   refetch: () => Promise<QueryObserverResult<PaginatedResponse<GymDto>, Error>>
+  search: UseGymSearchResult
 }
 
 export function useGymsPage(): UseGymsPageResult {
   const scrollToTop = useScrollToTop()
+  const gymSearch = useGymSearch()
 
   const {
     data: paginatedGymsData,
@@ -55,7 +62,19 @@ export function useGymsPage(): UseGymsPageResult {
     initialParams: initialGymFilters,
   })
 
-  const gyms = paginatedGymsData ?? []
+  useEffect(() => {
+    updateFilters({
+      page: 1,
+      pageSize: gymSearch.isSearchActive ? SEARCH_PAGE_SIZE : env.PAGE_SIZE,
+    } as Partial<GetGymsByCountyPaginationQuery>)
+  }, [gymSearch.isSearchActive, updateFilters])
+
+  const gyms = useMemo(() => paginatedGymsData ?? [], [paginatedGymsData])
+
+  const filteredGyms = useMemo(
+    () => gymSearch.filterGyms(gyms),
+    [gymSearch, gyms]
+  )
 
   const countyLabel =
     COUNTIES.find(c => c.value === activeFilters.county)?.label ??
@@ -84,6 +103,7 @@ export function useGymsPage(): UseGymsPageResult {
 
   return {
     gyms,
+    filteredGyms,
     paginationInfo,
     isLoading,
     isFetching,
@@ -96,5 +116,6 @@ export function useGymsPage(): UseGymsPageResult {
     handleCountyChange,
     onPageChange,
     refetch,
+    search: gymSearch,
   }
 }

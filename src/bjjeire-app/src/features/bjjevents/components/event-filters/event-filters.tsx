@@ -61,7 +61,7 @@ const EventFilters = memo(function EventFilters({
         disabled={disabled}
         Icon={MapPinIcon}
         data-testid={SelectFilterTestIds.ROOT}
-        className="flex-1 min-w-0"
+        className="sm:w-48 shrink-0"
       />
       <ButtonGroupFilter<BjjEventType | 'all'>
         label={filters.eventTypeLabel}

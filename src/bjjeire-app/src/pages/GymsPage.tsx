@@ -2,6 +2,7 @@ import type { JSX } from 'react'
 import { GymsList } from '@/features/gyms/components/gym-list'
 import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
 import { GymsHeroBanner } from '@/features/gyms/components/gyms-hero-banner'
+import { GymSearchInput } from '@/features/gyms/components/gym-search-input'
 import SelectFilter from '@/components/ui/filters/select-filter'
 import Pagination from '@/components/ui/grid/pagination'
 import { COUNTIES } from '@/constants/counties'
@@ -10,12 +11,13 @@ import PageLayout from '@/components/layout/page-layout'
 import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
 import { uiContent } from '@/config/ui-content'
 import { useGymsPage } from '@/features/gyms/hooks/useGymsPage'
+import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 
-const { filters } = uiContent.gyms
+const { filters, search } = uiContent.gyms
 
 export default function GymsPage(): JSX.Element {
   const {
-    gyms,
+    filteredGyms,
     paginationInfo,
     isLoading,
     isFetching,
@@ -28,6 +30,7 @@ export default function GymsPage(): JSX.Element {
     handleCountyChange,
     onPageChange,
     refetch,
+    search: gymSearch,
   } = useGymsPage()
 
   return (
@@ -37,20 +40,42 @@ export default function GymsPage(): JSX.Element {
 
         <GymsPageHeader
           countyName={countyLabel}
-          totalGyms={paginationInfo?.totalItems}
+          totalGyms={
+            gymSearch.isSearchActive
+              ? filteredGyms.length
+              : paginationInfo?.totalItems
+          }
         />
 
-        <div className="mb-8 pb-8 border-b border-black/8 dark:border-white/8">
-          <SelectFilter
-            id="county-filter"
-            label={filters.countyLabel}
-            value={activeFilters.county}
-            onChange={handleCountyChange}
-            options={COUNTIES}
-            placeholderOptionLabel={filters.allCountiesOption}
-            disabled={isFetching || isLoading}
-          />
+        <div className="mb-6 pb-6 border-b border-black/8 dark:border-white/8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <SelectFilter
+              id="county-filter"
+              label={filters.countyLabel}
+              value={activeFilters.county}
+              onChange={handleCountyChange}
+              options={COUNTIES}
+              placeholderOptionLabel={filters.allCountiesOption}
+              disabled={isFetching || isLoading}
+              className="sm:w-64 shrink-0"
+            />
+            <div className="sm:w-160 shrink-0">
+              <GymSearchInput
+                value={gymSearch.searchTerm}
+                onChange={gymSearch.setSearchTerm}
+                onClear={gymSearch.clearSearch}
+                disabled={isLoading}
+                dataTestId={GymsPageTestIds.SEARCH}
+              />
+            </div>
+          </div>
         </div>
+
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          {gymSearch.isSearchActive
+            ? `${search.resultsSrPrefix} ${filteredGyms.length} ${search.resultsSrSuffix}`
+            : ''}
+        </p>
 
         <section className="relative" aria-live="polite" aria-busy={isFetching}>
           <ContentRenderer
@@ -59,20 +84,31 @@ export default function GymsPage(): JSX.Element {
             fetchError={fetchError}
             formattedErrorMessage={formattedErrorMessage}
             onRetry={refetch}
-            data={gyms}
+            data={filteredGyms}
             renderDataComponent={data => <GymsList gyms={data} />}
-            noDataTitle="No Gyms Found"
-            noDataMessageLine1="No gyms match your current filters."
-            noDataMessageLine2="Try a different county or check back later."
+            noDataTitle={
+              gymSearch.isSearchActive ? search.noResultsTitle : 'No Gyms Found'
+            }
+            noDataMessageLine1={
+              gymSearch.isSearchActive
+                ? search.noResultsMessage
+                : 'No gyms match your current filters.'
+            }
+            noDataMessageLine2={
+              gymSearch.isSearchActive
+                ? undefined
+                : 'Try a different county or check back later.'
+            }
             isInitialLoad={isInitialLoading}
-            showBackgroundFetchingIndicator={gyms.length > 0}
+            showBackgroundFetchingIndicator={filteredGyms.length > 0}
           />
         </section>
 
-        {paginationInfo &&
+        {!gymSearch.isSearchActive &&
+          paginationInfo &&
           paginationInfo.totalPages > 1 &&
           !fetchError &&
-          gyms.length > 0 && (
+          filteredGyms.length > 0 && (
             <div className="mt-10 border-t border-black/8 dark:border-white/8 pt-8">
               <Pagination
                 currentPage={currentPage}
