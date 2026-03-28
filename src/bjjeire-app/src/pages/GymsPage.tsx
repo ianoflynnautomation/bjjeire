@@ -1,78 +1,34 @@
-import { useCallback, type ReactElement } from 'react'
-import { COUNTIES } from '@/constants/counties'
+import type { JSX } from 'react'
 import { GymsList } from '@/features/gyms/components/gym-list'
 import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
 import { GymsHeroBanner } from '@/features/gyms/components/gyms-hero-banner'
 import SelectFilter from '@/components/ui/filters/select-filter'
 import Pagination from '@/components/ui/grid/pagination'
-import { env } from '@/config/env'
-import type { GymDto, GetGymsByCountyPaginationQuery } from '@/types/gyms'
+import { COUNTIES } from '@/constants/counties'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
 import { ContentRenderer } from '@/components/ui/state/content-renderer-state'
-import { useScrollToTop } from '@/hooks/useScrollToTop'
-import { formatFetchError } from '@/utils/errorUtils'
-import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
-import { getGyms } from '@/features/gyms/api/get-gyms'
 import { uiContent } from '@/config/ui-content'
+import { useGymsPage } from '@/features/gyms/hooks/useGymsPage'
 
 const { filters } = uiContent.gyms
 
-const initialGymFilters: GetGymsByCountyPaginationQuery = {
-  county: 'all',
-  page: env.PAGE_NUMBER,
-  pageSize: env.PAGE_SIZE,
-}
-
-export default function GymsPage(): ReactElement {
-  const scrollToTop = useScrollToTop()
-
+export default function GymsPage(): JSX.Element {
   const {
-    data: paginatedGymsData,
-    pagination: paginationInfo,
+    gyms,
+    paginationInfo,
     isLoading,
     isFetching,
-    error: fetchError,
-    params: activeFilters,
+    activeFilters,
     currentPage,
-    handlePageChange: rawHandlePageChange,
-    updateFilters,
+    countyLabel,
+    formattedErrorMessage,
+    isInitialLoading,
+    fetchError,
+    handleCountyChange,
+    onPageChange,
     refetch,
-  } = usePaginatedQuery<GymDto, GetGymsByCountyPaginationQuery>({
-    queryKeyBase: ['gyms'],
-    fetchFn: getGyms,
-    initialParams: initialGymFilters,
-  })
-
-  const gyms = paginatedGymsData ?? []
-
-  const countyLabel =
-    COUNTIES.find(c => c.value === activeFilters.county)?.label ??
-    (activeFilters.county === 'all'
-      ? filters.allCountiesOption
-      : activeFilters.county) ??
-    filters.allCountiesOption
-
-  const handleCountyChange = useCallback(
-    (countyValue: string | undefined) => {
-      updateFilters({
-        county: countyValue,
-      } as Partial<GetGymsByCountyPaginationQuery>)
-      scrollToTop()
-    },
-    [updateFilters, scrollToTop]
-  )
-
-  const onPageChange = useCallback(
-    (url: string | null, page?: number) => {
-      rawHandlePageChange(url, page)
-      scrollToTop()
-    },
-    [rawHandlePageChange, scrollToTop]
-  )
-
-  const formattedErrorMessage = formatFetchError(fetchError)
-  const isInitialLoading = isLoading && gyms.length === 0
+  } = useGymsPage()
 
   return (
     <PageErrorBoundary errorMessage="Failed to load gyms. Please try again.">
