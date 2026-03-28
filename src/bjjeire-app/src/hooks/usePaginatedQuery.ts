@@ -47,9 +47,9 @@ export const usePaginatedQuery = <T, TParams extends { page?: number }>({
       setCurrentPage(page)
       return
     } else if (url) {
-      const pageMatch = url.match(/[?&]page=(\d+)/)
-      if (pageMatch) {
-        newPage = parseInt(pageMatch[1], 10)
+      const pageParam = new URL(url).searchParams.get('page')
+      if (pageParam) {
+        newPage = Number.parseInt(pageParam, 10)
       }
     }
     setCurrentPage(newPage ?? 1)

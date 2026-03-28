@@ -11,6 +11,10 @@ export default defineConfig({
     globals: true,
     name: 'browser',
     setupFiles: './src/testing/setup-browser-tests.ts',
+    reporters: process.env.GITHUB_ACTIONS ? ['default', 'github-actions'] : ['default'],
+    maxWorkers: process.env.CI ? 2 : undefined,
+    maxConcurrency: process.env.CI ? 2 : 5,
+    slowTestThreshold: 1000,
     include: ['src/**/*.browser.test.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
     browser: {
