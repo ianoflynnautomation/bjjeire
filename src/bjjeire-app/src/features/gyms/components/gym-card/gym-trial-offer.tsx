@@ -5,7 +5,7 @@ import type { TrialOfferDto } from '@/types/gyms'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
-import { buildTrialOfferText } from '@/utils/formatGymDetails'
+import { buildTrialOfferText } from '@/utils/format-gym-details'
 
 const gymCard = uiContent.gyms.card
 

@@ -3,7 +3,7 @@ import {
   getGymStatusLabel,
   getGymStatusColorScheme,
   getClassCategoryLabel,
-} from '../gymDisplayUtils'
+} from '../gym-display-utils'
 import { GymStatus, ClassCategory } from '@/types/gyms'
 
 describe('getGymStatusLabel', () => {

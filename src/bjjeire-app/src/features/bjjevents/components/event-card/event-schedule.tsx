@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventDto } from '@/types/event'
-import { formatDate, formatTime } from '@/utils/dateUtils'
+import { formatDate, formatTime } from '@/utils/date-utils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
 

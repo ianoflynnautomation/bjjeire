@@ -5,7 +5,7 @@ import {
   getEventTypeLabel,
   getEventTypeColorClasses,
   getEventTypeBannerGradient,
-} from '@/utils/eventUtils'
+} from '@/utils/event-utils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'

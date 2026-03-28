@@ -6,15 +6,15 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/20/solid'
 import type { BjjEventDto } from '@/types/event'
-import { calculateEventPrice } from '@/utils/priceCalculator'
+import { calculateEventPrice } from '@/utils/price-calculator'
 import {
   formatPricingDisplay,
   formatOrganiserDisplay,
-} from '@/utils/formatEventDetails'
+} from '@/utils/format-event-details'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { DetailItem } from '@/components/ui/icons/detail-item'
-import { getGoogleMapsUrl } from '@/utils/mapUtils'
-import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { getGoogleMapsUrl } from '@/utils/map-utils'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'

@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
 import { IconWrapper } from './icon-wrapper'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 interface DetailItemProps {
   icon: ReactNode

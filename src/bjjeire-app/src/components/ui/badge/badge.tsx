@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { BadgeTestIds } from '@/constants/commonDataTestIds'
 
 const badgeVariants = cva(

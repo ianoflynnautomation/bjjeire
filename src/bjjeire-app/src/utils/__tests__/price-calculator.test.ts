@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateEventPrice } from '../priceCalculator'
+import { calculateEventPrice } from '../price-calculator'
 import { PricingType } from '@/types/event'
 import type {
   BjjEventScheduleDto,

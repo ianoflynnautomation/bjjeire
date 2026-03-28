@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ensureExternalUrlScheme, formatDisplayUrl } from '../formattingUtils'
+import { ensureExternalUrlScheme, formatDisplayUrl } from '../formatting-utils'
 
 describe('ensureExternalUrlScheme', () => {
   it('leaves https URLs unchanged', () => {

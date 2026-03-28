@@ -3,7 +3,7 @@ import {
   getEventTypeLabel,
   getEventTypeBannerGradient,
   getEventTypeColorClasses,
-} from '../eventUtils'
+} from '../event-utils'
 import { BjjEventType } from '@/types/event'
 
 describe('getEventTypeLabel', () => {

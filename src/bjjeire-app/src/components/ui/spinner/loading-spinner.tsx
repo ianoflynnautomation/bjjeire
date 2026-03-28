@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import type { JSX } from 'react'
 import { SpinnerTestIds } from '@/constants/commonDataTestIds'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg'

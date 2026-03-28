@@ -1,5 +1,5 @@
 import { useRef, memo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { env } from '@/config/env'
