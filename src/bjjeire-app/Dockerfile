@@ -28,7 +28,7 @@ ENV VITE_APP_CF_BEACON_TOKEN=${VITE_APP_CF_BEACON_TOKEN}
 
 RUN npm run build
 
-FROM nginx:stable-alpine
+FROM nginx:alpine
 ARG APP_VERSION=dev
 LABEL org.opencontainers.image.version="${APP_VERSION}"
 
