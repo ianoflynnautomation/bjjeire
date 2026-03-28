@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import { logger } from '@/lib/logger'
 
 const EnvSchema = z.object({
   API_URL: z.string().default('/api'),
@@ -8,19 +9,9 @@ const EnvSchema = z.object({
     .optional()
     .default('false'),
   APP_URL: z.string().url().optional().default('http://localhost:60743'),
-  APP_MOCK_API_PORT: z.string().regex(/^\d+$/).optional().default('443'),
-  PAGE_SIZE: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .optional()
-    .default('20'),
-  PAGE_NUMBER: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .optional()
-    .default('1'),
+  APP_MOCK_API_PORT: z.coerce.number().int().positive().optional().default(443),
+  PAGE_SIZE: z.coerce.number().int().positive().optional().default(20),
+  PAGE_NUMBER: z.coerce.number().int().positive().optional().default(1),
   MSAL_CLIENT_ID: z.string().default(''),
   MSAL_AUTHORITY: z
     .string()
@@ -59,8 +50,8 @@ const createEnv = (): Env => {
   const parsedEnv = EnvSchema.safeParse(relevantEnvVars)
 
   if (!parsedEnv.success) {
-    console.error(
-      '❌ Invalid environment variables:',
+    logger.error(
+      'Invalid environment variables:',
       parsedEnv.error.flatten().fieldErrors
     )
     throw new Error(
