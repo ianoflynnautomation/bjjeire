@@ -21,8 +21,7 @@ export interface BaseApiEntityModel {
 }
 
 export interface MapLocationCoordinates {
-  latitude?: number | null
-  longitude?: number | null
+  coordinates?: [number, number] | null
 }
 
 export interface MapLocationData {
@@ -33,8 +32,7 @@ export interface MapLocationData {
 
 export interface GeoCoordinatesDto {
   type: 'Point'
-  latitude: number
-  longitude: number
+  coordinates: [number, number]
   placeName?: string | null
   placeId?: string | null
 }

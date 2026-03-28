@@ -22,7 +22,7 @@ export function createEvent(overrides: Partial<BjjEventDto> = {}): BjjEventDto {
     location: {
       address: `${id} Test Street, Dublin`,
       venue: 'Test Venue',
-      coordinates: { type: 'Point', latitude: 53.33, longitude: -6.26 },
+      coordinates: { type: 'Point', coordinates: [-6.26, 53.33] },
     },
     schedule: { startDate: '2026-04-01', endDate: null, hours: [] },
     pricing: { type: PricingType.Free, amount: 0, currency: 'EUR' },

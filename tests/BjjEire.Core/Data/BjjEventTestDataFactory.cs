@@ -98,8 +98,7 @@ public static class BjjEventTestDataFactory
             Venue = $"{f.Company.CompanyName()} Sports Centre",
             Coordinates = new GeoCoordinates
             {
-                Latitude = Math.Round(f.Address.Latitude(51.4, 55.4), 6),
-                Longitude = Math.Round(f.Address.Longitude(-10.5, -5.9), 6),
+                Coordinates = [Math.Round(f.Address.Longitude(-10.5, -5.9), 6), Math.Round(f.Address.Latitude(51.4, 55.4), 6)],
                 PlaceId = $"ChIJ{f.Random.String2(20, PlaceIdChars)}"
             }
         })

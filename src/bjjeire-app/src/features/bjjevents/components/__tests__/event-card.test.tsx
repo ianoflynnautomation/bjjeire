@@ -75,11 +75,11 @@ describe('EventCard Component', () => {
           'i'
         ),
       })
-      const { latitude, longitude } = MOCK_EVENT_FULL.location.coordinates
+      const [lng, lat] = MOCK_EVENT_FULL.location.coordinates.coordinates
 
       expect(mapLink).toHaveAttribute(
         'href',
-        `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+        `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
       )
       expect(mapLink).toHaveAttribute('target', '_blank')
       expect(mapLink).toHaveAttribute('rel', 'noopener noreferrer')

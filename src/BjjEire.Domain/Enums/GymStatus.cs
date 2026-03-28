@@ -1,6 +1,5 @@
 namespace BjjEire.Domain.Enums;
 
-[FlagsAttribute]
 public enum GymStatus
 {
     None = 0,

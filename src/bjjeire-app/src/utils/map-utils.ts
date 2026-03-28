@@ -9,11 +9,12 @@ export function getGoogleMapsUrl(location?: MapLocationData | null): string {
   const baseUrl = 'https://www.google.com/maps'
 
   if (
-    coordinates &&
-    typeof coordinates.latitude === 'number' &&
-    typeof coordinates.longitude === 'number'
+    coordinates?.coordinates &&
+    typeof coordinates.coordinates[0] === 'number' &&
+    typeof coordinates.coordinates[1] === 'number'
   ) {
-    return `${baseUrl}/search/?api=1&query=${coordinates.latitude},${coordinates.longitude}`
+    // Google Maps expects lat,lng — GeoJSON stores [lng, lat]
+    return `${baseUrl}/search/?api=1&query=${coordinates.coordinates[1]},${coordinates.coordinates[0]}`
   }
 
   const queryParts: string[] = []

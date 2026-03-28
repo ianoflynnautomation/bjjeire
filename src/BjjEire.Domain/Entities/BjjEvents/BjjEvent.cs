@@ -34,7 +34,7 @@ public class BjjEvent : BaseEntity
     public Location Location { get; set; } = new();
 
     [BsonElement("schedule")]
-    public BjjEventSchedule Schedule { get; set; } = null!;
+    public BjjEventSchedule Schedule { get; set; } = new();
 
     [BsonElement("pricing")]
     public PricingModel? Pricing { get; set; }

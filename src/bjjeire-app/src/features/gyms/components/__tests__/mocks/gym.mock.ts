@@ -8,8 +8,7 @@ import type {
 
 const mockCoordinates: GeoCoordinatesDto = {
   type: 'Point',
-  latitude: 53.349805,
-  longitude: -6.260273,
+  coordinates: [-6.260273, 53.349805],
   placeName: 'Dublin City Center',
   placeId: 'ChIJL6wn6oAOZ0gRoHEx_fI9oXs',
 }
@@ -74,7 +73,7 @@ export const MOCK_GYM_MINIMAL: GymDto = {
   location: {
     address: '456 Side Street, Cork',
     venue: 'Community Hall',
-    coordinates: { type: 'Point', latitude: 51.8969, longitude: -8.4863 },
+    coordinates: { type: 'Point', coordinates: [-8.4863, 51.8969] },
   },
   socialMedia: {
     instagram: '',

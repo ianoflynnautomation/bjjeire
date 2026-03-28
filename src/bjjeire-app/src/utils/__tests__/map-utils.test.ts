@@ -18,7 +18,7 @@ describe('getGoogleMapsUrl', () => {
 
   it('uses coordinates when available', () => {
     const url = getGoogleMapsUrl({
-      coordinates: { latitude: 53.3498, longitude: -6.2603 },
+      coordinates: { coordinates: [-6.2603, 53.3498] },
     })
     expect(url).toBe(
       'https://www.google.com/maps/search/?api=1&query=53.3498,-6.2603'
@@ -54,7 +54,7 @@ describe('getGoogleMapsUrl', () => {
 
   it('prefers coordinates over address when both present', () => {
     const url = getGoogleMapsUrl({
-      coordinates: { latitude: 51.9, longitude: -8.47 },
+      coordinates: { coordinates: [-8.47, 51.9] },
       address: 'Cork City',
     })
     expect(url).toBe(
