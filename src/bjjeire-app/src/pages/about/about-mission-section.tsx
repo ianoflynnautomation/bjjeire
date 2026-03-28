@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { uiContent } from '@/config/ui-content'
 import { AboutSection } from './about-section'
+import { AboutMissionTestIds } from '@/constants/aboutDataTestIds'
 
 export function AboutMissionSection(): JSX.Element {
   return (
@@ -8,6 +9,7 @@ export function AboutMissionSection(): JSX.Element {
       id="about-mission"
       headingId="about-mission-heading"
       title={uiContent.about.missionTitle}
+      data-testid={AboutMissionTestIds.SECTION}
     >
       <div className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-300">
         <p>{uiContent.about.missionParagraph1}</p>

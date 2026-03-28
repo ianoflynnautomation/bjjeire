@@ -7,6 +7,13 @@ export const EventsPageTestIds = {
   LIST_ITEM: 'events-list-item',
 }
 
+export const EventsHeroBannerTestIds = {
+  BANNER: 'events-hero-banner',
+  IMAGE: 'events-hero-banner-image',
+  TAGLINE: 'events-hero-banner-tagline',
+  SUBTITLE: 'events-hero-banner-subtitle',
+}
+
 export const EventCardTestIds = {
   IMAGE: 'event-card-image',
   NAME: 'event-card-name',

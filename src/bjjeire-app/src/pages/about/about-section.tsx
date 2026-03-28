@@ -5,6 +5,7 @@ interface AboutSectionProps {
   headingId: string
   title: string
   children: ReactNode
+  'data-testid'?: string
 }
 
 export function AboutSection({
@@ -12,11 +13,13 @@ export function AboutSection({
   headingId,
   title,
   children,
+  'data-testid': dataTestId,
 }: AboutSectionProps): JSX.Element {
   return (
     <section
       id={id}
       aria-labelledby={headingId}
+      data-testid={dataTestId}
       className="relative overflow-hidden rounded-3xl bg-white/80 p-6 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/40 dark:ring-white/8"
     >
       <div

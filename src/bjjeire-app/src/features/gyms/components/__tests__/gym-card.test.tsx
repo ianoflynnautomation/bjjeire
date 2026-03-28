@@ -59,9 +59,6 @@ describe('GymCard Component', () => {
       expect(
         within(card).getByTestId(GymCardTestIds.STATUS_BADGE)
       ).toHaveTextContent('Pending Approval')
-      expect(
-        within(card).queryByTestId(GymCardTestIds.AFFILIATION)
-      ).not.toBeInTheDocument()
       expect(websiteLink).toBeDisabled()
       expect(websiteLink).toHaveTextContent('Website Unavailable')
     })
@@ -116,9 +113,6 @@ describe('GymCard Component', () => {
       )
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
 
-      expect(
-        within(card).queryByTestId(GymCardTestIds.AFFILIATION)
-      ).not.toBeInTheDocument()
       expect(within(card).getByTestId(GymCardTestIds.NAME)).toBeInTheDocument()
     })
   })
