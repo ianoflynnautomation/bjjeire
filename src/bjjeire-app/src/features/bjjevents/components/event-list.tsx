@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import type { JSX } from 'react'
 import { EventCard } from './event-card'
 import type { BjjEventDto } from '@/types/event'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
@@ -11,8 +12,8 @@ interface EventsListProps {
 const EventsList = memo(function EventsList({
   events,
   'data-testid': dataTestId,
-}: EventsListProps) {
-  const rootTestId = dataTestId || EventsPageTestIds.LIST
+}: EventsListProps): JSX.Element {
+  const rootTestId = dataTestId ?? EventsPageTestIds.LIST
 
   return (
     <ul

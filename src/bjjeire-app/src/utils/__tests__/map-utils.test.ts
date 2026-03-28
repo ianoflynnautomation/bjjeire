@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getGoogleMapsUrl } from '../mapUtils'
+import { getGoogleMapsUrl } from '../map-utils'
 
 const BASE = 'https://www.google.com/maps/search/?api=1&query='
 

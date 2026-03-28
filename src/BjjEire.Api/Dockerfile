@@ -1,13 +1,11 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system --gid 1001 appgroup \
-    && useradd --system --uid 1001 --gid appgroup --no-create-home appuser
+RUN apk add --no-cache curl \
+    && addgroup -S -g 1001 appgroup \
+    && adduser -S -u 1001 -G appgroup -H -D appuser
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src

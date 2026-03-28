@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatFetchError } from '../errorUtils'
+import { formatFetchError } from '../error-utils'
 
 const DEFAULT_MSG = 'An unexpected error occurred. Please try again.'
 const NETWORK_MSG =

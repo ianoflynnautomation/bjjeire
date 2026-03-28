@@ -24,6 +24,11 @@ node_modules/
 dist/
 build/
 coverage/
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
 
 .vite/
 .eslintcache

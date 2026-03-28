@@ -1,12 +1,13 @@
-// src/components/Support/SupportModal.tsx
-import { useState, useCallback, useEffect, useRef, memo } from 'react'
-import { cn } from '@/lib/utils'
+import { useRef, memo } from 'react'
+import { cn } from '@/lib/cn'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { env } from '@/config/env'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
+import { useClipboard } from '@/hooks/useClipboard'
 
 const copyButtonBaseClasses =
   'w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto'
@@ -23,93 +24,13 @@ const SupportModal = memo(function SupportModal({
   isOpen,
   onClose,
 }: SupportModalProps) {
-  const [copied, setCopied] = useState(false)
+  const { copy, copied } = useClipboard()
   const bitcoinAddress = env.BITCOIN_ADDRESS
   const closeButtonRef = useRef<HTMLButtonElement>(null)
-  const dialogContentRef = useRef<HTMLDivElement>(null)
-  const previousFocusRef = useRef<HTMLElement | null>(null)
+  const dialogRef = useFocusTrap(isOpen, onClose, closeButtonRef)
 
   const mainTitleId = SupportModalTestIds.TITLE
   const descriptionId = `${SupportModalTestIds.ROOT}-description`
-
-  const copyToClipboard = useCallback(async () => {
-    if (!navigator.clipboard) {
-      console.warn('Clipboard API not available.')
-      return
-    }
-    try {
-      await navigator.clipboard.writeText(bitcoinAddress)
-      setCopied(true)
-    } catch (err) {
-      console.error('Failed to copy text: ', err)
-    }
-  }, [bitcoinAddress])
-
-  useEffect(() => {
-    if (!copied) {
-      return
-    }
-
-    const timeoutId = globalThis.setTimeout(() => {
-      setCopied(false)
-    }, 2000)
-
-    return (): void => {
-      globalThis.clearTimeout(timeoutId)
-    }
-  }, [copied])
-
-  useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    previousFocusRef.current = document.activeElement as HTMLElement | null
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        onClose()
-        return
-      }
-
-      if (event.key !== 'Tab' || !dialogContentRef.current) {
-        return
-      }
-
-      const focusableElements =
-        dialogContentRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )
-
-      if (focusableElements.length === 0) {
-        event.preventDefault()
-        return
-      }
-
-      const first = focusableElements[0]
-      const last = focusableElements[focusableElements.length - 1]
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    requestAnimationFrame(() => closeButtonRef.current?.focus())
-
-    return (): void => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = originalOverflow
-      previousFocusRef.current?.focus()
-    }
-  }, [isOpen, onClose])
 
   if (!isOpen) {
     return null
@@ -124,11 +45,10 @@ const SupportModal = memo(function SupportModal({
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
       data-testid={SupportModalTestIds.OVERLAY}
-      aria-hidden="true"
     >
       {/* NOSONAR: <dialog> breaks flex centering via browser default position:absolute — using div+role is intentional */}
       <div
-        ref={dialogContentRef}
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={mainTitleId}
@@ -138,7 +58,7 @@ const SupportModal = memo(function SupportModal({
       >
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <BitcoinIcon className="h-8 w-8" />{' '}
+            <BitcoinIcon className="h-8 w-8" />
             <h2
               id={mainTitleId}
               className="text-2xl font-bold text-slate-900"
@@ -173,7 +93,7 @@ const SupportModal = memo(function SupportModal({
                 {bitcoinAddress}
               </code>
               <button
-                onClick={copyToClipboard}
+                onClick={() => copy(bitcoinAddress)}
                 className={cn(
                   copyButtonBaseClasses,
                   copied ? copyButtonCopiedClasses : copyButtonDefaultClasses
