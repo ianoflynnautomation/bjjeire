@@ -2,6 +2,7 @@ export const GymsPageTestIds = {
   HEADER: 'gyms-page-header',
   HEADER_TITLE: 'gyms-page-header-title',
   HEADER_TOTAL: 'gyms-page-header-total',
+  SEARCH: 'gyms-page-search',
   LIST: 'gyms-page-list',
   LIST_ITEM: 'gyms-list-item',
   LIST_LOADING: 'gyms-list-loading',

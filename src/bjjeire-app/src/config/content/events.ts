@@ -39,4 +39,13 @@ export const events = {
     subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
     imageAlt: 'BJJ Éire logo',
   },
+  search: {
+    label: 'Search events',
+    placeholder: 'Search events...',
+    clearLabel: 'Clear search',
+    noResultsTitle: 'No events match your search',
+    noResultsMessage: 'Try a different search term or clear the filter.',
+    resultsSrPrefix: 'Showing',
+    resultsSrSuffix: 'events',
+  },
 } as const
