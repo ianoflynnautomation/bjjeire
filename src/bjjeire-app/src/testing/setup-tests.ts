@@ -7,12 +7,11 @@ expect.extend(toHaveNoViolations)
 
 afterEach(() => {
   cleanup()
-  vi.restoreAllMocks()
 })
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
