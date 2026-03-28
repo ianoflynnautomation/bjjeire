@@ -2,7 +2,7 @@ import { type ReactElement, type ReactNode } from 'react'
 import { render, type RenderResult } from '@testing-library/react'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 interface RenderWithProvidersOptions {
   initialRoutes?: string[]
