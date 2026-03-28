@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import type { JSX } from 'react'
 import { LinkIcon } from '@heroicons/react/20/solid'
-import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { CardActionButton } from '@/components/ui/button/button'

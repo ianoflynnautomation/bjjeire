@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildTrialOfferText } from '../formatGymDetails'
+import { buildTrialOfferText } from '../format-gym-details'
 
 describe('buildTrialOfferText', () => {
   it('formats singular free class', () => {

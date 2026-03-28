@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   formatPricingDisplay,
   formatOrganiserDisplay,
-} from '../formatEventDetails'
+} from '../format-event-details'
 import { PricingType } from '@/types/event'
 
 describe('formatPricingDisplay', () => {

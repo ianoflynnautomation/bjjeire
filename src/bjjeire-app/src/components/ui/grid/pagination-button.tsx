@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { buttonVariants } from '@/lib/button-variants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 interface PaginationButtonProps {
   direction: 'prev' | 'next'

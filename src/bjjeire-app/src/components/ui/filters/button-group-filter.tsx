@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import type { JSX } from 'react'
 import { buttonVariants } from '@/lib/button-variants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
 
 export interface ButtonOption<T> {

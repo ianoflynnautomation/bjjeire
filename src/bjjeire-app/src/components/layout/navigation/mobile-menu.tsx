@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { NavLink } from 'react-router-dom'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { env } from '@/config/env'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'

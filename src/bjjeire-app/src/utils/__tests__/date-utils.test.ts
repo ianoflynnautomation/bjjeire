@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatTime, formatDate } from '../dateUtils'
+import { formatTime, formatDate } from '../date-utils'
 
 describe('formatTime', () => {
   it('formats AM time correctly', () => {

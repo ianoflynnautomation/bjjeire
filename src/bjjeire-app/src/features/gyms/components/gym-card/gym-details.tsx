@@ -5,11 +5,11 @@ import {
   ClipboardDocumentListIcon,
 } from '@heroicons/react/20/solid'
 import type { GymDto } from '@/types/gyms'
-import { ensureExternalUrlScheme } from '@/utils/formattingUtils'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 import { DetailItem } from '@/components/ui/icons/detail-item'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { GymOfferedClasses, GymTrialOffer } from '.'
-import { getGoogleMapsUrl } from '@/utils/mapUtils'
+import { getGoogleMapsUrl } from '@/utils/map-utils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'

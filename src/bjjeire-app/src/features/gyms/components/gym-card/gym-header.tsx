@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge/badge'
 import {
   getGymStatusLabel,
   getGymStatusColorScheme,
-} from '@/utils/gymDisplayUtils'
+} from '@/utils/gym-display-utils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { MapPinIcon } from '@heroicons/react/20/solid'

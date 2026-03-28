@@ -1,6 +1,6 @@
 import { PricingType } from '@/types/event'
 import type { OrganizerDto } from '@/types/event'
-import type { CalculatedPrice } from '@/utils/priceCalculator'
+import type { CalculatedPrice } from '@/utils/price-calculator'
 import { uiContent } from '@/config/ui-content'
 
 const { card: eventCard } = uiContent.events

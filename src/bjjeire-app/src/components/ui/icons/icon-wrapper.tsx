@@ -1,5 +1,5 @@
 import type { ReactNode, JSX } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 interface IconWrapperProps {
   children: ReactNode

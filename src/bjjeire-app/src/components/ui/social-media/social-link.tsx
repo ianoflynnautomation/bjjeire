@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { JSX } from 'react'
 import type { KnownPlatform } from './social-media.config'
 import { platformConfig } from './social-media.config'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 interface SocialLinkProps {
   platform: KnownPlatform

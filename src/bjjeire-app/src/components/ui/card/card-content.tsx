@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { HTMLAttributes, JSX } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 export const CardContent = memo(function CardContent({
   className,

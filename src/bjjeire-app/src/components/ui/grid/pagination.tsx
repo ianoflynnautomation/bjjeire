@@ -2,7 +2,7 @@ import { memo } from 'react'
 import type { JSX } from 'react'
 import type { HateoasPagination } from '@/types/common'
 import { buttonVariants } from '@/lib/button-variants'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 import { PaginationTestIds } from '@/constants/commonDataTestIds'
 import { PaginationButton } from './pagination-button'
 

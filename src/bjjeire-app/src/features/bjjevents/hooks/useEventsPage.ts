@@ -3,7 +3,7 @@ import type { County } from '@/constants/counties'
 import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
 import type { BjjEventType } from '@/types/event'
 import { env } from '@/config/env'
-import { formatFetchError } from '@/utils/errorUtils'
+import { formatFetchError } from '@/utils/error-utils'
 import { usePaginatedQuery } from '@/hooks/usePaginatedQuery'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
@@ -33,7 +33,9 @@ interface UseEventsPageResult {
     value: County | BjjEventType | 'all' | undefined
   ) => void
   onPageChange: (url: string | null, page?: number) => void
-  refetch: () => Promise<QueryObserverResult<PaginatedResponse<BjjEventDto>, Error>>
+  refetch: () => Promise<
+    QueryObserverResult<PaginatedResponse<BjjEventDto>, Error>
+  >
 }
 
 export function useEventsPage(): UseEventsPageResult {

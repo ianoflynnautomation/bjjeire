@@ -1,6 +1,6 @@
 import type { ReactNode, JSX } from 'react'
 import { cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/cn'
 
 const cardActionVariants = cva(
   'inline-flex min-h-11 w-full items-center justify-center gap-x-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200',
