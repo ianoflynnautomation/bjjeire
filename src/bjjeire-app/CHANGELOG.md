@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.6...frontend-v0.1.7) (2026-03-28)
+
+
+### ### Bug Fixes
+
+* security vulnerabilities ([#49](https://github.com/ianoflynnautomation/bjjeire/issues/49)) ([1b4a9a2](https://github.com/ianoflynnautomation/bjjeire/commit/1b4a9a26e31366323ba3a3e268679001ad96b735))
+
 ## [0.1.6](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.5...frontend-v0.1.6) (2026-03-28)
 
 
