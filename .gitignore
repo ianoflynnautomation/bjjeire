@@ -158,4 +158,8 @@ allure*
 **/__screenshots__/
 **/__traces__/
 
-.claude/*
+
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/projects/
+.claude/todos/
