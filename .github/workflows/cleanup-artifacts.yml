@@ -4,13 +4,30 @@ on:
   schedule:
     - cron: "0 3 * * 0" # Every Sunday at 03:00 UTC
   workflow_dispatch:
+    inputs:
+      retention_days:
+        description: "Delete workflow runs older than this many days"
+        required: false
+        default: "30"
+      dry_run:
+        description: "Dry run — print runs that would be deleted without deleting them"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   actions: write
 
+env:
+  RETENTION_DAYS: ${{ github.event.inputs.retention_days || '30' }}
+  DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+
 jobs:
   cleanup:
-    name: Delete Expired Artifacts and Caches
+    name: Delete Expired Artifacts, Caches and Workflow Runs
     runs-on: ubuntu-latest
     steps:
       - name: Delete all artifacts
@@ -32,3 +49,41 @@ jobs:
             | xargs -r -I{} gh api --method DELETE \
                 repos/${{ github.repository }}/actions/caches/{}
           echo "Cache cleanup complete."
+
+      - name: Delete workflow runs older than ${{ env.RETENTION_DAYS }} days
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CUTOFF=$(date -d "${RETENTION_DAYS} days ago" --utc +%Y-%m-%dT%H:%M:%SZ)
+          echo "Cutoff date: $CUTOFF"
+          echo "Dry run: ${DRY_RUN}"
+
+          # Collect IDs of completed non-main runs older than the cutoff
+          # Main branch runs are kept permanently as a deployment audit trail
+          mapfile -t RUN_IDS < <(
+            gh api repos/${{ github.repository }}/actions/runs --paginate \
+              | jq --arg cutoff "$CUTOFF" \
+                  '.workflow_runs[]
+                   | select(
+                       .status == "completed"
+                       and .created_at < $cutoff
+                       and .head_branch != "main"
+                     )
+                   | .id'
+          )
+
+          echo "Found ${#RUN_IDS[@]} completed non-main run(s) to delete."
+
+          if [[ "${DRY_RUN}" == "true" ]]; then
+            echo "Dry run — the following run IDs would be deleted:"
+            printf '%s\n' "${RUN_IDS[@]}"
+          else
+            DELETED=0
+            for id in "${RUN_IDS[@]}"; do
+              if gh api --method DELETE \
+                  repos/${{ github.repository }}/actions/runs/"$id"; then
+                DELETED=$((DELETED + 1))
+              fi
+            done
+            echo "Deleted ${DELETED} workflow run(s)."
+          fi
