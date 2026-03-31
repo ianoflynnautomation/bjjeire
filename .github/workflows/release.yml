@@ -222,19 +222,56 @@ jobs:
           sbom: true
           build-args: |
             APP_VERSION=${{ needs.release-please.outputs.frontend_version }}
-            SERVICES_API_HTTPS_0=${{ secrets.SERVICES_API_HTTPS_0 }}
-            SERVICES_API_HTTP_0=${{ secrets.SERVICES_API_HTTP_0 }}
             VITE_APP_MSAL_CLIENT_ID=${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
             VITE_APP_MSAL_AUTHORITY=${{ secrets.VITE_APP_MSAL_AUTHORITY }}
             VITE_APP_MSAL_API_SCOPE=${{ secrets.VITE_APP_MSAL_API_SCOPE }}
             VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
+            VITE_APP_URL=${{ secrets.VITE_APP_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-push-fetcher-image:
+    name: Build & Push Fetcher Image (Release)
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: needs.release-please.outputs.api_released == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push fetcher image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./src/BjjEire.Fetcher/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/bjjeire-fetcher:${{ needs.release-please.outputs.api_version }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/bjjeire-fetcher:latest
+          labels: |
+            org.opencontainers.image.title=bjjeire-fetcher
+            org.opencontainers.image.version=${{ needs.release-please.outputs.api_version }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   notify-charts-repo:
     name: Notify Charts Repo of App Release
     runs-on: ubuntu-latest
-    needs: [release-please, build-push-api-image, build-push-seeder-image, build-push-frontend-image]
+    needs: [release-please, build-push-api-image, build-push-seeder-image, build-push-fetcher-image, build-push-frontend-image]
     if: |
       always() &&
       (needs.release-please.outputs.api_released == 'true' ||
