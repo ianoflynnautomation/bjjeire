@@ -61,22 +61,16 @@ services:
     profiles: ["app"]
     container_name: web
     ports:
-      - "60742:80"
-      - "60743:443"
+      - "3000:80"
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - PORT=${PORT}
-      - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0}
-      - SERVICES_API_HTTPS_0=${SERVICES_API_HTTPS_0}
-    volumes:
-      - ${BASE_PATH}/certs/aspnetapp.crt:/etc/nginx/certs/aspnetapp.crt:ro
-      - ${BASE_PATH}/certs/aspnetapp.key:/etc/nginx/certs/aspnetapp.key:ro
+      - PORT=${PORT:-80}
+      - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0:-http://api:80}
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
       <<: *healthcheck-curl
-      test: ["CMD", "curl", "-f", "-k", "https://localhost:443/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
 
   mongodb:
     <<: *default-service

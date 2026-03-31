@@ -53,6 +53,15 @@ docker compose --profile mongo up -d  # MongoDB only
 - Data test IDs: defined in `src/constants/*DataTestIds.ts` — always use the constant, never inline strings.
 - CVA variant objects must live in `src/lib/` — not co-located with components (react-refresh rule).
 
+## TDD — Tests First
+For every new feature or bug fix, write the test before the implementation:
+1. Write a failing test that describes the expected behaviour
+2. Run it to confirm it fails for the right reason
+3. Write the minimum code to make it pass
+4. Refactor if needed, keeping the test green
+
+This applies to both frontend (Vitest) and backend (xUnit). Do not write implementation code for a new feature without a corresponding failing test already in place.
+
 ## Non-Obvious Gotchas
 - `useSearchParams` requires a Router context — tests must use `MemoryRouter` from `react-router` (not `react-router-dom`).
 - `useMemo(() => data ?? [], [data])` — always wrap nullable array defaults in useMemo to avoid `react-hooks/exhaustive-deps` errors.
