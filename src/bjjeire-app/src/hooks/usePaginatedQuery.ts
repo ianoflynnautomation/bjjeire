@@ -42,7 +42,7 @@ function queryReducer<TParams extends { page?: number }>(
       return { ...state, currentPage: action.page }
     case 'UPDATE_FILTERS':
       return {
-        params: { ...state.params, ...action.filters },
+        params: { ...state.params, ...action.filters, page: 1 },
         currentPage: 1,
       }
   }
