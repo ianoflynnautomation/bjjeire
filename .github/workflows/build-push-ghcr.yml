@@ -94,6 +94,8 @@ jobs:
       - name: Build & push API image
         id: build
         uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
         with:
           context: .
           file: ./src/BjjEire.Api/Dockerfile
@@ -101,12 +103,12 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          provenance: true
-          sbom: true
+          provenance: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+          sbom: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
           build-args: |
             APP_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
     
       # - name: Attest build provenance
       #   if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
@@ -156,6 +158,8 @@ jobs:
       - name: Build & push frontend image
         id: build
         uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
         with:
           context: .
           file: ./src/bjjeire-app/Dockerfile
@@ -163,8 +167,8 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          provenance: true
-          sbom: true
+          provenance: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
+          sbom: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
           build-args: |
             APP_VERSION=${{ steps.meta.outputs.version }}
             VITE_APP_MSAL_CLIENT_ID=${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
@@ -173,7 +177,7 @@ jobs:
             VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
             VITE_APP_URL=${{ secrets.VITE_APP_URL }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
     
       # - name: Attest build provenance
       #   if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
