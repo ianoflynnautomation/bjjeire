@@ -5,7 +5,9 @@ import { logger } from '@/lib/logger'
 
 interface PaginatedQueryParams<T, TParams extends { page?: number }> {
   queryKeyBase: string[]
-  fetchFn: (params: TParams & { page?: number }) => Promise<PaginatedResponse<T>>
+  fetchFn: (
+    params: TParams & { page?: number }
+  ) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
 
@@ -46,16 +48,18 @@ function queryReducer<TParams extends { page?: number }>(
   }
 }
 
-
 export function usePaginatedQuery<T, TParams extends { page?: number }>({
   queryKeyBase,
   fetchFn,
   initialParams,
 }: PaginatedQueryParams<T, TParams>): PaginatedQueryResult<T, TParams> {
-  const [{ params, currentPage }, dispatch] = useReducer(queryReducer<TParams>, {
-    params: initialParams,
-    currentPage: initialParams.page ?? 1,
-  })
+  const [{ params, currentPage }, dispatch] = useReducer(
+    queryReducer<TParams>,
+    {
+      params: initialParams,
+      currentPage: initialParams.page ?? 1,
+    }
+  )
 
   const { data, isLoading, isFetching, error, refetch } = useQuery<
     PaginatedResponse<T>
@@ -65,27 +69,27 @@ export function usePaginatedQuery<T, TParams extends { page?: number }>({
     placeholderData: previousData => previousData,
   })
 
-  const handlePageChange = useCallback(
-    (url: string | null, page?: number) => {
-      if (page !== undefined) {
-        dispatch({ type: 'SET_PAGE', page })
-        return
-      }
-      if (url) {
-        try {
-          const pageParam = new URL(url).searchParams.get('page')
-          if (pageParam) {
-            dispatch({ type: 'SET_PAGE', page: Number.parseInt(pageParam, 10) })
-            return
-          }
-        } catch (err) {
-          logger.warn('usePaginatedQuery: malformed pagination URL, defaulting to page 1', err)
+  const handlePageChange = useCallback((url: string | null, page?: number) => {
+    if (page !== undefined) {
+      dispatch({ type: 'SET_PAGE', page })
+      return
+    }
+    if (url) {
+      try {
+        const pageParam = new URL(url).searchParams.get('page')
+        if (pageParam) {
+          dispatch({ type: 'SET_PAGE', page: Number.parseInt(pageParam, 10) })
+          return
         }
+      } catch (err) {
+        logger.warn(
+          'usePaginatedQuery: malformed pagination URL, defaulting to page 1',
+          err
+        )
       }
-      dispatch({ type: 'SET_PAGE', page: 1 })
-    },
-    []
-  )
+    }
+    dispatch({ type: 'SET_PAGE', page: 1 })
+  }, [])
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
     dispatch({ type: 'UPDATE_FILTERS', filters: newFilters })
