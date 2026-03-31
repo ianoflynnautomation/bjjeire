@@ -5,7 +5,9 @@ import { logger } from '@/lib/logger'
 
 interface PaginatedQueryParams<T, TParams extends { page?: number }> {
   queryKeyBase: string[]
-  fetchFn: (params: TParams & { page?: number }) => Promise<PaginatedResponse<T>>
+  fetchFn: (
+    params: TParams & { page?: number }
+  ) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
 
