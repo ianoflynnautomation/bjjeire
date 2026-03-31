@@ -8,6 +8,18 @@ paths:
 
 # Testing Conventions
 
+## TDD Workflow — Always Tests First
+Follow Red → Green → Refactor for every new feature or bug fix:
+
+1. **Red** — write a failing test that describes the behaviour you want. Run it and confirm it fails for the right reason (not a compile error or wrong assertion).
+2. **Green** — write the minimum implementation to make the test pass. No more.
+3. **Refactor** — clean up the code while keeping the test green.
+
+Never write implementation code for a new feature without a failing test already in place. If you find yourself writing code with no test, stop and write the test first.
+
+**Frontend**: create `*.test.tsx` or `*.integration.test.tsx` first, run `npm run test` to see it fail, then implement.
+**Backend**: create the xUnit test method first, run `dotnet test` to see it fail, then implement the handler/repository.
+
 ## Frontend (Vitest)
 
 ### Test Configs

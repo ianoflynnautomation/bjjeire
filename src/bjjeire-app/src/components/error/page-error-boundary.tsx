@@ -1,7 +1,7 @@
 import type { ReactNode, ErrorInfo } from 'react'
 import { Component } from 'react'
 import { logger } from '@/lib/logger'
-import ErrorState from './../ui/state/error-state'
+import ErrorState from '@/components/ui/state/error-state'
 
 interface PageErrorBoundaryProps {
   children: ReactNode
@@ -38,7 +38,7 @@ class PageErrorBoundary extends Component<
       return (
         <ErrorState
           message={
-            this.props.errorMessage ||
+            this.props.errorMessage ??
             'Something went wrong. Please try refreshing the page.'
           }
           onRetry={this.handleRetry}

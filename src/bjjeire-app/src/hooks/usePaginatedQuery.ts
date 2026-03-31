@@ -1,12 +1,11 @@
 import { useQuery, type QueryObserverResult } from '@tanstack/react-query'
-import { useState, useCallback } from 'react'
+import { useReducer, useCallback } from 'react'
 import type { HateoasPagination, PaginatedResponse } from '@/types/common'
+import { logger } from '@/lib/logger'
 
 interface PaginatedQueryParams<T, TParams extends { page?: number }> {
   queryKeyBase: string[]
-  fetchFn: (
-    params: TParams & { page?: number }
-  ) => Promise<PaginatedResponse<T>>
+  fetchFn: (params: TParams & { page?: number }) => Promise<PaginatedResponse<T>>
   initialParams: TParams
 }
 
@@ -23,15 +22,40 @@ interface PaginatedQueryResult<T, TParams> {
   refetch: () => Promise<QueryObserverResult<PaginatedResponse<T>, Error>>
 }
 
-export const usePaginatedQuery = <T, TParams extends { page?: number }>({
+interface QueryState<TParams> {
+  params: TParams
+  currentPage: number
+}
+
+type QueryAction<TParams> =
+  | { type: 'SET_PAGE'; page: number }
+  | { type: 'UPDATE_FILTERS'; filters: Partial<TParams> }
+
+function queryReducer<TParams extends { page?: number }>(
+  state: QueryState<TParams>,
+  action: QueryAction<TParams>
+): QueryState<TParams> {
+  switch (action.type) {
+    case 'SET_PAGE':
+      return { ...state, currentPage: action.page }
+    case 'UPDATE_FILTERS':
+      return {
+        params: { ...state.params, ...action.filters },
+        currentPage: 1,
+      }
+  }
+}
+
+
+export function usePaginatedQuery<T, TParams extends { page?: number }>({
   queryKeyBase,
   fetchFn,
   initialParams,
-}: PaginatedQueryParams<T, TParams>): PaginatedQueryResult<T, TParams> => {
-  const [params, setParams] = useState<TParams>(initialParams)
-  const [currentPage, setCurrentPage] = useState<number>(
-    initialParams.page ?? 1
-  )
+}: PaginatedQueryParams<T, TParams>): PaginatedQueryResult<T, TParams> {
+  const [{ params, currentPage }, dispatch] = useReducer(queryReducer<TParams>, {
+    params: initialParams,
+    currentPage: initialParams.page ?? 1,
+  })
 
   const { data, isLoading, isFetching, error, refetch } = useQuery<
     PaginatedResponse<T>
@@ -41,23 +65,30 @@ export const usePaginatedQuery = <T, TParams extends { page?: number }>({
     placeholderData: previousData => previousData,
   })
 
-  const handlePageChange = useCallback((url: string | null, page?: number) => {
-    let newPage = page
-    if (page !== undefined) {
-      setCurrentPage(page)
-      return
-    } else if (url) {
-      const pageParam = new URL(url).searchParams.get('page')
-      if (pageParam) {
-        newPage = Number.parseInt(pageParam, 10)
+  const handlePageChange = useCallback(
+    (url: string | null, page?: number) => {
+      if (page !== undefined) {
+        dispatch({ type: 'SET_PAGE', page })
+        return
       }
-    }
-    setCurrentPage(newPage ?? 1)
-  }, [])
+      if (url) {
+        try {
+          const pageParam = new URL(url).searchParams.get('page')
+          if (pageParam) {
+            dispatch({ type: 'SET_PAGE', page: Number.parseInt(pageParam, 10) })
+            return
+          }
+        } catch (err) {
+          logger.warn('usePaginatedQuery: malformed pagination URL, defaulting to page 1', err)
+        }
+      }
+      dispatch({ type: 'SET_PAGE', page: 1 })
+    },
+    []
+  )
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
-    setParams(prev => ({ ...prev, ...newFilters, page: 1 }))
-    setCurrentPage(1)
+    dispatch({ type: 'UPDATE_FILTERS', filters: newFilters })
   }, [])
 
   return {
