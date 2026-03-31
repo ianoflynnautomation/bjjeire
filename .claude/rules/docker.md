@@ -5,6 +5,7 @@ paths:
   - src/BjjEire.Api/Dockerfile
   - src/BjjEire.Seeder/Dockerfile
   - src/bjjeire-app/Dockerfile
+  - Caddyfile
 ---
 
 # Docker & Local Dev
@@ -30,7 +31,7 @@ docker compose -f docker-compose.yml -f docker-compose.override.local.yml up -d
 | Service    | Port       | Notes                          |
 |------------|------------|--------------------------------|
 | api        | 5003 (HTTP), 5001 (HTTPS) | ASP.NET Core |
-| web        | 3000       | React SPA via Nginx            |
+| web        | 3000       | React SPA via Caddy (HTTP only; TLS at Cloudflare) |
 | mongodb    | 27017      | MongoDB with auth              |
 
 ## Environment Variables
