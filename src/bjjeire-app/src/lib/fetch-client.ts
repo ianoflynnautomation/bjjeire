@@ -31,8 +31,11 @@ export async function fetchJson<T>(
       if (typeof body.message === 'string' && body.message.length > 0) {
         message = body.message
       }
-    } catch {
-      // Response body is not JSON — keep the default message
+    } catch (err) {
+      logger.warn(
+        'fetch-client: response body is not JSON — using default message',
+        err
+      )
     }
     const error = new FetchError(message, res.status, url)
     logger.error('Fetch error:', { url, status: res.status, message })

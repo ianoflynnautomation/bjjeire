@@ -12,7 +12,7 @@ const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  if (!env.SERVICES_API_HTTPS_0 && !env.SERVICES_API_HTTP_0) {
+  if (mode === 'development' && !env.SERVICES_API_HTTPS_0 && !env.SERVICES_API_HTTP_0) {
     throw new Error(
       'Missing SERVICES_API_HTTPS_0 or SERVICES_API_HTTP_0 environment variable'
     )
