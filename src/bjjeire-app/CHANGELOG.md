@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.7...frontend-v0.1.8) (2026-03-31)
+
+
+### ### Features
+
+* replace nginx with caddy locally ([#53](https://github.com/ianoflynnautomation/bjjeire/issues/53)) ([196a6f4](https://github.com/ianoflynnautomation/bjjeire/commit/196a6f454d8045460d9f78e6196c53c2da85cd40))
+
 ## [0.1.7](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.6...frontend-v0.1.7) (2026-03-28)
 
 
