@@ -2,7 +2,6 @@ FROM node:24-alpine AS build
 
 WORKDIR /app
 
-# Disable husky git-hook setup (no .git in Docker build context)
 ENV HUSKY=0
 
 COPY src/bjjeire-app/package.json src/bjjeire-app/package-lock.json ./
@@ -11,10 +10,6 @@ RUN npm ci
 COPY src/bjjeire-app/ .
 
 ARG NODE_ENV=production
-# These VITE_APP_* vars are Vite build-time substitutions — they are inlined into the
-# compiled JS bundle and are intentionally public (visible in browser source).
-# MSAL vars are OAuth public identifiers; CF_BEACON_TOKEN is a public analytics token.
-# hadolint ignore=DL3047
 ARG VITE_APP_MSAL_CLIENT_ID
 ARG VITE_APP_MSAL_AUTHORITY
 ARG VITE_APP_MSAL_API_SCOPE
