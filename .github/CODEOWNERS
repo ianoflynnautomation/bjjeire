@@ -49,7 +49,6 @@
 # QA and test automation
 # General test utilities and frameworks
 /tests/@BjjEire.Web.SystemTests/** @MyBjjEire/qa-team bjjeire32@gmail.com
-/tests/BjjEire.Web.AcceptanceTests/** @MyBjjEire/qa-team bjjeire32@gmail.com
 
 # Configuration files
 # Root-level config files (e.g., package.json, tsconfig.json, etc.)
