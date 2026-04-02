@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.8...frontend-v0.1.9) (2026-04-02)
+
+
+### ### Features
+
+* remove unused test folders ([#56](https://github.com/ianoflynnautomation/bjjeire/issues/56)) ([d893bfd](https://github.com/ianoflynnautomation/bjjeire/commit/d893bfd759dd605a1e64c64bfef7ccd21cc01639))
+
 ## [0.1.8](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.7...frontend-v0.1.8) (2026-03-31)
 
 
