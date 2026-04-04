@@ -48,6 +48,7 @@ public static class DependencyInjection
         _ = builder.Services.AddCustomSecurityHeaders();
         _ = builder.Services.AddAppAuthentication(builder.Configuration);
         _ = builder.Services.AddAppAuthorization();
+        _ = builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureManagement"));
 
         return builder;
     }

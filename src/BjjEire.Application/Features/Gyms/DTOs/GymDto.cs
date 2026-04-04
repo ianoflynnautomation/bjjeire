@@ -31,16 +31,17 @@ public class GymDto : BaseApiEntityModel
 
     public string? ImageUrl { get; set; }
 
+    public string? ThumbnailUrl => ImageUrl?.Replace("-lg.", "-thumb.", StringComparison.Ordinal);
 }
 
 public class GymtDtoMapping : Profile
 {
     public GymtDtoMapping()
     {
-
         _ = CreateMap<Gym, GymDto>()
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-            .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());
+            .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore())
+            .ForMember(dest => dest.ThumbnailUrl, mo => mo.Ignore());
         _ = CreateMap<GymDto, Gym>()
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
             .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore());

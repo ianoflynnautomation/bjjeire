@@ -33,6 +33,7 @@ export interface MapLocationData {
 
 export interface GeoCoordinatesDto {
   type: 'Point'
+  coordinates: [number, number]
   latitude: number
   longitude: number
   placeName?: string | null

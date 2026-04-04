@@ -5,9 +5,20 @@ namespace BjjEire.Seeder;
 
 internal static class CollectionRunner
 {
+    private static string GymsDataFile()
+    {
+        const string testFile = "data/gyms.test.json";
+        const string prodFile = "data/gyms.json";
+        var isDevelopment = string.Equals(
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            "Development",
+            StringComparison.OrdinalIgnoreCase);
+        return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
+    }
+
     private static readonly (string name, Func<SeederService, Task<int>> run)[] Collections =
     [
-        ("Gym",      s => s.SeedAsync<Gym>("Gym", "data/gyms.json")),
+        ("Gym",      s => s.SeedAsync<Gym>("Gym", GymsDataFile())),
         ("BjjEvent", s => s.SeedAsync<BjjEvent>("BjjEvent", "data/bjj-events.json")),
     ];
 

@@ -96,8 +96,7 @@ public static class GymTestDataFactory
             Venue = $"{f.Company.CompanyName()} Training Centre".SetMinMaxLength(5, 100),
             Coordinates = new GeoCoordinates
             {
-                Latitude = Math.Round(f.Address.Latitude(), 6),
-                Longitude = Math.Round(f.Address.Longitude(), 6),
+                Coordinates = [Math.Round(f.Address.Longitude(), 6), Math.Round(f.Address.Latitude(), 6)],
                 PlaceId = $"ChIJ{f.Random.String2(20, PlaceIdChars)}"
             }
         })
@@ -150,8 +149,7 @@ public static class GymTestDataFactory
             Coordinates = new GeoCoordinatesDto
             {
                 Type = "Point",
-                Latitude = 53.349805,
-                Longitude = -6.260273,
+                Coordinates = [-6.260273, 53.349805],
                 PlaceName = "Central Dublin Point",
                 PlaceId = "ChIJrTLr-GyuEmsRBfy61i59"
             }

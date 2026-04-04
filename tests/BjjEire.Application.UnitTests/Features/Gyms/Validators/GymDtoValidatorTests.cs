@@ -356,7 +356,7 @@ public sealed class GymDtoValidatorTests
     public async Task Validate_LatitudeOutOfRange_FailsWithInclusiveBetweenError(double latitude)
     {
         var dto = ValidDto();
-        dto.Location.Coordinates.Latitude = latitude;
+        dto.Location.Coordinates.Coordinates = [dto.Location.Coordinates.Coordinates[0], latitude];
 
         var result = await _validator.ValidateAsync(dto);
 
@@ -370,7 +370,7 @@ public sealed class GymDtoValidatorTests
     public async Task Validate_LongitudeOutOfRange_FailsWithInclusiveBetweenError(double longitude)
     {
         var dto = ValidDto();
-        dto.Location.Coordinates.Longitude = longitude;
+        dto.Location.Coordinates.Coordinates = [longitude, dto.Location.Coordinates.Coordinates[1]];
 
         var result = await _validator.ValidateAsync(dto);
 

@@ -40,5 +40,4 @@ public class Gym : BaseEntity
 
     [BsonElement("imageUrl")]
     public string? ImageUrl { get; set; }
-
 }

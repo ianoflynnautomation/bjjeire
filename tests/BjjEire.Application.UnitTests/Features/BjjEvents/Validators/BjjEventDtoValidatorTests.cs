@@ -366,7 +366,7 @@ public sealed class BjjEventDtoValidatorTests
     public async Task Validate_LocationWithLatitudeOutOfRange_FailsValidation()
     {
         var dto = BjjEventTestData.ValidDto();
-        dto.Location.Coordinates.Latitude = 91.0;   // > 90
+        dto.Location.Coordinates.Coordinates = [dto.Location.Coordinates.Coordinates[0], 91.0];
 
         var result = await _validator.ValidateAsync(dto);
 

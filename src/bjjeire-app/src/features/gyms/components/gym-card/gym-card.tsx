@@ -14,7 +14,7 @@ export const GymCard = memo(function GymCard({
   gym,
   'data-testid': dataTestId,
 }: GymCardProps): JSX.Element {
-  const { name, county, status, imageUrl, website } = gym
+  const { name, county, status, imageUrl, thumbnailUrl, website } = gym
   const headingId = `gym-card-heading-${gym.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? GymsPageTestIds.LIST_ITEM
 
@@ -33,6 +33,7 @@ export const GymCard = memo(function GymCard({
         county={county}
         status={status}
         imageUrl={imageUrl}
+        thumbnailUrl={thumbnailUrl}
         headingId={headingId}
       />
 

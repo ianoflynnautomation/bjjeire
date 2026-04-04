@@ -19,6 +19,8 @@ export const GymsHeroBannerTestIds = {
 
 export const GymCardTestIds = {
   IMAGE: 'gym-card-image',
+  IMAGE_FALLBACK: 'gym-card-image-fallback',
+  IMAGE_SKELETON: 'gym-card-image-skeleton',
   NAME: 'gym-card-name',
   STATUS_BADGE: 'gym-card-status-badge',
   COUNTY: 'gym-card-county',

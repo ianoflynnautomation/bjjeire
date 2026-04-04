@@ -1,10 +1,26 @@
 import { describe, it, expect, vi } from 'vitest'
 import { fetchJson, FetchError } from '../fetch-client'
-import {
-  mockFetchSuccess,
-  mockFetchError,
-  mockFetchErrorWithMessage,
-} from '@/testing/fetch-helpers'
+
+function mockFetchSuccess(data: object, status = 200): void {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+    new Response(JSON.stringify(data), { status })
+  )
+}
+
+function mockFetchError(status: number): void {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+    new Response(null, { status })
+  )
+}
+
+function mockFetchErrorWithMessage(status: number, message: string): void {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+    new Response(JSON.stringify({ message }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  )
+}
 
 describe('fetchJson', () => {
   it('returns parsed JSON on a 200 response', async () => {

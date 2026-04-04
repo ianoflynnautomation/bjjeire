@@ -62,7 +62,6 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteAsync([FromRoute] string id)
     {
-
         if (string.IsNullOrWhiteSpace(id))
         {
             return BadRequest();
@@ -74,5 +73,4 @@ public class GymController(IMediator mediator) : BaseApiController
 
         return NoContent();
     }
-
 }

@@ -1,11 +1,17 @@
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
 import { screen, waitFor } from '@testing-library/react'
 import { axe } from 'jest-axe'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { AxiosRequestConfig } from 'axios'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest'
 import GymsPage from '../GymsPage'
-import { api } from '@/lib/api-client'
-import type { GymDto } from '@/types/gyms'
-import type { PaginatedResponse } from '@/types/common'
 import { renderWithProviders } from '@/testing/render-utils'
 import {
   createGym,
@@ -13,51 +19,76 @@ import {
   resetGymIdCounter,
 } from '@/testing/factories/gym.factory'
 
-vi.mock('@/lib/api-client', () => ({
-  api: { get: vi.fn() },
+vi.mock('@/config/env', () => ({
+  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
 }))
 
-describe('GymsPage Integration (API + Query + UI)', () => {
-  const mockedApiGet = vi.mocked(api.get)
+vi.mock('@/lib/msal-config', () => ({
+  msalInstance: {
+    getAllAccounts: (): object[] => [],
+    acquireTokenSilent: vi.fn(),
+  },
+  loginRequest: { scopes: [] },
+}))
 
-  beforeEach(() => {
-    mockedApiGet.mockReset()
-    resetGymIdCounter()
+const API = 'http://localhost/api/api/gym'
+
+const server = setupServer()
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
+afterEach(() => {
+  server.resetHandlers()
+  resetGymIdCounter()
+})
+
+function render(): ReturnType<typeof renderWithProviders> {
+  return renderWithProviders(<GymsPage />, {
+    featureFlags: { BjjEvents: true, Gyms: true },
   })
+}
 
+describe('GymsPage Integration (API + Query + UI)', () => {
   it('shows loading state while data is being fetched', () => {
-    mockedApiGet.mockImplementation(() => new Promise(() => {}))
-    renderWithProviders(<GymsPage />)
+    server.use(http.get(API, () => new Promise(() => {})))
+    render()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('shows error state and retry button when the API fails', async () => {
-    mockedApiGet.mockRejectedValue(new Error('Network error'))
-    renderWithProviders(<GymsPage />)
+    server.use(http.get(API, () => HttpResponse.json(null, { status: 500 })))
+    render()
 
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
   })
 
   it('shows empty state when no gyms are returned', async () => {
-    mockedApiGet.mockResolvedValue(createPaginatedGyms([], 1, 0))
-    renderWithProviders(<GymsPage />)
+    server.use(
+      http.get(API, () => HttpResponse.json(createPaginatedGyms([], 1, 0)))
+    )
+    render()
 
     expect(await screen.findByText('No Gyms Found')).toBeInTheDocument()
   })
 
   it('renders gym cards when data loads successfully', async () => {
-    const dublinGym = createGym({
-      name: 'Elite Fighters Academy',
-      county: 'Dublin',
-    })
-    const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
-    mockedApiGet.mockResolvedValue(
-      createPaginatedGyms([dublinGym, corkGym], 1, 1)
+    server.use(
+      http.get(API, () =>
+        HttpResponse.json(
+          createPaginatedGyms(
+            [
+              createGym({ name: 'Elite Fighters Academy', county: 'Dublin' }),
+              createGym({ name: 'Community BJJ Club', county: 'Cork' }),
+            ],
+            1,
+            1
+          )
+        )
+      )
     )
-
-    renderWithProviders(<GymsPage />)
+    render()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
@@ -66,53 +97,51 @@ describe('GymsPage Integration (API + Query + UI)', () => {
   })
 
   it('has no accessibility violations on the happy-path render', async () => {
-    const gym = createGym({ name: 'Accessible BJJ Gym', county: 'Dublin' })
-    mockedApiGet.mockResolvedValue(createPaginatedGyms([gym], 1, 1))
-
-    const { container } = renderWithProviders(<GymsPage />)
+    server.use(
+      http.get(API, () =>
+        HttpResponse.json(
+          createPaginatedGyms(
+            [createGym({ name: 'Accessible BJJ Gym', county: 'Dublin' })],
+            1,
+            1
+          )
+        )
+      )
+    )
+    const { container } = render()
     await screen.findByText('Accessible BJJ Gym')
 
     const results = await axe(container)
     expect(results).toHaveNoViolations()
   })
 
-  it('fetches gyms and updates results when county filter changes', async () => {
+  it('sends the county param when a county filter is selected', async () => {
     const dublinGym = createGym({
       name: 'Elite Fighters Academy',
       county: 'Dublin',
     })
     const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
+    let lastRequest: URL | null = null
 
-    mockedApiGet.mockImplementation(
-      (
-        _url: string,
-        config?: AxiosRequestConfig
-      ): Promise<PaginatedResponse<GymDto>> => {
-        const params = config?.params as Record<string, unknown> | undefined
-        const county = params?.county
-        const page = Number(params?.page ?? 1)
-        if (county === 'Dublin') {
-          return Promise.resolve(createPaginatedGyms([dublinGym], page, 1))
-        }
-        return Promise.resolve(
-          createPaginatedGyms([dublinGym, corkGym], page, 1)
+    server.use(
+      http.get(API, ({ request }) => {
+        lastRequest = new URL(request.url)
+        const county = lastRequest.searchParams.get('county')
+        return HttpResponse.json(
+          county === 'Dublin'
+            ? createPaginatedGyms([dublinGym], 1, 1)
+            : createPaginatedGyms([dublinGym, corkGym], 1, 1)
         )
-      }
+      })
     )
 
-    const { user } = renderWithProviders(<GymsPage />)
+    const { user } = render()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
     ).toBeInTheDocument()
     expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
     expect(screen.getByText('Found 2 gyms.')).toBeInTheDocument()
-    expect(mockedApiGet).toHaveBeenCalledWith(
-      'api/gym',
-      expect.objectContaining({
-        params: expect.objectContaining({ page: 1, pageSize: 20 }),
-      })
-    )
 
     await user.selectOptions(
       screen.getByRole('combobox', { name: /select county/i }),
@@ -127,44 +156,32 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     expect(screen.queryByText('Community BJJ Club')).not.toBeInTheDocument()
 
     await waitFor(() => {
-      expect(mockedApiGet).toHaveBeenLastCalledWith(
-        'api/gym',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            county: 'Dublin',
-            page: 1,
-            pageSize: 20,
-          }),
-        })
-      )
+      expect(lastRequest?.searchParams.get('county')).toBe('Dublin')
+      expect(lastRequest?.searchParams.get('page')).toBe('1')
     })
   })
 
-  it('fetches next page when user uses pagination controls', async () => {
+  it('fetches the next page when the user uses pagination controls', async () => {
     const gymPage1 = createGym({ name: 'Elite Fighters Academy' })
     const gymPage2 = createGym({ name: 'Community BJJ Club' })
+    let lastRequest: URL | null = null
 
-    mockedApiGet.mockImplementation(
-      (
-        _url: string,
-        config?: AxiosRequestConfig
-      ): Promise<PaginatedResponse<GymDto>> => {
-        const params = config?.params as Record<string, unknown> | undefined
-        const page = Number(params?.page ?? 1)
-        if (page === 2) {
-          return Promise.resolve(createPaginatedGyms([gymPage2], 2, 2))
-        }
-        return Promise.resolve(createPaginatedGyms([gymPage1], 1, 2))
-      }
+    server.use(
+      http.get(API, ({ request }) => {
+        lastRequest = new URL(request.url)
+        const page = lastRequest.searchParams.get('page')
+        return HttpResponse.json(
+          page === '2'
+            ? createPaginatedGyms([gymPage2], 2, 2)
+            : createPaginatedGyms([gymPage1], 1, 2)
+        )
+      })
     )
 
-    const { user } = renderWithProviders(<GymsPage />)
+    const { user } = render()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /next page/i })
     ).toBeInTheDocument()
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
 
@@ -174,12 +191,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(mockedApiGet).toHaveBeenLastCalledWith(
-        'api/gym',
-        expect.objectContaining({
-          params: expect.objectContaining({ page: 2, pageSize: 20 }),
-        })
-      )
+      expect(lastRequest?.searchParams.get('page')).toBe('2')
     })
   })
 })

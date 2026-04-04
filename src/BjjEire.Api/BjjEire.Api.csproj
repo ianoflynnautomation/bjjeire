@@ -48,6 +48,7 @@
     <PackageReference Include="prometheus-net.AspNetCore" />
     <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
   </ItemGroup>
 
 </Project>
