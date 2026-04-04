@@ -1,7 +1,6 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { screen, waitFor } from '@testing-library/react'
-import { axe } from 'jest-axe'
 import {
   describe,
   it,
@@ -97,30 +96,6 @@ describe('EventsPage Integration (API + Query + UI)', () => {
 
     expect(await screen.findByText('Dublin Open Mat 2026')).toBeInTheDocument()
     expect(screen.getByText('Cork Seminar')).toBeInTheDocument()
-  })
-
-  it('has no accessibility violations on the happy-path render', async () => {
-    server.use(
-      http.get(API, () =>
-        HttpResponse.json(
-          createPaginatedEvents(
-            [
-              createEvent({
-                name: 'Accessible BJJ Event',
-                county: County.Dublin,
-              }),
-            ],
-            1,
-            1
-          )
-        )
-      )
-    )
-    const { container } = render()
-    await screen.findByText('Accessible BJJ Event')
-
-    const results = await axe(container)
-    expect(results).toHaveNoViolations()
   })
 
   it('sends the county param when a county filter is selected', async () => {

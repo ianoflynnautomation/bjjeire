@@ -28,7 +28,6 @@ describe('EventDetails Component', () => {
 
     it('renders organiser as plain text when no website is present', () => {
       render(<EventDetails event={MOCK_EVENT_MINIMAL} />)
-      // MOCK_EVENT_MINIMAL has website: '' — should be a span, not a link
       expect(
         screen.queryByRole('link', { name: /visit organiser website/i })
       ).not.toBeInTheDocument()
