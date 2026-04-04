@@ -38,8 +38,7 @@ public sealed class CreateGymCommandHandlerTests
             Coordinates = new Application.Common.DTOs.GeoCoordinatesDto
             {
                 Type = "Point",
-                Latitude = 53.3398,
-                Longitude = -6.2603
+                Coordinates = [-6.2603, 53.3398]
             }
         },
         SocialMedia = new Application.Common.DTOs.SocialMediaDto(),

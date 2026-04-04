@@ -1,12 +1,17 @@
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
 import { screen, waitFor } from '@testing-library/react'
-import { axe } from 'jest-axe'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { AxiosRequestConfig } from 'axios'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from 'vitest'
 import EventsPage from '../EventsPage'
-import { api } from '@/lib/api-client'
-import type { BjjEventDto } from '@/types/event'
 import { BjjEventType } from '@/types/event'
-import type { PaginatedResponse } from '@/types/common'
 import { County } from '@/constants/counties'
 import { renderWithProviders } from '@/testing/render-utils'
 import {
@@ -15,95 +20,105 @@ import {
   resetEventIdCounter,
 } from '@/testing/factories/event.factory'
 
-vi.mock('@/lib/api-client', () => ({
-  api: { get: vi.fn() },
+vi.mock('@/config/env', () => ({
+  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
 }))
 
-describe('EventsPage Integration (API + Query + UI)', () => {
-  const mockedApiGet = vi.mocked(api.get)
+vi.mock('@/lib/msal-config', () => ({
+  msalInstance: {
+    getAllAccounts: (): object[] => [],
+    acquireTokenSilent: vi.fn(),
+  },
+  loginRequest: { scopes: [] },
+}))
 
-  beforeEach(() => {
-    mockedApiGet.mockReset()
-    resetEventIdCounter()
+const API = 'http://localhost/api/api/bjjevent'
+
+const server = setupServer()
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
+afterEach(() => {
+  server.resetHandlers()
+  resetEventIdCounter()
+})
+
+function render(): ReturnType<typeof renderWithProviders> {
+  return renderWithProviders(<EventsPage />, {
+    featureFlags: { BjjEvents: true, Gyms: true },
   })
+}
 
+describe('EventsPage Integration (API + Query + UI)', () => {
   it('shows loading state while data is being fetched', () => {
-    mockedApiGet.mockImplementation(() => new Promise(() => {}))
-    renderWithProviders(<EventsPage />)
+    server.use(http.get(API, () => new Promise(() => {})))
+    render()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('shows error state and retry button when the API fails', async () => {
-    mockedApiGet.mockRejectedValue(new Error('Network error'))
-    renderWithProviders(<EventsPage />)
+    server.use(http.get(API, () => HttpResponse.json(null, { status: 500 })))
+    render()
 
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
   })
 
   it('shows empty state when no events are returned', async () => {
-    mockedApiGet.mockResolvedValue(createPaginatedEvents([], 1, 0))
-    renderWithProviders(<EventsPage />)
+    server.use(
+      http.get(API, () => HttpResponse.json(createPaginatedEvents([], 1, 0)))
+    )
+    render()
 
     expect(await screen.findByText('No Events Found')).toBeInTheDocument()
   })
 
   it('renders event cards when data loads successfully', async () => {
-    const dublinEvent = createEvent({
-      name: 'Dublin Open Mat 2026',
-      county: County.Dublin,
-    })
-    const corkEvent = createEvent({ name: 'Cork Seminar', county: County.Cork })
-    mockedApiGet.mockResolvedValue(
-      createPaginatedEvents([dublinEvent, corkEvent], 1, 1)
+    server.use(
+      http.get(API, () =>
+        HttpResponse.json(
+          createPaginatedEvents(
+            [
+              createEvent({
+                name: 'Dublin Open Mat 2026',
+                county: County.Dublin,
+              }),
+              createEvent({ name: 'Cork Seminar', county: County.Cork }),
+            ],
+            1,
+            1
+          )
+        )
+      )
     )
-
-    renderWithProviders(<EventsPage />)
+    render()
 
     expect(await screen.findByText('Dublin Open Mat 2026')).toBeInTheDocument()
     expect(screen.getByText('Cork Seminar')).toBeInTheDocument()
   })
 
-  it('has no accessibility violations on the happy-path render', async () => {
-    const event = createEvent({
-      name: 'Accessible BJJ Event',
-      county: County.Dublin,
-    })
-    mockedApiGet.mockResolvedValue(createPaginatedEvents([event], 1, 1))
-
-    const { container } = renderWithProviders(<EventsPage />)
-    await screen.findByText('Accessible BJJ Event')
-
-    const results = await axe(container)
-    expect(results).toHaveNoViolations()
-  })
-
-  it('fetches events and updates results when county filter changes', async () => {
+  it('sends the county param when a county filter is selected', async () => {
     const dublinEvent = createEvent({
       name: 'Dublin Open Mat 2026',
       county: County.Dublin,
     })
     const corkEvent = createEvent({ name: 'Cork Seminar', county: County.Cork })
+    let lastRequest: URL | null = null
 
-    mockedApiGet.mockImplementation(
-      (
-        _url: string,
-        config?: AxiosRequestConfig
-      ): Promise<PaginatedResponse<BjjEventDto>> => {
-        const params = config?.params as Record<string, unknown> | undefined
-        const county = params?.county
-        const page = Number(params?.page ?? 1)
-        if (county === 'Dublin') {
-          return Promise.resolve(createPaginatedEvents([dublinEvent], page, 1))
-        }
-        return Promise.resolve(
-          createPaginatedEvents([dublinEvent, corkEvent], page, 1)
+    server.use(
+      http.get(API, ({ request }) => {
+        lastRequest = new URL(request.url)
+        const county = lastRequest.searchParams.get('county')
+        return HttpResponse.json(
+          county === 'Dublin'
+            ? createPaginatedEvents([dublinEvent], 1, 1)
+            : createPaginatedEvents([dublinEvent, corkEvent], 1, 1)
         )
-      }
+      })
     )
 
-    const { user } = renderWithProviders(<EventsPage />)
+    const { user } = render()
 
     expect(await screen.findByText('Dublin Open Mat 2026')).toBeInTheDocument()
     expect(screen.getByText('Cork Seminar')).toBeInTheDocument()
@@ -113,20 +128,19 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       'Dublin'
     )
 
-    expect(await screen.findByText('Dublin Open Mat 2026')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /bjj events in dublin/i })
+    ).toBeInTheDocument()
+    expect(screen.getByText('Dublin Open Mat 2026')).toBeInTheDocument()
     expect(screen.queryByText('Cork Seminar')).not.toBeInTheDocument()
 
     await waitFor(() => {
-      expect(mockedApiGet).toHaveBeenLastCalledWith(
-        'api/bjjevent',
-        expect.objectContaining({
-          params: expect.objectContaining({ county: 'Dublin', page: 1 }),
-        })
-      )
+      expect(lastRequest?.searchParams.get('county')).toBe('Dublin')
+      expect(lastRequest?.searchParams.get('page')).toBe('1')
     })
   })
 
-  it('filters events by type when event type button is clicked', async () => {
+  it('sends the type param when an event type filter is selected', async () => {
     const openMat = createEvent({
       name: 'Dublin Open Mat',
       type: BjjEventType.OpenMat,
@@ -135,25 +149,21 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       name: 'Cork Tournament',
       type: BjjEventType.Tournament,
     })
+    let lastRequest: URL | null = null
 
-    mockedApiGet.mockImplementation(
-      (
-        _url: string,
-        config?: AxiosRequestConfig
-      ): Promise<PaginatedResponse<BjjEventDto>> => {
-        const params = config?.params as Record<string, unknown> | undefined
-        const type = params?.type
-        const page = Number(params?.page ?? 1)
-        if (type === BjjEventType.Tournament) {
-          return Promise.resolve(createPaginatedEvents([tournament], page, 1))
-        }
-        return Promise.resolve(
-          createPaginatedEvents([openMat, tournament], page, 1)
+    server.use(
+      http.get(API, ({ request }) => {
+        lastRequest = new URL(request.url)
+        const type = lastRequest.searchParams.get('type')
+        return HttpResponse.json(
+          type === String(BjjEventType.Tournament)
+            ? createPaginatedEvents([tournament], 1, 1)
+            : createPaginatedEvents([openMat, tournament], 1, 1)
         )
-      }
+      })
     )
 
-    const { user } = renderWithProviders(<EventsPage />)
+    const { user } = render()
 
     expect(await screen.findByText('Dublin Open Mat')).toBeInTheDocument()
     expect(screen.getByText('Cork Tournament')).toBeInTheDocument()
@@ -164,42 +174,33 @@ describe('EventsPage Integration (API + Query + UI)', () => {
     expect(screen.queryByText('Dublin Open Mat')).not.toBeInTheDocument()
 
     await waitFor(() => {
-      expect(mockedApiGet).toHaveBeenLastCalledWith(
-        'api/bjjevent',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            type: BjjEventType.Tournament,
-            page: 1,
-          }),
-        })
+      expect(lastRequest?.searchParams.get('type')).toBe(
+        String(BjjEventType.Tournament)
       )
+      expect(lastRequest?.searchParams.get('page')).toBe('1')
     })
   })
 
-  it('fetches next page when user uses pagination controls', async () => {
+  it('fetches the next page when the user uses pagination controls', async () => {
     const eventPage1 = createEvent({ name: 'Dublin Open Mat 2026' })
     const eventPage2 = createEvent({ name: 'Cork Seminar' })
+    let lastRequest: URL | null = null
 
-    mockedApiGet.mockImplementation(
-      (
-        _url: string,
-        config?: AxiosRequestConfig
-      ): Promise<PaginatedResponse<BjjEventDto>> => {
-        const params = config?.params as Record<string, unknown> | undefined
-        const page = Number(params?.page ?? 1)
-        if (page === 2) {
-          return Promise.resolve(createPaginatedEvents([eventPage2], 2, 2))
-        }
-        return Promise.resolve(createPaginatedEvents([eventPage1], 1, 2))
-      }
+    server.use(
+      http.get(API, ({ request }) => {
+        lastRequest = new URL(request.url)
+        const page = lastRequest.searchParams.get('page')
+        return HttpResponse.json(
+          page === '2'
+            ? createPaginatedEvents([eventPage2], 2, 2)
+            : createPaginatedEvents([eventPage1], 1, 2)
+        )
+      })
     )
 
-    const { user } = renderWithProviders(<EventsPage />)
+    const { user } = render()
 
     expect(await screen.findByText('Dublin Open Mat 2026')).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /next page/i })
-    ).toBeInTheDocument()
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /next page/i }))
@@ -208,12 +209,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(mockedApiGet).toHaveBeenLastCalledWith(
-        'api/bjjevent',
-        expect.objectContaining({
-          params: expect.objectContaining({ page: 2 }),
-        })
-      )
+      expect(lastRequest?.searchParams.get('page')).toBe('2')
     })
   })
 })

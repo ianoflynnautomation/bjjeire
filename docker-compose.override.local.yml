@@ -18,6 +18,8 @@ services:
         VITE_APP_MSAL_AUTHORITY: ${VITE_APP_MSAL_AUTHORITY}
         VITE_APP_MSAL_API_SCOPE: ${VITE_APP_MSAL_API_SCOPE}
         VITE_APP_CF_BEACON_TOKEN: ${VITE_APP_CF_BEACON_TOKEN}
+    volumes:
+      - ./tools/images/processed:/srv/images:ro
 
   seeder:
     build:

@@ -14,7 +14,7 @@ export const GymsHeroBanner = memo(function GymsHeroBanner(): JSX.Element {
     >
       {/* Banner image */}
       <img
-        src="/bjjeiregym.jpg"
+        src="/irishflag.jpg"
         alt={hero.imageAlt}
         className="h-44 w-full object-cover sm:h-64 md:h-80 lg:h-96"
         data-testid={GymsHeroBannerTestIds.IMAGE}

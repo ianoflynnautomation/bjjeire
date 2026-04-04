@@ -8,6 +8,7 @@ import type {
 
 const mockCoordinates: GeoCoordinatesDto = {
   type: 'Point',
+  coordinates: [-6.260273, 53.349805],
   latitude: 53.349805,
   longitude: -6.260273,
   placeName: 'Dublin City Center',
@@ -61,6 +62,7 @@ export const MOCK_GYM_FULL: GymDto = {
   website: 'https://elitefighters.ie',
   timetableUrl: 'https://elitefighters.ie/timetable',
   imageUrl: 'https://example.com/images/elite_gym.jpg',
+  thumbnailUrl: 'https://example.com/images/elite_gym_thumb.jpg',
   createdOnUtc: new Date().toISOString(),
   updatedOnUtc: new Date().toISOString(),
 }
@@ -74,7 +76,12 @@ export const MOCK_GYM_MINIMAL: GymDto = {
   location: {
     address: '456 Side Street, Cork',
     venue: 'Community Hall',
-    coordinates: { type: 'Point', latitude: 51.8969, longitude: -8.4863 },
+    coordinates: {
+      type: 'Point',
+      coordinates: [-8.4863, 51.8969],
+      latitude: 51.8969,
+      longitude: -8.4863,
+    },
   },
   socialMedia: {
     instagram: '',

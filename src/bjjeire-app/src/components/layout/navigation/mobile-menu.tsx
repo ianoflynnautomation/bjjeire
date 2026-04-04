@@ -5,7 +5,7 @@ import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { env } from '@/config/env'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
-import { navItems } from './nav-items'
+import { useNavItems } from './use-nav-items'
 
 const activeClass =
   'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
@@ -19,6 +19,7 @@ interface MobileMenuProps {
 export const MobileMenu = memo(function MobileMenu({
   onLinkClick,
 }: MobileMenuProps) {
+  const navItems = useNavItems()
   return (
     <div
       id="mobile-menu-panel"
@@ -26,10 +27,10 @@ export const MobileMenu = memo(function MobileMenu({
       data-testid={NavigationTestIds.MOBILE_PANEL}
     >
       <div className="space-y-1 px-2 pb-3 pt-2">
-        {navItems.map(item => (
+        {navItems.map(({ id, to, label }) => (
           <NavLink
-            key={item.id}
-            to={item.to}
+            key={id}
+            to={to}
             onClick={onLinkClick}
             className={({ isActive }) =>
               cn(
@@ -39,7 +40,7 @@ export const MobileMenu = memo(function MobileMenu({
             }
             data-testid={NavigationTestIds.MOBILE_LINK}
           >
-            {item.label}
+            {label}
           </NavLink>
         ))}
         {env.GITHUB_URL && (
