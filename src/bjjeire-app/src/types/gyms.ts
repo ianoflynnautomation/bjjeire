@@ -55,6 +55,7 @@ export interface GymDto extends BaseApiEntityModel {
   website?: string
   timetableUrl?: string
   imageUrl?: string
+  thumbnailUrl?: string
 }
 
 export interface GetGymsByCountyPaginationQuery {

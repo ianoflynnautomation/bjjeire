@@ -19,6 +19,7 @@ global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.AspNetCore.OpenApi;
 global using Microsoft.Extensions.Diagnostics.HealthChecks;
 global using Microsoft.Extensions.Options;
+global using Microsoft.FeatureManagement;
 global using Microsoft.OpenApi;
 
 global using Prometheus;

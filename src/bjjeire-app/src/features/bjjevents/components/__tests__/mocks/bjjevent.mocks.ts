@@ -8,6 +8,7 @@ const mockLocation: LocationDto = {
   venue: 'The Arena',
   coordinates: {
     type: 'Point',
+    coordinates: [-6.2395, 53.3418],
     latitude: 53.3418,
     longitude: -6.2395,
     placeName: 'Grand Canal Dock',

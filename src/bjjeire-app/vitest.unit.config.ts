@@ -28,7 +28,8 @@ export default defineConfig({
       include: [
         'src/utils/**',
         'src/lib/**',
-        'src/features/**/api/**',
+        'src/features/**',
+        'src/components/**',
         'src/hooks/**',
         'src/config/**',
         'src/constants/**',

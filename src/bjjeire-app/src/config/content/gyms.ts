@@ -28,6 +28,7 @@ export const gyms = {
     resultsSrSuffix: 'gyms',
   },
   card: {
+    imageAlt: 'Exterior or interior of',
     fallbackName: 'Unnamed Gym',
     fallbackRef: 'this gym',
     detailsSrLabel: 'Details for',
