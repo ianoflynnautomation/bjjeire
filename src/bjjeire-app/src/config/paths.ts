@@ -14,6 +14,11 @@ export const paths = {
     label: 'Gyms',
     getHref: () => '/gyms',
   },
+  competitions: {
+    path: '/competitions',
+    label: 'Competitions',
+    getHref: () => '/competitions',
+  },
   about: {
     path: '/about',
     label: 'About',

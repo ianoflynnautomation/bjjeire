@@ -14,17 +14,21 @@ import '@/index.css'
 
 const EventsPage = lazy(() => import('@/pages/EventsPage'))
 const GymsPage = lazy(() => import('@/pages/GymsPage'))
+const CompetitionsPage = lazy(() => import('@/pages/CompetitionsPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 
 function AppRoutes(): ReactElement {
   const eventsEnabled = useFeatureFlag('BjjEvents')
   const gymsEnabled = useFeatureFlag('Gyms')
+  const competitionsEnabled = useFeatureFlag('Competitions')
 
   const defaultPath = eventsEnabled
     ? paths.events.path
     : gymsEnabled
       ? paths.gyms.path
-      : paths.about.path
+      : competitionsEnabled
+        ? paths.competitions.path
+        : paths.about.path
 
   return (
     <Routes>
@@ -42,6 +46,16 @@ function AppRoutes(): ReactElement {
         path={paths.gyms.path}
         element={
           gymsEnabled ? <GymsPage /> : <Navigate to={defaultPath} replace />
+        }
+      />
+      <Route
+        path={paths.competitions.path}
+        element={
+          competitionsEnabled ? (
+            <CompetitionsPage />
+          ) : (
+            <Navigate to={defaultPath} replace />
+          )
         }
       />
       <Route path={paths.about.path} element={<AboutPage />} />

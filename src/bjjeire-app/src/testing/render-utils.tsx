@@ -27,8 +27,6 @@ export function createTestQueryClient(): QueryClient {
   })
 }
 
-// Pass explicit flags object to use overrides (no API call).
-// Pass nothing / undefined to let FeatureFlagProvider fetch from the API.
 export function makeFeatureFlagWrapper(
   flags?: Partial<FeatureFlagsMap>
 ): ({ children }: { children: ReactNode }) => ReactElement {
