@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.10](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.9...frontend-v0.1.10) (2026-04-04)
+
+
+### ### Features
+
+* add feature flag management ([#58](https://github.com/ianoflynnautomation/bjjeire/issues/58)) ([c930f9b](https://github.com/ianoflynnautomation/bjjeire/commit/c930f9be339b3692e1b4007b17313f9702791110))
+
 ## [0.1.9](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.8...frontend-v0.1.9) (2026-04-02)
 
 
