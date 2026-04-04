@@ -42,8 +42,7 @@ public static class BjjEventTestData
             Coordinates = new GeoCoordinatesDto
             {
                 Type = "Point",
-                Latitude = 53.3498,
-                Longitude = -6.2603
+                Coordinates = [-6.2603, 53.3498]
             }
         },
         Schedule = new BjjEventScheduleDto

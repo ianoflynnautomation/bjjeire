@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
-import { navItems } from './nav-items'
+import { useNavItems } from './use-nav-items'
 
 const activeClass =
   'border-b-2 border-emerald-500 text-emerald-600 dark:text-emerald-400'
@@ -10,6 +10,7 @@ const inactiveClass =
   'border-b-2 border-transparent text-slate-500 hover:border-emerald-500/50 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-300'
 
 export const DesktopNavLinks = memo(function DesktopNavLinks() {
+  const navItems = useNavItems()
   return (
     <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
       {navItems.map(item => (

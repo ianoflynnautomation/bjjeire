@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { GymCard } from './../gym-card/gym-card'
 import {
@@ -114,6 +114,95 @@ describe('GymCard Component', () => {
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
 
       expect(within(card).getByTestId(GymCardTestIds.NAME)).toBeInTheDocument()
+    })
+  })
+
+  describe('Image', () => {
+    it('should render the gym image with descriptive alt text when imageUrl is present', () => {
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
+      const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
+      const img = within(card).getByTestId(GymCardTestIds.IMAGE)
+
+      expect(img).toBeInTheDocument()
+      expect(img).toHaveAttribute(
+        'alt',
+        `Exterior or interior of ${MOCK_GYM_FULL.name}`
+      )
+      expect(
+        within(card).queryByTestId(GymCardTestIds.IMAGE_FALLBACK)
+      ).not.toBeInTheDocument()
+    })
+
+    it('should show the fallback when imageUrl is absent', () => {
+      render(
+        <GymCard
+          gym={MOCK_GYM_MINIMAL}
+          data-testid={GymsPageTestIds.LIST_ITEM}
+        />
+      )
+      const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
+
+      expect(
+        within(card).queryByTestId(GymCardTestIds.IMAGE)
+      ).not.toBeInTheDocument()
+      expect(
+        within(card).getByTestId(GymCardTestIds.IMAGE_FALLBACK)
+      ).toBeInTheDocument()
+    })
+
+    it('should render the image with a srcSet pointing to thumbnail and full-size URLs', () => {
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
+      const img = screen.getByTestId(GymCardTestIds.IMAGE)
+
+      expect(img).toHaveAttribute('srcset')
+      expect(img.getAttribute('srcset')).toContain(MOCK_GYM_FULL.thumbnailUrl)
+      expect(img.getAttribute('srcset')).toContain(MOCK_GYM_FULL.imageUrl)
+    })
+
+    it('should show a skeleton while the image has not yet loaded', () => {
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
+      const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
+
+      expect(
+        within(card).getByTestId(GymCardTestIds.IMAGE_SKELETON)
+      ).toBeInTheDocument()
+    })
+
+    it('should hide the skeleton once the image has loaded', () => {
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
+      const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
+      const img = within(card).getByTestId(GymCardTestIds.IMAGE)
+
+      fireEvent.load(img)
+
+      expect(
+        within(card).queryByTestId(GymCardTestIds.IMAGE_SKELETON)
+      ).not.toBeInTheDocument()
+    })
+
+    it('should show the fallback and hide the image when the image fails to load', () => {
+      render(
+        <GymCard gym={MOCK_GYM_FULL} data-testid={GymsPageTestIds.LIST_ITEM} />
+      )
+      const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
+      const img = within(card).getByTestId(GymCardTestIds.IMAGE)
+
+      fireEvent.error(img)
+
+      expect(
+        within(card).queryByTestId(GymCardTestIds.IMAGE)
+      ).not.toBeInTheDocument()
+      expect(
+        within(card).getByTestId(GymCardTestIds.IMAGE_FALLBACK)
+      ).toBeInTheDocument()
     })
   })
 })

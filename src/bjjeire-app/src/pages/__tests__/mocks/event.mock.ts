@@ -21,7 +21,12 @@ export const MOCK_EVENT_FULL: BjjEventDto = {
   location: {
     address: 'The National Sports Campus, Abbotstown, Dublin 15',
     venue: 'Sports Hall A',
-    coordinates: { type: 'Point', latitude: 53.3792, longitude: -6.3574 },
+    coordinates: {
+      type: 'Point',
+      coordinates: [-6.3574, 53.3792],
+      latitude: 53.3792,
+      longitude: -6.3574,
+    },
   },
   schedule: {
     startDate: '2026-04-15',
@@ -49,7 +54,12 @@ export const MOCK_EVENT_MINIMAL: BjjEventDto = {
   location: {
     address: '10 Patrick Street, Cork',
     venue: 'Community Centre',
-    coordinates: { type: 'Point', latitude: 51.8969, longitude: -8.4863 },
+    coordinates: {
+      type: 'Point',
+      coordinates: [-8.4863, 51.8969],
+      latitude: 51.8969,
+      longitude: -8.4863,
+    },
   },
   schedule: { startDate: '2026-05-01', endDate: null, hours: [] },
   pricing: { type: PricingType.Free, amount: 0, currency: 'EUR' },

@@ -1,13 +1,5 @@
-import { afterEach, expect, vi } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
-import { toHaveNoViolations } from 'jest-axe'
-
-expect.extend(toHaveNoViolations)
-
-afterEach(() => {
-  cleanup()
-})
+import { vi } from 'vitest'
+import './setup-base'
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

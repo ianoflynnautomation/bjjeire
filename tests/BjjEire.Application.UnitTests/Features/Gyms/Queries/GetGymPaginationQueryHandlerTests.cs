@@ -55,7 +55,7 @@ public sealed class GetGymPaginationQueryHandlerTests
                 {
                     Address = "1 Test St",
                     Venue = "Test Venue",
-                    Coordinates = new GeoCoordinatesDto { Type = "Point", Latitude = 53.3, Longitude = -6.2 }
+                    Coordinates = new GeoCoordinatesDto { Type = "Point", Coordinates = [-6.2, 53.3] }
                 },
                 SocialMedia = new SocialMediaDto(),
                 TrialOffer = new TrialOfferDto { IsAvailable = false }

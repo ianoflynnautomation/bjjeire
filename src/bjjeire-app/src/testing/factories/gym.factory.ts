@@ -19,7 +19,12 @@ export function createGym(overrides: Partial<GymDto> = {}): GymDto {
     location: {
       address: `${id} Test Street, Dublin`,
       venue: 'Test Venue',
-      coordinates: { type: 'Point', latitude: 53.33, longitude: -6.26 },
+      coordinates: {
+        type: 'Point',
+        coordinates: [-6.26, 53.33],
+        latitude: 53.33,
+        longitude: -6.26,
+      },
     },
     socialMedia: { instagram: '', facebook: '', x: '', youTube: '' },
     offeredClasses: [],

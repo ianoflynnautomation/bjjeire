@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render } from 'vitest-browser-react'
+import { userEvent, page } from '@vitest/browser/context'
 import { describe, it, expect, vi } from 'vitest'
 import EventFilters from '../event-filters/event-filters'
 import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
@@ -8,6 +8,9 @@ import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
 // 1. Disabled buttons are skipped by the browser's natural Tab sequence
 // 2. Keyboard Space/Enter on a focused toggle button fires the handler
 // (jsdom's userEvent.tab() does not always reliably skip disabled elements)
+//
+// Each test clicks document.body first to activate the page in Playwright headless —
+// keyboard events (Tab) are only routed after at least one interaction.
 
 const defaultProps = {
   selectedCity: 'all' as const,
@@ -19,42 +22,35 @@ const defaultProps = {
 
 describe('EventFilters (browser)', () => {
   describe('Tab sequence — enabled', () => {
-    it('all event type buttons are reachable via Tab', async () => {
-      const user = userEvent.setup()
-      render(<EventFilters {...defaultProps} />)
+    it('all event type buttons are in Tab order', async () => {
+      const screen = await render(<EventFilters {...defaultProps} />)
 
-      const typeButtons = screen.getAllByTestId(ButtonGroupFilterTestIds.BUTTON)
-      const focusedElements: Element[] = []
-
-      // Tab enough times to pass the county select + all type buttons
-      for (let i = 0; i < typeButtons.length + 2; i++) {
-        await user.tab()
-        if (
-          document.activeElement &&
-          document.activeElement !== document.body
-        ) {
-          focusedElements.push(document.activeElement)
-        }
-      }
-
-      // Every event type button must have been focused at some point
+      await page.elementLocator(document.body).click()
+      await userEvent.tab()
+      const typeButtons = screen
+        .getByTestId(ButtonGroupFilterTestIds.BUTTON)
+        .all()
       for (const button of typeButtons) {
-        expect(focusedElements).toContain(button)
+        await userEvent.tab()
+        await expect.element(button).toHaveFocus()
       }
     })
   })
 
   describe('Tab sequence — disabled', () => {
     it('no event type button receives focus via Tab when filters are disabled', async () => {
-      const user = userEvent.setup()
-      render(<EventFilters {...defaultProps} disabled={true} />)
+      const screen = await render(
+        <EventFilters {...defaultProps} disabled={true} />
+      )
 
-      const typeButtons = screen.getAllByTestId(ButtonGroupFilterTestIds.BUTTON)
+      const typeButtons = screen
+        .getByTestId(ButtonGroupFilterTestIds.BUTTON)
+        .elements()
       typeButtons.forEach(btn => expect(btn).toBeDisabled())
 
-      // Tab many times — the browser natively skips all disabled elements
+      await page.elementLocator(document.body).click()
       for (let i = 0; i < typeButtons.length + 5; i++) {
-        await user.tab()
+        await userEvent.tab()
         expect(typeButtons).not.toContain(document.activeElement)
       }
     })
@@ -63,41 +59,47 @@ describe('EventFilters (browser)', () => {
   describe('Keyboard activation', () => {
     it('pressing Space on a focused event type button calls onTypeChange', async () => {
       const onTypeChange = vi.fn()
-      const user = userEvent.setup()
-      render(<EventFilters {...defaultProps} onTypeChange={onTypeChange} />)
+      const screen = await render(
+        <EventFilters {...defaultProps} onTypeChange={onTypeChange} />
+      )
 
-      // Tab past the county select, then to the first type button ("All Types")
-      await user.tab() // county select
-      await user.tab() // "All Types" button
+      await page.elementLocator(document.body).click()
+      await userEvent.tab()
+      await userEvent.tab()
 
-      const firstTypeButton = screen.getAllByTestId(
-        ButtonGroupFilterTestIds.BUTTON
-      )[0]
-      expect(document.activeElement).toBe(firstTypeButton)
+      const firstTypeButton = screen
+        .getByTestId(ButtonGroupFilterTestIds.BUTTON)
+        .first()
+      await expect.element(firstTypeButton).toHaveFocus()
 
-      await user.keyboard(' ') // Space activates a button in real browsers
+      await userEvent.keyboard(' ')
       expect(onTypeChange).toHaveBeenCalledTimes(1)
     })
 
     it('pressing Enter on a focused event type button calls onTypeChange', async () => {
       const onTypeChange = vi.fn()
-      const user = userEvent.setup()
-      render(<EventFilters {...defaultProps} onTypeChange={onTypeChange} />)
+      await render(
+        <EventFilters {...defaultProps} onTypeChange={onTypeChange} />
+      )
 
-      await user.tab() // county select
-      await user.tab() // first type button
+      await page.elementLocator(document.body).click()
+      await userEvent.tab()
+      await userEvent.tab()
 
-      await user.keyboard('{Enter}')
+      await userEvent.keyboard('{Enter}')
       expect(onTypeChange).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('aria-pressed state', () => {
-    it('selected button has aria-pressed=true, others have aria-pressed=false', () => {
-      render(<EventFilters {...defaultProps} selectedType="all" />)
+    it('selected button has aria-pressed=true, others have aria-pressed=false', async () => {
+      const screen = await render(
+        <EventFilters {...defaultProps} selectedType="all" />
+      )
 
-      const typeButtons = screen.getAllByTestId(ButtonGroupFilterTestIds.BUTTON)
-      // First button is "All Types" which matches selectedType="all"
+      const typeButtons = screen
+        .getByTestId(ButtonGroupFilterTestIds.BUTTON)
+        .elements()
       expect(typeButtons[0]).toHaveAttribute('aria-pressed', 'true')
       typeButtons
         .slice(1)
