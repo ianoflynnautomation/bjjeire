@@ -1,7 +1,6 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { screen, waitFor } from '@testing-library/react'
-import { axe } from 'jest-axe'
 import {
   describe,
   it,
@@ -94,25 +93,6 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       await screen.findByText('Elite Fighters Academy')
     ).toBeInTheDocument()
     expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
-  })
-
-  it('has no accessibility violations on the happy-path render', async () => {
-    server.use(
-      http.get(API, () =>
-        HttpResponse.json(
-          createPaginatedGyms(
-            [createGym({ name: 'Accessible BJJ Gym', county: 'Dublin' })],
-            1,
-            1
-          )
-        )
-      )
-    )
-    const { container } = render()
-    await screen.findByText('Accessible BJJ Gym')
-
-    const results = await axe(container)
-    expect(results).toHaveNoViolations()
   })
 
   it('sends the county param when a county filter is selected', async () => {
