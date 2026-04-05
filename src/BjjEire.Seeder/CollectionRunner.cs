@@ -1,4 +1,5 @@
 using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.Competitions;
 using BjjEire.Domain.Entities.Gyms;
 
 namespace BjjEire.Seeder;
@@ -16,10 +17,22 @@ internal static class CollectionRunner
         return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
     }
 
+    private static string CompetitionsDataFile()
+    {
+        const string testFile = "data/competitions.test.json";
+        const string prodFile = "data/competitions.json";
+        var isDevelopment = string.Equals(
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+            "Development",
+            StringComparison.OrdinalIgnoreCase);
+        return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
+    }
+
     private static readonly (string name, Func<SeederService, Task<int>> run)[] Collections =
     [
-        ("Gym",      s => s.SeedAsync<Gym>("Gym", GymsDataFile())),
-        ("BjjEvent", s => s.SeedAsync<BjjEvent>("BjjEvent", "data/bjj-events.json")),
+        ("Gym",         s => s.SeedAsync<Gym>("Gym", GymsDataFile())),
+        ("BjjEvent",    s => s.SeedAsync<BjjEvent>("BjjEvent", "data/bjj-events.json")),
+        ("Competition", s => s.SeedAsync<Competition>("Competition", CompetitionsDataFile())),
     ];
 
     internal static async Task<int> RunAsync(SeederService seeder, string? filter)
