@@ -1,5 +1,6 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
+import { optionsPassthrough } from '@/testing/msw/handlers'
 import { screen, waitFor } from '@testing-library/react'
 import {
   describe,
@@ -33,7 +34,10 @@ vi.mock('@/lib/msal-config', () => ({
 
 const API = 'http://localhost/api/api/competition'
 
-const server = setupServer()
+const server = setupServer(
+  optionsPassthrough,
+  http.get(API, () => HttpResponse.json(createPaginatedCompetitions([], 1, 0)))
+)
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
