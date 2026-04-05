@@ -9,7 +9,10 @@ const defaultFlags: FeatureFlagsMap = {
   Competitions: true,
 }
 
-export const optionsPassthrough = http.options('*', () => new HttpResponse(null, { status: 204 }))
+export const optionsPassthrough = http.options(
+  '*',
+  () => new HttpResponse(null, { status: 204 })
+)
 
 export const handlers = [
   optionsPassthrough,
