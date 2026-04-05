@@ -3,9 +3,20 @@ import { createPaginatedGyms, createGym } from '../factories/gym.factory'
 import { createPaginatedEvents, createEvent } from '../factories/event.factory'
 import type { FeatureFlagsMap } from '@/features/feature-flags'
 
-const defaultFlags: FeatureFlagsMap = { BjjEvents: true, Gyms: true }
+const defaultFlags: FeatureFlagsMap = {
+  BjjEvents: true,
+  Gyms: true,
+  Competitions: true,
+}
+
+export const optionsPassthrough = http.options(
+  '*',
+  () => new HttpResponse(null, { status: 204 })
+)
 
 export const handlers = [
+  optionsPassthrough,
+
   http.get('*/api/featureflag', () => HttpResponse.json(defaultFlags)),
 
   http.get('*/api/gym', () =>

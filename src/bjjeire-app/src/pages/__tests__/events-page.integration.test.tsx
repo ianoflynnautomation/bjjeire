@@ -1,5 +1,6 @@
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
+import { optionsPassthrough } from '@/testing/msw/handlers'
 import { screen, waitFor } from '@testing-library/react'
 import {
   describe,
@@ -34,7 +35,7 @@ vi.mock('@/lib/msal-config', () => ({
 
 const API = 'http://localhost/api/api/bjjevent'
 
-const server = setupServer()
+const server = setupServer(optionsPassthrough)
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
