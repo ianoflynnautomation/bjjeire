@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.11](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.10...frontend-v0.1.11) (2026-04-05)
+
+
+### ### Features
+
+* add competitions feature ([#61](https://github.com/ianoflynnautomation/bjjeire/issues/61)) ([385df60](https://github.com/ianoflynnautomation/bjjeire/commit/385df60a7d97ec95f16d0d97995d0c0be2d18b55))
+
 ## [0.1.10](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.9...frontend-v0.1.10) (2026-04-04)
 
 
