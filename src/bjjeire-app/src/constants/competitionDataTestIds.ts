@@ -16,4 +16,7 @@ export const CompetitionCardTestIds = {
   TAG_ITEM: 'competition-card-tag-item',
   WEBSITE_BUTTON: 'competition-card-website-button',
   REGISTER_BUTTON: 'competition-card-register-button',
+  LOGO: 'competition-card-logo',
+  LOGO_SKELETON: 'competition-card-logo-skeleton',
+  LOGO_FALLBACK: 'competition-card-logo-fallback',
 }

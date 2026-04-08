@@ -1,6 +1,5 @@
 using BjjEire.Application.Common;
 using BjjEire.Domain.Entities.Competitions;
-using BjjEire.Domain.Enums;
 
 namespace BjjEire.Application.Features.Competitions.DTOs;
 
@@ -12,7 +11,7 @@ public class CompetitionDto : BaseApiEntityModel
 
     public string? Description { get; set; }
 
-    public CompetitionOrganisation Organisation { get; set; }
+    public string Organisation { get; set; } = string.Empty;
 
     public string Country { get; set; } = string.Empty;
 

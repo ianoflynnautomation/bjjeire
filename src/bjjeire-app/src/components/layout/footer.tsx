@@ -7,7 +7,13 @@ import { uiContent } from '@/config/ui-content'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { useGitHubRepo } from '@/hooks/useGitHubRepo'
 
-const footerPathKeys = ['events', 'gyms', 'competitions', 'about'] as const
+const footerPathKeys = [
+  'events',
+  'gyms',
+  'competitions',
+  'stores',
+  'about',
+] as const
 
 interface FooterProps {
   'data-testid'?: string

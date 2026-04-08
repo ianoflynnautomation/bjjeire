@@ -9,7 +9,6 @@ import {
   afterAll,
   afterEach,
 } from 'vitest'
-import { CompetitionOrganisation } from '@/types/competitions'
 import {
   createCompetition,
   createPaginatedCompetitions,
@@ -61,39 +60,6 @@ describe('getCompetitions', () => {
 
     expect(capturedUrl.searchParams.get('page')).toBe('1')
     expect(capturedUrl.searchParams.get('pageSize')).toBe('20')
-    expect(capturedUrl.searchParams.has('organisation')).toBe(false)
-  })
-
-  it('includes organisation param when a specific organisation is set', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedCompetitions([], 1, 0))
-      })
-    )
-
-    await getCompetitions({
-      ...defaults,
-      organisation: CompetitionOrganisation.IBJJF,
-    })
-
-    expect(capturedUrl.searchParams.get('organisation')).toBe(
-      CompetitionOrganisation.IBJJF
-    )
-  })
-
-  it('omits organisation param when organisation is "all"', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedCompetitions([], 1, 0))
-      })
-    )
-
-    await getCompetitions({ ...defaults, organisation: 'all' })
-
     expect(capturedUrl.searchParams.has('organisation')).toBe(false)
   })
 

@@ -19,6 +19,11 @@ export const paths = {
     label: 'Competitions',
     getHref: () => '/competitions',
   },
+  stores: {
+    path: '/stores',
+    label: 'Stores',
+    getHref: () => '/stores',
+  },
   about: {
     path: '/about',
     label: 'About',

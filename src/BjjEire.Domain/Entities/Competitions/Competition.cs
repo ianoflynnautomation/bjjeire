@@ -1,8 +1,5 @@
-using BjjEire.Domain.Enums;
-
 namespace BjjEire.Domain.Entities.Competitions;
 
-// Indexes: slug (unique), isActive
 
 public class Competition : BaseEntity
 {
@@ -16,7 +13,7 @@ public class Competition : BaseEntity
     public string? Description { get; set; }
 
     [BsonElement("organisation")]
-    public CompetitionOrganisation Organisation { get; set; }
+    public string Organisation { get; set; } = string.Empty;
 
     [BsonElement("country")]
     public string Country { get; set; } = "Ireland";
