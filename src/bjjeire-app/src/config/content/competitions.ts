@@ -30,6 +30,7 @@ export const competitions = {
   },
   card: {
     fallbackName: 'Unnamed Competition',
+    logoAlt: 'Logo for',
     dateLabel: 'Date',
     visitWebsiteButton: 'Visit Website',
     noWebsiteButton: 'Website Unavailable',

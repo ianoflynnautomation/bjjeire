@@ -1,5 +1,4 @@
 import type { CompetitionDto } from '@/types/competitions'
-import { CompetitionOrganisation } from '@/types/competitions'
 import type { PaginatedResponse } from '@/types/common'
 
 let _competitionId = 0
@@ -16,7 +15,7 @@ export function createCompetition(
     id: `competition-id-${id}`,
     slug: `test-competition-${id}`,
     name: `Test Competition ${id}`,
-    organisation: CompetitionOrganisation.IBJJF,
+    organisation: 'IBJJF',
     country: 'Ireland',
     websiteUrl: `https://example.com/competition-${id}`,
     tags: [],

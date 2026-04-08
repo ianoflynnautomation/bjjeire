@@ -5,13 +5,14 @@ import { useFeatureFlag } from '@/features/feature-flags'
 interface NavItem {
   to: string
   label: string
-  id: 'events' | 'gyms' | 'competitions' | 'about'
+  id: 'events' | 'gyms' | 'competitions' | 'stores' | 'about'
 }
 
 export function useNavItems(): NavItem[] {
   const eventsEnabled = useFeatureFlag('BjjEvents')
   const gymsEnabled = useFeatureFlag('Gyms')
   const competitionsEnabled = useFeatureFlag('Competitions')
+  const storesEnabled = useFeatureFlag('Stores')
 
   return useMemo(() => {
     const items: NavItem[] = []
@@ -36,11 +37,18 @@ export function useNavItems(): NavItem[] {
         id: 'competitions',
       })
     }
+    if (storesEnabled) {
+      items.push({
+        to: paths.stores.getHref(),
+        label: paths.stores.label,
+        id: 'stores',
+      })
+    }
     items.push({
       to: paths.about.getHref(),
       label: paths.about.label,
       id: 'about',
     })
     return items
-  }, [eventsEnabled, gymsEnabled, competitionsEnabled])
+  }, [eventsEnabled, gymsEnabled, competitionsEnabled, storesEnabled])
 }

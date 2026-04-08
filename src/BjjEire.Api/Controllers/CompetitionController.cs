@@ -14,7 +14,7 @@ public class CompetitionController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync([FromQuery] GetCompetitionPaginationQuery query)
     {
-        var response = await _mediator.Send(query);
+        GetCompetitionPaginatedResponse response = await _mediator.Send(query);
 
         return Ok(response);
     }

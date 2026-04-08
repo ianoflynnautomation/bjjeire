@@ -7,15 +7,14 @@ import {
 } from '@heroicons/react/20/solid'
 import { format, parseISO, isSameDay, isSameMonth, isSameYear } from 'date-fns'
 import type { CompetitionDto } from '@/types/competitions'
-import { COMPETITION_ORGANISATION_LABELS } from '@/types/competitions'
 import { Card, CardContent } from '@/components/ui/card/card'
 import { CardActionButton } from '@/components/ui/button/button'
-import { Badge } from '@/components/ui/badge/badge'
 import { uiContent } from '@/config/ui-content'
 import {
   CompetitionsPageTestIds,
   CompetitionCardTestIds,
 } from '@/constants/competitionDataTestIds'
+import { CompetitionCardHeader } from './competition-card-header'
 
 const { card } = uiContent.competitions
 
@@ -48,13 +47,13 @@ export const CompetitionCard = memo(function CompetitionCard({
 }: CompetitionCardProps): JSX.Element {
   const {
     name,
-    organisation,
     description,
     websiteUrl,
     registrationUrl,
     tags,
     startDate,
     endDate,
+    logoUrl,
   } = competition
   const dateRange = useMemo(
     () => formatDateRange(startDate, endDate),
@@ -62,8 +61,6 @@ export const CompetitionCard = memo(function CompetitionCard({
   )
   const headingId = `competition-card-heading-${competition.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? CompetitionsPageTestIds.LIST_ITEM
-  const orgLabel =
-    COMPETITION_ORGANISATION_LABELS[organisation] ?? String(organisation)
 
   return (
     <Card
@@ -76,6 +73,8 @@ export const CompetitionCard = memo(function CompetitionCard({
         aria-hidden="true"
       />
 
+      <CompetitionCardHeader name={name} logoUrl={logoUrl} />
+
       <CardContent>
         {/* Header row */}
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
@@ -86,12 +85,6 @@ export const CompetitionCard = memo(function CompetitionCard({
           >
             {name || card.fallbackName}
           </h3>
-          <Badge
-            text={orgLabel}
-            colorScheme="emerald"
-            size="sm"
-            data-testid={CompetitionCardTestIds.ORGANISATION}
-          />
         </div>
 
         {/* Date */}

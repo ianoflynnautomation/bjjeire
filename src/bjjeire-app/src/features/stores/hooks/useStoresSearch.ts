@@ -1,34 +1,28 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router'
 import { useDebounce } from '@/hooks/useDebounce'
-import type { CompetitionDto } from '@/types/competitions'
+import type { StoreDto } from '@/types/stores'
 
 const SEARCH_PARAM = 'q'
 
-function competitionMatchesSearch(
-  competition: CompetitionDto,
-  term: string
-): boolean {
+function storeMatchesSearch(store: StoreDto, term: string): boolean {
   const lower = term.toLowerCase()
   return (
-    competition.name.toLowerCase().includes(lower) ||
-    (competition.description?.toLowerCase().includes(lower) ?? false) ||
-    competition.country.toLowerCase().includes(lower) ||
-    competition.organisation.toLowerCase().includes(lower) ||
-    competition.tags.some(t => t.toLowerCase().includes(lower))
+    store.name.toLowerCase().includes(lower) ||
+    (store.description?.toLowerCase().includes(lower) ?? false)
   )
 }
 
-export interface UseCompetitionSearchResult {
+export interface UseStoreSearchResult {
   searchTerm: string
   debouncedSearchTerm: string
   setSearchTerm: (term: string) => void
   clearSearch: () => void
-  filterCompetitions: (competitions: CompetitionDto[]) => CompetitionDto[]
+  filterStores: (stores: StoreDto[]) => StoreDto[]
   isSearchActive: boolean
 }
 
-export function useCompetitionSearch(): UseCompetitionSearchResult {
+export function useStoreSearch(): UseStoreSearchResult {
   const [searchParams, setSearchParams] = useSearchParams()
   const searchTerm = searchParams.get(SEARCH_PARAM) ?? ''
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
@@ -62,14 +56,12 @@ export function useCompetitionSearch(): UseCompetitionSearchResult {
     )
   }, [setSearchParams])
 
-  const filterCompetitions = useCallback(
-    (competitions: CompetitionDto[]): CompetitionDto[] => {
+  const filterStores = useCallback(
+    (stores: StoreDto[]): StoreDto[] => {
       if (!debouncedSearchTerm.trim()) {
-        return competitions
+        return stores
       }
-      return competitions.filter(c =>
-        competitionMatchesSearch(c, debouncedSearchTerm)
-      )
+      return stores.filter(s => storeMatchesSearch(s, debouncedSearchTerm))
     },
     [debouncedSearchTerm]
   )
@@ -79,7 +71,7 @@ export function useCompetitionSearch(): UseCompetitionSearchResult {
     debouncedSearchTerm,
     setSearchTerm,
     clearSearch,
-    filterCompetitions,
+    filterStores,
     isSearchActive: debouncedSearchTerm.trim().length > 0,
   }
 }

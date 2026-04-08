@@ -15,12 +15,14 @@ import '@/index.css'
 const EventsPage = lazy(() => import('@/pages/EventsPage'))
 const GymsPage = lazy(() => import('@/pages/GymsPage'))
 const CompetitionsPage = lazy(() => import('@/pages/CompetitionsPage'))
+const StoresPage = lazy(() => import('@/pages/StoresPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 
 function AppRoutes(): ReactElement {
   const eventsEnabled = useFeatureFlag('BjjEvents')
   const gymsEnabled = useFeatureFlag('Gyms')
   const competitionsEnabled = useFeatureFlag('Competitions')
+  const storesEnabled = useFeatureFlag('Stores')
 
   const defaultPath = eventsEnabled
     ? paths.events.path
@@ -28,7 +30,9 @@ function AppRoutes(): ReactElement {
       ? paths.gyms.path
       : competitionsEnabled
         ? paths.competitions.path
-        : paths.about.path
+        : storesEnabled
+          ? paths.stores.path
+          : paths.about.path
 
   return (
     <Routes>
@@ -56,6 +60,12 @@ function AppRoutes(): ReactElement {
           ) : (
             <Navigate to={defaultPath} replace />
           )
+        }
+      />
+      <Route
+        path={paths.stores.path}
+        element={
+          storesEnabled ? <StoresPage /> : <Navigate to={defaultPath} replace />
         }
       />
       <Route path={paths.about.path} element={<AboutPage />} />

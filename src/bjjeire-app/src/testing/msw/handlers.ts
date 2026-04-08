@@ -7,6 +7,7 @@ const defaultFlags: FeatureFlagsMap = {
   BjjEvents: true,
   Gyms: true,
   Competitions: true,
+  Stores: true,
 }
 
 export const optionsPassthrough = http.options(
