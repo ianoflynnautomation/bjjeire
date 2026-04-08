@@ -18,7 +18,6 @@ import {
   createPaginatedCompetitions,
   resetCompetitionIdCounter,
 } from '@/testing/factories/competition.factory'
-import { CompetitionOrganisation } from '@/types/competitions'
 
 vi.mock('@/config/env', () => ({
   env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
@@ -100,11 +99,11 @@ describe('CompetitionsPage Integration (API + Query + UI)', () => {
             [
               createCompetition({
                 name: 'Dublin International Open IBJJF',
-                organisation: CompetitionOrganisation.IBJJF,
+                organisation: 'IBJJF',
               }),
               createCompetition({
                 name: 'NAGA Ireland',
-                organisation: CompetitionOrganisation.NAGA,
+                organisation: 'NAGA',
               }),
             ],
             1,

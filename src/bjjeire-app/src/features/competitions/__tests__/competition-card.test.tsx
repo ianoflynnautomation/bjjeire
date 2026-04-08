@@ -5,13 +5,12 @@ import {
   CompetitionsPageTestIds,
   CompetitionCardTestIds,
 } from '@/constants/competitionDataTestIds'
-import { CompetitionOrganisation } from '@/types/competitions'
 import { createCompetition } from '@/testing/factories/competition.factory'
 
 const FULL_COMPETITION = createCompetition({
   id: 'test-1',
   name: 'Dublin International Open IBJJF',
-  organisation: CompetitionOrganisation.IBJJF,
+  organisation: 'IBJJF',
   description: 'Premier IBJJF tournament in Dublin.',
   websiteUrl: 'https://ibjjf.com/dublin',
   registrationUrl: 'https://ibjjf.com/dublin/register',
@@ -23,7 +22,7 @@ const FULL_COMPETITION = createCompetition({
 const MINIMAL_COMPETITION = createCompetition({
   id: 'test-2',
   name: 'NAGA Ireland',
-  organisation: CompetitionOrganisation.NAGA,
+  organisation: 'NAGA',
   websiteUrl: 'https://nagafighter.com',
   tags: [],
 })
@@ -31,7 +30,7 @@ const MINIMAL_COMPETITION = createCompetition({
 const NO_WEBSITE_COMPETITION = createCompetition({
   id: 'test-3',
   name: 'Unknown Open',
-  organisation: CompetitionOrganisation.Other,
+  organisation: 'Other',
   websiteUrl: '',
 })
 
@@ -50,9 +49,6 @@ describe('CompetitionCard', () => {
       expect(
         within(card).getByTestId(CompetitionCardTestIds.NAME)
       ).toHaveTextContent('Dublin International Open IBJJF')
-      expect(
-        within(card).getByTestId(CompetitionCardTestIds.ORGANISATION)
-      ).toHaveTextContent('IBJJF')
       expect(
         within(card).getByTestId(CompetitionCardTestIds.DATE)
       ).toHaveTextContent('16–17 May 2026')

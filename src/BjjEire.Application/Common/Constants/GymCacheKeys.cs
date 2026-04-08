@@ -10,12 +10,14 @@ public static class CacheKey
     public const string GymsTag = "gyms";
     public const string BjjEventsTag = "bjjevents";
     public const string CompetitionsTag = "competitions";
+    public const string StoreTag = "stores";
 
     private static readonly CompositeFormat BjjEventsAllComposite = CompositeFormat.Parse("BjjEvents_All_Page{0}_PageSize{1}_County{2}_Type{3}");
     private static readonly CompositeFormat BjjEventsByIdComposite = CompositeFormat.Parse("BjjEvents_Id{0}");
     private static readonly CompositeFormat GymAllComposite = CompositeFormat.Parse("Gyms_All_Page{0}_PageSize{1}_County{2}");
     private static readonly CompositeFormat GymByIdComposite = CompositeFormat.Parse("Gym_Id{0}");
-    private static readonly CompositeFormat CompetitionsAllComposite = CompositeFormat.Parse("Competitions_All_Page{0}_PageSize{1}_Organisation{2}");
+    private static readonly CompositeFormat CompetitionsAllComposite = CompositeFormat.Parse("Competitions_All_Page{0}_PageSize{1}");
+    private static readonly CompositeFormat StoresAllComposite = CompositeFormat.Parse("Stores_All_Page{0}_PageSize{1}");
 
     public static string BjjEventsAll(int page, int pageSize, County? county, BjjEventType? type)
     {
@@ -42,9 +44,10 @@ public static class CacheKey
         return string.Format(CultureInfo.InvariantCulture, GymByIdComposite, id);
     }
 
-    public static string CompetitionsAll(int page, int pageSize, CompetitionOrganisation? organisation)
-    {
-        var orgCachePart = (organisation?.ToString() ?? "None").ToLowerInvariant();
-        return string.Format(CultureInfo.InvariantCulture, CompetitionsAllComposite, page, pageSize, orgCachePart);
-    }
+    public static string CompetitionsAll(int page, int pageSize)
+        => string.Format(CultureInfo.InvariantCulture, CompetitionsAllComposite, page, pageSize);
+
+
+    public static string StoresAll(int page, int pageSize)
+        => string.Format(CultureInfo.InvariantCulture, StoresAllComposite, page, pageSize);
 }

@@ -11,6 +11,7 @@ describe('useNavItems', () => {
         BjjEvents: false,
         Gyms: false,
         Competitions: false,
+        Stores: false,
       }),
     })
 
@@ -24,6 +25,7 @@ describe('useNavItems', () => {
         BjjEvents: true,
         Gyms: false,
         Competitions: false,
+        Stores: false,
       }),
     })
 
@@ -37,6 +39,7 @@ describe('useNavItems', () => {
         BjjEvents: false,
         Gyms: true,
         Competitions: false,
+        Stores: false,
       }),
     })
 
@@ -50,11 +53,26 @@ describe('useNavItems', () => {
         BjjEvents: false,
         Gyms: false,
         Competitions: true,
+        Stores: false,
       }),
     })
 
     expect(result.current).toHaveLength(2)
     expect(result.current.map(i => i.id)).toEqual(['competitions', 'about'])
+  })
+
+  it('returns Stores and About when only Stores is enabled', () => {
+    const { result } = renderHook(() => useNavItems(), {
+      wrapper: makeFeatureFlagWrapper({
+        BjjEvents: false,
+        Gyms: false,
+        Competitions: false,
+        Stores: true,
+      }),
+    })
+
+    expect(result.current).toHaveLength(2)
+    expect(result.current.map(i => i.id)).toEqual(['stores', 'about'])
   })
 
   it('returns Events, Gyms, and About when BjjEvents and Gyms are enabled', () => {
@@ -63,6 +81,7 @@ describe('useNavItems', () => {
         BjjEvents: true,
         Gyms: true,
         Competitions: false,
+        Stores: false,
       }),
     })
 
@@ -70,20 +89,22 @@ describe('useNavItems', () => {
     expect(result.current.map(i => i.id)).toEqual(['events', 'gyms', 'about'])
   })
 
-  it('returns Events, Gyms, Competitions, and About when all flags are enabled', () => {
+  it('returns all nav items when all flags are enabled', () => {
     const { result } = renderHook(() => useNavItems(), {
       wrapper: makeFeatureFlagWrapper({
         BjjEvents: true,
         Gyms: true,
         Competitions: true,
+        Stores: true,
       }),
     })
 
-    expect(result.current).toHaveLength(4)
+    expect(result.current).toHaveLength(5)
     expect(result.current.map(i => i.id)).toEqual([
       'events',
       'gyms',
       'competitions',
+      'stores',
       'about',
     ])
   })
@@ -94,6 +115,7 @@ describe('useNavItems', () => {
         BjjEvents: false,
         Gyms: false,
         Competitions: false,
+        Stores: false,
       }),
     })
     const { result: allOn } = renderHook(() => useNavItems(), {
@@ -101,6 +123,7 @@ describe('useNavItems', () => {
         BjjEvents: true,
         Gyms: true,
         Competitions: true,
+        Stores: true,
       }),
     })
 
@@ -117,6 +140,7 @@ describe('useNavItems', () => {
         BjjEvents: true,
         Gyms: true,
         Competitions: true,
+        Stores: true,
       }),
     })
 
@@ -124,6 +148,7 @@ describe('useNavItems', () => {
     expect(itemMap.events.to).toBe(paths.events.getHref())
     expect(itemMap.gyms.to).toBe(paths.gyms.getHref())
     expect(itemMap.competitions.to).toBe(paths.competitions.getHref())
+    expect(itemMap.stores.to).toBe(paths.stores.getHref())
     expect(itemMap.about.to).toBe(paths.about.getHref())
   })
 
@@ -133,6 +158,7 @@ describe('useNavItems', () => {
         BjjEvents: true,
         Gyms: true,
         Competitions: true,
+        Stores: true,
       }),
     })
 
@@ -140,6 +166,7 @@ describe('useNavItems', () => {
     expect(map.events.label).toBe(paths.events.label)
     expect(map.gyms.label).toBe(paths.gyms.label)
     expect(map.competitions.label).toBe(paths.competitions.label)
+    expect(map.stores.label).toBe(paths.stores.label)
     expect(map.about.label).toBe(paths.about.label)
   })
 })

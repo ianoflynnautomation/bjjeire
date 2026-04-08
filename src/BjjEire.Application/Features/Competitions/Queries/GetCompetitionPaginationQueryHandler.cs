@@ -23,12 +23,11 @@ public sealed class GetCompetitionPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.CompetitionsAll(request.Page, request.PageSize, request.Organisation);
+        var cacheKey = CacheKey.CompetitionsAll(request.Page, request.PageSize);
 
         GetCompetitionPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetCompetitionPaginationQuery),
-            request.Page, request.PageSize,
-            request.Organisation?.ToString() ?? "N/A", cacheKey);
+            request.Page, request.PageSize, cacheKey);
 
         var result = await hybridCache.GetOrCreateAsync(
             cacheKey,
@@ -37,11 +36,6 @@ public sealed class GetCompetitionPaginationQueryHandler(
                 GetCompetitionPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
                 var query = competitionRepository.Table.Where(x => x.IsActive);
-
-                if (request.Organisation.HasValue)
-                {
-                    query = query.Where(x => x.Organisation == request.Organisation.Value);
-                }
 
                 query = query.OrderBy(x => x.StartDate == null).ThenBy(x => x.StartDate).ThenBy(x => x.Name);
 
