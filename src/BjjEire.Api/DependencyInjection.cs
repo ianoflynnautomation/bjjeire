@@ -1,4 +1,5 @@
 
+using BjjEire.Api.Controllers;
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Api.Extensions.Cors;
 using BjjEire.Api.Extensions.Exceptions;
@@ -49,6 +50,7 @@ public static class DependencyInjection
         _ = builder.Services.AddAppAuthentication(builder.Configuration);
         _ = builder.Services.AddAppAuthorization();
         _ = builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureManagement"));
+        _ = builder.Services.Configure<DonationOptions>(builder.Configuration.GetSection("Donation"));
 
         return builder;
     }
