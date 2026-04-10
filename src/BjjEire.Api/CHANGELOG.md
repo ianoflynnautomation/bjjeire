@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.4...api-v0.1.5) (2026-04-10)
+
+
+### ### Features
+
+* add new support model feature ([#65](https://github.com/ianoflynnautomation/bjjeire/issues/65)) ([3d05199](https://github.com/ianoflynnautomation/bjjeire/commit/3d05199f5ba06666264ef77b9b9990c6a7264291))
+
 ## [0.1.4](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.3...api-v0.1.4) (2026-04-08)
 
 
