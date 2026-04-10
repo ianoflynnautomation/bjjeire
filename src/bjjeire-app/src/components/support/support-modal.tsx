@@ -1,19 +1,10 @@
 import { useRef, memo } from 'react'
-import { cn } from '@/lib/cn'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
-import { env } from '@/config/env'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
-import { useClipboard } from '@/hooks/useClipboard'
-
-const copyButtonBaseClasses =
-  'w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto'
-const copyButtonCopiedClasses = 'bg-emerald-600 focus-visible:ring-emerald-500'
-const copyButtonDefaultClasses =
-  'border border-orange-500 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 focus-visible:ring-orange-500'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -24,8 +15,6 @@ const SupportModal = memo(function SupportModal({
   isOpen,
   onClose,
 }: SupportModalProps) {
-  const { copy, copied } = useClipboard()
-  const bitcoinAddress = env.BITCOIN_ADDRESS
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useFocusTrap(isOpen, onClose, closeButtonRef)
 
@@ -81,38 +70,13 @@ const SupportModal = memo(function SupportModal({
           <p className="text-slate-700" id={descriptionId}>
             {uiContent.supportModal.description}
           </p>
-          <div className="rounded-2xl bg-white/90 p-4 shadow-inner ring-1 ring-emerald-100/70">
-            <p className="mb-2 text-sm text-slate-600">
-              {uiContent.supportModal.addressLabel}
-            </p>
-            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
-              <code
-                className="flex-1 break-all rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 font-mono text-sm text-slate-800"
-                data-testid={SupportModalTestIds.BTC_ADDRESS}
-              >
-                {bitcoinAddress}
-              </code>
-              <button
-                onClick={() => copy(bitcoinAddress)}
-                className={cn(
-                  copyButtonBaseClasses,
-                  copied ? copyButtonCopiedClasses : copyButtonDefaultClasses
-                )}
-                data-testid={SupportModalTestIds.COPY_BUTTON}
-              >
-                {copied
-                  ? uiContent.supportModal.copiedButtonText
-                  : uiContent.supportModal.copyButtonText}
-              </button>
-            </div>
-            {copied && (
-              <p
-                className="mt-2 text-center text-xs text-emerald-700 sm:text-right"
-                data-testid={SupportModalTestIds.COPIED_CONFIRMATION}
-              >
-                {uiContent.supportModal.copiedConfirmation}
-              </p>
-            )}
+          <div className="flex justify-center">
+            <img
+              src="/api/donate/bitcoin/qr"
+              alt={uiContent.supportModal.qrCodeAlt}
+              className="h-48 w-48 rounded-xl bg-white p-2"
+              data-testid={SupportModalTestIds.QR_CODE}
+            />
           </div>
           <div
             className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4"

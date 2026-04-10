@@ -70,9 +70,7 @@ export const SupportModalTestIds = {
   CONTENT: 'support-modal-content',
   TITLE: 'support-modal-title',
   CLOSE_BUTTON: 'support-modal-close-button',
-  BTC_ADDRESS: 'support-modal-btc-address',
-  COPY_BUTTON: 'support-modal-copy-button',
-  COPIED_CONFIRMATION: 'support-modal-copied-confirmation',
+  QR_CODE: 'support-modal-qr-code',
   WARNING: 'support-modal-warning',
 }
 
