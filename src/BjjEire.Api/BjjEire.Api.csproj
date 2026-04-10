@@ -49,6 +49,7 @@
     <PackageReference Include="prometheus-net.AspNetCore.HealthChecks" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
+    <PackageReference Include="Net.Codecrete.QrCodeGenerator" />
   </ItemGroup>
 
 </Project>

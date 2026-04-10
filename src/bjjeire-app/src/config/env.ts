@@ -17,7 +17,6 @@ const EnvSchema = z.object({
     .string()
     .default('https://login.microsoftonline.com/common'),
   MSAL_API_SCOPE: z.string().default(''),
-  BITCOIN_ADDRESS: z.string().optional().default('not_provided'),
   CONTACT_EMAIL: z.string().email().optional().default('info@bjj-eire.com'),
   SOCIAL_INSTAGRAM_URL: z
     .union([z.string().url(), z.literal('')])
