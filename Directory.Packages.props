@@ -93,6 +93,9 @@
     <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="$(AspireVersion)" />
   </ItemGroup>
+  <ItemGroup Label="QrCode">
+    <PackageVersion Include="Net.Codecrete.QrCodeGenerator" Version="2.0.0" />
+  </ItemGroup>
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="5.0.0" />
   </ItemGroup>
