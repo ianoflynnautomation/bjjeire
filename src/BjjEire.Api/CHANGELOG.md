@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.3...api-v0.1.4) (2026-04-08)
+
+
+### ### Features
+
+* add store feature ([#63](https://github.com/ianoflynnautomation/bjjeire/issues/63)) ([a4cb36d](https://github.com/ianoflynnautomation/bjjeire/commit/a4cb36dfbbf45ac848e8dec35e006ab808c9ffb2))
+
 ## [0.1.3](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.2...api-v0.1.3) (2026-04-05)
 
 
