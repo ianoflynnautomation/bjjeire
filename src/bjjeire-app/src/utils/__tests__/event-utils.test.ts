@@ -10,7 +10,6 @@ describe('getEventTypeLabel', () => {
   it.each([
     [BjjEventType.OpenMat, 'Open Mat'],
     [BjjEventType.Seminar, 'Seminar'],
-    [BjjEventType.Tournament, 'Tournament'],
     [BjjEventType.Camp, 'Camp'],
     [BjjEventType.Other, 'Other'],
   ] as const)('returns "%s" for type %s', (type, expected) => {
@@ -38,12 +37,6 @@ describe('getEventTypeBannerGradient', () => {
     expect(getEventTypeBannerGradient(BjjEventType.Camp)).toContain('violet')
   })
 
-  it('returns rose gradient for Tournament', () => {
-    expect(getEventTypeBannerGradient(BjjEventType.Tournament)).toContain(
-      'rose'
-    )
-  })
-
   it('returns amber gradient for Seminar', () => {
     expect(getEventTypeBannerGradient(BjjEventType.Seminar)).toContain('amber')
   })
@@ -64,10 +57,6 @@ describe('getEventTypeColorClasses', () => {
 
   it('returns violet classes for Camp', () => {
     expect(getEventTypeColorClasses(BjjEventType.Camp)).toContain('violet')
-  })
-
-  it('returns rose classes for Tournament', () => {
-    expect(getEventTypeColorClasses(BjjEventType.Tournament)).toContain('rose')
   })
 
   it('returns amber classes for Seminar', () => {

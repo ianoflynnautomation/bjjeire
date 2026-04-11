@@ -1,7 +1,7 @@
 using BjjEire.Application.Common;
-using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Models;
+using BjjEire.Application.Features.Gyms.Caching;
 using BjjEire.Application.Features.Gyms.Constants;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Domain.Entities.Gyms;
@@ -25,7 +25,7 @@ public sealed class GetGymPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.GymsAll(request.Page, request.PageSize, request.County);
+        var cacheKey = GymCacheKeys.All(request.Page, request.PageSize, request.County);
 
         GetGymPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetGymPaginationQuery),
@@ -57,7 +57,7 @@ public sealed class GetGymPaginationQueryHandler(
 
                 return new GetGymPaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
             },
-            tags: [CacheKey.GymsTag],
+            tags: [GymCacheKeys.Tag],
             cancellationToken: cancellationToken);
 
         GetGymPaginationQueryHandlerLog.QuerySuccess(

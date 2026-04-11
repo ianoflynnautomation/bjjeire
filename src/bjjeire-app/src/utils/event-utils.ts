@@ -25,8 +25,6 @@ export function getEventTypeBannerGradient(
       return 'from-emerald-900/70 via-emerald-800/30 to-slate-900/20'
     case BjjEventType.Camp:
       return 'from-violet-900/70 via-violet-800/30 to-slate-900/20'
-    case BjjEventType.Tournament:
-      return 'from-rose-900/70 via-rose-800/30 to-slate-900/20'
     case BjjEventType.Seminar:
       return 'from-amber-900/70 via-amber-800/30 to-slate-900/20'
     case BjjEventType.Other:
@@ -44,8 +42,6 @@ export function getEventTypeColorClasses(
       return 'bg-emerald-900/50 text-emerald-300 ring-1 ring-emerald-700/50'
     case BjjEventType.Camp:
       return 'bg-violet-900/50 text-violet-300 ring-1 ring-violet-700/50'
-    case BjjEventType.Tournament:
-      return 'bg-rose-900/50 text-rose-300 ring-1 ring-rose-700/50'
     case BjjEventType.Seminar:
       return 'bg-amber-900/50 text-amber-300 ring-1 ring-amber-700/50'
     case BjjEventType.Other:

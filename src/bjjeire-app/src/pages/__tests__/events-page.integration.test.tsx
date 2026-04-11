@@ -146,9 +146,9 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       name: 'Dublin Open Mat',
       type: BjjEventType.OpenMat,
     })
-    const tournament = createEvent({
-      name: 'Cork Tournament',
-      type: BjjEventType.Tournament,
+    const camp = createEvent({
+      name: 'Cork Summer Camp',
+      type: BjjEventType.Camp,
     })
     let lastRequest: URL | null = null
 
@@ -157,9 +157,9 @@ describe('EventsPage Integration (API + Query + UI)', () => {
         lastRequest = new URL(request.url)
         const type = lastRequest.searchParams.get('type')
         return HttpResponse.json(
-          type === String(BjjEventType.Tournament)
-            ? createPaginatedEvents([tournament], 1, 1)
-            : createPaginatedEvents([openMat, tournament], 1, 1)
+          type === String(BjjEventType.Camp)
+            ? createPaginatedEvents([camp], 1, 1)
+            : createPaginatedEvents([openMat, camp], 1, 1)
         )
       })
     )
@@ -167,16 +167,16 @@ describe('EventsPage Integration (API + Query + UI)', () => {
     const { user } = render()
 
     expect(await screen.findByText('Dublin Open Mat')).toBeInTheDocument()
-    expect(screen.getByText('Cork Tournament')).toBeInTheDocument()
+    expect(screen.getByText('Cork Summer Camp')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /tournament/i }))
+    await user.click(screen.getByRole('button', { name: /camp/i }))
 
-    expect(await screen.findByText('Cork Tournament')).toBeInTheDocument()
+    expect(await screen.findByText('Cork Summer Camp')).toBeInTheDocument()
     expect(screen.queryByText('Dublin Open Mat')).not.toBeInTheDocument()
 
     await waitFor(() => {
       expect(lastRequest?.searchParams.get('type')).toBe(
-        String(BjjEventType.Tournament)
+        String(BjjEventType.Camp)
       )
       expect(lastRequest?.searchParams.get('page')).toBe('1')
     })

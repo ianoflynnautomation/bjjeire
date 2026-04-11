@@ -103,10 +103,10 @@ describe('getBjjEvents', () => {
       })
     )
 
-    await getBjjEvents({ ...defaults, type: BjjEventType.Tournament })
+    await getBjjEvents({ ...defaults, type: BjjEventType.Camp })
 
     expect(capturedUrl.searchParams.get('type')).toBe(
-      String(BjjEventType.Tournament)
+      String(BjjEventType.Camp)
     )
   })
 

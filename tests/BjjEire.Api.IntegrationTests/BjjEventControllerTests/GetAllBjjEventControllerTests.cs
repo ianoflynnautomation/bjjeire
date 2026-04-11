@@ -94,8 +94,8 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         // Arrange
         var seminar1 = BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Seminar);
         var seminar2 = BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Seminar);
-        var tournament = BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Tournament);
-        await Database.SeedEntitiesAsync(seminar1, seminar2, tournament);
+        var camp = BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Camp);
+        await Database.SeedEntitiesAsync(seminar1, seminar2, camp);
         var query = new GetBjjEventPaginationQuery { Type = BjjEventType.Seminar, Page = 1, PageSize = 20 };
 
         // Act
@@ -114,9 +114,9 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         var corkSeminar = BjjEventTestDataFactory.CreateBjjEvent(e => { e.County = County.Cork; e.Type = BjjEventType.Seminar; });
-        var corkTournament = BjjEventTestDataFactory.CreateBjjEvent(e => { e.County = County.Cork; e.Type = BjjEventType.Tournament; });
+        var corkCamp = BjjEventTestDataFactory.CreateBjjEvent(e => { e.County = County.Cork; e.Type = BjjEventType.Camp; });
         var dublinSeminar = BjjEventTestDataFactory.CreateBjjEvent(e => { e.County = County.Dublin; e.Type = BjjEventType.Seminar; });
-        await Database.SeedEntitiesAsync(corkSeminar, corkTournament, dublinSeminar);
+        await Database.SeedEntitiesAsync(corkSeminar, corkCamp, dublinSeminar);
 
         // Act
         var response = await HttpClient.GetAsync("api/bjjevent?county=Cork&type=Seminar");

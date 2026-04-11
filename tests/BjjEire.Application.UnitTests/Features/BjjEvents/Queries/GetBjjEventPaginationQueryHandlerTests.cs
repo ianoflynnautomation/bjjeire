@@ -37,11 +37,12 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     private readonly Mock<IMapper> _mapperMock = new();
     private readonly Mock<HybridCache> _cacheMock = new();
     private readonly Mock<IUriService> _uriServiceMock = new();
+    private readonly TimeProvider _timeProvider = TimeProvider.System;
     private readonly Mock<ILogger<GetBjjEventByPaginationQueryHandler>> _loggerMock = new();
 
     private GetBjjEventByPaginationQueryHandler BuildHandler() =>
         new(_repoMock.Object, _mapperMock.Object, _cacheMock.Object,
-            _uriServiceMock.Object, _loggerMock.Object);
+            _uriServiceMock.Object, _timeProvider, _loggerMock.Object);
 
     // Builds the pre-packaged response the mock cache will return.
     private static GetBjjEventPaginatedResponse BuildCachedResponse(int count = 1)
@@ -211,11 +212,11 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
 
         var handler = BuildHandler();
-        var query = new GetBjjEventPaginationQuery { Type = BjjEventType.Tournament };
+        var query = new GetBjjEventPaginationQuery { Type = BjjEventType.Camp };
 
         await handler.Handle(query, CancellationToken.None);
 
         capturedKey.ShouldNotBeNullOrEmpty();
-        capturedKey.ShouldContain("Tournament", Case.Insensitive);
+        capturedKey.ShouldContain("Camp", Case.Insensitive);
     }
 }
