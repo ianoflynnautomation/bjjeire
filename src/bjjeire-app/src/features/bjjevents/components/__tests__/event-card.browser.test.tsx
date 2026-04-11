@@ -49,7 +49,6 @@ describe('EventCard (browser)', () => {
       await page.elementLocator(document.body).click()
       await userEvent.tab()
       expect(card.matches(':focus-within')).toBe(true)
-
       ;(document.activeElement as HTMLElement | null)?.blur()
       expect(card.matches(':focus-within')).toBe(false)
     })
