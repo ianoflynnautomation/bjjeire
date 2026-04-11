@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.6...api-v0.1.7) (2026-04-11)
+
+
+### ### Bug Fixes
+
+* release ci pipeline ([#69](https://github.com/ianoflynnautomation/bjjeire/issues/69)) ([866ee7a](https://github.com/ianoflynnautomation/bjjeire/commit/866ee7abd58b6dc32df1bc75cc0d66072b45642f))
+
 ## [0.1.6](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.5...api-v0.1.6) (2026-04-11)
 
 
