@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.14](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.13...frontend-v0.1.14) (2026-04-11)
+
+
+### ### Features
+
+* add background services ([#67](https://github.com/ianoflynnautomation/bjjeire/issues/67)) ([530bd7a](https://github.com/ianoflynnautomation/bjjeire/commit/530bd7a11238be6c3a19d57f830098bbec8349e6))
+
 ## [0.1.13](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.12...frontend-v0.1.13) (2026-04-10)
 
 
