@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.5...api-v0.1.6) (2026-04-11)
+
+
+### ### Features
+
+* add background services ([#67](https://github.com/ianoflynnautomation/bjjeire/issues/67)) ([530bd7a](https://github.com/ianoflynnautomation/bjjeire/commit/530bd7a11238be6c3a19d57f830098bbec8349e6))
+
 ## [0.1.5](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.4...api-v0.1.5) (2026-04-10)
 
 
