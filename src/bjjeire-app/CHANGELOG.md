@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.15](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.14...frontend-v0.1.15) (2026-04-11)
+
+
+### ### Bug Fixes
+
+* release ci pipeline ([#69](https://github.com/ianoflynnautomation/bjjeire/issues/69)) ([866ee7a](https://github.com/ianoflynnautomation/bjjeire/commit/866ee7abd58b6dc32df1bc75cc0d66072b45642f))
+
 ## [0.1.14](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.13...frontend-v0.1.14) (2026-04-11)
 
 
