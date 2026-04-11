@@ -8,4 +8,5 @@ public record GetBjjEventPaginationQuery : BasePaginationQuery, IRequest<GetBjjE
 {
     public County? County { get; set; }
     public BjjEventType? Type { get; set; }
+    public bool IncludeInactive { get; init; }
 }

@@ -1,9 +1,10 @@
 using BjjEire.Application.Common;
-using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Models;
+using BjjEire.Application.Features.Competitions.Caching;
 using BjjEire.Application.Features.Competitions.Constants;
 using BjjEire.Application.Features.Competitions.DTOs;
+using BjjEire.Application.Features.Competitions.Specifications;
 using BjjEire.Domain.Entities.Competitions;
 
 using Microsoft.Extensions.Caching.Hybrid;
@@ -16,6 +17,7 @@ public sealed class GetCompetitionPaginationQueryHandler(
     IMapper mapper,
     HybridCache hybridCache,
     IUriService uriService,
+    TimeProvider timeProvider,
     ILogger<GetCompetitionPaginationQueryHandler> logger)
     : IRequestHandler<GetCompetitionPaginationQuery, GetCompetitionPaginatedResponse>
 {
@@ -23,7 +25,7 @@ public sealed class GetCompetitionPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.CompetitionsAll(request.Page, request.PageSize);
+        var cacheKey = CompetitionCacheKeys.All(request.Page, request.PageSize, request.IncludeInactive);
 
         GetCompetitionPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetCompetitionPaginationQuery),
@@ -35,7 +37,13 @@ public sealed class GetCompetitionPaginationQueryHandler(
             {
                 GetCompetitionPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
-                var query = competitionRepository.Table.Where(x => x.IsActive);
+                var query = competitionRepository.Table.AsQueryable();
+
+                if (!request.IncludeInactive)
+                {
+                    var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+                    query = query.Where(CompetitionSpecifications.Active(nowUtc));
+                }
 
                 query = query.OrderBy(x => x.StartDate == null).ThenBy(x => x.StartDate).ThenBy(x => x.Name);
 
@@ -49,7 +57,7 @@ public sealed class GetCompetitionPaginationQueryHandler(
 
                 return new GetCompetitionPaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
             },
-            tags: [CacheKey.CompetitionsTag],
+            tags: [CompetitionCacheKeys.Tag],
             cancellationToken: cancellationToken);
 
         GetCompetitionPaginationQueryHandlerLog.QuerySuccess(

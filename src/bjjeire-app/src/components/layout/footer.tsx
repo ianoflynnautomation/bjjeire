@@ -1,19 +1,11 @@
 import { memo } from 'react'
 import { Link } from 'react-router-dom'
-import { paths } from '@/config/paths'
 import { env } from '@/config/env'
 import { FooterTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { useGitHubRepo } from '@/hooks/useGitHubRepo'
-
-const footerPathKeys = [
-  'events',
-  'gyms',
-  'competitions',
-  'stores',
-  'about',
-] as const
+import { useNavItems } from './navigation/use-nav-items'
 
 interface FooterProps {
   'data-testid'?: string
@@ -24,6 +16,7 @@ const Footer = memo(function Footer({
 }: FooterProps) {
   const rootTestId = dataTestIdFromProp ?? FooterTestIds.ROOT
   const { stars } = useGitHubRepo(env.GITHUB_URL || undefined)
+  const navItems = useNavItems()
 
   return (
     <footer
@@ -41,20 +34,17 @@ const Footer = memo(function Footer({
               {uiContent.footer.quickLinksTitle}
             </h3>
             <ul className="space-y-2">
-              {footerPathKeys.map(pathKey => {
-                const pathConfig = paths[pathKey]
-                return (
-                  <li key={pathKey}>
-                    <Link
-                      to={pathConfig.getHref()}
-                      className="font-medium text-emerald-600 underline-offset-2 transition-colors hover:text-emerald-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-emerald-400 dark:hover:text-emerald-300"
-                      data-testid={FooterTestIds.QUICK_LINK}
-                    >
-                      {pathConfig.label}
-                    </Link>
-                  </li>
-                )
-              })}
+              {navItems.map(item => (
+                <li key={item.id}>
+                  <Link
+                    to={item.to}
+                    className="font-medium text-emerald-600 underline-offset-2 transition-colors hover:text-emerald-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-emerald-400 dark:hover:text-emerald-300"
+                    data-testid={FooterTestIds.QUICK_LINK}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

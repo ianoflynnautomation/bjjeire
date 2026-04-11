@@ -36,13 +36,13 @@ describe('EventHeader Component', () => {
       render(
         <EventHeader
           {...defaultProps}
-          type={BjjEventType.Tournament}
-          name="Leinster Championship"
+          type={BjjEventType.Camp}
+          name="Leinster Summer Camp"
         />
       )
 
       expect(
-        screen.getByText(getEventTypeLabel(BjjEventType.Tournament))
+        screen.getByText(getEventTypeLabel(BjjEventType.Camp))
       ).toBeInTheDocument()
     })
   })

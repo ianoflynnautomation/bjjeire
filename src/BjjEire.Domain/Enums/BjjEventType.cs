@@ -6,8 +6,6 @@ public enum BjjEventType
 
     Seminar = 1,
 
-    Tournament = 2,
-
     Camp = 3,
 
     Other = 4

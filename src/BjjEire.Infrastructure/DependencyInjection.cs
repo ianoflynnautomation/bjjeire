@@ -1,7 +1,11 @@
 
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.BjjEvents.Services;
+using BjjEire.Application.Features.Competitions.Services;
 using BjjEire.Infrastructure;
 using BjjEire.Infrastructure.Data.Mongo;
+using BjjEire.Infrastructure.Features.BjjEvents;
+using BjjEire.Infrastructure.Features.Competitions;
 
 using Microsoft.Extensions.Caching.Hybrid;
 
@@ -22,6 +26,7 @@ public static class DependencyInjection
 
         _ = builder.Services.AddSingleton<IAuditInfoProvider, AuditInfoProvider>();
         _ = builder.Services.AddHttpContextAccessor();
+        _ = builder.Services.AddSingleton(TimeProvider.System);
 
         ConfigureMongoDb(builder.Services, builder.Configuration);
         _ = builder.Services.AddScoped<IDatabaseContext, MongoDBContext>();
@@ -33,6 +38,20 @@ public static class DependencyInjection
                 Expiration = TimeSpan.FromMinutes(5),
                 LocalCacheExpiration = TimeSpan.FromMinutes(5)
             });
+
+        _ = builder.Services
+            .AddOptions<CompetitionDeactivationOptions>()
+            .Bind(builder.Configuration.GetSection(CompetitionDeactivationOptions.SectionName))
+            .ValidateOnStart();
+        _ = builder.Services.AddScoped<ICompetitionDeactivator, CompetitionDeactivator>();
+        _ = builder.Services.AddHostedService<CompetitionDeactivationService>();
+
+        _ = builder.Services
+            .AddOptions<BjjEventDeactivationOptions>()
+            .Bind(builder.Configuration.GetSection(BjjEventDeactivationOptions.SectionName))
+            .ValidateOnStart();
+        _ = builder.Services.AddScoped<IBjjEventDeactivator, BjjEventDeactivator>();
+        _ = builder.Services.AddHostedService<BjjEventDeactivationService>();
 
         return builder;
     }
