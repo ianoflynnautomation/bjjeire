@@ -77,10 +77,12 @@ const Navigation = memo(function Navigation() {
                 onClick={openSupportModal}
                 variant="gradient"
                 size="lg"
-                className="ml-2 gap-3"
+                className="ml-2 gap-2.5"
                 data-testid={NavigationTestIds.SUPPORT_BUTTON}
               >
-                <BitcoinIcon className="h-5 w-5" aria-hidden="true" />
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white p-0.5 shadow-sm ring-1 ring-black/5">
+                  <BitcoinIcon className="h-full w-full" aria-hidden="true" />
+                </span>
                 {uiContent.navigation.supportButtonLabel}
               </Button>
               <div className="ml-2 flex items-center sm:hidden">

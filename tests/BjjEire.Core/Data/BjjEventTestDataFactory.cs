@@ -20,7 +20,7 @@ public static class BjjEventTestDataFactory
 
     private static Faker<BjjEventDto> BjjEventDtoGenerator { get; } = new Faker<BjjEventDto>()
         .RuleFor(x => x.Id, _ => ObjectId.GenerateNewId().ToString())
-        .RuleFor(x => x.Name, f => $"{f.Address.City()} BJJ {f.PickRandom("Seminar", "Open Mat", "Tournament")}")
+        .RuleFor(x => x.Name, f => $"{f.Address.City()} BJJ {f.PickRandom("Seminar", "Open Mat", "Camp")}")
         .RuleFor(x => x.Description, f => f.Lorem.Sentence(10, 5))
         .RuleFor(x => x.Type, f => f.PickRandom<BjjEventType>())
         .RuleFor(x => x.Organiser, f => new OrganizerDto
@@ -76,7 +76,7 @@ public static class BjjEventTestDataFactory
 
     private static Faker<BjjEvent> BjjEventEntityGenerator { get; } = new Faker<BjjEvent>()
         .RuleFor(x => x.Id, _ => ObjectId.GenerateNewId().ToString())
-        .RuleFor(x => x.Name, f => $"{f.Address.City()} BJJ {f.PickRandom("Seminar", "Open Mat", "Tournament")}")
+        .RuleFor(x => x.Name, f => $"{f.Address.City()} BJJ {f.PickRandom("Seminar", "Open Mat", "Camp")}")
         .RuleFor(x => x.Description, f => f.Lorem.Sentence(10, 5))
         .RuleFor(x => x.Type, f => f.PickRandom<BjjEventType>())
         .RuleFor(x => x.Organiser, f => new Organizer

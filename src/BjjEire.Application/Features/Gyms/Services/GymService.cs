@@ -1,5 +1,5 @@
-using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Features.Gyms.Caching;
 using BjjEire.Domain.Entities.Gyms;
 
 using Microsoft.Extensions.Caching.Hybrid;
@@ -17,9 +17,9 @@ public class GymService(
         ArgumentNullException.ThrowIfNull(id);
         GymLog.GettingById(logger, id);
         return await hybridCache.GetOrCreateAsync(
-            CacheKey.GymById(id),
+            GymCacheKeys.ById(id),
             async ct => await gymRepository.GetByIdAsync(id),
-            tags: [CacheKey.GymsTag]);
+            tags: [GymCacheKeys.Tag]);
     }
 
     public virtual async Task InsertAsync(Gym gym)
@@ -27,7 +27,7 @@ public class GymService(
         ArgumentNullException.ThrowIfNull(gym);
         var inserted = await gymRepository.InsertAsync(gym);
         GymLog.Inserted(logger, inserted.Id);
-        await hybridCache.RemoveByTagAsync(CacheKey.GymsTag);
+        await hybridCache.RemoveByTagAsync(GymCacheKeys.Tag);
     }
 
     public virtual async Task UpdateAsync(Gym gym)
@@ -35,7 +35,7 @@ public class GymService(
         ArgumentNullException.ThrowIfNull(gym);
         var updated = await gymRepository.UpdateAsync(gym);
         GymLog.Updated(logger, updated.Id);
-        await hybridCache.RemoveByTagAsync(CacheKey.GymsTag);
+        await hybridCache.RemoveByTagAsync(GymCacheKeys.Tag);
     }
 
     public virtual async Task DeleteAsync(Gym gym)
@@ -43,6 +43,6 @@ public class GymService(
         ArgumentNullException.ThrowIfNull(gym);
         _ = await gymRepository.DeleteAsync(gym);
         GymLog.Deleted(logger, gym.Id);
-        await hybridCache.RemoveByTagAsync(CacheKey.GymsTag);
+        await hybridCache.RemoveByTagAsync(GymCacheKeys.Tag);
     }
 }

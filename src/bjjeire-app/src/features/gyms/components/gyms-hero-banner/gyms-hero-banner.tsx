@@ -13,12 +13,12 @@ export const GymsHeroBanner = memo(function GymsHeroBanner(): JSX.Element {
       data-testid={GymsHeroBannerTestIds.BANNER}
     >
       {/* Banner image */}
-      <img
+      {/* <img
         src="/irishflag.jpg"
         alt={hero.imageAlt}
         className="h-44 w-full object-cover sm:h-64 md:h-80 lg:h-96"
         data-testid={GymsHeroBannerTestIds.IMAGE}
-      />
+      /> */}
 
       {/* Dark gradient overlay so text is legible */}
       <div
