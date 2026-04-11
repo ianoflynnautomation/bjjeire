@@ -105,9 +105,7 @@ describe('getBjjEvents', () => {
 
     await getBjjEvents({ ...defaults, type: BjjEventType.Camp })
 
-    expect(capturedUrl.searchParams.get('type')).toBe(
-      String(BjjEventType.Camp)
-    )
+    expect(capturedUrl.searchParams.get('type')).toBe(String(BjjEventType.Camp))
   })
 
   it('omits type param when type is "all"', async () => {
