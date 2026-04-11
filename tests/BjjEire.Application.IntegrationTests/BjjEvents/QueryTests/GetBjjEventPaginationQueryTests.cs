@@ -34,7 +34,7 @@ public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestO
         await Database.SeedEntitiesAsync(
             BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Seminar),
             BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Seminar),
-            BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Tournament));
+            BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Camp));
 
         var response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, Type = BjjEventType.Seminar });
 

@@ -1,9 +1,10 @@
 using BjjEire.Application.Common;
-using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Models;
+using BjjEire.Application.Features.BjjEvents.Caching;
 using BjjEire.Application.Features.BjjEvents.Constants;
 using BjjEire.Application.Features.BjjEvents.DTOs;
+using BjjEire.Application.Features.BjjEvents.Specifications;
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
 
@@ -17,6 +18,7 @@ public sealed class GetBjjEventByPaginationQueryHandler(
     IMapper mapper,
     HybridCache hybridCache,
     IUriService uriService,
+    TimeProvider timeProvider,
     ILogger<GetBjjEventByPaginationQueryHandler> logger)
     : IRequestHandler<GetBjjEventPaginationQuery, GetBjjEventPaginatedResponse>
 {
@@ -25,7 +27,7 @@ public sealed class GetBjjEventByPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.BjjEventsAll(request.Page, request.PageSize, request.County, request.Type);
+        var cacheKey = BjjEventCacheKeys.All(request.Page, request.PageSize, request.County, request.Type, request.IncludeInactive);
 
         GetBjjEventPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetBjjEventPaginationQuery),
@@ -40,6 +42,12 @@ public sealed class GetBjjEventByPaginationQueryHandler(
                 GetBjjEventPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
                 var query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
+
+                if (!request.IncludeInactive)
+                {
+                    var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+                    query = query.Where(BjjEventSpecifications.Active(nowUtc));
+                }
 
                 if (request.County.HasValue)
                 {
@@ -63,7 +71,7 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
                 return new GetBjjEventPaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
             },
-            tags: [CacheKey.BjjEventsTag],
+            tags: [BjjEventCacheKeys.Tag],
             cancellationToken: cancellationToken);
 
         GetBjjEventPaginationQueryHandlerLog.QuerySuccess(

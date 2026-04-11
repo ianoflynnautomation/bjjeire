@@ -42,7 +42,7 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
 
     [Theory]
     [InlineData(BjjEventType.Seminar)]
-    [InlineData(BjjEventType.Tournament)]
+    [InlineData(BjjEventType.Camp)]
     [InlineData(BjjEventType.OpenMat)]
     public async Task Validate_ValidType_Passes(BjjEventType type)
     {

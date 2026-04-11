@@ -22,7 +22,7 @@ public interface IRepository<T> where T : BaseEntity
 
     public Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
 
-    public Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
+    public Task<long> UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
 
     public Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value);
 

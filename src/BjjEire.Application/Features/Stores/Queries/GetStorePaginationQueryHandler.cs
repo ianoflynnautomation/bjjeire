@@ -1,7 +1,7 @@
 using BjjEire.Application.Common;
-using BjjEire.Application.Common.Constants;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Models;
+using BjjEire.Application.Features.Stores.Caching;
 using BjjEire.Application.Features.Stores.Constants;
 using BjjEire.Application.Features.Stores.DTOs;
 using BjjEire.Domain.Entities.Stores;
@@ -23,7 +23,7 @@ public sealed class GetStorePaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CacheKey.StoresAll(request.Page, request.PageSize);
+        var cacheKey = StoreCacheKeys.All(request.Page, request.PageSize);
 
         GetStorePaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetStorePaginationQuery), request.Page, request.PageSize, cacheKey);
@@ -48,7 +48,7 @@ public sealed class GetStorePaginationQueryHandler(
 
                 return new GetStorePaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
             },
-            tags: [CacheKey.StoreTag],
+            tags: [StoreCacheKeys.Tag],
             cancellationToken: cancellationToken);
 
         GetStorePaginationQueryHandlerLog.QuerySuccess(

@@ -5,5 +5,5 @@ export const supportModal = {
     'Support the BJJ Eire project by donating Bitcoin. Your contribution helps us maintain and improve the platform.',
   qrCodeAlt: 'Bitcoin donation QR code',
   warning:
-    'Please double-check the address before sending any funds. We cannot recover funds sent to incorrect addresses.',
+    'Donations are voluntary and non-refundable. No goods, services, or promises are provided in exchange. By sending Bitcoin, you acknowledge that transactions are irreversible and you send funds entirely at your own risk.',
 } as const
