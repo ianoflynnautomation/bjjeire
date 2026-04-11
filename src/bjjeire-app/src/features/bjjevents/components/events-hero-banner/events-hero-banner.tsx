@@ -13,12 +13,12 @@ export const EventsHeroBanner = memo(function EventsHeroBanner(): JSX.Element {
       data-testid={EventsHeroBannerTestIds.BANNER}
     >
       {/* Banner image */}
-      <img
+      {/* <img
         src="/irish-flag.jpg"
         alt={hero.imageAlt}
         className="h-44 w-full object-cover sm:h-64 md:h-80 lg:h-96"
         data-testid={EventsHeroBannerTestIds.IMAGE}
-      />
+      /> */}
       <div
         className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/40 to-transparent"
         aria-hidden="true"
