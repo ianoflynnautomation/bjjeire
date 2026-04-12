@@ -1,9 +1,11 @@
+import { env } from '@/config/env'
+
 export function initCloudflareAnalytics(): void {
   if (!import.meta.env.PROD) {
     return
   }
 
-  const token = import.meta.env.VITE_APP_CF_BEACON_TOKEN as string | undefined
+  const token = env.CF_BEACON_TOKEN
   if (!token) {
     return
   }
