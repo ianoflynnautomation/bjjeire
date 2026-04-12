@@ -85,17 +85,6 @@ docker compose --profile app \
   down
 ```
 
-**Service endpoints:**
-
-| Service          | URL                       |
-|------------------|---------------------------|
-| Frontend         | https://localhost:60743   |
-| API              | https://localhost:5001    |
-| MongoDB          | localhost:27017           |
-| Grafana          | http://localhost:3000     |
-| Jaeger           | http://localhost:16686    |
-| Seq              | http://localhost:5341     |
-
 ---
 
 ## Configuration
