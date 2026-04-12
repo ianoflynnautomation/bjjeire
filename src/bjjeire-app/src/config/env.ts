@@ -30,6 +30,7 @@ const EnvSchema = z.object({
     .union([z.string().url(), z.literal('')])
     .optional()
     .default(''),
+  CF_BEACON_TOKEN: z.string().optional().default(''),
 })
 
 export type Env = z.infer<typeof EnvSchema>
