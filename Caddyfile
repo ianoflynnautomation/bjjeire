@@ -13,12 +13,17 @@
 	}
 	header @assets Cache-Control "public, max-age=31536000, immutable"
 
+	@notAssets {
+		not path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot *.wasm
+		not path /health
+		not path /api/*
+	}
+	header @notAssets Cache-Control "no-cache"
+
 	handle /health {
 		respond "OK" 200
 	}
 
-	# Proxy /api/* to the backend — used in docker-compose.
-	# In Kubernetes, HTTPRoute intercepts /api/* at the gateway so this block is never reached.
 	handle /api/* {
 		reverse_proxy {$SERVICES_API_HTTP_0:http://api:80}
 	}

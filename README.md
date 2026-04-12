@@ -19,7 +19,7 @@
 
 ## Overview
 
-BJJ Éire is an open-source web application that helps the Irish BJJ community discover gyms and stay up to date with upcoming events. It is built as a modern full-stack application — a React SPA served behind Nginx, backed by a .NET 10 REST API and MongoDB.
+BJJ Éire is an open-source web application that helps the Irish BJJ community discover gyms and stay up to date with upcoming events. It is built as a modern full-stack application — a React SPA served by Caddy, backed by a .NET 10 REST API and MongoDB, deployed to AKS via Flux GitOps with Cloudflare CDN.
 
 ---
 
@@ -28,12 +28,14 @@ BJJ Éire is an open-source web application that helps the Irish BJJ community d
 | Layer          | Technology                                                                 |
 |----------------|----------------------------------------------------------------------------|
 | Frontend       | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
+| Web Server     | Caddy (HTTP only — TLS terminated at Istio gateway / Cloudflare edge)      |
 | Backend        | .NET 10 Web API, MediatR, AutoMapper, MongoDB.Driver                       |
 | Auth           | Microsoft Entra ID (Azure AD), MSAL Browser                               |
-| Analytics      | Cloudflare Web Analytics (cookieless, GDPR-compliant)                      |
+| CDN & DNS      | Cloudflare (free tier) — proxied DNS, CDN caching, DDoS protection, Web Analytics |
 | Observability  | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki, Seq                      |
-| Infrastructure | Docker Compose, Kubernetes (Minikube + Helm), GitHub Container Registry    |
-| Dev Tooling    | .NET Aspire, Dev Container (VS Code / GitHub Codespaces)                   |
+| Infrastructure | AKS, Flux v2 GitOps, Istio service mesh, Helm, Docker, GHCR               |
+| Secrets        | Azure Key Vault + External Secrets Operator                                |
+| Dev Tooling    | .NET Aspire, Docker Compose, Dev Container (VS Code / GitHub Codespaces)   |
 
 ---
 
@@ -82,17 +84,6 @@ docker compose --profile app \
   -f docker-compose.override.ghcr.yml \
   down
 ```
-
-**Service endpoints:**
-
-| Service          | URL                       |
-|------------------|---------------------------|
-| Frontend         | https://localhost:60743   |
-| API              | https://localhost:5001    |
-| MongoDB          | localhost:27017           |
-| Grafana          | http://localhost:3000     |
-| Jaeger           | http://localhost:16686    |
-| Seq              | http://localhost:5341     |
 
 ---
 
@@ -192,7 +183,70 @@ Two GitHub Actions workflows run on every push and pull request to `main`:
 | Build & Push | [`build-push-ghcr.yml`](.github/workflows/build-push-ghcr.yml) | Build multi-platform Docker images and push to GHCR |
 | Release | [`release.yml`](.github/workflows/release.yml) | Automate versioned releases via release-please |
 
-Docker images are published to `ghcr.io/ianoflynnautomation/bjjeire-api` and `ghcr.io/ianoflynnautomation/bjjeire-frontend`. Images are tagged with the git SHA, semver version (on tags), and `latest` on `main`.
+Docker images are published to `ghcr.io/ianoflynnautomation/bjjeire-api`, `ghcr.io/ianoflynnautomation/bjjeire-frontend`, and `ghcr.io/ianoflynnautomation/bjjeire-seeder`. Images are tagged with the git SHA, semver version (on tags), and `latest` on `main`.
+
+After a frontend release, the workflow automatically purges the Cloudflare CDN cache for `index.html` so users see the new version immediately.
+
+---
+
+## Deployment Architecture
+
+```
+User → Cloudflare CDN (DNS + proxy) → Azure LB → Istio Gateway → HTTPRoute → Pod
+```
+
+The app is deployed to **Azure Kubernetes Service (AKS)** via **Flux v2 GitOps**:
+
+- **Flux ImageUpdateAutomation** watches GHCR for new semver tags and opens PRs to update image tags in the GitOps repo
+- **Istio** service mesh handles mTLS between pods, Gateway API for ingress, and HTTP→HTTPS redirect
+- **cert-manager** provisions wildcard Let's Encrypt TLS certs via Cloudflare DNS-01 challenge
+- **ExternalDNS** manages Cloudflare DNS records (proxied orange-cloud) from Gateway annotations
+- **External Secrets Operator** syncs secrets from Azure Key Vault into Kubernetes
+
+### Repos
+
+| Repo | Purpose |
+|---|---|
+| `bjjeire` (this repo) | App source — API, frontend, seeder, CI/CD |
+| `bjjeire-deploy` | Helm charts — umbrella + sub-charts (api, frontend, mongodb) |
+| `bjjeire-gitops` | Flux GitOps — HelmRelease, ExternalSecrets, NetworkPolicy, image automation |
+| `bjjeire-terraform-azurerm-aks` | Terraform — AKS cluster, storage, identity |
+
+---
+
+## GitHub Secrets
+
+### Required for CI/CD (`release.yml`)
+
+| Secret | Purpose |
+|---|---|
+| `VITE_APP_MSAL_CLIENT_ID` | Azure AD SPA client ID (baked into frontend bundle) |
+| `VITE_APP_MSAL_AUTHORITY` | Azure AD authority URL |
+| `VITE_APP_MSAL_API_SCOPE` | API scope for MSAL token requests |
+| `VITE_APP_URL` | Production app URL (e.g. `https://bjjeire.com`) |
+| `VITE_APP_CF_BEACON_TOKEN` | Cloudflare Web Analytics beacon token |
+| `VITE_APP_CONTACT_EMAIL` | Contact email shown in footer |
+| `VITE_APP_SOCIAL_INSTAGRAM_URL` | Instagram profile URL |
+| `VITE_APP_SOCIAL_FACEBOOK_URL` | Facebook page URL |
+| `VITE_APP_GITHUB_URL` | GitHub repo URL |
+| `CLOUDFLARE_ZONE_ID` | Cloudflare zone ID for CDN cache purge |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token with `Zone.Cache Purge` permission |
+
+### Azure Key Vault secrets (synced via ESO)
+
+| KV Secret Name | Maps to | Purpose |
+|---|---|---|
+| `bjj-mongodb-root-password` | `ConnectionStrings__Mongodb` | MongoDB root password |
+| `bjj-api-kestrel-cert-password` | Kestrel cert password | HTTPS cert for API pod |
+| `bjj-api-kestrel-pfx` | PFX cert file | Kestrel TLS certificate |
+| `bjj-azure-ad-tenant-id` | `AzureAd__TenantId` | Azure AD tenant |
+| `bjj-azure-ad-client-id` | `AzureAd__ClientId` | Azure AD API client |
+| `bjj-azure-ad-audience` | `AzureAd__Audience` | Azure AD API audience |
+| `bjj-donation-bitcoin-address` | `Donation__BitcoinAddress` | BTC donation address |
+| `ghcr-pat` | GHCR pull secret | Image pull authentication |
+| `cloudflare-api-token` | ExternalDNS + cert-manager | DNS management + TLS provisioning |
+
+---
 
 ---
 
