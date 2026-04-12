@@ -42,7 +42,7 @@ services:
       - AzureAd__Audience=${AZURE_AD_AUDIENCE}
       - Serilog__Properties__Application=${OTEL_SERVICE_NAME}
       - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME}
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME},deployment.environment=${ASPNETCORE_ENVIRONMENT:-Production}
     volumes:
       - ./logs:/app/logs
       - ./certs:/https:ro
@@ -70,12 +70,12 @@ services:
         condition: service_healthy
     healthcheck:
       <<: *healthcheck-curl
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
 
   mongodb:
     <<: *default-service
     profiles: ["app"]
-    image: mongo:latest
+    image: mongo:8.2
     container_name: mongodb
     ports:
       - "127.0.0.1:27017:27017"
