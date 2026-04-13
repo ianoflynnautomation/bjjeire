@@ -175,7 +175,11 @@ jobs:
             VITE_APP_MSAL_AUTHORITY=${{ secrets.VITE_APP_MSAL_AUTHORITY }}
             VITE_APP_MSAL_API_SCOPE=${{ secrets.VITE_APP_MSAL_API_SCOPE }}
             VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
-            VITE_APP_URL=${{ secrets.VITE_APP_URL }}
+            VITE_APP_APP_URL=${{ secrets.VITE_APP_URL }}
+            VITE_APP_CONTACT_EMAIL=${{ secrets.VITE_APP_CONTACT_EMAIL }}
+            VITE_APP_SOCIAL_INSTAGRAM_URL=${{ secrets.VITE_APP_SOCIAL_INSTAGRAM_URL }}
+            VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
+            VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=min
     
