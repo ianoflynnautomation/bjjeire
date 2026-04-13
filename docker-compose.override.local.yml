@@ -16,7 +16,7 @@ services:
         VITE_APP_MSAL_AUTHORITY: ${VITE_APP_MSAL_AUTHORITY}
         VITE_APP_MSAL_API_SCOPE: ${VITE_APP_MSAL_API_SCOPE}
         VITE_APP_CF_BEACON_TOKEN: ${VITE_APP_CF_BEACON_TOKEN}
-        VITE_APP_URL: ${VITE_APP_URL:-http://localhost:3000}
+        VITE_APP_APP_URL: ${VITE_APP_APP_URL:-http://localhost:3000}
     volumes:
       - ./tools/images/processed:/srv/images:ro
 
