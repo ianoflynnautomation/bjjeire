@@ -1,23 +1,9 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 using BjjEire.Domain.Entities;
 
 namespace BjjEire.Seeder;
 
 public class SeederService(IMongoDatabase db, bool dryRun)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters =
-        {
-            new JsonStringEnumConverter(),
-            new TimeSpanJsonConverter(),
-        },
-    };
-
     private enum UpsertOutcome { Inserted, Replaced, DryRunInsert, DryRunReplace, Failed }
 
 
@@ -43,22 +29,10 @@ public class SeederService(IMongoDatabase db, bool dryRun)
 
     private static async Task<List<T>?> LoadEntitiesAsync<T>(string jsonPath) where T : BaseEntity
     {
-        if (!File.Exists(jsonPath))
-        {
-            await Console.Error.WriteLineAsync($"  ERROR: File not found: {jsonPath}");
-            return null;
-        }
-
-        try
-        {
-            var json = await File.ReadAllTextAsync(jsonPath);
-            return JsonSerializer.Deserialize<List<T>>(json, JsonOptions);
-        }
-        catch (Exception ex)
-        {
-            await Console.Error.WriteLineAsync($"  ERROR: Failed to deserialize {jsonPath}: {ex.Message}");
-            return null;
-        }
+        var (entities, error) = await EntityLoader.LoadAsync<T>(jsonPath, EntityLoader.PermissiveOptions);
+        if (error is not null)
+            await Console.Error.WriteLineAsync($"  ERROR: {error}");
+        return entities;
     }
 
     private async Task<(int inserted, int replaced, int failed)> UpsertAllAsync<T>(

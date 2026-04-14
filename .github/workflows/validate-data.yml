@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "src/BjjEire.Seeder/data/**"
+      - "src/BjjEire.Seeder/**.cs"
       - "src/BjjEire.Domain/Entities/**"
       - ".github/workflows/validate-data.yml"
 
@@ -19,8 +20,8 @@ env:
   NODE_VERSION: "24.x"
 
 jobs:
-  schemas-in-sync:
-    name: Schemas in sync with Domain
+  validate-data:
+    name: Validate data against Domain entities
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -30,65 +31,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Regenerate schemas from Domain entities
-        run: dotnet run --project src/BjjEire.Seeder -- --generate-schemas data/schemas
-
-      - name: Fail if schemas drifted
-        run: |
-          if ! git diff --quiet -- src/BjjEire.Seeder/data/schemas; then
-            echo "::error::JSON schemas are out of date with Domain entities."
-            echo "Run: dotnet run --project src/BjjEire.Seeder -- --generate-schemas data/schemas"
-            git diff --stat -- src/BjjEire.Seeder/data/schemas
-            exit 1
-          fi
-
-  validate-json:
-    name: Validate data against schemas
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install ajv-cli
-        run: npm i -g ajv-cli ajv-formats
-
-      - name: Validate all data files against schemas
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-
-          declare -A MAP=(
-            [gym]="gyms"
-            [bjj-event]="bjj-events"
-            [competition]="competitions"
-            [store]="stores"
-          )
-
-          status=0
-          for schema in "${!MAP[@]}"; do
-            slug="${MAP[$schema]}"
-            schema_file="src/BjjEire.Seeder/data/schemas/${schema}.schema.json"
-            files=()
-            for f in src/BjjEire.Seeder/data/${slug}/*.json; do
-              bn=$(basename "$f")
-              [ "${bn:0:1}" = "_" ] && continue
-              files+=("$f")
-            done
-            [ "${#files[@]}" -eq 0 ] && { echo "No data files for $slug — skipping."; continue; }
-            for f in "${files[@]}"; do
-              echo "::group::$f"
-              if ! ajv validate -c ajv-formats -s "$schema_file" -d "$f" --strict=false; then
-                status=1
-              fi
-              echo "::endgroup::"
-            done
-          done
-          exit $status
+      - name: Validate all data files deserialize strictly into Domain entities
+        run: dotnet run --project src/BjjEire.Seeder -- --validate
 
   ireland-coordinates:
     name: Coordinates within Ireland bounding box
