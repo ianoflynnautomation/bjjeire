@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Competition[]",
   "type": "array",
   "description": "Array of Competition entities. One PR = one new item appended, or one file in the per-entity directory.",
@@ -8,7 +8,7 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "createdOnUtc": {
+      "createdAt": {
         "type": "string",
         "format": "date-time"
       },
@@ -18,7 +18,7 @@
           "string"
         ]
       },
-      "updatedOnUtc": {
+      "updatedAt": {
         "type": [
           "null",
           "string"

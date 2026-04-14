@@ -69,6 +69,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             {
                 { MongoConnectionStringKey, mongoConnectionString },
                 {"RateLimitOptions:EnableRateLimiting", "false" },
+                {"ReadOnlyMode:Enabled", "false" },
             });
         });
 

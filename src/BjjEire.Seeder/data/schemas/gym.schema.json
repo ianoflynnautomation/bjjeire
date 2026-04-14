@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Gym[]",
   "type": "array",
   "description": "Array of Gym entities. One PR = one new item appended, or one file in the per-entity directory.",
@@ -8,7 +8,7 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "createdOnUtc": {
+      "createdAt": {
         "type": "string",
         "format": "date-time"
       },
@@ -18,7 +18,7 @@
           "string"
         ]
       },
-      "updatedOnUtc": {
+      "updatedAt": {
         "type": [
           "null",
           "string"
@@ -95,7 +95,7 @@
     },
     "definitions": {
       "GymStatus": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumFlags": true,
         "x-enumNames": [
@@ -109,18 +109,18 @@
           "Rejected"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7
+          "None",
+          "Active",
+          "PendingApproval",
+          "TemporarilyClosed",
+          "PermanentlyClosed",
+          "OpeningSoon",
+          "Draft",
+          "Rejected"
         ]
       },
       "County": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "None",
@@ -158,39 +158,39 @@
           "Tyrone"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          29,
-          30,
-          31,
-          32
+          "None",
+          "Carlow",
+          "Cavan",
+          "Clare",
+          "Cork",
+          "Donegal",
+          "Dublin",
+          "Galway",
+          "Kerry",
+          "Kildare",
+          "Kilkenny",
+          "Laois",
+          "Leitrim",
+          "Limerick",
+          "Longford",
+          "Louth",
+          "Mayo",
+          "Meath",
+          "Monaghan",
+          "Offaly",
+          "Roscommon",
+          "Sligo",
+          "Tipperary",
+          "Waterford",
+          "Westmeath",
+          "Wexford",
+          "Wicklow",
+          "Antrim",
+          "Armagh",
+          "Derry",
+          "Down",
+          "Fermanagh",
+          "Tyrone"
         ]
       },
       "Affiliation": {
@@ -311,7 +311,7 @@
         }
       },
       "ClassCategory": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Uncategorized",
@@ -333,23 +333,23 @@
           "Other"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          99
+          "Uncategorized",
+          "BJJGiAllLevels",
+          "BJJNoGiAllLevels",
+          "WomensOnly",
+          "Wrestling",
+          "MuayThai",
+          "Boxing",
+          "StrengthTraining",
+          "YogaOrPilates",
+          "KidsBJJ",
+          "BJJGiFundamentals",
+          "BJJGiAdvanced",
+          "BJJNoGiFundamentals",
+          "BJJNoGiAdvanced",
+          "CompetitionTraining",
+          "ProTraining",
+          "Other"
         ]
       }
     }
