@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80fb204b31ed5f5879fc7",
+    "name": "Treaty Grappling",
+    "description": "Treaty Grappling at the Ashdown Centre on South Circular Road, Limerick, specialising in BJJ and grappling for all levels.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Rear Building C, Ashdown Centre, S Circular Rd, Limerick, Ireland",
+      "venue": "Treaty Grappling",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6477739,
+          52.6533924
+        ],
+        "placeName": "Ashdown Centre, S Circular Rd, Limerick",
+        "placeId": "ChIJQyk5AcNdW0gREVJrvpxWzqQ"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "CompetitionTraining"
+    ],
+    "website": "http://treatygrappling.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb204b31ed5f5879fc7/69c80fb204b31ed5f5879fc7-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

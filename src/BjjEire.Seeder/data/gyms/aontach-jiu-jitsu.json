@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9a1d93047d8049ca9",
+    "name": "Aontach Jiu-Jitsu",
+    "description": "Aontach Jiu-Jitsu at Ballyvolane Commercial Park in north Cork city, offering BJJ for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 24, Ballyvolane Commercial Park, Ballyvolane, Cork, T23 E685, Ireland",
+      "venue": "Aontach Jiu-Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4596709,
+          51.9155909
+        ],
+        "placeName": "Ballyvolane Commercial Park, Cork",
+        "placeId": "ChIJQZL1U1ubREgRZGTW0qAD4yw"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://aontach.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9a1d93047d8049ca9/69c801b9a1d93047d8049ca9-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

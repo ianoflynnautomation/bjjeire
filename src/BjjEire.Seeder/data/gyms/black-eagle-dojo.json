@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c81b7dae4b6147bc0ae3fb",
+    "name": "Black Eagle Dojo",
+    "description": "Black Eagle Dojo at Waterford Business Park on Cork Road, offering martial arts and BJJ training.",
+    "status": "Active",
+    "county": "Waterford",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 41, Waterford Business Park, Cork Rd, Waterford, Ireland",
+      "venue": "Black Eagle Dojo",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.1575866,
+          52.2460003
+        ],
+        "placeName": "Waterford Business Park, Cork Rd, Waterford",
+        "placeId": "ChIJO8h4MmTEQkgR9iGAYAdjtUE"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81b7dae4b6147bc0ae3fb/69c81b7dae4b6147bc0ae3fb-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

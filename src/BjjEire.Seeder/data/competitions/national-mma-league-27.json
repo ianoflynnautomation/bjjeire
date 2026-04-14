@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439116",
+    "slug": "national-mma-league-27-2026",
+    "name": "National MMA League 27",
+    "description": "National MMA League event (submission / MMA rules).",
+    "organisation": "Sub Only",
+    "country": "Ireland",
+    "websiteUrl": "https://subonly.smoothcomp.com/en/event/28804",
+    "registrationUrl": "https://subonly.smoothcomp.com/en/event/28804",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439116/507f1f77bcf86cd799439116-lg.webp",
+    "tags": [
+      "sub-only",
+      "mma",
+      "national-league"
+    ],
+    "startDate": "2026-04-25T00:00:00Z",
+    "endDate": "2026-04-26T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439116/507f1f77bcf86cd799439116-lg.webp"
+  }
+]

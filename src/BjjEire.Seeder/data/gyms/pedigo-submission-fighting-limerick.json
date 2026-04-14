@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c80fb2871b35ffa685b46a",
+    "name": "Pedigo Submission Fighting Limerick",
+    "description": "Pedigo Submission Fighting (The Limerick Slideby) on Michael Street, offering submission grappling and BJJ in Limerick city centre.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "3 Michael St, Prior's-Land, Limerick, V94 4X2X, Ireland",
+      "venue": "Pedigo Submission Fighting Limerick",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6226197,
+          52.6658246
+        ],
+        "placeName": "3 Michael St, Limerick City",
+        "placeId": "ChIJk9IkQMhdW0gRZB0dcb8gw3Q"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "CompetitionTraining"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb2871b35ffa685b46a/69c80fb2871b35ffa685b46a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

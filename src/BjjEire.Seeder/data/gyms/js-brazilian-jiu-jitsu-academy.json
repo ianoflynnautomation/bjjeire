@@ -1,0 +1,46 @@
+[
+  {
+    "id": "5abf370df922b81d473bcb4d",
+    "name": "JS Brazilian Jiu Jitsu Academy",
+    "description": "JS BJJ Academy on Parnell Street in Dublin city centre, offering Brazilian Jiu-Jitsu classes for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "192 Parnell St, Rotunda, Dublin 1, D01 XW18, Ireland",
+      "venue": "JS Brazilian Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2655398,
+          53.3508407
+        ],
+        "placeName": "192 Parnell St, Rotunda, Dublin 1",
+        "placeId": "ChIJyeT_foEOZ0gRfHaycrXvVus"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.jsbjj.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/5abf370df922b81d473bcb4d/5abf370df922b81d473bcb4d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

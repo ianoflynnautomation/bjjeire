@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439109",
+    "slug": "adcc-irish-cup-championship-2026",
+    "name": "ADCC Irish Cup Championship 2026",
+    "description": "ADCC-style No-Gi submission grappling championship for Ireland.",
+    "organisation": "ADCC",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/26793",
+    "registrationUrl": "https://smoothcomp.com/en/event/26793",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439109/507f1f77bcf86cd799439109-lg.webp",
+    "tags": [
+      "adcc",
+      "no-gi",
+      "submission-grappling"
+    ],
+    "startDate": "2026-05-16T00:00:00Z",
+    "endDate": "2026-05-16T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439109/507f1f77bcf86cd799439109-lg.webp"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439128",
+    "slug": "grappling-series-cork-open-summer-2026",
+    "name": "Grappling Series Cork Open Summer 2026",
+    "description": "Cork Open Summer grappling event as part of the Grappling Series.",
+    "organisation": "Grappling Series",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/30026",
+    "registrationUrl": "https://smoothcomp.com/en/event/30026",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439128/507f1f77bcf86cd799439128-lg.webp",
+    "tags": [
+      "grappling-series",
+      "cork-open",
+      "summer"
+    ],
+    "startDate": "2026-06-14T00:00:00Z",
+    "endDate": "2026-06-14T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439128/507f1f77bcf86cd799439128-lg.webp"
+  }
+]

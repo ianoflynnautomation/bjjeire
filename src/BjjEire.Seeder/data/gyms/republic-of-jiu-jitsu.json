@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd3b0d7dd9e01e476bd",
+    "name": "Republic of Jiu Jitsu",
+    "description": "Republic of Jiu Jitsu is located in Dublin 2 city centre, offering gi and no-gi classes for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Drury Court, 56-58 Drury St, Dublin 2, D02 YH22, Ireland",
+      "venue": "Republic of Jiu Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2634825,
+          53.3417736
+        ],
+        "placeName": "Drury Court, 56-58 Drury St, Dublin 2",
+        "placeId": "ChIJNUiKceIPZ0gRPZE9wJhwlqk"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://www.republicofjiujitsu.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

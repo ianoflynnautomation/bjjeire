@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439127",
+    "slug": "elite-fighting-championship-future-stars-2026",
+    "name": "Elite Fighting Championship: Future Stars",
+    "description": "Future Stars grappling / MMA event organized by Elite Fighting Championship.",
+    "organisation": "Elite Fighting Championship",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/30269",
+    "registrationUrl": "https://smoothcomp.com/en/event/30269",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439127/507f1f77bcf86cd799439127-lg.webp",
+    "tags": [
+      "elite-fighting-championship",
+      "future-stars",
+      "grappling"
+    ],
+    "startDate": "2026-05-10T00:00:00Z",
+    "endDate": "2026-05-10T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439127/507f1f77bcf86cd799439127-lg.webp"
+  }
+]
