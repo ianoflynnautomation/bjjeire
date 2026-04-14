@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80ce3c924cef2f1ffa7bc",
+    "name": "Maze BJJ",
+    "description": "Maze Brazilian Jiu Jitsu in Athlone, Co. Westmeath, offering BJJ classes for all levels in the midlands.",
+    "status": "Active",
+    "county": "Westmeath",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 4, The Grove, Old Galway Rd, Athlone, Co. Westmeath, N37 WT26, Ireland",
+      "venue": "Maze BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.9627516,
+          53.4238888
+        ],
+        "placeName": "The Grove, Old Galway Rd, Athlone, Co. Westmeath",
+        "placeId": "ChIJhc8qYhlJXEgRt5SROmAm240"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.mazebjj.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce3c924cef2f1ffa7bc/69c80ce3c924cef2f1ffa7bc-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

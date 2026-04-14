@@ -1,5 +1,13 @@
 using BjjEire.Seeder;
 
+if (args.Contains("--generate-schemas"))
+{
+    var outputDir = args.SkipWhile(a => a != "--generate-schemas").Skip(1).FirstOrDefault()
+        ?? "data/schemas";
+    Console.WriteLine($"Generating JSON schemas to {outputDir}");
+    return await SchemaGenerator.GenerateAsync(outputDir);
+}
+
 var isDryRun = args.Contains("--dry-run");
 var isForce = args.Contains("--force");
 var collectionFilter = args.SkipWhile(a => a != "--collection").Skip(1).FirstOrDefault();

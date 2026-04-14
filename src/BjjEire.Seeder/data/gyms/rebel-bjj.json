@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9bd1b1b92c688c915",
+    "name": "Rebel BJJ",
+    "description": "Rebel BJJ on Model Farm Road, Cork, offering Brazilian Jiu-Jitsu classes.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 3, Model Farm Rd, Cork, T12 PN36, Ireland",
+      "venue": "Rebel BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.5348579,
+          51.8897045
+        ],
+        "placeName": "Unit 3, Model Farm Rd, Cork",
+        "placeId": "ChIJ65HRdnWRREgRFnAsCnime0M"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9bd1b1b92c688c915/69c801b9bd1b1b92c688c915-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

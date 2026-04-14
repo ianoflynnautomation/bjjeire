@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Competition[]",
+  "type": "array",
+  "description": "Array of Competition entities. One PR = one new item appended, or one file in the per-entity directory.",
+  "items": {
+    "title": "Competition",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "createdOnUtc": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "createdBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "updatedOnUtc": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "updatedBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "id": {
+        "type": "string"
+      },
+      "slug": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "organisation": {
+        "type": "string"
+      },
+      "country": {
+        "type": "string"
+      },
+      "websiteUrl": {
+        "type": "string"
+      },
+      "registrationUrl": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "logoUrl": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "startDate": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "endDate": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "isActive": {
+        "type": "boolean"
+      }
+    }
+  }
+}

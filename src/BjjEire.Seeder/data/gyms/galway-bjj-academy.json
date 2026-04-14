@@ -1,0 +1,48 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439013",
+    "name": "Galway BJJ Academy",
+    "description": "A community-focused BJJ academy in the heart of Galway city, offering gi and no-gi classes for adults and children.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Upper Abbeygate Street, Galway City",
+      "venue": "Galway BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "placeName": "Galway City Centre",
+        "placeId": null,
+        "coordinates": [
+          -9.0568,
+          53.2707
+        ]
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "KidsBJJ"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

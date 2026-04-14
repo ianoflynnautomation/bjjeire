@@ -96,6 +96,9 @@
   <ItemGroup Label="QrCode">
     <PackageVersion Include="Net.Codecrete.QrCodeGenerator" Version="2.0.0" />
   </ItemGroup>
+  <ItemGroup Label="JsonSchema">
+    <PackageVersion Include="NJsonSchema" Version="11.6.0" />
+  </ItemGroup>
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="5.0.0" />
   </ItemGroup>

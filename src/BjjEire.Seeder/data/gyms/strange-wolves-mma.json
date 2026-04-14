@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80ce3d940cafd57923779",
+    "name": "Strange Wolves MMA",
+    "description": "Strange Wolves MMA at Claddagh Quay in Galway city, offering BJJ and mixed martial arts training.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Creaven House, Claddagh Quay, The Claddagh, Galway, Ireland",
+      "venue": "Strange Wolves MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.056255,
+          53.2690316
+        ],
+        "placeName": "Claddagh Quay, The Claddagh, Galway",
+        "placeId": "ChIJ9TydrryXW0gRvXi3lf-D7TQ"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce3d940cafd57923779/69c80ce3d940cafd57923779-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

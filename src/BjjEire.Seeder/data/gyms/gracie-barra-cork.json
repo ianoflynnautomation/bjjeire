@@ -1,0 +1,52 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439012",
+    "name": "Gracie Barra Cork",
+    "description": "Gracie Barra Cork is part of the world's largest BJJ organisation. Offering structured classes for all ages and levels in a welcoming environment.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": {
+      "name": "Gracie Barra",
+      "website": "https://graciebarra.com"
+    },
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 2,
+      "freeDays": null,
+      "notes": "First two classes free for new students."
+    },
+    "location": {
+      "address": "Unit 5, Kinsale Road Business Park, Cork",
+      "venue": "Gracie Barra Cork",
+      "coordinates": {
+        "type": "Point",
+        "placeName": "Kinsale Road Business Park, Cork",
+        "placeId": null,
+        "coordinates": [
+          -8.4756,
+          51.8862
+        ]
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJGiFundamentals",
+      "BJJNoGiAllLevels",
+      "KidsBJJ",
+      "WomensOnly"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/507f1f77bcf86cd799439012/507f1f77bcf86cd799439012-lg.webp",
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

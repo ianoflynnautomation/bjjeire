@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd37b1562ac62f81b85",
+    "name": "Satori BJJ",
+    "description": "Satori BJJ in Ballycoolin, Dublin 15, offering Brazilian Jiu-Jitsu classes for all levels in a purpose-built training facility.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "17 Old Quarry Campus, Northwest Business Park, Ballycoolin, Dublin 15, D15 RW7W, Ireland",
+      "venue": "Satori BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3511951,
+          53.4177804
+        ],
+        "placeName": "Northwest Business Park, Ballycoolin, Dublin 15",
+        "placeId": "ChIJUzjJ4q5yZ0gRp0AyPNFpfqY"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://satoribjj.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd37b1562ac62f81b85/69c7dcd37b1562ac62f81b85-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

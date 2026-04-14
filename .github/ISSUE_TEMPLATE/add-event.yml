@@ -1,0 +1,46 @@
+name: Add a BJJ event
+description: Submit a BJJ event (seminar, open mat, camp) to be added to the directory
+title: "[event] <Event name>"
+labels: ["area:data", "type:event"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! A maintainer will review and open a pull request on your behalf.
+  - type: input
+    id: name
+    attributes:
+      label: Event name
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Event website or registration link
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+    validations:
+      required: true
+  - type: input
+    id: date
+    attributes:
+      label: Date (YYYY-MM-DD)
+    validations:
+      required: true
+  - type: input
+    id: venue
+    attributes:
+      label: Venue (city and/or full address)
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm the information is accurate.
+          required: true

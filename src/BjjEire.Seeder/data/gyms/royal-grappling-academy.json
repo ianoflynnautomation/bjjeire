@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd31acb14a23d03539b",
+    "name": "Royal Grappling Academy",
+    "description": "Royal Grappling Academy in Castleknock, Dublin 15, offering Brazilian Jiu-Jitsu and grappling classes for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Castleknock Dr, Blanchardstown, Dublin 15, D15 EA43, Ireland",
+      "venue": "Royal Grappling Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3639526,
+          53.3839874
+        ],
+        "placeName": "Castleknock Dr, Blanchardstown, Dublin 15",
+        "placeId": "ChIJ9djj8IQSZ0gR9F2bSP1Wbk4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://rga.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

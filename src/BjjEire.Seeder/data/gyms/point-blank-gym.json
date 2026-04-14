@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80ce3300ec6148690df5c",
+    "name": "Point Blank Gym",
+    "description": "Point Blank Gym at Liosban Business Park, Galway, offering BJJ and MMA training.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Block 5, Unit 19, Liosban Business Park, Galway, H91 NC86, Ireland",
+      "venue": "Point Blank Gym",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.0347749,
+          53.2868794
+        ],
+        "placeName": "Liosban Business Park, Galway",
+        "placeId": "ChIJUa5qZEuRW0gR8q9FBbh7YsI"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": "http://www.pointblankgym.com/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

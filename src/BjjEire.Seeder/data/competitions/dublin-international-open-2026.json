@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439133",
+    "slug": "dublin-international-open-2026-subonly",
+    "name": "Dublin International Open 2026",
+    "description": "Dublin International Open grappling event (Sub Only format).",
+    "organisation": "Sub Only",
+    "country": "Ireland",
+    "websiteUrl": "https://subonly.smoothcomp.com/en/event/25752",
+    "registrationUrl": "https://subonly.smoothcomp.com/en/event/25752",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439133/507f1f77bcf86cd799439133-lg.webp",
+    "tags": [
+      "sub-only",
+      "dublin-international-open",
+      "grappling"
+    ],
+    "startDate": "2026-12-06T00:00:00Z",
+    "endDate": "2026-12-06T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439133/507f1f77bcf86cd799439133-lg.webp"
+  }
+]

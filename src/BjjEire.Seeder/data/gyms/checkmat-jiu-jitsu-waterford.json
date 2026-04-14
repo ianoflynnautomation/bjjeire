@@ -1,0 +1,51 @@
+[
+  {
+    "id": "69c81b7dc73e2ac948f6a4ec",
+    "name": "Checkmat Jiu Jitsu Waterford",
+    "description": "Checkmat Jiu Jitsu Waterford at Johnstown Business Park, part of the global Checkmat BJJ team.",
+    "status": "Active",
+    "county": "Waterford",
+    "affiliation": {
+      "name": "Checkmat",
+      "website": "https://checkmatjiujitsu.com"
+    },
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 2, Johnstown Business Park, Newtown, Waterford, X91 P38P, Ireland",
+      "venue": "Checkmat Jiu Jitsu Waterford",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.1096293,
+          52.2559134
+        ],
+        "placeName": "Johnstown Business Park, Waterford",
+        "placeId": "ChIJ4TwLLp_GQkgRMBswlIhjHAE"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "CompetitionTraining"
+    ],
+    "website": "http://checkmatwaterford.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81b7dc73e2ac948f6a4ec/69c81b7dc73e2ac948f6a4ec-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

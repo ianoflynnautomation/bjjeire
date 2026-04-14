@@ -1,0 +1,357 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Gym[]",
+  "type": "array",
+  "description": "Array of Gym entities. One PR = one new item appended, or one file in the per-entity directory.",
+  "items": {
+    "title": "Gym",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "createdOnUtc": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "createdBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "updatedOnUtc": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "updatedBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "status": {
+        "$ref": "#/items/definitions/GymStatus"
+      },
+      "county": {
+        "$ref": "#/items/definitions/County"
+      },
+      "affiliation": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/items/definitions/Affiliation"
+          }
+        ]
+      },
+      "trialOffer": {
+        "$ref": "#/items/definitions/TrialOffer"
+      },
+      "location": {
+        "$ref": "#/items/definitions/Location"
+      },
+      "socialMedia": {
+        "$ref": "#/items/definitions/SocialMedia"
+      },
+      "offeredClasses": {
+        "type": "array",
+        "items": {
+          "$ref": "#/items/definitions/ClassCategory"
+        }
+      },
+      "website": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "timetableUrl": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "imageUrl": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "definitions": {
+      "GymStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumFlags": true,
+        "x-enumNames": [
+          "None",
+          "Active",
+          "PendingApproval",
+          "TemporarilyClosed",
+          "PermanentlyClosed",
+          "OpeningSoon",
+          "Draft",
+          "Rejected"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "County": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "Carlow",
+          "Cavan",
+          "Clare",
+          "Cork",
+          "Donegal",
+          "Dublin",
+          "Galway",
+          "Kerry",
+          "Kildare",
+          "Kilkenny",
+          "Laois",
+          "Leitrim",
+          "Limerick",
+          "Longford",
+          "Louth",
+          "Mayo",
+          "Meath",
+          "Monaghan",
+          "Offaly",
+          "Roscommon",
+          "Sligo",
+          "Tipperary",
+          "Waterford",
+          "Westmeath",
+          "Wexford",
+          "Wicklow",
+          "Antrim",
+          "Armagh",
+          "Derry",
+          "Down",
+          "Fermanagh",
+          "Tyrone"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ]
+      },
+      "Affiliation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TrialOffer": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "freeClasses": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "freeDays": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "venue": {
+            "type": "string"
+          },
+          "coordinates": {
+            "$ref": "#/items/definitions/GeoCoordinates"
+          }
+        }
+      },
+      "GeoCoordinates": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "placeName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "placeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SocialMedia": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instagram": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "facebook": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "x": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "youTube": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ClassCategory": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Uncategorized",
+          "BJJGiAllLevels",
+          "BJJNoGiAllLevels",
+          "WomensOnly",
+          "Wrestling",
+          "MuayThai",
+          "Boxing",
+          "StrengthTraining",
+          "YogaOrPilates",
+          "KidsBJJ",
+          "BJJGiFundamentals",
+          "BJJGiAdvanced",
+          "BJJNoGiFundamentals",
+          "BJJNoGiAdvanced",
+          "CompetitionTraining",
+          "ProTraining",
+          "Other"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          99
+        ]
+      }
+    }
+  }
+}

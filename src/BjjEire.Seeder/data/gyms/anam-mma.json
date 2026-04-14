@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c81c03b3a39ea6fd4f645e",
+    "name": "Anam MMA",
+    "description": "Anam MMA in Nenagh, Co. Tipperary, offering BJJ and mixed martial arts training for all levels.",
+    "status": "Active",
+    "county": "Tipperary",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 2 Church View, Summerhill, Nenagh, Co. Tipperary, E45 FY64, Ireland",
+      "venue": "Anam MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.1971579,
+          52.8649704
+        ],
+        "placeName": "Church View, Summerhill, Nenagh, Co. Tipperary",
+        "placeId": "ChIJEctEg2CRXEgRdbeArW94Aok"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": "http://www.anammma.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81c03b3a39ea6fd4f645e/69c81c03b3a39ea6fd4f645e-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

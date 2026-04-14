@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439120",
+    "slug": "national-mma-league-31-2026",
+    "name": "National MMA League Round 31",
+    "description": "National MMA League event (submission / MMA rules).",
+    "organisation": "Sub Only",
+    "country": "Ireland",
+    "websiteUrl": "https://subonly.smoothcomp.com/en/event/28809",
+    "registrationUrl": "https://subonly.smoothcomp.com/en/event/28809",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439120/507f1f77bcf86cd799439120-lg.webp",
+    "tags": [
+      "sub-only",
+      "mma",
+      "national-league"
+    ],
+    "startDate": "2026-11-28T00:00:00Z",
+    "endDate": "2026-11-29T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439120/507f1f77bcf86cd799439120-lg.webp"
+  }
+]

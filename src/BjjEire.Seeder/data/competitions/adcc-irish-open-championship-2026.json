@@ -1,0 +1,25 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439110",
+    "slug": "adcc-irish-open-championship-2026",
+    "name": "ADCC Irish Open Championship 2026",
+    "description": "ADCC-style No-Gi submission grappling open championship for Ireland.",
+    "organisation": "ADCC",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/26794",
+    "registrationUrl": "https://smoothcomp.com/en/event/26794",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439110/507f1f77bcf86cd799439110-lg.webp",
+    "tags": [
+      "adcc",
+      "no-gi",
+      "submission-grappling",
+      "open"
+    ],
+    "startDate": "2026-09-05T00:00:00Z",
+    "endDate": "2026-09-05T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439110/507f1f77bcf86cd799439110-lg.webp"
+  }
+]

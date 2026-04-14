@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439130",
+    "slug": "grapplecity-munster-winter-open-2026",
+    "name": "GrappleCity: Munster Winter Open 2026",
+    "description": "Munster Winter Open grappling event organized by GrappleCity.",
+    "organisation": "GrappleCity",
+    "country": "Ireland",
+    "websiteUrl": "https://grapplecity.smoothcomp.com/en/event/28935",
+    "registrationUrl": "https://grapplecity.smoothcomp.com/en/event/28935",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439130/507f1f77bcf86cd799439130-lg.webp",
+    "tags": [
+      "grapplecity",
+      "munster-open",
+      "winter"
+    ],
+    "startDate": "2026-12-06T00:00:00Z",
+    "endDate": "2026-12-06T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439130/507f1f77bcf86cd799439130-lg.webp"
+  }
+]

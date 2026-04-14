@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd34ff411a23776b110",
+    "name": "East Coast Jiu Jitsu Academy",
+    "description": "East Coast Jiu Jitsu Academy in Dún Laoghaire, offering Brazilian Jiu-Jitsu classes for all levels on the south Dublin coast.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "3 Marine Walk, Marine Rd, Dún Laoghaire, Co. Dublin, A96 CYV6, Ireland",
+      "venue": "East Coast Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.1340873,
+          53.2929593
+        ],
+        "placeName": "Marine Rd, Dún Laoghaire, Co. Dublin",
+        "placeId": "ChIJqbrv05wIZ0gRe9oUg8OxS74"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/ecjja/",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://ecjja.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd34ff411a23776b110/69c7dcd34ff411a23776b110-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

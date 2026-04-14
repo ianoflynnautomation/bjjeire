@@ -33,6 +33,7 @@ services:
       - CorsOptions__AllowedOrigins=${CORS_ORIGINS}
       - CorsOptions__AllowedMethods=${CORS_METHODS}
       - CorsOptions__AllowedHeaders=${CORS_HEADERS}
+      - ReadOnlyMode__Enabled=${READONLY_MODE_ENABLED:-true}
       - AzureAd__TenantId=${AZURE_AD_TENANT_ID}
       - AzureAd__ClientId=${AZURE_AD_CLIENT_ID}
       - AzureAd__Audience=${AZURE_AD_AUDIENCE}

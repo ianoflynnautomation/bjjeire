@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439113",
+    "slug": "irish-bjj-open-2026",
+    "name": "The Irish BJJ Open 2026",
+    "description": "Irish BJJ Open championship (Gi focused).",
+    "organisation": "Ireland BJJ",
+    "country": "Ireland",
+    "websiteUrl": "https://ireland-bjj.smoothcomp.com/en/event/30176",
+    "registrationUrl": "https://ireland-bjj.smoothcomp.com/en/event/30176",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439113/507f1f77bcf86cd799439113-lg.webp",
+    "tags": [
+      "bjj",
+      "gi",
+      "open"
+    ],
+    "startDate": "2026-05-23T00:00:00Z",
+    "endDate": "2026-05-24T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439113/507f1f77bcf86cd799439113-lg.webp"
+  }
+]

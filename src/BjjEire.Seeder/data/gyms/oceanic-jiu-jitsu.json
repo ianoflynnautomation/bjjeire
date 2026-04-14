@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b95035ccdc53d84736",
+    "name": "Oceanic Jiu-Jitsu",
+    "description": "Oceanic Jiu-Jitsu at Donnybrook Commercial Centre in Cork, offering Brazilian Jiu-Jitsu for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "A3 First Floor, Donnybrook Commercial Centre, Ardarrig, Cork, Ireland",
+      "venue": "Oceanic Jiu-Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4397842,
+          51.8691348
+        ],
+        "placeName": "Donnybrook Commercial Centre, Ardarrig, Cork",
+        "placeId": "ChIJXfpot4aFREgRMXfmS74F6BU"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://oceanic-jiu-jitsu.gymdesk.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b95035ccdc53d84736/69c801b95035ccdc53d84736-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

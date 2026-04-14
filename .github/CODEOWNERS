@@ -20,6 +20,11 @@
 /src/BjjEire.SharedKernel/** @MyBjjEire/api-team bjjeire32@gmail.com
 /src/BjjEire.Seeder/** @MyBjjEire/api-team bjjeire32@gmail.com
 
+# Community data contributions — maintainer review required
+/src/BjjEire.Seeder/data/ @MyBjjEire/api-team bjjeire32@gmail.com
+# Auto-generated schemas — must accompany a Domain entity change
+/src/BjjEire.Seeder/data/schemas/ @MyBjjEire/api-team bjjeire32@gmail.com
+
 /tests/BjjEire.Api.IntegrationTests/** @MyBjjEire/api-team bjjeire32@gmail.com
 /tests/BjjEire.Application.FunctionalTests/** @MyBjjEire/api-team bjjeire32@gmail.com
 /tests/BjjEire.Application.UnitTests/** @MyBjjEire/api-team bjjeire32@gmail.com

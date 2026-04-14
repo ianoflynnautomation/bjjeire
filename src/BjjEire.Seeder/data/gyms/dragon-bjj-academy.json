@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b923abdd6967e17877",
+    "name": "Dragon BJJ Academy",
+    "description": "Dragon BJJ Academy in Ballincollig, Cork, offering Brazilian Jiu-Jitsu classes for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 8b, Inishmore Industrial Estate, Ballincollig, Cork, Ireland",
+      "venue": "Dragon BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6108703,
+          51.8892825
+        ],
+        "placeName": "Inishmore Industrial Estate, Ballincollig, Cork",
+        "placeId": "ChIJ53o_AWWSREgRsbzBhGXp8C4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b923abdd6967e17877/69c801b923abdd6967e17877-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

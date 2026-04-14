@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80ce399a4b40021286b2a",
+    "name": "Clare BJJ Academy",
+    "description": "Clare Jiu Jitsu Academy in Ennis, Co. Clare, offering Brazilian Jiu-Jitsu and martial arts training for all levels.",
+    "status": "Active",
+    "county": "Clare",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Block C, Unit 13, Quin Rd Business Park, Ennis, Co. Clare, V95 H2DP, Ireland",
+      "venue": "Clare BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.972535,
+          52.8353318
+        ],
+        "placeName": "Quin Rd Business Park, Ennis, Co. Clare",
+        "placeId": "ChIJm0m8S74SW0gRtx23fjh6rdU"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "KidsBJJ"
+    ],
+    "website": "http://clarebjj.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce399a4b40021286b2a/69c80ce399a4b40021286b2a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

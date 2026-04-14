@@ -1,0 +1,55 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439022",
+    "name": "John Kavanagh Seminar — Dublin 2026",
+    "description": "A rare opportunity to train directly under SBG Ireland head coach John Kavanagh. Covering guard passing, leg locks, and competition strategy.",
+    "type": "Seminar",
+    "organiser": {
+      "name": "SBG Ireland",
+      "website": "https://www.sbgireland.com"
+    },
+    "status": "Completed",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/sbgireland",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Dublin",
+    "location": {
+      "address": "Unit 1A, Concorde Industrial Estate, Naas Road, Dublin 22",
+      "venue": "SBG Ireland",
+      "coordinates": {
+        "type": "Point",
+        "latitude": 53.3178,
+        "longitude": -6.3731,
+        "placeName": "SBG Ireland, Naas Road, Dublin 22",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "startDate": "2026-04-19T10:00:00Z",
+      "endDate": "2026-04-19T14:00:00Z",
+      "hours": [
+        {
+          "day": "Sunday",
+          "openTime": "10:00:00",
+          "closeTime": "14:00:00"
+        }
+      ]
+    },
+    "pricing": {
+      "type": "FlatRate",
+      "amount": 60,
+      "durationDays": null,
+      "currency": "EUR"
+    },
+    "eventUrl": "https://www.sbgireland.com",
+    "imageUrl": "",
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

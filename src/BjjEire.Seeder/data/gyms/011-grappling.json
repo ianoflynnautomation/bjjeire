@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c7dcd358e9a6b69c88fae3",
+    "name": "011 Grappling",
+    "description": "011 Grappling (011GRPL) is a specialist grappling and BJJ studio based in Clontarf, Dublin.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Basement, Castleview, 25 Clontarf East, Dublin, D05 X9F8, Ireland",
+      "venue": "011 Grappling",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2081893,
+          53.3810878
+        ],
+        "placeName": "Castleview, Clontarf East, Dublin",
+        "placeId": "ChIJE7tjs1kPZ0gR5KP8gscg0R4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling"
+    ],
+    "website": "http://www.011grpl.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd358e9a6b69c88fae3/69c7dcd358e9a6b69c88fae3-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

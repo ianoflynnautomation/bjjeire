@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439105",
+    "slug": "dublin-international-open-ibjjf-jiu-jitsu-championship-2026",
+    "name": "Dublin International Open IBJJF Jiu-Jitsu Championship 2026",
+    "description": "IBJJF Gi Jiu-Jitsu championship featuring Juvenile, Adult, and Master divisions. Held at Sport Ireland National Indoor Arena in Dublin.",
+    "organisation": "IBJJF",
+    "country": "Ireland",
+    "websiteUrl": "https://ibjjf.com/events/dublin-international-open-ibjjf-jiu-jitsu-championship-2026",
+    "registrationUrl": "https://ibjjf.com/events/dublin-international-open-ibjjf-jiu-jitsu-championship-2026",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439105/507f1f77bcf86cd799439105-lg.webp",
+    "tags": [
+      "ibjjf",
+      "gi",
+      "international-open"
+    ],
+    "startDate": "2026-04-18T00:00:00Z",
+    "endDate": "2026-04-19T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed",
+    "imageUrl": "/images/competitions/507f1f77bcf86cd799439105/507f1f77bcf86cd799439105-lg.webp"
+  }
+]
