@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b92286948d312fff32",
+    "name": "BJJ Cork",
+    "description": "BJJ Cork Brazilian Jiu-Jitsu Academy on Sarsfield Road, offering gi and no-gi classes for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Sarsfield Rd, Garranedarragh, Cork, Ireland",
+      "venue": "BJJ Cork",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.509854,
+          51.8729896
+        ],
+        "placeName": "Sarsfield Rd, Garranedarragh, Cork",
+        "placeId": "ChIJr-kQjA6QREgR4AikMRswZng"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/bjjcork/",
+      "facebook": null,
+      "x": null,
+      "youTube": "https://www.youtube.com/user/beechy"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.bjjcork.com/",
+    "timetableUrl": "https://www.bjjcork.com/services/",
+    "imageUrl": "/images/gyms/69c801b92286948d312fff32/69c801b92286948d312fff32-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

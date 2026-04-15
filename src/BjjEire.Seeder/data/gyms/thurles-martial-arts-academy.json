@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c81c032eeb5e6ae9cde95b",
+    "name": "Thurles Martial Arts Academy",
+    "description": "Thurles Martial Arts Academy in Co. Tipperary offering Brazilian Jiu-Jitsu, Muay Thai, and K-1 Kickboxing.",
+    "status": "Active",
+    "county": "Tipperary",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Garryvicleheen, Thurles, Co. Tipperary, Ireland",
+      "venue": "Thurles Martial Arts Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.8215364,
+          52.6734212
+        ],
+        "placeName": "Garryvicleheen, Thurles, Co. Tipperary",
+        "placeId": "ChIJvehHQenEXEgR2gVgeqKdeH4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "MuayThai"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81c032eeb5e6ae9cde95b/69c81c032eeb5e6ae9cde95b-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

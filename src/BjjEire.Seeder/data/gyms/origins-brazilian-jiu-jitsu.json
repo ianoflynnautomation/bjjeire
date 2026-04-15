@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80fb21ca20f435b9f2b1f",
+    "name": "Origins Brazilian Jiu Jitsu",
+    "description": "Origins Brazilian Jiu Jitsu School on Summer Street in Limerick city, offering BJJ for all levels.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "14/15 Summer St, Irishtown, Limerick, V94 P662, Ireland",
+      "venue": "Origins Brazilian Jiu Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6195319,
+          52.661754
+        ],
+        "placeName": "14/15 Summer St, Irishtown, Limerick",
+        "placeId": "ChIJnZH6ul5dW0gRmZKDrAAhVd4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.originsbjjirl.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb21ca20f435b9f2b1f/69c80fb21ca20f435b9f2b1f-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

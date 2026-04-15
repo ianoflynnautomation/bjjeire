@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd3ee74536fd9bf80d9",
+    "name": "Athlete A Brazilian Jiu Jitsu",
+    "description": "Athlete A BJJ is based in North Strand, Dublin, offering Brazilian Jiu-Jitsu training for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "45b Strandville Ave, N Strand Rd, North Wall, Dublin, D03 N8H0, Ireland",
+      "venue": "Athlete A Brazilian Jiu Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2408259,
+          53.3571316
+        ],
+        "placeName": "45b Strandville Ave, N Strand Rd, North Wall, Dublin",
+        "placeId": "ChIJe6sLjVUPZ0gRuR47ne56gZY"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/athlete_a_bjj/",
+      "facebook": "https://www.facebook.com/people/Athlete-A-Brazilian-Jiu-Jitsu/100088359901936/?ref=NONE_xav_ig_profile_page_web",
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://www.athleteabjj.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3ee74536fd9bf80d9/69c7dcd3ee74536fd9bf80d9-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

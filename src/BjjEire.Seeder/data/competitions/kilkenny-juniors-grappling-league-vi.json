@@ -1,0 +1,23 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439123",
+    "slug": "kilkenny-juniors-grappling-league-vi-2026",
+    "name": "Kilkenny Juniors Grappling League VI",
+    "description": "Juniors grappling league event held in Kilkenny.",
+    "organisation": "Kilkenny Grappling League",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/28531",
+    "registrationUrl": "https://smoothcomp.com/en/event/28531",
+    "logoUrl": null,
+    "tags": [
+      "grappling-league",
+      "juniors",
+      "kids"
+    ],
+    "startDate": "2026-04-18T00:00:00Z",
+    "endDate": "2026-04-18T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

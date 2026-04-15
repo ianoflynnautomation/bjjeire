@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9440304b759971922",
+    "name": "Barão Jiu Jitsu Cork",
+    "description": "Barão Jiu Jitsu Cork is located in the city centre on French Church Street, offering Brazilian Jiu-Jitsu for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "3rd Floor, Blue Nile, 14 French Church St, Cork, T12 XE76, Ireland",
+      "venue": "Barão Jiu Jitsu Cork",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4736281,
+          51.8988706
+        ],
+        "placeName": "14 French Church St, Cork City Centre",
+        "placeId": "ChIJOemtshKQREgRM04nY7SjHgU"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://teamfmcork.net/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9440304b759971922/69c801b9440304b759971922-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

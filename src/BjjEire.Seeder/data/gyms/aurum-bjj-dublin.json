@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd3430ed47b8c5693e0",
+    "name": "Aurum BJJ Dublin",
+    "description": "Aurum BJJ Dublin is located in Santry, north Dublin, offering Brazilian Jiu-Jitsu training for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Lilmar House, Santry, Dublin, D09 AP95, Ireland",
+      "venue": "Aurum BJJ Dublin",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2392931,
+          53.3992003
+        ],
+        "placeName": "Lilmar House, Santry, Dublin",
+        "placeId": "ChIJcyMqmk8PZ0gRGjL8TPbM9n4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.aurumbjjdublin.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3430ed47b8c5693e0/69c7dcd3430ed47b8c5693e0-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

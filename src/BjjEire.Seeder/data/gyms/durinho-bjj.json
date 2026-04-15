@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80ce393f12d1e2aa82b78",
+    "name": "Durinho BJJ",
+    "description": "Durinho BJJ on Munster Avenue in Galway city, offering Brazilian Jiu-Jitsu classes for all levels.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "6 Munster Ave, Galway, H91 FT0C, Ireland",
+      "venue": "Durinho BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.0594704,
+          53.268991
+        ],
+        "placeName": "6 Munster Ave, Galway",
+        "placeId": "ChIJYf0T0diXW0gRJQKZCtSl46k"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/shaolinmmagalway/",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://durinhobjj.team/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce393f12d1e2aa82b78/69c80ce393f12d1e2aa82b78-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd37e8147c7bb51ff4d",
+    "name": "Locomotiva Brazilian Jiu Jitsu",
+    "description": "Locomotiva BJJ is based in Rathfarnham, Dublin 14, offering gi and no-gi Brazilian Jiu-Jitsu for all skill levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Church Buildings, Church Ln, Rathfarnham, Dublin 14, D14 T229, Ireland",
+      "venue": "Locomotiva Brazilian Jiu Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2852284,
+          53.3000788
+        ],
+        "placeName": "Church Buildings, Church Ln, Rathfarnham, Dublin 14",
+        "placeId": "ChIJY17ZAAYPZ0gRcH0LUYQtEb8"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/locomotiva_jiujitsu/?hl=en",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://locomotiva.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd37e8147c7bb51ff4d/69c7dcd37e8147c7bb51ff4d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

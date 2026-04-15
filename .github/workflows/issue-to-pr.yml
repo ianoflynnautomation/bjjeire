@@ -1,0 +1,145 @@
+name: Issue to PR
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  gym-from-issue:
+    if: github.event.label.name == 'approved:gym'
+    name: Open PR from approved gym issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Build gym JSON from issue body
+        id: build
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p src/BjjEire.Seeder/data/gyms
+          node .github/scripts/issue-to-gym.mjs
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: data/gym-from-issue-${{ github.event.issue.number }}
+          delete-branch: true
+          draft: true
+          commit-message: "feat(data): add gym from issue #${{ github.event.issue.number }}"
+          title: "feat(data): add ${{ steps.build.outputs.gym_name }} (from #${{ github.event.issue.number }})"
+          body: |
+            Auto-generated from issue #${{ github.event.issue.number }} by @${{ github.event.issue.user.login }}.
+
+            Closes #${{ github.event.issue.number }}.
+
+            ### Maintainer review checklist
+            - [ ] Gym exists, address verifiable on Google Maps
+            - [ ] Coordinates point to the actual location (`[longitude, latitude]`, longitude is negative for Ireland)
+            - [ ] Website is the gym's own site (not Facebook/Instagram alone)
+            - [ ] No duplicate of an existing entry
+            - [ ] Affiliation, classes, and trial offer match the gym's public information
+
+            CI runs schema validation and Ireland bbox check automatically.
+          labels: |
+            area:data
+            type:gym
+            community-submission
+
+      - name: Comment on issue with PR link
+        if: steps.cpr.outputs.pull-request-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = "${{ steps.cpr.outputs.pull-request-url }}";
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Thanks! A draft pull request has been opened: ${url}\n\nA maintainer will review and merge once everything checks out.`
+            });
+
+  event-from-issue:
+    if: github.event.label.name == 'approved:event'
+    name: Open PR from approved event issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Build event JSON from issue body
+        id: build
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p src/BjjEire.Seeder/data/bjj-events
+          node .github/scripts/issue-to-event.mjs
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: data/event-from-issue-${{ github.event.issue.number }}
+          delete-branch: true
+          draft: true
+          commit-message: "feat(data): add event from issue #${{ github.event.issue.number }}"
+          title: "feat(data): add ${{ steps.build.outputs.event_name }} (from #${{ github.event.issue.number }})"
+          body: |
+            Auto-generated from issue #${{ github.event.issue.number }} by @${{ github.event.issue.user.login }}.
+
+            Closes #${{ github.event.issue.number }}.
+
+            ### Maintainer review checklist
+            - [ ] Event date and venue are accurate
+            - [ ] Registration link works
+            - [ ] No duplicate of an existing event
+
+            CI runs schema validation automatically.
+          labels: |
+            area:data
+            type:event
+            community-submission
+
+      - name: Comment on issue with PR link
+        if: steps.cpr.outputs.pull-request-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = "${{ steps.cpr.outputs.pull-request-url }}";
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Thanks! A draft pull request has been opened: ${url}`
+            });

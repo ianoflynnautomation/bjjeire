@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439106",
+    "slug": "european-kids-ibjjf-jiu-jitsu-championship-2026",
+    "name": "European Kids IBJJF Jiu-Jitsu Championship 2026",
+    "description": "IBJJF Kids-only Jiu-Jitsu championship with divisions from Mightymite to Teen (Grey, Yellow, Orange, Green belts).",
+    "organisation": "IBJJF",
+    "country": "Ireland",
+    "websiteUrl": "https://ibjjf.com/events/european-kids-ibjjf-jiu-jitsu-championship-2026",
+    "registrationUrl": "https://ibjjf.com/events/european-kids-ibjjf-jiu-jitsu-championship-2026",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439106/507f1f77bcf86cd799439106-lg.webp",
+    "tags": [
+      "ibjjf",
+      "gi",
+      "kids",
+      "european-championship"
+    ],
+    "startDate": "2026-04-18T00:00:00Z",
+    "endDate": "2026-04-19T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

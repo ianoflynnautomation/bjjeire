@@ -1,0 +1,23 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439129",
+    "slug": "grapplecity-munster-summer-open-2026",
+    "name": "GrappleCity: Munster Summer Open 2026",
+    "description": "Munster Summer Open grappling event organized by GrappleCity.",
+    "organisation": "GrappleCity",
+    "country": "Ireland",
+    "websiteUrl": "https://grapplecity.smoothcomp.com/en/event/24917",
+    "registrationUrl": "https://grapplecity.smoothcomp.com/en/event/24917",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439129/507f1f77bcf86cd799439129-lg.webp",
+    "tags": [
+      "grapplecity",
+      "munster-open",
+      "summer"
+    ],
+    "startDate": "2026-07-05T00:00:00Z",
+    "endDate": "2026-07-05T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

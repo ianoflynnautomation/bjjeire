@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80ce3430921e7aca6187d",
+    "name": "GFS Team Lótus BJJ",
+    "description": "GFS Team Lótus Club Brazilian Jiu Jitsu on Clybaun Road, Galway, offering BJJ training for all levels.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Clybaun Rd, Galway, H91 FV5W, Ireland",
+      "venue": "GFS Team Lótus BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.1084882,
+          53.2808553
+        ],
+        "placeName": "Clybaun Rd, Galway",
+        "placeId": "ChIJIY2TxqyXW0gRS4klWSKPbgI"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce3430921e7aca6187d/69c80ce3430921e7aca6187d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

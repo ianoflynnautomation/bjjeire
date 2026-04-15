@@ -7,62 +7,50 @@ namespace BjjEire.Seeder;
 
 internal static class CollectionRunner
 {
-    private static string GymsDataFile()
-    {
-        const string testFile = "data/gyms.test.json";
-        const string prodFile = "data/gyms.json";
-        var isDevelopment = string.Equals(
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-            "Development",
-            StringComparison.OrdinalIgnoreCase);
-        return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
-    }
+    internal sealed record Collection(string Name, string Slug, Type EntityType, Func<SeederService, string, Task<int>> Seed);
 
-    private static string CompetitionsDataFile()
-    {
-        const string testFile = "data/competitions.test.json";
-        const string prodFile = "data/competitions.json";
-        var isDevelopment = string.Equals(
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-            "Development",
-            StringComparison.OrdinalIgnoreCase);
-        return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
-    }
-
-    private static string StoresDataFile()
-    {
-        const string testFile = "data/stores.test.json";
-        const string prodFile = "data/stores.json";
-        var isDevelopment = string.Equals(
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-            "Development",
-            StringComparison.OrdinalIgnoreCase);
-        return isDevelopment && File.Exists(testFile) ? testFile : prodFile;
-    }
-
-    private static readonly (string name, Func<SeederService, Task<int>> run)[] Collections =
+    internal static readonly Collection[] All =
     [
-        ("Gym",         s => s.SeedAsync<Gym>("Gym", GymsDataFile())),
-        ("BjjEvent",    s => s.SeedAsync<BjjEvent>("BjjEvent", "data/bjj-events.json")),
-        ("Competition", s => s.SeedAsync<Competition>("Competition", CompetitionsDataFile())),
-        ("Store",       s => s.SeedAsync<Store>("Store", StoresDataFile())),
+        new("Gym",         "gyms",         typeof(Gym),         (s, f) => s.SeedAsync<Gym>("Gym", f)),
+        new("BjjEvent",    "bjj-events",   typeof(BjjEvent),    (s, f) => s.SeedAsync<BjjEvent>("BjjEvent", f)),
+        new("Competition", "competitions", typeof(Competition), (s, f) => s.SeedAsync<Competition>("Competition", f)),
+        new("Store",       "stores",       typeof(Store),       (s, f) => s.SeedAsync<Store>("Store", f)),
     ];
+
+    /// <summary>
+    /// Returns every <c>*.json</c> file in <c>data/{slug}/</c>, excluding files
+    /// whose names start with <c>_</c> (templates, drafts).
+    /// </summary>
+    internal static string[] ResolveDataSources(string slug)
+    {
+        var dir = Path.Combine("data", slug);
+        if (!Directory.Exists(dir))
+            return [];
+
+        return Directory.EnumerateFiles(dir, "*.json", SearchOption.TopDirectoryOnly)
+            .Where(f => !Path.GetFileName(f).StartsWith('_'))
+            .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
 
     internal static async Task<int> RunAsync(SeederService seeder, string? filter)
     {
         var toRun = filter is null
-            ? Collections
-            : Collections.Where(c => c.name == filter).ToArray();
+            ? All
+            : All.Where(c => c.Name == filter).ToArray();
 
         if (toRun.Length == 0)
         {
-            await Console.Error.WriteLineAsync($"ERROR: Unknown collection '{filter}'. Valid values: {string.Join(", ", Collections.Select(c => c.name))}");
+            await Console.Error.WriteLineAsync($"ERROR: Unknown collection '{filter}'. Valid values: {string.Join(", ", All.Select(c => c.Name))}");
             return 1;
         }
 
         var exitCode = 0;
-        foreach (var (_, run) in toRun)
-            exitCode |= await run(seeder);
+        foreach (var c in toRun)
+        {
+            foreach (var file in ResolveDataSources(c.Slug))
+                exitCode |= await c.Seed(seeder, file);
+        }
 
         return exitCode;
     }

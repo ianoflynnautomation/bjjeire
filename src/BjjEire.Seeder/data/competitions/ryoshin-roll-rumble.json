@@ -1,0 +1,22 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439112",
+    "slug": "ryoshin-roll-and-rumble-2026",
+    "name": "Ryoshin Roll & Rumble",
+    "description": "Grappling event (Roll & Rumble format).",
+    "organisation": "Ryoshin",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/29708",
+    "registrationUrl": "https://smoothcomp.com/en/event/29708",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439112/507f1f77bcf86cd799439112-lg.webp",
+    "tags": [
+      "ryoshin",
+      "grappling"
+    ],
+    "startDate": "2026-04-25T00:00:00Z",
+    "endDate": "2026-04-25T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

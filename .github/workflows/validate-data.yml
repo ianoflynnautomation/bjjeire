@@ -1,0 +1,77 @@
+name: Validate Data
+
+on:
+  pull_request:
+    paths:
+      - "src/BjjEire.Seeder/data/**"
+      - "src/BjjEire.Seeder/**.cs"
+      - "src/BjjEire.Domain/Entities/**"
+      - ".github/workflows/validate-data.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  DOTNET_VERSION: "10.x"
+  NODE_VERSION: "24.x"
+
+jobs:
+  validate-data:
+    name: Validate data against Domain entities
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Validate all data files deserialize strictly into Domain entities
+        run: dotnet run --project src/BjjEire.Seeder -- --validate
+
+  ireland-coordinates:
+    name: Coordinates within Ireland bounding box
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check gym coordinates are [longitude, latitude] within Ireland
+        shell: bash
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          // Ireland (island) bbox: lng -10.8 to -5.2, lat 51.3 to 55.5
+          const [MIN_LNG, MAX_LNG, MIN_LAT, MAX_LAT] = [-10.8, -5.2, 51.3, 55.5];
+          const files = [];
+          const gymDir = 'src/BjjEire.Seeder/data/gyms';
+          if (fs.existsSync(gymDir)) {
+            for (const f of fs.readdirSync(gymDir)) {
+              if (f.endsWith('.json') && !f.startsWith('_')) files.push(path.join(gymDir, f));
+            }
+          }
+          let errors = 0;
+          for (const file of files) {
+            const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+            for (const gym of data) {
+              const c = gym?.location?.coordinates?.coordinates;
+              if (!Array.isArray(c) || c.length !== 2) continue;
+              const [lng, lat] = c;
+              if (lng < MIN_LNG || lng > MAX_LNG || lat < MIN_LAT || lat > MAX_LAT) {
+                console.error(`::error file=${file}::'${gym.name}' coordinates [${lng}, ${lat}] are outside Ireland. GeoJSON order is [longitude, latitude].`);
+                errors++;
+              }
+            }
+          }
+          process.exit(errors > 0 ? 1 : 0);
+          EOF

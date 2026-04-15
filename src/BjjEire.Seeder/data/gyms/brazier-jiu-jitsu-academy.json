@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c7dcd3cd0aeb3836a6f718",
+    "name": "Brazier Jiu Jitsu Academy",
+    "description": "Brazier Jiu Jitsu Academy on Kylemore Road, Dublin 12, offering Brazilian Jiu-Jitsu classes for all ages and skill levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "First Floor North, Motorcity, Kylemore Rd, Inchicore, Dublin 12, D12 TRF7, Ireland",
+      "venue": "Brazier Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3459895,
+          53.3305424
+        ],
+        "placeName": "Motorcity, Kylemore Rd, Dublin 12",
+        "placeId": "ChIJqUTWroAOZ0gRlebx8pKk5ag"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://www.brazierjiujitsu.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3cd0aeb3836a6f718/69c7dcd3cd0aeb3836a6f718-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

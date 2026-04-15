@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9750f0190c371dc2a",
+    "name": "T45 Jiu-Jitsu",
+    "description": "T45 Jiu-Jitsu in Midleton, East Cork, offering Brazilian Jiu-Jitsu classes for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 1 Ballinacurra Business Park, Ballynacorra West, Midleton, Co. Cork, Ireland",
+      "venue": "T45 Jiu-Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.1653657,
+          51.8921209
+        ],
+        "placeName": "Ballinacurra Business Park, Midleton, Co. Cork",
+        "placeId": "ChIJiYhsNZqdREgR6_0RhNifM8U"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://t45jiujitsu.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9750f0190c371dc2a/69c801b9750f0190c371dc2a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

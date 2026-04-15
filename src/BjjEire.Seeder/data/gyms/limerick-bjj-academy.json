@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c80fb2927042f05c0d1941",
+    "name": "Limerick BJJ Academy",
+    "description": "Limerick Brazilian Jiu Jitsu Academy on Dock Road, offering BJJ and martial arts for all levels.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 11, Ashbourne Business Park, Dock Rd, Limerick, V94 WF83, Ireland",
+      "venue": "Limerick BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6523649,
+          52.6564731
+        ],
+        "placeName": "Ashbourne Business Park, Dock Rd, Limerick",
+        "placeId": "ChIJa9HTkWNcW0gRxwEzdIfn8rk"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals"
+    ],
+    "website": "http://limerickbjjacademy.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb2927042f05c0d1941/69c80fb2927042f05c0d1941-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c7dcd3700148ae57af5d93",
+    "name": "Alexandre Fitness Jiu Jitsu Academy",
+    "description": "Alexandre Fitness Jiu Jitsu Academy in Kylemore, Dublin 10, combining Brazilian Jiu-Jitsu instruction with fitness training.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Kylemore Park S, Kylemore, Dublin 10, D10 NW01, Ireland",
+      "venue": "Alexandre Fitness Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3480532,
+          53.3337722
+        ],
+        "placeName": "Kylemore Park S, Kylemore, Dublin 10",
+        "placeId": "ChIJMbhC7_UMZ0gRHVT1ngbmGSI"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/alexandrefitness/?hl=en",
+      "facebook": null,
+      "x": null,
+      "youTube": "https://www.youtube.com/watch?v=ohQzM5-vtVI"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "StrengthTraining"
+    ],
+    "website": "http://www.alexandrefitness.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3700148ae57af5d93/69c7dcd3700148ae57af5d93-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

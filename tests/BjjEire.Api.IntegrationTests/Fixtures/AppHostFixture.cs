@@ -17,7 +17,7 @@ namespace BjjEire.Api.IntegrationTests.Fixtures;
 /// </summary>
 public sealed class AppHostFixture : IAsyncLifetime
 {
-    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan _startupTimeout = TimeSpan.FromMinutes(5);
 
     private DistributedApplication? _app;
 
@@ -25,7 +25,7 @@ public sealed class AppHostFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var appHost = await DistributedApplicationTestingBuilder
+        IDistributedApplicationTestingBuilder appHost = await DistributedApplicationTestingBuilder
             .CreateAsync<AppHost::Projects.BjjEire_Aspire_AppHost>();
 
         // Session lifetime: containers always start fresh so Running state events fire correctly.
@@ -35,13 +35,13 @@ public sealed class AppHostFixture : IAsyncLifetime
 
         _app = await appHost.BuildAsync();
 
-        var notifications = _app.Services.GetRequiredService<ResourceNotificationService>();
+        ResourceNotificationService notifications = _app.Services.GetRequiredService<ResourceNotificationService>();
 
         await _app.StartAsync();
 
         await notifications
             .WaitForResourceAsync("api", KnownResourceStates.Running)
-            .WaitAsync(StartupTimeout);
+            .WaitAsync(_startupTimeout);
 
         ApiClient = _app.CreateHttpClient("api");
     }

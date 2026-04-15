@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c7dcd3c21350ecb97dafed",
+    "name": "Kyuzo Brazilian Jiu Jitsu",
+    "description": "Kyuzo BJJ in Rathborne, Dublin 15, offering gi and no-gi Brazilian Jiu-Jitsu classes for beginners through to advanced.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "The Village Centre, Rathborne Dr, Rathborne, Dublin 15, D15 XWF1, Ireland",
+      "venue": "Kyuzo Brazilian Jiu Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3268512,
+          53.3781139
+        ],
+        "placeName": "The Village Centre, Rathborne Dr, Dublin 15",
+        "placeId": "ChIJPxe1gZUNZ0gRDNqARmV1PcA"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/kyuzojiujitsu/",
+      "facebook": "https://www.facebook.com/kyuzogym/",
+      "x": "https://x.com/kyuzogym",
+      "youTube": "https://www.youtube.com/channel/UCes5Th2Jn9EojMblvqdAKkw"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals"
+    ],
+    "website": "http://www.kyuzo.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3c21350ecb97dafed/69c7dcd3c21350ecb97dafed-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "69c7dcd3d68de9b84aef3abb",
+    "name": "Gracie Barra Dublin South",
+    "description": "Gracie Barra Dublin South in Sandyford is part of the world's largest BJJ organisation, offering structured classes for all ages and levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": {
+      "name": "Gracie Barra",
+      "website": "https://graciebarra.com"
+    },
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "28 Corrig Rd, Sandyford, Dublin, D18 V274, Ireland",
+      "venue": "Gracie Barra Dublin South",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2131905,
+          53.2773802
+        ],
+        "placeName": "28 Corrig Rd, Sandyford, Dublin",
+        "placeId": "ChIJZ_spSmYJZ0gRJV4iR7ZbQrY"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJGiFundamentals",
+      "BJJNoGiAllLevels",
+      "KidsBJJ",
+      "WomensOnly"
+    ],
+    "website": "https://www.gbdublin.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3d68de9b84aef3abb/69c7dcd3d68de9b84aef3abb-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

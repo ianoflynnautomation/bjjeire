@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Store[]",
+  "type": "array",
+  "description": "Array of Store entities. One PR = one new item appended, or one file in the per-entity directory.",
+  "items": {
+    "title": "Store",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "createdOnUtc": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "createdBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "updatedOnUtc": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "updatedBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "websiteUrl": {
+        "type": "string"
+      },
+      "logoUrl": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "isActive": {
+        "type": "boolean"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80ce311ee495b7a46b847",
+    "name": "Monarch Brazilian Jiu Jitsu Academy",
+    "description": "Monarch Brazilian Jiu Jitsu Academy on Main Street in Loughrea, east Galway, offering BJJ for all levels.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Main St, Loughrea, Co. Galway, Ireland",
+      "venue": "Monarch Brazilian Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.5698926,
+          53.1984712
+        ],
+        "placeName": "Main St, Loughrea, Co. Galway",
+        "placeId": "ChIJQReQ-f95XEgRQgepIMTW4Yo"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://www.monarchjiujitsu.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce311ee495b7a46b847/69c80ce311ee495b7a46b847-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

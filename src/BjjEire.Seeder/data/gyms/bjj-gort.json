@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c80ce34981d6984af25153",
+    "name": "BJJ Gort",
+    "description": "BJJ Gort on Ennis Road in Gort, south Galway, offering Brazilian Jiu-Jitsu classes for all levels.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Ennis Rd, Lavally, Gort, Co. Galway, H91 K7YA, Ireland",
+      "venue": "BJJ Gort",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.8128073,
+          53.0621541
+        ],
+        "placeName": "Ennis Rd, Gort, Co. Galway",
+        "placeId": "ChIJlUiFWgB5W0gRfh-nUGvWdlA"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.bjjgort.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce34981d6984af25153/69c80ce34981d6984af25153-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

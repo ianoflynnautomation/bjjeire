@@ -1,0 +1,52 @@
+[
+  {
+    "id": "69c801b9d62972a05b9ba592",
+    "name": "SBG Cork",
+    "description": "SBG Cork on New Mallow Road offers BJJ, MMA, and kickboxing as part of the Straight Blast Gym international network.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": {
+      "name": "SBG International",
+      "website": "https://www.sbgireland.com"
+    },
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 31 New Mallow Rd, Cork, T23 HN76, Ireland",
+      "venue": "SBG Cork",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4873557,
+          51.9229859
+        ],
+        "placeName": "Unit 31 New Mallow Rd, Cork",
+        "placeId": "ChIJpVK2GGGQREgRuBK_Wc99Ge4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "MuayThai",
+      "Wrestling",
+      "CompetitionTraining"
+    ],
+    "website": "http://www.sbgcork.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9d62972a05b9ba592/69c801b9d62972a05b9ba592-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "SBG Ireland",
+    "description": "Straight Blast Gym Ireland, founded by John Kavanagh. One of the world's most recognised BJJ and MMA gyms, home to many elite competitors.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": {
+      "name": "SBG International",
+      "website": "https://www.sbgireland.com"
+    },
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": "Contact the gym to book your free trial class."
+    },
+    "location": {
+      "address": "Unit 1A, Concorde Industrial Estate, Naas Road, Dublin 22",
+      "venue": "SBG Ireland",
+      "coordinates": {
+        "type": "Point",
+        "placeName": "Concorde Industrial Estate, Naas Road, Dublin 22",
+        "placeId": null,
+        "coordinates": [
+          -6.3731,
+          53.3178
+        ]
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/sbgireland",
+      "facebook": "https://www.facebook.com/SBGIreland",
+      "x": "https://x.com/SBG_Ireland",
+      "youTube": "https://www.youtube.com/channel/UCj2wWX8p4_EeCbMCquxQojg"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals",
+      "Wrestling",
+      "MuayThai",
+      "KidsBJJ",
+      "CompetitionTraining"
+    ],
+    "website": "https://www.sbgireland.com",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/507f1f77bcf86cd799439011/507f1f77bcf86cd799439011-lg.webp",
+    "createdBy": "seeder",
+    "createdAt": "2026-03-21T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]
