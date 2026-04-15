@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80ce356d656bdfce32ac0",
+    "name": "Conriocht MMA",
+    "description": "Conriocht MMA at Athenry Shopping Centre, Co. Galway, offering BJJ and mixed martial arts.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 10, Athenry Shopping Centre, Prospect, Athenry, Co. Galway, H65 RV04, Ireland",
+      "venue": "Conriocht MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.7497235,
+          53.2932406
+        ],
+        "placeName": "Athenry Shopping Centre, Athenry, Co. Galway",
+        "placeId": "ChIJ44cd7OyJW0gR1FgIvdOsBD4"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": "http://www.conriochtmma.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce356d656bdfce32ac0/69c80ce356d656bdfce32ac0-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

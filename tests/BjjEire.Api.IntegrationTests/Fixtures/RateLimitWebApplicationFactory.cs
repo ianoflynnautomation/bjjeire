@@ -36,6 +36,7 @@ public class RateLimitWebApplicationFactory(string connectionString) : WebApplic
                 { "RateLimitOptions:PermitLimit", "2" },
                 { "RateLimitOptions:WindowInSeconds", "5" },
                 { "RateLimitOptions:RejectionStatusCode", "429" },
+                { "ReadOnlyMode:Enabled", "false" },
             }));
 
         _ = builder.ConfigureTestServices(services =>

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439111",
+    "slug": "crank-cashout-2026",
+    "name": "CRANK CASHOUT",
+    "description": "Submission grappling event (likely No-Gi).",
+    "organisation": "Crank",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/28755",
+    "registrationUrl": "https://smoothcomp.com/en/event/28755",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439111/507f1f77bcf86cd799439111-lg.webp",
+    "tags": [
+      "crank",
+      "no-gi",
+      "submission-grappling"
+    ],
+    "startDate": "2026-04-25T00:00:00Z",
+    "endDate": "2026-04-26T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

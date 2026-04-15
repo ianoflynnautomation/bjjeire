@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c81b7d37dc6330866f2e9d",
+    "name": "Ganbaru Jiu Jitsu Academy",
+    "description": "Ganbaru Jiu Jitsu Academy at Six Cross Roads Business Park, Waterford, offering Brazilian Jiu-Jitsu for all levels.",
+    "status": "Active",
+    "county": "Waterford",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 19b, Kilbarry Rd, Six Cross Roads Business Park, Waterford, Ireland",
+      "venue": "Ganbaru Jiu Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.1433801,
+          52.2344169
+        ],
+        "placeName": "Six Cross Roads Business Park, Waterford",
+        "placeId": "ChIJpdNAnmDEQkgR61EQihrRpAA"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81b7d37dc6330866f2e9d/69c81b7d37dc6330866f2e9d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

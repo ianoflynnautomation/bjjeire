@@ -1,0 +1,22 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439122",
+    "slug": "kilkenny-adults-grappling-league-2026",
+    "name": "Kilkenny Adults Grappling League",
+    "description": "Adults grappling league event held in Kilkenny.",
+    "organisation": "Kilkenny Grappling League",
+    "country": "Ireland",
+    "websiteUrl": "https://smoothcomp.com/en/event/29552",
+    "registrationUrl": "https://smoothcomp.com/en/event/29552",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439122/507f1f77bcf86cd799439122-lg.webp",
+    "tags": [
+      "grappling-league",
+      "adults"
+    ],
+    "startDate": "2026-04-19T00:00:00Z",
+    "endDate": "2026-04-19T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

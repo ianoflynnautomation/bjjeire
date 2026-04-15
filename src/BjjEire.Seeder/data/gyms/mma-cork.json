@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c801b95c97bf3c060e06ee",
+    "name": "MMA Cork",
+    "description": "MMA Cork at Árd Álainn Business Park in Churchfield offers BJJ and mixed martial arts training.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Árd Álainn Business Park, Churchfield, Cork, Ireland",
+      "venue": "MMA Cork",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4904505,
+          51.9135764
+        ],
+        "placeName": "Árd Álainn Business Park, Churchfield, Cork",
+        "placeId": "ChIJcWIvTBSQREgRYqr6FRgy5CU"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "MuayThai",
+      "Wrestling"
+    ],
+    "website": "https://mmacork.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b95c97bf3c060e06ee/69c801b95c97bf3c060e06ee-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

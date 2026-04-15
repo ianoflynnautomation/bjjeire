@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c7dcd3540156c0dcddf01a",
+    "name": "Team Ryano MMA",
+    "description": "Team Ryano MMA in Finglas offers Brazilian Jiu-Jitsu and mixed martial arts training for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Creation House, Finglas Business Centre, Jamestown Rd, Finglas, Dublin, Ireland",
+      "venue": "Team Ryano MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2952514,
+          53.3986816
+        ],
+        "placeName": "Finglas Business Centre, Jamestown Rd, Finglas, Dublin",
+        "placeId": "ChIJrd3RokUFZ0gRBJ7SnJpmW7E"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/teamryano/",
+      "facebook": "https://www.facebook.com/andy.ryan.524/",
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": "http://teamryano.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3540156c0dcddf01a/69c7dcd3540156c0dcddf01a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

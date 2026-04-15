@@ -1,0 +1,12 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "name": "Example Open Mat",
+    "description": "Community open mat session, all welcome.",
+    "status": "Active",
+    "createdBy": "community",
+    "createdAt": "2026-04-14T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

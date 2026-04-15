@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80fb25594723ca7bbc7c4",
+    "name": "Limerick Combat Gym",
+    "description": "Limerick Combat Gym near Roxboro offering BJJ and MMA training for all levels.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Roxboro Roundabout, Rathbane North, Limerick, Ireland",
+      "venue": "Limerick Combat Gym",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6142825,
+          52.6503304
+        ],
+        "placeName": "Roxboro Roundabout, Rathbane North, Limerick",
+        "placeId": "ChIJfcPSiiNdW0gR3mnPDHnRPs0"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": "http://www.limerickcombatgym.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb25594723ca7bbc7c4/69c80fb25594723ca7bbc7c4-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

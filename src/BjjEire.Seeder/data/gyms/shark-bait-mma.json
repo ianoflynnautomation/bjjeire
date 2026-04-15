@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80fb298652c5e08c7f5f0",
+    "name": "Shark Bait MMA",
+    "description": "Shark Bait MMA on Catherine Street in Limerick city centre, offering BJJ and mixed martial arts.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "11-12 Catherine St, Prior's-Land, Limerick, V94 F865, Ireland",
+      "venue": "Shark Bait MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.6264001,
+          52.6620675
+        ],
+        "placeName": "11-12 Catherine St, Limerick City",
+        "placeId": "ChIJM-bO1WVcW0gRqfsciAnRuP0"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80fb298652c5e08c7f5f0/69c80fb298652c5e08c7f5f0-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

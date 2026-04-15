@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9affd1f2acbe8c066",
+    "name": "IMAS Riders BJJ",
+    "description": "IMAS – Riders BJJ (Boroski Pelanda) on Watercourse Road in Blackpool, Cork, offering Brazilian Jiu-Jitsu.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "7-11 Watercourse Rd, Blackpool, Cork, T23 YY96, Ireland",
+      "venue": "IMAS Riders BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4740136,
+          51.9079385
+        ],
+        "placeName": "7-11 Watercourse Rd, Blackpool, Cork",
+        "placeId": "ChIJeQX2Vm2QREgRcULYI5qfkqg"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

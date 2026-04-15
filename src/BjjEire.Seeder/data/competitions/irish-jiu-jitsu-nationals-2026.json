@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439115",
+    "slug": "irish-jiu-jitsu-nationals-2026",
+    "name": "Irish Jiu Jitsu Nationals 2026",
+    "description": "Irish Jiu-Jitsu Nationals championship (Sub Only format).",
+    "organisation": "Sub Only",
+    "country": "Ireland",
+    "websiteUrl": "https://subonly.smoothcomp.com/en/event/25751",
+    "registrationUrl": "https://subonly.smoothcomp.com/en/event/25751",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439115/507f1f77bcf86cd799439115-lg.webp",
+    "tags": [
+      "sub-only",
+      "bjj",
+      "nationals",
+      "gi"
+    ],
+    "startDate": "2026-09-27T00:00:00Z",
+    "endDate": "2026-09-27T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

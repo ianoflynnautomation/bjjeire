@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c7dcd3aeb006e3b0daa13a",
+    "name": "Brú Grappling Studio",
+    "description": "Brú Grappling Studio in Churchtown, Dublin 14, is a specialist grappling gym offering BJJ and wrestling for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "1 Victoria Terrace, Churchtown Lower, Dublin 14, D14 FA33, Ireland",
+      "venue": "Brú Grappling Studio",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2453393,
+          53.2938248
+        ],
+        "placeName": "1 Victoria Terrace, Churchtown Lower, Dublin 14",
+        "placeId": "ChIJJeA6UvcJZ0gRja9z8mxd1TA"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/explore/locations/104492899175755/bru-grappling-studio/",
+      "facebook": null,
+      "x": null,
+      "youTube": "https://www.youtube.com/@Bru_grappling"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling"
+    ],
+    "website": "https://www.brugrappling.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3aeb006e3b0daa13a/69c7dcd3aeb006e3b0daa13a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "name": "Example BJJ Academy",
+    "description": "A friendly BJJ gym offering gi and no-gi classes for all levels.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": {
+      "name": "Example Affiliation",
+      "website": "https://example.com"
+    },
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": "Contact the gym to book your free trial class."
+    },
+    "location": {
+      "address": "1 Example Street, Dublin 1",
+      "venue": "Example BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "placeName": "1 Example Street, Dublin 1",
+        "placeId": null,
+        "coordinates": [-6.2603, 53.3498]
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/example",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "https://example.com",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-04-14T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

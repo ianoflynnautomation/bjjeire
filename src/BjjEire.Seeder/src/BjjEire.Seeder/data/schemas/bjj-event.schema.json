@@ -1,0 +1,403 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "BjjEvent[]",
+  "type": "array",
+  "description": "Array of BjjEvent entities. One PR = one new item appended, or one file in the per-entity directory.",
+  "items": {
+    "title": "BjjEvent",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "createdOnUtc": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "createdBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "updatedOnUtc": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "format": "date-time"
+      },
+      "updatedBy": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "type": {
+        "$ref": "#/items/definitions/BjjEventType"
+      },
+      "organiser": {
+        "$ref": "#/items/definitions/Organizer"
+      },
+      "status": {
+        "$ref": "#/items/definitions/EventStatus"
+      },
+      "statusReason": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "socialMedia": {
+        "$ref": "#/items/definitions/SocialMedia"
+      },
+      "county": {
+        "$ref": "#/items/definitions/County"
+      },
+      "location": {
+        "$ref": "#/items/definitions/Location"
+      },
+      "schedule": {
+        "$ref": "#/items/definitions/BjjEventSchedule"
+      },
+      "pricing": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/items/definitions/PricingModel"
+          }
+        ]
+      },
+      "eventUrl": {
+        "type": "string"
+      },
+      "imageUrl": {
+        "type": "string"
+      },
+      "isActive": {
+        "type": "boolean"
+      }
+    },
+    "definitions": {
+      "BjjEventType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "OpenMat",
+          "Seminar",
+          "Camp",
+          "Other"
+        ],
+        "enum": [
+          0,
+          1,
+          3,
+          4
+        ]
+      },
+      "Organizer": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          }
+        }
+      },
+      "EventStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Postponed",
+          "Upcoming",
+          "RegistrationOpen",
+          "RegistrationClosed",
+          "Ongoing",
+          "Completed",
+          "Canceled"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "SocialMedia": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instagram": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "facebook": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "x": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "youTube": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "County": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "Carlow",
+          "Cavan",
+          "Clare",
+          "Cork",
+          "Donegal",
+          "Dublin",
+          "Galway",
+          "Kerry",
+          "Kildare",
+          "Kilkenny",
+          "Laois",
+          "Leitrim",
+          "Limerick",
+          "Longford",
+          "Louth",
+          "Mayo",
+          "Meath",
+          "Monaghan",
+          "Offaly",
+          "Roscommon",
+          "Sligo",
+          "Tipperary",
+          "Waterford",
+          "Westmeath",
+          "Wexford",
+          "Wicklow",
+          "Antrim",
+          "Armagh",
+          "Derry",
+          "Down",
+          "Fermanagh",
+          "Tyrone"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32
+        ]
+      },
+      "Location": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "venue": {
+            "type": "string"
+          },
+          "coordinates": {
+            "$ref": "#/items/definitions/GeoCoordinates"
+          }
+        }
+      },
+      "GeoCoordinates": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "placeName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "placeId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "BjjEventSchedule": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "startDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "hours": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/items/definitions/BjjEventHours"
+            }
+          }
+        }
+      },
+      "BjjEventHours": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "day": {
+            "$ref": "#/items/definitions/DayOfWeek"
+          },
+          "openTime": {
+            "type": "string",
+            "format": "duration"
+          },
+          "closeTime": {
+            "type": "string",
+            "format": "duration"
+          }
+        }
+      },
+      "DayOfWeek": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "PricingModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "$ref": "#/items/definitions/PricingType"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "durationDays": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "currency": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "PricingType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Free",
+          "FlatRate",
+          "PerSession",
+          "PerDay"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  }
+}

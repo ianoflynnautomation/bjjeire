@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b9eb21daf8bdb3fd80",
+    "name": "BJJ Carrigaline",
+    "description": "BJJ Carrigaline at Innovation Business Park offers Brazilian Jiu-Jitsu for all levels in south Cork.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 6, Innovation Business Park, Kilnagleary, Carrigaline, Co. Cork, Ireland",
+      "venue": "BJJ Carrigaline",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.3689233,
+          51.8092434
+        ],
+        "placeName": "Innovation Business Park, Carrigaline, Co. Cork",
+        "placeId": "ChIJhcVhBcyFREgRHUYwZG5JxTY"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.bjjcarrigaline.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b9eb21daf8bdb3fd80/69c801b9eb21daf8bdb3fd80-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

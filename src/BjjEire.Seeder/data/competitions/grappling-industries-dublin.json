@@ -1,0 +1,24 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439108",
+    "slug": "grappling-industries-dublin-2026",
+    "name": "Grappling Industries Dublin",
+    "description": "Round-robin format tournament bringing Gi and No-Gi grappling competition to Dublin.",
+    "organisation": "GrapplingIndustries",
+    "country": "Ireland",
+    "websiteUrl": "https://grapplingindustries.smoothcomp.com/en/event/25935",
+    "registrationUrl": "https://grapplingindustries.smoothcomp.com/en/event/25935",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439108/507f1f77bcf86cd799439108-lg.webp",
+    "tags": [
+      "grappling-industries",
+      "gi",
+      "no-gi",
+      "round-robin"
+    ],
+    "startDate": "2026-05-30T00:00:00Z",
+    "endDate": "2026-05-31T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

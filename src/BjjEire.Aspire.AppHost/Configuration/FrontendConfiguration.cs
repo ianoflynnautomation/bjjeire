@@ -13,22 +13,23 @@ public static class FrontendConfiguration
         var solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
         var dockerfilePath = Path.Combine(solutionRoot, "src/bjjeire-app/Dockerfile");
 
-        var certsPath = Path.Combine(solutionRoot, "certs");
+        var config = builder.Configuration;
 
         return builder.AddDockerfile("frontend", solutionRoot, dockerfilePath)
             .WaitFor(api)
             .WithExternalHttpEndpoints()
             .WithHttpEndpoint(port: ServiceConstants.FrontendHttpPort, targetPort: 80)
-            .WithHttpsEndpoint(port: ServiceConstants.FrontendHttpsPort, targetPort: 443, name: "https")
-            .WithBindMount(certsPath, "/etc/nginx/certs", isReadOnly: true)
-            .WithBuildArg("NODE_ENV", builder.Configuration["NODE_ENV"] ?? "production")
-            .WithBuildArg("SERVICES_API_HTTP_0", builder.Configuration["SERVICES_API_HTTP_0"] ?? string.Empty)
-            .WithBuildArg("SERVICES_API_HTTPS_0", builder.Configuration["SERVICES_API_HTTPS_0"] ?? string.Empty)
-            .WithBuildArg("VITE_APP_MSAL_CLIENT_ID", builder.Configuration["VITE_APP_MSAL_CLIENT_ID"] ?? string.Empty)
-            .WithBuildArg("VITE_APP_MSAL_AUTHORITY", builder.Configuration["VITE_APP_MSAL_AUTHORITY"] ?? string.Empty)
-            .WithBuildArg("VITE_APP_MSAL_API_SCOPE", builder.Configuration["VITE_APP_MSAL_API_SCOPE"] ?? string.Empty)
-            .WithEnvironment("SERVICES_API_HTTPS_0", api.GetEndpoint("http"))
-            .WithEnvironment("BROWSER", builder.Configuration["BROWSER"] ?? "none")
-            .WithEnvironment("PORT", builder.Configuration["PORT"] ?? "80");
+            .WithBuildArg("NODE_ENV", config["NODE_ENV"] ?? "production")
+            .WithBuildArg("VITE_APP_MSAL_CLIENT_ID", config["VITE_APP_MSAL_CLIENT_ID"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_MSAL_AUTHORITY", config["VITE_APP_MSAL_AUTHORITY"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_MSAL_API_SCOPE", config["VITE_APP_MSAL_API_SCOPE"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_CF_BEACON_TOKEN", config["VITE_APP_CF_BEACON_TOKEN"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_APP_URL", config["VITE_APP_APP_URL"] ?? "http://localhost:60742")
+            .WithBuildArg("VITE_APP_CONTACT_EMAIL", config["VITE_APP_CONTACT_EMAIL"] ?? "info@bjj-eire.com")
+            .WithBuildArg("VITE_APP_SOCIAL_INSTAGRAM_URL", config["VITE_APP_SOCIAL_INSTAGRAM_URL"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_SOCIAL_FACEBOOK_URL", config["VITE_APP_SOCIAL_FACEBOOK_URL"] ?? string.Empty)
+            .WithBuildArg("VITE_APP_GITHUB_URL", config["VITE_APP_GITHUB_URL"] ?? string.Empty)
+            .WithEnvironment("SERVICES_API_HTTP_0", api.GetEndpoint("http"))
+            .WithEnvironment("PORT", config["PORT"] ?? "80");
     }
 }

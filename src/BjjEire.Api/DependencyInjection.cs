@@ -7,6 +7,7 @@ using BjjEire.Api.Extensions.HealthChecks;
 using BjjEire.Api.Extensions.Logging.Serilog;
 using BjjEire.Api.Extensions.OpenApi;
 using BjjEire.Api.Extensions.RateLimit;
+using BjjEire.Api.Extensions.ReadOnlyMode;
 using BjjEire.Api.Extensions.SecurityHeaders;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -51,6 +52,7 @@ public static class DependencyInjection
         _ = builder.Services.AddAppAuthorization();
         _ = builder.Services.AddFeatureManagement(builder.Configuration.GetSection("FeatureManagement"));
         _ = builder.Services.Configure<DonationOptions>(builder.Configuration.GetSection("Donation"));
+        _ = builder.Services.AddReadOnlyMode(builder.Configuration);
 
         return builder;
     }
@@ -65,6 +67,7 @@ public static class DependencyInjection
         _ = app.UseRouting();
         _ = app.UseCors();
         _ = app.UseRateLimit();
+        _ = app.UseReadOnlyMode();
         _ = app.UseAuthentication();
         _ = app.UseAuthorization();
         _ = app.UseAppOpenApi();

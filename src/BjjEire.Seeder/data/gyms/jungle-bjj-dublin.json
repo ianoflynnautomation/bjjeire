@@ -1,0 +1,46 @@
+[
+  {
+    "id": "8e6d31d1c3145b36cd10863d",
+    "name": "Jungle BJJ Dublin",
+    "description": "Jungle BJJ Dublin is based in The Liberties, offering Brazilian Jiu-Jitsu classes in the heart of Dublin.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "67-70 Meath St, The Liberties, Dublin, D08 XY53, Ireland",
+      "venue": "Jungle BJJ Dublin",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2782467,
+          53.3410374
+        ],
+        "placeName": "67-70 Meath St, The Liberties, Dublin",
+        "placeId": "ChIJZyXc_i4MZ0gRyJ95e61X-EM"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/jsbjj_dublin8/",
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": "http://www.junglebjjdublin.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/8e6d31d1c3145b36cd10863d/8e6d31d1c3145b36cd10863d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

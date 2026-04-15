@@ -1,0 +1,46 @@
+[
+  {
+    "id": "69c801b902ca14d7798fae1a",
+    "name": "Riders Jiu-Jitsu School",
+    "description": "Riders Jiu-Jitsu School on Watercourse Road in Blackpool, Cork, offering Brazilian Jiu-Jitsu for all levels.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 3, Watercourse Rd, Blackpool, Cork, T23 X313, Ireland",
+      "venue": "Riders Jiu-Jitsu School",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.4757753,
+          51.9062621
+        ],
+        "placeName": "Watercourse Rd, Blackpool, Cork",
+        "placeId": "ChIJKRmN76qRREgRq81H19dRlQk"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels"
+    ],
+    "website": null,
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b902ca14d7798fae1a/69c801b902ca14d7798fae1a-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "69c7dcd3599c64df65de7ea9",
+    "name": "Ralph Gracie Ireland",
+    "description": "Ralph Gracie Ireland (Gracie Jiu-Jitsu Baldoyle) is an affiliate of the Ralph Gracie lineage, offering traditional Gracie Jiu-Jitsu in north Dublin.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": {
+      "name": "Ralph Gracie",
+      "website": "https://www.graciejiujitsu.ie"
+    },
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "1st Floor, Baldoyle Badminton Centre, 4 Grange Ave, Baldoyle Industrial Estate, Dublin, D13 E8Y2, Ireland",
+      "venue": "Ralph Gracie Ireland",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.1480391,
+          53.3967612
+        ],
+        "placeName": "Baldoyle Badminton Centre, Baldoyle Industrial Estate, Dublin",
+        "placeId": "ChIJwxDU94cFZ0gR3ehSG_SYFXI"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "BJJGiFundamentals"
+    ],
+    "website": "http://www.graciejiujitsu.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd3599c64df65de7ea9/69c7dcd3599c64df65de7ea9-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

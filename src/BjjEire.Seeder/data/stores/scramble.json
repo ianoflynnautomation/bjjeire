@@ -1,0 +1,12 @@
+[
+  {
+    "id": "6659a1b2c3d4e5f6a7b8c903",
+    "name": "Scramble",
+    "description": "Grappling and BJJ apparel brand known for quality gis and nogi gear.",
+    "websiteUrl": "https://www.scrambleireland.com/",
+    "logoUrl": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seeder"
+  }
+]

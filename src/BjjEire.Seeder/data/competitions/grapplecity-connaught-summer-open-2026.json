@@ -1,0 +1,23 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439132",
+    "slug": "grapplecity-connaught-summer-open-2026",
+    "name": "GrappleCity: Connaught Summer Open 2026",
+    "description": "Connaught Summer Open grappling event organized by GrappleCity.",
+    "organisation": "GrappleCity",
+    "country": "Ireland",
+    "websiteUrl": "https://grapplecity.smoothcomp.com/en/event/26849",
+    "registrationUrl": "https://grapplecity.smoothcomp.com/en/event/26849",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439132/507f1f77bcf86cd799439132-lg.webp",
+    "tags": [
+      "grapplecity",
+      "connaught-open",
+      "summer"
+    ],
+    "startDate": "2026-06-21T00:00:00Z",
+    "endDate": "2026-06-21T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]

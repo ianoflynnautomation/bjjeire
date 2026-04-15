@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c7dcd371f19d2d516b3185",
+    "name": "Vieira Martial Arts",
+    "description": "Vieira Martial Arts on North Lotts, Dublin 1, offering Muay Thai, BJJ, and mixed martial arts training.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "40 N Lotts, North City, Dublin, D01 C8C9, Ireland",
+      "venue": "Vieira Martial Arts",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.2612411,
+          53.3478095
+        ],
+        "placeName": "40 N Lotts, North City, Dublin",
+        "placeId": "ChIJ23gajIQOZ0gRpu3CNPZ5ysw"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/vieira_martialarts",
+      "facebook": "https://www.facebook.com/vieiramartialarts/",
+      "x": null,
+      "youTube": "https://www.youtube.com/channel/UCoKxSLDF77H-lQOmS3ThfWQ?app=desktop"
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "MuayThai"
+    ],
+    "website": "http://www.vieiramartialarts.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c7dcd371f19d2d516b3185/69c7dcd371f19d2d516b3185-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

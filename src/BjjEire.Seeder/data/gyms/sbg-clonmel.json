@@ -1,0 +1,52 @@
+[
+  {
+    "id": "69c81c03c759f5259bfb474d",
+    "name": "SBG Clonmel",
+    "description": "SBG Clonmel at Ard Gaoithe Business Park offers BJJ and MMA as part of the Straight Blast Gym network.",
+    "status": "Active",
+    "county": "Tipperary",
+    "affiliation": {
+      "name": "SBG International",
+      "website": "https://www.sbgireland.com"
+    },
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 2D2, Ard Gaoithe Business Park, Clonmel, Co. Tipperary, Ireland",
+      "venue": "SBG Clonmel",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -7.72233,
+          52.3742561
+        ],
+        "placeName": "Ard Gaoithe Business Park, Clonmel, Co. Tipperary",
+        "placeId": "ChIJs8Enb6PUXEgRclskYrONogk"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai",
+      "CompetitionTraining"
+    ],
+    "website": "https://www.sbgclonmel.ie/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c81c03c759f5259bfb474d/69c81c03c759f5259bfb474d-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

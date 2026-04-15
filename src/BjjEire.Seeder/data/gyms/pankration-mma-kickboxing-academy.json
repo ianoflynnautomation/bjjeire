@@ -1,0 +1,48 @@
+[
+  {
+    "id": "69c80fb2dbff30f29258f114",
+    "name": "Pankration MMA Kickboxing Academy",
+    "description": "Pankration MMA and Kickboxing Academy at Eastway Business Park, Limerick, offering grappling, MMA, and kickboxing.",
+    "status": "Active",
+    "county": "Limerick",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit F8, Eastway Business Park, Ballysimon, Limerick, Ireland",
+      "venue": "Pankration MMA Kickboxing Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.5835599,
+          52.6489028
+        ],
+        "placeName": "Eastway Business Park, Ballysimon, Limerick",
+        "placeId": "ChIJ1yfzrfhbW0gRV4-pu1jiNAM"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai",
+      "Boxing"
+    ],
+    "website": "http://www.kickboxingmma.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

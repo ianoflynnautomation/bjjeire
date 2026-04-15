@@ -1,0 +1,49 @@
+[
+  {
+    "id": "69c80ce30baa6fafbd591d34",
+    "name": "Shaolin MMA",
+    "description": "Shaolin MMA — Excellence School of Jiu-Jitsu on Tuam Road, Galway, offering BJJ and MMA for all levels.",
+    "status": "Active",
+    "county": "Galway",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 18 1st Floor, Park Tuam Rd, Galway, H91 XA99, Ireland",
+      "venue": "Shaolin MMA",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.0365264,
+          53.2835431
+        ],
+        "placeName": "Park Tuam Rd, Galway",
+        "placeId": "ChIJrUZjTb-WW0gRb0f1I_q8Yps"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "Wrestling",
+      "MuayThai",
+      "CompetitionTraining"
+    ],
+    "website": "https://shaolinmma.club/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c80ce30baa6fafbd591d34/69c80ce30baa6fafbd591d34-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "69c801b94a870996cd1924be",
+    "name": "Studio Galera",
+    "description": "Studio Galera in Bandon, Co. Cork, offers Brazilian Jiu-Jitsu and gymnastics training.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "Unit 11, Bypass Business Park, Bandon, Co. Cork, P72 DW27, Ireland",
+      "venue": "Studio Galera",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -8.7283028,
+          51.7407466
+        ],
+        "placeName": "Bypass Business Park, Bandon, Co. Cork",
+        "placeId": "ChIJ8RwWACz0REgRiLiZcAopNKE"
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": [
+      "BJJGiAllLevels",
+      "BJJNoGiAllLevels",
+      "YogaOrPilates"
+    ],
+    "website": "http://www.studiogalera.com/",
+    "timetableUrl": null,
+    "imageUrl": "/images/gyms/69c801b94a870996cd1924be/69c801b94a870996cd1924be-lg.webp",
+    "createdBy": "community",
+    "createdAt": "2026-03-28T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

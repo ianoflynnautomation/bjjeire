@@ -31,7 +31,8 @@ public class CustomWebApplicationFactory(string connectionString) : WebApplicati
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 { "ConnectionStrings:Mongodb", connectionString },
-                { "RateLimitOptions:EnableRateLimiting", "false" }
+                { "RateLimitOptions:EnableRateLimiting", "false" },
+                { "ReadOnlyMode:Enabled", "false" }
             }));
 
         _ = builder.ConfigureTestServices(services =>

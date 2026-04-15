@@ -1,0 +1,23 @@
+[
+  {
+    "id": "507f1f77bcf86cd799439107",
+    "slug": "naga-ireland-grappling-championship-2026",
+    "name": "NAGA Ireland Grappling Championship",
+    "description": "NAGA submission grappling event held in Ireland. No-Gi focused competition.",
+    "organisation": "NAGA",
+    "country": "Ireland",
+    "websiteUrl": "https://naga.smoothcomp.com/en/event/30548",
+    "registrationUrl": "https://naga.smoothcomp.com/en/event/30548",
+    "logoUrl": "/images/competitions/507f1f77bcf86cd799439107/507f1f77bcf86cd799439107-lg.webp",
+    "tags": [
+      "naga",
+      "no-gi",
+      "submission-grappling"
+    ],
+    "startDate": "2026-07-25T00:00:00Z",
+    "endDate": "2026-07-25T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seed"
+  }
+]
