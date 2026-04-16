@@ -1,38 +1,46 @@
-import { renderHook, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { http, HttpResponse } from 'msw'
+import {
+  renderHook,
+  waitFor,
+  type RenderHookResult,
+} from '@testing-library/react'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { useContext } from 'react'
 import { FeatureFlagContext } from '../context/feature-flag-context'
 import { DEFAULT_FLAGS } from '../types'
-import { api } from '@/lib/api-client'
+import type { FeatureFlagsMap } from '../types'
+import { server } from '@/testing/msw/server'
 import { makeFeatureFlagWrapper } from '@/testing/render-utils'
 
-vi.mock('@/lib/api-client', () => ({
-  api: { get: vi.fn() },
-}))
+const API = 'http://localhost/api/api/featureflag'
 
-const mockedApiGet = vi.mocked(api.get)
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
+afterEach(() => server.resetHandlers())
+
+function renderProvider(
+  overrides?: Parameters<typeof makeFeatureFlagWrapper>[0]
+): RenderHookResult<FeatureFlagsMap, unknown> {
+  return renderHook(() => useContext(FeatureFlagContext), {
+    wrapper: makeFeatureFlagWrapper(overrides),
+  })
+}
 
 describe('FeatureFlagProvider (integration)', () => {
-  beforeEach(() => {
-    mockedApiGet.mockReset()
-  })
-
   it('uses DEFAULT_FLAGS before the API resolves', () => {
-    mockedApiGet.mockImplementation(() => new Promise(() => {}))
+    server.use(http.get(API, () => new Promise(() => {})))
 
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper(),
-    })
+    const { result } = renderProvider()
 
     expect(result.current).toEqual(DEFAULT_FLAGS)
   })
 
   it('merges API response into context once the fetch resolves', async () => {
-    mockedApiGet.mockResolvedValue({ BjjEvents: true, Gyms: true })
+    server.use(
+      http.get(API, () => HttpResponse.json({ BjjEvents: true, Gyms: true }))
+    )
 
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper(),
-    })
+    const { result } = renderProvider()
 
     await waitFor(() => {
       expect(result.current.BjjEvents).toBe(true)
@@ -41,53 +49,69 @@ describe('FeatureFlagProvider (integration)', () => {
   })
 
   it('keeps DEFAULT_FLAGS when the API returns flags disabled', async () => {
-    mockedApiGet.mockResolvedValue({ BjjEvents: false, Gyms: false })
+    let called = 0
+    server.use(
+      http.get(API, () => {
+        called++
+        return HttpResponse.json({ BjjEvents: false, Gyms: false })
+      })
+    )
 
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper(),
-    })
+    const { result } = renderProvider()
 
-    await waitFor(() => expect(mockedApiGet).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(called).toBe(1))
     expect(result.current).toEqual(DEFAULT_FLAGS)
   })
 
   it('falls back to DEFAULT_FLAGS when the API request fails', async () => {
-    mockedApiGet.mockRejectedValue(new Error('Network error'))
+    let called = 0
+    server.use(
+      http.get(API, () => {
+        called++
+        return HttpResponse.json(null, { status: 500 })
+      })
+    )
 
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper(),
-    })
+    const { result } = renderProvider()
 
-    await waitFor(() => expect(mockedApiGet).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(called).toBe(1))
     expect(result.current).toEqual(DEFAULT_FLAGS)
   })
 
-  it('does not call the API when overrides are provided', () => {
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper({ BjjEvents: true }),
-    })
+  it('does not call the API when overrides are provided', async () => {
+    let called = 0
+    server.use(
+      http.get(API, () => {
+        called++
+        return HttpResponse.json({ BjjEvents: true })
+      })
+    )
 
-    expect(mockedApiGet).not.toHaveBeenCalled()
+    const { result } = renderProvider({ BjjEvents: true })
+
+    await new Promise(r => setTimeout(r, 10))
+    expect(called).toBe(0)
     expect(result.current.BjjEvents).toBe(true)
   })
 
   it('merges partial overrides with DEFAULT_FLAGS', () => {
-    const { result } = renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper({ BjjEvents: true }),
-    })
+    const { result } = renderProvider({ BjjEvents: true })
 
     expect(result.current.BjjEvents).toBe(true)
     expect(result.current.Gyms).toBe(false)
   })
 
   it('requests flags from the correct API endpoint', async () => {
-    mockedApiGet.mockResolvedValue({ BjjEvents: true, Gyms: true })
+    let requestedPath: string | null = null
+    server.use(
+      http.get(API, ({ request }) => {
+        requestedPath = new URL(request.url).pathname
+        return HttpResponse.json({ BjjEvents: true, Gyms: true })
+      })
+    )
 
-    renderHook(() => useContext(FeatureFlagContext), {
-      wrapper: makeFeatureFlagWrapper(),
-    })
+    renderProvider()
 
-    await waitFor(() => expect(mockedApiGet).toHaveBeenCalledTimes(1))
-    expect(mockedApiGet).toHaveBeenCalledWith('/api/featureflag')
+    await waitFor(() => expect(requestedPath).toBe('/api/api/featureflag'))
   })
 })
