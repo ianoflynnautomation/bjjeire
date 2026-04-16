@@ -51,9 +51,7 @@ export function seedEventsByParam(
 }
 
 export function seedEventsError(status = 500): void {
-  server.use(
-    http.get(EVENTS_API, () => HttpResponse.json(null, { status }))
-  )
+  server.use(http.get(EVENTS_API, () => HttpResponse.json(null, { status })))
 }
 
 export function seedEventsPending(): void {

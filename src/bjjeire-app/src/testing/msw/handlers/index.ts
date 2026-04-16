@@ -5,10 +5,7 @@ import { bjjEventsHandlers } from './bjj-events'
 import { competitionsHandlers } from './competitions'
 
 export { optionsPassthrough, sharedHandlers } from './shared'
-export {
-  defaultFeatureFlags,
-  featureFlagsHandlers,
-} from './feature-flags'
+export { defaultFeatureFlags, featureFlagsHandlers } from './feature-flags'
 export { gymsHandlers } from './gyms'
 export { bjjEventsHandlers } from './bjj-events'
 export { competitionsHandlers } from './competitions'

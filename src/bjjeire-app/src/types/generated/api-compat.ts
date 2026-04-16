@@ -17,16 +17,18 @@ type KeysExist<Api, Frontend> = {
 
 // socialMedia shape is loosely typed in the API (additionalProperties), so omit it.
 type _GymKeyCheck = KeysExist<ApiGymDto, Omit<GymDto, 'socialMedia'>>
-type _EventKeyCheck = KeysExist<ApiBjjEventDto, Omit<BjjEventDto, 'socialMedia'>>
+type _EventKeyCheck = KeysExist<
+  ApiBjjEventDto,
+  Omit<BjjEventDto, 'socialMedia'>
+>
 type _CompetitionKeyCheck = KeysExist<ApiCompetitionDto, CompetitionDto>
 
 // If a frontend key doesn't exist in the API schema, this line will error:
 // "Type 'never' is not assignable to type 'true'"
 type _AssertGym = _GymKeyCheck extends Record<string, true> ? true : never
 type _AssertEvent = _EventKeyCheck extends Record<string, true> ? true : never
-type _AssertCompetition = _CompetitionKeyCheck extends Record<string, true>
-  ? true
-  : never
+type _AssertCompetition =
+  _CompetitionKeyCheck extends Record<string, true> ? true : never
 
 // Ensure the assertions resolve to true at compile time
 const _gymOk: _AssertGym = true

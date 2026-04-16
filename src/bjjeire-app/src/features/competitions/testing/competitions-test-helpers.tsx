@@ -30,7 +30,9 @@ export function seedCompetitionsPending(): void {
   server.use(http.get(COMPETITIONS_API, () => new Promise(() => {})))
 }
 
-export function renderCompetitionsPage(): ReturnType<typeof renderWithProviders> {
+export function renderCompetitionsPage(): ReturnType<
+  typeof renderWithProviders
+> {
   return renderWithProviders(<CompetitionsPage />, {
     featureFlags: {
       BjjEvents: true,

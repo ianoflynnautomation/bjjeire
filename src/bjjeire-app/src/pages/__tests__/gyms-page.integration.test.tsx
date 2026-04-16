@@ -1,12 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { server } from '@/testing/msw/server'
 import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import {
@@ -65,10 +58,10 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     })
     const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
 
-    const { getLastUrl } = seedGymsByCounty(
-      { Dublin: [dublinGym] },
-      [dublinGym, corkGym]
-    )
+    const { getLastUrl } = seedGymsByCounty({ Dublin: [dublinGym] }, [
+      dublinGym,
+      corkGym,
+    ])
 
     const { user } = renderGymsPage()
 

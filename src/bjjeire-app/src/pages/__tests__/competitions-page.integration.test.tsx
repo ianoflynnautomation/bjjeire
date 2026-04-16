@@ -1,12 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { server } from '@/testing/msw/server'
 import { createCompetition } from '@/testing/factories/competition.factory'
 import {
