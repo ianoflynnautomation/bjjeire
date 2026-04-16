@@ -1,6 +1,7 @@
 namespace BjjEire.Application.IntegrationTests.BjjEvents.CommandTests;
 
-[Collection(AppIntegrationCollection.Name)]
+[Collection(BjjEventApplicationCollection.Name)]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Integration")]
 public class DeleteBjjEventCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
     : ApplicationTestBase(apiFactory, outputHelper)
@@ -8,21 +9,21 @@ public class DeleteBjjEventCommandTests(CustomApiFactory apiFactory, ITestOutput
     [Fact]
     public async Task DeleteBjjEvent_WithValidId_RemovesEventFromDatabase()
     {
-        var created = await SendAsync(BjjEventTestDataFactory.GetValidBjjEventCommand());
-        var eventId = created.Data.Id!;
+        CreateBjjEventResponse created = await SendAsync(BjjEventTestDataFactory.GetValidBjjEventCommand());
+        string eventId = created.Data.Id!;
 
-        var response = await SendAsync(new DeleteBjjEventCommand { Id = eventId });
+        DeleteBjjEventResponse response = await SendAsync(new DeleteBjjEventCommand { Id = eventId });
 
         response.IsSuccess.ShouldBeTrue();
 
-        var fromDb = await FindAsync<BjjEvent, BjjEventDto>(eventId);
+        BjjEventDto? fromDb = await FindAsync<BjjEvent, BjjEventDto>(eventId);
         fromDb.ShouldBeNull();
     }
 
     [Fact]
     public async Task DeleteBjjEvent_WithInvalidIdFormat_ThrowsValidationException()
     {
-        var ex = await Should.ThrowAsync<ValidationException>(
+        ValidationException ex = await Should.ThrowAsync<ValidationException>(
             async () => await SendAsync(new DeleteBjjEventCommand { Id = "not-a-valid-id" }));
 
         ex.Errors.ShouldNotBeEmpty();

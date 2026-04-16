@@ -4,7 +4,7 @@ internal static class EnvironmentGuard
 {
     internal static bool IsAllowed(bool isForce)
     {
-        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
             ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
             ?? "Development";
 

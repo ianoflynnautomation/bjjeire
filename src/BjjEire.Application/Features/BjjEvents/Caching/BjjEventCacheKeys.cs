@@ -14,8 +14,8 @@ public static class BjjEventCacheKeys
 
     public static string All(int page, int pageSize, County? county, BjjEventType? type, bool includeInactive)
     {
-        var countyCachePart = (county?.ToString() ?? "None").ToLowerInvariant();
-        var typeCachePart = (type?.ToString() ?? "None").ToLowerInvariant();
+        string countyCachePart = (county?.ToString() ?? "None").ToLowerInvariant();
+        string typeCachePart = (type?.ToString() ?? "None").ToLowerInvariant();
         return string.Format(CultureInfo.InvariantCulture, AllComposite, page, pageSize, countyCachePart, typeCachePart, includeInactive);
     }
 

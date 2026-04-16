@@ -27,7 +27,7 @@ public sealed class GetBjjEventByPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = BjjEventCacheKeys.All(request.Page, request.PageSize, request.County, request.Type, request.IncludeInactive);
+        string cacheKey = BjjEventCacheKeys.All(request.Page, request.PageSize, request.County, request.Type, request.IncludeInactive);
 
         GetBjjEventPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetBjjEventPaginationQuery),
@@ -35,17 +35,17 @@ public sealed class GetBjjEventByPaginationQueryHandler(
             request.County?.ToString() ?? "N/A",
             request.Type?.ToString() ?? "N/A", cacheKey);
 
-        var result = await hybridCache.GetOrCreateAsync(
+        GetBjjEventPaginatedResponse result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
                 GetBjjEventPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
-                var query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
+                IQueryable<BjjEvent> query = bjjEventRepository.Table.Where(x => x.Status != EventStatus.Completed);
 
                 if (!request.IncludeInactive)
                 {
-                    var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+                    DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
                     query = query.Where(BjjEventSpecifications.Active(nowUtc));
                 }
 
@@ -61,10 +61,10 @@ public sealed class GetBjjEventByPaginationQueryHandler(
 
                 query = query.OrderBy(x => x.CreatedOnUtc);
 
-                var dtoQuery = query.ProjectTo<BjjEventDto>(mapper.ConfigurationProvider);
-                var filter = new PaginationFilter(request.Page, request.PageSize);
+                IQueryable<BjjEventDto> dtoQuery = query.ProjectTo<BjjEventDto>(mapper.ConfigurationProvider);
+                PaginationFilter filter = new(request.Page, request.PageSize);
 
-                var pagedData = await PaginationHelper.CreatePagedResponseAsync(
+                PagedResponse<BjjEventDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
                     dtoQuery, filter,
                     BjjEventsApiConstants.ControllerName, BjjEventsApiConstants.GetAllActionName,
                     uriService, null, ct);

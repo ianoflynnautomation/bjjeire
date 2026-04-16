@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import type { JSX } from 'react'
+import { ListPageHeader } from '@/components/ui/page-header/list-page-header'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
@@ -25,46 +26,21 @@ export const EventsPageHeader = memo(function EventsPageHeader({
     totalEvents === 1
       ? pageTitle.foundSuffixSingular
       : pageTitle.foundSuffixPlural
-  const totalEventsLabel =
+  const totalLabel =
     totalEvents === undefined
-      ? ''
+      ? undefined
       : `${pageTitle.foundPrefix} ${totalEvents} ${suffix}`
 
   return (
-    <header
-      className="relative mb-8 overflow-hidden rounded-3xl bg-white/80 px-5 py-6 backdrop-blur-sm ring-1 ring-black/8 sm:px-7 dark:bg-slate-800/40 dark:ring-white/8"
-      data-testid={baseTestId}
-    >
-      {/* Subtle Irish tricolor top accent */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -right-12 -top-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-10 left-16 h-28 w-28 rounded-full bg-orange-500/10 blur-2xl"
-        aria-hidden="true"
-      />
-      <div className="relative">
-        <h2
-          className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white"
-          data-testid={EventsPageTestIds.HEADER_TITLE}
-        >
-          {title}
-        </h2>
-        {totalEvents !== undefined && totalEvents > 0 && (
-          <p
-            className="mt-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-300"
-            data-testid={EventsPageTestIds.HEADER_TOTAL}
-            aria-live="polite"
-          >
-            {totalEventsLabel}
-          </p>
-        )}
-      </div>
-    </header>
+    <ListPageHeader
+      title={title}
+      totalLabel={totalLabel}
+      showTotal={totalEvents !== undefined && totalEvents > 0}
+      testIds={{
+        root: baseTestId,
+        title: EventsPageTestIds.HEADER_TITLE,
+        total: EventsPageTestIds.HEADER_TOTAL,
+      }}
+    />
   )
 })

@@ -16,10 +16,10 @@ public sealed class CompetitionDeactivator(
 {
     public async Task<long> DeactivateExpiredAsync(CancellationToken cancellationToken)
     {
-        var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-        var update = UpdateBuilder<Competition>.Create().Set(x => x.IsActive, false);
+        DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+        UpdateBuilder<Competition> update = UpdateBuilder<Competition>.Create().Set(x => x.IsActive, false);
 
-        var deactivatedCount = await repository.UpdateManyAsync(
+        long deactivatedCount = await repository.UpdateManyAsync(
             CompetitionSpecifications.Expired(nowUtc),
             update);
 

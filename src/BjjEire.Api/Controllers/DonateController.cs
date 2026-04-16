@@ -19,8 +19,8 @@ public class DonateController(IOptions<DonationOptions> options) : BaseApiContro
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult GetBitcoinQrCode()
     {
-        var qr = QrCode.EncodeText($"bitcoin:{_options.BitcoinAddress}", QrCode.Ecc.Medium);
-        var svg = qr.ToSvgString(4);
+        QrCode qr = QrCode.EncodeText($"bitcoin:{_options.BitcoinAddress}", QrCode.Ecc.Medium);
+        string svg = qr.ToSvgString(4);
         return Content(svg, "image/svg+xml");
     }
 }

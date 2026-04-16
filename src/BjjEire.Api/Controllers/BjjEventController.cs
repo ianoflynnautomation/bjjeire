@@ -16,7 +16,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync([FromQuery] GetBjjEventPaginationQuery query)
     {
-        var response = await _mediator.Send(query);
+        GetBjjEventPaginatedResponse response = await _mediator.Send(query);
 
         return Ok(response);
     }
@@ -31,7 +31,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateBjjEventCommand command)
     {
-        var response = await _mediator.Send(command);
+        CreateBjjEventResponse response = await _mediator.Send(command);
 
         return Created(string.Empty, response);
     }
@@ -47,7 +47,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync([FromBody] UpdateBjjEventCommand command)
     {
-        var response = await _mediator.Send(command);
+        UpdateBjjEventResponse response = await _mediator.Send(command);
 
         return Ok(response);
     }
@@ -67,7 +67,8 @@ public class BjjEventController(IMediator mediator) : BaseApiController
         {
             return BadRequest();
         }
-        var command = new DeleteBjjEventCommand { Id = id };
+        DeleteBjjEventCommand command = new()
+        { Id = id };
 
         _ = await _mediator.Send(command);
 

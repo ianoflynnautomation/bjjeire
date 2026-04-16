@@ -12,9 +12,9 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventControllerTests;
 
-[Trait("Category", "Sequential")]
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Integration")]
+[Trait("Category", "RateLimit")]
 public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
     : RateLimitSequentialIntegrationTestBase(output)
 {
@@ -27,7 +27,7 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
     {
         // Arrange & Act
         HttpResponseMessage? lastResponse = null;
-        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
             lastResponse = await HttpClient.GetAsync("api/bjjevent");
 
@@ -52,11 +52,11 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
     public async Task GetBjjEvent_WhenUnderRateLimit_ShouldSucceedAsync()
     {
         // Arrange
-        var requestsToMake = ConfiguredPermitLimit;
+        int requestsToMake = ConfiguredPermitLimit;
 
         // Act
-        var responses = new List<HttpResponseMessage>();
-        for (var i = 0; i < requestsToMake; i++)
+        List<HttpResponseMessage> responses = new();
+        for (int i = 0; i < requestsToMake; i++)
         {
             responses.Add(await HttpClient.GetAsync("api/bjjevent"));
             await Task.Delay(50);
@@ -71,7 +71,7 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
     public async Task GetBjjEvent_WhenWindowResets_ShouldAllowRequestsAgainAsync()
     {
         // Arrange
-        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
             _ = await HttpClient.GetAsync("api/bjjevent");
         }
@@ -80,7 +80,7 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
         await Task.Delay(TimeSpan.FromSeconds(ConfiguredWindowInSeconds + 1));
 
         // Act
-        var responseAfterReset = await HttpClient.GetAsync("api/bjjevent");
+        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync("api/bjjevent");
 
         // Assert
         responseAfterReset.StatusCode.ShouldBe(HttpStatusCode.OK);

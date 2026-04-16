@@ -13,12 +13,12 @@ public sealed class UpdateBjjEventCommandHandler(IBjjEventService bjjEventServic
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var bjjEventEntity = await bjjEventService.GetByIdAsync(request.Data.Id)
+        BjjEvent bjjEventEntity = await bjjEventService.GetByIdAsync(request.Data.Id)
  ?? throw new NotFoundException(nameof(BjjEvent), request.Data.Id);
 
         _ = mapper.Map(request.Data, bjjEventEntity);
         await bjjEventService.UpdateAsync(bjjEventEntity);
-        var resultDto = mapper.Map<BjjEventDto>(bjjEventEntity);
+        BjjEventDto resultDto = mapper.Map<BjjEventDto>(bjjEventEntity);
 
         return new UpdateBjjEventResponse { Data = resultDto };
     }

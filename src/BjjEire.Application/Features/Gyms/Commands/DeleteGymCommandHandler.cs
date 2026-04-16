@@ -1,5 +1,6 @@
 using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities.Gyms;
 
 namespace BjjEire.Application.Features.Gyms.Commands;
 
@@ -11,7 +12,7 @@ public sealed class DeleteGymCommandHandler(IGymService gymService)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var gymEntity = await gymService.GetByIdAsync(request.Id)
+        Gym gymEntity = await gymService.GetByIdAsync(request.Id)
  ?? throw new NotFoundException("Gym", request.Id);
 
         await gymService.DeleteAsync(gymEntity);

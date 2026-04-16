@@ -307,7 +307,7 @@ public static class ValidationRuleExtensions
         this IRuleBuilderOptions<T, string> ruleBuilder, string fieldName, IEnumerable<string> validSet,
         string formatDescription)
     {
-        var localSet = new HashSet<string>(validSet);
+        HashSet<string> localSet = new(validSet);
         return ruleBuilder
             .Must(item => string.IsNullOrEmpty(item) || localSet.Contains(item))
             .WithName(fieldName)
@@ -318,7 +318,7 @@ public static class ValidationRuleExtensions
        this IRuleBuilderInitial<T, string> ruleBuilder, string fieldName, IEnumerable<string> validSet,
        string formatDescription)
     {
-        var localSet = new HashSet<string>(validSet);
+        HashSet<string> localSet = new(validSet);
         return ruleBuilder
             .Must(item => string.IsNullOrEmpty(item) || localSet.Contains(item))
             .WithName(fieldName)

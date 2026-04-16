@@ -14,49 +14,49 @@ public sealed class SerilogExtensionsTests
     [Fact]
     public void GetRequestLogLevel_WhenExceptionPresent_ReturnsError()
     {
-        var ctx = ContextWith(statusCode: 200);
+        DefaultHttpContext ctx = ContextWith(statusCode: 200);
         Invoke(ctx, ex: new InvalidOperationException("boom")).ShouldBe(LogEventLevel.Error);
     }
 
     [Fact]
     public void GetRequestLogLevel_When5xxStatusCode_ReturnsError()
     {
-        var ctx = ContextWith(statusCode: 500);
+        DefaultHttpContext ctx = ContextWith(statusCode: 500);
         Invoke(ctx).ShouldBe(LogEventLevel.Error);
     }
 
     [Fact]
     public void GetRequestLogLevel_When503StatusCode_ReturnsError()
     {
-        var ctx = ContextWith(statusCode: 503);
+        DefaultHttpContext ctx = ContextWith(statusCode: 503);
         Invoke(ctx).ShouldBe(LogEventLevel.Error);
     }
 
     [Fact]
     public void GetRequestLogLevel_When4xxStatusCode_ReturnsWarning()
     {
-        var ctx = ContextWith(statusCode: 400);
+        DefaultHttpContext ctx = ContextWith(statusCode: 400);
         Invoke(ctx).ShouldBe(LogEventLevel.Warning);
     }
 
     [Fact]
     public void GetRequestLogLevel_When404StatusCode_ReturnsWarning()
     {
-        var ctx = ContextWith(statusCode: 404);
+        DefaultHttpContext ctx = ContextWith(statusCode: 404);
         Invoke(ctx).ShouldBe(LogEventLevel.Warning);
     }
 
     [Fact]
     public void GetRequestLogLevel_WhenHealthCheckSuccess_ReturnsVerbose()
     {
-        var ctx = ContextWith(statusCode: 200, path: "/health");
+        DefaultHttpContext ctx = ContextWith(statusCode: 200, path: "/health");
         Invoke(ctx).ShouldBe(LogEventLevel.Verbose);
     }
 
     [Fact]
     public void GetRequestLogLevel_WhenHealthCheckSuccessUpperCase_ReturnsVerbose()
     {
-        var ctx = ContextWith(statusCode: 200, path: "/HEALTH");
+        DefaultHttpContext ctx = ContextWith(statusCode: 200, path: "/HEALTH");
         Invoke(ctx).ShouldBe(LogEventLevel.Verbose);
     }
 
@@ -64,21 +64,21 @@ public sealed class SerilogExtensionsTests
     public void GetRequestLogLevel_WhenHealthCheckReturns4xx_ReturnsWarningNotVerbose()
     {
         // Health path but non-success status → Warning (not Verbose)
-        var ctx = ContextWith(statusCode: 503, path: "/health");
+        DefaultHttpContext ctx = ContextWith(statusCode: 503, path: "/health");
         Invoke(ctx).ShouldBe(LogEventLevel.Error);
     }
 
     [Fact]
     public void GetRequestLogLevel_WhenNormalRequest_ReturnsInformation()
     {
-        var ctx = ContextWith(statusCode: 200, path: "/api/gyms");
+        DefaultHttpContext ctx = ContextWith(statusCode: 200, path: "/api/gyms");
         Invoke(ctx).ShouldBe(LogEventLevel.Information);
     }
 
     [Fact]
     public void GetRequestLogLevel_When201Created_ReturnsInformation()
     {
-        var ctx = ContextWith(statusCode: 201, path: "/api/gyms");
+        DefaultHttpContext ctx = ContextWith(statusCode: 201, path: "/api/gyms");
         Invoke(ctx).ShouldBe(LogEventLevel.Information);
     }
 
@@ -87,7 +87,7 @@ public sealed class SerilogExtensionsTests
 
     private static DefaultHttpContext ContextWith(int statusCode, string path = "/api/test")
     {
-        var ctx = new DefaultHttpContext();
+        DefaultHttpContext ctx = new();
         ctx.Response.StatusCode = statusCode;
         ctx.Request.Path = path;
         return ctx;

@@ -19,7 +19,7 @@ public static class ReadOnlyModeExtensions
     {
         return app.Use(async (context, next) =>
         {
-            var options = context.RequestServices.GetRequiredService<IOptions<ReadOnlyModeOptions>>().Value;
+            ReadOnlyModeOptions options = context.RequestServices.GetRequiredService<IOptions<ReadOnlyModeOptions>>().Value;
 
             if (!options.Enabled || AllowedMethods.Contains(context.Request.Method))
             {
@@ -27,7 +27,7 @@ public static class ReadOnlyModeExtensions
                 return;
             }
 
-            var problem = new ProblemDetails
+            ProblemDetails problem = new()
             {
                 Status = StatusCodes.Status405MethodNotAllowed,
                 Title = "Method Not Allowed",

@@ -11,7 +11,7 @@ public static class AuthenticationExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var azureAdSection = configuration.GetSection(AzureAdOptions.SectionName);
+        IConfigurationSection azureAdSection = configuration.GetSection(AzureAdOptions.SectionName);
         if (!azureAdSection.Exists())
         {
             throw new InvalidOperationException($"Configuration section '{AzureAdOptions.SectionName}' not found. Entra ID authentication cannot be configured.");
@@ -30,14 +30,14 @@ public static class AuthenticationExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        var isDevelopment = string.Equals(
+        bool isDevelopment = string.Equals(
             configuration["ASPNETCORE_ENVIRONMENT"], "Development",
             StringComparison.OrdinalIgnoreCase);
 
         if (isDevelopment)
             return; // Allow missing values in Development; Entra auth will fail per-request but ApiKey remains functional
 
-        var errors = new List<string>();
+        List<string> errors = new();
         if (string.IsNullOrWhiteSpace(options.TenantId))
         { errors.Add($"{nameof(options.TenantId)} is missing."); }
         if (string.IsNullOrWhiteSpace(options.ClientId))

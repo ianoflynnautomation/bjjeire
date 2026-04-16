@@ -6,7 +6,7 @@ public static class CorsExtensions
 {
     internal static IHostApplicationBuilder ConfigureCors(this IHostApplicationBuilder builder)
     {
-        var corsOptions = builder.Configuration
+        CorsOptions corsOptions = builder.Configuration
             .GetSection(CorsOptions.SectionName)
             .Get<CorsOptions>() ?? new CorsOptions();
 

@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Commands;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class UpdateBjjEventCommandHandlerTests
 {
@@ -29,10 +29,11 @@ public sealed class UpdateBjjEventCommandHandlerTests
     public async Task Handle_EntityFound_MapsUpdateAndReturnsDto()
     {
         // Arrange
-        var dto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
-        var command = new UpdateBjjEventCommand { Data = dto };
-        var existingEntity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
-        var resultDto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
+        BjjEventDto dto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
+        UpdateBjjEventCommand command = new()
+        { Data = dto };
+        BjjEvent existingEntity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
+        BjjEventDto resultDto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
 
         _serviceMock
             .Setup(s => s.GetByIdAsync(ObjectIds.Valid1))
@@ -51,7 +52,7 @@ public sealed class UpdateBjjEventCommandHandlerTests
             .Returns(resultDto);
 
         // Act
-        var response = await _handler.Handle(command, CancellationToken.None);
+        UpdateBjjEventResponse response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         response.ShouldNotBeNull();
@@ -65,14 +66,15 @@ public sealed class UpdateBjjEventCommandHandlerTests
     public async Task Handle_EntityNotFound_ThrowsNotFoundException()
     {
         // Arrange
-        var command = new UpdateBjjEventCommand { Data = BjjEventTestData.ValidDto(ObjectIds.Valid1) };
+        UpdateBjjEventCommand command = new()
+        { Data = BjjEventTestData.ValidDto(ObjectIds.Valid1) };
 
         _serviceMock
             .Setup(s => s.GetByIdAsync(ObjectIds.Valid1))
             .Returns(Task.FromResult<BjjEvent>(null!));
 
         // Act & Assert
-        var ex = await Should.ThrowAsync<NotFoundException>(
+        NotFoundException ex = await Should.ThrowAsync<NotFoundException>(
             () => _handler.Handle(command, CancellationToken.None));
 
         ex.Message.ShouldContain(ObjectIds.Valid1);
@@ -89,9 +91,10 @@ public sealed class UpdateBjjEventCommandHandlerTests
     [Fact]
     public async Task Handle_EntityFound_NeverCallsInsertOrDelete()
     {
-        var dto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
-        var command = new UpdateBjjEventCommand { Data = dto };
-        var entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
+        BjjEventDto dto = BjjEventTestData.ValidDto(ObjectIds.Valid1);
+        UpdateBjjEventCommand command = new()
+        { Data = dto };
+        BjjEvent entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
 
         _serviceMock.Setup(s => s.GetByIdAsync(ObjectIds.Valid1)).ReturnsAsync(entity);
         _mapperMock.Setup(m => m.Map(It.IsAny<BjjEventDto>(), It.IsAny<BjjEvent>())).Returns(entity);

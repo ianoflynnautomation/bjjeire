@@ -1,5 +1,6 @@
 global using System.Net.Http.Json;
 
+global using BjjEire.Api.IntegrationTests.Fixtures.Collections;
 global using BjjEire.Api.IntegrationTests.TestBases;
 global using BjjEire.Core.Common;
 global using BjjEire.Core.Data;

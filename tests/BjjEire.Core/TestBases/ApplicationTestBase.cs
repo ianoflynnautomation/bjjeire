@@ -30,10 +30,7 @@ public class ApplicationTestBase : IAsyncLifetime
         Database = _scope.ServiceProvider.GetRequiredService<ITestDatabaseService>();
     }
 
-    public virtual async Task InitializeAsync()
-    {
-        await Database.ClearCollectionsAsync().ConfigureAwait(false);
-    }
+    public virtual async Task InitializeAsync() => await Database.ClearCollectionsAsync().ConfigureAwait(false);
 
     public virtual Task DisposeAsync()
     {
@@ -43,7 +40,7 @@ public class ApplicationTestBase : IAsyncLifetime
 
     protected Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
-        var mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
+        IMediator mediator = _scope.ServiceProvider.GetRequiredService<IMediator>();
         return mediator.Send(request);
     }
 
@@ -51,10 +48,10 @@ public class ApplicationTestBase : IAsyncLifetime
         where TEntity : BaseEntity
         where TDto : class
     {
-        var repository = _scope.ServiceProvider.GetRequiredService<IRepository<TEntity>>();
-        var mapper = _scope.ServiceProvider.GetRequiredService<IMapper>();
+        IRepository<TEntity> repository = _scope.ServiceProvider.GetRequiredService<IRepository<TEntity>>();
+        IMapper mapper = _scope.ServiceProvider.GetRequiredService<IMapper>();
 
-        var entity = await repository.GetByIdAsync(id.ToString()!).ConfigureAwait(false);
+        TEntity entity = await repository.GetByIdAsync(id.ToString()!).ConfigureAwait(false);
         return entity == null ? default : mapper.Map<TDto>(entity);
     }
 }

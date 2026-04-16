@@ -10,10 +10,10 @@ public class EnumSchemaTransformer : IOpenApiSchemaTransformer
 
         if (context.JsonTypeInfo.Type.IsEnum)
         {
-            var enumValues = Enum.GetValues(context.JsonTypeInfo.Type);
-            foreach (var item in enumValues)
+            Array enumValues = Enum.GetValues(context.JsonTypeInfo.Type);
+            foreach (object? item in enumValues)
             {
-                var name = Enum.GetName(context.JsonTypeInfo.Type, item);
+                string? name = Enum.GetName(context.JsonTypeInfo.Type, item);
                 schema.Description += $"{(int)item} - {name}; ";
             }
         }

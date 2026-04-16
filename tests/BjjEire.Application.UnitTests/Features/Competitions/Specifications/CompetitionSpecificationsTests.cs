@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.Competitions.Specifications;
 
-[Trait("Category", "Competition")]
+[Trait("Feature", "Competitions")]
 [Trait("Category", "Unit")]
 public sealed class CompetitionSpecificationsTests
 {
@@ -26,8 +26,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Active_CurrentlyRunningCompetition_ReturnsTrue()
     {
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
 
@@ -39,8 +39,8 @@ public sealed class CompetitionSpecificationsTests
     {
         // A competition that hasn't started yet is still considered listable/active —
         // users need to see upcoming events. Only expired or deactivated should drop out.
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(30),
             endDate: Now.AddDays(31));
 
@@ -50,8 +50,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Active_ExpiredCompetition_ReturnsFalse()
     {
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-10),
             endDate: Now.AddDays(-1));
 
@@ -61,8 +61,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Active_FlaggedInactive_ReturnsFalse()
     {
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             isActive: false,
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
@@ -73,8 +73,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Active_OpenEndedCompetition_ReturnsTrue()
     {
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-1),
             endDate: null);
 
@@ -84,8 +84,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Active_NoStartDate_ReturnsTrueWhenNotExpired()
     {
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: null,
             endDate: Now.AddDays(1));
 
@@ -96,8 +96,8 @@ public sealed class CompetitionSpecificationsTests
     public void Active_EndDateExactlyNow_ReturnsTrue()
     {
         // Boundary: endDate >= now, so a competition ending exactly at 'now' is still active.
-        var predicate = CompetitionSpecifications.Active(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Active(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-1),
             endDate: Now);
 
@@ -109,8 +109,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Expired_ActiveCompetitionWithPastEndDate_ReturnsTrue()
     {
-        var predicate = CompetitionSpecifications.Expired(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Expired(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-10),
             endDate: Now.AddDays(-1));
 
@@ -122,8 +122,8 @@ public sealed class CompetitionSpecificationsTests
     {
         // Idempotency: an already-deactivated competition must not match the sweep filter,
         // otherwise the background job would re-update the same documents every run.
-        var predicate = CompetitionSpecifications.Expired(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Expired(Now).Compile();
+        Competition competition = Build(
             isActive: false,
             endDate: Now.AddDays(-1));
 
@@ -134,8 +134,8 @@ public sealed class CompetitionSpecificationsTests
     public void Expired_OpenEndedCompetition_ReturnsFalse()
     {
         // Null EndDate = open-ended. The sweep must leave these alone.
-        var predicate = CompetitionSpecifications.Expired(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Expired(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-365),
             endDate: null);
 
@@ -145,8 +145,8 @@ public sealed class CompetitionSpecificationsTests
     [Fact]
     public void Expired_FutureEndDate_ReturnsFalse()
     {
-        var predicate = CompetitionSpecifications.Expired(Now).Compile();
-        var competition = Build(
+        Func<Competition, bool> predicate = CompetitionSpecifications.Expired(Now).Compile();
+        Competition competition = Build(
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
 
@@ -157,8 +157,8 @@ public sealed class CompetitionSpecificationsTests
     public void Expired_EndDateExactlyNow_ReturnsFalse()
     {
         // Boundary: Expired is strict less-than, so end == now is NOT expired (matches Active).
-        var predicate = CompetitionSpecifications.Expired(Now).Compile();
-        var competition = Build(endDate: Now);
+        Func<Competition, bool> predicate = CompetitionSpecifications.Expired(Now).Compile();
+        Competition competition = Build(endDate: Now);
 
         predicate(competition).ShouldBeFalse();
     }

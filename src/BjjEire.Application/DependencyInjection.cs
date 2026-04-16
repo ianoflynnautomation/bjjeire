@@ -50,7 +50,7 @@ public static class DependencyInjection
 
     public static void RegisterRequestHandler(this IServiceCollection services)
     {
-        var handlerTypes = new (Type dto, Type entity)[]
+        (Type dto, Type entity)[] handlerTypes = new (Type dto, Type entity)[]
         {
             (typeof(BjjEventDto), typeof(BjjEvent)),
             (typeof(GymDto), typeof(Gym))

@@ -24,7 +24,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
 #pragma warning disable S2139
         catch (Exception ex) when (ex is not ValidationException)
         {
-            var httpContext = httpContextAccessor.HttpContext;
+            HttpContext? httpContext = httpContextAccessor.HttpContext;
             UnhandledExceptionBehaviourLog.UnhandledException(
                 logger, ex,
                 typeof(TRequest).Name,

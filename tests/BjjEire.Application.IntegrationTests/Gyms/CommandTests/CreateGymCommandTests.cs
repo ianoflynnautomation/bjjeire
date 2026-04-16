@@ -3,7 +3,8 @@
 
 namespace BjjEire.Application.IntegrationTests.Gyms.CommandTests;
 
-[Collection(AppIntegrationCollection.Name)]
+[Collection(GymApplicationCollection.Name)]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Integration")]
 public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper) : ApplicationTestBase(apiFactory, outputHelper)
 {
@@ -11,10 +12,10 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     public async Task CreateGym_WithValidData_ShouldCreateGymAsync()
     {
         // Arrange
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
 
         // Act
-        var response = await SendAsync(command);
+        CreateGymResponse response = await SendAsync(command);
 
         // Assert
         _ = response.ShouldNotBeNull();
@@ -22,7 +23,7 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
         response.Data.Name.ShouldBe(command.Data.Name);
         response.Data.Id.ShouldNotBeNullOrWhiteSpace();
 
-        var createdGymDtoFromDb = await FindAsync<Gym, GymDto>(response.Data.Id!);
+        GymDto? createdGymDtoFromDb = await FindAsync<Gym, GymDto>(response.Data.Id!);
         _ = createdGymDtoFromDb.ShouldNotBeNull();
         createdGymDtoFromDb.ShouldBeEquivalentTo(command.Data);
     }
@@ -31,10 +32,11 @@ public class CreateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     public async Task CreateGym_WithNullData_ShouldReturnBadRequestAsync()
     {
         // Arrange
-        var command = new CreateGymCommand { Data = null! };
+        CreateGymCommand command = new()
+        { Data = null! };
 
         // Act
-        var exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command).ConfigureAwait(false));
+        ValidationException exception = await Should.ThrowAsync<ValidationException>(async () => _ = await SendAsync(command).ConfigureAwait(false));
 
         // Assert
         exception.Errors.ShouldNotBeEmpty();

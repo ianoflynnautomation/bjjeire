@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { GymsList } from '@/features/gyms/components/gym-list'
 import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
 import { GymsHeroBanner } from '@/features/gyms/components/gyms-hero-banner'
-import { GymSearchInput } from '@/features/gyms/components/gym-search-input'
+import { ListSearchInput } from '@/components/ui/search/list-search-input'
 import SelectFilter from '@/components/ui/filters/select-filter'
 import Pagination from '@/components/ui/grid/pagination'
 import { COUNTIES } from '@/constants/counties'
@@ -17,7 +17,7 @@ const { filters, search } = uiContent.gyms
 
 export default function GymsPage(): JSX.Element {
   const {
-    filteredGyms,
+    filteredItems: filteredGyms,
     paginationInfo,
     isLoading,
     isFetching,
@@ -60,7 +60,9 @@ export default function GymsPage(): JSX.Element {
               className="sm:w-64 shrink-0"
             />
             <div className="sm:w-160 shrink-0">
-              <GymSearchInput
+              <ListSearchInput
+                inputId="gym-search"
+                content={search}
                 value={gymSearch.searchTerm}
                 onChange={gymSearch.setSearchTerm}
                 onClear={gymSearch.clearSearch}

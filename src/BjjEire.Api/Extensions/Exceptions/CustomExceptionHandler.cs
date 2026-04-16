@@ -13,9 +13,9 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         ArgumentNullException.ThrowIfNull(httpContext);
         ArgumentNullException.ThrowIfNull(exception);
 
-        var userId = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
+        string userId = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
 
-        var problemDetails = exception switch
+        ProblemDetails problemDetails = exception switch
         {
             ValidationException validationEx => HandleValidationException(validationEx, httpContext),
             CustomException customEx => HandleCustomException(customEx, httpContext),
@@ -36,7 +36,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ValidationErrorResponse HandleValidationException(ValidationException exception, HttpContext httpContext)
     {
-        var validationErrors = exception.Errors.Select(e => new ValidationErrorResponse.ValidationErrorDetail
+        List<ValidationErrorResponse.ValidationErrorDetail> validationErrors = exception.Errors.Select(e => new ValidationErrorResponse.ValidationErrorDetail
         {
             Field = e.PropertyName ?? string.Empty,
             Message = e.ErrorMessage ?? string.Empty,
@@ -56,7 +56,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ProblemDetails HandleCustomException(CustomException exception, HttpContext httpContext)
     {
-        var problemDetails = new ProblemDetails
+        ProblemDetails problemDetails = new()
         {
             Type = exception.Type ?? "urn:bjjeire:application-error",
             Title = exception.Title ?? "Application Error",
@@ -74,10 +74,10 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ProblemDetails HandleUnauthorizedAccessException(HttpContext httpContext)
     {
-        var status = StatusCodes.Status401Unauthorized;
-        var title = "Unauthorized";
-        var detail = "Authentication is required and has failed or has not yet been provided.";
-        var type = "https://tools.ietf.org/html/rfc7235#section-3.1";
+        int status = StatusCodes.Status401Unauthorized;
+        string title = "Unauthorized";
+        string detail = "Authentication is required and has failed or has not yet been provided.";
+        string type = "https://tools.ietf.org/html/rfc7235#section-3.1";
 
         if (httpContext.User.Identity?.IsAuthenticated == true)
         {
@@ -111,9 +111,9 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext, string userId)
     {
-        var errorId = Guid.NewGuid().ToString();
+        string errorId = Guid.NewGuid().ToString();
         const string title = "Internal Server Error";
-        var detail = environment.IsDevelopment() || environment.IsEnvironment("Docker")
+        string detail = environment.IsDevelopment() || environment.IsEnvironment("Docker")
             ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
             : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
 
@@ -129,8 +129,8 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private void LogHandledException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails, string userId)
     {
-        var exType = exception.GetType().FullName ?? exception.GetType().Name;
-        var traceId = httpContext.TraceIdentifier;
+        string exType = exception.GetType().FullName ?? exception.GetType().Name;
+        string traceId = httpContext.TraceIdentifier;
 
         if (problemDetails.Status >= 500)
         {

@@ -12,10 +12,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_ValidationException_Returns400()
     {
-        var (handler, ctx) = Build();
-        var ex = new ValidationException([new ValidationFailure("Name", "Required") { ErrorCode = "NOT_EMPTY" }]);
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
+        ValidationException ex = new([new ValidationFailure("Name", "Required") { ErrorCode = "NOT_EMPTY" }]);
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
@@ -24,13 +24,13 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_ValidationException_MapsAllErrors()
     {
-        var (handler, ctx) = Build();
-        var failures = new[]
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
+        ValidationFailure[] failures = new[]
         {
             new ValidationFailure("Name", "Required") { ErrorCode = "NOT_EMPTY" },
             new ValidationFailure("Email", "Invalid format") { ErrorCode = "EMAIL" }
         };
-        var ex = new ValidationException(failures);
+        ValidationException ex = new(failures);
 
         await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
@@ -40,10 +40,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_NotFoundException_Returns404()
     {
-        var (handler, ctx) = Build();
-        var ex = new NotFoundException("Gym", "abc123");
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
+        NotFoundException ex = new("Gym", "abc123");
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
@@ -52,10 +52,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_ConcurrencyException_Returns409()
     {
-        var (handler, ctx) = Build();
-        var ex = new ConcurrencyException("Write conflict detected.");
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
+        ConcurrencyException ex = new("Write conflict detected.");
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
@@ -64,10 +64,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_UnauthorizedException_WhenUnauthenticated_Returns401()
     {
-        var (handler, ctx) = Build(isAuthenticated: false);
-        var ex = new UnauthorizedAccessException();
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build(isAuthenticated: false);
+        UnauthorizedAccessException ex = new();
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
@@ -76,10 +76,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_UnauthorizedException_WhenAuthenticated_Returns403()
     {
-        var (handler, ctx) = Build(isAuthenticated: true);
-        var ex = new UnauthorizedAccessException();
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build(isAuthenticated: true);
+        UnauthorizedAccessException ex = new();
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
@@ -88,10 +88,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_CustomException_MapsStatusCode()
     {
-        var (handler, ctx) = Build();
-        var ex = new CustomException("Payment required.", HttpStatusCode.PaymentRequired);
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
+        CustomException ex = new("Payment required.", HttpStatusCode.PaymentRequired);
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe((int)HttpStatusCode.PaymentRequired);
@@ -100,10 +100,10 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_UnexpectedException_Returns500()
     {
-        var (handler, ctx) = Build(environment: "Production");
-        var ex = new InvalidOperationException("Something broke.");
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build(environment: "Production");
+        InvalidOperationException ex = new("Something broke.");
 
-        var result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
+        bool result = await handler.TryHandleAsync(ctx, ex, CancellationToken.None);
 
         result.ShouldBeTrue();
         ctx.Response.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
@@ -112,7 +112,7 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_NullHttpContext_ThrowsArgumentNullException()
     {
-        var (handler, _) = Build();
+        (CustomExceptionHandler? handler, DefaultHttpContext _) = Build();
         await Should.ThrowAsync<ArgumentNullException>(
             async () => await handler.TryHandleAsync(null!, new InvalidOperationException(), CancellationToken.None));
     }
@@ -120,7 +120,7 @@ public sealed class CustomExceptionHandlerTests
     [Fact]
     public async Task TryHandleAsync_NullException_ThrowsArgumentNullException()
     {
-        var (handler, ctx) = Build();
+        (CustomExceptionHandler? handler, DefaultHttpContext? ctx) = Build();
         await Should.ThrowAsync<ArgumentNullException>(
             async () => await handler.TryHandleAsync(ctx, null!, CancellationToken.None));
     }
@@ -128,11 +128,11 @@ public sealed class CustomExceptionHandlerTests
     private static (CustomExceptionHandler handler, DefaultHttpContext ctx)
         Build(string environment = "Production", bool isAuthenticated = false)
     {
-        var logger = new Mock<ILogger<CustomExceptionHandler>>();
-        var env = new Mock<IHostEnvironment>();
+        Mock<ILogger<CustomExceptionHandler>> logger = new();
+        Mock<IHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(environment);
 
-        var ctx = new DefaultHttpContext();
+        DefaultHttpContext ctx = new();
         ctx.Response.Body = new MemoryStream();
         ctx.TraceIdentifier = "test-trace";
 
@@ -142,7 +142,7 @@ public sealed class CustomExceptionHandlerTests
                 new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "user-123")], "Bearer"));
         }
 
-        var handler = new CustomExceptionHandler(logger.Object, env.Object);
+        CustomExceptionHandler handler = new(logger.Object, env.Object);
         return (handler, ctx);
     }
 }

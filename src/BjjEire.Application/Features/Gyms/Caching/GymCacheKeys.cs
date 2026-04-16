@@ -14,7 +14,7 @@ public static class GymCacheKeys
 
     public static string All(int page, int pageSize, County? county)
     {
-        var countyCachePart = (county?.ToString() ?? "None").ToLowerInvariant();
+        string countyCachePart = (county?.ToString() ?? "None").ToLowerInvariant();
         return string.Format(CultureInfo.InvariantCulture, AllComposite, page, pageSize, countyCachePart);
     }
 

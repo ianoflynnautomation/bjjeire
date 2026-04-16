@@ -58,7 +58,7 @@ public static class DependencyInjection
 
     private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString(MongoDbConnectionStringName);
+        string? connectionString = configuration.GetConnectionString(MongoDbConnectionStringName);
 
         if (string.IsNullOrWhiteSpace(connectionString))
         {
@@ -67,7 +67,7 @@ public static class DependencyInjection
 
         _ = services.AddSingleton<IMongoClient>(_ =>
         {
-            var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+            MongoClientSettings clientSettings = MongoClientSettings.FromConnectionString(connectionString);
             clientSettings.ServerApi = new ServerApi(ServerApiVersion.V1);
             clientSettings.MaxConnectionPoolSize = 100;
             return new MongoClient(clientSettings);
@@ -75,9 +75,9 @@ public static class DependencyInjection
 
         _ = services.AddSingleton<IMongoDatabase>(sp =>
         {
-            var client = sp.GetRequiredService<IMongoClient>();
-            var mongoUrl = MongoUrl.Create(connectionString);
-            var databaseName = mongoUrl.DatabaseName;
+            IMongoClient client = sp.GetRequiredService<IMongoClient>();
+            MongoUrl mongoUrl = MongoUrl.Create(connectionString);
+            string databaseName = mongoUrl.DatabaseName;
 
             return string.IsNullOrWhiteSpace(databaseName)
                     ? throw new InvalidOperationException($"MongoDB database name could not be determined from connection string '{MongoDbConnectionStringName}'.")
@@ -103,7 +103,7 @@ public static class DependencyInjection
                 )
             );
 
-            var conventionPack = new ConventionPack
+            ConventionPack conventionPack = new()
             {
               new IgnoreExtraElementsConvention(true),
               new CamelCaseElementNameConvention(),

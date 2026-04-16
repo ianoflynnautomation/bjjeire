@@ -23,7 +23,7 @@ internal static class CollectionRunner
     /// </summary>
     internal static string[] ResolveDataSources(string slug)
     {
-        var dir = Path.Combine("data", slug);
+        string dir = Path.Combine("data", slug);
         if (!Directory.Exists(dir))
             return [];
 
@@ -35,7 +35,7 @@ internal static class CollectionRunner
 
     internal static async Task<int> RunAsync(SeederService seeder, string? filter)
     {
-        var toRun = filter is null
+        Collection[] toRun = filter is null
             ? All
             : All.Where(c => c.Name == filter).ToArray();
 
@@ -45,10 +45,10 @@ internal static class CollectionRunner
             return 1;
         }
 
-        var exitCode = 0;
-        foreach (var c in toRun)
+        int exitCode = 0;
+        foreach (Collection? c in toRun)
         {
-            foreach (var file in ResolveDataSources(c.Slug))
+            foreach (string file in ResolveDataSources(c.Slug))
                 exitCode |= await c.Seed(seeder, file);
         }
 

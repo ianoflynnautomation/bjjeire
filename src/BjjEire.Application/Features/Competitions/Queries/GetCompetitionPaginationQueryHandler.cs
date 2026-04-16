@@ -25,32 +25,32 @@ public sealed class GetCompetitionPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = CompetitionCacheKeys.All(request.Page, request.PageSize, request.IncludeInactive);
+        string cacheKey = CompetitionCacheKeys.All(request.Page, request.PageSize, request.IncludeInactive);
 
         GetCompetitionPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetCompetitionPaginationQuery),
             request.Page, request.PageSize, cacheKey);
 
-        var result = await hybridCache.GetOrCreateAsync(
+        GetCompetitionPaginatedResponse result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
                 GetCompetitionPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
-                var query = competitionRepository.Table.AsQueryable();
+                IQueryable<Competition> query = competitionRepository.Table.AsQueryable();
 
                 if (!request.IncludeInactive)
                 {
-                    var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+                    DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
                     query = query.Where(CompetitionSpecifications.Active(nowUtc));
                 }
 
                 query = query.OrderBy(x => x.StartDate == null).ThenBy(x => x.StartDate).ThenBy(x => x.Name);
 
-                var dtoQuery = query.ProjectTo<CompetitionDto>(mapper.ConfigurationProvider);
-                var filter = new PaginationFilter(request.Page, request.PageSize);
+                IQueryable<CompetitionDto> dtoQuery = query.ProjectTo<CompetitionDto>(mapper.ConfigurationProvider);
+                PaginationFilter filter = new(request.Page, request.PageSize);
 
-                var pagedData = await PaginationHelper.CreatePagedResponseAsync(
+                PagedResponse<CompetitionDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
                     dtoQuery, filter,
                     CompetitionsApiConstants.ControllerName, CompetitionsApiConstants.GetAllActionName,
                     uriService, null, ct);

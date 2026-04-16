@@ -8,11 +8,13 @@ using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Validators;
 using BjjEire.Domain.Enums;
 
+using FluentValidation.Results;
+
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class BjjEventDtoValidatorTests
 {
@@ -20,12 +22,12 @@ public sealed class BjjEventDtoValidatorTests
 
     public BjjEventDtoValidatorTests()
     {
-        var geoValidator = new GeoCoordinatesDtoValidator();
-        var locationValidator = new LocationDtoValidator(geoValidator);
-        var socialMediaValidator = new SocialMediaDtoValidator();
-        var organizerValidator = new OrganizerDtoValidator();
-        var scheduleValidator = new BjjEventScheduleDtoValidator();
-        var pricingValidator = new PricingModelDtoValidator();
+        GeoCoordinatesDtoValidator geoValidator = new();
+        LocationDtoValidator locationValidator = new(geoValidator);
+        SocialMediaDtoValidator socialMediaValidator = new();
+        OrganizerDtoValidator organizerValidator = new();
+        BjjEventScheduleDtoValidator scheduleValidator = new();
+        PricingModelDtoValidator pricingValidator = new();
 
         _validator = new BjjEventDtoValidator(
             organizerValidator,
@@ -40,7 +42,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_ValidDto_PassesWithNoErrors()
     {
-        var result = await _validator.ValidateAsync(BjjEventTestData.ValidDto());
+        ValidationResult result = await _validator.ValidateAsync(BjjEventTestData.ValidDto());
 
         result.IsValid.ShouldBeTrue();
         result.Errors.ShouldBeEmpty();
@@ -54,9 +56,9 @@ public sealed class BjjEventDtoValidatorTests
     [InlineData("ZZZZZZZZZZZZZZZZZZZZZZZZ")]
     public async Task Validate_InvalidId_FailsWithIdFormatError(string badId)
     {
-        var dto = BjjEventTestData.ValidDto(badId);
+        BjjEventDto dto = BjjEventTestData.ValidDto(badId);
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Id");
@@ -69,10 +71,10 @@ public sealed class BjjEventDtoValidatorTests
     [InlineData("   ")]
     public async Task Validate_BlankName_FailsWithRequiredError(string name)
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Name = name;
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Name");
@@ -81,10 +83,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_NameExceeds100Chars_FailsWithMaxLengthError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Name = new string('A', 101);
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Name" && e.ErrorCode == "MAX_LENGTH_EXCEEDED");
@@ -93,10 +95,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_NameAtMaxLength_Passes()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Name = new string('A', 100);
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -106,10 +108,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_NullOrganiser_FailsWithNotNullError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Organiser = null!;
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Organiser" && e.ErrorCode == "NOT_NULL");
@@ -118,10 +120,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_OrganiserWithEmptyName_FailsWithRequiredError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Organiser = new OrganizerDto { Name = "", Website = "" };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Name"));
@@ -130,10 +132,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_OrganiserWithInvalidWebsite_FailsWithUrlError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Organiser = new OrganizerDto { Name = "Club", Website = "not-a-url" };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Website") && e.ErrorCode == "INVALID_URL");
@@ -147,10 +149,10 @@ public sealed class BjjEventDtoValidatorTests
     [InlineData("http:/missing-slash.com")]
     public async Task Validate_InvalidEventUrl_FailsWithUrlError(string badUrl)
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.EventUrl = badUrl;
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "EventUrl" && e.ErrorCode == "INVALID_URL");
@@ -160,10 +162,10 @@ public sealed class BjjEventDtoValidatorTests
     public async Task Validate_EmptyEventUrl_Passes()
     {
         // Empty string is treated as "no URL provided" — allowed.
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.EventUrl = "";
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -173,10 +175,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_NullSchedule_FailsWithNotNullError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Schedule = null!;
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Schedule" && e.ErrorCode == "NOT_NULL");
@@ -185,8 +187,8 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_EndDateBeforeStartDate_FailsWithGreaterThanOrEqualError()
     {
-        var dto = BjjEventTestData.ValidDto();
-        var now = DateTime.UtcNow;
+        BjjEventDto dto = BjjEventTestData.ValidDto();
+        DateTime now = DateTime.UtcNow;
         dto.Schedule = new BjjEventScheduleDto
         {
             StartDate = now.AddDays(5),
@@ -202,7 +204,7 @@ public sealed class BjjEventDtoValidatorTests
             ]
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Schedule.EndDate" && e.ErrorCode == "GREATER_THAN_OR_EQUAL");
@@ -211,7 +213,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_ScheduleWithNullHours_FailsWithNotNullError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Schedule = new BjjEventScheduleDto
         {
             StartDate = DateTime.UtcNow.AddDays(1),
@@ -219,7 +221,7 @@ public sealed class BjjEventDtoValidatorTests
             Hours = null
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Hours"));
@@ -228,10 +230,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_ScheduleWithEmptyHours_FailsWithRequiredError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Schedule.Hours = [];
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Hours"));
@@ -240,7 +242,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_HoursWithCloseTimeLessThanOpenTime_FailsWithGreaterThanError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Schedule.Hours =
         [
             new BjjEventHoursDto
@@ -251,7 +253,7 @@ public sealed class BjjEventDtoValidatorTests
             }
         ];
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("CloseTime") && e.ErrorCode == "GREATER_THAN");
@@ -262,7 +264,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_FreePricingWithNonZeroAmount_FailsValidation()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Pricing = new PricingModelDto
         {
             Type = PricingType.Free,
@@ -271,7 +273,7 @@ public sealed class BjjEventDtoValidatorTests
             DurationDays = null
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Pricing.Amount" && e.ErrorCode == "MUST_BE_ZERO_WHEN_FREE");
@@ -280,7 +282,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_PaidPricingWithZeroAmount_FailsValidation()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Pricing = new PricingModelDto
         {
             Type = PricingType.FlatRate,
@@ -289,7 +291,7 @@ public sealed class BjjEventDtoValidatorTests
             DurationDays = 30
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Pricing.Amount" && e.ErrorCode == "MUST_BE_POSITIVE_FOR_PAID");
@@ -298,7 +300,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_FlatRatePricingWithMissingDurationDays_FailsValidation()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Pricing = new PricingModelDto
         {
             Type = PricingType.FlatRate,
@@ -307,7 +309,7 @@ public sealed class BjjEventDtoValidatorTests
             DurationDays = null    // required for FlatRate
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("DurationDays") && e.ErrorCode == "CONDITIONAL_FIELD_REQUIRED");
@@ -316,7 +318,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_PaidPricingWithInvalidCurrency_FailsValidation()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Pricing = new PricingModelDto
         {
             Type = PricingType.PerSession,
@@ -325,7 +327,7 @@ public sealed class BjjEventDtoValidatorTests
             DurationDays = null
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Currency") && e.ErrorCode == "INVALID_FORMAT");
@@ -334,7 +336,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_ValidFlatRatePricing_Passes()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Pricing = new PricingModelDto
         {
             Type = PricingType.FlatRate,
@@ -343,7 +345,7 @@ public sealed class BjjEventDtoValidatorTests
             DurationDays = 30
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -353,10 +355,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_NullLocation_FailsWithNotNullError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Location = null!;
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Location" && e.ErrorCode == "NOT_NULL");
@@ -365,10 +367,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_LocationWithLatitudeOutOfRange_FailsValidation()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Location.Coordinates.Coordinates = [dto.Location.Coordinates.Coordinates[0], 91.0];
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Latitude"));
@@ -379,10 +381,10 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_SocialMediaWithInvalidInstagramUrl_FailsWithUrlError()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.SocialMedia = new SocialMediaDto { Instagram = "not-a-url" };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName.Contains("Instagram") && e.ErrorCode == "INVALID_URL");
@@ -391,7 +393,7 @@ public sealed class BjjEventDtoValidatorTests
     [Fact]
     public async Task Validate_SocialMediaWithAllValidUrls_Passes()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.SocialMedia = new SocialMediaDto
         {
             Instagram = "https://instagram.com/club",
@@ -400,7 +402,7 @@ public sealed class BjjEventDtoValidatorTests
             YouTube = "https://youtube.com/club"
         };
 
-        var result = await _validator.ValidateAsync(dto);
+        ValidationResult result = await _validator.ValidateAsync(dto);
 
         result.IsValid.ShouldBeTrue();
     }

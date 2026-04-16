@@ -1,13 +1,16 @@
 
 using BjjEire.Application.Common.Validators;
 using BjjEire.Application.Features.BjjEvents.Commands;
+using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Validators;
+
+using FluentValidation.Results;
 
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class CreateBjjEventCommandValidatorTests
 {
@@ -15,13 +18,13 @@ public sealed class CreateBjjEventCommandValidatorTests
 
     public CreateBjjEventCommandValidatorTests()
     {
-        var geoValidator = new GeoCoordinatesDtoValidator();
-        var locationValidator = new LocationDtoValidator(geoValidator);
-        var socialMediaValidator = new SocialMediaDtoValidator();
-        var organizerValidator = new OrganizerDtoValidator();
-        var scheduleValidator = new BjjEventScheduleDtoValidator();
-        var pricingValidator = new PricingModelDtoValidator();
-        var dtoValidator = new BjjEventDtoValidator(
+        GeoCoordinatesDtoValidator geoValidator = new();
+        LocationDtoValidator locationValidator = new(geoValidator);
+        SocialMediaDtoValidator socialMediaValidator = new();
+        OrganizerDtoValidator organizerValidator = new();
+        BjjEventScheduleDtoValidator scheduleValidator = new();
+        PricingModelDtoValidator pricingValidator = new();
+        BjjEventDtoValidator dtoValidator = new(
             organizerValidator, socialMediaValidator,
             scheduleValidator, pricingValidator, locationValidator);
 
@@ -31,9 +34,9 @@ public sealed class CreateBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_ValidCommand_PassesWithNoErrors()
     {
-        var command = BjjEventTestData.ValidCreateCommand();
+        CreateBjjEventCommand command = BjjEventTestData.ValidCreateCommand();
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeTrue();
         result.Errors.ShouldBeEmpty();
@@ -42,9 +45,10 @@ public sealed class CreateBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_NullData_FailsWithNotNullError()
     {
-        var command = new CreateBjjEventCommand { Data = null! };
+        CreateBjjEventCommand command = new()
+        { Data = null! };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Data" && e.ErrorCode == "NOT_NULL");
@@ -53,11 +57,12 @@ public sealed class CreateBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_DataWithMissingName_FailsDelegatedToDataValidator()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Name = "";
-        var command = new CreateBjjEventCommand { Data = dto };
+        CreateBjjEventCommand command = new()
+        { Data = dto };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Data.Name");
@@ -66,12 +71,13 @@ public sealed class CreateBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_DataWithInvalidSchedule_FailsDelegatedToDataValidator()
     {
-        var dto = BjjEventTestData.ValidDto();
+        BjjEventDto dto = BjjEventTestData.ValidDto();
         dto.Schedule.Hours = [];   // empty hours → validation failure
 
-        var command = new CreateBjjEventCommand { Data = dto };
+        CreateBjjEventCommand command = new()
+        { Data = dto };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldNotBeEmpty();

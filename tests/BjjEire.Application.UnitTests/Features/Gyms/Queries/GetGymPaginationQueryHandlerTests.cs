@@ -28,7 +28,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.Gyms.Queries;
 
-[Trait("Category", "Gym")]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Unit")]
 public sealed class GetGymPaginationQueryHandlerTests
 {
@@ -44,7 +44,7 @@ public sealed class GetGymPaginationQueryHandlerTests
 
     private static GetGymPaginatedResponse BuildCachedResponse(int count = 1)
     {
-        var items = Enumerable.Range(0, count)
+        List<GymDto> items = Enumerable.Range(0, count)
             .Select(i => new GymDto
             {
                 Id = ObjectIds.Valid1,
@@ -96,7 +96,7 @@ public sealed class GetGymPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
     {
-        var handler = BuildHandler();
+        GetGymPaginationQueryHandler handler = BuildHandler();
 
         await Should.ThrowAsync<ArgumentNullException>(
             () => handler.Handle(null!, CancellationToken.None));
@@ -107,10 +107,10 @@ public sealed class GetGymPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_ReturnsCachedResponse()
     {
-        var expected = BuildCachedResponse(3);
+        GetGymPaginatedResponse expected = BuildCachedResponse(3);
         SetupCacheHit(expected);
 
-        var result = await BuildHandler().Handle(
+        GetGymPaginatedResponse result = await BuildHandler().Handle(
             new GetGymPaginationQuery { Page = 1, PageSize = 20 }, CancellationToken.None);
 
         result.ShouldNotBeNull();
@@ -121,10 +121,10 @@ public sealed class GetGymPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_ReturnsSameReferenceAsCache()
     {
-        var expected = BuildCachedResponse(1);
+        GetGymPaginatedResponse expected = BuildCachedResponse(1);
         SetupCacheHit(expected);
 
-        var result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
+        GetGymPaginatedResponse result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
 
         result.ShouldBeSameAs(expected);
     }
@@ -132,10 +132,10 @@ public sealed class GetGymPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_EmptyResult_ReturnsEmptyData()
     {
-        var expected = BuildCachedResponse(0);
+        GetGymPaginatedResponse expected = BuildCachedResponse(0);
         SetupCacheHit(expected);
 
-        var result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
+        GetGymPaginatedResponse result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
 
         result.Data.ShouldBeEmpty();
         result.Pagination.TotalItems.ShouldBe(0);
@@ -147,7 +147,7 @@ public sealed class GetGymPaginationQueryHandlerTests
     public async Task Handle_QueryWithCountyFilter_CacheKeyIncludesCounty()
     {
         string? capturedKey = null;
-        var expected = BuildCachedResponse(1);
+        GetGymPaginatedResponse expected = BuildCachedResponse(1);
 
         _cacheMock
             .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, GetGymPaginatedResponse>(
@@ -176,7 +176,7 @@ public sealed class GetGymPaginationQueryHandlerTests
     public async Task Handle_QueryWithNoCountyFilter_CacheKeyIncludesNonePlaceholder()
     {
         string? capturedKey = null;
-        var expected = BuildCachedResponse(0);
+        GetGymPaginatedResponse expected = BuildCachedResponse(0);
 
         _cacheMock
             .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, GetGymPaginatedResponse>(

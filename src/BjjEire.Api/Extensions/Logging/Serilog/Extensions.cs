@@ -30,7 +30,7 @@ public static class Extensions
                 .Enrich.WithSpan()
                 .Enrich.WithCorrelationId();
 
-            var otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+            string? otlpEndpoint = context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
             if (!string.IsNullOrWhiteSpace(otlpEndpoint))
             {
                 _ = loggerConfiguration.WriteTo.OpenTelemetry(options =>
@@ -67,7 +67,7 @@ public static class Extensions
                 diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
                 diagnosticContext.Set("TraceId", httpContext.TraceIdentifier);
 
-                var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                string? userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!string.IsNullOrEmpty(userId))
                 {
                     diagnosticContext.Set("UserId", userId);

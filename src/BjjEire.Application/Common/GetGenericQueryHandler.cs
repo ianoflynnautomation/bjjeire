@@ -14,7 +14,7 @@ public class GetGenericQueryHandler<T, TC>(IRepository<TC> repository) : IReques
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var query = _repository.TableCollection<T>();
+        IQueryable<T> query = _repository.TableCollection<T>();
 
         return string.IsNullOrEmpty(request.Id) ?
         query :

@@ -16,7 +16,7 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var defaultsOptions = new ServiceDefaultsOptions();
+        ServiceDefaultsOptions defaultsOptions = new();
         options?.Invoke(defaultsOptions);
 
         _ = builder.ConfigureOpenTelemetry(defaultsOptions);

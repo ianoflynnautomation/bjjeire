@@ -62,7 +62,7 @@ public static class GymTestDataFactory
         .RuleFor(x => x.ImageUrl, (_, u) => $"{u.Website}/images/main.jpg")
         .RuleFor(x => x.OfferedClasses, f =>
         {
-            var availableClasses = Enum.GetValues<ClassCategory>().ToList();
+            List<ClassCategory> availableClasses = Enum.GetValues<ClassCategory>().ToList();
             return f.PickRandom(availableClasses, f.Random.Int(1, Math.Min(3, availableClasses.Count)))
                     .Distinct()
                     .ToList();
@@ -81,7 +81,7 @@ public static class GymTestDataFactory
         })
         .RuleFor(x => x.TrialOffer, f =>
         {
-            var available = f.Random.Bool(0.9f);
+            bool available = f.Random.Bool(0.9f);
             return new TrialOffer
             {
                 IsAvailable = available,
@@ -110,7 +110,7 @@ public static class GymTestDataFactory
         .RuleFor(x => x.ImageUrl, (_, g) => $"{g.Website}/images/main.jpg")
         .RuleFor(x => x.OfferedClasses, f =>
         {
-            var availableClasses = Enum.GetValues<ClassCategory>().ToList();
+            List<ClassCategory> availableClasses = Enum.GetValues<ClassCategory>().ToList();
             return f.PickRandom(availableClasses, f.Random.Int(1, Math.Min(3, availableClasses.Count)))
                     .Distinct()
                     .ToList();
@@ -169,14 +169,14 @@ public static class GymTestDataFactory
 
     public static Gym CreateGym(Action<Gym>? configure = null)
     {
-        var gym = GymEntityGenerator.Generate();
+        Gym gym = GymEntityGenerator.Generate();
         configure?.Invoke(gym);
         return gym;
     }
 
     private static string SetMinMaxLength(this string? str, int min, int max)
     {
-        var value = string.IsNullOrEmpty(str) ? "default" : str;
+        string value = string.IsNullOrEmpty(str) ? "default" : str;
         if (value.Length > max)
             value = value[..max];
         if (value.Length < min)

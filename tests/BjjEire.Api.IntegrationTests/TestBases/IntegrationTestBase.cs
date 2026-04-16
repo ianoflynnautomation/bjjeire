@@ -45,15 +45,15 @@ public abstract class ApiIntegrationTestBase : IAsyncLifetime
 
     protected static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
     {
-        var result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+        T? result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
         return result!;
     }
 
     public virtual async Task InitializeAsync()
     {
-        var test = (ITest)_output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
-        var testName = test.DisplayName;
-        var correlationId = Guid.NewGuid();
+        ITest test = (ITest)_output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_output)!;
+        string testName = test.DisplayName;
+        Guid correlationId = Guid.NewGuid();
 
         _logContext = LogContext.Push(
             new PropertyEnricher("TestName", testName),
