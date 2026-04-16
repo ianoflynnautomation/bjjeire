@@ -1,17 +1,7 @@
 import { http, HttpResponse } from 'msw'
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { server } from '@/testing/msw/server'
-import {
-  createGym,
-  createPaginatedGyms,
-} from '@/testing/factories/gym.factory'
+import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import { getGyms } from '../get-gyms'
 
 const API = 'http://localhost/api/api/gym'

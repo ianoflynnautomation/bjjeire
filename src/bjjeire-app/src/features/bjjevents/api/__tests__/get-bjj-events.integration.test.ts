@@ -1,12 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { BjjEventType } from '@/types/event'
 import { County } from '@/constants/counties'
 import { server } from '@/testing/msw/server'

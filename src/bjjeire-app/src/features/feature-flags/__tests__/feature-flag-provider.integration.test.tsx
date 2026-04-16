@@ -1,13 +1,10 @@
 import { http, HttpResponse } from 'msw'
-import { renderHook, waitFor, type RenderHookResult } from '@testing-library/react'
 import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+  renderHook,
+  waitFor,
+  type RenderHookResult,
+} from '@testing-library/react'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import { useContext } from 'react'
 import { FeatureFlagContext } from '../context/feature-flag-context'
 import { DEFAULT_FLAGS } from '../types'
@@ -40,9 +37,7 @@ describe('FeatureFlagProvider (integration)', () => {
 
   it('merges API response into context once the fetch resolves', async () => {
     server.use(
-      http.get(API, () =>
-        HttpResponse.json({ BjjEvents: true, Gyms: true })
-      )
+      http.get(API, () => HttpResponse.json({ BjjEvents: true, Gyms: true }))
     )
 
     const { result } = renderProvider()

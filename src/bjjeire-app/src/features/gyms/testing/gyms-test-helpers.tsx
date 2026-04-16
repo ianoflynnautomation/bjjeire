@@ -1,10 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { server } from '@/testing/msw/server'
 import { renderWithProviders } from '@/testing/render-utils'
-import {
-  createGym,
-  createPaginatedGyms,
-} from '@/testing/factories/gym.factory'
+import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import type { GymDto } from '@/types/gyms'
 import type { PaginatedResponse } from '@/types/common'
 import GymsPage from '@/pages/GymsPage'
@@ -13,9 +10,7 @@ export const GYMS_API = 'http://localhost/api/api/gym'
 
 export function seedGyms(gyms: GymDto[] = [createGym()]): void {
   server.use(
-    http.get(GYMS_API, () =>
-      HttpResponse.json(createPaginatedGyms(gyms, 1, 1))
-    )
+    http.get(GYMS_API, () => HttpResponse.json(createPaginatedGyms(gyms, 1, 1)))
   )
 }
 
@@ -50,9 +45,7 @@ export function seedGymsByCounty(
 }
 
 export function seedGymsError(status = 500): void {
-  server.use(
-    http.get(GYMS_API, () => HttpResponse.json(null, { status }))
-  )
+  server.use(http.get(GYMS_API, () => HttpResponse.json(null, { status })))
 }
 
 export function seedGymsPending(): void {
