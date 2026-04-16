@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.7...api-v0.1.8) (2026-04-15)
+
+
+### ### Features
+
+* improve data management ([#73](https://github.com/ianoflynnautomation/bjjeire/issues/73)) ([27206f8](https://github.com/ianoflynnautomation/bjjeire/commit/27206f8853aa30a6d131c348de680c02d621f380))
+
 ## [0.1.7](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.6...api-v0.1.7) (2026-04-11)
 
 
