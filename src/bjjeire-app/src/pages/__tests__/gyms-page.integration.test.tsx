@@ -1,94 +1,56 @@
-import { setupServer } from 'msw/node'
-import { http, HttpResponse } from 'msw'
-import { optionsPassthrough } from '@/testing/msw/handlers'
 import { screen, waitFor } from '@testing-library/react'
 import {
   describe,
   it,
   expect,
-  vi,
   beforeAll,
   afterAll,
   afterEach,
 } from 'vitest'
-import GymsPage from '../GymsPage'
-import { renderWithProviders } from '@/testing/render-utils'
+import { server } from '@/testing/msw/server'
+import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import {
-  createGym,
-  createPaginatedGyms,
-  resetGymIdCounter,
-} from '@/testing/factories/gym.factory'
-
-vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
-}))
-
-vi.mock('@/lib/msal-config', () => ({
-  msalInstance: {
-    getAllAccounts: (): object[] => [],
-    acquireTokenSilent: vi.fn(),
-  },
-  loginRequest: { scopes: [] },
-}))
-
-const API = 'http://localhost/api/api/gym'
-
-const server = setupServer(optionsPassthrough)
+  renderGymsPage,
+  seedGyms,
+  seedGymsByCounty,
+  seedGymsError,
+  seedGymsPaged,
+  seedGymsPending,
+} from '@/features/gyms/testing/gyms-test-helpers'
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
-afterEach(() => {
-  server.resetHandlers()
-  resetGymIdCounter()
-})
-
-function render(): ReturnType<typeof renderWithProviders> {
-  return renderWithProviders(<GymsPage />, {
-    featureFlags: { BjjEvents: true, Gyms: true },
-  })
-}
+afterEach(() => server.resetHandlers())
 
 describe('GymsPage Integration (API + Query + UI)', () => {
   it('shows loading state while data is being fetched', () => {
-    server.use(http.get(API, () => new Promise(() => {})))
-    render()
+    seedGymsPending()
+    renderGymsPage()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('shows error state and retry button when the API fails', async () => {
-    server.use(http.get(API, () => HttpResponse.json(null, { status: 500 })))
-    render()
+    seedGymsError()
+    renderGymsPage()
 
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
   })
 
   it('shows empty state when no gyms are returned', async () => {
-    server.use(
-      http.get(API, () => HttpResponse.json(createPaginatedGyms([], 1, 0)))
-    )
-    render()
+    seedGyms([])
+    renderGymsPage()
 
     expect(await screen.findByText('No Gyms Found')).toBeInTheDocument()
   })
 
   it('renders gym cards when data loads successfully', async () => {
-    server.use(
-      http.get(API, () =>
-        HttpResponse.json(
-          createPaginatedGyms(
-            [
-              createGym({ name: 'Elite Fighters Academy', county: 'Dublin' }),
-              createGym({ name: 'Community BJJ Club', county: 'Cork' }),
-            ],
-            1,
-            1
-          )
-        )
-      )
-    )
-    render()
+    seedGyms([
+      createGym({ name: 'Elite Fighters Academy', county: 'Dublin' }),
+      createGym({ name: 'Community BJJ Club', county: 'Cork' }),
+    ])
+    renderGymsPage()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
@@ -102,21 +64,13 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       county: 'Dublin',
     })
     const corkGym = createGym({ name: 'Community BJJ Club', county: 'Cork' })
-    let lastRequest: URL | null = null
 
-    server.use(
-      http.get(API, ({ request }) => {
-        lastRequest = new URL(request.url)
-        const county = lastRequest.searchParams.get('county')
-        return HttpResponse.json(
-          county === 'Dublin'
-            ? createPaginatedGyms([dublinGym], 1, 1)
-            : createPaginatedGyms([dublinGym, corkGym], 1, 1)
-        )
-      })
+    const { getLastUrl } = seedGymsByCounty(
+      { Dublin: [dublinGym] },
+      [dublinGym, corkGym]
     )
 
-    const { user } = render()
+    const { user } = renderGymsPage()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
@@ -137,29 +91,21 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     expect(screen.queryByText('Community BJJ Club')).not.toBeInTheDocument()
 
     await waitFor(() => {
-      expect(lastRequest?.searchParams.get('county')).toBe('Dublin')
-      expect(lastRequest?.searchParams.get('page')).toBe('1')
+      expect(getLastUrl()?.searchParams.get('county')).toBe('Dublin')
+      expect(getLastUrl()?.searchParams.get('page')).toBe('1')
     })
   })
 
   it('fetches the next page when the user uses pagination controls', async () => {
     const gymPage1 = createGym({ name: 'Elite Fighters Academy' })
     const gymPage2 = createGym({ name: 'Community BJJ Club' })
-    let lastRequest: URL | null = null
 
-    server.use(
-      http.get(API, ({ request }) => {
-        lastRequest = new URL(request.url)
-        const page = lastRequest.searchParams.get('page')
-        return HttpResponse.json(
-          page === '2'
-            ? createPaginatedGyms([gymPage2], 2, 2)
-            : createPaginatedGyms([gymPage1], 1, 2)
-        )
-      })
-    )
+    const { getLastUrl } = seedGymsPaged({
+      1: createPaginatedGyms([gymPage1], 1, 2),
+      2: createPaginatedGyms([gymPage2], 2, 2),
+    })
 
-    const { user } = render()
+    const { user } = renderGymsPage()
 
     expect(
       await screen.findByText('Elite Fighters Academy')
@@ -172,7 +118,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('2 / 2')).toBeInTheDocument()
 
     await waitFor(() => {
-      expect(lastRequest?.searchParams.get('page')).toBe('2')
+      expect(getLastUrl()?.searchParams.get('page')).toBe('2')
     })
   })
 })
