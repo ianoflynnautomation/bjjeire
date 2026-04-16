@@ -1,80 +1,48 @@
-import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
-import {
-  describe,
-  it,
-  expect,
-  vi,
-  beforeAll,
-  afterAll,
-  afterEach,
-} from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest'
+import { server } from '@/testing/msw/server'
 import {
   createCompetition,
   createPaginatedCompetitions,
-  resetCompetitionIdCounter,
 } from '@/testing/factories/competition.factory'
-
-vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
-}))
-
-const { mockMsalInstance } = vi.hoisted(() => ({
-  mockMsalInstance: {
-    getAllAccounts: vi.fn<() => object[]>(() => []),
-    acquireTokenSilent: vi.fn(),
-  },
-}))
-
-vi.mock('@/lib/msal-config', () => ({
-  msalInstance: mockMsalInstance,
-  loginRequest: { scopes: ['test-scope'] },
-}))
-
-const { getCompetitions } = await import('../get-competitions')
+import { getCompetitions } from '../get-competitions'
 
 const API = 'http://localhost/api/api/competition'
-
-const server = setupServer()
+const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
-afterEach(() => {
-  server.resetHandlers()
-  resetCompetitionIdCounter()
-})
+afterEach(() => server.resetHandlers())
 
-const defaults = { page: 1, pageSize: 20 }
+function captureQuery(): { getUrl: () => URL } {
+  let capturedUrl!: URL
+  server.use(
+    http.get(API, ({ request }) => {
+      capturedUrl = new URL(request.url)
+      return HttpResponse.json(createPaginatedCompetitions([], 1, 0))
+    })
+  )
+  return { getUrl: (): URL => capturedUrl }
+}
 
 describe('getCompetitions', () => {
   it('sends page and pageSize with no other params when no filters are set', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedCompetitions([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getCompetitions(defaults)
 
-    expect(capturedUrl.searchParams.get('page')).toBe('1')
-    expect(capturedUrl.searchParams.get('pageSize')).toBe('20')
-    expect(capturedUrl.searchParams.has('organisation')).toBe(false)
+    const params = getUrl().searchParams
+    expect(params.get('page')).toBe('1')
+    expect(params.get('pageSize')).toBe('20')
+    expect(params.has('organisation')).toBe(false)
   })
 
   it('sends the requested page number', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedCompetitions([], 2, 3))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getCompetitions({ ...defaults, page: 2 })
 
-    expect(capturedUrl.searchParams.get('page')).toBe('2')
+    expect(getUrl().searchParams.get('page')).toBe('2')
   })
 
   it('returns the paginated response from the API', async () => {

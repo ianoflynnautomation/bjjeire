@@ -1,41 +1,38 @@
 /// <reference types="vitest" />
 
-import { defineConfig } from 'vitest/config'
-import { sharedPlugins } from './vite.base.config'
+import { defineConfig, mergeConfig } from 'vitest/config'
+import { baseTestConfig, sharedExclude } from './vitest.base'
 
-export default defineConfig({
-  plugins: sharedPlugins(),
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    restoreMocks: true,
-    setupFiles: './src/testing/setup-tests.ts',
-    reporters: process.env.GITHUB_ACTIONS
-      ? ['default', 'github-actions']
-      : ['default'],
-    maxWorkers: process.env.CI ? 4 : undefined,
-    maxConcurrency: process.env.CI ? 5 : 10,
-    slowTestThreshold: 500,
-    include: ['src/**/*.test.{ts,tsx}'],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/e2e/**',
-      '**/*.browser.test.{ts,tsx}',
-      '**/*.integration.test.{ts,tsx}',
-    ],
-    coverage: {
-      include: [
-        'src/utils/**',
-        'src/lib/**',
-        'src/features/**',
-        'src/components/**',
-        'src/hooks/**',
-        'src/config/**',
-        'src/constants/**',
-      ],
-      exclude: ['src/**/*.d.ts', 'src/testing/**'],
-      reporter: ['text', 'json', 'html', 'cobertura'],
+export default mergeConfig(
+  baseTestConfig(),
+  defineConfig({
+    test: {
+      environment: 'jsdom',
+      setupFiles: './src/testing/setup-tests.ts',
+      maxWorkers: process.env.CI ? 4 : undefined,
+      maxConcurrency: process.env.CI ? 5 : 10,
+      slowTestThreshold: 500,
+      include: ['src/**/*.unit.test.{ts,tsx}'],
+      exclude: sharedExclude,
+      coverage: {
+        include: [
+          'src/utils/**',
+          'src/lib/**',
+          'src/features/**',
+          'src/components/**',
+          'src/hooks/**',
+          'src/config/**',
+          'src/constants/**',
+        ],
+        exclude: ['src/**/*.d.ts', 'src/testing/**'],
+        reporter: ['text', 'json', 'html', 'cobertura'],
+        thresholds: {
+          lines: 70,
+          branches: 70,
+          functions: 70,
+          statements: 70,
+        },
+      },
     },
-  },
-})
+  })
+)
