@@ -13,12 +13,12 @@ public sealed class UpdateGymCommandHandler(IGymService gymService, IMapper mapp
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var gymEntity = await gymService.GetByIdAsync(request.Data.Id)
+        Gym gymEntity = await gymService.GetByIdAsync(request.Data.Id)
  ?? throw new NotFoundException(nameof(Gym), request.Data.Id);
 
         _ = mapper.Map(request.Data, gymEntity);
         await gymService.UpdateAsync(gymEntity);
-        var resultDto = mapper.Map<GymDto>(gymEntity);
+        GymDto resultDto = mapper.Map<GymDto>(gymEntity);
 
         return new UpdateGymResponse { Data = resultDto };
     }

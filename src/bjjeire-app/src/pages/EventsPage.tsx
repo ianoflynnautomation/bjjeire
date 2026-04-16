@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import EventFilters from '@/features/bjjevents/components/event-filters/event-filters'
-import { EventSearchInput } from '@/features/bjjevents/components/event-search-input'
+import { ListSearchInput } from '@/components/ui/search/list-search-input'
 import Pagination from '@/components/ui/grid/pagination'
 import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
 import { EventsHeroBanner } from '@/features/bjjevents/components/events-hero-banner'
@@ -16,7 +16,7 @@ const { search } = uiContent.events
 
 export default function EventsPage(): JSX.Element {
   const {
-    filteredEvents,
+    filteredItems: filteredEvents,
     paginationInfo,
     isLoading,
     isFetching,
@@ -56,7 +56,9 @@ export default function EventsPage(): JSX.Element {
             dataTestId={EventsPageTestIds.FILTERS}
           />
           <div className="mt-4 sm:w-160">
-            <EventSearchInput
+            <ListSearchInput
+              inputId="event-search"
+              content={search}
               value={eventSearch.searchTerm}
               onChange={eventSearch.setSearchTerm}
               onClear={eventSearch.clearSearch}

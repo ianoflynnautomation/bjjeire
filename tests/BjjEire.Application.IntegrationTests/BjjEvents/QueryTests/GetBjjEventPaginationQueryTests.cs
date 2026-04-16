@@ -1,6 +1,7 @@
 namespace BjjEire.Application.IntegrationTests.BjjEvents.QueryTests;
 
-[Collection(AppIntegrationCollection.Name)]
+[Collection(BjjEventApplicationCollection.Name)]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Integration")]
 public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
     : ApplicationTestBase(apiFactory, outputHelper)
@@ -8,7 +9,7 @@ public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestO
     [Fact]
     public async Task GetBjjEvents_WithNoData_ReturnsEmptyResult()
     {
-        var response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20 });
+        GetBjjEventPaginatedResponse response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20 });
 
         response.Data.ShouldBeEmpty();
         response.Pagination.TotalItems.ShouldBe(0);
@@ -22,7 +23,7 @@ public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestO
             BjjEventTestDataFactory.CreateBjjEvent(e => e.County = County.Cork),
             BjjEventTestDataFactory.CreateBjjEvent(e => e.County = County.Dublin));
 
-        var response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, County = County.Cork });
+        GetBjjEventPaginatedResponse response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, County = County.Cork });
 
         response.Data.Count.ShouldBe(2);
         response.Data.ShouldAllBe(e => e.County == County.Cork);
@@ -36,7 +37,7 @@ public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestO
             BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Seminar),
             BjjEventTestDataFactory.CreateBjjEvent(e => e.Type = BjjEventType.Camp));
 
-        var response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, Type = BjjEventType.Seminar });
+        GetBjjEventPaginatedResponse response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, Type = BjjEventType.Seminar });
 
         response.Data.Count.ShouldBe(2);
         response.Data.ShouldAllBe(e => e.Type == BjjEventType.Seminar);
@@ -52,7 +53,7 @@ public class GetBjjEventPaginationQueryTests(CustomApiFactory apiFactory, ITestO
             BjjEventTestDataFactory.CreateBjjEvent(),
             BjjEventTestDataFactory.CreateBjjEvent());
 
-        var response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 2 });
+        GetBjjEventPaginatedResponse response = await SendAsync(new GetBjjEventPaginationQuery { Page = 1, PageSize = 2 });
 
         response.Data.Count.ShouldBe(2);
         response.Pagination.TotalItems.ShouldBe(5);

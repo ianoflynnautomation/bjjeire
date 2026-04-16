@@ -19,14 +19,14 @@ public static class TestTokenFactory
 
     public static string Generate(string userId = "test-user@example.com")
     {
-        var claims = new[]
+        Claim[] claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId),
             new Claim(ClaimTypes.NameIdentifier, userId),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
-        var token = new JwtSecurityToken(
+        JwtSecurityToken token = new(
             issuer: TestIssuer,
             audience: TestAudience,
             claims: claims,

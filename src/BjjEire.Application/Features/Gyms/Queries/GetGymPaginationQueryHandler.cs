@@ -25,20 +25,20 @@ public sealed class GetGymPaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = GymCacheKeys.All(request.Page, request.PageSize, request.County);
+        string cacheKey = GymCacheKeys.All(request.Page, request.PageSize, request.County);
 
         GetGymPaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetGymPaginationQuery),
             request.Page, request.PageSize,
             request.County?.ToString() ?? "N/A", cacheKey);
 
-        var result = await hybridCache.GetOrCreateAsync(
+        GetGymPaginatedResponse result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
                 GetGymPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
-                var query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
+                IQueryable<Gym> query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
 
                 if (request.County.HasValue)
                 {
@@ -47,10 +47,10 @@ public sealed class GetGymPaginationQueryHandler(
 
                 query = query.OrderBy(x => x.Name);
 
-                var dtoQuery = query.ProjectTo<GymDto>(mapper.ConfigurationProvider);
-                var filter = new PaginationFilter(request.Page, request.PageSize);
+                IQueryable<GymDto> dtoQuery = query.ProjectTo<GymDto>(mapper.ConfigurationProvider);
+                PaginationFilter filter = new(request.Page, request.PageSize);
 
-                var pagedData = await PaginationHelper.CreatePagedResponseAsync(
+                PagedResponse<GymDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
                     dtoQuery, filter,
                     GymsApiConstants.ControllerName, GymsApiConstants.GetAllActionName,
                     uriService, null, ct);

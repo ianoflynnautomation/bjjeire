@@ -1,4 +1,6 @@
 
+using System.Reflection;
+
 using BjjEire.Application.Common;
 using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
@@ -26,7 +28,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         Database = database;
         _auditInfoProvider = auditInfoProvider;
         _logger = logger;
-        var collectionName = typeof(T).Name;
+        string collectionName = typeof(T).Name;
         Collection = Database.GetCollection<T>(collectionName);
     }
 
@@ -55,9 +57,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
 
     public virtual async Task UpdateFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
     {
-        var builder = Builders<T>.Filter;
-        var filter = builder.Eq(x => x.Id, id);
-        var update = Builders<T>.Update
+        FilterDefinitionBuilder<T> builder = Builders<T>.Filter;
+        FilterDefinition<T> filter = builder.Eq(x => x.Id, id);
+        UpdateDefinition<T> update = Builders<T>.Update
             .Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime())
             .Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser())
             .Set(expression, value);
@@ -67,9 +69,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
 
     public virtual async Task IncFieldAsync<TU>(string id, Expression<Func<T, TU>> expression, TU value)
     {
-        var builder = Builders<T>.Filter;
-        var filter = builder.Eq(x => x.Id, id);
-        var update = Builders<T>.Update
+        FilterDefinitionBuilder<T> builder = Builders<T>.Filter;
+        FilterDefinition<T> filter = builder.Eq(x => x.Id, id);
+        UpdateDefinition<T> update = Builders<T>.Update
             .Inc(expression, value);
 
         _ = await Collection.UpdateOneAsync(filter, update);
@@ -81,7 +83,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var update = Builders<T>.Update.Combine(updateBuilder.Fields);
+        UpdateDefinition<T> update = Builders<T>.Update.Combine(updateBuilder.Fields);
         _ = await Collection.UpdateOneAsync(filterexpression, update);
     }
 
@@ -91,36 +93,36 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         ArgumentNullException.ThrowIfNull(updateBuilder);
         _ = updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         _ = updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        var result = await Collection.UpdateManyAsync(filterexpression, update);
+        UpdateDefinition<T> update = Builders<T>.Update.Combine(updateBuilder.Fields);
+        UpdateResult result = await Collection.UpdateManyAsync(filterexpression, update);
         return result.IsAcknowledged ? result.ModifiedCount : 0;
     }
 
     public virtual async Task AddToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field, TU value)
     {
-        var builder = Builders<T>.Filter;
-        var filter = builder.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.AddToSet(field, value);
+        FilterDefinitionBuilder<T> builder = Builders<T>.Filter;
+        FilterDefinition<T> filter = builder.Eq(x => x.Id, id);
+        UpdateDefinition<T> update = Builders<T>.Update.AddToSet(field, value);
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     public virtual async Task UpdateToSetAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch, TU value)
     {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id)
+        FilterDefinition<T> filter = Builders<T>.Filter.Eq(x => x.Id, id)
                      & Builders<T>.Filter.ElemMatch(field, Builders<TU>.Filter.Eq(elemFieldMatch, elemMatch));
 
         ArgumentNullException.ThrowIfNull(field);
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        MemberExpression me = (MemberExpression)field.Body;
+        MemberInfo minfo = me.Member;
+        UpdateDefinition<T> update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
@@ -128,19 +130,19 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task UpdateToSetAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, bool>> elemFieldMatch, TU value)
     {
-        var filter = string.IsNullOrEmpty(id)
+        FilterDefinition<T> filter = string.IsNullOrEmpty(id)
             ? Builders<T>.Filter.Where(x => true)
             : Builders<T>.Filter.Eq(x => x.Id, id)
               & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
 
         ArgumentNullException.ThrowIfNull(field);
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+        MemberExpression me = (MemberExpression)field.Body;
+        MemberInfo minfo = me.Member;
+        UpdateDefinition<T> update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
             : await Collection.UpdateOneAsync(filter, combinedUpdate);
@@ -149,20 +151,21 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task UpdateToSetAsync<TU>(Expression<Func<T, IEnumerable<TU>>> field, TU elemFieldMatch, TU value)
     {
         ArgumentNullException.ThrowIfNull(field);
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
+        MemberExpression me = (MemberExpression)field.Body;
+        MemberInfo minfo = me.Member;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        var filter = new BsonDocument {
+        BsonDocument filter = new()
+        {
             new BsonElement(minfo.Name, elemFieldMatch.ToString())
         };
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+        UpdateDefinition<T> update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         _ = await Collection.UpdateManyAsync(filter, combinedUpdate);
     }
@@ -170,14 +173,14 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task PullFilterAsync<TU, TZ>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, TZ>> elemFieldMatch, TZ elemMatch)
     {
-        var filter = string.IsNullOrEmpty(id)
+        FilterDefinition<T> filter = string.IsNullOrEmpty(id)
             ? Builders<T>.Filter.Where(x => true)
             : Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, Builders<TU>.Filter.Eq(elemFieldMatch, elemMatch));
+        UpdateDefinition<T> update = Builders<T>.Update.PullFilter(field, Builders<TU>.Filter.Eq(elemFieldMatch, elemMatch));
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(filter, combinedUpdate)
@@ -187,23 +190,23 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task PullFilterAsync<TU>(string id, Expression<Func<T, IEnumerable<TU>>> field,
         Expression<Func<TU, bool>> elemFieldMatch)
     {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
+        FilterDefinition<T> filter = Builders<T>.Filter.Eq(x => x.Id, id);
+        UpdateDefinition<T> update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         _ = await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     public virtual async Task PullAsync(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
     {
-        var update = Builders<T>.Update.Pull(field, element);
+        UpdateDefinition<T> update = Builders<T>.Update.Pull(field, element);
 
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
+        UpdateDefinition<T> updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
+        UpdateDefinition<T> updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
+        UpdateDefinition<T> combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         _ = string.IsNullOrEmpty(id)
             ? await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate)
@@ -214,8 +217,8 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        var filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
-        var result = await Collection.DeleteOneAsync(filter);
+        FilterDefinition<T> filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
+        DeleteResult result = await Collection.DeleteOneAsync(filter);
 
         if (result.IsAcknowledged && result.DeletedCount == 0)
         {
@@ -229,10 +232,10 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual async Task DeleteAsync(IEnumerable<T> entities)
     {
         ArgumentNullException.ThrowIfNull(entities);
-        var ids = entities.Select(e => e.Id).ToList();
+        List<string> ids = entities.Select(e => e.Id).ToList();
         if (ids.Count == 0)
             return;
-        var filter = Builders<T>.Filter.In(e => e.Id, ids);
+        FilterDefinition<T> filter = Builders<T>.Filter.In(e => e.Id, ids);
         _ = await Collection.DeleteManyAsync(filter);
     }
 

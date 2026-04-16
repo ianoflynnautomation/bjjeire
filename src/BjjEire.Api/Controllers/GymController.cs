@@ -16,7 +16,7 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAsync([FromQuery] GetGymPaginationQuery query)
     {
-        var response = await _mediator.Send(query);
+        GetGymPaginatedResponse response = await _mediator.Send(query);
 
         return Ok(response);
     }
@@ -31,7 +31,7 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command)
     {
-        var response = await _mediator.Send(command);
+        CreateGymResponse response = await _mediator.Send(command);
 
         return Created(string.Empty, response);
     }
@@ -47,7 +47,7 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command)
     {
-        var response = await _mediator.Send(command);
+        UpdateGymResponse response = await _mediator.Send(command);
 
         return Ok(response);
     }
@@ -67,7 +67,8 @@ public class GymController(IMediator mediator) : BaseApiController
             return BadRequest();
         }
 
-        var command = new DeleteGymCommand { Id = id };
+        DeleteGymCommand command = new()
+        { Id = id };
 
         _ = await _mediator.Send(command);
 

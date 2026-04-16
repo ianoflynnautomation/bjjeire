@@ -1,11 +1,13 @@
 using BjjEire.Application.Features.BjjEvents.Commands;
 using BjjEire.Application.Features.BjjEvents.Validators;
 
+using FluentValidation.Results;
+
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class DeleteBjjEventCommandValidatorTests
 {
@@ -14,9 +16,10 @@ public sealed class DeleteBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_ValidObjectId_Passes()
     {
-        var command = new DeleteBjjEventCommand { Id = ObjectIds.Valid1 };
+        DeleteBjjEventCommand command = new()
+        { Id = ObjectIds.Valid1 };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -24,9 +27,10 @@ public sealed class DeleteBjjEventCommandValidatorTests
     [Fact]
     public async Task Validate_EmptyId_FailsWithRequiredMessage()
     {
-        var command = new DeleteBjjEventCommand { Id = "" };
+        DeleteBjjEventCommand command = new()
+        { Id = "" };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Id" && e.ErrorMessage == "ID is required.");
@@ -39,9 +43,10 @@ public sealed class DeleteBjjEventCommandValidatorTests
     [InlineData("507f1f77bcf86cd79943901")]  // 23 chars – one short
     public async Task Validate_InvalidObjectIdFormat_FailsWithFormatMessage(string invalidId)
     {
-        var command = new DeleteBjjEventCommand { Id = invalidId };
+        DeleteBjjEventCommand command = new()
+        { Id = invalidId };
 
-        var result = await _validator.ValidateAsync(command);
+        ValidationResult result = await _validator.ValidateAsync(command);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e =>

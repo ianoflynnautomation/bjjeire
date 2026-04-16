@@ -1,5 +1,7 @@
 using BjjEire.Aspire.AppHost.Constants;
 
+using Microsoft.Extensions.Configuration;
+
 namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class ApiConfiguration
@@ -10,20 +12,20 @@ public static class ApiConfiguration
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
-        var dockerfilePath = Path.Combine(solutionRoot, "src/BjjEire.Api/Dockerfile");
+        string solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
+        string dockerfilePath = Path.Combine(solutionRoot, "src/BjjEire.Api/Dockerfile");
 
-        var config = builder.Configuration;
+        ConfigurationManager config = builder.Configuration;
 
-        var tenantId = config["AZURE_AD_TENANT_ID"];
-        var clientId = config["AZURE_AD_CLIENT_ID"];
-        var audience = config["AZURE_AD_AUDIENCE"];
-        var donationBitcoinAddress = config["DONATION_BITCOIN_ADDRESS"];
-        var otelEndpoint = config["OTEL_EXPORTER_OTLP_ENDPOINT"];
+        string? tenantId = config["AZURE_AD_TENANT_ID"];
+        string? clientId = config["AZURE_AD_CLIENT_ID"];
+        string? audience = config["AZURE_AD_AUDIENCE"];
+        string? donationBitcoinAddress = config["DONATION_BITCOIN_ADDRESS"];
+        string? otelEndpoint = config["OTEL_EXPORTER_OTLP_ENDPOINT"];
 
-        var environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
+        string environment = config["ASPNETCORE_ENVIRONMENT"] ?? "Development";
 
-        var resource = builder.AddDockerfile("api", solutionRoot, dockerfilePath)
+        IResourceBuilder<ContainerResource> resource = builder.AddDockerfile("api", solutionRoot, dockerfilePath)
             .WithReference(mongo)
             .WaitFor(mongo)
             .WithHttpEndpoint(port: ServiceConstants.ApiHttpPort, targetPort: 80)

@@ -25,7 +25,7 @@ public sealed class BjjEventService(
     public async Task InsertAsync(BjjEvent bjjEvent)
     {
         ArgumentNullException.ThrowIfNull(bjjEvent);
-        var inserted = await bjjEventRepository.InsertAsync(bjjEvent);
+        BjjEvent inserted = await bjjEventRepository.InsertAsync(bjjEvent);
         BjjEventLog.Inserted(logger, inserted.Id);
         await hybridCache.RemoveByTagAsync(BjjEventCacheKeys.Tag);
     }
@@ -33,7 +33,7 @@ public sealed class BjjEventService(
     public async Task UpdateAsync(BjjEvent bjjEvent)
     {
         ArgumentNullException.ThrowIfNull(bjjEvent);
-        var updated = await bjjEventRepository.UpdateAsync(bjjEvent);
+        BjjEvent updated = await bjjEventRepository.UpdateAsync(bjjEvent);
         BjjEventLog.Updated(logger, updated.Id);
         await hybridCache.RemoveByTagAsync(BjjEventCacheKeys.Tag);
     }

@@ -30,15 +30,15 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_NoValidators_CallsNextAndReturnsResponse()
     {
-        var behaviour = BuildBehaviour(/* empty */);
-        var nextCalled = false;
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour(/* empty */);
+        bool nextCalled = false;
         RequestHandlerDelegate<TestResponse> next = _ =>
         {
             nextCalled = true;
             return Task.FromResult(new TestResponse(true));
         };
 
-        var result = await behaviour.Handle(new TestRequest("anything"), next, CancellationToken.None);
+        TestResponse result = await behaviour.Handle(new TestRequest("anything"), next, CancellationToken.None);
 
         nextCalled.ShouldBeTrue();
         result.Success.ShouldBeTrue();
@@ -47,20 +47,20 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_ValidRequest_CallsNextAndReturnsResponse()
     {
-        var validatorMock = new Mock<IValidator<TestRequest>>();
+        Mock<IValidator<TestRequest>> validatorMock = new();
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());   // no failures
 
-        var behaviour = BuildBehaviour(validatorMock.Object);
-        var nextCalled = false;
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour(validatorMock.Object);
+        bool nextCalled = false;
         RequestHandlerDelegate<TestResponse> next = _ =>
         {
             nextCalled = true;
             return Task.FromResult(new TestResponse(true));
         };
 
-        var result = await behaviour.Handle(new TestRequest("valid"), next, CancellationToken.None);
+        TestResponse result = await behaviour.Handle(new TestRequest("valid"), next, CancellationToken.None);
 
         nextCalled.ShouldBeTrue();
         result.Success.ShouldBeTrue();
@@ -70,21 +70,21 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_InvalidRequest_ThrowsValidationExceptionAndDoesNotCallNext()
     {
-        var failure = new ValidationFailure("Value", "Value is required.") { ErrorCode = "FIELD_REQUIRED" };
-        var validatorMock = new Mock<IValidator<TestRequest>>();
+        ValidationFailure failure = new("Value", "Value is required.") { ErrorCode = "FIELD_REQUIRED" };
+        Mock<IValidator<TestRequest>> validatorMock = new();
         validatorMock
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult([failure]));
 
-        var behaviour = BuildBehaviour(validatorMock.Object);
-        var nextCalled = false;
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour(validatorMock.Object);
+        bool nextCalled = false;
         RequestHandlerDelegate<TestResponse> next = _ =>
         {
             nextCalled = true;
             return Task.FromResult(new TestResponse(true));
         };
 
-        var ex = await Should.ThrowAsync<ValidationException>(
+        ValidationException ex = await Should.ThrowAsync<ValidationException>(
             () => behaviour.Handle(new TestRequest(null), next, CancellationToken.None));
 
         nextCalled.ShouldBeFalse();
@@ -95,22 +95,22 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_MultipleValidatorsWithFailures_AggregatesAllErrors()
     {
-        var failure1 = new ValidationFailure("Value", "Too short.");
-        var failure2 = new ValidationFailure("Value", "Must not contain spaces.");
+        ValidationFailure failure1 = new("Value", "Too short.");
+        ValidationFailure failure2 = new("Value", "Must not contain spaces.");
 
-        var validator1 = new Mock<IValidator<TestRequest>>();
+        Mock<IValidator<TestRequest>> validator1 = new();
         validator1
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult([failure1]));
 
-        var validator2 = new Mock<IValidator<TestRequest>>();
+        Mock<IValidator<TestRequest>> validator2 = new();
         validator2
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult([failure2]));
 
-        var behaviour = BuildBehaviour(validator1.Object, validator2.Object);
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour(validator1.Object, validator2.Object);
 
-        var ex = await Should.ThrowAsync<ValidationException>(
+        ValidationException ex = await Should.ThrowAsync<ValidationException>(
             () => behaviour.Handle(new TestRequest("bad"), NextReturnsSuccess(), CancellationToken.None));
 
         ex.Errors.Count().ShouldBe(2);
@@ -119,17 +119,17 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_OneValidatorPassesOneFails_ThrowsValidationException()
     {
-        var passing = new Mock<IValidator<TestRequest>>();
+        Mock<IValidator<TestRequest>> passing = new();
         passing
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
 
-        var failing = new Mock<IValidator<TestRequest>>();
+        Mock<IValidator<TestRequest>> failing = new();
         failing
             .Setup(v => v.ValidateAsync(It.IsAny<ValidationContext<TestRequest>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult([new ValidationFailure("Value", "Bad value.")]));
 
-        var behaviour = BuildBehaviour(passing.Object, failing.Object);
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour(passing.Object, failing.Object);
 
         await Should.ThrowAsync<ValidationException>(
             () => behaviour.Handle(new TestRequest("x"), NextReturnsSuccess(), CancellationToken.None));
@@ -138,7 +138,7 @@ public sealed class ValidationBehaviourTests
     [Fact]
     public async Task Handle_NullNextDelegate_ThrowsArgumentNullException()
     {
-        var behaviour = BuildBehaviour();
+        ValidationBehaviour<TestRequest, TestResponse> behaviour = BuildBehaviour();
 
         await Should.ThrowAsync<ArgumentNullException>(
             () => behaviour.Handle(new TestRequest("x"), null!, CancellationToken.None));

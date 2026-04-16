@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Serilog;
+using Serilog.Core;
 using Serilog.Formatting.Compact;
 
 using Xunit.Abstractions;
@@ -22,7 +23,7 @@ public static class LoggingExtension
         {
             lock (SyncRoot)
             {
-                foreach (var factory in LoggerFactories)
+                foreach (ILoggerFactory factory in LoggerFactories)
                 {
                     factory.Dispose();
                 }
@@ -40,7 +41,7 @@ public static class LoggingExtension
         {
             loggingBuilder.ClearProviders();
 
-            var logger = new LoggerConfiguration()
+            Logger logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
                 .Enrich.FromLogContext()
                 .Enrich.WithThreadId()
@@ -56,7 +57,7 @@ public static class LoggingExtension
 
     public static Microsoft.Extensions.Logging.ILogger ConfigureTestLogger(ITestOutputHelper output)
     {
-        var serilogLogger = new LoggerConfiguration()
+        Logger serilogLogger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .Enrich.FromLogContext()
             .Enrich.WithThreadId()
@@ -67,7 +68,7 @@ public static class LoggingExtension
 
         // Lifetime is managed centrally in this static helper and disposed on ProcessExit.
 #pragma warning disable CA2000
-        var loggerFactory = new LoggerFactory().AddSerilog(serilogLogger);
+        ILoggerFactory loggerFactory = new LoggerFactory().AddSerilog(serilogLogger);
 #pragma warning restore CA2000
         lock (SyncRoot)
         {

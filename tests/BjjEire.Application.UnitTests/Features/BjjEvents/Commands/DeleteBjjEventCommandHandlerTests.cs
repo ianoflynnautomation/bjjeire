@@ -13,7 +13,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Commands;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class DeleteBjjEventCommandHandlerTests
 {
@@ -29,8 +29,9 @@ public sealed class DeleteBjjEventCommandHandlerTests
     public async Task Handle_EntityFound_DeletesEntityAndReturnsSuccess()
     {
         // Arrange
-        var entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
-        var command = new DeleteBjjEventCommand { Id = ObjectIds.Valid1 };
+        BjjEvent entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
+        DeleteBjjEventCommand command = new()
+        { Id = ObjectIds.Valid1 };
 
         _serviceMock
             .Setup(s => s.GetByIdAsync(ObjectIds.Valid1))
@@ -41,7 +42,7 @@ public sealed class DeleteBjjEventCommandHandlerTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var response = await _handler.Handle(command, CancellationToken.None);
+        DeleteBjjEventResponse response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         response.ShouldNotBeNull();
@@ -55,14 +56,15 @@ public sealed class DeleteBjjEventCommandHandlerTests
     public async Task Handle_EntityNotFound_ThrowsNotFoundException()
     {
         // Arrange
-        var command = new DeleteBjjEventCommand { Id = ObjectIds.Valid1 };
+        DeleteBjjEventCommand command = new()
+        { Id = ObjectIds.Valid1 };
 
         _serviceMock
             .Setup(s => s.GetByIdAsync(ObjectIds.Valid1))
             .Returns(Task.FromResult<BjjEvent>(null!));
 
         // Act & Assert
-        var ex = await Should.ThrowAsync<NotFoundException>(
+        NotFoundException ex = await Should.ThrowAsync<NotFoundException>(
             () => _handler.Handle(command, CancellationToken.None));
 
         ex.Message.ShouldContain(ObjectIds.Valid1);
@@ -79,8 +81,9 @@ public sealed class DeleteBjjEventCommandHandlerTests
     [Fact]
     public async Task Handle_EntityFound_NeverCallsInsertOrUpdate()
     {
-        var entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
-        var command = new DeleteBjjEventCommand { Id = ObjectIds.Valid1 };
+        BjjEvent entity = BjjEventTestData.ValidEntity(ObjectIds.Valid1);
+        DeleteBjjEventCommand command = new()
+        { Id = ObjectIds.Valid1 };
 
         _serviceMock.Setup(s => s.GetByIdAsync(ObjectIds.Valid1)).ReturnsAsync(entity);
         _serviceMock.Setup(s => s.DeleteAsync(It.IsAny<BjjEvent>())).Returns(Task.CompletedTask);

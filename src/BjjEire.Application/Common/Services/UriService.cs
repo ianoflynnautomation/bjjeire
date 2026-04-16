@@ -22,16 +22,17 @@ public class UriService(IHttpContextAccessor httpContextAccessor, LinkGenerator 
         ArgumentException.ThrowIfNullOrWhiteSpace(controllerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(actionName);
 
-        var httpContext = GetCurrentHttpContext();
+        HttpContext httpContext = GetCurrentHttpContext();
 
-        var routeValues = new RouteValueDictionary {
+        RouteValueDictionary routeValues = new()
+        {
             { "page", filter.PageNumber },
             { "pageSize", filter.PageSize }
         };
 
         if (additionalRouteValues != null)
         {
-            foreach (var (key, value) in additionalRouteValues)
+            foreach ((string? key, object? value) in additionalRouteValues)
             {
                 routeValues[key] = value;
             }

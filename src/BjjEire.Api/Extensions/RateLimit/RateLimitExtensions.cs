@@ -12,10 +12,10 @@ public static class RateLimitExtensions
         {
             limiterMiddlewareOptions.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
             {
-                var options = httpContext.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
-                var logger = httpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitPartition");
+                RateLimitOptions options = httpContext.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+                ILogger logger = httpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitPartition");
 
-                var partitionKey = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier)
+                string partitionKey = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier)
                     ?? httpContext.Connection.RemoteIpAddress?.ToString()
                     ?? "unknown";
 
@@ -39,21 +39,21 @@ public static class RateLimitExtensions
                     });
             });
 
-            var initialOptions = config.GetSection(nameof(RateLimitOptions)).Get<RateLimitOptions>() ?? new RateLimitOptions();
+            RateLimitOptions initialOptions = config.GetSection(nameof(RateLimitOptions)).Get<RateLimitOptions>() ?? new RateLimitOptions();
             limiterMiddlewareOptions.RejectionStatusCode = initialOptions.EnableRateLimiting
                 ? initialOptions.RejectionStatusCode
                 : StatusCodes.Status429TooManyRequests;
 
             limiterMiddlewareOptions.OnRejected = async (rejectionContext, token) =>
             {
-                var options = rejectionContext.HttpContext.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
-                var logger = rejectionContext.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitRejected");
-                var traceId = rejectionContext.HttpContext.TraceIdentifier;
-                var requestHost = rejectionContext.HttpContext.Request.Headers.Host.ToString();
-                var clientIp = rejectionContext.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-                var userId = rejectionContext.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
+                RateLimitOptions options = rejectionContext.HttpContext.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+                ILogger logger = rejectionContext.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitRejected");
+                string traceId = rejectionContext.HttpContext.TraceIdentifier;
+                string requestHost = rejectionContext.HttpContext.Request.Headers.Host.ToString();
+                string clientIp = rejectionContext.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                string userId = rejectionContext.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
 
-                var partitionKey = userId == "Anonymous"
+                string partitionKey = userId == "Anonymous"
                     ? (clientIp == "Unknown" ? "unknown" : clientIp)
                     : userId;
 
@@ -63,7 +63,7 @@ public static class RateLimitExtensions
                 rejectionContext.HttpContext.Response.Headers.Append("X-RateLimit-Remaining", "0");
 
                 int retryAfterSeconds;
-                if (rejectionContext.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                if (rejectionContext.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfter))
                 {
                     retryAfterSeconds = (int)retryAfter.TotalSeconds;
                 }
@@ -78,7 +78,7 @@ public static class RateLimitExtensions
                 rejectionContext.HttpContext.Response.Headers.Append(
                     "X-RateLimit-Reset", DateTimeOffset.UtcNow.AddSeconds(retryAfterSeconds).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture));
 
-                var problemDetails = new Microsoft.AspNetCore.Mvc.ProblemDetails
+                ProblemDetails problemDetails = new()
                 {
                     Status = options.RejectionStatusCode,
                     Title = "API Rate Limit Exceeded",
@@ -115,8 +115,8 @@ public static class RateLimitExtensions
 
     internal static IApplicationBuilder UseRateLimit(this IApplicationBuilder app)
     {
-        var logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitSetup");
-        var options = app.ApplicationServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+        ILogger logger = app.ApplicationServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitSetup");
+        RateLimitOptions options = app.ApplicationServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
 
         if (options.EnableRateLimiting)
         {

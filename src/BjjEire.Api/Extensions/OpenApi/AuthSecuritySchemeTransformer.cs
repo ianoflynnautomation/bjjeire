@@ -10,9 +10,9 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
         ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(context);
 
-        var endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
-        var authorizeData = endpointMetadata.OfType<IAuthorizeData>().ToList();
-        var allowAnonymous = endpointMetadata.OfType<IAllowAnonymous>().Any();
+        IList<object> endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
+        List<IAuthorizeData> authorizeData = endpointMetadata.OfType<IAuthorizeData>().ToList();
+        bool allowAnonymous = endpointMetadata.OfType<IAllowAnonymous>().Any();
 
         if (allowAnonymous || authorizeData.Count == 0)
         {
@@ -21,9 +21,9 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
         }
 
         operation.Security ??= [];
-        var securityRequirement = new OpenApiSecurityRequirement();
+        OpenApiSecurityRequirement securityRequirement = new();
 
-        var allRegisteredSchemes = await schemeProvider.GetAllSchemesAsync();
+        IEnumerable<AuthenticationScheme> allRegisteredSchemes = await schemeProvider.GetAllSchemesAsync();
 
         if (allRegisteredSchemes.Any(s => s.Name == JwtBearerDefaults.AuthenticationScheme))
         {

@@ -4,7 +4,7 @@ internal static class ValidationRunner
 {
     internal static async Task<int> RunAsync(string? filter)
     {
-        var toRun = filter is null
+        CollectionRunner.Collection[] toRun = filter is null
             ? CollectionRunner.All
             : CollectionRunner.All.Where(c => c.Name == filter).ToArray();
 
@@ -14,18 +14,18 @@ internal static class ValidationRunner
             return 1;
         }
 
-        var failed = 0;
-        var total = 0;
+        int failed = 0;
+        int total = 0;
 
-        foreach (var c in toRun)
+        foreach (CollectionRunner.Collection? c in toRun)
         {
-            var files = CollectionRunner.ResolveDataSources(c.Slug);
+            string[] files = CollectionRunner.ResolveDataSources(c.Slug);
             await Console.Out.WriteLineAsync($"\n── {c.Name} ({files.Length} file{(files.Length == 1 ? "" : "s")}) ──");
 
-            foreach (var file in files)
+            foreach (string file in files)
             {
                 total++;
-                var error = await EntityLoader.ValidateAsync(c.EntityType, file, EntityLoader.StrictOptions);
+                string? error = await EntityLoader.ValidateAsync(c.EntityType, file, EntityLoader.StrictOptions);
                 if (error is null)
                 {
                     await Console.Out.WriteLineAsync($"  OK    {file}");

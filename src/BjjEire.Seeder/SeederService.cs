@@ -11,7 +11,7 @@ public class SeederService(IMongoDatabase db, bool dryRun)
     {
         await Console.Out.WriteLineAsync($"\n── {collectionName} ({jsonPath}) ──");
 
-        var entities = await LoadEntitiesAsync<T>(jsonPath);
+        List<T>? entities = await LoadEntitiesAsync<T>(jsonPath);
         if (entities is null)
             return 1;
         if (entities.Count == 0)
@@ -20,8 +20,8 @@ public class SeederService(IMongoDatabase db, bool dryRun)
             return 0;
         }
 
-        var collection = db.GetCollection<T>(collectionName);
-        var counts = await UpsertAllAsync(collection, entities);
+        IMongoCollection<T> collection = db.GetCollection<T>(collectionName);
+        (int inserted, int replaced, int failed) counts = await UpsertAllAsync(collection, entities);
 
         await Console.Out.WriteLineAsync($"  Result: {counts.inserted} inserted, {counts.replaced} replaced, {counts.failed} failed.");
         return counts.failed > 0 ? 1 : 0;
@@ -29,7 +29,7 @@ public class SeederService(IMongoDatabase db, bool dryRun)
 
     private static async Task<List<T>?> LoadEntitiesAsync<T>(string jsonPath) where T : BaseEntity
     {
-        var (entities, error) = await EntityLoader.LoadAsync<T>(jsonPath, EntityLoader.PermissiveOptions);
+        (List<T>? entities, string? error) = await EntityLoader.LoadAsync<T>(jsonPath, EntityLoader.PermissiveOptions);
         if (error is not null)
             await Console.Error.WriteLineAsync($"  ERROR: {error}");
         return entities;
@@ -38,13 +38,13 @@ public class SeederService(IMongoDatabase db, bool dryRun)
     private async Task<(int inserted, int replaced, int failed)> UpsertAllAsync<T>(
         IMongoCollection<T> collection, List<T> entities) where T : BaseEntity
     {
-        var inserted = 0;
-        var replaced = 0;
-        var failed = 0;
+        int inserted = 0;
+        int replaced = 0;
+        int failed = 0;
 
-        foreach (var entity in entities)
+        foreach (T entity in entities)
         {
-            var (outcome, error) = await UpsertOneAsync(collection, entity);
+            (UpsertOutcome outcome, string? error) = await UpsertOneAsync(collection, entity);
             LogOutcome(entity.Id, outcome, error);
 
             switch (outcome)
@@ -67,17 +67,17 @@ public class SeederService(IMongoDatabase db, bool dryRun)
     private async Task<(UpsertOutcome outcome, string? error)> UpsertOneAsync<T>(
         IMongoCollection<T> collection, T entity) where T : BaseEntity
     {
-        var filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
+        FilterDefinition<T> filter = Builders<T>.Filter.Eq(e => e.Id, entity.Id);
 
         try
         {
             if (dryRun)
             {
-                var exists = await collection.CountDocumentsAsync(filter) > 0;
+                bool exists = await collection.CountDocumentsAsync(filter) > 0;
                 return (exists ? UpsertOutcome.DryRunReplace : UpsertOutcome.DryRunInsert, null);
             }
 
-            var result = await collection.ReplaceOneAsync(filter, entity, new ReplaceOptions { IsUpsert = true });
+            ReplaceOneResult result = await collection.ReplaceOneAsync(filter, entity, new ReplaceOptions { IsUpsert = true });
             return result.UpsertedId is not null
                 ? (UpsertOutcome.Inserted, null)
                 : (UpsertOutcome.Replaced, null);

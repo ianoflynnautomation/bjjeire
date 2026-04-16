@@ -12,7 +12,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.Gyms.Commands;
 
-[Trait("Category", "Gym")]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Unit")]
 public sealed class CreateGymCommandHandlerTests
 {
@@ -51,9 +51,10 @@ public sealed class CreateGymCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_MapsEntityInsertsAndReturnsDto()
     {
-        var dto = ValidGymDto();
-        var command = new CreateGymCommand { Data = dto };
-        var entity = ValidGymEntity();
+        GymDto dto = ValidGymDto();
+        CreateGymCommand command = new()
+        { Data = dto };
+        Gym entity = ValidGymEntity();
 
         _mapperMock
             .Setup(m => m.Map<Gym>(It.IsAny<object>()))
@@ -67,7 +68,7 @@ public sealed class CreateGymCommandHandlerTests
             .Setup(s => s.InsertAsync(entity))
             .Returns(Task.CompletedTask);
 
-        var response = await _handler.Handle(command, CancellationToken.None);
+        CreateGymResponse response = await _handler.Handle(command, CancellationToken.None);
 
         response.ShouldNotBeNull();
         response.Data.ShouldBe(dto);
@@ -85,8 +86,9 @@ public sealed class CreateGymCommandHandlerTests
     [Fact]
     public async Task Handle_ServiceThrows_PropagatesException()
     {
-        var command = new CreateGymCommand { Data = ValidGymDto() };
-        var entity = ValidGymEntity();
+        CreateGymCommand command = new()
+        { Data = ValidGymDto() };
+        Gym entity = ValidGymEntity();
 
         _mapperMock
             .Setup(m => m.Map<Gym>(It.IsAny<object>()))
@@ -103,8 +105,9 @@ public sealed class CreateGymCommandHandlerTests
     [Fact]
     public async Task Handle_ValidCommand_NeverCallsGetOrDeleteOrUpdate()
     {
-        var command = new CreateGymCommand { Data = ValidGymDto() };
-        var entity = ValidGymEntity();
+        CreateGymCommand command = new()
+        { Data = ValidGymDto() };
+        Gym entity = ValidGymEntity();
 
         _mapperMock.Setup(m => m.Map<Gym>(It.IsAny<object>())).Returns(entity);
         _mapperMock.Setup(m => m.Map<GymDto>(It.IsAny<object>())).Returns(ValidGymDto());

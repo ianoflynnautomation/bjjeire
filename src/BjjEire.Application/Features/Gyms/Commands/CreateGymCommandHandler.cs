@@ -11,9 +11,9 @@ public sealed class CreateGymCommandHandler(IGymService gymService, IMapper mapp
     public async Task<CreateGymResponse> Handle(CreateGymCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var gymEntity = mapper.Map<Gym>(request.Data);
+        Gym gymEntity = mapper.Map<Gym>(request.Data);
         await gymService.InsertAsync(gymEntity);
-        var resultDto = mapper.Map<GymDto>(gymEntity);
+        GymDto resultDto = mapper.Map<GymDto>(gymEntity);
         return new CreateGymResponse { Data = resultDto };
     }
 }

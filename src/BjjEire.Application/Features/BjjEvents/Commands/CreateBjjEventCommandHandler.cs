@@ -11,9 +11,9 @@ public sealed class CreateBjjEventCommandHandler(IBjjEventService bjjEventServic
     public async Task<CreateBjjEventResponse> Handle(CreateBjjEventCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var bjjEventEntity = mapper.Map<BjjEvent>(request.Data);
+        BjjEvent bjjEventEntity = mapper.Map<BjjEvent>(request.Data);
         await bjjEventService.InsertAsync(bjjEventEntity);
-        var resultDto = mapper.Map<BjjEventDto>(bjjEventEntity);
+        BjjEventDto resultDto = mapper.Map<BjjEventDto>(bjjEventEntity);
         return new CreateBjjEventResponse { Data = resultDto };
     }
 }

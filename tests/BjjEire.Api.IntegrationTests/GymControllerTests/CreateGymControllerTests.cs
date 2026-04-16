@@ -13,26 +13,26 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.GymControllerTests;
 
-[Trait("Category", "Parallel")]
-[Trait("Category", "Gym")]
+[Collection(GymApiCollection.Name)]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Integration")]
 public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
-    : ParallelTestBase(fixture, output)
+    : ApiIntegrationTestBase(fixture, output)
 {
     [Fact]
     public async Task CreateGym_WithValidData_ShouldCreateGymAsync()
     {
         // Arrange
         SetDefaultUserToken();
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
 
-        var createdGymResponse = await ReadJsonAsync<CreateGymResponse>(response);
+        CreateGymResponse createdGymResponse = await ReadJsonAsync<CreateGymResponse>(response);
         _ = createdGymResponse.ShouldNotBeNull();
         _ = createdGymResponse.Data.ShouldNotBeNull();
         createdGymResponse.Data.ShouldBeEquivalentTo(command.Data);
@@ -42,11 +42,11 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     public async Task CreateGym_WithoutAuthentication_ShouldReturnUnauthorizedAsync()
     {
         // Arrange
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -57,10 +57,11 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     {
         // Arrange
         SetDefaultUserToken();
-        var command = new CreateGymCommand { Data = null! };
+        CreateGymCommand command = new()
+        { Data = null! };
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await HttpResponseAssertions.AssertValidationErrorContractAsync(response);
@@ -71,14 +72,14 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     {
         // Arrange
         SetDefaultUserToken();
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Name = "";
         command.Data.TrialOffer = null!;
         command.Data.SocialMedia = null!;
         command.Data.Location = null!;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await AssertValidationErrorAsync(response,
@@ -94,14 +95,14 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     {
         // Arrange
         SetDefaultUserToken();
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.SocialMedia.Facebook = null!;
         command.Data.SocialMedia.Instagram = string.Empty;
         command.Data.SocialMedia.X = null!;
         command.Data.SocialMedia.YouTube = string.Empty;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -112,7 +113,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
     {
         // Arrange
         SetDefaultUserToken();
-        var command = GymTestDataFactory.GetValidCreateGymCommand();
+        CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
         command.Data.Description = null;
         command.Data.Affiliation = null;
         command.Data.Website = null;
@@ -120,7 +121,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         command.Data.ImageUrl = null;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/gym", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);

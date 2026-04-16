@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.TestBases;
 
-[Collection("Sequential")]
+[Collection(IsolatedFixtureCollection.Name)]
 public abstract class RateLimitSequentialIntegrationTestBase : IAsyncLifetime
 {
     private IServiceScope _scope = null!;
@@ -37,15 +37,15 @@ public abstract class RateLimitSequentialIntegrationTestBase : IAsyncLifetime
 
     protected static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
     {
-        var result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+        T? result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
         return result!;
     }
 
     public async Task InitializeAsync()
     {
-        var test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
-        var testName = test.DisplayName;
-        var correlationId = Guid.NewGuid();
+        ITest test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
+        string testName = test.DisplayName;
+        Guid correlationId = Guid.NewGuid();
 
         _logContext = Serilog.Context.LogContext.Push(
             new Serilog.Core.Enrichers.PropertyEnricher("TestName", testName),

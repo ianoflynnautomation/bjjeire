@@ -15,7 +15,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Commands;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class CreateBjjEventCommandHandlerTests
 {
@@ -32,9 +32,9 @@ public sealed class CreateBjjEventCommandHandlerTests
     public async Task Handle_ValidCommand_MapsEntityInsertsAndReturnsDto()
     {
         // Arrange
-        var command = BjjEventTestData.ValidCreateCommand();
-        var entity = BjjEventTestData.ValidEntity();
-        var resultDto = BjjEventTestData.ValidDto();
+        CreateBjjEventCommand command = BjjEventTestData.ValidCreateCommand();
+        BjjEvent entity = BjjEventTestData.ValidEntity();
+        BjjEventDto resultDto = BjjEventTestData.ValidDto();
 
         _mapperMock
             .Setup(m => m.Map<BjjEvent>(It.IsAny<object>()))
@@ -49,7 +49,7 @@ public sealed class CreateBjjEventCommandHandlerTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var response = await _handler.Handle(command, CancellationToken.None);
+        CreateBjjEventResponse response = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         response.ShouldNotBeNull();
@@ -71,8 +71,8 @@ public sealed class CreateBjjEventCommandHandlerTests
     public async Task Handle_ServiceThrows_PropagatesException()
     {
         // Arrange
-        var command = BjjEventTestData.ValidCreateCommand();
-        var entity = BjjEventTestData.ValidEntity();
+        CreateBjjEventCommand command = BjjEventTestData.ValidCreateCommand();
+        BjjEvent entity = BjjEventTestData.ValidEntity();
 
         _mapperMock
             .Setup(m => m.Map<BjjEvent>(It.IsAny<object>()))
@@ -83,7 +83,7 @@ public sealed class CreateBjjEventCommandHandlerTests
             .ThrowsAsync(new InvalidOperationException("DB unavailable"));
 
         // Act & Assert
-        var ex = await Should.ThrowAsync<InvalidOperationException>(
+        InvalidOperationException ex = await Should.ThrowAsync<InvalidOperationException>(
             () => _handler.Handle(command, CancellationToken.None));
 
         ex.Message.ShouldBe("DB unavailable");
@@ -93,8 +93,8 @@ public sealed class CreateBjjEventCommandHandlerTests
     public async Task Handle_ValidCommand_DoesNotCallGetOrDelete()
     {
         // Arrange
-        var command = BjjEventTestData.ValidCreateCommand();
-        var entity = BjjEventTestData.ValidEntity();
+        CreateBjjEventCommand command = BjjEventTestData.ValidCreateCommand();
+        BjjEvent entity = BjjEventTestData.ValidEntity();
 
         _mapperMock.Setup(m => m.Map<BjjEvent>(It.IsAny<object>())).Returns(entity);
         _mapperMock.Setup(m => m.Map<BjjEventDto>(It.IsAny<object>())).Returns(BjjEventTestData.ValidDto());

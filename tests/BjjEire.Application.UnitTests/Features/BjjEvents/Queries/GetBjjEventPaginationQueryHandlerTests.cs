@@ -4,7 +4,7 @@
 // The handler uses HybridCache + IRepository<BjjEvent> with MongoDB LINQ.
 // The data-fetching factory path (which calls CountAsync / ToListAsync from
 // MongoDB.Driver.Linq) requires a real MongoDB instance.  Those cases are
-// covered in BjjEire.Api.IntegrationTests / BjjEire.Application.FunctionalTests.
+// covered in BjjEire.Api.IntegrationTests / BjjEire.Application.IntegrationTests.
 //
 // These unit tests verify:
 //   A) Null-request guard
@@ -29,7 +29,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Queries;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class GetBjjEventPaginationQueryHandlerTests
 {
@@ -47,7 +47,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     // Builds the pre-packaged response the mock cache will return.
     private static GetBjjEventPaginatedResponse BuildCachedResponse(int count = 1)
     {
-        var items = Enumerable.Range(0, count)
+        List<BjjEventDto> items = Enumerable.Range(0, count)
             .Select(i => new BjjEventDto
             {
                 Id = ObjectIds.Valid1,
@@ -103,7 +103,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
     {
-        var handler = BuildHandler();
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
 
         await Should.ThrowAsync<ArgumentNullException>(
             () => handler.Handle(null!, CancellationToken.None));
@@ -114,13 +114,14 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_ReturnsCachedResponse()
     {
-        var expected = BuildCachedResponse(3);
+        GetBjjEventPaginatedResponse expected = BuildCachedResponse(3);
         SetupCacheHit(expected);
 
-        var handler = BuildHandler();
-        var query = new GetBjjEventPaginationQuery { Page = 1, PageSize = 20 };
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
+        GetBjjEventPaginationQuery query = new()
+        { Page = 1, PageSize = 20 };
 
-        var result = await handler.Handle(query, CancellationToken.None);
+        GetBjjEventPaginatedResponse result = await handler.Handle(query, CancellationToken.None);
 
         result.ShouldNotBeNull();
         result.Data.Count.ShouldBe(3);
@@ -130,12 +131,12 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_ReturnsSameReferenceAsCache()
     {
-        var expected = BuildCachedResponse(1);
+        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
         SetupCacheHit(expected);
 
-        var handler = BuildHandler();
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
 
-        var result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
+        GetBjjEventPaginatedResponse result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
 
         result.ShouldBeSameAs(expected);
     }
@@ -143,12 +144,12 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     [Fact]
     public async Task Handle_CacheHit_EmptyResult_ReturnsEmptyData()
     {
-        var expected = BuildCachedResponse(0);
+        GetBjjEventPaginatedResponse expected = BuildCachedResponse(0);
         SetupCacheHit(expected);
 
-        var handler = BuildHandler();
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
 
-        var result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
+        GetBjjEventPaginatedResponse result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
 
         result.Data.ShouldBeEmpty();
         result.Pagination.TotalItems.ShouldBe(0);
@@ -161,7 +162,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     {
         // We capture which cache key is used to confirm County is included.
         string? capturedKey = null;
-        var expected = BuildCachedResponse(1);
+        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
 
         _cacheMock
             .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
@@ -179,8 +180,9 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
                 CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
 
-        var handler = BuildHandler();
-        var query = new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, County = County.Dublin };
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
+        GetBjjEventPaginationQuery query = new()
+        { Page = 1, PageSize = 20, County = County.Dublin };
 
         await handler.Handle(query, CancellationToken.None);
 
@@ -193,7 +195,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     public async Task Handle_QueryWithTypeFilter_PassesQueryToCache()
     {
         string? capturedKey = null;
-        var expected = BuildCachedResponse(1);
+        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
 
         _cacheMock
             .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
@@ -211,8 +213,9 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
                 CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
             .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
 
-        var handler = BuildHandler();
-        var query = new GetBjjEventPaginationQuery { Type = BjjEventType.Camp };
+        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
+        GetBjjEventPaginationQuery query = new()
+        { Type = BjjEventType.Camp };
 
         await handler.Handle(query, CancellationToken.None);
 

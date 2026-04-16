@@ -19,14 +19,14 @@ public sealed class UniqueIdentifierTests
     [Fact]
     public void New_ReturnsValidHexString()
     {
-        var id = UniqueIdentifier.New;
+        string id = UniqueIdentifier.New;
         id.ShouldAllBe(c => "0123456789abcdef".Contains(c));
     }
 
     [Fact]
     public void New_ReturnsUniqueValueOnEachCall()
     {
-        var ids = Enumerable.Range(0, 100).Select(_ => UniqueIdentifier.New).ToList();
+        List<string> ids = Enumerable.Range(0, 100).Select(_ => UniqueIdentifier.New).ToList();
         ids.Distinct().Count().ShouldBe(ids.Count);
     }
 }

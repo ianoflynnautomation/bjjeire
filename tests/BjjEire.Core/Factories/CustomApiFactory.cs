@@ -63,7 +63,7 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         _fixtureLogger.LogInformation(TestLoggingEvents.Fixture.AppConfigurationModifying, "Modifying app configuration for tests (MongoDB ConnectionString, RateLimiting).");
         _ = builder.ConfigureAppConfiguration((context, config) =>
         {
-            var mongoConnectionString = _dbContainer.GetConnectionString();
+            string mongoConnectionString = _dbContainer.GetConnectionString();
             _fixtureLogger.LogInformation("Overriding MongoDB connection string with Testcontainer: {MongoConnectionString}", mongoConnectionString);
             _ = config.AddInMemoryCollection(new Dictionary<string, string?>
             {
@@ -83,15 +83,15 @@ public class CustomApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
             _ = services.AddSingleton<IMongoClient>(sp =>
             {
-                var clientSettings = MongoClientSettings.FromConnectionString(_dbContainer.GetConnectionString());
+                MongoClientSettings clientSettings = MongoClientSettings.FromConnectionString(_dbContainer.GetConnectionString());
                 return new MongoClient(clientSettings);
             });
 
             _ = services.AddScoped<IMongoDatabase>(sp =>
             {
-                var client = sp.GetRequiredService<IMongoClient>();
-                var mongoUrl = MongoUrl.Create(_dbContainer.GetConnectionString());
-                var databaseName = string.IsNullOrWhiteSpace(mongoUrl.DatabaseName) ? DefaultTestDatabaseName : mongoUrl.DatabaseName;
+                IMongoClient client = sp.GetRequiredService<IMongoClient>();
+                MongoUrl mongoUrl = MongoUrl.Create(_dbContainer.GetConnectionString());
+                string databaseName = string.IsNullOrWhiteSpace(mongoUrl.DatabaseName) ? DefaultTestDatabaseName : mongoUrl.DatabaseName;
                 _fixtureLogger.LogDebug("Providing IMongoDatabase: {DatabaseName} from Testcontainer.", databaseName);
                 return client.GetDatabase(databaseName);
             });

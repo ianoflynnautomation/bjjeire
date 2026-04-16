@@ -1,5 +1,7 @@
 using BjjEire.Aspire.AppHost.Constants;
 
+using Microsoft.Extensions.Configuration;
+
 namespace BjjEire.Aspire.AppHost.Configuration;
 
 public static class FrontendConfiguration
@@ -10,10 +12,10 @@ public static class FrontendConfiguration
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
-        var dockerfilePath = Path.Combine(solutionRoot, "src/bjjeire-app/Dockerfile");
+        string solutionRoot = Path.GetFullPath(Path.Combine(builder.AppHostDirectory, ServiceConstants.BasePath));
+        string dockerfilePath = Path.Combine(solutionRoot, "src/bjjeire-app/Dockerfile");
 
-        var config = builder.Configuration;
+        ConfigurationManager config = builder.Configuration;
 
         return builder.AddDockerfile("frontend", solutionRoot, dockerfilePath)
             .WaitFor(api)
