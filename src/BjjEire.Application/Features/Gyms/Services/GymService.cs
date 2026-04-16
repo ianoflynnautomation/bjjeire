@@ -25,7 +25,7 @@ public class GymService(
     public virtual async Task InsertAsync(Gym gym)
     {
         ArgumentNullException.ThrowIfNull(gym);
-        var inserted = await gymRepository.InsertAsync(gym);
+        Gym inserted = await gymRepository.InsertAsync(gym);
         GymLog.Inserted(logger, inserted.Id);
         await hybridCache.RemoveByTagAsync(GymCacheKeys.Tag);
     }
@@ -33,7 +33,7 @@ public class GymService(
     public virtual async Task UpdateAsync(Gym gym)
     {
         ArgumentNullException.ThrowIfNull(gym);
-        var updated = await gymRepository.UpdateAsync(gym);
+        Gym updated = await gymRepository.UpdateAsync(gym);
         GymLog.Updated(logger, updated.Id);
         await hybridCache.RemoveByTagAsync(GymCacheKeys.Tag);
     }

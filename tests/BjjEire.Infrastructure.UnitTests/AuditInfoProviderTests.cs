@@ -8,9 +8,9 @@ public sealed class AuditInfoProviderTests
     [Fact]
     public void GetCurrentDateTime_ReturnsUtcDateTime()
     {
-        var provider = new AuditInfoProvider(new Mock<IHttpContextAccessor>().Object);
+        AuditInfoProvider provider = new(new Mock<IHttpContextAccessor>().Object);
 
-        var result = provider.GetCurrentDateTime();
+        DateTime result = provider.GetCurrentDateTime();
 
         result.Kind.ShouldBe(DateTimeKind.Utc);
         (DateTime.UtcNow - result).ShouldBeLessThan(TimeSpan.FromSeconds(1));
@@ -20,10 +20,10 @@ public sealed class AuditInfoProviderTests
     [Fact]
     public void GetCurrentUser_WhenHttpContextIsNull_ReturnsSystem()
     {
-        var accessor = new Mock<IHttpContextAccessor>();
+        Mock<IHttpContextAccessor> accessor = new();
         accessor.Setup(x => x.HttpContext).Returns((HttpContext?)null);
 
-        var result = new AuditInfoProvider(accessor.Object).GetCurrentUser();
+        string result = new AuditInfoProvider(accessor.Object).GetCurrentUser();
 
         result.ShouldBe("system");
     }
@@ -31,9 +31,9 @@ public sealed class AuditInfoProviderTests
     [Fact]
     public void GetCurrentUser_WhenNameIdentifierClaimPresent_ReturnsClaimValue()
     {
-        var httpContext = ContextWithClaims(new Claim(ClaimTypes.NameIdentifier, "user-abc"));
+        HttpContext httpContext = ContextWithClaims(new Claim(ClaimTypes.NameIdentifier, "user-abc"));
 
-        var result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
+        string result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
 
         result.ShouldBe("user-abc");
     }
@@ -42,9 +42,9 @@ public sealed class AuditInfoProviderTests
     public void GetCurrentUser_WhenNoNameIdentifierButHasIdentityName_ReturnsIdentityName()
     {
         // ClaimsIdentity sets Identity.Name from the ClaimTypes.Name claim.
-        var httpContext = ContextWithClaims(new Claim(ClaimTypes.Name, "jane.doe"));
+        HttpContext httpContext = ContextWithClaims(new Claim(ClaimTypes.Name, "jane.doe"));
 
-        var result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
+        string result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
 
         result.ShouldBe("jane.doe");
     }
@@ -52,11 +52,11 @@ public sealed class AuditInfoProviderTests
     [Fact]
     public void GetCurrentUser_WhenBothNameIdentifierAndNamePresent_PrefersNameIdentifier()
     {
-        var httpContext = ContextWithClaims(
+        HttpContext httpContext = ContextWithClaims(
             new Claim(ClaimTypes.NameIdentifier, "user-id-001"),
             new Claim(ClaimTypes.Name, "jane.doe"));
 
-        var result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
+        string result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
 
         result.ShouldBe("user-id-001");
     }
@@ -64,10 +64,11 @@ public sealed class AuditInfoProviderTests
     [Fact]
     public void GetCurrentUser_WhenUserHasNoRelevantClaims_ReturnsSystem()
     {
-        var principal = new ClaimsPrincipal(new ClaimsIdentity());
-        var httpContext = new DefaultHttpContext { User = principal };
+        ClaimsPrincipal principal = new(new ClaimsIdentity());
+        DefaultHttpContext httpContext = new()
+        { User = principal };
 
-        var result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
+        string result = new AuditInfoProvider(AccessorFor(httpContext)).GetCurrentUser();
 
         result.ShouldBe("system");
     }
@@ -75,13 +76,13 @@ public sealed class AuditInfoProviderTests
 
     private static HttpContext ContextWithClaims(params Claim[] claims)
     {
-        var identity = new ClaimsIdentity(claims, "TestAuth");
+        ClaimsIdentity identity = new(claims, "TestAuth");
         return new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
     }
 
     private static IHttpContextAccessor AccessorFor(HttpContext ctx)
     {
-        var mock = new Mock<IHttpContextAccessor>();
+        Mock<IHttpContextAccessor> mock = new();
         mock.Setup(x => x.HttpContext).Returns(ctx);
         return mock.Object;
     }

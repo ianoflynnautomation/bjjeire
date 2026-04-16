@@ -19,8 +19,8 @@ public class LoggingBehaviour<TRequest, TResponse>(
     {
         ArgumentNullException.ThrowIfNull(next);
 
-        var requestName = typeof(TRequest).Name;
-        var responseName = typeof(TResponse).Name;
+        string requestName = typeof(TRequest).Name;
+        string responseName = typeof(TResponse).Name;
 
         string traceId = Activity.Current?.TraceId.ToString()
             ?? httpContextAccessor?.HttpContext?.TraceIdentifier
@@ -32,7 +32,7 @@ public class LoggingBehaviour<TRequest, TResponse>(
 
         LoggingBehaviourLog.Start(logger, requestName, traceId, userId);
 
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch stopwatch = Stopwatch.StartNew();
         TResponse response = await next(cancellationToken);
         stopwatch.Stop();
         LoggingBehaviourLog.Success(logger, requestName, responseName, stopwatch.ElapsedMilliseconds);

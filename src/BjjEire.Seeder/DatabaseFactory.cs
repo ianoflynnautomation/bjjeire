@@ -4,16 +4,16 @@ internal static class DatabaseFactory
 {
     internal static IMongoDatabase Build()
     {
-        var config = new ConfigurationBuilder()
+        IConfigurationRoot config = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false)
             .AddEnvironmentVariables()
             .Build();
 
-        var connectionString = config.GetConnectionString("Mongodb")
+        string connectionString = config.GetConnectionString("Mongodb")
             ?? throw new InvalidOperationException("Connection string 'Mongodb' is missing from appsettings.json.");
 
-        var dbName = MongoUrl.Create(connectionString).DatabaseName;
+        string dbName = MongoUrl.Create(connectionString).DatabaseName;
         if (string.IsNullOrWhiteSpace(dbName))
             throw new InvalidOperationException(
                 "Database name must be included in the connection string. " +
@@ -29,7 +29,7 @@ internal static class DatabaseFactory
 
     private static void RegisterConventions()
     {
-        var pack = new ConventionPack
+        ConventionPack pack = new()
         {
             new IgnoreExtraElementsConvention(true),
             new CamelCaseElementNameConvention(),

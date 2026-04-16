@@ -50,6 +50,8 @@ public sealed class AppHostFixture : IAsyncLifetime
     {
         ApiClient?.Dispose();
         if (_app is not null)
+        {
             await _app.DisposeAsync();
+        }
     }
 }

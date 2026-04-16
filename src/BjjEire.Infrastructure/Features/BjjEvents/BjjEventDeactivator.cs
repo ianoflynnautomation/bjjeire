@@ -16,10 +16,10 @@ public sealed class BjjEventDeactivator(
 {
     public async Task<long> DeactivateExpiredAsync(CancellationToken cancellationToken)
     {
-        var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-        var update = UpdateBuilder<BjjEvent>.Create().Set(x => x.IsActive, false);
+        DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+        UpdateBuilder<BjjEvent> update = UpdateBuilder<BjjEvent>.Create().Set(x => x.IsActive, false);
 
-        var deactivatedCount = await repository.UpdateManyAsync(
+        long deactivatedCount = await repository.UpdateManyAsync(
             BjjEventSpecifications.Expired(nowUtc),
             update);
 

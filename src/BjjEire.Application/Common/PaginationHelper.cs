@@ -22,7 +22,7 @@ public static class PaginationHelper
         ArgumentNullException.ThrowIfNull(uriService);
 
         int totalRecords = await source.CountAsync(cancellationToken);
-        var pagedData = await source
+        List<T> pagedData = await source
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToListAsync(cancellationToken);

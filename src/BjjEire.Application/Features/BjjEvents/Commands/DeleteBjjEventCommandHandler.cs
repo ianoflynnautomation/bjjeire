@@ -1,5 +1,6 @@
 using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Domain.Entities.BjjEvents;
 
 namespace BjjEire.Application.Features.BjjEvents.Commands;
 
@@ -11,7 +12,7 @@ public sealed class DeleteBjjEventCommandHandler(IBjjEventService bjjEventServic
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var bjjEventEntity = await bjjEventService.GetByIdAsync(request.Id)
+        BjjEvent bjjEventEntity = await bjjEventService.GetByIdAsync(request.Id)
  ?? throw new NotFoundException("BjjEvent", request.Id);
 
         await bjjEventService.DeleteAsync(bjjEventEntity);

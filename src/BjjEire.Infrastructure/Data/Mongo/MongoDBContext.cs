@@ -14,8 +14,8 @@ public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext
 
     public async Task<bool> DatabaseExistAsync()
     {
-        var filter = new BsonDocument("name", "BjjWorldVersion");
-        var found = await _database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
+        BsonDocument filter = new("name", "BjjWorldVersion");
+        IAsyncCursor<BsonDocument> found = await _database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
         return await found.AnyAsync();
     }
 
@@ -25,7 +25,7 @@ public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext
 
         if (!string.IsNullOrEmpty(collation))
         {
-            var options = new CreateCollectionOptions
+            CreateCollectionOptions options = new()
             {
                 Collation = new Collation(collation)
             };
@@ -50,7 +50,7 @@ public class MongoDBContext(IMongoDatabase mongodatabase, ILogger<MongoDBContext
         ArgumentNullException.ThrowIfNull(orderBuilder);
 
         IList<IndexKeysDefinition<T>> keys = [];
-        foreach (var (selector, value, fieldName) in orderBuilder.Fields)
+        foreach ((Expression<Func<T, object>>? selector, bool value, string? fieldName) in orderBuilder.Fields)
         {
             if (selector != null)
             {

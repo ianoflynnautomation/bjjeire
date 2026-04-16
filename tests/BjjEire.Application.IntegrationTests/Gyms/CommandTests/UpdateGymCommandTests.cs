@@ -1,6 +1,7 @@
 namespace BjjEire.Application.IntegrationTests.Gyms.CommandTests;
 
-[Collection(AppIntegrationCollection.Name)]
+[Collection(GymApplicationCollection.Name)]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Integration")]
 public class UpdateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelper outputHelper)
     : ApplicationTestBase(apiFactory, outputHelper)
@@ -8,18 +9,18 @@ public class UpdateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     [Fact]
     public async Task UpdateGym_WithValidData_PersistsChanges()
     {
-        var created = await SendAsync(GymTestDataFactory.GetValidCreateGymCommand());
-        var gymId = created.Data.Id!;
+        CreateGymResponse created = await SendAsync(GymTestDataFactory.GetValidCreateGymCommand());
+        string gymId = created.Data.Id!;
 
-        var updatedDto = GymTestDataFactory.GetValidGymDto();
+        GymDto updatedDto = GymTestDataFactory.GetValidGymDto();
         updatedDto.Id = gymId;
         updatedDto.Name = "Updated BJJ Academy";
 
-        var response = await SendAsync(new UpdateGymCommand { Data = updatedDto });
+        UpdateGymResponse response = await SendAsync(new UpdateGymCommand { Data = updatedDto });
 
         response.Data.Name.ShouldBe("Updated BJJ Academy");
 
-        var fromDb = await FindAsync<Gym, GymDto>(gymId);
+        GymDto? fromDb = await FindAsync<Gym, GymDto>(gymId);
         fromDb.ShouldNotBeNull();
         fromDb.Name.ShouldBe("Updated BJJ Academy");
     }
@@ -27,7 +28,7 @@ public class UpdateGymCommandTests(CustomApiFactory apiFactory, ITestOutputHelpe
     [Fact]
     public async Task UpdateGym_WithNullData_ThrowsValidationException()
     {
-        var ex = await Should.ThrowAsync<ValidationException>(
+        ValidationException ex = await Should.ThrowAsync<ValidationException>(
             async () => await SendAsync(new UpdateGymCommand { Data = null! }));
 
         ex.Errors.ShouldNotBeEmpty();

@@ -23,25 +23,25 @@ public sealed class GetStorePaginationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var cacheKey = StoreCacheKeys.All(request.Page, request.PageSize);
+        string cacheKey = StoreCacheKeys.All(request.Page, request.PageSize);
 
         GetStorePaginationQueryHandlerLog.QueryStart(
             logger, nameof(GetStorePaginationQuery), request.Page, request.PageSize, cacheKey);
 
-        var result = await hybridCache.GetOrCreateAsync(
+        GetStorePaginatedResponse result = await hybridCache.GetOrCreateAsync(
             cacheKey,
             async ct =>
             {
                 GetStorePaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
 
-                var query = storeRepository.Table
+                IOrderedQueryable<Store> query = storeRepository.Table
                     .Where(x => x.IsActive)
                     .OrderBy(x => x.Name);
 
-                var dtoQuery = query.ProjectTo<StoreDto>(mapper.ConfigurationProvider);
-                var filter = new PaginationFilter(request.Page, request.PageSize);
+                IQueryable<StoreDto> dtoQuery = query.ProjectTo<StoreDto>(mapper.ConfigurationProvider);
+                PaginationFilter filter = new(request.Page, request.PageSize);
 
-                var pagedData = await PaginationHelper.CreatePagedResponseAsync(
+                PagedResponse<StoreDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
                     dtoQuery, filter,
                     StoresApiConstants.ControllerName, StoresApiConstants.GetAllActionName,
                     uriService, null, ct);

@@ -13,9 +13,9 @@ public class FeatureFlagController(IFeatureManager featureManager) : BaseApiCont
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, bool>))]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        var flags = new Dictionary<string, bool>(capacity: FeatureFlags.FrontendFlags.Count);
+        Dictionary<string, bool> flags = new(capacity: FeatureFlags.FrontendFlags.Count);
 
-        foreach (var name in FeatureFlags.FrontendFlags)
+        foreach (string name in FeatureFlags.FrontendFlags)
         {
             flags[name] = await _featureManager.IsEnabledAsync(name);
         }

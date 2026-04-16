@@ -4,6 +4,7 @@
 using System.Net;
 
 using BjjEire.Api.IntegrationTests.Fixtures;
+using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Enums;
 
 using Shouldly;
@@ -13,11 +14,11 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventControllerTests;
 
-[Trait("Category", "Parallel")]
-[Trait("Category", "BjjEvent")]
+[Collection(BjjEventApiCollection.Name)]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Integration")]
 public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
-    : ParallelTestBase(fixture, output)
+    : ApiIntegrationTestBase(fixture, output)
 {
 
     [Fact]
@@ -25,11 +26,11 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
+        BjjEvent bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
         await Database.SeedEntitiesAsync(bjjevent1);
 
         // Act
-        var response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -39,12 +40,12 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     public async Task DeleteBjjEvent_WithoutAuthentication_ShouldReturnUnauthorizedAsync()
     {
         // Arrange
-        var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
+        BjjEvent bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
         await Database.SeedEntitiesAsync(bjjevent1);
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        var response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -56,12 +57,12 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
+        BjjEvent bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
         await Database.SeedEntitiesAsync(bjjevent1);
-        var bjjevent2 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
+        BjjEvent bjjevent2 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
 
         // Act
-        var response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent2.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent2.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -77,7 +78,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         SetDefaultUserToken();
 
         // Act
-        var response = await HttpClient.DeleteAsync($"/api/bjjevent/{invalidId}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{invalidId}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -88,12 +89,12 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent();
+        BjjEvent bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent();
         await Database.SeedEntitiesAsync(bjjevent1);
 
         // Act
-        var firstResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
-        var secondResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage firstResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage secondResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
 
         // Assert
         firstResponse.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -105,20 +106,20 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
+        BjjEvent bjjevent1 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
         await Database.SeedEntitiesAsync(bjjevent1);
 
         // Act
         const int concurrentRequestCount = 5;
-        var deleteTasks = Enumerable.Range(0, concurrentRequestCount)
+        IEnumerable<Task<HttpResponseMessage>> deleteTasks = Enumerable.Range(0, concurrentRequestCount)
                                      .Select(_ => HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}"));
 
-        var responses = await Task.WhenAll(deleteTasks);
+        HttpResponseMessage[] responses = await Task.WhenAll(deleteTasks);
 
         // Assert
-        var statusCodes = responses.Select(r => r.StatusCode).ToList();
+        List<HttpStatusCode> statusCodes = responses.Select(r => r.StatusCode).ToList();
         statusCodes.Count(s => s == HttpStatusCode.NoContent).ShouldBe(1);
-        statusCodes.Count(s => s == HttpStatusCode.Conflict || s == HttpStatusCode.NotFound).ShouldBe(concurrentRequestCount - 1);
+        statusCodes.Count(s => s is HttpStatusCode.Conflict or HttpStatusCode.NotFound).ShouldBe(concurrentRequestCount - 1);
     }
 
 }

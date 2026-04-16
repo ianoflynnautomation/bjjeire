@@ -1,3 +1,5 @@
+using FluentValidation.Results;
+
 using Microsoft.Extensions.Logging;
 
 namespace BjjEire.Application.Common.Behaviours;
@@ -21,11 +23,11 @@ public class ValidationBehaviour<TRequest, TResponse>(
             return await next(cancellationToken);
         }
 
-        var context = new ValidationContext<TRequest>(request);
-        var validationResults = await Task.WhenAll(
+        ValidationContext<TRequest> context = new(request);
+        ValidationResult[] validationResults = await Task.WhenAll(
             validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
-        var failures = validationResults
+        List<ValidationFailure> failures = validationResults
             .Where(r => r is { IsValid: false })
             .SelectMany(r => r.Errors)
             .Where(f => f != null)

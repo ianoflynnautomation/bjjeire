@@ -48,7 +48,7 @@ public static class BjjEventTestDataFactory
         })
         .RuleFor(x => x.Schedule, f =>
         {
-            var start = DateTime.UtcNow.Date.AddDays(f.Random.Int(7, 60));
+            DateTime start = DateTime.UtcNow.Date.AddDays(f.Random.Int(7, 60));
             return new BjjEventScheduleDto
             {
                 StartDate = start,
@@ -103,7 +103,7 @@ public static class BjjEventTestDataFactory
         })
         .RuleFor(x => x.Schedule, f =>
         {
-            var start = DateTime.UtcNow.Date.AddDays(f.Random.Int(7, 60));
+            DateTime start = DateTime.UtcNow.Date.AddDays(f.Random.Int(7, 60));
             return new BjjEventSchedule
             {
                 StartDate = start,
@@ -135,7 +135,7 @@ public static class BjjEventTestDataFactory
 
     public static BjjEvent CreateBjjEvent(Action<BjjEvent>? configure = null)
     {
-        var entity = BjjEventEntityGenerator.Generate();
+        BjjEvent entity = BjjEventEntityGenerator.Generate();
         configure?.Invoke(entity);
         return entity;
     }

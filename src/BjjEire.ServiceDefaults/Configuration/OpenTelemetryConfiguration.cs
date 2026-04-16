@@ -22,15 +22,15 @@ public static class OpenTelemetryConfiguration
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(options);
 
-        var entryAssembly = Assembly.GetEntryAssembly();
-        var entryAssemblyName = entryAssembly?.GetName();
-        var versionAttribute = entryAssembly?.GetCustomAttributes(false)
+        Assembly? entryAssembly = Assembly.GetEntryAssembly();
+        AssemblyName? entryAssemblyName = entryAssembly?.GetName();
+        AssemblyInformationalVersionAttribute? versionAttribute = entryAssembly?.GetCustomAttributes(false)
             .OfType<AssemblyInformationalVersionAttribute>()
             .FirstOrDefault();
-        var serviceName = options.ServiceName ?? entryAssemblyName?.Name ?? "unknown";
-        var serviceVersion = versionAttribute?.InformationalVersion ?? entryAssemblyName?.Version?.ToString();
+        string serviceName = options.ServiceName ?? entryAssemblyName?.Name ?? "unknown";
+        string? serviceVersion = versionAttribute?.InformationalVersion ?? entryAssemblyName?.Version?.ToString();
 
-        var resourceBuilder = ResourceBuilder.CreateDefault()
+        ResourceBuilder resourceBuilder = ResourceBuilder.CreateDefault()
             .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
             .AddTelemetrySdk()
             .AddAttributes(new Dictionary<string, object>
@@ -47,7 +47,7 @@ public static class OpenTelemetryConfiguration
             _ = logging.SetResourceBuilder(resourceBuilder);
         });
 
-        var otelBuilder = builder.Services.AddOpenTelemetry()
+        OpenTelemetryBuilder otelBuilder = builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics => metrics
                 .SetResourceBuilder(resourceBuilder)
                 .AddAspNetCoreInstrumentation()

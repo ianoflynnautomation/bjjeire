@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { CompetitionsList } from '@/features/competitions/components/competitions-list'
 import { CompetitionsPageHeader } from '@/features/competitions/components/competitions-page-header'
-import { CompetitionSearchInput } from '@/features/competitions/components/competition-search-input'
+import { ListSearchInput } from '@/components/ui/search/list-search-input'
 import Pagination from '@/components/ui/grid/pagination'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
@@ -14,7 +14,7 @@ const { search } = uiContent.competitions
 
 export default function CompetitionsPage(): JSX.Element {
   const {
-    filteredCompetitions,
+    filteredItems: filteredCompetitions,
     paginationInfo,
     isLoading,
     isFetching,
@@ -40,7 +40,9 @@ export default function CompetitionsPage(): JSX.Element {
 
         <div className="mb-6 pb-6 border-b border-black/8 dark:border-white/8">
           <div className="sm:w-160 shrink-0">
-            <CompetitionSearchInput
+            <ListSearchInput
+              inputId="competition-search"
+              content={search}
               value={competitionSearch.searchTerm}
               onChange={competitionSearch.setSearchTerm}
               onClear={competitionSearch.clearSearch}

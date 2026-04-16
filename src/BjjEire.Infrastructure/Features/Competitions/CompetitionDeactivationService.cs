@@ -29,7 +29,7 @@ public sealed class CompetitionDeactivationService(
             return;
         }
 
-        using var timer = new PeriodicTimer(_options.Interval, timeProvider);
+        using PeriodicTimer timer = new(_options.Interval, timeProvider);
 
         do
         {
@@ -42,14 +42,14 @@ public sealed class CompetitionDeactivationService(
 
     private async Task RunSweepAsync(CancellationToken cancellationToken)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
-            await using var scope = scopeFactory.CreateAsyncScope();
-            var deactivator = scope.ServiceProvider.GetRequiredService<ICompetitionDeactivator>();
+            await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+            ICompetitionDeactivator deactivator = scope.ServiceProvider.GetRequiredService<ICompetitionDeactivator>();
 
-            var deactivatedCount = await deactivator.DeactivateExpiredAsync(cancellationToken);
+            long deactivatedCount = await deactivator.DeactivateExpiredAsync(cancellationToken);
 
             stopwatch.Stop();
             CompetitionDeactivationServiceLog.SweepCompleted(logger, deactivatedCount, stopwatch.ElapsedMilliseconds);

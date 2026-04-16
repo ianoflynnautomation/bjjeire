@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { StoresList } from '@/features/stores/components/store-list'
 import { StoresPageHeader } from '@/features/stores/components/stores-page-header'
-import { StoreSearchInput } from '@/features/stores/components/store-search-input'
+import { ListSearchInput } from '@/components/ui/search/list-search-input'
 import Pagination from '@/components/ui/grid/pagination'
 import PageErrorBoundary from '@/components/error/page-error-boundary'
 import PageLayout from '@/components/layout/page-layout'
@@ -14,7 +14,7 @@ const { search } = uiContent.stores
 
 export default function StoresPage(): JSX.Element {
   const {
-    filteredStores,
+    filteredItems: filteredStores,
     paginationInfo,
     isLoading,
     isFetching,
@@ -40,7 +40,9 @@ export default function StoresPage(): JSX.Element {
 
         <div className="mb-6 border-b border-black/8 pb-6 dark:border-white/8">
           <div className="shrink-0 sm:w-160">
-            <StoreSearchInput
+            <ListSearchInput
+              inputId="store-search"
+              content={search}
               value={storeSearch.searchTerm}
               onChange={storeSearch.setSearchTerm}
               onClear={storeSearch.clearSearch}

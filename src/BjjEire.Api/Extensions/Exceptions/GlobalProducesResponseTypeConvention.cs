@@ -8,9 +8,9 @@ public class GlobalProducesResponseTypeConvention : IApplicationModelConvention
     {
         ArgumentNullException.ThrowIfNull(application);
 
-        foreach (var controller in application.Controllers)
+        foreach (ControllerModel controller in application.Controllers)
         {
-            foreach (var action in controller.Actions)
+            foreach (ActionModel action in controller.Actions)
             {
                 action.Filters.Add(new ProducesResponseTypeAttribute(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest));
                 action.Filters.Add(new ProducesResponseTypeAttribute(typeof(ProblemDetails), StatusCodes.Status404NotFound));

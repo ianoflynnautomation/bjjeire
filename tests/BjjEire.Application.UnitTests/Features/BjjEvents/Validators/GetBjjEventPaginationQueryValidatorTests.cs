@@ -6,11 +6,13 @@ using BjjEire.Application.Features.BjjEvents.Queries;
 using BjjEire.Application.Features.BjjEvents.Validators;
 using BjjEire.Domain.Enums;
 
+using FluentValidation.Results;
+
 using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Validators;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class GetBjjEventPaginationQueryValidatorTests
 {
@@ -19,9 +21,9 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [Fact]
     public async Task Validate_NoFilters_Passes()
     {
-        var query = new GetBjjEventPaginationQuery();
+        GetBjjEventPaginationQuery query = new();
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -33,9 +35,10 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [InlineData(County.None)]
     public async Task Validate_ValidCounty_Passes(County county)
     {
-        var query = new GetBjjEventPaginationQuery { County = county };
+        GetBjjEventPaginationQuery query = new()
+        { County = county };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -46,9 +49,10 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [InlineData(BjjEventType.OpenMat)]
     public async Task Validate_ValidType_Passes(BjjEventType type)
     {
-        var query = new GetBjjEventPaginationQuery { Type = type };
+        GetBjjEventPaginationQuery query = new()
+        { Type = type };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -56,9 +60,10 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [Fact]
     public async Task Validate_InvalidCountyValue_FailsValidation()
     {
-        var query = new GetBjjEventPaginationQuery { County = (County)999 };
+        GetBjjEventPaginationQuery query = new()
+        { County = (County)999 };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "County");
@@ -67,9 +72,10 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [Fact]
     public async Task Validate_InvalidTypeValue_FailsValidation()
     {
-        var query = new GetBjjEventPaginationQuery { Type = (BjjEventType)999 };
+        GetBjjEventPaginationQuery query = new()
+        { Type = (BjjEventType)999 };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.PropertyName == "Type");
@@ -78,7 +84,7 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [Fact]
     public async Task Validate_BothValidFilters_Passes()
     {
-        var query = new GetBjjEventPaginationQuery
+        GetBjjEventPaginationQuery query = new()
         {
             County = County.Dublin,
             Type = BjjEventType.Seminar,
@@ -86,7 +92,7 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
             PageSize = 50
         };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeTrue();
     }
@@ -94,9 +100,10 @@ public sealed class GetBjjEventPaginationQueryValidatorTests
     [Fact]
     public async Task Validate_NullableFiltersNotProvided_Passes()
     {
-        var query = new GetBjjEventPaginationQuery { County = null, Type = null };
+        GetBjjEventPaginationQuery query = new()
+        { County = null, Type = null };
 
-        var result = await _validator.ValidateAsync(query);
+        ValidationResult result = await _validator.ValidateAsync(query);
 
         result.IsValid.ShouldBeTrue();
     }

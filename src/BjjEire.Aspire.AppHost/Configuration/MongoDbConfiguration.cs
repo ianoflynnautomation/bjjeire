@@ -10,14 +10,14 @@ public static class MongoDbConfiguration
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        var lifetime = builder.Configuration.GetValue<bool>("Testing:UseSessionLifetime", false)
+        ContainerLifetime lifetime = builder.Configuration.GetValue<bool>("Testing:UseSessionLifetime", false)
             ? ContainerLifetime.Session
             : ContainerLifetime.Persistent;
 
-        var mongoUser = builder.AddParameter("mongo-user");
-        var mongoPassword = builder.AddParameter("mongo-password", secret: true);
+        IResourceBuilder<ParameterResource> mongoUser = builder.AddParameter("mongo-user");
+        IResourceBuilder<ParameterResource> mongoPassword = builder.AddParameter("mongo-password", secret: true);
 
-        var mongo = builder.AddMongoDB("mongo", userName: mongoUser, password: mongoPassword)
+        IResourceBuilder<MongoDBServerResource> mongo = builder.AddMongoDB("mongo", userName: mongoUser, password: mongoPassword)
             .WithLifetime(lifetime)
             .WithVolume(ServiceConstants.MongoDbVolume, "/data/db");
 

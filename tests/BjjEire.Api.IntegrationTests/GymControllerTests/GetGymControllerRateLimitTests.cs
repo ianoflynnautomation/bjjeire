@@ -12,9 +12,9 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.GymControllerTests;
 
-[Trait("Category", "Sequential")]
-[Trait("Category", "Gym")]
+[Trait("Feature", "Gyms")]
 [Trait("Category", "Integration")]
+[Trait("Category", "RateLimit")]
 public class GetGymControllerRateLimitTests(ITestOutputHelper output)
 : RateLimitSequentialIntegrationTestBase(output)
 {
@@ -27,7 +27,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     {
         // Arrange & Act
         HttpResponseMessage? lastResponse = null;
-        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
             lastResponse = await HttpClient.GetAsync("api/gym");
 
@@ -53,11 +53,11 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     public async Task GetGym_WhenUnderRateLimit_ShouldSucceedAsync()
     {
         // Arrange
-        var requestsToMake = ConfiguredPermitLimit;
+        int requestsToMake = ConfiguredPermitLimit;
 
         // Act
-        var responses = new List<HttpResponseMessage>();
-        for (var i = 0; i < requestsToMake; i++)
+        List<HttpResponseMessage> responses = new();
+        for (int i = 0; i < requestsToMake; i++)
         {
             responses.Add(await HttpClient.GetAsync("api/gym"));
             await Task.Delay(50);
@@ -72,16 +72,16 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
     public async Task GetGym_WhenWindowResets_ShouldAllowRequestsAgainAsync()
     {
         // Arrange
-        for (var i = 0; i <= ConfiguredPermitLimit; i++)
+        for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
             _ = await HttpClient.GetAsync("api/gym");
         }
 
-        var windowDelay = TimeSpan.FromSeconds(ConfiguredWindowInSeconds + 1);
+        TimeSpan windowDelay = TimeSpan.FromSeconds(ConfiguredWindowInSeconds + 1);
         await Task.Delay(windowDelay);
 
         // Act
-        var responseAfterReset = await HttpClient.GetAsync("api/gym");
+        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync("api/gym");
 
         // Assert
         responseAfterReset.StatusCode.ShouldBe(HttpStatusCode.OK);

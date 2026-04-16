@@ -38,8 +38,8 @@ internal static class EntityLoader
 
         try
         {
-            var json = await File.ReadAllTextAsync(jsonPath);
-            var entities = JsonSerializer.Deserialize<List<T>>(json, options);
+            string json = await File.ReadAllTextAsync(jsonPath);
+            List<T>? entities = JsonSerializer.Deserialize<List<T>>(json, options);
             return (entities, null);
         }
         catch (Exception ex)
@@ -55,8 +55,8 @@ internal static class EntityLoader
 
         try
         {
-            var json = await File.ReadAllTextAsync(jsonPath);
-            var listType = typeof(List<>).MakeGenericType(entityType);
+            string json = await File.ReadAllTextAsync(jsonPath);
+            Type listType = typeof(List<>).MakeGenericType(entityType);
             _ = JsonSerializer.Deserialize(json, listType, options);
             return null;
         }

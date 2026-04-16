@@ -5,7 +5,7 @@ using Shouldly;
 
 namespace BjjEire.Application.UnitTests.Features.BjjEvents.Specifications;
 
-[Trait("Category", "BjjEvent")]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Unit")]
 public sealed class BjjEventSpecificationsTests
 {
@@ -29,8 +29,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Active_CurrentlyRunningEvent_ReturnsTrue()
     {
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
 
@@ -41,8 +41,8 @@ public sealed class BjjEventSpecificationsTests
     public void Active_FutureEvent_ReturnsTrue()
     {
         // Upcoming events must remain listable — users need to see them before they start.
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(30),
             endDate: Now.AddDays(31));
 
@@ -52,8 +52,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Active_ExpiredEvent_ReturnsFalse()
     {
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-10),
             endDate: Now.AddDays(-1));
 
@@ -63,8 +63,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Active_FlaggedInactive_ReturnsFalse()
     {
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             isActive: false,
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
@@ -75,8 +75,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Active_OpenEndedEvent_ReturnsTrue()
     {
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-1),
             endDate: null);
 
@@ -87,8 +87,8 @@ public sealed class BjjEventSpecificationsTests
     public void Active_EndDateExactlyNow_ReturnsTrue()
     {
         // Boundary: endDate >= now, so an event ending exactly at 'now' is still active.
-        var predicate = BjjEventSpecifications.Active(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Active(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-1),
             endDate: Now);
 
@@ -100,8 +100,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Expired_ActiveEventWithPastEndDate_ReturnsTrue()
     {
-        var predicate = BjjEventSpecifications.Expired(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Expired(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-10),
             endDate: Now.AddDays(-1));
 
@@ -113,8 +113,8 @@ public sealed class BjjEventSpecificationsTests
     {
         // Idempotency: an already-deactivated event must not match the sweep filter,
         // otherwise the background job would re-update the same documents every run.
-        var predicate = BjjEventSpecifications.Expired(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Expired(Now).Compile();
+        BjjEvent bjjEvent = Build(
             isActive: false,
             endDate: Now.AddDays(-1));
 
@@ -125,8 +125,8 @@ public sealed class BjjEventSpecificationsTests
     public void Expired_OpenEndedEvent_ReturnsFalse()
     {
         // Null EndDate = open-ended. The sweep must leave these alone.
-        var predicate = BjjEventSpecifications.Expired(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Expired(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-365),
             endDate: null);
 
@@ -136,8 +136,8 @@ public sealed class BjjEventSpecificationsTests
     [Fact]
     public void Expired_FutureEndDate_ReturnsFalse()
     {
-        var predicate = BjjEventSpecifications.Expired(Now).Compile();
-        var bjjEvent = Build(
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Expired(Now).Compile();
+        BjjEvent bjjEvent = Build(
             startDate: Now.AddDays(-1),
             endDate: Now.AddDays(1));
 
@@ -148,8 +148,8 @@ public sealed class BjjEventSpecificationsTests
     public void Expired_EndDateExactlyNow_ReturnsFalse()
     {
         // Boundary: Expired is strict less-than, so end == now is NOT expired (matches Active).
-        var predicate = BjjEventSpecifications.Expired(Now).Compile();
-        var bjjEvent = Build(endDate: Now);
+        Func<BjjEvent, bool> predicate = BjjEventSpecifications.Expired(Now).Compile();
+        BjjEvent bjjEvent = Build(endDate: Now);
 
         predicate(bjjEvent).ShouldBeFalse();
     }

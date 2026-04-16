@@ -18,7 +18,7 @@ namespace BjjEire.Api.IntegrationTests.TestBases;
 /// It creates and destroys a new database container for each individual TEST METHOD.
 /// Use this only for highly sensitive tests where performance is not a concern.
 /// </summary>
-[Collection("Sequential")]
+[Collection(IsolatedFixtureCollection.Name)]
 public abstract class IsolationTestBase : IAsyncLifetime
 {
     private IServiceScope _scope = null!;
@@ -42,15 +42,15 @@ public abstract class IsolationTestBase : IAsyncLifetime
 
     protected static async Task<T> ReadJsonAsync<T>(HttpResponseMessage response)
     {
-        var result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
+        T? result = await response.Content.ReadFromJsonAsync<T>(TestJsonHelper.SerializerOptions).ConfigureAwait(false);
         return result!;
     }
 
     public async Task InitializeAsync()
     {
-        var test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
-        var testName = test.DisplayName;
-        var correlationId = Guid.NewGuid();
+        ITest test = (ITest)_output.GetType().GetField("test", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(_output)!;
+        string testName = test.DisplayName;
+        Guid correlationId = Guid.NewGuid();
 
         _logContext = Serilog.Context.LogContext.Push(
             new Serilog.Core.Enrichers.PropertyEnricher("TestName", testName),
@@ -64,7 +64,7 @@ public abstract class IsolationTestBase : IAsyncLifetime
 
         HttpClient = _fixture.Factory.CreateClient();
         _scope = _fixture.Factory.Services.CreateScope();
-        var serviceProvider = _scope.ServiceProvider;
+        IServiceProvider serviceProvider = _scope.ServiceProvider;
 
         Database = serviceProvider.GetRequiredService<ITestDatabaseService>();
 

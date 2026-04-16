@@ -29,7 +29,7 @@ public sealed class BjjEventDeactivationService(
             return;
         }
 
-        using var timer = new PeriodicTimer(_options.Interval, timeProvider);
+        using PeriodicTimer timer = new(_options.Interval, timeProvider);
 
         do
         {
@@ -42,14 +42,14 @@ public sealed class BjjEventDeactivationService(
 
     private async Task RunSweepAsync(CancellationToken cancellationToken)
     {
-        var stopwatch = Stopwatch.StartNew();
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
         try
         {
-            await using var scope = scopeFactory.CreateAsyncScope();
-            var deactivator = scope.ServiceProvider.GetRequiredService<IBjjEventDeactivator>();
+            await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+            IBjjEventDeactivator deactivator = scope.ServiceProvider.GetRequiredService<IBjjEventDeactivator>();
 
-            var deactivatedCount = await deactivator.DeactivateExpiredAsync(cancellationToken);
+            long deactivatedCount = await deactivator.DeactivateExpiredAsync(cancellationToken);
 
             stopwatch.Stop();
             BjjEventDeactivationServiceLog.SweepCompleted(logger, deactivatedCount, stopwatch.ElapsedMilliseconds);

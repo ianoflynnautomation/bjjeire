@@ -14,25 +14,25 @@ using Xunit.Abstractions;
 
 namespace BjjEire.Api.IntegrationTests.BjjEventControllerTests;
 
-[Trait("Category", "Parallel")]
-[Trait("Category", "BjjEvent")]
+[Collection(BjjEventApiCollection.Name)]
+[Trait("Feature", "BjjEvents")]
 [Trait("Category", "Integration")]
 public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHelper output)
-    : ParallelTestBase(fixture, output)
+    : ApiIntegrationTestBase(fixture, output)
 {
     [Fact]
     public async Task CreateBjjEvent_WithValidData_ShouldCreateBjjEventAsync()
     {
         // Arrange
         SetDefaultUserToken();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
+        CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
-        var createdBjjEventResponse = await ReadJsonAsync<CreateBjjEventResponse>(response);
+        CreateBjjEventResponse createdBjjEventResponse = await ReadJsonAsync<CreateBjjEventResponse>(response);
 
         _ = createdBjjEventResponse.ShouldNotBeNull();
         _ = createdBjjEventResponse.Data.ShouldNotBeNull();
@@ -43,11 +43,11 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     public async Task CreateBjjEvent_WithoutAuthentication_ShouldReturnUnauthorizedAsync()
     {
         // Arrange
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
+        CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -58,10 +58,11 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var command = new CreateBjjEventCommand { Data = null! };
+        CreateBjjEventCommand command = new()
+        { Data = null! };
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await HttpResponseAssertions.AssertValidationErrorContractAsync(response);
@@ -72,14 +73,14 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
+        CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
         command.Data.Name = "";
         command.Data.Organiser = null!;
         command.Data.Schedule = null!;
         command.Data.Pricing = null!;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await AssertValidationErrorAsync(response,
@@ -95,14 +96,14 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
+        CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
         command.Data.SocialMedia.Facebook = null!;
         command.Data.SocialMedia.Instagram = string.Empty;
         command.Data.SocialMedia.X = null!;
         command.Data.SocialMedia.YouTube = string.Empty;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -113,14 +114,14 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     {
         // Arrange
         SetDefaultUserToken();
-        var command = BjjEventTestDataFactory.GetValidBjjEventCommand();
+        CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
         command.Data.Pricing.Type = PricingType.Free;
         command.Data.Pricing.Amount = 0m;
         command.Data.Pricing.Currency = null;
         command.Data.Pricing.DurationDays = null;
 
         // Act
-        var response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
