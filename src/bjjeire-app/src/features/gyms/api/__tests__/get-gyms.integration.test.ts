@@ -1,108 +1,71 @@
-import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import {
   describe,
   it,
   expect,
-  vi,
   beforeAll,
   afterAll,
   afterEach,
 } from 'vitest'
+import { server } from '@/testing/msw/server'
 import {
   createGym,
   createPaginatedGyms,
-  resetGymIdCounter,
 } from '@/testing/factories/gym.factory'
-
-vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
-}))
-
-const { mockMsalInstance } = vi.hoisted(() => ({
-  mockMsalInstance: {
-    getAllAccounts: vi.fn<() => object[]>(() => []),
-    acquireTokenSilent: vi.fn(),
-  },
-}))
-
-vi.mock('@/lib/msal-config', () => ({
-  msalInstance: mockMsalInstance,
-  loginRequest: { scopes: ['test-scope'] },
-}))
-
-const { getGyms } = await import('../get-gyms')
+import { getGyms } from '../get-gyms'
 
 const API = 'http://localhost/api/api/gym'
-
-const server = setupServer()
+const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
-afterEach(() => {
-  server.resetHandlers()
-  resetGymIdCounter()
-})
+afterEach(() => server.resetHandlers())
 
-const defaults = { page: 1, pageSize: 20 }
+function captureQuery(): { getUrl: () => URL } {
+  let capturedUrl!: URL
+  server.use(
+    http.get(API, ({ request }) => {
+      capturedUrl = new URL(request.url)
+      return HttpResponse.json(createPaginatedGyms([], 1, 0))
+    })
+  )
+  return { getUrl: (): URL => capturedUrl }
+}
 
 describe('getGyms', () => {
   it('sends page and pageSize with no other params when no filters are set', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedGyms([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getGyms(defaults)
 
-    expect(capturedUrl.searchParams.get('page')).toBe('1')
-    expect(capturedUrl.searchParams.get('pageSize')).toBe('20')
-    expect(capturedUrl.searchParams.has('county')).toBe(false)
+    const params = getUrl().searchParams
+    expect(params.get('page')).toBe('1')
+    expect(params.get('pageSize')).toBe('20')
+    expect(params.has('county')).toBe(false)
   })
 
   it('includes county param when a county is specified', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedGyms([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getGyms({ ...defaults, county: 'Dublin' })
 
-    expect(capturedUrl.searchParams.get('county')).toBe('Dublin')
+    expect(getUrl().searchParams.get('county')).toBe('Dublin')
   })
 
   it('omits county param when county is "all"', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedGyms([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getGyms({ ...defaults, county: 'all' })
 
-    expect(capturedUrl.searchParams.has('county')).toBe(false)
+    expect(getUrl().searchParams.has('county')).toBe(false)
   })
 
   it('sends the requested page number', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedGyms([], 2, 3))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getGyms({ ...defaults, page: 2 })
 
-    expect(capturedUrl.searchParams.get('page')).toBe('2')
+    expect(getUrl().searchParams.get('page')).toBe('2')
   })
 
   it('returns the paginated response from the API', async () => {

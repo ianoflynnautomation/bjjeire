@@ -9,7 +9,7 @@ const globals = require('globals')
 
 module.exports = tseslint.config(
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**'],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'coverage/**', 'src/types/generated/**'],
   },
   {
     files: ['**/*.{ts,tsx}'],
@@ -79,8 +79,10 @@ module.exports = tseslint.config(
   {
     files: [
       '**/*.test.{ts,tsx}',
+      '**/*.unit.test.{ts,tsx}',
       '**/__tests__/**/*.{ts,tsx}',
       '**/setup-tests.ts',
+      '**/setup-integration-tests.ts',
     ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',

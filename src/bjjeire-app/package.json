@@ -17,7 +17,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "prepare": "husky",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "gen:api-types": "openapi-typescript http://localhost:5003/openapi/v1.json -o src/types/generated/api.ts"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [

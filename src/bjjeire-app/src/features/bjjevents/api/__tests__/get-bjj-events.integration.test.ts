@@ -1,139 +1,90 @@
-import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import {
   describe,
   it,
   expect,
-  vi,
   beforeAll,
   afterAll,
   afterEach,
 } from 'vitest'
 import { BjjEventType } from '@/types/event'
 import { County } from '@/constants/counties'
+import { server } from '@/testing/msw/server'
 import {
   createEvent,
   createPaginatedEvents,
-  resetEventIdCounter,
 } from '@/testing/factories/event.factory'
-
-vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
-}))
-
-const { mockMsalInstance } = vi.hoisted(() => ({
-  mockMsalInstance: {
-    getAllAccounts: vi.fn<() => object[]>(() => []),
-    acquireTokenSilent: vi.fn(),
-  },
-}))
-
-vi.mock('@/lib/msal-config', () => ({
-  msalInstance: mockMsalInstance,
-  loginRequest: { scopes: ['test-scope'] },
-}))
-
-const { getBjjEvents } = await import('../get-bjj-events')
+import { getBjjEvents } from '../get-bjj-events'
 
 const API = 'http://localhost/api/api/bjjevent'
-
-const server = setupServer()
+const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
-afterEach(() => {
-  server.resetHandlers()
-  resetEventIdCounter()
-})
+afterEach(() => server.resetHandlers())
 
-const defaults = { page: 1, pageSize: 20 }
+function captureQuery(status = 200): { getUrl: () => URL } {
+  let capturedUrl!: URL
+  server.use(
+    http.get(API, ({ request }) => {
+      capturedUrl = new URL(request.url)
+      return HttpResponse.json(createPaginatedEvents([], 1, 0), { status })
+    })
+  )
+  return { getUrl: (): URL => capturedUrl }
+}
 
 describe('getBjjEvents', () => {
   it('sends page and pageSize with no other params when no filters are set', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents(defaults)
 
-    expect(capturedUrl.searchParams.get('page')).toBe('1')
-    expect(capturedUrl.searchParams.get('pageSize')).toBe('20')
-    expect(capturedUrl.searchParams.has('county')).toBe(false)
-    expect(capturedUrl.searchParams.has('type')).toBe(false)
+    const params = getUrl().searchParams
+    expect(params.get('page')).toBe('1')
+    expect(params.get('pageSize')).toBe('20')
+    expect(params.has('county')).toBe(false)
+    expect(params.has('type')).toBe(false)
   })
 
   it('includes county param when a county is specified', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents({ ...defaults, county: County.Dublin })
 
-    expect(capturedUrl.searchParams.get('county')).toBe(County.Dublin)
+    expect(getUrl().searchParams.get('county')).toBe(County.Dublin)
   })
 
   it('omits county param when county is "all"', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents({ ...defaults, county: 'all' })
 
-    expect(capturedUrl.searchParams.has('county')).toBe(false)
+    expect(getUrl().searchParams.has('county')).toBe(false)
   })
 
   it('includes type param when an event type is specified', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents({ ...defaults, type: BjjEventType.Camp })
 
-    expect(capturedUrl.searchParams.get('type')).toBe(String(BjjEventType.Camp))
+    expect(getUrl().searchParams.get('type')).toBe(String(BjjEventType.Camp))
   })
 
   it('omits type param when type is "all"', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 1, 0))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents({ ...defaults, type: 'all' })
 
-    expect(capturedUrl.searchParams.has('type')).toBe(false)
+    expect(getUrl().searchParams.has('type')).toBe(false)
   })
 
   it('sends the requested page number', async () => {
-    let capturedUrl!: URL
-    server.use(
-      http.get(API, ({ request }) => {
-        capturedUrl = new URL(request.url)
-        return HttpResponse.json(createPaginatedEvents([], 3, 5))
-      })
-    )
+    const { getUrl } = captureQuery()
 
     await getBjjEvents({ ...defaults, page: 3 })
 
-    expect(capturedUrl.searchParams.get('page')).toBe('3')
+    expect(getUrl().searchParams.get('page')).toBe('3')
   })
 
   it('returns the paginated response from the API', async () => {
