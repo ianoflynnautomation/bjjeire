@@ -13,7 +13,7 @@ public class FeatureFlagController(IFeatureManager featureManager) : BaseApiCont
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Dictionary<string, bool>))]
     public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
     {
-        Dictionary<string, bool> flags = new(capacity: FeatureFlags.FrontendFlags.Count);
+        Dictionary<string, bool> flags = new(FeatureFlags.FrontendFlags.Count);
 
         foreach (string name in FeatureFlags.FrontendFlags)
         {

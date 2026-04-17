@@ -1,5 +1,7 @@
 using BjjEire.Api.Extensions.Authentication;
+using BjjEire.Application.Common.Models;
 using BjjEire.Application.Features.Gyms.Commands;
+using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.Features.Gyms.Queries;
 
 namespace BjjEire.Api.Controllers;
@@ -12,11 +14,13 @@ public class GymController(IMediator mediator) : BaseApiController
     [EndpointName("GetAllGyms")]
     [HttpGet()]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetGymPaginatedResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<GymDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] GetGymPaginationQuery query)
+    public async Task<IActionResult> GetAllAsync(
+        [FromQuery] GetGymPaginationQuery query,
+        CancellationToken cancellationToken)
     {
-        GetGymPaginatedResponse response = await _mediator.Send(query);
+        PagedResponse<GymDto> response = await _mediator.Send(query, cancellationToken);
 
         return Ok(response);
     }
@@ -29,11 +33,13 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateGymResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> PostAsync([FromBody] CreateGymCommand command)
+    public async Task<IActionResult> PostAsync(
+        [FromBody] CreateGymCommand command,
+        CancellationToken cancellationToken)
     {
-        CreateGymResponse response = await _mediator.Send(command);
+        CreateGymResponse response = await _mediator.Send(command, cancellationToken);
 
-        return Created(string.Empty, response);
+        return Created($"/api/Gym/{response.Data.Id}", response);
     }
 
     [EndpointDescription("Update entity in Gym")]
@@ -45,9 +51,11 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PutAsync([FromBody] UpdateGymCommand command)
+    public async Task<IActionResult> PutAsync(
+        [FromBody] UpdateGymCommand command,
+        CancellationToken cancellationToken)
     {
-        UpdateGymResponse response = await _mediator.Send(command);
+        UpdateGymResponse response = await _mediator.Send(command, cancellationToken);
 
         return Ok(response);
     }
@@ -60,17 +68,13 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] string id)
+    public async Task<IActionResult> DeleteAsync(
+        [FromRoute] string id,
+        CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return BadRequest();
-        }
+        DeleteGymCommand command = new() { Id = id };
 
-        DeleteGymCommand command = new()
-        { Id = id };
-
-        _ = await _mediator.Send(command);
+        _ = await _mediator.Send(command, cancellationToken);
 
         return NoContent();
     }

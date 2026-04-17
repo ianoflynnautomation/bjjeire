@@ -1,3 +1,5 @@
+using BjjEire.Application.Common.Models;
+using BjjEire.Application.Features.Stores.DTOs;
 using BjjEire.Application.Features.Stores.Queries;
 
 namespace BjjEire.Api.Controllers;
@@ -10,11 +12,13 @@ public class StoreController(IMediator mediator) : BaseApiController
     [EndpointName("GetAllStores")]
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetStorePaginatedResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<StoreDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllAsync([FromQuery] GetStorePaginationQuery query)
+    public async Task<IActionResult> GetAllAsync(
+        [FromQuery] GetStorePaginationQuery query,
+        CancellationToken cancellationToken)
     {
-        GetStorePaginatedResponse response = await _mediator.Send(query);
+        PagedResponse<StoreDto> response = await _mediator.Send(query, cancellationToken);
 
         return Ok(response);
     }

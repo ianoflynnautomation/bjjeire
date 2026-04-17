@@ -1,6 +1,5 @@
-using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Common.Models;
+using BjjEire.Application.Common.Queries;
 using BjjEire.Application.Features.Stores.Caching;
 using BjjEire.Application.Features.Stores.Constants;
 using BjjEire.Application.Features.Stores.DTOs;
@@ -17,45 +16,21 @@ public sealed class GetStorePaginationQueryHandler(
     HybridCache hybridCache,
     IUriService uriService,
     ILogger<GetStorePaginationQueryHandler> logger)
-    : IRequestHandler<GetStorePaginationQuery, GetStorePaginatedResponse>
+    : CachedPaginatedQueryHandler<Store, StoreDto, GetStorePaginationQuery>(
+        storeRepository, mapper, hybridCache, uriService, logger)
 {
-    public async Task<GetStorePaginatedResponse> Handle(GetStorePaginationQuery request, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(request);
+    protected override string BuildCacheKey(GetStorePaginationQuery request)
+        => StoreCacheKeys.All(request.Page, request.PageSize);
 
-        string cacheKey = StoreCacheKeys.All(request.Page, request.PageSize);
+    protected override string CacheTag => StoreCacheKeys.Tag;
 
-        GetStorePaginationQueryHandlerLog.QueryStart(
-            logger, nameof(GetStorePaginationQuery), request.Page, request.PageSize, cacheKey);
+    protected override string ControllerName => StoresApiConstants.ControllerName;
 
-        GetStorePaginatedResponse result = await hybridCache.GetOrCreateAsync(
-            cacheKey,
-            async ct =>
-            {
-                GetStorePaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
+    protected override string ActionName => StoresApiConstants.GetAllActionName;
 
-                IOrderedQueryable<Store> query = storeRepository.Table
-                    .Where(x => x.IsActive)
-                    .OrderBy(x => x.Name);
+    protected override IQueryable<Store> ApplyFilters(IQueryable<Store> source, GetStorePaginationQuery request)
+        => source.Where(x => x.IsActive);
 
-                IQueryable<StoreDto> dtoQuery = query.ProjectTo<StoreDto>(mapper.ConfigurationProvider);
-                PaginationFilter filter = new(request.Page, request.PageSize);
-
-                PagedResponse<StoreDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
-                    dtoQuery, filter,
-                    StoresApiConstants.ControllerName, StoresApiConstants.GetAllActionName,
-                    uriService, null, ct);
-
-                return new GetStorePaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
-            },
-            tags: [StoreCacheKeys.Tag],
-            cancellationToken: cancellationToken);
-
-        GetStorePaginationQueryHandlerLog.QuerySuccess(
-            logger, nameof(GetStorePaginationQuery),
-            result.Data.Count, result.Pagination.CurrentPage,
-            result.Pagination.TotalItems, cacheKey);
-
-        return result;
-    }
+    protected override IOrderedQueryable<Store> ApplyOrdering(IQueryable<Store> source, GetStorePaginationQuery request)
+        => source.OrderBy(x => x.Name);
 }

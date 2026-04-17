@@ -56,7 +56,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
         int requestsToMake = ConfiguredPermitLimit;
 
         // Act
-        List<HttpResponseMessage> responses = new();
+        List<HttpResponseMessage> responses = [];
         for (int i = 0; i < requestsToMake; i++)
         {
             responses.Add(await HttpClient.GetAsync("api/gym"));

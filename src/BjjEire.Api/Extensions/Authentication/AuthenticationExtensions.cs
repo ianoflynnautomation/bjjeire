@@ -37,7 +37,7 @@ public static class AuthenticationExtensions
         if (isDevelopment)
             return; // Allow missing values in Development; Entra auth will fail per-request but ApiKey remains functional
 
-        List<string> errors = new();
+        List<string> errors = [];
         if (string.IsNullOrWhiteSpace(options.TenantId))
         { errors.Add($"{nameof(options.TenantId)} is missing."); }
         if (string.IsNullOrWhiteSpace(options.ClientId))

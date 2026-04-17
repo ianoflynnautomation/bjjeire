@@ -1,6 +1,5 @@
-using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Common.Models;
+using BjjEire.Application.Common.Queries;
 using BjjEire.Application.Features.Competitions.Caching;
 using BjjEire.Application.Features.Competitions.Constants;
 using BjjEire.Application.Features.Competitions.DTOs;
@@ -19,52 +18,29 @@ public sealed class GetCompetitionPaginationQueryHandler(
     IUriService uriService,
     TimeProvider timeProvider,
     ILogger<GetCompetitionPaginationQueryHandler> logger)
-    : IRequestHandler<GetCompetitionPaginationQuery, GetCompetitionPaginatedResponse>
+    : CachedPaginatedQueryHandler<Competition, CompetitionDto, GetCompetitionPaginationQuery>(
+        competitionRepository, mapper, hybridCache, uriService, logger)
 {
-    public async Task<GetCompetitionPaginatedResponse> Handle(GetCompetitionPaginationQuery request, CancellationToken cancellationToken)
+    protected override string BuildCacheKey(GetCompetitionPaginationQuery request)
+        => CompetitionCacheKeys.All(request.Page, request.PageSize, request.IncludeInactive);
+
+    protected override string CacheTag => CompetitionCacheKeys.Tag;
+
+    protected override string ControllerName => CompetitionsApiConstants.ControllerName;
+
+    protected override string ActionName => CompetitionsApiConstants.GetAllActionName;
+
+    protected override IQueryable<Competition> ApplyFilters(IQueryable<Competition> source, GetCompetitionPaginationQuery request)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request.IncludeInactive)
+        {
+            return source;
+        }
 
-        string cacheKey = CompetitionCacheKeys.All(request.Page, request.PageSize, request.IncludeInactive);
-
-        GetCompetitionPaginationQueryHandlerLog.QueryStart(
-            logger, nameof(GetCompetitionPaginationQuery),
-            request.Page, request.PageSize, cacheKey);
-
-        GetCompetitionPaginatedResponse result = await hybridCache.GetOrCreateAsync(
-            cacheKey,
-            async ct =>
-            {
-                GetCompetitionPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
-
-                IQueryable<Competition> query = competitionRepository.Table.AsQueryable();
-
-                if (!request.IncludeInactive)
-                {
-                    DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-                    query = query.Where(CompetitionSpecifications.Active(nowUtc));
-                }
-
-                query = query.OrderBy(x => x.StartDate == null).ThenBy(x => x.StartDate).ThenBy(x => x.Name);
-
-                IQueryable<CompetitionDto> dtoQuery = query.ProjectTo<CompetitionDto>(mapper.ConfigurationProvider);
-                PaginationFilter filter = new(request.Page, request.PageSize);
-
-                PagedResponse<CompetitionDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
-                    dtoQuery, filter,
-                    CompetitionsApiConstants.ControllerName, CompetitionsApiConstants.GetAllActionName,
-                    uriService, null, ct);
-
-                return new GetCompetitionPaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
-            },
-            tags: [CompetitionCacheKeys.Tag],
-            cancellationToken: cancellationToken);
-
-        GetCompetitionPaginationQueryHandlerLog.QuerySuccess(
-            logger, nameof(GetCompetitionPaginationQuery),
-            result.Data.Count, result.Pagination.CurrentPage,
-            result.Pagination.TotalItems, cacheKey);
-
-        return result;
+        DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+        return source.Where(CompetitionSpecifications.Active(nowUtc));
     }
+
+    protected override IOrderedQueryable<Competition> ApplyOrdering(IQueryable<Competition> source, GetCompetitionPaginationQuery request)
+        => source.OrderBy(x => x.StartDate == null).ThenBy(x => x.StartDate).ThenBy(x => x.Name);
 }

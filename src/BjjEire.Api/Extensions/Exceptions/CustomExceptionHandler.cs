@@ -1,4 +1,6 @@
 
+using System.Diagnostics;
+
 using BjjEire.Application.Common.Exceptions;
 
 
@@ -12,6 +14,17 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
     {
         ArgumentNullException.ThrowIfNull(httpContext);
         ArgumentNullException.ThrowIfNull(exception);
+
+        if (httpContext.Response.HasStarted)
+        {
+            return false;
+        }
+
+        if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
+        {
+            httpContext.Response.StatusCode = 499;
+            return true;
+        }
 
         string userId = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
 
@@ -43,15 +56,17 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             ErrorCode = e.ErrorCode ?? string.Empty
         }).ToList();
 
-        return new ValidationErrorResponse
+        ValidationErrorResponse response = new()
         {
             Type = "urn:bjjeire:validation-error",
             Title = "Validation Failed",
             Status = StatusCodes.Status400BadRequest,
             Detail = "One or more validation errors occurred. Please see the 'errors' property for details.",
-            Instance = httpContext.TraceIdentifier,
+            Instance = httpContext.Request.Path,
             Errors = validationErrors
         };
+        AttachTraceId(response, httpContext);
+        return response;
     }
 
     private static ProblemDetails HandleCustomException(CustomException exception, HttpContext httpContext)
@@ -62,13 +77,14 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
             Title = exception.Title ?? "Application Error",
             Status = (int)exception.StatusCode,
             Detail = exception.Message,
-            Instance = httpContext.TraceIdentifier
+            Instance = httpContext.Request.Path
         };
 
         if (exception.ErrorMessages?.Any() == true)
         {
             problemDetails.Extensions["details"] = exception.ErrorMessages;
         }
+        AttachTraceId(problemDetails, httpContext);
         return problemDetails;
     }
 
@@ -77,36 +93,40 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         int status = StatusCodes.Status401Unauthorized;
         string title = "Unauthorized";
         string detail = "Authentication is required and has failed or has not yet been provided.";
-        string type = "https://tools.ietf.org/html/rfc7235#section-3.1";
+        string type = "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1";
 
         if (httpContext.User.Identity?.IsAuthenticated == true)
         {
             status = StatusCodes.Status403Forbidden;
             title = "Forbidden";
             detail = "You do not have permission to perform this action.";
-            type = "https://tools.ietf.org/html/rfc7231#section-6.5.3";
+            type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.3";
         }
 
-        return new ProblemDetails
+        ProblemDetails problemDetails = new()
         {
             Type = type,
             Title = title,
             Status = status,
             Detail = detail,
-            Instance = httpContext.TraceIdentifier
+            Instance = httpContext.Request.Path
         };
+        AttachTraceId(problemDetails, httpContext);
+        return problemDetails;
     }
 
     private static ProblemDetails HandleNotFoundException(NotFoundException exception, HttpContext httpContext)
     {
-        return new ProblemDetails
+        ProblemDetails problemDetails = new()
         {
             Type = "urn:bjjeire:not-found",
             Title = "Resource Not Found",
             Status = StatusCodes.Status404NotFound,
             Detail = exception.Message,
-            Instance = httpContext.TraceIdentifier
+            Instance = httpContext.Request.Path
         };
+        AttachTraceId(problemDetails, httpContext);
+        return problemDetails;
     }
 
     private ProblemDetails HandleUnexpectedException(Exception exception, HttpContext httpContext, string userId)
@@ -114,17 +134,26 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
         string errorId = Guid.NewGuid().ToString();
         const string title = "Internal Server Error";
         string detail = environment.IsDevelopment() || environment.IsEnvironment("Docker")
-            ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
-            : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
+        ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
+        : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
 
-        return new ProblemDetails
+        ProblemDetails problemDetails = new()
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
             Title = title,
             Status = StatusCodes.Status500InternalServerError,
             Detail = detail,
-            Instance = httpContext.TraceIdentifier
+            Instance = httpContext.Request.Path
         };
+        problemDetails.Extensions["errorId"] = errorId;
+        AttachTraceId(problemDetails, httpContext);
+        return problemDetails;
+    }
+
+    private static void AttachTraceId(ProblemDetails problemDetails, HttpContext httpContext)
+    {
+        string traceId = Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier;
+        problemDetails.Extensions["traceId"] = traceId;
     }
 
     private void LogHandledException(Exception exception, HttpContext httpContext, ProblemDetails problemDetails, string userId)
