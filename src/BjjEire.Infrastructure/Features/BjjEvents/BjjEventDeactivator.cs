@@ -1,7 +1,7 @@
 using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common.Services;
 using BjjEire.Application.Features.BjjEvents.Caching;
-using BjjEire.Application.Features.BjjEvents.Services;
 using BjjEire.Application.Features.BjjEvents.Specifications;
 using BjjEire.Domain.Entities.BjjEvents;
 
@@ -12,22 +12,16 @@ namespace BjjEire.Infrastructure.Features.BjjEvents;
 public sealed class BjjEventDeactivator(
     IRepository<BjjEvent> repository,
     HybridCache hybridCache,
-    TimeProvider timeProvider) : IBjjEventDeactivator
+    TimeProvider timeProvider)
+    : PeriodicEntityDeactivator<BjjEvent>(repository, hybridCache, timeProvider)
 {
-    public async Task<long> DeactivateExpiredAsync(CancellationToken cancellationToken)
-    {
-        DateTime nowUtc = timeProvider.GetUtcNow().UtcDateTime;
-        UpdateBuilder<BjjEvent> update = UpdateBuilder<BjjEvent>.Create().Set(x => x.IsActive, false);
+    public const string ConfigSectionName = "BjjEventDeactivation";
 
-        long deactivatedCount = await repository.UpdateManyAsync(
-            BjjEventSpecifications.Expired(nowUtc),
-            update);
+    protected override string CacheTag => BjjEventCacheKeys.Tag;
 
-        if (deactivatedCount > 0)
-        {
-            await hybridCache.RemoveByTagAsync(BjjEventCacheKeys.Tag, cancellationToken);
-        }
+    protected override Expression<Func<BjjEvent, bool>> ExpiredPredicate(DateTime nowUtc)
+        => BjjEventSpecifications.Expired(nowUtc);
 
-        return deactivatedCount;
-    }
+    protected override UpdateBuilder<BjjEvent> DeactivationUpdate =>
+        UpdateBuilder<BjjEvent>.Create().Set(x => x.IsActive, false);
 }

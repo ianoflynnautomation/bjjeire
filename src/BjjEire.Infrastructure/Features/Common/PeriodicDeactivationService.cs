@@ -1,24 +1,28 @@
 using System.Diagnostics;
 
-using BjjEire.Application.Features.BjjEvents.Services;
+using BjjEire.Application.Common.Services;
+using BjjEire.Domain.Entities;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BjjEire.Infrastructure.Features.BjjEvents;
+namespace BjjEire.Infrastructure.Features.Common;
 
-public sealed class BjjEventDeactivationService(
+public sealed class PeriodicDeactivationService<TEntity>(
     IServiceScopeFactory scopeFactory,
-    IOptions<BjjEventDeactivationOptions> options,
+    IOptions<DeactivationOptions<TEntity>> options,
     TimeProvider timeProvider,
-    ILogger<BjjEventDeactivationService> logger) : BackgroundService
+    ILogger<PeriodicDeactivationService<TEntity>> logger)
+    : BackgroundService
+    where TEntity : BaseEntity
 {
-    private readonly BjjEventDeactivationOptions _options = options.Value;
+    private readonly DeactivationOptions<TEntity> _options = options.Value;
+    private static readonly string EntityName = typeof(TEntity).Name;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        BjjEventDeactivationServiceLog.ServiceStarted(logger, _options.Interval, _options.InitialDelay);
+        PeriodicDeactivationServiceLog.ServiceStarted(logger, EntityName, _options.Interval, _options.InitialDelay);
 
         try
         {
@@ -37,7 +41,7 @@ public sealed class BjjEventDeactivationService(
         }
         while (await WaitForNextTickAsync(timer, stoppingToken));
 
-        BjjEventDeactivationServiceLog.ServiceStopping(logger);
+        PeriodicDeactivationServiceLog.ServiceStopping(logger, EntityName);
     }
 
     private async Task RunSweepAsync(CancellationToken cancellationToken)
@@ -47,17 +51,17 @@ public sealed class BjjEventDeactivationService(
         try
         {
             await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-            IBjjEventDeactivator deactivator = scope.ServiceProvider.GetRequiredService<IBjjEventDeactivator>();
+            IDeactivator<TEntity> deactivator = scope.ServiceProvider.GetRequiredService<IDeactivator<TEntity>>();
 
             long deactivatedCount = await deactivator.DeactivateExpiredAsync(cancellationToken);
 
             stopwatch.Stop();
-            BjjEventDeactivationServiceLog.SweepCompleted(logger, deactivatedCount, stopwatch.ElapsedMilliseconds);
+            PeriodicDeactivationServiceLog.SweepCompleted(logger, EntityName, deactivatedCount, stopwatch.ElapsedMilliseconds);
         }
 #pragma warning disable CA1031 // BackgroundService must never bubble exceptions — host would crash
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            BjjEventDeactivationServiceLog.SweepFailed(logger, ex);
+            PeriodicDeactivationServiceLog.SweepFailed(logger, EntityName, ex);
         }
 #pragma warning restore CA1031
     }

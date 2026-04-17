@@ -28,8 +28,7 @@ public sealed class PagedListTests
     [Fact]
     public void Constructor_ContainsSuppliedItems()
     {
-        List<int> items = new()
-        { 1, 2, 3 };
+        List<int> items = [1, 2, 3];
         PagedList<int> sut = new(items, count: 3, pageIndex: 0, pageSize: 10);
         sut.ShouldBe(items);
     }
@@ -95,7 +94,7 @@ public sealed class PagedListTests
     [Fact]
     public void DefaultConstructor_CreatesEmptyList()
     {
-        PagedList<string> sut = new();
+        PagedList<string> sut = [];
         sut.ShouldBeEmpty();
         sut.TotalPages.ShouldBe(0);
         sut.TotalCount.ShouldBe(0);

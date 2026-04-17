@@ -9,7 +9,7 @@ public class GetGymPaginationQueryTests(CustomApiFactory apiFactory, ITestOutput
     [Fact]
     public async Task GetGyms_WithNoData_ReturnsEmptyResult()
     {
-        GetGymPaginatedResponse response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20 });
+        PagedResponse<GymDto> response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20 });
 
         response.Data.ShouldBeEmpty();
         response.Pagination.TotalItems.ShouldBe(0);
@@ -25,7 +25,7 @@ public class GetGymPaginationQueryTests(CustomApiFactory apiFactory, ITestOutput
             GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Draft),
             GymTestDataFactory.CreateGym(g => g.Status = GymStatus.PermanentlyClosed));
 
-        GetGymPaginatedResponse response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20 });
+        PagedResponse<GymDto> response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20 });
 
         response.Data.Count.ShouldBe(3);
         response.Data.ShouldAllBe(g => g.Status == GymStatus.Active);
@@ -39,7 +39,7 @@ public class GetGymPaginationQueryTests(CustomApiFactory apiFactory, ITestOutput
             GymTestDataFactory.CreateGym(g => { g.Status = GymStatus.Active; g.County = County.Cork; }),
             GymTestDataFactory.CreateGym(g => { g.Status = GymStatus.Active; g.County = County.Dublin; }));
 
-        GetGymPaginatedResponse response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20, County = County.Cork });
+        PagedResponse<GymDto> response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 20, County = County.Cork });
 
         response.Data.Count.ShouldBe(2);
         response.Data.ShouldAllBe(g => g.County == County.Cork);
@@ -55,7 +55,7 @@ public class GetGymPaginationQueryTests(CustomApiFactory apiFactory, ITestOutput
             GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active),
             GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active));
 
-        GetGymPaginatedResponse response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 2 });
+        PagedResponse<GymDto> response = await SendAsync(new GetGymPaginationQuery { Page = 1, PageSize = 2 });
 
         response.Data.Count.ShouldBe(2);
         response.Pagination.TotalItems.ShouldBe(5);

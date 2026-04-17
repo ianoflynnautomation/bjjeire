@@ -1,10 +1,12 @@
 
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Features.BjjEvents.Services;
-using BjjEire.Application.Features.Competitions.Services;
+using BjjEire.Application.Common.Services;
+using BjjEire.Domain.Entities.BjjEvents;
+using BjjEire.Domain.Entities.Competitions;
 using BjjEire.Infrastructure;
 using BjjEire.Infrastructure.Data.Mongo;
 using BjjEire.Infrastructure.Features.BjjEvents;
+using BjjEire.Infrastructure.Features.Common;
 using BjjEire.Infrastructure.Features.Competitions;
 
 using Microsoft.Extensions.Caching.Hybrid;
@@ -39,21 +41,27 @@ public static class DependencyInjection
                 LocalCacheExpiration = TimeSpan.FromMinutes(5)
             });
 
-        _ = builder.Services
-            .AddOptions<CompetitionDeactivationOptions>()
-            .Bind(builder.Configuration.GetSection(CompetitionDeactivationOptions.SectionName))
-            .ValidateOnStart();
-        _ = builder.Services.AddScoped<ICompetitionDeactivator, CompetitionDeactivator>();
-        _ = builder.Services.AddHostedService<CompetitionDeactivationService>();
+        AddPeriodicDeactivation<Competition, CompetitionDeactivator>(
+            builder, CompetitionDeactivator.ConfigSectionName);
 
-        _ = builder.Services
-            .AddOptions<BjjEventDeactivationOptions>()
-            .Bind(builder.Configuration.GetSection(BjjEventDeactivationOptions.SectionName))
-            .ValidateOnStart();
-        _ = builder.Services.AddScoped<IBjjEventDeactivator, BjjEventDeactivator>();
-        _ = builder.Services.AddHostedService<BjjEventDeactivationService>();
+        AddPeriodicDeactivation<BjjEvent, BjjEventDeactivator>(
+            builder, BjjEventDeactivator.ConfigSectionName);
 
         return builder;
+    }
+
+    private static void AddPeriodicDeactivation<TEntity, TDeactivator>(
+        IHostApplicationBuilder builder,
+        string configSectionName)
+        where TEntity : BjjEire.Domain.Entities.BaseEntity
+        where TDeactivator : class, IDeactivator<TEntity>
+    {
+        _ = builder.Services
+            .AddOptions<DeactivationOptions<TEntity>>()
+            .Bind(builder.Configuration.GetSection(configSectionName))
+            .ValidateOnStart();
+        _ = builder.Services.AddScoped<IDeactivator<TEntity>, TDeactivator>();
+        _ = builder.Services.AddHostedService<PeriodicDeactivationService<TEntity>>();
     }
 
     private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
@@ -103,12 +111,12 @@ public static class DependencyInjection
                 )
             );
 
-            ConventionPack conventionPack = new()
-            {
+            ConventionPack conventionPack =
+            [
               new IgnoreExtraElementsConvention(true),
               new CamelCaseElementNameConvention(),
               new EnumRepresentationConvention(BsonType.String)
-          };
+          ];
             ConventionRegistry.Register("AppConventions", conventionPack, t => true);
 
             s_mongoDbConventionsRegistered = true;

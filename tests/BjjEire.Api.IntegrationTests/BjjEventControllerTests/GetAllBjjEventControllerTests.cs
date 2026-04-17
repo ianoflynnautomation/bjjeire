@@ -29,7 +29,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.ShouldBeEmpty();
         pagedResponse.Pagination.TotalItems.ShouldBe(0);
@@ -62,7 +62,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
         pagedResponse.Data.ShouldAllBe(e => e.Status != EventStatus.Completed);
@@ -84,7 +84,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
         pagedResponse.Data.ShouldAllBe(e => e.County == County.Cork);
@@ -106,7 +106,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
         pagedResponse.Data.ShouldAllBe(e => e.Type == BjjEventType.Seminar);
@@ -126,7 +126,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(1);
         pagedResponse.Pagination.TotalItems.ShouldBe(1);
     }
@@ -145,7 +145,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(5);
@@ -169,7 +169,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalPages.ShouldBe(2);
         pagedResponse.Pagination.HasNextPage.ShouldBeFalse();
@@ -188,7 +188,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(3);
         pagedResponse.Pagination.TotalItems.ShouldBe(3);
         pagedResponse.Pagination.HasNextPage.ShouldBeFalse();
@@ -207,7 +207,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.CurrentPage.ShouldBe(1);
     }
@@ -227,7 +227,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.PageSize.ShouldBe(20);
         pagedResponse.Data.Count.ShouldBe(20);
@@ -244,7 +244,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.ShouldBeEmpty();
         pagedResponse.Pagination.TotalItems.ShouldBe(0);
     }
@@ -269,7 +269,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetBjjEventPaginatedResponse pagedResponse = await ReadJsonAsync<GetBjjEventPaginatedResponse>(response);
+        PagedResponse<BjjEventDto> pagedResponse = await ReadJsonAsync<PagedResponse<BjjEventDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(5);
         pagedResponse.Pagination.CurrentPage.ShouldBe(2);

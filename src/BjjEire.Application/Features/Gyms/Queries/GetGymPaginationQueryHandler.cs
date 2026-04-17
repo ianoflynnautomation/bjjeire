@@ -1,6 +1,5 @@
-using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
-using BjjEire.Application.Common.Models;
+using BjjEire.Application.Common.Queries;
 using BjjEire.Application.Features.Gyms.Caching;
 using BjjEire.Application.Features.Gyms.Constants;
 using BjjEire.Application.Features.Gyms.DTOs;
@@ -18,53 +17,30 @@ public sealed class GetGymPaginationQueryHandler(
     HybridCache hybridCache,
     IUriService uriService,
     ILogger<GetGymPaginationQueryHandler> logger)
-    : IRequestHandler<GetGymPaginationQuery, GetGymPaginatedResponse>
+    : CachedPaginatedQueryHandler<Gym, GymDto, GetGymPaginationQuery>(
+        gymRepository, mapper, hybridCache, uriService, logger)
 {
+    protected override string BuildCacheKey(GetGymPaginationQuery request)
+        => GymCacheKeys.All(request.Page, request.PageSize, request.County);
 
-    public async Task<GetGymPaginatedResponse> Handle(GetGymPaginationQuery request, CancellationToken cancellationToken)
+    protected override string CacheTag => GymCacheKeys.Tag;
+
+    protected override string ControllerName => GymsApiConstants.ControllerName;
+
+    protected override string ActionName => GymsApiConstants.GetAllActionName;
+
+    protected override IQueryable<Gym> ApplyFilters(IQueryable<Gym> source, GetGymPaginationQuery request)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        IQueryable<Gym> query = source.Where(x => x.Status == GymStatus.Active);
 
-        string cacheKey = GymCacheKeys.All(request.Page, request.PageSize, request.County);
+        if (request.County.HasValue)
+        {
+            query = query.Where(x => x.County == request.County.Value);
+        }
 
-        GetGymPaginationQueryHandlerLog.QueryStart(
-            logger, nameof(GetGymPaginationQuery),
-            request.Page, request.PageSize,
-            request.County?.ToString() ?? "N/A", cacheKey);
-
-        GetGymPaginatedResponse result = await hybridCache.GetOrCreateAsync(
-            cacheKey,
-            async ct =>
-            {
-                GetGymPaginationQueryHandlerLog.CacheMiss(logger, cacheKey);
-
-                IQueryable<Gym> query = gymRepository.Table.Where(x => x.Status == GymStatus.Active);
-
-                if (request.County.HasValue)
-                {
-                    query = query.Where(x => x.County == request.County.Value);
-                }
-
-                query = query.OrderBy(x => x.Name);
-
-                IQueryable<GymDto> dtoQuery = query.ProjectTo<GymDto>(mapper.ConfigurationProvider);
-                PaginationFilter filter = new(request.Page, request.PageSize);
-
-                PagedResponse<GymDto> pagedData = await PaginationHelper.CreatePagedResponseAsync(
-                    dtoQuery, filter,
-                    GymsApiConstants.ControllerName, GymsApiConstants.GetAllActionName,
-                    uriService, null, ct);
-
-                return new GetGymPaginatedResponse { Data = pagedData.Data, Pagination = pagedData.Pagination };
-            },
-            tags: [GymCacheKeys.Tag],
-            cancellationToken: cancellationToken);
-
-        GetGymPaginationQueryHandlerLog.QuerySuccess(
-            logger, nameof(GetGymPaginationQuery),
-            result.Data.Count, result.Pagination.CurrentPage,
-            result.Pagination.TotalItems, cacheKey);
-
-        return result;
+        return query;
     }
+
+    protected override IOrderedQueryable<Gym> ApplyOrdering(IQueryable<Gym> source, GetGymPaginationQuery request)
+        => source.OrderBy(x => x.Name);
 }

@@ -1,3 +1,4 @@
+global using BjjEire.Application.Common.Models;
 global using BjjEire.Application.Features.BjjEvents.Commands;
 global using BjjEire.Application.Features.BjjEvents.DTOs;
 global using BjjEire.Application.Features.BjjEvents.Queries;

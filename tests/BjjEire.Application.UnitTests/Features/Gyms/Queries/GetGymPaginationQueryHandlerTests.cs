@@ -14,6 +14,7 @@ using AutoMapper;
 
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common.Models;
 using BjjEire.Application.Features.Gyms.DTOs;
 using BjjEire.Application.Features.Gyms.Queries;
 using BjjEire.Domain.Entities.Gyms;
@@ -42,7 +43,7 @@ public sealed class GetGymPaginationQueryHandlerTests
         new(_repoMock.Object, _mapperMock.Object, _cacheMock.Object,
             _uriServiceMock.Object, _loggerMock.Object);
 
-    private static GetGymPaginatedResponse BuildCachedResponse(int count = 1)
+    private static PagedResponse<GymDto> BuildCachedResponse(int count = 1)
     {
         List<GymDto> items = Enumerable.Range(0, count)
             .Select(i => new GymDto
@@ -62,7 +63,7 @@ public sealed class GetGymPaginationQueryHandlerTests
             })
             .ToList();
 
-        return new GetGymPaginatedResponse
+        return new PagedResponse<GymDto>
         {
             Data = items,
             Pagination = new PaginationMetadataDto
@@ -78,20 +79,24 @@ public sealed class GetGymPaginationQueryHandlerTests
     // HybridCache.GetOrCreateAsync<T> (no state) is a non-virtual wrapper that calls
     // the abstract GetOrCreateAsync<TState, T> with TState = Func<CancellationToken, ValueTask<T>>.
     // Moq can only intercept the abstract overload, so we match TState explicitly.
-    private void SetupCacheHit(GetGymPaginatedResponse response)
+    private void SetupCacheHit(PagedResponse<GymDto> response, Action<string>? onKey = null)
     {
         _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, GetGymPaginatedResponse>(
+            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<PagedResponse<GymDto>>>, PagedResponse<GymDto>>(
                 It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
+                It.IsAny<Func<CancellationToken, ValueTask<PagedResponse<GymDto>>>>(),
+                It.IsAny<Func<Func<CancellationToken, ValueTask<PagedResponse<GymDto>>>, CancellationToken, ValueTask<PagedResponse<GymDto>>>>(),
                 It.IsAny<HybridCacheEntryOptions?>(),
                 It.IsAny<IEnumerable<string>?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<GetGymPaginatedResponse>(response));
+            .Callback<string,
+                Func<CancellationToken, ValueTask<PagedResponse<GymDto>>>,
+                Func<Func<CancellationToken, ValueTask<PagedResponse<GymDto>>>, CancellationToken, ValueTask<PagedResponse<GymDto>>>,
+                HybridCacheEntryOptions?,
+                IEnumerable<string>?,
+                CancellationToken>((key, _, _, _, _, _) => onKey?.Invoke(key))
+            .Returns(new ValueTask<PagedResponse<GymDto>>(response));
     }
-
-    // ─── Null request ─────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -102,15 +107,13 @@ public sealed class GetGymPaginationQueryHandlerTests
             () => handler.Handle(null!, CancellationToken.None));
     }
 
-    // ─── Cache-hit path ───────────────────────────────────────────────────────
-
     [Fact]
-    public async Task Handle_CacheHit_ReturnsCachedResponse()
+    public async Task Handle_CacheHit_ReturnsCachedData()
     {
-        GetGymPaginatedResponse expected = BuildCachedResponse(3);
+        PagedResponse<GymDto> expected = BuildCachedResponse(3);
         SetupCacheHit(expected);
 
-        GetGymPaginatedResponse result = await BuildHandler().Handle(
+        PagedResponse<GymDto> result = await BuildHandler().Handle(
             new GetGymPaginationQuery { Page = 1, PageSize = 20 }, CancellationToken.None);
 
         result.ShouldNotBeNull();
@@ -119,51 +122,34 @@ public sealed class GetGymPaginationQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_CacheHit_ReturnsSameReferenceAsCache()
+    public async Task Handle_CacheHit_DataReferenceFlowsThrough()
     {
-        GetGymPaginatedResponse expected = BuildCachedResponse(1);
+        PagedResponse<GymDto> expected = BuildCachedResponse(1);
         SetupCacheHit(expected);
 
-        GetGymPaginatedResponse result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
+        PagedResponse<GymDto> result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
 
-        result.ShouldBeSameAs(expected);
+        // Navigation URIs are applied post-cache via `with` (new record), but Data list reference is preserved.
+        result.Data.ShouldBeSameAs(expected.Data);
     }
 
     [Fact]
     public async Task Handle_CacheHit_EmptyResult_ReturnsEmptyData()
     {
-        GetGymPaginatedResponse expected = BuildCachedResponse(0);
+        PagedResponse<GymDto> expected = BuildCachedResponse(0);
         SetupCacheHit(expected);
 
-        GetGymPaginatedResponse result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
+        PagedResponse<GymDto> result = await BuildHandler().Handle(new GetGymPaginationQuery(), CancellationToken.None);
 
         result.Data.ShouldBeEmpty();
         result.Pagination.TotalItems.ShouldBe(0);
     }
 
-    // ─── Cache key formation ──────────────────────────────────────────────────
-
     [Fact]
     public async Task Handle_QueryWithCountyFilter_CacheKeyIncludesCounty()
     {
         string? capturedKey = null;
-        GetGymPaginatedResponse expected = BuildCachedResponse(1);
-
-        _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, GetGymPaginatedResponse>(
-                It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
-                It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IEnumerable<string>?>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<string,
-                Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>,
-                Func<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, CancellationToken, ValueTask<GetGymPaginatedResponse>>,
-                HybridCacheEntryOptions?,
-                IEnumerable<string>?,
-                CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
-            .Returns(new ValueTask<GetGymPaginatedResponse>(expected));
+        SetupCacheHit(BuildCachedResponse(1), key => capturedKey = key);
 
         await BuildHandler().Handle(
             new GetGymPaginationQuery { Page = 1, PageSize = 20, County = County.Cork }, CancellationToken.None);
@@ -176,23 +162,7 @@ public sealed class GetGymPaginationQueryHandlerTests
     public async Task Handle_QueryWithNoCountyFilter_CacheKeyIncludesNonePlaceholder()
     {
         string? capturedKey = null;
-        GetGymPaginatedResponse expected = BuildCachedResponse(0);
-
-        _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, GetGymPaginatedResponse>(
-                It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, CancellationToken, ValueTask<GetGymPaginatedResponse>>>(),
-                It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IEnumerable<string>?>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<string,
-                Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>,
-                Func<Func<CancellationToken, ValueTask<GetGymPaginatedResponse>>, CancellationToken, ValueTask<GetGymPaginatedResponse>>,
-                HybridCacheEntryOptions?,
-                IEnumerable<string>?,
-                CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
-            .Returns(new ValueTask<GetGymPaginatedResponse>(expected));
+        SetupCacheHit(BuildCachedResponse(0), key => capturedKey = key);
 
         await BuildHandler().Handle(new GetGymPaginationQuery { County = null }, CancellationToken.None);
 

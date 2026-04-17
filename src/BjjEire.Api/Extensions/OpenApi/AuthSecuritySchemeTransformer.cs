@@ -21,7 +21,7 @@ public class AuthSecuritySchemeTransformer(IAuthenticationSchemeProvider schemeP
         }
 
         operation.Security ??= [];
-        OpenApiSecurityRequirement securityRequirement = new();
+        OpenApiSecurityRequirement securityRequirement = [];
 
         IEnumerable<AuthenticationScheme> allRegisteredSchemes = await schemeProvider.GetAllSchemesAsync();
 

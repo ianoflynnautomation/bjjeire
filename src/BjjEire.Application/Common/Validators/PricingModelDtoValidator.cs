@@ -57,8 +57,8 @@ public class PricingModelDtoValidator : AbstractValidator<PricingModelDto>
                 .ApplyPositiveOrNullValidator("Duration Days", "provided for PerSession or PerDay pricing"));
     }
 
-    private static readonly HashSet<string> ValidCurrencies = new()
-    {
+    private static readonly HashSet<string> ValidCurrencies =
+    [
         "EUR", "USD", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", "INR", "BRL"
-    };
+    ];
 }

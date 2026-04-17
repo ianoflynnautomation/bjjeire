@@ -51,7 +51,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Count.ShouldBe(1);
         pagedResponse.Pagination.TotalItems.ShouldBe(1);
         pagedResponse.Data.ShouldAllBe(g => g.Status == GymStatus.Active);
@@ -65,7 +65,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.ShouldBeEmpty();
         pagedResponse.Pagination.TotalItems.ShouldBe(0);
@@ -86,7 +86,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
 
@@ -109,7 +109,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
         pagedResponse.Pagination.PageSize.ShouldBe(query.PageSize);
@@ -133,7 +133,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(5);
@@ -157,7 +157,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
 
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(2);
@@ -179,7 +179,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.CurrentPage.ShouldBe(1);
 
@@ -202,7 +202,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
 
         _ = pagedResponse.ShouldNotBeNull();
         pagedResponse.Pagination.PageSize.ShouldBe(20);
@@ -229,7 +229,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalItems.ShouldBe(5);
         pagedResponse.Pagination.CurrentPage.ShouldBe(2);
@@ -249,7 +249,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Select(g => g.Name).ShouldBe(["A-Team Gym", "B-Team Gym", "C-Team Gym"]);
     }
 
@@ -264,7 +264,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.ShouldBeEmpty();
         pagedResponse.Pagination.TotalItems.ShouldBe(0);
     }
@@ -283,7 +283,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
-        GetGymPaginatedResponse pagedResponse = await ReadJsonAsync<GetGymPaginatedResponse>(response);
+        PagedResponse<GymDto> pagedResponse = await ReadJsonAsync<PagedResponse<GymDto>>(response);
         pagedResponse.Data.Count.ShouldBe(2);
         pagedResponse.Pagination.TotalPages.ShouldBe(2);
         pagedResponse.Pagination.HasNextPage.ShouldBeFalse();

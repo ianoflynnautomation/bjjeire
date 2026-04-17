@@ -2,6 +2,9 @@ global using System.Net.Http.Json;
 
 global using BjjEire.Api.IntegrationTests.Fixtures.Collections;
 global using BjjEire.Api.IntegrationTests.TestBases;
+global using BjjEire.Application.Common.Models;
+global using BjjEire.Application.Features.BjjEvents.DTOs;
+global using BjjEire.Application.Features.Gyms.DTOs;
 global using BjjEire.Core.Common;
 global using BjjEire.Core.Data;
 global using BjjEire.Core.Extensions;

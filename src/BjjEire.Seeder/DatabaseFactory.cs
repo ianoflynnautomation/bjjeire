@@ -29,12 +29,12 @@ internal static class DatabaseFactory
 
     private static void RegisterConventions()
     {
-        ConventionPack pack = new()
-        {
+        ConventionPack pack =
+        [
             new IgnoreExtraElementsConvention(true),
             new CamelCaseElementNameConvention(),
             new EnumRepresentationConvention(BsonType.String),
-        };
+        ];
         ConventionRegistry.Register("SeederConventions", pack, _ => true);
     }
 }

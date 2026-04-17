@@ -155,10 +155,10 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         MemberInfo minfo = me.Member;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-        BsonDocument filter = new()
-        {
+        BsonDocument filter =
+        [
             new BsonElement(minfo.Name, elemFieldMatch.ToString())
-        };
+        ];
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         UpdateDefinition<T> update = Builders<T>.Update.Set($"{minfo.Name}.$", value);

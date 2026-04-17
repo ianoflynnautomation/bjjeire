@@ -15,6 +15,7 @@ using AutoMapper;
 
 using BjjEire.Application.Common.DTOs;
 using BjjEire.Application.Common.Interfaces;
+using BjjEire.Application.Common.Models;
 using BjjEire.Application.Features.BjjEvents.DTOs;
 using BjjEire.Application.Features.BjjEvents.Queries;
 using BjjEire.Domain.Entities.BjjEvents;
@@ -44,8 +45,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
         new(_repoMock.Object, _mapperMock.Object, _cacheMock.Object,
             _uriServiceMock.Object, _timeProvider, _loggerMock.Object);
 
-    // Builds the pre-packaged response the mock cache will return.
-    private static GetBjjEventPaginatedResponse BuildCachedResponse(int count = 1)
+    private static PagedResponse<BjjEventDto> BuildCachedResponse(int count = 1)
     {
         List<BjjEventDto> items = Enumerable.Range(0, count)
             .Select(i => new BjjEventDto
@@ -69,7 +69,7 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
             })
             .ToList();
 
-        return new GetBjjEventPaginatedResponse
+        return new PagedResponse<BjjEventDto>
         {
             Data = items,
             Pagination = new PaginationMetadataDto
@@ -82,23 +82,24 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
         };
     }
 
-    // HybridCache.GetOrCreateAsync<T> (no state) is a non-virtual wrapper that calls
-    // the abstract GetOrCreateAsync<TState, T> with TState = Func<CancellationToken, ValueTask<T>>.
-    // Moq can only intercept the abstract overload, so we match TState explicitly.
-    private void SetupCacheHit(GetBjjEventPaginatedResponse response)
+    private void SetupCacheHit(PagedResponse<BjjEventDto> response, Action<string>? onKey = null)
     {
         _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
+            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>, PagedResponse<BjjEventDto>>(
                 It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
+                It.IsAny<Func<CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>>(),
+                It.IsAny<Func<Func<CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>, CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>>(),
                 It.IsAny<HybridCacheEntryOptions?>(),
                 It.IsAny<IEnumerable<string>?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<GetBjjEventPaginatedResponse>(response));
+            .Callback<string,
+                Func<CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>,
+                Func<Func<CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>, CancellationToken, ValueTask<PagedResponse<BjjEventDto>>>,
+                HybridCacheEntryOptions?,
+                IEnumerable<string>?,
+                CancellationToken>((key, _, _, _, _, _) => onKey?.Invoke(key))
+            .Returns(new ValueTask<PagedResponse<BjjEventDto>>(response));
     }
-
-    // ─── Null request ─────────────────────────────────────────────────────────
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -109,19 +110,14 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
             () => handler.Handle(null!, CancellationToken.None));
     }
 
-    // ─── Cache-hit path ───────────────────────────────────────────────────────
-
     [Fact]
-    public async Task Handle_CacheHit_ReturnsCachedResponse()
+    public async Task Handle_CacheHit_ReturnsCachedData()
     {
-        GetBjjEventPaginatedResponse expected = BuildCachedResponse(3);
+        PagedResponse<BjjEventDto> expected = BuildCachedResponse(3);
         SetupCacheHit(expected);
 
-        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
-        GetBjjEventPaginationQuery query = new()
-        { Page = 1, PageSize = 20 };
-
-        GetBjjEventPaginatedResponse result = await handler.Handle(query, CancellationToken.None);
+        PagedResponse<BjjEventDto> result = await BuildHandler().Handle(
+            new GetBjjEventPaginationQuery { Page = 1, PageSize = 20 }, CancellationToken.None);
 
         result.ShouldNotBeNull();
         result.Data.Count.ShouldBe(3);
@@ -129,95 +125,48 @@ public sealed class GetBjjEventPaginationQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_CacheHit_ReturnsSameReferenceAsCache()
+    public async Task Handle_CacheHit_DataReferenceFlowsThrough()
     {
-        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
+        PagedResponse<BjjEventDto> expected = BuildCachedResponse(1);
         SetupCacheHit(expected);
 
-        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
+        PagedResponse<BjjEventDto> result = await BuildHandler().Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
 
-        GetBjjEventPaginatedResponse result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
-
-        result.ShouldBeSameAs(expected);
+        result.Data.ShouldBeSameAs(expected.Data);
     }
 
     [Fact]
     public async Task Handle_CacheHit_EmptyResult_ReturnsEmptyData()
     {
-        GetBjjEventPaginatedResponse expected = BuildCachedResponse(0);
+        PagedResponse<BjjEventDto> expected = BuildCachedResponse(0);
         SetupCacheHit(expected);
 
-        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
-
-        GetBjjEventPaginatedResponse result = await handler.Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
+        PagedResponse<BjjEventDto> result = await BuildHandler().Handle(new GetBjjEventPaginationQuery(), CancellationToken.None);
 
         result.Data.ShouldBeEmpty();
         result.Pagination.TotalItems.ShouldBe(0);
     }
 
-    // ─── Cache key formation ──────────────────────────────────────────────────
-
     [Fact]
-    public async Task Handle_QueryWithCountyFilter_PassesQueryToCache()
+    public async Task Handle_QueryWithCountyFilter_CacheKeyIncludesCounty()
     {
-        // We capture which cache key is used to confirm County is included.
         string? capturedKey = null;
-        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
+        SetupCacheHit(BuildCachedResponse(1), key => capturedKey = key);
 
-        _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
-                It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
-                It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IEnumerable<string>?>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<string,
-                Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
-                Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
-                HybridCacheEntryOptions?,
-                IEnumerable<string>?,
-                CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
-            .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
-
-        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
-        GetBjjEventPaginationQuery query = new()
-        { Page = 1, PageSize = 20, County = County.Dublin };
-
-        await handler.Handle(query, CancellationToken.None);
+        await BuildHandler().Handle(
+            new GetBjjEventPaginationQuery { Page = 1, PageSize = 20, County = County.Dublin }, CancellationToken.None);
 
         capturedKey.ShouldNotBeNullOrEmpty();
-        // The cache key should reflect the county parameter.
         capturedKey.ShouldContain("Dublin", Case.Insensitive);
     }
 
     [Fact]
-    public async Task Handle_QueryWithTypeFilter_PassesQueryToCache()
+    public async Task Handle_QueryWithTypeFilter_CacheKeyIncludesType()
     {
         string? capturedKey = null;
-        GetBjjEventPaginatedResponse expected = BuildCachedResponse(1);
+        SetupCacheHit(BuildCachedResponse(1), key => capturedKey = key);
 
-        _cacheMock
-            .Setup(h => h.GetOrCreateAsync<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, GetBjjEventPaginatedResponse>(
-                It.IsAny<string>(),
-                It.IsAny<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
-                It.IsAny<Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>>(),
-                It.IsAny<HybridCacheEntryOptions?>(),
-                It.IsAny<IEnumerable<string>?>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<string,
-                Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
-                Func<Func<CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>, CancellationToken, ValueTask<GetBjjEventPaginatedResponse>>,
-                HybridCacheEntryOptions?,
-                IEnumerable<string>?,
-                CancellationToken>((key, _, _, _, _, _) => capturedKey = key)
-            .Returns(new ValueTask<GetBjjEventPaginatedResponse>(expected));
-
-        GetBjjEventByPaginationQueryHandler handler = BuildHandler();
-        GetBjjEventPaginationQuery query = new()
-        { Type = BjjEventType.Camp };
-
-        await handler.Handle(query, CancellationToken.None);
+        await BuildHandler().Handle(new GetBjjEventPaginationQuery { Type = BjjEventType.Camp }, CancellationToken.None);
 
         capturedKey.ShouldNotBeNullOrEmpty();
         capturedKey.ShouldContain("Camp", Case.Insensitive);
