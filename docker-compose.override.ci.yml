@@ -15,14 +15,14 @@
 services:
   api:
     platform: linux/amd64
-    ports:
+    ports: !override
       - "127.0.0.1:5003:80"
     deploy:
       resources: {}
 
   frontend:
     platform: linux/amd64
-    ports:
+    ports: !override
       - "127.0.0.1:3000:80"
     deploy:
       resources: {}
