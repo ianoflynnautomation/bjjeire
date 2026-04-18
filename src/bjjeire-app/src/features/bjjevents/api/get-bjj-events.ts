@@ -22,5 +22,5 @@ export const getBjjEvents = ({
     params.type = type
   }
 
-  return api.get('api/bjjevent', { params })
+  return api.get('/api/bjjevent', { params })
 }

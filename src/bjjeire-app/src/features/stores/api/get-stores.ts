@@ -12,5 +12,5 @@ export const getStores = ({
     pageSize,
   }
 
-  return api.get('api/store', { params })
+  return api.get('/api/store', { params })
 }

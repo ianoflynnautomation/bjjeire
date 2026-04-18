@@ -15,5 +15,5 @@ export const getGyms = ({
   if (county && county !== 'all') {
     params.county = county
   }
-  return api.get('api/gym', { params })
+  return api.get('/api/gym', { params })
 }

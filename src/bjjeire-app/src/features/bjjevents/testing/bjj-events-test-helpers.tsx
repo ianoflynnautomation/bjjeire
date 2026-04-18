@@ -9,7 +9,7 @@ import type { BjjEventDto } from '@/types/event'
 import type { PaginatedResponse } from '@/types/common'
 import EventsPage from '@/pages/EventsPage'
 
-export const EVENTS_API = 'http://localhost/api/api/bjjevent'
+export const EVENTS_API = 'http://localhost/api/bjjevent'
 
 export function seedEvents(events: BjjEventDto[] = [createEvent()]): void {
   server.use(

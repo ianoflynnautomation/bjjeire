@@ -5,7 +5,7 @@ import { resetCompetitionIdCounter } from './factories/competition.factory'
 import './setup-tests'
 
 vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
+  env: { API_URL: 'http://localhost', PAGE_NUMBER: 1, PAGE_SIZE: 20 },
 }))
 
 vi.mock('@/lib/msal-config', () => ({
