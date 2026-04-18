@@ -220,6 +220,7 @@ jobs:
           docker-compose.override.local.yml
           docker-compose.override.ci.yml
       compose_pre_up_script: .github/scripts/smoke-pre-up.sh
+      seed_data: true
       compose_health_url: http://localhost:5003/health
       base_url: http://localhost:3000
       api_base_url: http://localhost:5003
