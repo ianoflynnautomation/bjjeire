@@ -2,7 +2,7 @@ import * as z from 'zod'
 import { logger } from '@/lib/logger'
 
 const EnvSchema = z.object({
-  API_URL: z.string().default('/api'),
+  API_URL: z.string().default(''),
   ENABLE_API_MOCKING: z
     .enum(['true', 'false'])
     .transform(val => val === 'true')

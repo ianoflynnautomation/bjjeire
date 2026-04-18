@@ -16,5 +16,5 @@ export const getCompetitions = ({
     page,
     pageSize,
   }
-  return api.get('api/competition', { params })
+  return api.get('/api/competition', { params })
 }

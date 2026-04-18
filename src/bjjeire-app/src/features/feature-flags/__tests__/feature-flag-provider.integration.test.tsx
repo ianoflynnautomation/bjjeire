@@ -12,7 +12,7 @@ import type { FeatureFlagsMap } from '../types'
 import { server } from '@/testing/msw/server'
 import { makeFeatureFlagWrapper } from '@/testing/render-utils'
 
-const API = 'http://localhost/api/api/featureflag'
+const API = 'http://localhost/api/featureflag'
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
@@ -112,6 +112,6 @@ describe('FeatureFlagProvider (integration)', () => {
 
     renderProvider()
 
-    await waitFor(() => expect(requestedPath).toBe('/api/api/featureflag'))
+    await waitFor(() => expect(requestedPath).toBe('/api/featureflag'))
   })
 })

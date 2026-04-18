@@ -12,10 +12,11 @@ set -euo pipefail
 
 : "${GITHUB_ENV:?GITHUB_ENV must be set — this script expects to run inside GitHub Actions}"
 
-MONGODB_PASSWORD="$(openssl rand -base64 32 | tr -d '\n')"
+MONGODB_PASSWORD="$(openssl rand -hex 32)"
 
 cat >> "$GITHUB_ENV" <<EOF
 COMPOSE_PROJECT_NAME=bjjeire-smoke
+COMPOSE_PROFILES=app
 ASPNETCORE_ENVIRONMENT=Test
 MONGODB_USER=admin
 MONGODB_HOST=mongodb
