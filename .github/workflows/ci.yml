@@ -206,6 +206,28 @@ jobs:
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
 
+  smoke_tests:
+    name: Smoke Tests (Docker Compose)
+    needs: detect-changes
+    if: |
+      needs.detect-changes.outputs.api == 'true' ||
+      needs.detect-changes.outputs.frontend == 'true'
+    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
+    with:
+      environment_type: docker
+      compose_files: |
+        docker-compose.yml
+        docker-compose.override.local.yml
+        docker-compose.override.ci.yml
+      compose_pre_up_script: .github/scripts/smoke-pre-up.sh
+      compose_health_url: http://localhost:5003/health
+      base_url: http://localhost:3000
+      api_base_url: http://localhost:5003
+      test_repo: ianoflynnautomation/bjjeire-tests
+      test_tags: "@smoke"
+      playwright_projects: '["api","ui-chromium"]'
+    secrets: inherit
+
   publish_reports:
     name: Publish Test Reports
     runs-on: ubuntu-latest

@@ -1,0 +1,37 @@
+# CI-only Docker Compose override for the smoke-test stack.
+#
+# Consumed by `.github/workflows/ci.yml` as:
+#   docker compose -f docker-compose.yml \
+#                  -f docker-compose.override.local.yml \
+#                  -f docker-compose.override.ci.yml \
+#                  --profile app up -d --build --wait
+#
+# Purpose:
+#   - Strip the `linux/arm64` platform pin from base services so they run
+#     natively on GitHub Actions' amd64 runners (no QEMU emulation).
+#   - Bind API HTTP + frontend HTTP to localhost so the test runner can
+#     reach them without exposing anything publicly.
+#   - Disable resource limits so startup isn't throttled on a shared runner.
+services:
+  api:
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:5003:80"
+    deploy:
+      resources: {}
+
+  frontend:
+    platform: linux/amd64
+    ports:
+      - "127.0.0.1:3000:80"
+    deploy:
+      resources: {}
+
+  mongodb:
+    platform: linux/amd64
+    deploy:
+      resources: {}
+
+secrets:
+  mongodb_password: !override
+    environment: MONGODB_PASSWORD
