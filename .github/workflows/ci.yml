@@ -216,9 +216,9 @@ jobs:
     with:
       environment_type: docker
       compose_files: |
-        docker-compose.yml
-        docker-compose.override.local.yml
-        docker-compose.override.ci.yml
+          docker-compose.yml
+          docker-compose.override.local.yml
+          docker-compose.override.ci.yml
       compose_pre_up_script: .github/scripts/smoke-pre-up.sh
       compose_health_url: http://localhost:5003/health
       base_url: http://localhost:3000
