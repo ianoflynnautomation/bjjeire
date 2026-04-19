@@ -17,7 +17,6 @@ public class NotFoundException : Exception
     {
     }
 
-    // This is the constructor used in the handler above
     public NotFoundException(string entityName, object key)
         : base($"Entity \"{entityName}\" ({key}) was not found.")
     {

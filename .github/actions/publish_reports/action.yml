@@ -10,12 +10,12 @@ runs:
   using: "composite"
   steps:
     - name: Download all workflow artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
       with:
         path: ${{ inputs.download-path }}
 
     - name: Publish Test Results Summary
-      uses: dorny/test-reporter@v2
+      uses: dorny/test-reporter@4a2e97665d5fa767581ef38eca97b9694bd4eef4  # v2
       with:
         name: Test Results
         path: "${{ inputs.download-path }}/**/*.trx"

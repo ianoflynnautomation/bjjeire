@@ -55,13 +55,24 @@ public static class ApiConfiguration
             .WithEnvironment("OTEL_RESOURCE_ATTRIBUTES", $"service.name=BjjEire.Api,deployment.environment={environment}");
 
         if (!string.IsNullOrWhiteSpace(tenantId))
+        {
             resource = resource.WithEnvironment("AzureAd__TenantId", tenantId);
+        }
+
         if (!string.IsNullOrWhiteSpace(clientId))
+        {
             resource = resource.WithEnvironment("AzureAd__ClientId", clientId);
+        }
+
         if (!string.IsNullOrWhiteSpace(audience))
+        {
             resource = resource.WithEnvironment("AzureAd__Audience", audience);
+        }
+
         if (!string.IsNullOrWhiteSpace(donationBitcoinAddress))
+        {
             resource = resource.WithEnvironment("Donation__BitcoinAddress", donationBitcoinAddress);
+        }
 
         return resource;
     }
