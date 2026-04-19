@@ -21,7 +21,6 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
         {
             return await next(cancellationToken);
         }
-#pragma warning disable S2139
         catch (Exception ex) when (ex is not ValidationException)
         {
             HttpContext? httpContext = httpContextAccessor.HttpContext;
@@ -32,6 +31,5 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(
                 httpContext?.Request.Method ?? "Unknown");
             throw;
         }
-#pragma warning restore S2139
     }
 }
