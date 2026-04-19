@@ -33,8 +33,6 @@ env:
   SOLUTION_PATH: "BjjEire.sln"
   REACT_APP_PATH: "src/bjjeire-app"
   CONFIGURATION: Release
-  API_IMAGE_NAME: "bjjeire-api"
-  FRONTEND_IMAGE_NAME: "bjjeire-frontend"
 
 permissions:
   contents: read
@@ -73,7 +71,7 @@ jobs:
     container:
       image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: detect-changes
-    if: needs.detect-changes.outputs.api == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
@@ -90,7 +88,7 @@ jobs:
     container:
       image: node:24-bookworm-slim
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
     defaults:
       run:
@@ -119,7 +117,7 @@ jobs:
     container:
       image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: [detect-changes, lint_api]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 15
     outputs:
       build_successful: ${{ steps.build_step.outcome == 'success' }}
@@ -140,7 +138,7 @@ jobs:
     container:
       image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: build_dotnet_solution
-    if: needs.build_dotnet_solution.outputs.build_successful == 'true'
+    if: github.event_name == 'pull_request' && needs.build_dotnet_solution.outputs.build_successful == 'true'
     timeout-minutes: 30
     strategy:
       fail-fast: true
@@ -164,7 +162,6 @@ jobs:
           - test-type: ApiIntegrationTests
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
             test-filter-criteria: "Category!=Ignore"
-
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - name: Run .NET Tests - ${{ matrix.test-type }}
@@ -181,7 +178,7 @@ jobs:
     container:
       image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 15
     env:
       HUSKY: "0"
@@ -207,7 +204,7 @@ jobs:
     container:
       image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
     env:
       HUSKY: "0"
@@ -232,7 +229,7 @@ jobs:
     container:
       image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
     env:
       HUSKY: "0"
@@ -257,7 +254,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
     needs: [detect-changes, lint_frontend]
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 15
     env:
       HUSKY: "0"
@@ -267,19 +264,23 @@ jobs:
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
 
+  publish_reports:
+    name: Publish Test Reports
+    runs-on: ubuntu-latest
+    needs: [run_dotnet_tests]
+    if: |
+      always() &&
+      (needs.run_dotnet_tests.result == 'success' || needs.run_dotnet_tests.result == 'failure')
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/publish_reports
+
   smoke_tests:
     name: Smoke Tests (Docker Compose)
-    needs:
-      - detect-changes
-      - run_dotnet_tests
-      - build_frontend
-      - test_frontend_unit
-      - test_frontend_integration
-      - test_frontend_browser
+    needs: detect-changes
     if: |
-      always() && 
-      !contains(needs.*.result, 'failure') && 
-      !contains(needs.*.result, 'cancelled') &&
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
       (needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.frontend == 'true')
     uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
     with:
@@ -298,34 +299,16 @@ jobs:
       playwright_projects: '["api","ui-chromium"]'
     secrets: inherit
 
-  # publish_reports:
-  #   name: Publish Test Reports
-  #   runs-on: ubuntu-latest
-  #   needs: [run_dotnet_tests]
-  #   if: always() && needs.run_dotnet_tests.result != 'skipped'
-  #   steps:
-  #     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
-  #     - uses: ./.github/actions/publish_reports
-
   build_push:
     name: Build & Push Images
-    needs:
-      - run_dotnet_tests
-      - build_frontend
-      - test_frontend_unit
-      - test_frontend_integration
-      - test_frontend_browser
-      - smoke_tests
+    needs: [detect-changes, smoke_tests]
     if: |
       always() &&
       github.event_name == 'push' &&
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
-      needs.run_dotnet_tests.result != 'failure' &&
-      needs.build_frontend.result != 'failure' &&
-      needs.test_frontend_unit.result != 'failure' &&
-      needs.test_frontend_integration.result != 'failure' &&
-      needs.test_frontend_browser.result != 'failure' &&
-      needs.smoke_tests.result != 'failure'
+      needs.smoke_tests.result != 'failure' &&
+      needs.smoke_tests.result != 'cancelled' &&
+      (needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/'))
     uses: ./.github/workflows/build-push-ghcr.yml
     with:
       push_images: true
@@ -347,33 +330,30 @@ jobs:
   #     FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-frontend@${{ needs.build_push.outputs.frontend_image_digest }}
   #   steps:
   #     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
-  #
   #     - name: Azure Login (federated OIDC — no secrets)
   #       uses: azure/login@v2
   #       with:
   #         client-id: ${{ env.AZURE_CLIENT_ID }}
   #         tenant-id: ${{ env.AZURE_TENANT_ID }}
   #         subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-  #
+  #     # --- AKS path --------------------------------------------------------
   #     # - name: Set AKS context
   #     #   uses: azure/aks-set-context@v4
   #     #   with:
   #     #     resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
   #     #     cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
-  #     #
-  #     # - name: Roll API deployment to the verified digest
+  #     # - name: Roll deployment to the verified digest
   #     #   run: |
   #     #     kubectl set image deployment/bjjeire-api api="${API_IMAGE}" -n bjjeire
   #     #     kubectl set image deployment/bjjeire-frontend frontend="${FRONTEND_IMAGE}" -n bjjeire
   #     #     kubectl rollout status deployment/bjjeire-api --timeout=5m -n bjjeire
   #     #     kubectl rollout status deployment/bjjeire-frontend --timeout=5m -n bjjeire
-  #
+  #     # --- App Service path ------------------------------------------------
   #     # - name: Deploy API container to App Service
   #     #   uses: azure/webapps-deploy@v3
   #     #   with:
   #     #     app-name: ${{ vars.API_APP_SERVICE_NAME }}
   #     #     images: ${{ env.API_IMAGE }}
-  #     #
   #     # - name: Deploy Frontend container to App Service
   #     #   uses: azure/webapps-deploy@v3
   #     #   with:

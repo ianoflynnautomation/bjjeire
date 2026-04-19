@@ -9,10 +9,12 @@ paths:
 ## Workflow Files
 | File | Trigger | Purpose |
 |------|---------|---------|
-| `ci.yml` | push/PR to `main`, tags `v*.*.*` | Lint, build, test all layers; chains `build-push-ghcr.yml` on green `main`/tag |
+| `ci.yml` | push/PR to `main`, tags `v*.*.*` | PR: lint/build/test. Main/tag: smoke + build_push. Chains `build-push-ghcr.yml` on green push |
 | `build-push-ghcr.yml` | `workflow_call` (from `ci.yml`), `workflow_dispatch` | Reusable: build + push Docker images to GHCR, provenance attestation, Trivy scan |
-| `release.yml` | tags `v*.*.*` | Release pipeline |
-| `cleanup-artifacts.yml` | scheduled | Clean old artifacts |
+| `release.yml` | push to `main` (release-please drives tagging) | Release pipeline: pack NuGet, archive dist, build+push versioned images, purge CDN |
+| `validate-data.yml` | PR touching seeder data/entities | Strict deserialization + Ireland bbox check on gym coordinates |
+| `issue-to-pr.yml` | `issues` labeled `approved:gym` / `approved:event` | Auto-open draft PR from community-submission issue body |
+| `cleanup-artifacts.yml` | scheduled | Clean old artifacts (pure `gh` CLI, no runtime) |
 | `weekly-fetch.yml` | scheduled | Periodic data fetch job |
 
 ## Path Filters (dorny/paths-filter)
@@ -28,7 +30,10 @@ frontend:
 ```
 Always add new source paths to the relevant filter when adding new projects.
 
-## CI Job Order (`ci.yml`)
+## CI Job Order (`ci.yml`) — PR vs main split
+The pipeline is explicitly split by event. PRs run fast feedback only; `main`/tag runs E2E + release. This trusts the PR gate (branch protection / merge queue) so cheap checks don't re-run on push.
+
+### Pull request (`if: github.event_name == 'pull_request'`)
 ```
 detect-changes
   ├── lint_api          → build_dotnet_solution → run_dotnet_tests (matrix) → publish_reports
@@ -36,10 +41,26 @@ detect-changes
                         → test_frontend_unit
                         → test_frontend_integration
                         → test_frontend_browser (Playwright container)
-smoke_tests (docker-compose, calls bjjeire-tests reusable)
-build_push (calls build-push-ghcr.yml reusable, push/tag only, needs all tests green)
+```
+
+### Push to main / tag (`if: github.event_name == 'push' && (ref == main || tag)`)
+```
+detect-changes
+  └── smoke_tests       → build_push (calls build-push-ghcr.yml reusable) → Trivy scan
 # deploy_production (commented — tag-only, environment gate, Azure OIDC — uncomment when prod is ready)
 ```
+
+### `publish_reports` gating
+Only run when `run_dotnet_tests` actually executed — `skipped` means no artifacts uploaded and dorny/test-reporter will error on the missing TRX files:
+```yaml
+if: |
+  always() &&
+  (needs.run_dotnet_tests.result == 'success' || needs.run_dotnet_tests.result == 'failure')
+```
+Do NOT use `result != 'skipped'` — matrix aggregate results don't always literally equal `"skipped"` on gated-skip paths.
+
+### Reusable workflow concurrency trap
+`build-push-ghcr.yml` has **no top-level `concurrency:` block**. When called via `workflow_call`, a reusable inherits `github.workflow` from the caller; if both declare `${{ github.workflow }}-${{ github.ref }}`, they resolve to the same group and the reusable queues behind itself → self-deadlock. Put concurrency only on the caller (`ci.yml`).
 
 ## Reusable Actions (`.github/actions/`)
 Extract a composite action **only when there's real reuse** (2+ callers) or non-trivial logic worth hiding. Thin single-caller wrappers belong inline in the job — they just split the file without adding value.
@@ -54,14 +75,20 @@ Current composites:
 Lint, `dotnet build`, and Vitest unit/integration steps live inline in their jobs — they're single-caller and boil down to 2–4 `npm`/`dotnet` commands. Don't re-extract them unless a second caller appears or the step count grows past ~4.
 
 ## Container-First Jobs
-All language-runtime jobs declare `container:` rather than using `actions/setup-dotnet` / `actions/setup-node` on the host runner:
+**Every** language-runtime job across all workflows declares `container:` rather than using `actions/setup-dotnet` / `actions/setup-node` on the host runner:
 ```yaml
 container:
-  image: mcr.microsoft.com/dotnet/sdk:10.0   # .NET jobs
-  image: node:24-bookworm-slim               # Node jobs
+  image: mcr.microsoft.com/dotnet/sdk:10.0   # .NET jobs (ci, release, validate-data)
+  image: node:24-bookworm-slim               # Node jobs (ci, release, validate-data, issue-to-pr)
   image: mcr.microsoft.com/playwright:...    # browser tests
 ```
 The `setup-dotnet` / `setup-node` composites are now cache-only (NuGet / node_modules) — they do not install runtimes. The container image is the single source of truth for the toolchain version.
+
+Exceptions (no runtime needed, stay on `ubuntu-latest`):
+- Docker build/push jobs — need host Docker daemon
+- `release-please` job — runs an action that does no language work
+- `cleanup-artifacts.yml` — pure `gh` CLI + `jq`
+- `purge-cloudflare-cache` — one `curl`
 
 ## Runtime Versions
 Defined as top-level env vars in `ci.yml` — change in one place:

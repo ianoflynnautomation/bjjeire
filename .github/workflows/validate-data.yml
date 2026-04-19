@@ -16,34 +16,31 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  DOTNET_VERSION: "10.x"
-  NODE_VERSION: "24.x"
+  DOTNET_CONTAINER: "mcr.microsoft.com/dotnet/sdk:10.0"
+  NODE_CONTAINER: "node:24-bookworm-slim"
 
 jobs:
   validate-data:
     name: Validate data against Domain entities
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Validate all data files deserialize strictly into Domain entities
+        shell: bash
         run: dotnet run --project src/BjjEire.Seeder -- --validate
 
   ireland-coordinates:
     name: Coordinates within Ireland bounding box
     runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Check gym coordinates are [longitude, latitude] within Ireland
         shell: bash
