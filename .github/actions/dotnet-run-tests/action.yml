@@ -31,7 +31,7 @@ runs:
         dotnet test "${{ inputs.project-path }}" \
           --configuration Release \
           --logger "trx;LogFileName=${{ inputs.test-results-name-prefix }}.trx" \
-          --results-directory "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}" \
+          --results-directory "TestResults/${{ inputs.test-results-name-prefix }}" \
           $FILTER_ARG
 
     - name: Upload Test Results
@@ -39,5 +39,5 @@ runs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
       with:
         name: test_results_${{ inputs.test-results-name-prefix }}
-        path: "${{ github.workspace }}/TestResults/${{ inputs.test-results-name-prefix }}"
+        path: TestResults/${{ inputs.test-results-name-prefix }}
         retention-days: 1

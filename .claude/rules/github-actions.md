@@ -90,6 +90,24 @@ Exceptions (no runtime needed, stay on `ubuntu-latest`):
 - `cleanup-artifacts.yml` — pure `gh` CLI + `jq`
 - `purge-cloudflare-cache` — one `curl`
 
+### Container gotcha: never use `${{ github.workspace }}` for paths
+Inside a container job, `${{ github.workspace }}` expression expands to the **host** path (`/home/runner/work/<repo>/<repo>`). That path is not mounted inside the container — the container sees the workspace at `/__w/<repo>/<repo>`. Tools that write to the expanded host path create a directory in the container's own filesystem, orphaned from the runner's mount. Subsequent actions (upload-artifact, etc.) run against the container-mapped path and find nothing.
+
+**Always use relative paths** (or the `$GITHUB_WORKSPACE` env var, which is correct inside containers) for anything that crosses steps:
+```yaml
+# BAD — works on host runner, silently breaks in container
+run: dotnet test --results-directory "${{ github.workspace }}/TestResults"
+uses: actions/upload-artifact@v4
+with:
+  path: "${{ github.workspace }}/TestResults"
+
+# GOOD — works everywhere
+run: dotnet test --results-directory "TestResults"
+uses: actions/upload-artifact@v4
+with:
+  path: TestResults
+```
+
 ## Runtime Versions
 Defined as top-level env vars in `ci.yml` — change in one place:
 ```yaml
