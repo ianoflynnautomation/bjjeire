@@ -277,8 +277,10 @@ jobs:
       - test_frontend_integration
       - test_frontend_browser
     if: |
-      needs.detect-changes.outputs.api == 'true' ||
-      needs.detect-changes.outputs.frontend == 'true'
+      always() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled') &&
+      (needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.frontend == 'true')
     uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
     with:
       environment_type: docker
@@ -296,14 +298,14 @@ jobs:
       playwright_projects: '["api","ui-chromium"]'
     secrets: inherit
 
-  publish_reports:
-    name: Publish Test Reports
-    runs-on: ubuntu-latest
-    needs: [run_dotnet_tests]
-    if: always() && needs.run_dotnet_tests.result != 'skipped'
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
-      - uses: ./.github/actions/publish_reports
+  # publish_reports:
+  #   name: Publish Test Reports
+  #   runs-on: ubuntu-latest
+  #   needs: [run_dotnet_tests]
+  #   if: always() && needs.run_dotnet_tests.result != 'skipped'
+  #   steps:
+  #     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+  #     - uses: ./.github/actions/publish_reports
 
   build_push:
     name: Build & Push Images
