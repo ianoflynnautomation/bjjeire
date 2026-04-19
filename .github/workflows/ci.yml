@@ -42,6 +42,8 @@ permissions:
   checks: write
   packages: write
   id-token: write
+  attestations: write
+  security-events: write
   pull-requests: read
 
 jobs:
@@ -52,9 +54,9 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@6852f92c20ea7fd3b0c25de3b5112db3a98da050  # v3
         with:
           filters: |
             api:
@@ -74,10 +76,13 @@ jobs:
     if: needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/lint-dotnet
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-dotnet
+      - name: Check .NET code formatting
+        shell: bash
+        run: |
+          dotnet format whitespace ${{ env.SOLUTION_PATH }} --include ./src/ --exclude ./src/BjjEire.Aspire.AppHost/ --verify-no-changes --verbosity diagnostic
+          dotnet format style ${{ env.SOLUTION_PATH }} --include ./src/ --exclude ./src/BjjEire.Aspire.AppHost/ --verify-no-changes --verbosity diagnostic
 
   lint_frontend:
     name: Lint Frontend
@@ -87,12 +92,26 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/lint-frontend
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: ${{ env.NODE_VERSION }}
           working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: TypeScript type check
+        shell: bash
+        run: npx tsc --noEmit
+      - name: ESLint check
+        shell: bash
+        run: npx eslint src --max-warnings 0
+      - name: Prettier format check
+        shell: bash
+        run: npx prettier --check src/
 
   build_dotnet_solution:
     name: Build .NET Solution
@@ -105,14 +124,15 @@ jobs:
     outputs:
       build_successful: ${{ steps.build_step.outcome == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Build .NET Solution
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-dotnet
+      - name: Restore dependencies
+        shell: bash
+        run: dotnet restore "${{ env.SOLUTION_PATH }}"
+      - name: Build
         id: build_step
-        uses: ./.github/actions/dotnet-build
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-          path: ${{ env.SOLUTION_PATH }}
-          configuration: ${{ env.CONFIGURATION }}
+        shell: bash
+        run: dotnet build "${{ env.SOLUTION_PATH }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
   run_dotnet_tests:
     name: Run .NET Tests
@@ -146,7 +166,7 @@ jobs:
             test-filter-criteria: "Category!=Ignore"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - name: Run .NET Tests - ${{ matrix.test-type }}
         uses: ./.github/actions/dotnet-run-tests
         with:
@@ -166,12 +186,20 @@ jobs:
     env:
       HUSKY: "0"
       SERVICES_API_HTTPS_0: "https://api-ci-placeholder:443"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/react-build-test
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: ${{ env.NODE_VERSION }}
           working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Build
+        shell: bash
+        run: npm run build
 
   test_frontend_unit:
     name: Test Frontend (Unit)
@@ -183,12 +211,20 @@ jobs:
     timeout-minutes: 10
     env:
       HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/react-test-unit
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: ${{ env.NODE_VERSION }}
           working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Run unit tests
+        shell: bash
+        run: npm test
 
   test_frontend_integration:
     name: Test Frontend (Integration)
@@ -200,12 +236,20 @@ jobs:
     timeout-minutes: 10
     env:
       HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/react-test-integration
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: ${{ env.NODE_VERSION }}
           working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Run integration tests
+        shell: bash
+        run: npm run test:integration
 
   test_frontend_browser:
     name: Test Frontend (Browser)
@@ -218,14 +262,20 @@ jobs:
     env:
       HUSKY: "0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - uses: ./.github/actions/react-test-browser
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
 
   smoke_tests:
     name: Smoke Tests (Docker Compose)
-    needs: detect-changes
+    needs:
+      - detect-changes
+      - run_dotnet_tests
+      - build_frontend
+      - test_frontend_unit
+      - test_frontend_integration
+      - test_frontend_browser
     if: |
       needs.detect-changes.outputs.api == 'true' ||
       needs.detect-changes.outputs.frontend == 'true'
@@ -252,5 +302,78 @@ jobs:
     needs: [run_dotnet_tests]
     if: always() && needs.run_dotnet_tests.result != 'skipped'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - uses: ./.github/actions/publish_reports
+
+  build_push:
+    name: Build & Push Images
+    needs:
+      - run_dotnet_tests
+      - build_frontend
+      - test_frontend_unit
+      - test_frontend_integration
+      - test_frontend_browser
+      - smoke_tests
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) &&
+      needs.run_dotnet_tests.result != 'failure' &&
+      needs.build_frontend.result != 'failure' &&
+      needs.test_frontend_unit.result != 'failure' &&
+      needs.test_frontend_integration.result != 'failure' &&
+      needs.test_frontend_browser.result != 'failure' &&
+      needs.smoke_tests.result != 'failure'
+    uses: ./.github/workflows/build-push-ghcr.yml
+    with:
+      push_images: true
+    secrets: inherit
+
+  # deploy_production:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: build_push
+  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+  #   environment:
+  #     name: production
+  #     url: https://bjjeire.com
+  #   env:
+  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #     API_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-api@${{ needs.build_push.outputs.api_image_digest }}
+  #     FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-frontend@${{ needs.build_push.outputs.frontend_image_digest }}
+  #   steps:
+  #     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+  #
+  #     - name: Azure Login (federated OIDC — no secrets)
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ env.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ env.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+  #
+  #     # - name: Set AKS context
+  #     #   uses: azure/aks-set-context@v4
+  #     #   with:
+  #     #     resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+  #     #     cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+  #     #
+  #     # - name: Roll API deployment to the verified digest
+  #     #   run: |
+  #     #     kubectl set image deployment/bjjeire-api api="${API_IMAGE}" -n bjjeire
+  #     #     kubectl set image deployment/bjjeire-frontend frontend="${FRONTEND_IMAGE}" -n bjjeire
+  #     #     kubectl rollout status deployment/bjjeire-api --timeout=5m -n bjjeire
+  #     #     kubectl rollout status deployment/bjjeire-frontend --timeout=5m -n bjjeire
+  #
+  #     # - name: Deploy API container to App Service
+  #     #   uses: azure/webapps-deploy@v3
+  #     #   with:
+  #     #     app-name: ${{ vars.API_APP_SERVICE_NAME }}
+  #     #     images: ${{ env.API_IMAGE }}
+  #     #
+  #     # - name: Deploy Frontend container to App Service
+  #     #   uses: azure/webapps-deploy@v3
+  #     #   with:
+  #     #     app-name: ${{ vars.FRONTEND_APP_SERVICE_NAME }}
+  #     #     images: ${{ env.FRONTEND_IMAGE }}
