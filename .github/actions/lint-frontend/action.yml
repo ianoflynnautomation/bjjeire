@@ -1,9 +1,10 @@
 name: "Lint Frontend"
-description: "Runs TypeScript type check and ESLint on the React app"
+description: "Runs TypeScript type check and ESLint on the React app. Must run inside a container job that provides Node.js."
 inputs:
   node-version:
-    description: "Node.js version"
-    required: true
+    description: "Informational. Node is provided by the container image."
+    required: false
+    default: ''
   working-directory:
     description: "Directory of the React application (where package.json is)"
     required: true
@@ -11,12 +12,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
+    - name: Cache node_modules
+      uses: ./.github/actions/setup-node
       with:
-        node-version: ${{ inputs.node-version }}
-        cache: "npm"
-        cache-dependency-path: "${{ inputs.working-directory }}/package-lock.json"
+        working-directory: ${{ inputs.working-directory }}
 
     - name: Install Node Dependencies
       shell: bash

@@ -1,18 +1,13 @@
-
-name: 'Setup .NET Environment'
-description: 'Sets up .NET SDK and caches NuGet packages'
+name: 'Setup .NET Cache'
+description: 'Caches NuGet packages. Assumes the .NET SDK is already present (container job).'
 inputs:
   dotnet-version:
-    description: 'The version of the .Net Core SDK to use'
-    required: true
+    description: 'Informational. Retained for backwards compatibility — the SDK is provided by the container image.'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
-    - name: 'Setup .NET SDK ${{ inputs.dotnet-version }}'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ inputs.dotnet-version }}
-
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:

@@ -27,6 +27,9 @@ concurrency:
 env:
   DOTNET_VERSION: "10.x"
   NODE_VERSION: "24.x"
+  DOTNET_CONTAINER: "mcr.microsoft.com/dotnet/sdk:10.0"
+  NODE_CONTAINER: "node:24-bookworm-slim"
+  PLAYWRIGHT_CONTAINER: "mcr.microsoft.com/playwright:v1.58.2-noble"
   SOLUTION_PATH: "BjjEire.sln"
   REACT_APP_PATH: "src/bjjeire-app"
   CONFIGURATION: Release
@@ -65,6 +68,8 @@ jobs:
   lint_api:
     name: Lint .NET
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: detect-changes
     if: needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 10
@@ -77,6 +82,8 @@ jobs:
   lint_frontend:
     name: Lint Frontend
     runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
@@ -90,6 +97,8 @@ jobs:
   build_dotnet_solution:
     name: Build .NET Solution
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: [detect-changes, lint_api]
     if: needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 15
@@ -108,6 +117,8 @@ jobs:
   run_dotnet_tests:
     name: Run .NET Tests
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     needs: build_dotnet_solution
     if: needs.build_dotnet_solution.outputs.build_successful == 'true'
     timeout-minutes: 30
@@ -147,6 +158,8 @@ jobs:
   build_frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
     if: needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 15
@@ -163,6 +176,8 @@ jobs:
   test_frontend_unit:
     name: Test Frontend (Unit)
     runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
     if: needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
@@ -178,6 +193,8 @@ jobs:
   test_frontend_integration:
     name: Test Frontend (Integration)
     runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
     needs: [detect-changes, lint_frontend]
     if: needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
