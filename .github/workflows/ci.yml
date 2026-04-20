@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/dotnet/sdk:10.0
-    needs: [detect-changes, lint_api]
+    needs: detect-changes
     if: github.event_name == 'pull_request' && needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 15
     outputs:
@@ -132,13 +132,13 @@ jobs:
         shell: bash
         run: dotnet build "${{ env.SOLUTION_PATH }}" --configuration ${{ env.CONFIGURATION }} --no-restore
 
-  run_dotnet_tests:
+  test_dotnet_unit:
     name: Run .NET Tests
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/dotnet/sdk:10.0
-    needs: build_dotnet_solution
-    if: github.event_name == 'pull_request' && needs.build_dotnet_solution.outputs.build_successful == 'true'
+    needs: detect-changes 
+    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 30
     strategy:
       fail-fast: true
@@ -156,6 +156,28 @@ jobs:
           - test-type: InfrastructureUnitTests
             project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - name: Run .NET Tests - ${{ matrix.test-type }}
+        uses: ./.github/actions/dotnet-run-tests
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          project-path: ${{ matrix.project-path }}
+          test-results-name-prefix: ${{ matrix.test-type }}
+          test-filter-criteria: ${{ matrix.test-filter-criteria }}
+
+  test_dotnet_integration:
+    name: Run .NET Tests
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
+    needs: [build_dotnet_solution, test_dotnet_unit, lint_api]
+    if: github.event_name == 'pull_request' && needs.build_dotnet_solution.outputs.build_successful == 'true'
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
           - test-type: ApplicationIntegrationTests
             project-path: "tests/BjjEire.Application.IntegrationTests/BjjEire.Application.IntegrationTests.csproj"
             test-filter-criteria: "Category!=Ignore"
@@ -177,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:24-bookworm-slim
-    needs: [detect-changes, lint_frontend]
+    needs: detect-changes
     if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 15
     env:
@@ -203,7 +225,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:24-bookworm-slim
-    needs: [detect-changes, lint_frontend]
+    needs: [detect-changes]
     if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
     timeout-minutes: 10
     env:
@@ -228,8 +250,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: node:24-bookworm-slim
-    needs: [detect-changes, lint_frontend]
-    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
+    needs: [lint_frontend, build_frontend, test_frontend_unit]
+    if: github.event_name == 'pull_request'
     timeout-minutes: 10
     env:
       HUSKY: "0"
@@ -253,8 +275,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.58.2-noble
-    needs: [detect-changes, lint_frontend]
-    if: github.event_name == 'pull_request' && needs.detect-changes.outputs.frontend == 'true'
+    needs: [lint_frontend, build_frontend, test_frontend_unit]
+    if: github.event_name == 'pull_request'
     timeout-minutes: 15
     env:
       HUSKY: "0"
@@ -267,10 +289,11 @@ jobs:
   publish_reports:
     name: Publish Test Reports
     runs-on: ubuntu-latest
-    needs: [run_dotnet_tests]
+    needs: [test_dotnet_integration, test_dotnet_unit]
     if: |
       always() &&
-      (needs.run_dotnet_tests.result == 'success' || needs.run_dotnet_tests.result == 'failure')
+      (needs.test_dotnet_integration.result == 'success' || needs.test_dotnet_integration.result == 'failure') &&
+      (needs.test_dotnet_unit.result == 'success' || needs.test_dotnet_unit.result == 'failure')
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - uses: ./.github/actions/publish_reports
