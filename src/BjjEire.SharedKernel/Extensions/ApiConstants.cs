@@ -6,5 +6,5 @@ public static class ApiConstants
 
     public const string ApiGroupNameV2 = "v2";
 
-    public const string ApiGroupNameV2 = "v3";
+    public const string ApiGroupNameV3 = "v3";
 }
