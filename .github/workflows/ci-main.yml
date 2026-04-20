@@ -1,0 +1,136 @@
+name: CI Main Delivery
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "logs/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "docs/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: "10.x"
+  NODE_VERSION: "24.x"
+  DOTNET_CONTAINER: "mcr.microsoft.com/dotnet/sdk:10.0"
+  NODE_CONTAINER: "node:24-bookworm-slim"
+  PLAYWRIGHT_CONTAINER: "mcr.microsoft.com/playwright:v1.58.2-noble"
+  SOLUTION_PATH: "BjjEire.sln"
+  REACT_APP_PATH: "src/bjjeire-app"
+  CONFIGURATION: Release
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  packages: write
+  id-token: write
+  attestations: write
+  security-events: write
+  pull-requests: read
+
+jobs:
+  detect-changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - id: filter
+        uses: dorny/paths-filter@6852f92c20ea7fd3b0c25de3b5112db3a98da050  # v3
+        with:
+          filters: |
+            api:
+              - 'src/BjjEire*/**'
+              - 'tests/**'
+              - '*.sln'
+              - 'Directory.*.props'
+            frontend:
+              - 'src/bjjeire-app/**'
+
+  smoke_tests:
+    name: Smoke Tests (Docker Compose)
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/')
+    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
+    with:
+      environment_type: docker
+      compose_files: |
+          docker-compose.yml
+          docker-compose.override.local.yml
+          docker-compose.override.ci.yml
+      compose_pre_up_script: .github/scripts/smoke-pre-up.sh
+      seed_data: true
+      compose_health_url: http://localhost:5003/health
+      base_url: http://localhost:3000
+      api_base_url: http://localhost:5003
+      test_repo: ianoflynnautomation/bjjeire-tests
+      test_tags: "@smoke"
+      playwright_projects: '["api","ui-chromium"]'
+    secrets: inherit
+
+  build_push:
+    name: Build & Push Images
+    needs: [detect-changes, smoke_tests]
+    if: |
+      always() &&
+      needs.smoke_tests.result != 'failure' &&
+      needs.smoke_tests.result != 'cancelled' &&
+      (needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/'))
+    uses: ./.github/workflows/build-push-ghcr.yml
+    with:
+      push_images: true
+    secrets: inherit
+
+  # deploy_production:
+  #   name: Deploy to Production
+  #   runs-on: ubuntu-latest
+  #   needs: build_push
+  #   if: startsWith(github.ref, 'refs/tags/')
+  #   environment:
+  #     name: production
+  #     url: https://bjjeire.com
+  #   env:
+  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #     API_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-api@${{ needs.build_push.outputs.api_image_digest }}
+  #     FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-frontend@${{ needs.build_push.outputs.frontend_image_digest }}
+  #   steps:
+  #     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+  #     - name: Azure Login (federated OIDC — no secrets)
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ env.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ env.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+  #     # --- AKS path --------------------------------------------------------
+  #     # - name: Set AKS context
+  #     #   uses: azure/aks-set-context@v4
+  #     #   with:
+  #     #     resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+  #     #     cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+  #     # - name: Roll deployment to the verified digest
+  #     #   run: |
+  #     #     kubectl set image deployment/bjjeire-api api="${API_IMAGE}" -n bjjeire
+  #     #     kubectl set image deployment/bjjeire-frontend frontend="${FRONTEND_IMAGE}" -n bjjeire
+  #     #     kubectl rollout status deployment/bjjeire-api --timeout=5m -n bjjeire
+  #     #     kubectl rollout status deployment/bjjeire-frontend --timeout=5m -n bjjeire
+  #     # --- App Service path ------------------------------------------------
+  #     # - name: Deploy API container to App Service
+  #     #   uses: azure/webapps-deploy@v3
+  #     #   with:
+  #     #     app-name: ${{ vars.API_APP_SERVICE_NAME }}
+  #     #     images: ${{ env.API_IMAGE }}
+  #     # - name: Deploy Frontend container to App Service
+  #     #   uses: azure/webapps-deploy@v3
+  #     #   with:
+  #     #     app-name: ${{ vars.FRONTEND_APP_SERVICE_NAME }}
+  #     #     images: ${{ env.FRONTEND_IMAGE }}
