@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.16](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.15...frontend-v0.1.16) (2026-04-25)
+
+
+### ### Features
+
+* react improve UI accessibility ([#102](https://github.com/ianoflynnautomation/bjjeire/issues/102)) ([671669c](https://github.com/ianoflynnautomation/bjjeire/commit/671669cf504e06aeb6c45399079e3f05ed6139ca))
+
 ## [0.1.15](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.14...frontend-v0.1.15) (2026-04-11)
 
 
