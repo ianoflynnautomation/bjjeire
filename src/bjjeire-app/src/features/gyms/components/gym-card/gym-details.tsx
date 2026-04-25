@@ -36,9 +36,9 @@ export const GymDetails = memo(function GymDetails({
       aria-labelledby={headingId}
       data-testid={rootDataTestId ?? DetailItemTestIds.ROOT}
     >
-      <h2 id={headingId} className="sr-only">
+      <h4 id={headingId} className="sr-only">
         {gymCard.detailsSrLabel} {gym.name || gymCard.fallbackRef}
-      </h2>
+      </h4>
 
       {location?.address && (
         <DetailItem

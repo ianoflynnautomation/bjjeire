@@ -14,6 +14,7 @@ export const gyms = {
     tagline: 'Find BJJ Gyms Across Ireland',
     subtitle: 'Browse clubs, academies, and training centres near you.',
     imageAlt: 'BJJ Éire gym banner',
+    ariaLabel: 'BJJ Éire — Find gyms across Ireland',
   },
   list: {
     ariaLabel: 'Brazilian Jiu-Jitsu gyms',

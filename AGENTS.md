@@ -1,78 +1,96 @@
-# BjjEire — Agent Instructions
+# BjjEire — Codex Instructions
 
-## Build & Test Commands
+Keep this file short, repo-specific, and optimized for Codex. It should stand on its own for Codex use and should not depend on Claude-specific slash commands or path-scoped Claude rules being available.
+
+## Working Style
+
+- Inspect nearby code before changing anything. Follow existing patterns instead of inventing new structure.
+- Prefer `rg` and `rg --files` for search.
+- Use `apply_patch` for manual edits. Do not use destructive git commands to clean the tree.
+- Never revert unrelated user changes. This repo may be dirty.
+- Prefer non-interactive commands. Run the smallest useful verification for the code you changed.
+- Make reasonable assumptions, but pause if a choice would change architecture, data shape, or public API.
+
+## Project Overview
+
+Full-stack BJJ directory for Ireland:
+
+- .NET 9 API with Clean Architecture
+- React 19 + TypeScript SPA in `src/bjjeire-app`
+- MongoDB persistence
+
+## Verification Commands
 
 ### .NET
 ```bash
-# Full pipeline (format → restore → build → unit tests)
+# Full pipeline (format -> restore -> build -> unit tests)
 bash build-dotnet.sh
 
-# Individual steps
+# Targeted commands
 dotnet build
-dotnet test --filter "Category=Unit"          # unit tests only
-dotnet test --filter "Category!=Ignore"        # all tests
-dotnet run --project src/BjjEire.Api           # run API
+dotnet test --filter "Category=Unit"
+dotnet test --filter "Category!=Ignore"
+dotnet run --project src/BjjEire.Api
+dotnet run --project src/BjjEire.Seeder
+dotnet run --project src/BjjEire.Seeder -- --dry-run
 ```
 
 ### React
 ```bash
 cd src/bjjeire-app
-npm run lint                                   # ESLint --fix --max-warnings 0
-npm run typecheck                              # tsc --noEmit
-npm test                                      # vitest unit tests
-npm run test:integration                       # integration tests
-npm run build                                  # tsc + Vite build
+npm run lint
+npm run typecheck
+npm test
+npm run test:integration
+npm run build
 ```
 
-## Verification Order
-`lint → typecheck → test` — always run lint and typecheck before considering frontend work done.
+### Verification Order
 
-## Architecture
+- Frontend: `lint -> typecheck -> test`
+- Backend: prefer targeted tests first, then broader `dotnet test` coverage when needed
 
-- **Clean Architecture**: Domain → Application → Infrastructure → API (no reverse dependencies)
-- **MediatR**: All use cases are `IRequest<T>` handlers. Controllers call `_mediator.Send(...)`
-- **HybridCache**: Invalidation uses tag-based `RemoveByTagAsync`. See `CacheKey` constants.
-- **Feature folders**: Infrastructure code lives in `Infrastructure/Features/<Domain>/`, not flat `ExternalServices/`
-- **GeoJSON**: Coordinates are `[longitude, latitude]` (not lat/lng)
+## Architecture Guardrails
 
-## Frontend Conventions
+- Clean Architecture only: `Domain -> Application -> Infrastructure -> Api`
+- Infrastructure feature code belongs in `src/BjjEire.Infrastructure/Features/<Domain>/`
+- Application use cases use MediatR `IRequest<T>` handlers; controllers call `_mediator.Send(...)`
+- HybridCache invalidation uses tag-based `RemoveByTagAsync`; use `CacheKey` constants
+- GeoJSON coordinates are `[longitude, latitude]`
 
-- Imports use `@/` alias (maps to `src/`). Same-folder imports stay relative.
-- Components: `memo(function ComponentName())` pattern — gives automatic displayName.
-- All user-visible strings in `src/config/ui-content.ts` — never hardcode UI text.
-- Dark theme only: `class="dark"` on root. Never add light backgrounds to `PageLayout`.
-- Data test IDs defined in `src/constants/*DataTestIds.ts` — always use the constant, never inline strings.
-- CVA variants live in `src/lib/` — not co-located with components.
-- Pagination: all list endpoints use `usePaginatedQuery`. Never fetch without pagination params.
+## Frontend Guardrails
 
-## Testing
+- Cross-folder imports use `@/`; same-folder imports stay relative
+- Components use `memo(function ComponentName())`
+- All user-visible strings live in `src/bjjeire-app/src/config/ui-content.ts`
+- Data test IDs come from `src/bjjeire-app/src/constants/*DataTestIds.ts`
+- CVA variants live in `src/bjjeire-app/src/lib/`
+- Dark theme only; do not introduce light `PageLayout` backgrounds
+- Paginated list endpoints use `usePaginatedQuery`
 
-- **TDD**: Write the test first, then implementation.
-- `useSearchParams` requires `MemoryRouter` from `react-router` (not `react-router-dom`).
-- Wrap nullable array defaults in `useMemo(() => data ?? [], [data])` to avoid exhaustive-deps errors.
-- `useEffect` cleanup functions need explicit return type: `(): (() => void) => { ... }`
+## Testing Guardrails
 
-## Seeder
+- TDD first: write the failing test before implementation
+- `useSearchParams` tests must use `MemoryRouter` from `react-router`
+- Wrap nullable array defaults in `useMemo(() => data ?? [], [data])`
+- `useEffect` cleanup functions need an explicit return type when returning cleanup
+- Seeder JSON must use `"isAvailable": false`, never `null`
 
-- `"isAvailable"` in JSON must be `false` not `null` — `TrialOffer.IsAvailable` is non-nullable bool.
-- Run: `dotnet run --project src/BjjEire.Seeder`
-- Dry-run: `dotnet run --project src/BjjEire.Seeder -- --dry-run`
-- Stable ObjectIds: `python3 -c "from bson import ObjectId; print(ObjectId())"`
+## Config Notes
 
-## Secrets & Config
+- `.env` is required
+- `secrets/` should contain `cert_password.txt` and `mongodb_password.txt`
+- `VITE_APP_*` variables are baked in at Docker build time, not runtime
 
-- `.env` required — copy from `.env.example`
-- `secrets/` directory with `cert_password.txt` and `mongodb_password.txt`
-- `VITE_APP_*` vars baked in at Docker build time — not runtime
+## Release Conventions
 
-## Versioning
+- API version tags use `api-v*`
+- Frontend version tags use `frontend-v*`
+- Conventional Commits: `feat:`, `fix:`, `feat!:`
 
-- API uses MinVer with `api-v` prefix (e.g., `api-v1.2.3`)
-- Frontend uses `frontend-v` prefix
-- Conventional Commits enforced: `feat:` (minor), `fix:` (patch), `feat!:` (major)
+## Claude Coordination
 
-## Key Files
-
-- `CLAUDE.md` — full project conventions (read this first)
-- `.claude/commands/` — scaffold commands (add-feature, add-gym, lint, test, review)
-- `.claude/rules/` — detailed rules for dotnet, react, mongodb, api, security, etc.
+- `CLAUDE.md` is the top-level Claude guide
+- `.claude/rules/` contains detailed Claude-scoped guidance
+- `.claude/commands/` contains Claude slash-command workflows
+- When shared repo conventions change, update both `AGENTS.md` and `CLAUDE.md`

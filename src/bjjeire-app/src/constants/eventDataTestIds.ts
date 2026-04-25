@@ -26,6 +26,9 @@ export const EventCardTestIds = {
   ORGANISER_LINK: 'event-card-organiser-link',
   PRICING: 'event-card-pricing',
   SCHEDULE: 'event-card-schedule',
+  SCHEDULE_DATES: 'event-card-schedule-dates',
+  SCHEDULE_HOUR: 'event-card-schedule-hour',
+  SCHEDULE_MORE: 'event-card-schedule-more',
   SOCIAL_MEDIA: 'event-card-social-media',
   BUTTON: 'event-card-button',
 }

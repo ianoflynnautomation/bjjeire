@@ -18,10 +18,14 @@ export function AboutContactSection(): JSX.Element {
       title={uiContent.about.contactTitle}
       data-testid={AboutContactTestIds.SECTION}
     >
-      <p className="text-slate-700 dark:text-slate-300">
+      <p
+        className="text-slate-700 dark:text-slate-300"
+        data-testid={AboutContactTestIds.PARAGRAPH_TEXT}
+      >
         {uiContent.about.contactPrefix}{' '}
         <a
           href={`mailto:${env.CONTACT_EMAIL}`}
+          aria-label={`Send an email to ${env.CONTACT_EMAIL}`}
           className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
           data-testid={AboutContactTestIds.EMAIL_LINK}
         >

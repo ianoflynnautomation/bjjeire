@@ -12,8 +12,12 @@ export function AboutMissionSection(): JSX.Element {
       data-testid={AboutMissionTestIds.SECTION}
     >
       <div className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-300">
-        <p>{uiContent.about.missionParagraph1}</p>
-        <p>{uiContent.about.missionParagraph2}</p>
+        <p data-testid={AboutMissionTestIds.PARAGRAPH_TEXT_1}>
+          {uiContent.about.missionParagraph1}
+        </p>
+        <p data-testid={AboutMissionTestIds.PARAGRAPH_TEXT_2}>
+          {uiContent.about.missionParagraph2}
+        </p>
       </div>
     </AboutSection>
   )

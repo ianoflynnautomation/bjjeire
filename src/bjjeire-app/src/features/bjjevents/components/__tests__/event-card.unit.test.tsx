@@ -17,7 +17,7 @@ describe('EventCard Component', () => {
       const card = screen.getByTestId(EventsPageTestIds.LIST_ITEM)
 
       const name = within(card).getByRole('heading', {
-        name: new RegExp(`event name: ${MOCK_EVENT_FULL.name}`, 'i'),
+        name: new RegExp(MOCK_EVENT_FULL.name, 'i'),
         level: 3,
       })
       const county = within(card).getByText('Dublin County', {

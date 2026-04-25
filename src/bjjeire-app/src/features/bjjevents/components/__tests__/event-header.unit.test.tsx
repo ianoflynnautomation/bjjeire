@@ -18,7 +18,7 @@ describe('EventHeader Component', () => {
 
       expect(
         screen.getByRole('heading', {
-          name: /event name: dublin open mat/i,
+          name: /dublin open mat/i,
           level: 3,
         })
       ).toBeInTheDocument()
@@ -53,7 +53,7 @@ describe('EventHeader Component', () => {
 
       expect(
         screen.getByRole('heading', {
-          name: /event name: unnamed event/i,
+          name: /unnamed event/i,
           level: 3,
         })
       ).toBeInTheDocument()
