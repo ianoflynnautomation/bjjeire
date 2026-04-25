@@ -1,4 +1,5 @@
 export const AboutPageTestIds = {
+  ROOT: 'about-page',
   HEADER: 'about-page-header',
   HEADER_TITLE: 'about-page-header-title',
   HEADER_SUBTITLE: 'about-page-header-subtitle',
