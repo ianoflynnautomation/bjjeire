@@ -116,12 +116,12 @@ env:
   NODE_VERSION: "24.x"
   DOTNET_CONTAINER: "mcr.microsoft.com/dotnet/sdk:10.0"
   NODE_CONTAINER: "node:24-bookworm-slim"
-  PLAYWRIGHT_CONTAINER: "mcr.microsoft.com/playwright:v1.58.2-noble"
+  PLAYWRIGHT_CONTAINER: "mcr.microsoft.com/playwright:v1.59.1-noble"
 ```
 `DOTNET_VERSION` / `NODE_VERSION` are informational (kept for backwards-compat with composite inputs); the container image is what actually runs.
 
 ## Browser Tests
-- Run in `mcr.microsoft.com/playwright:v1.58.2-noble` container (Chromium pre-installed)
+- Run in `mcr.microsoft.com/playwright:v1.59.1-noble` container (Chromium pre-installed)
 - Update the Playwright container version when upgrading `@playwright/test` or `@vitest/browser-playwright`
 - Test files: `**/*.browser.test.{ts,tsx}`
 - Screenshots on failure saved to `__screenshots__/` (uploaded as CI artifact)

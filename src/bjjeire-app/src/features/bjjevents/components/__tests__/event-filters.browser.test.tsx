@@ -1,7 +1,7 @@
 import { render } from 'vitest-browser-react'
 import { userEvent, page } from '@vitest/browser/context'
 import { describe, it, expect, vi } from 'vitest'
-import EventFilters from '../event-filters/event-filters'
+import { EventFilters } from '../event-filters/event-filters'
 import { ButtonGroupFilterTestIds } from '@/constants/commonDataTestIds'
 
 // These tests verify browser-native behaviors:

@@ -4,6 +4,7 @@ import type { BjjEventDto } from '@/types/event'
 import { formatDate, formatTime } from '@/utils/date-utils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
+import { EventCardTestIds } from '@/constants/eventDataTestIds'
 
 const { schedule: scheduleContent } = uiContent.events
 
@@ -14,7 +15,7 @@ interface EventScheduleProps {
 
 export const EventSchedule = memo(function EventSchedule({
   schedule,
-  'data-testid': dataTestId = 'event-schedule',
+  'data-testid': dataTestId = EventCardTestIds.SCHEDULE,
 }: EventScheduleProps): JSX.Element | null {
   if (!schedule) {
     return null
@@ -38,7 +39,7 @@ export const EventSchedule = memo(function EventSchedule({
       {dateText && (
         <div
           className="flex items-center gap-1.5"
-          data-testid={`${dataTestId}-dates`}
+          data-testid={EventCardTestIds.SCHEDULE_DATES}
         >
           <CalendarDaysIcon
             className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
@@ -51,7 +52,7 @@ export const EventSchedule = memo(function EventSchedule({
         <div
           key={`${hour.day}-${i}`}
           className="flex items-center gap-1.5"
-          data-testid={`${dataTestId}-hour-${i}`}
+          data-testid={`${EventCardTestIds.SCHEDULE_HOUR}-${i}`}
         >
           <ClockIcon
             className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
@@ -65,7 +66,7 @@ export const EventSchedule = memo(function EventSchedule({
       {extraCount > 0 && (
         <p
           className="pl-5 text-xs italic text-slate-500"
-          data-testid={`${dataTestId}-more`}
+          data-testid={EventCardTestIds.SCHEDULE_MORE}
         >
           +{extraCount} {scheduleContent.moreHoursSuffix}
         </p>

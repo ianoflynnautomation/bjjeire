@@ -49,12 +49,12 @@ export const EventDetails = memo(function EventDetails({
       aria-labelledby={`event-details-heading-${event.id ?? event.name}`}
       data-testid={rootTestId}
     >
-      <h2
+      <h4
         id={`event-details-heading-${event.id ?? event.name}`}
         className="sr-only"
       >
         {eventCard.detailsSrLabel} {name || eventCard.fallbackRef}
-      </h2>
+      </h4>
 
       {location && (
         <DetailItem

@@ -33,11 +33,16 @@ export const events = {
     eventTypeLabel: 'Event Type',
     allCountiesOption: 'All Counties',
     allTypesOption: 'All Types',
+    ariaLabel: 'Event filters',
   },
   hero: {
     tagline: 'Find BJJ Events Across Ireland',
     subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
     imageAlt: 'BJJ Éire logo',
+    ariaLabel: "BJJ Éire — Ireland's BJJ directory",
+  },
+  list: {
+    ariaLabel: 'Brazilian Jiu-Jitsu events',
   },
   search: {
     label: 'Search events',

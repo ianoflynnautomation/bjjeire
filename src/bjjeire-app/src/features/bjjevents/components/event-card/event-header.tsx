@@ -60,7 +60,6 @@ export const EventHeader = memo(function EventHeader({
             id={headingId}
             data-testid={EventCardTestIds.NAME}
             className="text-base font-semibold leading-tight text-slate-900 transition-colors dark:text-slate-50"
-            aria-label={`Event name: ${displayName}`}
           >
             {displayName}
           </h3>
@@ -68,7 +67,6 @@ export const EventHeader = memo(function EventHeader({
             <span
               data-testid={EventCardTestIds.TYPE}
               className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm ${getEventTypeColorClasses(type)}`}
-              aria-label={`Event type: ${eventTypeLabel}`}
             >
               {eventTypeLabel}
             </span>
@@ -79,11 +77,7 @@ export const EventHeader = memo(function EventHeader({
             className="mr-1 h-3.5 w-3.5 shrink-0"
             aria-hidden="true"
           />
-          <span
-            data-testid={EventCardTestIds.COUNTY}
-            className="text-xs"
-            aria-label={`Event county: ${county}`}
-          >
+          <span data-testid={EventCardTestIds.COUNTY} className="text-xs">
             {county} {shared.countySuffix}
           </span>
         </div>

@@ -18,7 +18,7 @@ describe('GymHeader Component', () => {
 
       expect(
         screen.getByRole('heading', {
-          name: new RegExp(`gym name: ${defaultProps.name}`, 'i'),
+          name: defaultProps.name,
           level: 3,
         })
       ).toBeInTheDocument()
@@ -55,7 +55,7 @@ describe('GymHeader Component', () => {
 
       expect(
         screen.getByRole('heading', {
-          name: /gym name: unnamed gym/i,
+          name: /unnamed gym/i,
           level: 3,
         })
       ).toBeInTheDocument()

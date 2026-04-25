@@ -19,7 +19,7 @@ describe('GymCard Component', () => {
       const card = screen.getByTestId(GymsPageTestIds.LIST_ITEM)
 
       const name = within(card).getByRole('heading', {
-        name: new RegExp(`gym name: ${MOCK_GYM_FULL.name}`, 'i'),
+        name: new RegExp(MOCK_GYM_FULL.name, 'i'),
         level: 3,
       })
       const status = within(card).getByTestId(GymCardTestIds.STATUS_BADGE)

@@ -24,7 +24,7 @@ export const StoreCardHeader = memo(function StoreCardHeader({
   const showImage = Boolean(logoUrl) && !imgError
 
   return (
-    <div className="relative h-28 w-full overflow-hidden sm:h-36 md:h-40">
+    <header className="relative h-28 w-full overflow-hidden sm:h-36 md:h-40">
       {showImage ? (
         <>
           {!isLoaded && (
@@ -61,6 +61,6 @@ export const StoreCardHeader = memo(function StoreCardHeader({
         className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent"
         aria-hidden="true"
       />
-    </div>
+    </header>
   )
 })

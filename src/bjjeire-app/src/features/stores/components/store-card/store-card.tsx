@@ -25,7 +25,7 @@ export const StoreCard = memo(function StoreCard({
 }: StoreCardProps): JSX.Element {
   const { name, description, websiteUrl, logoUrl } = store
 
-  const headingId = `competition-card-heading-${store.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const headingId = `store-card-heading-${store.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? StoresPageTestIds.LIST_ITEM
 
   return (

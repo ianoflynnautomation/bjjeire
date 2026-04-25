@@ -96,7 +96,6 @@ export const GymHeader = memo(function GymHeader({
           <h3
             id={headingId}
             className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-50"
-            aria-label={`Gym name: ${displayName}`}
             data-testid={GymCardTestIds.NAME}
           >
             {displayName}

@@ -3,13 +3,14 @@ import type { JSX } from 'react'
 import { EventCard } from './event-card'
 import type { BjjEventDto } from '@/types/event'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
 interface EventsListProps {
   events: BjjEventDto[]
   'data-testid'?: string
 }
 
-const EventsList = memo(function EventsList({
+export const EventsList = memo(function EventsList({
   events,
   'data-testid': dataTestId,
 }: EventsListProps): JSX.Element {
@@ -19,7 +20,7 @@ const EventsList = memo(function EventsList({
     <ul
       className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center"
       data-testid={rootTestId}
-      aria-label="Brazilian Jiu-Jitsu events"
+      aria-label={uiContent.events.list.ariaLabel}
     >
       {events.map(event => (
         <li
@@ -32,5 +33,3 @@ const EventsList = memo(function EventsList({
     </ul>
   )
 })
-
-export default EventsList

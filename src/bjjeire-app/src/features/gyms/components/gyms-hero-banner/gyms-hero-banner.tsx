@@ -9,7 +9,7 @@ export const GymsHeroBanner = memo(function GymsHeroBanner(): JSX.Element {
   return (
     <section
       className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-black/8 dark:ring-white/8"
-      aria-label="BJJ Éire — Find gyms across Ireland"
+      aria-label={hero.ariaLabel}
       data-testid={GymsHeroBannerTestIds.BANNER}
     >
       {/* Banner image */}

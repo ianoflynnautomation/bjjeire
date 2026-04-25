@@ -26,4 +26,4 @@ Summarise:
 - For browser test failures, note whether screenshots were captured in `src/bjjeire-app/__screenshots__/`
 - Suggested fix if the failure is obvious
 
-Note: browser tests run in headless Chromium via `@vitest/browser-playwright`. Test files match `**/*.browser.test.{ts,tsx}`. In CI they run inside `mcr.microsoft.com/playwright:v1.58.2-noble` container.
+Note: browser tests run in headless Chromium via `@vitest/browser-playwright`. Test files match `**/*.browser.test.{ts,tsx}`. In CI they run inside `mcr.microsoft.com/playwright:v1.59.1-noble` container.

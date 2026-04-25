@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
 
 interface AboutSectionProps {
@@ -8,7 +9,7 @@ interface AboutSectionProps {
   'data-testid'?: string
 }
 
-export function AboutSection({
+export const AboutSection = memo(function AboutSection({
   id,
   headingId,
   title,
@@ -35,4 +36,4 @@ export function AboutSection({
       {children}
     </section>
   )
-}
+})
