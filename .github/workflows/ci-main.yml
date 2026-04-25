@@ -72,7 +72,7 @@ jobs:
       api_base_url: http://localhost:5003
       test_repo: ianoflynnautomation/bjjeire-tests
       test_tags: "@smoke"
-      playwright_projects: '["api","ui-chromium"]'
+      playwright_projects: '["api","chromium-desktop"]'
     secrets: inherit
 
   build_push:
