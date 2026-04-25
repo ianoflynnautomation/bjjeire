@@ -60,7 +60,7 @@ export function useGymsPage(): UseGymsPageResult {
     (countyValue: string | undefined) => {
       updateFilters({
         county: countyValue,
-      } as Partial<GetGymsByCountyPaginationQuery>)
+      })
       scrollToTop()
     },
     [updateFilters, scrollToTop]

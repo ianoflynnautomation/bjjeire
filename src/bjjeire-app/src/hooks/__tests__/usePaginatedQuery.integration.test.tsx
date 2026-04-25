@@ -9,6 +9,11 @@ interface TestItem {
   name: string
 }
 
+interface FilterParams {
+  category?: string
+  page?: number
+}
+
 function makePage(
   items: TestItem[],
   overrides: Partial<PaginatedResponse<TestItem>['pagination']> = {}
@@ -208,13 +213,10 @@ describe('usePaginatedQuery', () => {
 
     const { result } = renderHook(
       () =>
-        usePaginatedQuery({
+        usePaginatedQuery<TestItem, FilterParams>({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { category: 'gi', page: 3 } as {
-            category: string
-            page?: number
-          },
+          initialParams: { category: 'gi', page: 3 },
         }),
       { wrapper: makeHookWrapper() }
     )
@@ -234,13 +236,10 @@ describe('usePaginatedQuery', () => {
 
     const { result } = renderHook(
       () =>
-        usePaginatedQuery({
+        usePaginatedQuery<TestItem, FilterParams>({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { category: 'gi' } as {
-            category: string
-            page?: number
-          },
+          initialParams: { category: 'gi' },
         }),
       { wrapper: makeHookWrapper() }
     )
@@ -307,10 +306,7 @@ describe('usePaginatedQuery', () => {
         usePaginatedQuery({
           queryKeyBase: ['test'],
           fetchFn,
-          initialParams: { search: 'bjj', page: 1 } as {
-            search: string
-            page?: number
-          },
+          initialParams: { search: 'bjj', page: 1 },
         }),
       { wrapper: makeHookWrapper() }
     )

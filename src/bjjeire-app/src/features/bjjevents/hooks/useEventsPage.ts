@@ -54,7 +54,7 @@ export function useEventsPage(): UseEventsPageResult {
 
   const handleFilterChange = useCallback(
     (key: EventFilterKey, value: County | BjjEventType | 'all' | undefined) => {
-      updateFilters({ [key]: value } as Partial<GetBjjEventsPaginationQuery>)
+      updateFilters({ [key]: value })
       scrollToTop()
     },
     [updateFilters, scrollToTop]
