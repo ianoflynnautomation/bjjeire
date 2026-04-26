@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 global using System.Security.Claims;
 
 global using BjjEire.Application.Common.Interfaces;

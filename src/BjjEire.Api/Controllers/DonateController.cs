@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using Net.Codecrete.QrCodeGenerator;
 
 namespace BjjEire.Api.Controllers;

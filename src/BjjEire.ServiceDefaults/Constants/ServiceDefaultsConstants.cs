@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 
 namespace BjjEire.ServiceDefaults.Constants;
 

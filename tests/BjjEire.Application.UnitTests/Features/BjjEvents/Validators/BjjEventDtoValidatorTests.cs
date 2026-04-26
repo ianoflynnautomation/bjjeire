@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for BjjEventDtoValidator.
 // Uses real validator instances (no mocking) to verify FluentValidation rules
 // for all fields including nested validators (organiser, schedule, pricing, location).

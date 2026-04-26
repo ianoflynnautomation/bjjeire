@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Application.Common.Models;
 using BjjEire.Application.Features.Competitions.DTOs;
 using BjjEire.Application.Features.Competitions.Queries;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Domain.Entities.BjjEvents;
 
 namespace BjjEire.Application.Features.BjjEvents.DTOs;

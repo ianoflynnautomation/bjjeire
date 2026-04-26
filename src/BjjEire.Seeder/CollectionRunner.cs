@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Domain.Entities.BjjEvents;
 using BjjEire.Domain.Entities.Competitions;
 using BjjEire.Domain.Entities.Gyms;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 global using BjjEire.Application.Common.Models;
 global using BjjEire.Application.Features.BjjEvents.Commands;
 global using BjjEire.Application.Features.BjjEvents.DTOs;

@@ -1,4 +1,4 @@
-// Copyright (c) [InvalidReference] BjjWorld. All rights reserved.
+// Copyright (c) BjjEire. All rights reserved.
 // Licensed under the MIT License.
 
 namespace BjjEire.Application.IntegrationTests.Gyms.CommandTests;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for CreateBjjEventCommandHandler.
 // Verifies: happy path (service called, response returned),
 // null-request guard, and exception propagation.

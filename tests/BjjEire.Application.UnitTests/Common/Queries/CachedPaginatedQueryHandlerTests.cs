@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for CachedPaginatedQueryHandler<TEntity, TDto, TRequest>.
 //
 // The base handler owns the read-through cache + logging shape that today is

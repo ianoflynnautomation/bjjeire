@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for DeleteBjjEventCommandHandler.
 // Verifies: happy path (entity found → deleted → IsSuccess true),
 // not-found path (NotFoundException), and null-request guard.

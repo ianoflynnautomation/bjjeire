@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 global using System.Linq.Dynamic.Core;
 global using System.Security.Claims;
 global using System.Text.Json;

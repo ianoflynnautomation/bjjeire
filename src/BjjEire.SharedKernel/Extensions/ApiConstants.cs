@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 namespace BjjEire.SharedKernel.Extensions;
 
 public static class ApiConstants

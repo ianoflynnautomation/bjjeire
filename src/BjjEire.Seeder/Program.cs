@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Seeder;
 
 string? collectionFilter = args.SkipWhile(a => a != "--collection").Skip(1).FirstOrDefault();
