@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.9](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.8...api-v0.1.9) (2026-04-26)
+
+
+### ### Features
+
+* add api versioning ([#107](https://github.com/ianoflynnautomation/bjjeire/issues/107)) ([270ad0b](https://github.com/ianoflynnautomation/bjjeire/commit/270ad0b5f0b6afb5080be40f6fba2893e83ae77d))
+
 ## [0.1.8](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.7...api-v0.1.8) (2026-04-15)
 
 
