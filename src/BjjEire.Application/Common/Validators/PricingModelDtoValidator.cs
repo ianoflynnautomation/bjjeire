@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // BjjEire.Application.Common.Validators.PricingModelDtoValidator
 using BjjEire.Application.Common.Extensions;
 using BjjEire.Application.Features.BjjEvents.DTOs;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for GetBjjEventPaginationQueryValidator.
 // Verifies: no filters passes, valid enum filters pass,
 // out-of-range enum values fail.

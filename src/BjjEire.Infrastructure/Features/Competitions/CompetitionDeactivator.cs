@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Application.Common;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Application.Common.Services;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Tests for GetGymPaginationQueryValidator.
 // Verifies: no filter passes, valid County enum passes,
 // null County passes, out-of-range County value fails.

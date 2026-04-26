@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 // Shared test data builders for BjjEvent tests.
 // Provides a valid BjjEventDto and helpers for constructing
 // invalid variants used across multiple test classes.

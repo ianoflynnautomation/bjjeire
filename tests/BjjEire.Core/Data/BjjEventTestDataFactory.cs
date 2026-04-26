@@ -1,4 +1,4 @@
-// Copyright (c) BjjWorld. All rights reserved.
+// Copyright (c) BjjEire. All rights reserved.
 // Licensed under the MIT License.
 
 using BjjEire.Application.Common.DTOs;

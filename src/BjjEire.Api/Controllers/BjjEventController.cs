@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Application.Common.Models;
 using BjjEire.Application.Features.BjjEvents.Commands;

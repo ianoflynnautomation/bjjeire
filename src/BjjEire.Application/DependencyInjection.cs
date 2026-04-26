@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using System.Reflection;
 
 using BjjEire.Application.Common;

@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Application.Features.BjjEvents.Specifications;
 using BjjEire.Domain.Entities.BjjEvents;
 

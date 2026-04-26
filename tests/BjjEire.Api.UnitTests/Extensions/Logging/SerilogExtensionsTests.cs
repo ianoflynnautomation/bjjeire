@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using SerilogExtensions = BjjEire.Api.Extensions.Logging.Serilog.Extensions;
 
 namespace BjjEire.Api.UnitTests.Extensions.Logging;

@@ -14,6 +14,7 @@ indent_style = space
 [*.cs]
 indent_size = 4
 tab_width = 4
+file_header_template = Copyright (c) BjjEire. All rights reserved.\nLicensed under the MIT License.
 
 [*.{xml,csproj,props,targets,ruleset,nuspec,resx}]
 indent_size = 2
@@ -31,6 +32,9 @@ tab_width = 2
 # .NET conventions (C# + VB where applicable)
 ########################################################
 [*.{cs,vb}]
+
+# File headers
+dotnet_diagnostic.IDE0073.severity = warning
 
 # Organize usings
 dotnet_sort_system_directives_first = true

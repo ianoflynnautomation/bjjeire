@@ -1,3 +1,6 @@
+// Copyright (c) BjjEire. All rights reserved.
+// Licensed under the MIT License.
+
 using BjjEire.Application.Common.Exceptions;
 using BjjEire.Application.Common.Interfaces;
 using BjjEire.Domain.Entities.Gyms;
