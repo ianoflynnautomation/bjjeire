@@ -17,5 +17,5 @@ internal sealed class FakeUriService : IUriService
         string controllerName,
         string actionName,
         IDictionary<string, object?>? additionalRouteValues = null) =>
-        $"https://test-host/api/{controllerName}?page={filter.PageNumber}&pageSize={filter.PageSize}";
+        $"https://test-host/api/v1/{controllerName}?page={filter.PageNumber}&pageSize={filter.PageSize}";
 }

@@ -29,7 +29,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
         HttpResponseMessage? lastResponse = null;
         for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
-            lastResponse = await HttpClient.GetAsync("api/gym");
+            lastResponse = await HttpClient.GetAsync("api/v1/gym");
 
             if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode)
             {
@@ -59,7 +59,7 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
         List<HttpResponseMessage> responses = [];
         for (int i = 0; i < requestsToMake; i++)
         {
-            responses.Add(await HttpClient.GetAsync("api/gym"));
+            responses.Add(await HttpClient.GetAsync("api/v1/gym"));
             await Task.Delay(50);
         }
 
@@ -74,14 +74,14 @@ public class GetGymControllerRateLimitTests(ITestOutputHelper output)
         // Arrange
         for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
-            _ = await HttpClient.GetAsync("api/gym");
+            _ = await HttpClient.GetAsync("api/v1/gym");
         }
 
         TimeSpan windowDelay = TimeSpan.FromSeconds(ConfiguredWindowInSeconds + 1);
         await Task.Delay(windowDelay);
 
         // Act
-        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync("api/gym");
+        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync("api/v1/gym");
 
         // Assert
         responseAfterReset.StatusCode.ShouldBe(HttpStatusCode.OK);

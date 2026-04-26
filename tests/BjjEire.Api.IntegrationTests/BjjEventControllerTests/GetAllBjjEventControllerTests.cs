@@ -25,7 +25,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
     public async Task GetAllBjjEvents_WhenNoEventsExist_ShouldReturnOkAndEmptyListAsync()
     {
         // Arrange
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -42,7 +42,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -58,7 +58,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(completedEvent, upcomingEvent1, upcomingEvent2);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -80,7 +80,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { County = County.Cork, Page = 1, PageSize = 20 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?county={query.County}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?county={query.County}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -102,7 +102,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { Type = BjjEventType.Seminar, Page = 1, PageSize = 20 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?type={query.Type}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?type={query.Type}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -122,7 +122,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(corkSeminar, corkCamp, dublinSeminar);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent?county=Cork&type=Seminar");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent?county=Cork&type=Seminar");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -141,7 +141,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -165,7 +165,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -184,7 +184,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(events);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent?pageSize=10");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent?pageSize=10");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -203,7 +203,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(BjjEventTestDataFactory.CreateBjjEvent());
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?{invalidPageQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?{invalidPageQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -223,7 +223,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(events);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?{invalidPageSizeQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?{invalidPageSizeQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -240,7 +240,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(BjjEventTestDataFactory.CreateBjjEvent(e => e.County = County.Dublin));
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("api/bjjevent?county=Cork");
+        HttpResponseMessage response = await HttpClient.GetAsync("api/v1/bjjevent?county=Cork");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -265,7 +265,7 @@ public class GetAllBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { County = County.Cork, Type = BjjEventType.Seminar, Page = 2, PageSize = 3 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"api/bjjevent?county={query.County}&type={query.Type}&page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"api/v1/bjjevent?county={query.County}&type={query.Type}&page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
