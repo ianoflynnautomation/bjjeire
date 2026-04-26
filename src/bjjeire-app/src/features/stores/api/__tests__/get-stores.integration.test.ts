@@ -7,7 +7,7 @@ import {
 } from '@/testing/factories/store.factory'
 import { getStores } from '../get-stores'
 
-const API = 'http://localhost/api/store'
+const API = 'http://localhost/api/v1/store'
 const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

@@ -41,8 +41,8 @@ export function createPaginatedCompetitions(
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
       nextPageUrl:
-        page < totalPages ? `/api/competition?page=${page + 1}` : null,
-      previousPageUrl: page > 1 ? `/api/competition?page=${page - 1}` : null,
+        page < totalPages ? `/api/v1/competition?page=${page + 1}` : null,
+      previousPageUrl: page > 1 ? `/api/v1/competition?page=${page - 1}` : null,
     },
   }
 }

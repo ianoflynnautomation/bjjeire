@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 
+using Asp.Versioning;
+
 using BjjEire.Api.Controllers;
 using BjjEire.Api.Extensions.Authentication;
 using BjjEire.Api.Extensions.Cors;
@@ -30,6 +32,19 @@ public static class DependencyInjection
         {
             options.LowercaseUrls = true;
             options.LowercaseQueryStrings = true;
+        });
+
+        _ = builder.Services.AddApiVersioning(options =>
+        {
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+            options.ApiVersionReader = new UrlSegmentApiVersionReader();
+        })
+        .AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
         });
 
         _ = builder.Services.AddControllers(options => options.Conventions.Add(new GlobalProducesResponseTypeConvention()))

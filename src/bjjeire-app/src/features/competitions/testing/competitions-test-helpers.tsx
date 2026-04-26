@@ -8,7 +8,7 @@ import {
 import type { CompetitionDto } from '@/types/competitions'
 import CompetitionsPage from '@/pages/CompetitionsPage'
 
-export const COMPETITIONS_API = 'http://localhost/api/competition'
+export const COMPETITIONS_API = 'http://localhost/api/v1/competition'
 
 export function seedCompetitions(
   competitions: CompetitionDto[] = [createCompetition()]

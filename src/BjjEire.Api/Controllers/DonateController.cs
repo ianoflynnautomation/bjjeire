@@ -14,7 +14,7 @@ public class DonateController(IOptions<DonationOptions> options) : BaseApiContro
 {
     private readonly DonationOptions _options = options.Value;
 
-    [EndpointDescription("Get Bitcoin donation address as QR code SVG")]
+    [EndpointDescription("Get bitcoin donation QR code as SVG")]
     [EndpointName("GetBitcoinQrCode")]
     [HttpGet("bitcoin/qr")]
     [AllowAnonymous]

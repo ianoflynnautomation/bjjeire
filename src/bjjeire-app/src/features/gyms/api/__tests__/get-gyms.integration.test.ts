@@ -4,7 +4,7 @@ import { server } from '@/testing/msw/server'
 import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import { getGyms } from '../get-gyms'
 
-const API = 'http://localhost/api/gym'
+const API = 'http://localhost/api/v1/gym'
 const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

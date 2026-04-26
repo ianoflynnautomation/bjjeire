@@ -13,9 +13,9 @@ public class BjjEventController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
 
-    [EndpointDescription("Get All Bjj Events. Only active events are returned by default; pass ?includeInactive=true to include deactivated/expired events.")]
+    [EndpointDescription("Get all BJJ events. Only active events are returned by default; pass ?includeInactive=true to include deactivated/expired events.")]
     [EndpointName("GetAllBjjEvents")]
-    [HttpGet()]
+    [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<BjjEventDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,7 +28,24 @@ public class BjjEventController(IMediator mediator) : BaseApiController
         return Ok(response);
     }
 
-    [EndpointDescription("Add new entity to Bjj Event")]
+    [EndpointDescription("Get a BJJ event by id")]
+    [EndpointName("GetBjjEventById")]
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BjjEventDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByIdAsync(
+        [FromRoute] string id,
+        CancellationToken cancellationToken)
+    {
+        GetBjjEventByIdQuery query = new() { Id = id };
+
+        BjjEventDto? response = await _mediator.Send(query, cancellationToken);
+
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    [EndpointDescription("Create a BJJ event")]
     [EndpointName("InsertBjjEvent")]
     [HttpPost]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
@@ -42,12 +59,12 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     {
         CreateBjjEventResponse response = await _mediator.Send(command, cancellationToken);
 
-        return Created($"/api/BjjEvent/{response.Data.Id}", response);
+        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Data.Id }, response);
     }
 
-    [EndpointDescription("Update entity in Bjj Event")]
+    [EndpointDescription("Update a BJJ event")]
     [EndpointName("UpdateBjjEvent")]
-    [HttpPut]
+    [HttpPut("{id}")]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateBjjEventResponse))]
@@ -55,6 +72,7 @@ public class BjjEventController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
+        [FromRoute] string id,
         [FromBody] UpdateBjjEventCommand command,
         CancellationToken cancellationToken)
     {
@@ -63,10 +81,11 @@ public class BjjEventController(IMediator mediator) : BaseApiController
         return Ok(response);
     }
 
-    [EndpointDescription("Delete entity in Bjj Event")]
+    [EndpointDescription("Delete a BJJ event")]
     [EndpointName("DeleteBjjEvent")]
     [HttpDelete("{id}")]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

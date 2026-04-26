@@ -9,7 +9,7 @@ import {
 } from '@/testing/factories/event.factory'
 import { getBjjEvents } from '../get-bjj-events'
 
-const API = 'http://localhost/api/bjjevent'
+const API = 'http://localhost/api/v1/bjjevent'
 const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

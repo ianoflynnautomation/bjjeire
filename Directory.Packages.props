@@ -101,6 +101,8 @@
   </ItemGroup>
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="5.0.0" />
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
   </ItemGroup>
   <ItemGroup Label="Test">
     <PackageVersion Include="Shouldly" Version="4.3.0" />

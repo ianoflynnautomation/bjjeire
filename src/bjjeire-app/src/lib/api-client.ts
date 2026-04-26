@@ -4,12 +4,15 @@ import { env } from '@/config/env'
 import { msalInstance, loginRequest } from '@/lib/msal-config'
 import { logger } from '@/lib/logger'
 
+export const API_VERSION = 'v1'
+export const API_BASE_PATH = `/api/${API_VERSION}`
+
 class ApiService {
   private readonly instance: AxiosInstance
 
   constructor() {
     this.instance = Axios.create({
-      baseURL: env.API_URL,
+      baseURL: `${env.API_URL}${API_BASE_PATH}`,
       headers: { 'Content-Type': 'application/json' },
     })
     this.setupRequestInterceptor()
