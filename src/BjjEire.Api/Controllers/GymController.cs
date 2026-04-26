@@ -59,7 +59,8 @@ public class GymController(IMediator mediator) : BaseApiController
     {
         CreateGymResponse response = await _mediator.Send(command, cancellationToken);
 
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Data.Id }, response);
+        string? location = Url.Action(nameof(GetByIdAsync), new { id = response.Data.Id });
+        return Created(location ?? string.Empty, response);
     }
 
     [EndpointDescription("Update a gym")]
