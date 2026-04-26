@@ -9,7 +9,7 @@ public class FeatureFlagController(IFeatureManager featureManager) : BaseApiCont
 {
     private readonly IFeatureManager _featureManager = featureManager;
 
-    [EndpointDescription("Get all frontend feature flags")]
+    [EndpointDescription("Get all feature flags")]
     [EndpointName("GetFeatureFlags")]
     [HttpGet]
     [AllowAnonymous]

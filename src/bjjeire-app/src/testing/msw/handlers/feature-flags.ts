@@ -9,5 +9,7 @@ export const defaultFeatureFlags: FeatureFlagsMap = {
 }
 
 export const featureFlagsHandlers = [
-  http.get('*/api/featureflag', () => HttpResponse.json(defaultFeatureFlags)),
+  http.get('*/api/v1/featureflag', () =>
+    HttpResponse.json(defaultFeatureFlags)
+  ),
 ]

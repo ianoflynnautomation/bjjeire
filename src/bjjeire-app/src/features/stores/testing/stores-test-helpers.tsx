@@ -9,7 +9,7 @@ import type { StoreDto } from '@/types/stores'
 import type { PaginatedResponse } from '@/types/common'
 import StoresPage from '@/pages/StoresPage'
 
-export const STORES_API = 'http://localhost/api/store'
+export const STORES_API = 'http://localhost/api/v1/store'
 
 export function seedStores(stores: StoreDto[] = [createStore()]): void {
   server.use(

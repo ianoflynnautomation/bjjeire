@@ -10,4 +10,10 @@ public static class ApiConstants
     public const string ApiGroupNameV2 = "v2";
 
     public const string ApiGroupNameV3 = "v3";
+
+    public const int ApiVersionV1Major = 1;
+
+    public const int ApiVersionV2Major = 2;
+
+    public const int ApiVersionV3Major = 3;
 }

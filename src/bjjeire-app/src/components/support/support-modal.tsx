@@ -72,7 +72,7 @@ const SupportModal = memo(function SupportModal({
           </p>
           <div className="flex justify-center">
             <img
-              src="/api/donate/bitcoin/qr"
+              src="/api/v1/donate/bitcoin/qr"
               alt={uiContent.supportModal.qrCodeAlt}
               className="h-48 w-48 rounded-xl bg-white p-2"
               data-testid={SupportModalTestIds.QR_CODE}

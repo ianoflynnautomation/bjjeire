@@ -27,7 +27,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -37,7 +37,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
     public async Task GetAllStores_WhenNoStoresExist_ShouldReturnOkAndEmptyListAsync()
     {
         // Arrange & Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -57,7 +57,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(active1, active2, inactive);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -77,7 +77,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(store1, store2, store3);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -96,7 +96,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/store?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/store?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -119,7 +119,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(store1, store2);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store?pageSize=10");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store?pageSize=10");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -138,7 +138,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(StoreTestDataFactory.CreateStore());
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/store?{invalidPageQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/store?{invalidPageQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -160,7 +160,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(storesToSeed);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/store?{invalidPageSizeQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/store?{invalidPageSizeQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -180,7 +180,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         await Database.SeedEntitiesAsync(storeC, storeA, storeB);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/store");
+        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/store");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -198,7 +198,7 @@ public class GetAllStoreControllerTests(ApiTestFixture fixture, ITestOutputHelpe
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/store?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/store?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);

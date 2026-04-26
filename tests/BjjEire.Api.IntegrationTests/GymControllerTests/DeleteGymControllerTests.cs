@@ -31,7 +31,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         await Database.SeedEntitiesAsync(gym1);
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/gym/{gym1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/gym/{gym1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -46,7 +46,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/gym/{gym1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/gym/{gym1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -62,7 +62,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         Gym gym2 = GymTestDataFactory.CreateGym(g => g.Status = GymStatus.Active);
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/gym/{gym2.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/gym/{gym2.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -78,7 +78,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         SetDefaultUserToken();
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/gym/{invalidId}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/gym/{invalidId}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -93,8 +93,8 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         await Database.SeedEntitiesAsync(gym1);
 
         // Act
-        HttpResponseMessage firstResponse = await HttpClient.DeleteAsync($"/api/gym/{gym1.Id}");
-        HttpResponseMessage secondResponse = await HttpClient.DeleteAsync($"/api/gym/{gym1.Id}");
+        HttpResponseMessage firstResponse = await HttpClient.DeleteAsync($"/api/v1/gym/{gym1.Id}");
+        HttpResponseMessage secondResponse = await HttpClient.DeleteAsync($"/api/v1/gym/{gym1.Id}");
 
         // Assert
         firstResponse.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -112,7 +112,7 @@ public class DeleteGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         // Act
         const int concurrentRequestCount = 5;
         IEnumerable<Task<HttpResponseMessage>> deleteTasks = Enumerable.Range(0, concurrentRequestCount)
-                                     .Select(_ => HttpClient.DeleteAsync($"/api/gym/{gym1.Id}"));
+                                     .Select(_ => HttpClient.DeleteAsync($"/api/v1/gym/{gym1.Id}"));
 
         HttpResponseMessage[] responses = await Task.WhenAll(deleteTasks);
 

@@ -38,7 +38,7 @@ fi
 print_header "Starting .NET Build Process"
 printf "Solution: %s\n\n" "${solution_file}"
 
-print_step "1/5" "Checking format (whitespace + style)"
+print_step "1/6" "Checking format (whitespace + style)"
 if ! dotnet format "${solution_file}" --verify-no-changes --severity warn 2>&1; then
     printf "\n${YELLOW}Auto-fixing format issues...${NC}\n"
     dotnet format whitespace "${solution_file}"
@@ -48,20 +48,28 @@ if ! dotnet format "${solution_file}" --verify-no-changes --severity warn 2>&1; 
 fi
 printf "${GREEN}Format OK${NC}\n\n"
 
-print_step "2/5" "Cleaning solution"
+print_step "2/6" "Cleaning solution"
 dotnet clean "${solution_file}" --nologo -v quiet
 
-print_step "3/5" "Restoring NuGet packages"
+print_step "3/6" "Restoring NuGet packages"
 dotnet restore "${solution_file}" --nologo
 
-print_step "4/5" "Building solution (Release)"
+print_step "4/6" "Building solution (Release)"
 dotnet build "${solution_file}" --no-restore -c Release --nologo
 
-print_step "5/5" "Running unit tests"
+print_step "5/6" "Running unit tests"
 dotnet test "${solution_file}" \
     --no-build \
     -c Release \
     --filter "Category=Unit" \
+    --logger "console;verbosity=minimal" \
+    --nologo
+
+print_step "6/6" "Running integration tests"
+dotnet test "${solution_file}" \
+    --no-build \
+    -c Release \
+    --filter "Category=Integration" \
     --logger "console;verbosity=minimal" \
     --nologo
 

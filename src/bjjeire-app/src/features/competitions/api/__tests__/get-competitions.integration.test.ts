@@ -7,7 +7,7 @@ import {
 } from '@/testing/factories/competition.factory'
 import { getCompetitions } from '../get-competitions'
 
-const API = 'http://localhost/api/competition'
+const API = 'http://localhost/api/v1/competition'
 const defaults = { page: 1, pageSize: 20 }
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))

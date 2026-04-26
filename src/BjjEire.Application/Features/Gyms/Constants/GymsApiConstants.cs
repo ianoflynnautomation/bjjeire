@@ -9,4 +9,6 @@ public static class GymsApiConstants
     public const string ControllerName = "Gym";
 
     public const string GetAllActionName = "GetAll";
+
+    public const string GetByIdActionName = "GetById";
 }

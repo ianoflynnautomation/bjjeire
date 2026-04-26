@@ -9,4 +9,6 @@ public static class BjjEventsApiConstants
     public const string ControllerName = "BjjEvent";
 
     public const string GetAllActionName = "GetAll";
+
+    public const string GetByIdActionName = "GetById";
 }

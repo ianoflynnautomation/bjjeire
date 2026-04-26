@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using BjjEire.Api.Attributes;
+using BjjEire.SharedKernel.Extensions;
 
 using Scalar.AspNetCore;
 
@@ -9,7 +10,6 @@ namespace BjjEire.Api.Extensions.OpenApi;
 
 public static class OpenApiExtensions
 {
-    public const string ApiGroupNameV1 = "v1";
     private const string BearerAuthSchemeId = "BearerAuth";
 
     public static IServiceCollection AddAppOpenApiServices(this IServiceCollection services)
@@ -20,13 +20,13 @@ public static class OpenApiExtensions
         _ = services.AddTransient<EndpointMetadataTransformer>();
         _ = services.AddTransient<EnumSchemaTransformer>();
 
-        _ = services.AddOpenApi(ApiGroupNameV1, options =>
+        _ = services.AddOpenApi(ApiConstants.ApiGroupNameV1, options =>
         {
             options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
 
             _ = options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                document.Info ??= new OpenApiInfo { Title = "BjjEire API", Version = ApiGroupNameV1, Description = "API for BjjEire services." };
+                document.Info ??= new OpenApiInfo { Title = "BjjEire API", Version = ApiConstants.ApiGroupNameV1, Description = "API for BjjEire services." };
                 document.Components ??= new OpenApiComponents();
                 document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>(StringComparer.OrdinalIgnoreCase);
 

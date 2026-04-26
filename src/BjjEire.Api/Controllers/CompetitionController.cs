@@ -11,7 +11,7 @@ public class CompetitionController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
 
-    [EndpointDescription("Get Competition entities")]
+    [EndpointDescription("Get all competitions")]
     [EndpointName("GetAllCompetitions")]
     [HttpGet]
     [AllowAnonymous]

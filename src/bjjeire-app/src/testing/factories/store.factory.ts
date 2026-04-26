@@ -34,8 +34,8 @@ export function createPaginatedStores(
       totalPages,
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
-      nextPageUrl: page < totalPages ? `/api/store?page=${page + 1}` : null,
-      previousPageUrl: page > 1 ? `/api/store?page=${page - 1}` : null,
+      nextPageUrl: page < totalPages ? `/api/v1/store?page=${page + 1}` : null,
+      previousPageUrl: page > 1 ? `/api/v1/store?page=${page - 1}` : null,
     },
   }
 }

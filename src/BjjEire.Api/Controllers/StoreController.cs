@@ -11,7 +11,7 @@ public class StoreController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
 
-    [EndpointDescription("Get Store entities")]
+    [EndpointDescription("Get all stores")]
     [EndpointName("GetAllStores")]
     [HttpGet]
     [AllowAnonymous]

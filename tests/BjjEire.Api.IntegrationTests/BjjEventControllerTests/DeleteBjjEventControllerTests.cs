@@ -30,7 +30,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(bjjevent1);
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -45,7 +45,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent1.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -62,7 +62,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         BjjEvent bjjevent2 = BjjEventTestDataFactory.CreateBjjEvent(g => g.Status = EventStatus.Upcoming);
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent2.Id}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent2.Id}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
@@ -78,7 +78,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         SetDefaultUserToken();
 
         // Act
-        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/bjjevent/{invalidId}");
+        HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{invalidId}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -93,8 +93,8 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         await Database.SeedEntitiesAsync(bjjevent1);
 
         // Act
-        HttpResponseMessage firstResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
-        HttpResponseMessage secondResponse = await HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage firstResponse = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent1.Id}");
+        HttpResponseMessage secondResponse = await HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent1.Id}");
 
         // Assert
         firstResponse.StatusCode.ShouldBe(HttpStatusCode.NoContent);
@@ -112,7 +112,7 @@ public class DeleteBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         // Act
         const int concurrentRequestCount = 5;
         IEnumerable<Task<HttpResponseMessage>> deleteTasks = Enumerable.Range(0, concurrentRequestCount)
-                                     .Select(_ => HttpClient.DeleteAsync($"/api/bjjevent/{bjjevent1.Id}"));
+                                     .Select(_ => HttpClient.DeleteAsync($"/api/v1/bjjevent/{bjjevent1.Id}"));
 
         HttpResponseMessage[] responses = await Task.WhenAll(deleteTasks);
 

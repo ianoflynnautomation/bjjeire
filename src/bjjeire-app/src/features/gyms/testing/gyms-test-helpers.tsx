@@ -6,7 +6,7 @@ import type { GymDto } from '@/types/gyms'
 import type { PaginatedResponse } from '@/types/common'
 import GymsPage from '@/pages/GymsPage'
 
-export const GYMS_API = 'http://localhost/api/gym'
+export const GYMS_API = 'http://localhost/api/v1/gym'
 
 export function seedGyms(gyms: GymDto[] = [createGym()]): void {
   server.use(

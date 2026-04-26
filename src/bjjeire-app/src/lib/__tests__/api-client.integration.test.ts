@@ -18,7 +18,7 @@ const { mockMsalInstance } = vi.hoisted(() => ({
 }))
 
 vi.mock('@/config/env', () => ({
-  env: { API_URL: 'http://localhost/api' },
+  env: { API_URL: 'http://localhost' },
 }))
 
 vi.mock('@/lib/msal-config', () => ({
@@ -28,7 +28,7 @@ vi.mock('@/lib/msal-config', () => ({
 
 const { api } = await import('@/lib/api-client')
 
-const BASE = 'http://localhost/api'
+const BASE = 'http://localhost/api/v1'
 
 const server = setupServer()
 

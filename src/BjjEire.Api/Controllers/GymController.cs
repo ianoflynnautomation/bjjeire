@@ -13,9 +13,9 @@ public class GymController(IMediator mediator) : BaseApiController
 {
     private readonly IMediator _mediator = mediator;
 
-    [EndpointDescription("Get Gym entitys")]
+    [EndpointDescription("Get all gyms")]
     [EndpointName("GetAllGyms")]
-    [HttpGet()]
+    [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<GymDto>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,7 +28,24 @@ public class GymController(IMediator mediator) : BaseApiController
         return Ok(response);
     }
 
-    [EndpointDescription("Add new entity to Gym")]
+    [EndpointDescription("Get a gym by id")]
+    [EndpointName("GetGymById")]
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GymDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetByIdAsync(
+        [FromRoute] string id,
+        CancellationToken cancellationToken)
+    {
+        GetGymByIdQuery query = new() { Id = id };
+
+        GymDto? response = await _mediator.Send(query, cancellationToken);
+
+        return response is null ? NotFound() : Ok(response);
+    }
+
+    [EndpointDescription("Create a gym")]
     [EndpointName("InsertGym")]
     [HttpPost]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
@@ -42,12 +59,13 @@ public class GymController(IMediator mediator) : BaseApiController
     {
         CreateGymResponse response = await _mediator.Send(command, cancellationToken);
 
-        return Created($"/api/Gym/{response.Data.Id}", response);
+        string? location = Url.Action(nameof(GetByIdAsync), new { id = response.Data.Id });
+        return Created(location ?? string.Empty, response);
     }
 
-    [EndpointDescription("Update entity in Gym")]
+    [EndpointDescription("Update a gym")]
     [EndpointName("UpdateGym")]
-    [HttpPut]
+    [HttpPut("{id}")]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateGymResponse))]
@@ -55,6 +73,7 @@ public class GymController(IMediator mediator) : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PutAsync(
+        [FromRoute] string id,
         [FromBody] UpdateGymCommand command,
         CancellationToken cancellationToken)
     {
@@ -63,10 +82,11 @@ public class GymController(IMediator mediator) : BaseApiController
         return Ok(response);
     }
 
-    [EndpointDescription("Delete entity in Gym")]
+    [EndpointDescription("Delete a gym")]
     [EndpointName("DeleteGym")]
     [HttpDelete("{id}")]
     [Authorize(Policy = AuthorizationExtensions.RequireWriterPolicy)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

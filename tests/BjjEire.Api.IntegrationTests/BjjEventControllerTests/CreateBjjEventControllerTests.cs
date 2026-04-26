@@ -28,7 +28,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         CreateBjjEventCommand command = BjjEventTestDataFactory.GetValidBjjEventCommand();
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -47,7 +47,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -62,7 +62,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         { Data = null! };
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await HttpResponseAssertions.AssertValidationErrorContractAsync(response);
@@ -80,7 +80,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         command.Data.Pricing = null!;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await AssertValidationErrorAsync(response,
@@ -103,7 +103,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         command.Data.SocialMedia.YouTube = string.Empty;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -121,7 +121,7 @@ public class CreateBjjEventControllerTests(ApiTestFixture fixture, ITestOutputHe
         command.Data.Pricing.DurationDays = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/bjjevent", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/bjjevent", command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
