@@ -24,7 +24,6 @@
   <ItemGroup Label="Azure">
     <PackageVersion Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.5.0" />
     <PackageVersion Include="Azure.Identity" Version="1.18.0" />
-    <PackageVersion Include="Azure.Developer.MicrosoftPlaywrightTesting.NUnit" Version="1.0.0-beta.4" />
     <PackageVersion Include="Microsoft.Identity.Web" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup Label="Microsoft">
@@ -35,18 +34,12 @@
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="$(AspnetVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(AspnetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0" />
     <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.4.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.200" />
     <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsVersion)" />
-    <PackageVersion Include="Microsoft.Net.Http.Headers" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(AspnetVersion)" />
   </ItemGroup>
   <ItemGroup Label="MongoDB">
@@ -58,13 +51,13 @@
     <PackageVersion Include="prometheus-net.AspNetCore.HealthChecks" Version="8.2.1" />
   </ItemGroup>
   <ItemGroup Label="OpenTelemetry">
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.11.2-beta.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Process" Version="1.11.0-beta.2" />
   </ItemGroup>
   <ItemGroup Label="Serilog">
@@ -96,9 +89,6 @@
   <ItemGroup Label="QrCode">
     <PackageVersion Include="Net.Codecrete.QrCodeGenerator" Version="2.0.0" />
   </ItemGroup>
-  <ItemGroup Label="JsonSchema">
-    <PackageVersion Include="NJsonSchema" Version="11.6.0" />
-  </ItemGroup>
   <ItemGroup Label="Versioning">
     <PackageVersion Include="MinVer" Version="5.0.0" />
     <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
@@ -108,15 +98,6 @@
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="Nunit" Version="4.5.1" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
-    <PackageVersion Include="NUnit.Analyzers" Version="4.12.0" />
-    <PackageVersion Include="Microsoft.Playwright" Version="1.58.0" />
-    <PackageVersion Include="Microsoft.Playwright.NUnit" Version="1.58.0" />
-    <PackageVersion Include="Microsoft.Playwright.TestAdapter" Version="1.58.0" />
-    <PackageVersion Include="Reqnroll.NUnit" Version="3.3.3" />
-    <PackageVersion Include="Reqnroll" Version="3.3.3" />
-    <PackageVersion Include="Reqnroll.Autofac" Version="3.3.3" />
     <PackageVersion Include="Bogus" Version="35.6.5" />
     <PackageVersion Include="Testcontainers" Version="4.10.0" />
     <PackageVersion Include="Testcontainers.MongoDb" Version="4.10.0" />
@@ -125,6 +106,5 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="Serilog.Sinks.XUnit" Version="3.0.19" />
     <PackageVersion Include="coverlet.collector" Version="8.0.0" />
-    <PackageVersion Include="Autofac" Version="9.0.0" />
   </ItemGroup>
 </Project>
