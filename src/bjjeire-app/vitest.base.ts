@@ -4,6 +4,9 @@ import { sharedPlugins } from './vite.base.config'
 export function baseTestConfig(): UserConfig {
   return {
     plugins: sharedPlugins(),
+    resolve: {
+      tsconfigPaths: true,
+    },
     test: {
       globals: true,
       restoreMocks: true,
