@@ -9,6 +9,30 @@ const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string
 }
 
+const manualChunkGroups = {
+  vendor: [
+    'react',
+    'react-dom',
+    '@tanstack/react-query',
+    'react-router-dom',
+    'axios',
+    'date-fns',
+  ],
+  msal: ['@azure/msal-browser', '@azure/msal-react'],
+  icons: ['@heroicons/react', 'react-icons'],
+  forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+} as const
+
+function resolveManualChunk(id: string): string | undefined {
+  for (const [chunkName, packages] of Object.entries(manualChunkGroups)) {
+    if (packages.some(packageName => id.includes(`/node_modules/${packageName}/`))) {
+      return chunkName
+    }
+  }
+
+  return undefined
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
@@ -45,19 +69,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: './index.html',
         output: {
-          manualChunks: {
-            vendor: [
-              'react',
-              'react-dom',
-              '@tanstack/react-query',
-              'react-router-dom',
-              'axios',
-              'date-fns',
-            ],
-            msal: ['@azure/msal-browser', '@azure/msal-react'],
-            icons: ['@heroicons/react', 'react-icons'],
-            forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
-          },
+          manualChunks: resolveManualChunk,
         },
       },
     },

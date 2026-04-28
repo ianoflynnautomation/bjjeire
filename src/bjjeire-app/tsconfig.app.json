@@ -8,6 +8,7 @@
     "skipLibCheck": true,
 
     /* Bundler mode */
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] },
     "moduleResolution": "bundler",
