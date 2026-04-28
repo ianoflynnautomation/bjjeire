@@ -48,6 +48,9 @@ export default defineConfig(({ mode }) => {
       __APP_VERSION__: JSON.stringify(version),
     },
     plugins: [...sharedPlugins(), tailwindcss()],
+    resolve: {
+      tsconfigPaths: true,
+    },
     server: {
       port: Number.parseInt(env.PORT) || 80,
       proxy: {
