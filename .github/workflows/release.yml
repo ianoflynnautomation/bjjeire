@@ -59,7 +59,7 @@ jobs:
           -o ./artifacts
 
       - name: Upload artifacts to GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
         with:
           tag_name: ${{ needs.release-please.outputs.api_tag }}
           files: ./artifacts/*.nupkg
@@ -101,7 +101,7 @@ jobs:
         run: tar -czf frontend-dist.tar.gz -C src/bjjeire-app dist
 
       - name: Upload artifacts to GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda  # v3.0.0
         with:
           tag_name: ${{ needs.release-please.outputs.frontend_tag }}
           files: frontend-dist.tar.gz
