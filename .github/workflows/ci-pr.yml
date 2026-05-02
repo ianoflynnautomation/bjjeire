@@ -198,16 +198,18 @@ jobs:
       - name: Generate OpenAPI contract artifact
         shell: bash
         env:
-          OPENAPI_ARTIFACT_PATH: artifacts/openapi/openapi-v1.json
+          OPENAPI_ARTIFACT_PATH: ${{ github.workspace }}/artifacts/openapi/openapi-v1.json
         run: |
           dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
             --configuration ${{ env.CONFIGURATION }} \
             --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          test -s "$OPENAPI_ARTIFACT_PATH"
       - name: Upload OpenAPI contract
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: openapi-v1-json
-          path: artifacts/openapi/openapi-v1.json
+          path: ${{ github.workspace }}/artifacts/openapi/openapi-v1.json
+          if-no-files-found: error
           retention-days: 30
 
   check_openapi_compatibility:
