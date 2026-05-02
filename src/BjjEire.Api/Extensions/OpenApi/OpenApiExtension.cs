@@ -40,6 +40,8 @@ public static class OpenApiExtensions
                         Description = "Microsoft Entra ID Bearer token. Example: \"Authorization: Bearer {token}\""
                     });
                 }
+
+                EnsureVersionedApiPaths(document);
                 return Task.CompletedTask;
             });
 
@@ -50,11 +52,31 @@ public static class OpenApiExtensions
         return services;
     }
 
+    private static void EnsureVersionedApiPaths(OpenApiDocument document)
+    {
+        if (document.Paths.Count == 0 || document.Paths.Keys.All(path => path.StartsWith("/api/v", StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        OpenApiPaths versionedPaths = [];
+        foreach (KeyValuePair<string, IOpenApiPathItem> path in document.Paths)
+        {
+            string versionedPath = path.Key.StartsWith("/api/", StringComparison.OrdinalIgnoreCase)
+                ? path.Key.Replace("/api/", $"/api/{ApiConstants.ApiGroupNameV1}/", StringComparison.OrdinalIgnoreCase)
+                : path.Key;
+
+            versionedPaths[versionedPath] = path.Value;
+        }
+
+        document.Paths = versionedPaths;
+    }
+
     public static WebApplication UseAppOpenApi(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);
 
-        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
+        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker") || app.Environment.IsEnvironment("Test"))
         {
             _ = app.MapOpenApi();
             _ = app.MapScalarApiReference();

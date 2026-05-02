@@ -136,7 +136,7 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
     {
         string errorId = Guid.NewGuid().ToString();
         const string title = "Internal Server Error";
-        string detail = environment.IsDevelopment() || environment.IsEnvironment("Docker")
+        string detail = environment.IsDevelopment()
         ? $"Unhandled Exception. Error ID: {errorId}. Details: {exception}"
         : $"An unexpected error occurred. Please contact support with Error ID: {errorId}.";
 
@@ -184,14 +184,16 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger, IHos
 
     private static ProblemDetails HandleConcurrencyException(ConcurrencyException exception, HttpContext httpContext)
     {
-        return new ProblemDetails
+        ProblemDetails problemDetails = new()
         {
             Type = "urn:bjjeire:conflict",
             Title = "Conflict",
             Status = StatusCodes.Status409Conflict,
             Detail = exception.Message,
-            Instance = httpContext.TraceIdentifier
+            Instance = httpContext.Request.Path
         };
+        AttachTraceId(problemDetails, httpContext);
+        return problemDetails;
     }
 }
 
