@@ -19,7 +19,7 @@ public static class RateLimitExtensions
                 ILogger logger = httpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitPartition");
 
                 string partitionKey = httpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier)
-                    ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? ResolveClientIp(httpContext)
                     ?? "unknown";
 
                 if (!options.EnableRateLimiting)
@@ -52,8 +52,7 @@ public static class RateLimitExtensions
                 RateLimitOptions options = rejectionContext.HttpContext.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
                 ILogger logger = rejectionContext.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("RateLimitRejected");
                 string traceId = rejectionContext.HttpContext.TraceIdentifier;
-                string requestHost = rejectionContext.HttpContext.Request.Headers.Host.ToString();
-                string clientIp = rejectionContext.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                string clientIp = ResolveClientIp(rejectionContext.HttpContext) ?? "Unknown";
                 string userId = rejectionContext.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonymous";
 
                 string partitionKey = userId == "Anonymous"
@@ -93,7 +92,6 @@ public static class RateLimitExtensions
                 problemDetails.Extensions["retryAfterSeconds"] = retryAfterSeconds;
                 problemDetails.Extensions["limit"] = options.PermitLimit;
                 problemDetails.Extensions["windowSeconds"] = options.WindowInSeconds;
-                problemDetails.Extensions["resource"] = requestHost;
 
                 if (rejectionContext.HttpContext.Response.HasStarted)
                 {
@@ -114,6 +112,27 @@ public static class RateLimitExtensions
             };
         });
         return services;
+    }
+
+    /// <summary>
+    /// Resolves the real client IP behind Cloudflare / reverse proxies.
+    /// Priority: CF-Connecting-IP → X-Forwarded-For (first entry) → Connection.RemoteIpAddress.
+    /// </summary>
+    private static string? ResolveClientIp(HttpContext httpContext)
+    {
+        string? cfIp = httpContext.Request.Headers["CF-Connecting-IP"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(cfIp))
+            return cfIp.Trim();
+
+        string? xff = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(xff))
+        {
+            string firstIp = xff.Split(',', StringSplitOptions.TrimEntries)[0];
+            if (!string.IsNullOrWhiteSpace(firstIp))
+                return firstIp;
+        }
+
+        return httpContext.Connection.RemoteIpAddress?.ToString();
     }
 
     internal static IApplicationBuilder UseRateLimit(this IApplicationBuilder app)

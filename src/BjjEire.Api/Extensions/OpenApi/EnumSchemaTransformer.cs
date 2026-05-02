@@ -13,11 +13,15 @@ public class EnumSchemaTransformer : IOpenApiSchemaTransformer
 
         if (context.JsonTypeInfo.Type.IsEnum)
         {
+            schema.Type = JsonSchemaType.String;
+            schema.Format = null;
+            schema.Pattern = null;
+
             Array enumValues = Enum.GetValues(context.JsonTypeInfo.Type);
             foreach (object? item in enumValues)
             {
                 string? name = Enum.GetName(context.JsonTypeInfo.Type, item);
-                schema.Description += $"{(int)item} - {name}; ";
+                schema.Description += $"{name} = {(int)item}; ";
             }
         }
         return Task.CompletedTask;

@@ -19,6 +19,8 @@ public static class SecurityHeadersServiceCollectionExtensions
 
                 _ = policy.AddReferrerPolicyNoReferrer();
 
+                _ = policy.AddFrameOptionsDeny();
+
                 _ = policy.AddPermissionsPolicy(builder =>
                 {
                     _ = builder.AddAccelerometer().None();
@@ -39,7 +41,6 @@ public static class SecurityHeadersServiceCollectionExtensions
 
                     _ = builder.AddDefaultSrc().Self();
 
-                    // For a standard React/Vite app
                     _ = builder.AddScriptSrc().Self();
                     _ = builder.AddStyleSrc().Self();
                     _ = builder.AddImgSrc().Self().Data().From("https:");
