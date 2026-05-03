@@ -232,7 +232,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
-      - uses: ./.github/actions/setup-dotnet
+      - name: Cache NuGet packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
       - name: Generate base OpenAPI contract
         id: base_contract
         shell: bash
