@@ -276,6 +276,39 @@ jobs:
               /specs/base-openapi-v1.json \
               /specs/current-openapi-v1.json
 
+  check_frontend_api_compat:
+    name: Check Frontend API Compatibility
+    runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
+    needs: [publish_openapi_contract]
+    if: needs.publish_openapi_contract.result == 'success'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Download OpenAPI contract artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4
+        with:
+          name: openapi-v1-json
+          path: ${{ env.REACT_APP_PATH }}
+      - name: Regenerate frontend API types from contract
+        shell: bash
+        run: npm run gen:api-types:ci
+      - name: Typecheck — catches DTO drift via api-compat.ts
+        shell: bash
+        run: npx tsc --noEmit
+
   build_frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
