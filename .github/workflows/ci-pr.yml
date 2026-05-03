@@ -372,6 +372,38 @@ jobs:
         shell: bash
         run: npm test
 
+  test_frontend_pact:
+    name: Test Frontend Pact Contracts
+    runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Run Pact consumer contract tests
+        shell: bash
+        run: npm run test:pact
+      - name: Upload Pact contracts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: frontend-pacts
+          path: ${{ env.REACT_APP_PATH }}/pacts/*.json
+          if-no-files-found: error
+          retention-days: 30
+
   test_frontend_integration:
     name: Test Frontend Integration
     runs-on: ubuntu-latest
