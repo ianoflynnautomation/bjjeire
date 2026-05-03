@@ -29,7 +29,7 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
         HttpResponseMessage? lastResponse = null;
         for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
-            lastResponse = await HttpClient.GetAsync("api/v1/bjjevent");
+            lastResponse = await HttpClient.GetAsync(ApiRoutes.BjjEvents);
 
             if ((int)lastResponse.StatusCode == ExpectedRejectionStatusCode)
             {
@@ -58,7 +58,7 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
         List<HttpResponseMessage> responses = [];
         for (int i = 0; i < requestsToMake; i++)
         {
-            responses.Add(await HttpClient.GetAsync("api/v1/bjjevent"));
+            responses.Add(await HttpClient.GetAsync(ApiRoutes.BjjEvents));
             await Task.Delay(50);
         }
 
@@ -73,14 +73,14 @@ public class GetBjjEventControllerRateLimitTests(ITestOutputHelper output)
         // Arrange
         for (int i = 0; i <= ConfiguredPermitLimit; i++)
         {
-            _ = await HttpClient.GetAsync("api/v1/bjjevent");
+            _ = await HttpClient.GetAsync(ApiRoutes.BjjEvents);
         }
 
         // Wait for the sliding window to expire
         await Task.Delay(TimeSpan.FromSeconds(ConfiguredWindowInSeconds + 1));
 
         // Act
-        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync("api/v1/bjjevent");
+        HttpResponseMessage responseAfterReset = await HttpClient.GetAsync(ApiRoutes.BjjEvents);
 
         // Assert
         responseAfterReset.StatusCode.ShouldBe(HttpStatusCode.OK);

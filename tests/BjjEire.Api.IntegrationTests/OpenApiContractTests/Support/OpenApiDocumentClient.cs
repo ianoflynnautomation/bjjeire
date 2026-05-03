@@ -13,7 +13,7 @@ internal sealed class OpenApiDocumentClient(HttpClient httpClient)
 {
     public async Task<JsonObject> GetDocumentAsync()
     {
-        HttpResponseMessage response = await httpClient.GetAsync("/openapi/v1.json");
+        HttpResponseMessage response = await httpClient.GetAsync(ApiRoutes.OpenApiDocument);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         JsonNode document = await JsonResponseReader.ReadJsonNodeAsync(response);
         return document.AsObject();

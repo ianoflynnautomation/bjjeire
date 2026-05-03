@@ -18,7 +18,8 @@
     "test:coverage": "vitest run --coverage",
     "prepare": "husky",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "gen:api-types": "npx --yes openapi-typescript@7.13.0 http://localhost:5003/openapi/v1.json -o src/types/generated/api.ts"
+    "gen:api-types": "npx --yes openapi-typescript@7.13.0 http://localhost:5003/openapi/v1.json -o src/types/generated/api.ts",
+    "gen:api-types:ci": "npx --yes openapi-typescript@7.13.0 ./openapi-v1.json -o src/types/generated/api.ts"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [

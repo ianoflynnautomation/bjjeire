@@ -29,7 +29,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Gyms);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -47,7 +47,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(active, pendingApproval, temporarilyClosed, permanentlyClosed, draft);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Gyms);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -61,7 +61,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
     public async Task GetAllGyms_WhenNoGymsExist_ShouldReturnOkAndEmptyListAsync()
     {
         // Arrange & Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Gyms);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -82,7 +82,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(gym1, gym2, inactiveGym);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Gyms);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -105,7 +105,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         { County = County.Cork, Page = 1, PageSize = 20 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?county={query.County}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?county={query.County}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -129,7 +129,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -153,7 +153,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(gym1, gym2);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym?pageSize=10");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?pageSize=10");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -175,7 +175,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(GymTestDataFactory.CreateGym());
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?{invalidPageQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?{invalidPageQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -198,7 +198,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(gymsToSeed);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?{invalidPageSizeQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?{invalidPageSizeQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -225,7 +225,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         { County = County.Cork, Page = 2, PageSize = 3 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?county={query.County}&page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?county={query.County}&page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -245,7 +245,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(gymC, gymA, gymB);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Gyms);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -260,7 +260,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         await Database.SeedEntitiesAsync(GymTestDataFactory.CreateGym(g => g.County = County.Dublin));
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/gym?county=Cork");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?county=Cork");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -279,7 +279,7 @@ public class GetAllGymsControllerTests(ApiTestFixture fixture, ITestOutputHelper
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/gym?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Gyms}?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);

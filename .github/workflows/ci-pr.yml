@@ -215,6 +215,10 @@ jobs:
   check_openapi_compatibility:
     name: Check OpenAPI Compatibility
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     needs: [build_dotnet_solution, test_dotnet_unit, lint_api]
     if: needs.build_dotnet_solution.outputs.build_successful == 'true'
     timeout-minutes: 25
@@ -228,6 +232,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
+      - name: Cache NuGet packages
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Prepare artifact directory
+        shell: bash
+        run: mkdir -p "${{ github.workspace }}/artifacts/openapi"
       - name: Generate base OpenAPI contract
         id: base_contract
         shell: bash
@@ -240,15 +254,10 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          docker run --rm \
-            -v "${{ github.workspace }}:${{ github.workspace }}" \
-            -v "$HOME/.nuget/packages:/root/.nuget/packages" \
-            -w "${{ github.workspace }}/base" \
-            -e OPENAPI_ARTIFACT_PATH \
-            ${{ env.DOTNET_CONTAINER }} \
-            dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
-              --configuration ${{ env.CONFIGURATION }} \
-              --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          test -s "$OPENAPI_ARTIFACT_PATH" || { echo "::error::Base OpenAPI artifact was not generated"; exit 1; }
       - name: Generate current OpenAPI contract
         if: steps.base_contract.outputs.skip != 'true'
         shell: bash
@@ -256,25 +265,61 @@ jobs:
         env:
           OPENAPI_ARTIFACT_PATH: ${{ github.workspace }}/artifacts/openapi/current-openapi-v1.json
         run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:${{ github.workspace }}" \
-            -v "$HOME/.nuget/packages:/root/.nuget/packages" \
-            -w "${{ github.workspace }}/current" \
-            -e OPENAPI_ARTIFACT_PATH \
-            ${{ env.DOTNET_CONTAINER }} \
-            dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
-              --configuration ${{ env.CONFIGURATION }} \
-              --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
-      - name: Compare OpenAPI contracts
+          dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          test -s "$OPENAPI_ARTIFACT_PATH" || { echo "::error::Current OpenAPI artifact was not generated"; exit 1; }
+      - name: Install oasdiff
         if: steps.base_contract.outputs.skip != 'true'
         shell: bash
         run: |
-          docker run --rm \
-            -v "${{ github.workspace }}/artifacts/openapi:/specs:ro" \
-            tufin/oasdiff:v1.14.0 \
-            breaking --fail-on ERR --format githubactions \
-              /specs/base-openapi-v1.json \
-              /specs/current-openapi-v1.json
+          curl -sSfL https://raw.githubusercontent.com/Tufin/oasdiff/main/install.sh | sh -s -- -b /usr/local/bin v1.14.0
+      - name: Compare OpenAPI contracts
+        if: steps.base_contract.outputs.skip != 'true'
+        shell: bash
+        env:
+          BASE_SPEC: ${{ github.workspace }}/artifacts/openapi/base-openapi-v1.json
+          CURRENT_SPEC: ${{ github.workspace }}/artifacts/openapi/current-openapi-v1.json
+        run: |
+          echo "Base spec:    $BASE_SPEC"
+          echo "Current spec: $CURRENT_SPEC"
+          ls -la "$(dirname "$BASE_SPEC")"
+          oasdiff breaking --fail-on ERR --format githubactions \
+            "$BASE_SPEC" \
+            "$CURRENT_SPEC"
+
+  check_frontend_api_compat:
+    name: Check Frontend API Compatibility
+    runs-on: ubuntu-latest
+    container:
+      image: node:24-bookworm-slim
+    needs: [publish_openapi_contract]
+    if: needs.publish_openapi_contract.result == 'success'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: ./.github/actions/setup-node
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+      - name: Install dependencies
+        shell: bash
+        run: npm ci
+      - name: Download OpenAPI contract artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16  # v4
+        with:
+          name: openapi-v1-json
+          path: ${{ env.REACT_APP_PATH }}
+      - name: Regenerate frontend API types from contract
+        shell: bash
+        run: npm run gen:api-types:ci
+      - name: Typecheck — catches DTO drift via api-compat.ts
+        shell: bash
+        run: npx tsc --noEmit
 
   build_frontend:
     name: Build Frontend

@@ -59,9 +59,9 @@ internal static class OpenApiContractCases
 
     public static TheoryData<string, string> PagedResponseEndpoints => new()
     {
-        { "/api/v1/gym", "PagedResponseOfGymDto" },
-        { "/api/v1/bjjevent", "PagedResponseOfBjjEventDto" },
-        { "/api/v1/competition", "PagedResponseOfCompetitionDto" },
-        { "/api/v1/store", "PagedResponseOfStoreDto" },
+        { ApiRoutes.Gyms, "PagedResponseOfGymDto" },
+        { ApiRoutes.BjjEvents, "PagedResponseOfBjjEventDto" },
+        { ApiRoutes.Competitions, "PagedResponseOfCompetitionDto" },
+        { ApiRoutes.Stores, "PagedResponseOfStoreDto" },
     };
 }
