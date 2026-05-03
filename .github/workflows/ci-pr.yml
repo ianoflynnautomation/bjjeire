@@ -243,6 +243,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -v "$HOME/.nuget/packages:/root/.nuget/packages" \
+            -v /var/run/docker.sock:/var/run/docker.sock \
             -w "${{ github.workspace }}/base" \
             -e OPENAPI_ARTIFACT_PATH \
             ${{ env.DOTNET_CONTAINER }} \
@@ -259,6 +260,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -v "$HOME/.nuget/packages:/root/.nuget/packages" \
+            -v /var/run/docker.sock:/var/run/docker.sock \
             -w "${{ github.workspace }}/current" \
             -e OPENAPI_ARTIFACT_PATH \
             ${{ env.DOTNET_CONTAINER }} \
