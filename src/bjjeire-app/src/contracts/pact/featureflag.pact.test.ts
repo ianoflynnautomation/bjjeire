@@ -1,5 +1,6 @@
 import { MatchersV3 } from '@pact-foundation/pact'
 import { describe, expect, it } from 'vitest'
+import { API_ROUTES } from '@/config/api-routes'
 import { createPact } from './pact-setup'
 
 const { boolean } = MatchersV3
@@ -12,7 +13,7 @@ describe('Pact - FeatureFlag consumer contract', () => {
       .addInteraction()
       .given('feature flags are configured')
       .uponReceiving('a request for feature flags')
-      .withRequest('GET', '/api/v1/featureflag')
+      .withRequest('GET', API_ROUTES.featureFlags)
       .willRespondWith(200, builder => {
         builder.headers({ 'content-type': 'application/json' })
         builder.jsonBody({
@@ -21,7 +22,7 @@ describe('Pact - FeatureFlag consumer contract', () => {
         })
       })
       .executeTest(async mockServer => {
-        const response = await fetch(`${mockServer.url}/api/v1/featureflag`)
+        const response = await fetch(`${mockServer.url}${API_ROUTES.featureFlags}`)
         expect(response.ok).toBe(true)
 
         const body = (await response.json()) as Record<string, unknown>

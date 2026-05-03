@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client'
+import { API_RESOURCE_ROUTES } from '@/config/api-routes'
 import type { PaginatedResponse } from '@/types/common'
 import type { BjjEventDto, GetBjjEventsPaginationQuery } from '@/types/event'
 import { env } from '@/config/env'
@@ -22,5 +23,5 @@ export const getBjjEvents = ({
     params.type = type
   }
 
-  return api.get('/bjjevent', { params })
+  return api.get(API_RESOURCE_ROUTES.bjjEvents, { params })
 }

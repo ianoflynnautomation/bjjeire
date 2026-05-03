@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client'
+import { API_RESOURCE_ROUTES } from '@/config/api-routes'
 import type { PaginatedResponse } from '@/types/common'
 import type { GymDto, GetGymsByCountyPaginationQuery } from '@/types/gyms'
 import { env } from '@/config/env'
@@ -15,5 +16,5 @@ export const getGyms = ({
   if (county && county !== 'all') {
     params.county = county
   }
-  return api.get('/gym', { params })
+  return api.get(API_RESOURCE_ROUTES.gyms, { params })
 }

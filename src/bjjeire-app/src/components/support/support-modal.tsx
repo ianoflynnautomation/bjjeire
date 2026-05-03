@@ -3,6 +3,7 @@ import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
+import { API_ROUTES } from '@/config/api-routes'
 import { uiContent } from '@/config/ui-content'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 
@@ -72,7 +73,7 @@ const SupportModal = memo(function SupportModal({
           </p>
           <div className="flex justify-center">
             <img
-              src="/api/v1/donate/bitcoin/qr"
+              src={API_ROUTES.donateBitcoinQr}
               alt={uiContent.supportModal.qrCodeAlt}
               className="h-48 w-48 rounded-xl bg-white p-2"
               data-testid={SupportModalTestIds.QR_CODE}

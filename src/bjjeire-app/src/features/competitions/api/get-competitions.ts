@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client'
+import { API_RESOURCE_ROUTES } from '@/config/api-routes'
 import type { PaginatedResponse } from '@/types/common'
 import type {
   CompetitionDto,
@@ -16,5 +17,5 @@ export const getCompetitions = ({
     page,
     pageSize,
   }
-  return api.get('/competition', { params })
+  return api.get(API_RESOURCE_ROUTES.competitions, { params })
 }

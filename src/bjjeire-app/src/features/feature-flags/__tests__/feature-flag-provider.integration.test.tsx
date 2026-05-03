@@ -9,10 +9,11 @@ import { useContext } from 'react'
 import { FeatureFlagContext } from '../context/feature-flag-context'
 import { DEFAULT_FLAGS } from '../types'
 import type { FeatureFlagsMap } from '../types'
+import { API_ROUTES } from '@/config/api-routes'
 import { server } from '@/testing/msw/server'
 import { makeFeatureFlagWrapper } from '@/testing/render-utils'
 
-const API = 'http://localhost/api/v1/featureflag'
+const API = `http://localhost${API_ROUTES.featureFlags}`
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
@@ -112,6 +113,6 @@ describe('FeatureFlagProvider (integration)', () => {
 
     renderProvider()
 
-    await waitFor(() => expect(requestedPath).toBe('/api/v1/featureflag'))
+    await waitFor(() => expect(requestedPath).toBe(API_ROUTES.featureFlags))
   })
 })

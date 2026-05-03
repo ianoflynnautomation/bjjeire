@@ -1,5 +1,6 @@
 import { MatchersV3 } from '@pact-foundation/pact'
 import { describe, expect, it } from 'vitest'
+import { API_ROUTES } from '@/config/api-routes'
 import { createPact } from './pact-setup'
 
 const { like, eachLike, integer, boolean, string } = MatchersV3
@@ -12,7 +13,7 @@ describe('Pact - Gym consumer contract', () => {
       .addInteraction()
       .given('gyms exist')
       .uponReceiving('a request for the gyms list')
-      .withRequest('GET', '/api/v1/gym', builder => {
+      .withRequest('GET', API_ROUTES.gyms, builder => {
         builder.query({ page: '1', pageSize: '25' })
       })
       .willRespondWith(200, builder => {
@@ -34,7 +35,7 @@ describe('Pact - Gym consumer contract', () => {
           pagination: like({
             totalItems: integer(),
             currentPage: integer(1),
-            pageSize: integer(5),
+            pageSize: integer(25),
             totalPages: integer(),
             hasNextPage: boolean(),
             hasPreviousPage: boolean(false),
@@ -43,7 +44,7 @@ describe('Pact - Gym consumer contract', () => {
       })
       .executeTest(async mockServer => {
         const response = await fetch(
-          `${mockServer.url}/api/v1/gym?page=1&pageSize=25`
+          `${mockServer.url}${API_ROUTES.gyms}?page=1&pageSize=25`
         )
         expect(response.ok).toBe(true)
 

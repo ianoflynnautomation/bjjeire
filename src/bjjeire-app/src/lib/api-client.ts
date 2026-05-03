@@ -1,11 +1,9 @@
 import Axios from 'axios'
 import type { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
 import { env } from '@/config/env'
+import { API_BASE_PATH } from '@/config/api-routes'
 import { msalInstance, loginRequest } from '@/lib/msal-config'
 import { logger } from '@/lib/logger'
-
-export const API_VERSION = 'v1'
-export const API_BASE_PATH = `/api/${API_VERSION}`
 
 class ApiService {
   private readonly instance: AxiosInstance
