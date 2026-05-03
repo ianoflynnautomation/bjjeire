@@ -239,6 +239,9 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
+      - name: Prepare artifact directory
+        shell: bash
+        run: mkdir -p "${{ github.workspace }}/artifacts/openapi"
       - name: Generate base OpenAPI contract
         id: base_contract
         shell: bash
@@ -254,6 +257,7 @@ jobs:
           dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
             --configuration ${{ env.CONFIGURATION }} \
             --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          test -s "$OPENAPI_ARTIFACT_PATH" || { echo "::error::Base OpenAPI artifact was not generated"; exit 1; }
       - name: Generate current OpenAPI contract
         if: steps.base_contract.outputs.skip != 'true'
         shell: bash
@@ -264,6 +268,7 @@ jobs:
           dotnet test tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj \
             --configuration ${{ env.CONFIGURATION }} \
             --filter "Feature=OpenApi&FullyQualifiedName~OpenApiDocument_ShouldBeAvailableInTestHostAndDescribePublicApiContractsAsync"
+          test -s "$OPENAPI_ARTIFACT_PATH" || { echo "::error::Current OpenAPI artifact was not generated"; exit 1; }
       - name: Install oasdiff
         if: steps.base_contract.outputs.skip != 'true'
         shell: bash
