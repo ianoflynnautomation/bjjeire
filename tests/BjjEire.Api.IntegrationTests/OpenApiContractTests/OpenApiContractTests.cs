@@ -31,10 +31,10 @@ public sealed class OpenApiContractTests(ApiTestFixture fixture, ITestOutputHelp
         JsonObject components = OpenApiSchemaNavigator.GetRequiredObject(document, "components");
         JsonObject schemas = OpenApiSchemaNavigator.GetRequiredObject(components, "schemas");
 
-        paths.ContainsKey("/api/v1/gym").ShouldBeTrue();
-        paths.ContainsKey("/api/v1/bjjevent").ShouldBeTrue();
-        paths.ContainsKey("/api/v1/competition").ShouldBeTrue();
-        paths.ContainsKey("/api/v1/store").ShouldBeTrue();
+        paths.ContainsKey(ApiRoutes.Gyms).ShouldBeTrue();
+        paths.ContainsKey(ApiRoutes.BjjEvents).ShouldBeTrue();
+        paths.ContainsKey(ApiRoutes.Competitions).ShouldBeTrue();
+        paths.ContainsKey(ApiRoutes.Stores).ShouldBeTrue();
 
         schemas.ContainsKey("ProblemDetails").ShouldBeTrue();
         schemas.ContainsKey("ValidationProblemDetails").ShouldBeTrue();
@@ -86,8 +86,8 @@ public sealed class OpenApiContractTests(ApiTestFixture fixture, ITestOutputHelp
         JsonObject problemDetailsSchema = OpenApiSchemaNavigator.GetComponentSchema(document, "ProblemDetails");
         JsonObject validationProblemDetailsSchema = OpenApiSchemaNavigator.GetComponentSchema(document, "ValidationProblemDetails");
         JsonObject paths = OpenApiSchemaNavigator.GetRequiredObject(document, "paths");
-        JsonObject gymGet = OpenApiSchemaNavigator.GetRequiredObject(OpenApiSchemaNavigator.GetRequiredObject(paths, "/api/v1/gym"), "get");
-        JsonObject gymPost = OpenApiSchemaNavigator.GetRequiredObject(OpenApiSchemaNavigator.GetRequiredObject(paths, "/api/v1/gym"), "post");
+        JsonObject gymGet = OpenApiSchemaNavigator.GetRequiredObject(OpenApiSchemaNavigator.GetRequiredObject(paths, ApiRoutes.Gyms), "get");
+        JsonObject gymPost = OpenApiSchemaNavigator.GetRequiredObject(OpenApiSchemaNavigator.GetRequiredObject(paths, ApiRoutes.Gyms), "post");
 
         OpenApiSchemaNavigator.GetResponseSchemaReference(gymGet, "400").ShouldBe("#/components/schemas/ValidationProblemDetails");
         OpenApiSchemaNavigator.GetResponseSchemaReference(gymGet, "500").ShouldBe("#/components/schemas/ProblemDetails");

@@ -27,7 +27,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         CreateGymCommand command = GymTestDataFactory.GetValidCreateGymCommand();
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -46,7 +46,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
@@ -61,7 +61,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         { Data = null! };
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await HttpResponseAssertions.AssertValidationErrorContractAsync(response);
@@ -79,7 +79,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         command.Data.Location = null!;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         await AssertValidationErrorAsync(response,
@@ -102,7 +102,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         command.Data.SocialMedia.YouTube = string.Empty;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
@@ -121,7 +121,7 @@ public class CreateGymControllerTests(ApiTestFixture fixture, ITestOutputHelper 
         command.Data.ImageUrl = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.PostAsJsonAsync("api/v1/gym", command, TestJsonHelper.SerializerOptions);
+        HttpResponseMessage response = await HttpClient.PostAsJsonAsync(ApiRoutes.Gyms, command, TestJsonHelper.SerializerOptions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Created);

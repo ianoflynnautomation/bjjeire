@@ -27,7 +27,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         HttpClient.DefaultRequestHeaders.Authorization = null;
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Competitions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -37,7 +37,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
     public async Task GetAllCompetitions_WhenNoCompetitionsExist_ShouldReturnOkAndEmptyListAsync()
     {
         // Arrange & Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Competitions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -61,7 +61,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(active, inactive);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Competitions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -90,7 +90,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(upcoming, expired);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Competitions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -112,7 +112,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(openEnded);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition");
+        HttpResponseMessage response = await HttpClient.GetAsync(ApiRoutes.Competitions);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -140,7 +140,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(active, inactive, expired);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition?includeInactive=true");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?includeInactive=true");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -164,7 +164,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/competition?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -191,7 +191,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(competitions);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync("/api/v1/competition?pageSize=10");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?pageSize=10");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -214,7 +214,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         }));
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/competition?{invalidPageQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?{invalidPageQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -239,7 +239,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         await Database.SeedEntitiesAsync(competitions);
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/competition?{invalidPageSizeQuery}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?{invalidPageSizeQuery}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -264,7 +264,7 @@ public class GetAllCompetitionControllerTests(ApiTestFixture fixture, ITestOutpu
         { Page = 2, PageSize = 2 };
 
         // Act
-        HttpResponseMessage response = await HttpClient.GetAsync($"/api/v1/competition?page={query.Page}&pageSize={query.PageSize}");
+        HttpResponseMessage response = await HttpClient.GetAsync($"{ApiRoutes.Competitions}?page={query.Page}&pageSize={query.PageSize}");
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
