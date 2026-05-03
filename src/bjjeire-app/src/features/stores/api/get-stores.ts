@@ -1,4 +1,5 @@
 import { api } from '@/lib/api-client'
+import { API_RESOURCE_ROUTES } from '@/config/api-routes'
 import type { PaginatedResponse } from '@/types/common'
 import type { StoreDto, GetStorePaginationQuery } from '@/types/stores'
 import { env } from '@/config/env'
@@ -12,5 +13,5 @@ export const getStores = ({
     pageSize,
   }
 
-  return api.get('/store', { params })
+  return api.get(API_RESOURCE_ROUTES.stores, { params })
 }

@@ -171,6 +171,12 @@ Runs TypeScript type-checking, ESLint, Prettier, and Vitest.
 dotnet test BjjEire.sln --filter "Category!=Ignore"
 ```
 
+**Contract testing:**
+
+The project uses OpenAPI, generated frontend types, Pact consumer tests, and Docker acceptance contract checks to catch API drift before production.
+
+See [Contract Testing Strategy](docs/contract-testing.md).
+
 ---
 
 ## CI/CD
