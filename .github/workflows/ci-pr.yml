@@ -277,10 +277,16 @@ jobs:
       - name: Compare OpenAPI contracts
         if: steps.base_contract.outputs.skip != 'true'
         shell: bash
+        env:
+          BASE_SPEC: ${{ github.workspace }}/artifacts/openapi/base-openapi-v1.json
+          CURRENT_SPEC: ${{ github.workspace }}/artifacts/openapi/current-openapi-v1.json
         run: |
+          echo "Base spec:    $BASE_SPEC"
+          echo "Current spec: $CURRENT_SPEC"
+          ls -la "$(dirname "$BASE_SPEC")"
           oasdiff breaking --fail-on ERR --format githubactions \
-            ${{ github.workspace }}/artifacts/openapi/base-openapi-v1.json \
-            ${{ github.workspace }}/artifacts/openapi/current-openapi-v1.json
+            "$BASE_SPEC" \
+            "$CURRENT_SPEC"
 
   check_frontend_api_compat:
     name: Check Frontend API Compatibility
