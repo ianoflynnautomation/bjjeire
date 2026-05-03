@@ -22,7 +22,9 @@ describe('Pact - FeatureFlag consumer contract', () => {
         })
       })
       .executeTest(async mockServer => {
-        const response = await fetch(`${mockServer.url}${API_ROUTES.featureFlags}`)
+        const response = await fetch(
+          `${mockServer.url}${API_ROUTES.featureFlags}`
+        )
         expect(response.ok).toBe(true)
 
         const body = (await response.json()) as Record<string, unknown>
