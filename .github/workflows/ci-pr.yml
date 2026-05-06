@@ -42,7 +42,7 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - id: filter
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d  # v4.0.1
         with:
@@ -64,7 +64,7 @@ jobs:
     if: needs.detect-changes.outputs.api == 'true'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-dotnet
       - name: Check .NET code formatting
         shell: bash
@@ -84,7 +84,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -112,7 +112,7 @@ jobs:
     outputs:
       build_successful: ${{ steps.build_step.outcome == 'success' }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-dotnet
       - name: Restore dependencies
         shell: bash
@@ -147,7 +147,7 @@ jobs:
             project-path: "tests/BjjEire.Infrastructure.UnitTests/BjjEire.Infrastructure.UnitTests.csproj"
             test-filter-criteria: "Category!=Ignore"
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run .NET Tests - ${{ matrix.test-type }}
         uses: ./.github/actions/dotnet-run-tests
         with:
@@ -175,7 +175,7 @@ jobs:
             project-path: "tests/BjjEire.Api.IntegrationTests/BjjEire.Api.IntegrationTests.csproj"
             test-filter-criteria: "Category!=Ignore"
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run .NET Tests - ${{ matrix.test-type }}
         uses: ./.github/actions/dotnet-run-tests
         with:
@@ -193,7 +193,7 @@ jobs:
     if: needs.build_dotnet_solution.outputs.build_successful == 'true'
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-dotnet
       - name: Generate OpenAPI contract artifact
         shell: bash
@@ -224,11 +224,11 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout PR
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           path: current
       - name: Checkout base
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
@@ -302,7 +302,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -336,7 +336,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -361,7 +361,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -386,7 +386,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -418,7 +418,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/setup-node
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -440,7 +440,7 @@ jobs:
     env:
       HUSKY: "0"
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/react-test-browser
         with:
           working-directory: ${{ env.REACT_APP_PATH }}
@@ -454,5 +454,5 @@ jobs:
       (needs.test_dotnet_integration.result == 'success' || needs.test_dotnet_integration.result == 'failure') &&
       (needs.test_dotnet_unit.result == 'success' || needs.test_dotnet_unit.result == 'failure')
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/publish_reports
