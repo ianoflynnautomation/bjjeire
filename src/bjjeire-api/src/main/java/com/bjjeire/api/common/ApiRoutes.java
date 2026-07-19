@@ -1,9 +1,5 @@
 package com.bjjeire.api.common;
 
-/**
- * Central registry of public API route paths. Controllers expose each route in PascalCase and lowercase; both spellings
- * must stay registered here so {@code SecurityConfig} and the controllers never drift apart.
- */
 public final class ApiRoutes {
     public static final String BJJ_EVENT = "/api/v1/BjjEvent";
     public static final String BJJ_EVENT_LOWERCASE = "/api/v1/bjjevent";

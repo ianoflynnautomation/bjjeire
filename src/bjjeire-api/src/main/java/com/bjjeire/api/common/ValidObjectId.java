@@ -10,10 +10,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Constrains a value to the MongoDB ObjectId format (24 hexadecimal characters). Malformed IDs are rejected at the
- * controller boundary before they can reach a repository query.
- */
 @Documented
 @Constraint(validatedBy = {})
 @Pattern(regexp = ValidObjectId.OBJECT_ID_PATTERN) @ReportAsSingleViolation
