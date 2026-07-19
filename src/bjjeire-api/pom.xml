@@ -25,7 +25,7 @@
         <springdoc.version>2.6.0</springdoc.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <lombok.version>1.18.38</lombok.version>
-        <spotless.version>2.44.5</spotless.version>
+        <spotless.version>3.8.0</spotless.version>
         <palantir-java-format.version>2.50.0</palantir-java-format.version>
         <checkstyle.version>10.21.1</checkstyle.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
