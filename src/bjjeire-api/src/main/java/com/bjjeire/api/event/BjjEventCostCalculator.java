@@ -20,27 +20,29 @@ public final class BjjEventCostCalculator {
         List<BjjEventType> scope = option.appliesToTypes() != null ? List.copyOf(option.appliesToTypes()) : List.of();
 
         return switch (option.type()) {
-            case Free -> new CalculatedCost(
-                    option.label(), CostUnit.Free, BigDecimal.ZERO, BigDecimal.ZERO, currency, scope);
+            case Free ->
+                new CalculatedCost(option.label(), CostUnit.Free, BigDecimal.ZERO, BigDecimal.ZERO, currency, scope);
 
-            case PerDay -> new CalculatedCost(
-                    option.label(),
-                    CostUnit.PerDay,
-                    option.amount(),
-                    option.amount().multiply(BigDecimal.valueOf(effectiveDays(schedule, option.durationDays()))),
-                    currency,
-                    scope);
+            case PerDay ->
+                new CalculatedCost(
+                        option.label(),
+                        CostUnit.PerDay,
+                        option.amount(),
+                        option.amount().multiply(BigDecimal.valueOf(effectiveDays(schedule, option.durationDays()))),
+                        currency,
+                        scope);
 
-            case PerSession -> new CalculatedCost(
-                    option.label(),
-                    CostUnit.PerSession,
-                    option.amount(),
-                    option.amount().multiply(BigDecimal.valueOf(matchingSessionCount(schedule, option))),
-                    currency,
-                    scope);
+            case PerSession ->
+                new CalculatedCost(
+                        option.label(),
+                        CostUnit.PerSession,
+                        option.amount(),
+                        option.amount().multiply(BigDecimal.valueOf(matchingSessionCount(schedule, option))),
+                        currency,
+                        scope);
 
-            case FlatRate -> new CalculatedCost(
-                    option.label(), CostUnit.Total, option.amount(), option.amount(), currency, scope);
+            case FlatRate ->
+                new CalculatedCost(option.label(), CostUnit.Total, option.amount(), option.amount(), currency, scope);
         };
     }
 

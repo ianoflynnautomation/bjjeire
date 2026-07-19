@@ -8,14 +8,14 @@
 
 [![Release](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/release.yml/badge.svg)](https://github.com/ianoflynnautomation/bjjeire/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-25-007396?logo=openjdk)](https://openjdk.org/projects/jdk/25/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org)
 
 ## Overview
 
-BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 21 Spring Boot REST API, and MongoDB persistence.
+BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25 Spring Boot REST API, and MongoDB persistence.
 
 ## Tech Stack
 
@@ -23,7 +23,7 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 21
 |---|---|
 | Frontend | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
 | Web Server | Caddy |
-| Backend | Java 21, Spring Boot, Spring Web, Spring Data MongoDB, Spring Security |
+| Backend | Java 25, Spring Boot 4, Spring Web, Spring Data MongoDB, Spring Security |
 | Auth | Microsoft Entra ID, MSAL Browser |
 | Database | MongoDB |
 | Infrastructure | Docker, GHCR, AKS, Flux v2, Istio, Helm |
@@ -34,7 +34,7 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 21
 ### Prerequisites
 
 - Docker Desktop or Docker with Compose v2
-- Java 21
+- Java 25
 - Maven 3.9+
 - Node.js for frontend development
 - A `.env` file

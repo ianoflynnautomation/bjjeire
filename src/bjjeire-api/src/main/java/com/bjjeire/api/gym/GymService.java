@@ -39,11 +39,14 @@ public class GymService {
     }
 
     public Optional<GymDto> getById(String id) {
-        GymDto dto = cache.getOrCreate(ApiCache.GYMS_TAG, byIdCacheKey(id), () -> gymRepository
-                .findById(id)
-                .filter(gym -> gym.getStatus() == GymStatus.Active)
-                .map(GymMapper::toDto)
-                .orElse(null));
+        GymDto dto = cache.getOrCreate(
+                ApiCache.GYMS_TAG,
+                byIdCacheKey(id),
+                () -> gymRepository
+                        .findById(id)
+                        .filter(gym -> gym.getStatus() == GymStatus.Active)
+                        .map(GymMapper::toDto)
+                        .orElse(null));
         return Optional.ofNullable(dto);
     }
 

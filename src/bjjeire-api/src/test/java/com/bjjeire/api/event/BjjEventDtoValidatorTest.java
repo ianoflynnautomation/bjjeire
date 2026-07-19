@@ -175,8 +175,9 @@ class BjjEventDtoValidatorTest {
                         null,
                         null))));
 
-        assertThat(validator.validate(dto)).anyMatch(v -> v.getMessage()
-                .equals("Session dates must fall within the schedule's start and end dates."));
+        assertThat(validator.validate(dto))
+                .anyMatch(v ->
+                        v.getMessage().equals("Session dates must fall within the schedule's start and end dates."));
     }
 
     @Test

@@ -83,7 +83,7 @@ jobs:
         type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       labels: |
         org.opencontainers.image.title=bjjeire-api
-        org.opencontainers.image.description=BjjEire Spring Boot 3 Java 21 API
+        org.opencontainers.image.description=BjjEire Spring Boot 4 Java 25 API
         org.opencontainers.image.vendor=BjjEire
         org.opencontainers.image.licenses=MIT
         org.opencontainers.image.url=https://bjjeire.com

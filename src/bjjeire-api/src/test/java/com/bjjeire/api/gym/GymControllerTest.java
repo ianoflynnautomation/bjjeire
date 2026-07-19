@@ -182,7 +182,6 @@ class GymControllerTest {
                 "thumbnailUrl": "https://cdn.bjjeire.com/gyms/test-thumb.webp"
               }
             }
-            """
-                .formatted(id);
+            """.formatted(id);
     }
 }

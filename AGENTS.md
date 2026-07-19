@@ -15,7 +15,7 @@ Keep this file short, repo-specific, and optimized for Codex.
 
 Full-stack BJJ directory for Ireland:
 
-- Java 21 Spring Boot API in `src/bjjeire-api`
+- Java 25 Spring Boot API in `src/bjjeire-api`
 - React 19 + TypeScript SPA in `src/bjjeire-app`
 - MongoDB persistence
 

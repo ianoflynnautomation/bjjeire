@@ -47,8 +47,10 @@ public class GymController {
     @GetMapping("/{id}")
     @Operation(summary = "Get gym by ID")
     public ResponseEntity<GymDto> getById(@PathVariable @ValidObjectId String id) {
-        return gymService.getById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
-                .build());
+        return gymService
+                .getById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -69,8 +71,10 @@ public class GymController {
             return ResponseEntity.badRequest().build();
         }
 
-        return gymService.update(id, command).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
-                .build());
+        return gymService
+                .update(id, command)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

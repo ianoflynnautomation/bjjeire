@@ -49,8 +49,10 @@ public class BjjEventController {
     @GetMapping("/{id}")
     @Operation(summary = "Get BJJ event by ID")
     public ResponseEntity<BjjEventDto> getById(@PathVariable @ValidObjectId String id) {
-        return bjjEventService.getById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
-                .build());
+        return bjjEventService
+                .getById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -70,8 +72,10 @@ public class BjjEventController {
             return ResponseEntity.badRequest().build();
         }
 
-        return bjjEventService.update(id, command).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
-                .build());
+        return bjjEventService
+                .update(id, command)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

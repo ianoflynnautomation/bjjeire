@@ -153,7 +153,6 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
                 "thumbnailUrl": "https://cdn.bjjeire.com/gyms/test-thumb.webp"
               }
             }
-            """
-                .formatted(idJson, name);
+            """.formatted(idJson, name);
     }
 }

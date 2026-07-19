@@ -271,7 +271,6 @@ class BjjEventControllerTest {
                 "isActive": true
               }
             }
-            """
-                .formatted(id);
+            """.formatted(id);
     }
 }

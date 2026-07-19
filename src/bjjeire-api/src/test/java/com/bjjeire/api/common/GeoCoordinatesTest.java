@@ -25,8 +25,7 @@ class GeoCoordinatesTest {
 
     @Test
     void shouldDeserializeIgnoringDerivedLatitudeAndLongitude() throws Exception {
-        String payload =
-                """
+        String payload = """
                 {
                   "type": "Point",
                   "coordinates": [-6.2603, 53.3498],

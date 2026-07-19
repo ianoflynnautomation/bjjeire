@@ -2,8 +2,7 @@ package com.bjjeire.api.seeder;
 
 public record SeederArgs(
         boolean validate, boolean dryRun, boolean force, boolean prune, String collection, boolean help) {
-    public static final String USAGE =
-            """
+    public static final String USAGE = """
         BjjEire seeder — loads data/*.json into MongoDB.
 
         Usage: java -jar app.jar --spring.profiles.active=seeder [options]

@@ -6,7 +6,7 @@ Keep this file short and broad. Put only always-on project instructions here, an
 
 Full-stack BJJ directory for Ireland:
 
-- Java 21 Spring Boot API
+- Java 25 Spring Boot API
 - React 19 + TypeScript SPA
 - MongoDB-backed data
 

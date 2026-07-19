@@ -487,7 +487,6 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "isActive": true
               }
             }
-            """
-                .formatted(idJson, name);
+            """.formatted(idJson, name);
     }
 }

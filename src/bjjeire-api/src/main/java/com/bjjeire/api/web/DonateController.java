@@ -47,7 +47,6 @@ public class DonateController {
               <rect width="100%%" height="100%%" fill="#FFFFFF"/>
               <path d="%s" fill="#000000"/>
             </svg>
-            """
-                .formatted(size, size, path);
+            """.formatted(size, size, path);
     }
 }
