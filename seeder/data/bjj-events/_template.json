@@ -1,0 +1,76 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "name": "Example Camp Weekend",
+    "description": "Example multi-type event: a camp with open mat day passes.",
+    "types": ["Camp", "OpenMat"],
+    "organiser": {
+      "name": "Example Grappling Academy",
+      "website": "https://example.ie"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Dublin",
+    "location": {
+      "address": "1 Example Street, Dublin 1, Ireland",
+      "venue": "Example Sports Centre",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-6.2603, 53.3498],
+        "placeName": "Dublin 1",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "2026-08-01T00:00:00Z",
+      "endDate": "2026-08-02T00:00:00Z",
+      "sessions": [
+        {
+          "date": "2026-08-01T00:00:00Z",
+          "startTime": "10:00:00",
+          "endTime": "16:00:00",
+          "title": "Day 1 — Gi",
+          "types": ["Camp"]
+        },
+        {
+          "date": "2026-08-02T00:00:00Z",
+          "startTime": "10:00:00",
+          "endTime": "13:00:00",
+          "title": "Day 2 — Open Mat",
+          "types": ["OpenMat"]
+        }
+      ]
+    },
+    "pricingOptions": [
+      {
+        "type": "FlatRate",
+        "label": "Full camp",
+        "appliesToTypes": ["Camp"],
+        "amount": 150,
+        "durationDays": 2,
+        "currency": "EUR"
+      },
+      {
+        "type": "PerDay",
+        "label": "Open mat day pass",
+        "appliesToTypes": ["OpenMat"],
+        "amount": 15,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://example.ie/events/camp-weekend",
+    "imageUrl": "",
+    "isActive": true,
+    "createdBy": "community",
+    "createdAt": "2026-04-14T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

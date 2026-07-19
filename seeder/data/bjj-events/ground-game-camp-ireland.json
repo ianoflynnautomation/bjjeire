@@ -1,0 +1,80 @@
+[
+  {
+    "id": "407f1f77bcf86cd799439109",
+    "name": "GROUND GAME CAMP #525-27.07.2025 IRELAND",
+    "description": "Coach: PAULO MIYAO",
+    "types": ["Camp", "OpenMat"],
+    "organiser": {
+      "name": "Ground Game Camp Ireland",
+      "website": "https://groundgame.camp/"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/ground_game.ie",
+      "facebook": "https://www.facebook.com/groundgamesports",
+      "x": null,
+      "youTube": "https://www.youtube.com/c/GroundGameSports"
+    },
+    "county": "Clare",
+    "location": {
+      "address": "A1A, Smithstown Industrial Estate, Shannon, Co. Clare, V14 Y563, Ireland",
+      "venue": "Shannon Jiu-Jitsu Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.8770598, 52.716516],
+        "placeName": "Shannon, Co. Clare",
+        "placeId": "ChIJE4wsAnlqW0gRJQVv8cWtusA"
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "2026-07-25T00:00:00Z",
+      "endDate": "2026-07-27T00:00:00Z",
+      "sessions": [
+        {
+          "date": "2026-07-25T00:00:00Z",
+          "startTime": "10:00:00",
+          "endTime": "16:00:00",
+          "title": "Day 1 — Gi with Paulo Miyao",
+          "types": ["Camp"]
+        },
+        {
+          "date": "2026-07-26T00:00:00Z",
+          "startTime": "10:00:00",
+          "endTime": "16:00:00",
+          "title": "Day 2 — No-Gi with Paulo Miyao",
+          "types": ["Camp"]
+        },
+        {
+          "date": "2026-07-27T00:00:00Z",
+          "startTime": "10:00:00",
+          "endTime": "14:00:00",
+          "title": "Day 3 — Open Mat",
+          "types": ["OpenMat"]
+        }
+      ]
+    },
+    "pricingOptions": [
+      {
+        "type": "FlatRate",
+        "label": "Full camp",
+        "amount": 275,
+        "durationDays": 3,
+        "currency": "EUR"
+      },
+      {
+        "type": "PerDay",
+        "label": "Day pass",
+        "appliesToTypes": ["OpenMat"],
+        "amount": 110,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://groundgame.camp/",
+    "imageUrl": "",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]

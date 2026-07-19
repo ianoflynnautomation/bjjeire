@@ -1,0 +1,12 @@
+[
+  {
+    "id": "6659a1b2c3d4e5f6a7b8c501",
+    "name": "BattleReady Fightwear",
+    "description": "Irish brand focused strictly on highly durable, functional training apparel for combat sports.",
+    "websiteUrl": "https://brfightwear.com/",
+    "logoUrl": "",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "createdBy": "seeder"
+  }
+]

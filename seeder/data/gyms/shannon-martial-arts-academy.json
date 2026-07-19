@@ -1,0 +1,40 @@
+[
+  {
+    "id": "501f1f77bcf86cd799439112",
+    "name": "Shannon Martial Arts Academy",
+    "description": "Shannon Martial Arts Academy offers Brazilian Jiu-Jitsu classes for children and adults in a welcoming and supportive environment. Focus on technique, confidence, discipline, and respect.",
+    "status": "Active",
+    "county": "Clare",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "A1A, Smithstown Industrial Estate, Shannon, Co. Clare, V14 Y563, Ireland",
+      "venue": "Shannon Martial Arts Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.8744795, 52.716516],
+        "placeName": "Smithstown Industrial Estate, Shannon, Co. Clare",
+        "placeId": "ChIJE4wsAnlqW0gRJQVv8cWtusA"
+      }
+    },
+    "socialMedia": {
+      "instagram": "https://www.instagram.com/shannon_martial_arts/",
+      "facebook": "https://www.facebook.com/p/Shannon-Martial-Arts-Academy-100049946784635/",
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": ["BJJGiAllLevels", "BJJNoGiAllLevels", "KidsBJJ"],
+    "website": "https://www.shannonmartialarts.com/",
+    "timetableUrl": null,
+    "imageUrl": "",
+    "createdBy": "manual-conversion",
+    "createdAt": "2026-07-10T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]
