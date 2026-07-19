@@ -4,7 +4,7 @@ COPY src/bjjeire-api/pom.xml .
 COPY src/bjjeire-api/src ./src
 RUN mvn -q -DskipTests package
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 COPY --from=build /workspace/target/bjjeire-api-*.jar app.jar
 COPY seeder/data /seed-data/data
