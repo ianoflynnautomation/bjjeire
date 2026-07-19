@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.21](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.20...frontend-v0.1.21) (2026-07-19)
+
+
+### ### Features
+
+* init commit ([9bc7d86](https://github.com/ianoflynnautomation/bjjeire/commit/9bc7d86fa58f92848dfd259eb06b3469c78881fd))
+
 ## [0.1.27](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.26...frontend-v0.1.27) (2026-07-11)
 
 
