@@ -28,11 +28,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-/**
- * Implements the public ProblemDetails error contract: urn:bjjeire types, an errors[] array with
- * field/message/errorCode for validation failures, a traceId extension on every response, and an errorId extension on
- * unexpected 500s.
- */
 @RestControllerAdvice
 @Slf4j
 public class ApiExceptionHandler {
@@ -71,8 +66,6 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(validationProblem(errors, request));
     }
 
-    // Spring 6.1+ built-in method validation for @RequestParam/@PathVariable constraints; must map to the same
-    // validation contract as body validation. More specific than ResponseStatusException, so it wins resolution.
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ProblemDetail> handleHandlerMethodValidation(
             HandlerMethodValidationException exception, HttpServletRequest request) {
@@ -202,8 +195,6 @@ public class ApiExceptionHandler {
         return payload != null ? payload : "";
     }
 
-    // The error contract reports PascalCase property chains ("Data.Schedule.Sessions[0].EndTime");
-    // Spring reports camelCase — re-case each segment so both APIs emit identical field paths.
     private static String pascalCasePath(String path) {
         StringBuilder result = new StringBuilder(path.length());
         boolean startOfSegment = true;

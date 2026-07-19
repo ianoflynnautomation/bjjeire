@@ -37,6 +37,33 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldIgnoreUnknownCountyWhenListingGyms() throws Exception {
+        gymRepository.save(gym("Active Gym", GymStatus.Active));
+
+        ResponseEntity<String> response =
+                restTemplate.getForEntity("/api/v1/Gym?county=Atlantis&page=1&pageSize=20", String.class);
+
+        JsonNode body = objectMapper.readTree(response.getBody());
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
+        assertThat(body.at("/data/0/name").asText()).isEqualTo("Active Gym");
+    }
+
+    @Test
+    void shouldSerializeExplicitNullNavigationLinksWhenPageIsBeyondLast() throws Exception {
+        gymRepository.save(gym("Active Gym", GymStatus.Active));
+
+        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/Gym?page=2&pageSize=20", String.class);
+
+        JsonNode pagination = objectMapper.readTree(response.getBody()).at("/pagination");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(pagination.has("nextPageUrl")).isTrue();
+        assertThat(pagination.get("nextPageUrl").isNull()).isTrue();
+    }
+
+    @Test
     void shouldReturnNotFoundWhenGettingInactiveGymById() {
         Gym savedGym = gymRepository.save(gym("Pending Gym", GymStatus.PendingApproval));
 
