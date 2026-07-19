@@ -22,7 +22,7 @@
         <opentelemetry.version>1.44.1</opentelemetry.version>
         <opentelemetry.alpha.version>1.44.1-alpha</opentelemetry.alpha.version>
         <opentelemetry.instrumentation.version>2.10.0</opentelemetry.instrumentation.version>
-        <springdoc.version>2.6.0</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <lombok.version>1.18.38</lombok.version>
         <spotless.version>2.44.5</spotless.version>
