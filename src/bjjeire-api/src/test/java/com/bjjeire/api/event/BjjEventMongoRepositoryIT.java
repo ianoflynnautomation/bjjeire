@@ -133,6 +133,53 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldFilterByNumericEventTypeCodeMatchingTheClientEnum() throws Exception {
+        bjjEventRepository.save(event(
+                "202605310000000000000081",
+                "open-mat",
+                County.Clare,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-01T00:00:00Z"));
+        bjjEventRepository.save(event(
+                "202605310000000000000082",
+                "seminar",
+                County.Clare,
+                List.of(BjjEventType.Seminar),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-02T00:00:00Z"));
+        bjjEventRepository.save(event(
+                "202605310000000000000083",
+                "camp",
+                County.Clare,
+                List.of(BjjEventType.Camp),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-03T00:00:00Z"));
+
+        JsonNode seminar = objectMapper.readTree(restTemplate
+                .getForEntity("/api/v1/BjjEvent?types=1&page=1&pageSize=20", String.class)
+                .getBody());
+        assertThat(seminar.at("/pagination/totalItems").asInt()).isEqualTo(1);
+        assertThat(seminar.at("/data/0/name").asText()).isEqualTo("seminar");
+        assertThat(seminar.at("/data/0/types/0").asText()).isEqualTo("Seminar");
+
+        JsonNode camp = objectMapper.readTree(restTemplate
+                .getForEntity("/api/v1/BjjEvent?types=3&page=1&pageSize=20", String.class)
+                .getBody());
+        assertThat(camp.at("/pagination/totalItems").asInt()).isEqualTo(1);
+        assertThat(camp.at("/data/0/name").asText()).isEqualTo("camp");
+    }
+
+    @Test
     void shouldBuildAbsoluteNavigationLinksWithOnlyPageAndPageSize() throws Exception {
         bjjEventRepository.save(event(
                 "202605310000000000000061",
