@@ -3,9 +3,8 @@ otel:
     disabled: true
 
 spring:
-  data:
-    mongodb:
-      database: BjjEireTest
+  mongodb:
+    database: BjjEireTest
   security:
     oauth2:
       resourceserver:
