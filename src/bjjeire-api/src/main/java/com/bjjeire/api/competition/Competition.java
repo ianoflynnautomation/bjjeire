@@ -20,8 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Document("Competition")
 public class Competition {
-    // Grace period kept past the competition's end date before Mongo's TTL monitor
-    // hard-deletes the document. Preserves audit / historical-search semantics.
+
     public static final Duration EXPIRY_GRACE = Duration.ofDays(365L * 2);
 
     @Id

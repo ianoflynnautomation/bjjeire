@@ -5,10 +5,6 @@ import java.util.List;
 public final class PagedResponses {
     private PagedResponses() {}
 
-    /**
-     * Builds the standard page envelope from a loaded page of items and the total match count. Navigation URLs stay
-     * null so the result is cacheable; {@link #withNavigationLinks} attaches request-scoped links on the way out.
-     */
     public static <T> PagedResponse<T> of(List<T> items, PaginationRequest request, long totalItems) {
         int totalPages = (int) Math.ceil((double) totalItems / request.pageSize());
         return new PagedResponse<>(
