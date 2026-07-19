@@ -98,4 +98,8 @@ CLAUDE.local.md
 .claude/settings.local.json
 .claude/projects/
 .claude/todos/
-/tools/
+
+/tools/*
+!/tools/images/
+/tools/images/*
+!/tools/images/processed/
