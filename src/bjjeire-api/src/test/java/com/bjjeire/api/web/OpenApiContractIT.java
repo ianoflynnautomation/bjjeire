@@ -3,8 +3,6 @@ package com.bjjeire.api.web;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -14,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class OpenApiContractIT extends MongoIntegrationTest {
     @Autowired
@@ -31,8 +31,7 @@ class OpenApiContractIT extends MongoIntegrationTest {
                 .isEqualTo("http");
         assertThat(document.at("/components/securitySchemes/BearerAuth/scheme").asText())
                 .isEqualTo("bearer");
-        assertThat(document.at("/paths").fieldNames())
-                .toIterable()
+        assertThat(document.at("/paths").propertyNames())
                 .contains(
                         "/api/v1/Gym",
                         "/api/v1/BjjEvent",

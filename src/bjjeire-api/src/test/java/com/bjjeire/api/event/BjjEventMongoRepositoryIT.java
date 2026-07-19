@@ -6,8 +6,6 @@ import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditLogEntry;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -17,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     @Autowired

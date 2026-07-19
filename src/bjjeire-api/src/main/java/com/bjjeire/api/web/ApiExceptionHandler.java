@@ -69,7 +69,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ProblemDetail> handleHandlerMethodValidation(
             HandlerMethodValidationException exception, HttpServletRequest request) {
-        List<ValidationErrorDetail> errors = exception.getAllValidationResults().stream()
+        List<ValidationErrorDetail> errors = exception.getParameterValidationResults().stream()
                 .flatMap(result -> result.getResolvableErrors().stream().map(error -> toValidationError(result, error)))
                 .toList();
 

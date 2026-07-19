@@ -3,14 +3,14 @@ package com.bjjeire.api.competition;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
     @Autowired

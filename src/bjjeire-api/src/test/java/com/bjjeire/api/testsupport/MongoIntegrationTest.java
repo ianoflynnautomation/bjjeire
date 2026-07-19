@@ -16,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,9 +28,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.testcontainers.mongodb.MongoDBContainer;
 
 /**
  * Base class for MongoDB-backed integration tests.
@@ -46,29 +47,24 @@ public abstract class MongoIntegrationTest {
 
     protected static final String AUTHENTICATED_USER = "integration-test";
 
-    private static final MongoDBContainer MONGO = new MongoDBContainer("mongo:7.0");
-
-    static {
-        MONGO.start();
-    }
-
-    @DynamicPropertySource
-    static void mongoProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", MONGO::getReplicaSetUrl);
-        registry.add("spring.data.mongodb.database", () -> "BjjEireTest");
-        registry.add(
-                "spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                () -> "https://login.microsoftonline.com/test/v2.0");
-    }
-
     @Autowired
     protected MongoTemplate mongoTemplate;
 
     @Autowired
-    protected TestRestTemplate restTemplate;
-
-    @Autowired
     protected ApiCache apiCache;
+
+    @LocalServerPort
+    private int port;
+
+    protected RestTemplate restTemplate;
+
+    @BeforeEach
+    void configureRestTemplate() {
+        RestTemplate template = new RestTemplate();
+        template.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:" + port));
+        template.setErrorHandler(response -> false);
+        this.restTemplate = template;
+    }
 
     @BeforeEach
     void resetPersistentState() {
@@ -87,7 +83,6 @@ public abstract class MongoIntegrationTest {
         }
     }
 
-    /** Wraps a JSON body with the bearer token accepted by the stubbed {@link JwtDecoder}. */
     protected static HttpEntity<String> jsonEntity(String body) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth("integration-test-token");
@@ -97,6 +92,12 @@ public abstract class MongoIntegrationTest {
 
     @TestConfiguration
     public static class SharedOverrides {
+        @Bean
+        @ServiceConnection
+        MongoDBContainer mongoDbContainer() {
+            return new MongoDBContainer("mongo:7.0");
+        }
+
         @Bean
         @Primary
         Clock fixedClock() {

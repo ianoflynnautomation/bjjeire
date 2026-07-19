@@ -4,14 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 class GymMongoRepositoryIT extends MongoIntegrationTest {
     @Autowired
@@ -37,7 +37,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
     }
 
-    @Ignore
+    @Disabled("Unknown-county handling not yet implemented")
     @Test
     void shouldIgnoreUnknownCountyWhenListingGyms() throws Exception {
         gymRepository.save(gym("Active Gym", GymStatus.Active));

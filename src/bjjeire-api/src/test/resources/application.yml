@@ -2,6 +2,16 @@ otel:
   sdk:
     disabled: true
 
+spring:
+  data:
+    mongodb:
+      database: BjjEireTest
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/test/v2.0
+
 bjjeire:
   read-only-mode:
     enabled: false
