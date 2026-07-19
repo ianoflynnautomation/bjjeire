@@ -129,6 +129,13 @@ jobs:
     if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
     name: Acceptance tests
     needs: [deploy-env]
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+      packages: read
+      id-token: write
+      pages: write
     uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
     with:
       app_env: staging
