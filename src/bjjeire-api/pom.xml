@@ -23,7 +23,7 @@
         <opentelemetry.alpha.version>1.44.1-alpha</opentelemetry.alpha.version>
         <opentelemetry.instrumentation.version>2.10.0</opentelemetry.instrumentation.version>
         <springdoc.version>2.6.0</springdoc.version>
-        <testcontainers.version>1.20.6</testcontainers.version>
+        <testcontainers.version>2.0.5</testcontainers.version>
         <lombok.version>1.18.38</lombok.version>
         <spotless.version>2.44.5</spotless.version>
         <palantir-java-format.version>2.50.0</palantir-java-format.version>
