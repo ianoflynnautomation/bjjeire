@@ -1,0 +1,12 @@
+[
+  {
+    "id": "acce77500000000000000002",
+    "name": "Celtic Grappling Supply",
+    "description": "Acceptance-test fixture store.",
+    "websiteUrl": "https://celtic-grappling-supply.example.ie/",
+    "logoUrl": null,
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-02T00:00:00Z"
+  }
+]

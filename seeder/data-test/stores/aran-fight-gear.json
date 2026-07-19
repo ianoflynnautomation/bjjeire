@@ -1,0 +1,12 @@
+[
+  {
+    "id": "acce77500000000000000001",
+    "name": "Aran Fight Gear",
+    "description": "Acceptance-test fixture store.",
+    "websiteUrl": "https://aran-fight-gear.example.ie/",
+    "logoUrl": null,
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]

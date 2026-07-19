@@ -1,0 +1,97 @@
+version: 2
+updates:
+
+  - package-ecosystem: maven
+    directory: /src/bjjeire-api
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - java
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      spring:
+        patterns:
+          - "org.springframework*"
+      opentelemetry:
+        patterns:
+          - "io.opentelemetry*"
+      testing:
+        patterns:
+          - "org.junit*"
+          - "org.mockito*"
+          - "org.testcontainers*"
+          - "org.assertj*"
+    ignore:
+      - dependency-name: "org.springframework.boot*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm
+    directory: /src/bjjeire-app
+    schedule:
+      interval: weekly
+      day: tuesday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      testing:
+        patterns:
+          - "vitest*"
+          - "@testing-library/*"
+          - "@vitest/*"
+
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: weekly
+      day: wednesday
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: docker
+    directory: /src/bjjeire-api
+    schedule:
+      interval: weekly
+      day: thursday
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: docker
+    directory: /src/bjjeire-app
+    schedule:
+      interval: weekly
+      day: thursday
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+

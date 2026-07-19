@@ -1,0 +1,96 @@
+x-defaults: &default-service
+  platform: linux/arm64
+  restart: unless-stopped
+  networks:
+    - bjj-network
+  deploy:
+    resources:
+      limits:
+        cpus: '0.50'
+        memory: 512M
+      reservations:
+        cpus: '0.25'
+        memory: 256M
+
+x-healthcheck-curl: &healthcheck-curl
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 10s
+
+services:
+  api:
+    <<: *default-service
+    profiles: ["app"]
+    container_name: api
+    ports:
+      - "5003:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-production}
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      - MONGODB_URI=mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@${MONGODB_HOST:-mongodb}:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
+      - MONGODB_DATABASE=${MONGODB_DB:-Mongodb}
+      - CORS_ALLOWED_ORIGIN=${CORS_ALLOWED_ORIGIN}
+      - READ_ONLY_MODE_ENABLED=${READ_ONLY_MODE_ENABLED:-true}
+      - ENTRA_ISSUER_URI=${ENTRA_ISSUER_URI}
+      - ENTRA_AUDIENCE=${ENTRA_AUDIENCE}
+      - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-bjjeire-api}
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME:-bjjeire-api},deployment.environment=${SPRING_PROFILES_ACTIVE:-production}
+    volumes:
+      - ./logs:/app/logs
+    secrets:
+      - mongodb_password
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck-curl
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  frontend:
+    <<: *default-service
+    profiles: ["app"]
+    container_name: web
+    ports:
+      - "3000:80"
+    environment:
+      - PORT=${PORT:-80}
+      - SERVICES_API_HTTP_0=${SERVICES_API_HTTP_0:-http://api:8080}
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck-curl
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+
+  mongodb:
+    <<: *default-service
+    profiles: ["app"]
+    image: mongo:8.2
+    container_name: mongodb
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    secrets:
+      - mongodb_password
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongodb_data:
+
+secrets:
+  mongodb_password:
+    file: ./secrets/mongodb_password.txt
+
+networks:
+  bjj-network:
+    driver: bridge

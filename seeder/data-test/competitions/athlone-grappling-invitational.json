@@ -1,0 +1,17 @@
+[
+  {
+    "id": "acce77000000000000000001",
+    "slug": "athlone-grappling-invitational",
+    "name": "Athlone Grappling Invitational",
+    "description": "Midlands gi and no-gi invitational held in Athlone.",
+    "organisation": "Athlone Grappling",
+    "country": "Ireland",
+    "websiteUrl": "https://athlone-grappling.example.ie/invitational",
+    "registrationUrl": "https://athlone-grappling.example.ie/invitational/register",
+    "tags": ["gi", "no-gi", "invitational"],
+    "startDate": "now-3d",
+    "endDate": "now+4d",
+    "isActive": true,
+    "createdBy": "acceptance-seed"
+  }
+]

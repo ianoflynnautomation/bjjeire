@@ -1,0 +1,127 @@
+name: Build & Push to GHCR
+
+on:
+  workflow_call:
+    inputs:
+      push_images:
+        description: "Whether to push built images (false = build only)."
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      VITE_APP_MSAL_CLIENT_ID:
+        required: false
+      VITE_APP_MSAL_AUTHORITY:
+        required: false
+      VITE_APP_MSAL_API_SCOPE:
+        required: false
+      VITE_APP_CF_BEACON_TOKEN:
+        required: false
+      VITE_APP_URL:
+        required: false
+      VITE_APP_CONTACT_EMAIL:
+        required: false
+      VITE_APP_SOCIAL_INSTAGRAM_URL:
+        required: false
+      VITE_APP_SOCIAL_FACEBOOK_URL:
+        required: false
+      VITE_APP_GITHUB_URL:
+        required: false
+    outputs:
+      java_api_image_digest:
+        description: "Digest (sha256:...) of the pushed Java API image, if built."
+        value: ${{ jobs.build-push-java-api.outputs.image-digest }}
+      frontend_image_digest:
+        description: "Digest (sha256:...) of the pushed frontend image, if built."
+        value: ${{ jobs.build-push-frontend.outputs.image-digest }}
+  workflow_dispatch:
+    inputs:
+      push_images:
+        description: "Push built images to GHCR"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      java-api: ${{ steps.changes.outputs.java_api_image }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - id: changes
+        uses: ./.github/actions/detect-changes
+
+  build-push-java-api:
+    name: Build & Push Java API Image
+    needs: detect-changes
+    if: needs.detect-changes.outputs.java-api == 'true' || startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      image-name: bjjeire-api
+      dockerfile: ./src/bjjeire-api/Dockerfile
+      context: ./src/bjjeire-api
+      push: ${{ inputs.push_images && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
+      tags: |
+        type=sha,format=short
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+      labels: |
+        org.opencontainers.image.title=bjjeire-api
+        org.opencontainers.image.description=BjjEire Spring Boot 3 Java 21 API
+        org.opencontainers.image.vendor=BjjEire
+        org.opencontainers.image.licenses=MIT
+        org.opencontainers.image.url=https://bjjeire.com
+
+  build-push-frontend:
+    name: Build & Push Frontend Image
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      image-name: bjjeire-frontend
+      dockerfile: ./src/bjjeire-app/Dockerfile
+      push: ${{ inputs.push_images && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
+      tags: |
+        type=sha,format=short
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+      labels: |
+        org.opencontainers.image.title=bjjeire-frontend
+        org.opencontainers.image.description=BjjEire React 19 + Vite + nginx frontend
+        org.opencontainers.image.vendor=BjjEire
+        org.opencontainers.image.licenses=MIT
+        org.opencontainers.image.url=https://bjjeire.com
+    secrets:
+      SECRET_BUILD_ARGS: |
+        VITE_APP_MSAL_CLIENT_ID=${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
+        VITE_APP_MSAL_AUTHORITY=${{ secrets.VITE_APP_MSAL_AUTHORITY }}
+        VITE_APP_MSAL_API_SCOPE=${{ secrets.VITE_APP_MSAL_API_SCOPE }}
+        VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
+        VITE_APP_APP_URL=${{ secrets.VITE_APP_URL }}
+        VITE_APP_CONTACT_EMAIL=${{ secrets.VITE_APP_CONTACT_EMAIL }}
+        VITE_APP_SOCIAL_INSTAGRAM_URL=${{ secrets.VITE_APP_SOCIAL_INSTAGRAM_URL }}
+        VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
+        VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}

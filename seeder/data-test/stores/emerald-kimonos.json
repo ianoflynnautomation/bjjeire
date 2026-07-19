@@ -1,0 +1,12 @@
+[
+  {
+    "id": "acce77500000000000000003",
+    "name": "Emerald Kimonos",
+    "description": "Acceptance-test fixture store.",
+    "websiteUrl": "https://emerald-kimonos.example.ie/",
+    "logoUrl": null,
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-03T00:00:00Z"
+  }
+]

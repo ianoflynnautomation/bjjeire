@@ -1,0 +1,38 @@
+[
+  {
+    "id": "acce77900000000000000004",
+    "name": "Northside Mat Room",
+    "description": "Acceptance-test fixture gym in Dublin.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "8 Swords Road, Santry, Dublin 9, Ireland",
+      "venue": "Northside Mat Room",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-6.254, 53.398],
+        "placeName": "Santry, Co. Dublin",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": ["BJJNoGiAllLevels", "Wrestling"],
+    "website": "https://northside-mat-room.example.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-04T00:00:00Z"
+  }
+]

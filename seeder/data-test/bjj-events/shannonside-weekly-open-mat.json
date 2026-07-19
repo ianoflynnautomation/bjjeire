@@ -1,0 +1,53 @@
+[
+  {
+    "id": "acce77e00000000000000006",
+    "name": "Shannonside Weekly Open Mat",
+    "description": "Acceptance-test fixture: weekly recurring schedule with per-session pricing.",
+    "types": ["OpenMat"],
+    "organiser": {
+      "name": "Shannonside Grappling Club",
+      "website": "https://shannonside-grappling.example.ie/"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Limerick",
+    "location": {
+      "address": "18 Dock Road, Limerick, Co. Limerick, Ireland",
+      "venue": "Shannonside Grappling Club",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.6335, 52.6603],
+        "placeName": "Limerick City, Co. Limerick",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "WeeklyRecurring",
+      "startDate": "now+2d",
+      "endDate": "now+60d",
+      "sessions": [
+        { "day": "Wednesday", "startTime": "19:00:00", "endTime": "21:00:00" },
+        { "day": "Friday", "startTime": "18:30:00", "endTime": "20:30:00" }
+      ]
+    },
+    "pricingOptions": [
+      {
+        "type": "PerSession",
+        "label": "Mat fee",
+        "amount": 10,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://shannonside-grappling.example.ie/open-mat",
+    "imageUrl": "/images/events/acce77e00000000000000006/lg.webp",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-06T00:00:00Z"
+  }
+]

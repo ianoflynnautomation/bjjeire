@@ -1,0 +1,203 @@
+name: PR Env Validation
+
+# Per-PR ephemeral environment + acceptance tests on AKS (Tier 2).
+#
+# Lifecycle:
+#   - opened/synchronize/reopened → build PR images, deploy to pr-N namespace,
+#     run sharded Playwright suite against pr-N.<cluster domain>
+#   - closed                      → destroy pr-N namespace (TTL janitor is the
+#                                   safety net if this is skipped)
+#
+# Rollout switch: every job is gated on the PR_ENV_ENABLED repo variable so
+# this workflow stays inert until the dev cluster + ARC runners exist. Set
+# PR_ENV_ENABLED=true (Actions → Variables) to turn it on. Run alongside the
+# Docker-Compose smoke_tests in ci-main.yml until trusted, then decide overlap.
+#
+# Required repo secrets:
+#   AZURE_TENANT_ID         — Entra tenant
+#   AZURE_CLIENT_ID         — uami-gha-prenv-* client ID (output of identity.tf)
+#   AZURE_SUBSCRIPTION_ID   — subscription containing the AKS cluster
+#
+# Required repo vars (Actions → Variables, not Secrets):
+#   PR_ENV_ENABLED          — 'true' to activate this workflow
+#   AKS_RESOURCE_GROUP      — e.g. rg-bjjeire-dev-swn-01
+#   AKS_CLUSTER_NAME        — e.g. aks-bjjeire-dev-swn-01
+#   AKS_CLUSTER_DOMAIN      — e.g. dev.bjjeire.com
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "logs/**"
+      - "docs/**"
+      - ".gitattributes"
+      - ".gitignore"
+
+concurrency:
+  group: pr-env-${{ github.event.pull_request.number }}
+  cancel-in-progress: ${{ github.event.action != 'closed' }}
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+  pull-requests: write
+
+env:
+  REGISTRY: ghcr.io
+  API_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-api
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-frontend
+  SEEDER_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-seeder
+  IMAGE_TAG: pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+
+jobs:
+  build-images:
+    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
+    name: Build & push PR images
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      image_tag: ${{ env.IMAGE_TAG }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Login to GHCR
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee  # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4.0.0
+
+      - name: Build & push API
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
+        with:
+          context: .
+          file: ./src/bjjeire-api/Dockerfile
+          push: true
+          tags: ${{ env.API_IMAGE }}:${{ env.IMAGE_TAG }}
+          cache-from: |
+            type=gha,scope=api-${{ github.ref_name }}
+            type=gha,scope=api-main
+          cache-to: type=gha,scope=api-${{ github.ref_name }},mode=max
+
+      - name: Build & push Frontend
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
+        with:
+          context: .
+          file: ./src/bjjeire-app/Dockerfile
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:${{ env.IMAGE_TAG }}
+          cache-from: |
+            type=gha,scope=frontend-${{ github.ref_name }}
+            type=gha,scope=frontend-main
+          cache-to: type=gha,scope=frontend-${{ github.ref_name }},mode=max
+
+      - name: Build & push Seeder
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7.1.0
+        with:
+          context: .
+          file: ./src/bjjeire-api/seeder.Dockerfile
+          push: true
+          tags: ${{ env.SEEDER_IMAGE }}:${{ env.IMAGE_TAG }}
+          cache-from: |
+            type=gha,scope=seeder-${{ github.ref_name }}
+            type=gha,scope=seeder-main
+          cache-to: type=gha,scope=seeder-${{ github.ref_name }},mode=max
+
+  deploy-env:
+    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
+    name: Deploy pr-${{ github.event.pull_request.number }}
+    needs: [build-images]
+    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/pr-env.yml@main
+    with:
+      action: deploy
+      pr_number: ${{ github.event.pull_request.number }}
+      image_tag: ${{ needs.build-images.outputs.image_tag }}
+      cluster_resource_group: ${{ vars.AKS_RESOURCE_GROUP }}
+      cluster_name: ${{ vars.AKS_CLUSTER_NAME }}
+      cluster_domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
+    secrets: inherit
+
+  acceptance:
+    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
+    name: Acceptance tests
+    needs: [deploy-env]
+    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-tests.yml@main
+    with:
+      app_env: staging
+      base_url: ${{ needs.deploy-env.outputs.base_url }}
+      api_base_url: ${{ needs.deploy-env.outputs.api_base_url }}
+      # API shards skip the Cloudflare edge via in-cluster Service DNS.
+      internal_api_url: ${{ needs.deploy-env.outputs.internal_api_url }}
+      test_repo: ianoflynnautomation/bjjeire-tests
+      test_tags: "@smoke|@acceptance"
+      shard_total: 4
+      playwright_projects: '["api","chromium-desktop","firefox-desktop","webkit-desktop"]'
+    secrets: inherit
+
+  pr-comment:
+    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed' && always()
+    name: Post PR env link
+    needs: [deploy-env, acceptance]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        env:
+          BASE_URL: ${{ needs.deploy-env.outputs.base_url }}
+          API_URL: ${{ needs.deploy-env.outputs.api_base_url }}
+          DEPLOY_RESULT: ${{ needs.deploy-env.result }}
+          TEST_RESULT: ${{ needs.acceptance.result }}
+        with:
+          script: |
+            const marker = '<!-- pr-env-validation -->';
+            const deploy = process.env.DEPLOY_RESULT || 'unknown';
+            const tests = process.env.TEST_RESULT || 'unknown';
+            const baseUrl = process.env.BASE_URL || '(not deployed)';
+            const apiUrl = process.env.API_URL || '(not deployed)';
+            const status = (deploy === 'success' && tests === 'success') ? 'PASS' : 'FAIL';
+
+            const body = [
+              marker,
+              `## PR env: ${status}`,
+              '',
+              '| Stage | Result |',
+              '|---|---|',
+              `| Deploy | \`${deploy}\` |`,
+              `| Acceptance | \`${tests}\` |`,
+              '',
+              `Frontend: ${baseUrl}`,
+              `API: ${apiUrl}`,
+              '',
+              '_Environment is reaped automatically when this PR closes (or after 2h)._',
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+  destroy-env:
+    if: vars.PR_ENV_ENABLED == 'true' && github.event.action == 'closed'
+    name: Destroy pr-${{ github.event.pull_request.number }}
+    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/pr-env.yml@main
+    with:
+      action: destroy
+      pr_number: ${{ github.event.pull_request.number }}
+      cluster_resource_group: ${{ vars.AKS_RESOURCE_GROUP }}
+      cluster_name: ${{ vars.AKS_CLUSTER_NAME }}
+      cluster_domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
+    secrets: inherit

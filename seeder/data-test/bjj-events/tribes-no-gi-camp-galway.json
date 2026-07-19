@@ -1,0 +1,50 @@
+[
+  {
+    "id": "acce77e00000000000000003",
+    "name": "Tribes No-Gi Camp Galway",
+    "description": "Acceptance-test fixture event in Galway (upcoming).",
+    "types": ["Camp"],
+    "organiser": {
+      "name": "Tribes Grappling",
+      "website": "https://tribes-grappling.example.ie/"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Galway",
+    "location": {
+      "address": "9 Salthill Road, Galway, Co. Galway, Ireland",
+      "venue": "Tribes Grappling Centre",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-9.0724, 53.262],
+        "placeName": "Salthill, Co. Galway",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "now+18d",
+      "endDate": "now+20d",
+      "sessions": []
+    },
+    "pricingOptions": [
+      {
+        "type": "PerDay",
+        "amount": 55,
+        "durationDays": 3,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://tribes-grappling.example.ie/no-gi-camp",
+    "imageUrl": "/images/events/acce77e00000000000000003/lg.webp",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-03T00:00:00Z"
+  }
+]

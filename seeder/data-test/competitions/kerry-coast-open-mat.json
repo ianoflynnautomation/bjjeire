@@ -1,0 +1,16 @@
+[
+  {
+    "id": "acce77000000000000000005",
+    "slug": "kerry-coast-open-mat",
+    "name": "Kerry Coast Open Mat",
+    "description": "Casual coastal open-mat gathering — already finished, used to prove past competitions are excluded from the published listing.",
+    "organisation": "Kerry Coast BJJ",
+    "country": "Ireland",
+    "websiteUrl": "https://kerrycoastbjj.example.ie/open-mat",
+    "tags": ["open-mat", "social"],
+    "startDate": "now-40d",
+    "endDate": "now-38d",
+    "isActive": true,
+    "createdBy": "acceptance-seed"
+  }
+]

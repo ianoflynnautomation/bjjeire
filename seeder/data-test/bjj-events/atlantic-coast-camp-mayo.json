@@ -1,0 +1,82 @@
+[
+  {
+    "id": "acce77e00000000000000005",
+    "name": "Atlantic Coast Camp and Open Mat",
+    "description": "Acceptance-test fixture: multi-type event (camp with open mat day) using per-type pricing and dated sessions.",
+    "types": ["Camp", "OpenMat"],
+    "organiser": {
+      "name": "Atlantic Coast Grappling",
+      "website": "https://atlantic-grappling.example.ie/"
+    },
+    "status": "RegistrationOpen",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Mayo",
+    "location": {
+      "address": "4 Quay Road, Westport, Co. Mayo, Ireland",
+      "venue": "Atlantic Coast Grappling Hall",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-9.5145, 53.8008],
+        "placeName": "Westport, Co. Mayo",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "now+25d",
+      "endDate": "now+27d",
+      "sessions": [
+        {
+          "date": "now+25d",
+          "startTime": "10:00:00",
+          "endTime": "16:00:00",
+          "title": "Day 1 - Gi Camp",
+          "types": ["Camp"]
+        },
+        {
+          "date": "now+26d",
+          "startTime": "10:00:00",
+          "endTime": "16:00:00",
+          "title": "Day 2 - No-Gi Camp",
+          "types": ["Camp"]
+        },
+        {
+          "date": "now+27d",
+          "startTime": "10:00:00",
+          "endTime": "13:00:00",
+          "title": "Day 3 - Open Mat",
+          "types": ["OpenMat"]
+        }
+      ]
+    },
+    "pricingOptions": [
+      {
+        "type": "FlatRate",
+        "label": "Full camp",
+        "appliesToTypes": ["Camp"],
+        "amount": 180,
+        "durationDays": 3,
+        "currency": "EUR"
+      },
+      {
+        "type": "PerDay",
+        "label": "Open mat day pass",
+        "appliesToTypes": ["OpenMat"],
+        "amount": 20,
+        "durationDays": 1,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://atlantic-grappling.example.ie/coast-camp",
+    "imageUrl": "/images/events/acce77e00000000000000005/lg.webp",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-05T00:00:00Z"
+  }
+]

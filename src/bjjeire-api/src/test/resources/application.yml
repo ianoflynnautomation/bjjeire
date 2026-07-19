@@ -1,0 +1,9 @@
+otel:
+  sdk:
+    disabled: true
+
+bjjeire:
+  read-only-mode:
+    enabled: false
+  rate-limit:
+    enabled: false

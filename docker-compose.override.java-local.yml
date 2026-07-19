@@ -1,0 +1,71 @@
+services:
+  api:
+    build:
+      context: ./src/bjjeire-api
+      dockerfile: Dockerfile
+    ports: !override
+      - "5003:8080"
+    environment: !override
+      SPRING_PROFILES_ACTIVE: local
+      PORT: 8080
+      MONGODB_URI: mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@mongodb:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
+      MONGODB_DATABASE: ${MONGODB_DB:-Mongodb}
+      ENTRA_ISSUER_URI: ${ENTRA_ISSUER_URI:-https://login.microsoftonline.com/${AZURE_AD_TENANT_ID:-REPLACE_WITH_YOUR_TENANT_ID}/v2.0}
+      ENTRA_AUDIENCE: ${ENTRA_AUDIENCE:-${AZURE_AD_AUDIENCE:-api://${AZURE_AD_CLIENT_ID:-REPLACE_WITH_YOUR_CLIENT_ID}}}
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:3000}
+      DONATION_BITCOIN_ADDRESS: ${DONATION_BITCOIN_ADDRESS:-REPLACE_WITH_OFFICIAL_ADDRESS}
+      READ_ONLY_MODE_ENABLED: ${READ_ONLY_MODE_ENABLED:-false}
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-false}
+      FEATURE_BJJ_EVENTS: ${FEATURE_BJJ_EVENTS:-true}
+      FEATURE_GYMS: ${FEATURE_GYMS:-true}
+      FEATURE_COMPETITIONS: ${FEATURE_COMPETITIONS:-true}
+      FEATURE_STORES: ${FEATURE_STORES:-true}
+      OTEL_SDK_DISABLED: "true"
+    healthcheck:
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/bjjeire-app/Dockerfile
+      args:
+        VITE_APP_MSAL_CLIENT_ID: ${VITE_APP_MSAL_CLIENT_ID}
+        VITE_APP_MSAL_AUTHORITY: ${VITE_APP_MSAL_AUTHORITY}
+        VITE_APP_MSAL_API_SCOPE: ${VITE_APP_MSAL_API_SCOPE}
+        VITE_APP_CF_BEACON_TOKEN: ${VITE_APP_CF_BEACON_TOKEN}
+        VITE_APP_APP_URL: ${VITE_APP_APP_URL:-http://localhost:3000}
+    volumes:
+      - ./tools/images/processed:/srv/images:ro
+    environment:
+      - SERVICES_API_HTTP_0=http://api:8080
+
+  seeder:
+    build:
+      context: ./src/bjjeire-api
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: seeder
+      ASPNETCORE_ENVIRONMENT: Development
+      MONGODB_URI: mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@mongodb:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
+      MONGODB_DATABASE: ${MONGODB_DB:-Mongodb}
+      BJJEIRE_SEEDER_DATAROOT: /seed-data
+      SEED_DATASET: ${SEED_DATASET:-}
+      OTEL_SDK_DISABLED: "true"
+    volumes:
+      - ./seeder/data:/seed-data/data:ro
+      - ./seeder/data-test:/seed-data/data-test:ro
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - bjj-network
+    profiles:
+      - seed
+    restart: "no"
+
+  mongodb:
+    profiles: !override ["app", "seed"]

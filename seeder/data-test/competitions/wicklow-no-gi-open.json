@@ -1,0 +1,17 @@
+[
+  {
+    "id": "acce77000000000000000002",
+    "slug": "wicklow-no-gi-open",
+    "name": "Wicklow No-Gi Open",
+    "description": "One-day no-gi submission-only open in Wicklow.",
+    "organisation": "Wicklow BJJ",
+    "country": "Ireland",
+    "websiteUrl": "https://wicklowbjj.example.ie/no-gi-open",
+    "registrationUrl": "https://wicklowbjj.example.ie/no-gi-open/register",
+    "tags": ["no-gi", "submission-only", "open"],
+    "startDate": "now-1d",
+    "endDate": "now+2d",
+    "isActive": true,
+    "createdBy": "acceptance-seed"
+  }
+]

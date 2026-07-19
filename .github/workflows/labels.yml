@@ -1,0 +1,44 @@
+name: Sync labels
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/labels.yml"
+      - ".github/workflows/labels.yml"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: sync-labels
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Upsert labels from labels.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Sync labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(yq 'length' .github/labels.yml)"
+          echo "::notice title=Labels::syncing ${count} labels"
+          for i in $(seq 0 $((count - 1))); do
+            name="$(yq -r ".[$i].name" .github/labels.yml)"
+            color="$(yq -r ".[$i].color" .github/labels.yml)"
+            desc="$(yq -r ".[$i].description // \"\"" .github/labels.yml)"
+            echo "::group::${name}"
+            gh label create "$name" --color "$color" --description "$desc" --force
+            echo "::endgroup::"
+          done
+          echo "All labels synced." >> "$GITHUB_STEP_SUMMARY"

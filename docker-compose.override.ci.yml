@@ -1,0 +1,43 @@
+x-ci-healthcheck: &ci-healthcheck
+  interval: 5s
+  timeout: 3s
+  retries: 24
+  start_period: 5s
+
+services:
+  api:
+    platform: linux/amd64
+    ports: !override
+      - "127.0.0.1:5003:8080"
+    deploy:
+      resources: {}
+    healthcheck:
+      <<: *ci-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  frontend:
+    platform: linux/amd64
+    ports: !override
+      - "127.0.0.1:3000:80"
+    deploy:
+      resources: {}
+    healthcheck:
+      <<: *ci-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+
+  mongodb:
+    platform: linux/amd64
+    deploy:
+      resources: {}
+    volumes: !override
+      - type: tmpfs
+        target: /data/db
+        tmpfs:
+          size: 1024m
+    healthcheck:
+      <<: *ci-healthcheck
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+
+secrets:
+  mongodb_password: !override
+    environment: MONGODB_PASSWORD

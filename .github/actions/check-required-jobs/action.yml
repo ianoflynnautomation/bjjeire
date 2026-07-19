@@ -1,0 +1,40 @@
+name: 'Check Required Jobs'
+description: 'Aggregate gate for branch protection: fails when any needed job failed or was cancelled, passes when jobs succeeded or were intentionally skipped by path filters.'
+
+inputs:
+  needs-json:
+    description: 'The caller job''s needs context, passed as toJson(needs).'
+    required: true
+  summary-title:
+    description: 'Heading used in the step summary and log annotations.'
+    required: false
+    default: 'Required checks'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify required jobs succeeded or were intentionally skipped
+      shell: bash
+      env:
+        NEEDS_JSON: ${{ inputs.needs-json }}
+        TITLE: ${{ inputs.summary-title }}
+      run: |
+        echo "::group::needs context"
+        echo "$NEEDS_JSON" | jq .
+        echo "::endgroup::"
+        FAILED=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key')
+        {
+          echo "### ${TITLE}"
+          echo ""
+          echo "| Job | Result |"
+          echo "| --- | --- |"
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"'
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ -n "$FAILED" ]; then
+          echo "::error title=${TITLE}::One or more required jobs did not pass"
+          printf '%s\n' "$FAILED" | while IFS= read -r job; do
+            echo "  - ${job}"
+          done
+          exit 1
+        fi
+        echo "::notice title=${TITLE}::All required jobs succeeded or were skipped by path filter"

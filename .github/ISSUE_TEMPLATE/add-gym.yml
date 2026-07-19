@@ -1,0 +1,118 @@
+name: Add a gym
+description: Submit a BJJ gym to be added to the BjjEire directory
+title: "[gym] <Gym name>"
+labels: ["area:data", "type:gym"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing! A maintainer will review and, if the gym is a good fit, open a pull request on your behalf.
+        Prefer to open the PR yourself? See [CONTRIBUTING.md](https://github.com/ianoflynnautomation/BjjEire/blob/main/CONTRIBUTING.md).
+  - type: input
+    id: name
+    attributes:
+      label: Gym name
+      placeholder: SBG Ireland
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Website
+      placeholder: https://www.sbgireland.com
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+      description: One or two sentences.
+    validations:
+      required: true
+  - type: dropdown
+    id: county
+    attributes:
+      label: County
+      options:
+        - Carlow
+        - Cavan
+        - Clare
+        - Cork
+        - Donegal
+        - Dublin
+        - Galway
+        - Kerry
+        - Kildare
+        - Kilkenny
+        - Laois
+        - Leitrim
+        - Limerick
+        - Longford
+        - Louth
+        - Mayo
+        - Meath
+        - Monaghan
+        - Offaly
+        - Roscommon
+        - Sligo
+        - Tipperary
+        - Waterford
+        - Westmeath
+        - Wexford
+        - Wicklow
+    validations:
+      required: true
+  - type: input
+    id: address
+    attributes:
+      label: Full address
+      placeholder: Unit 1A, Concorde Industrial Estate, Naas Road, Dublin 22
+    validations:
+      required: true
+  - type: input
+    id: coordinates
+    attributes:
+      label: Coordinates (longitude, latitude)
+      description: GeoJSON order — longitude first, then latitude. Get them from [Google Maps](https://www.google.com/maps) by right-clicking the gym location.
+      placeholder: "-6.3731, 53.3178"
+    validations:
+      required: true
+  - type: input
+    id: affiliation
+    attributes:
+      label: Affiliation (optional)
+      placeholder: SBG International
+  - type: input
+    id: instagram
+    attributes:
+      label: Instagram URL (optional)
+  - type: input
+    id: facebook
+    attributes:
+      label: Facebook URL (optional)
+  - type: checkboxes
+    id: classes
+    attributes:
+      label: Classes offered
+      options:
+        - label: BJJ Gi — All Levels
+        - label: BJJ No-Gi — All Levels
+        - label: BJJ Gi — Fundamentals
+        - label: Wrestling
+        - label: Muay Thai
+        - label: Kids BJJ
+        - label: Competition Training
+  - type: textarea
+    id: trial
+    attributes:
+      label: Free trial offer (optional)
+      description: E.g. "1 free class", "1 week free". Leave blank if no trial is offered.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm the information above is accurate and publicly available on the gym's own channels.
+          required: true
+        - label: I understand this is a community directory and a maintainer may edit or decline the submission.
+          required: true

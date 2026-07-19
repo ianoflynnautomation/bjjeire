@@ -1,0 +1,158 @@
+name: Issue to PR
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: issue-to-pr-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  data-from-issue:
+    name: Open PR from approved contribution issue
+    if: >-
+      github.event.label.name == 'approved:gym' ||
+      github.event.label.name == 'approved:event' ||
+      github.event.label.name == 'approved:competition' ||
+      github.event.label.name == 'approved:store'
+    runs-on: ubuntu-latest
+    container:
+      image: node:26-bookworm
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve contribution type
+        id: kind
+        env:
+          LABEL: ${{ github.event.label.name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$LABEL" in
+            approved:gym)         KIND=gym;         SCRIPT=issue-to-gym.ts;         TYPE_LABEL='type:gym';         DATA_DIR=gyms ;;
+            approved:event)       KIND=event;       SCRIPT=issue-to-event.ts;       TYPE_LABEL='type:event';       DATA_DIR=bjj-events ;;
+            approved:competition) KIND=competition; SCRIPT=issue-to-competition.ts; TYPE_LABEL='type:competition'; DATA_DIR=competitions ;;
+            approved:store)       KIND=store;       SCRIPT=issue-to-store.ts;       TYPE_LABEL='type:store';       DATA_DIR=stores ;;
+            *) echo "::error title=Unhandled label::$LABEL"; exit 1 ;;
+          esac
+          {
+            echo "kind=$KIND"
+            echo "script=$SCRIPT"
+            echo "type_label=$TYPE_LABEL"
+            echo "data_dir=$DATA_DIR"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice title=Contribution::kind=$KIND via $LABEL"
+
+      - name: Build data JSON from issue
+        id: build
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          SCRIPT: ${{ steps.kind.outputs.script }}
+          DATA_DIR: ${{ steps.kind.outputs.data_dir }}
+          STEPS_KIND_OUTPUTS_KIND: ${{ steps.kind.outputs.kind }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "seeder/data/${DATA_DIR}"
+          echo "::group::${SCRIPT}"
+          node ".github/scripts/${SCRIPT}"
+          echo "::endgroup::"
+          echo "::notice title=Generated::${STEPS_KIND_OUTPUTS_KIND} JSON from issue #${ISSUE_NUMBER}"
+
+      - name: Mint GitHub App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        with:
+          app-id: ${{ secrets.BJJEIRE_APP_ID }}
+          private-key: ${{ secrets.BJJEIRE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v8.1.1
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          branch: data/${{ steps.kind.outputs.kind }}-from-issue-${{ github.event.issue.number }}
+          delete-branch: true
+          draft: true
+          commit-message: "feat(data): add ${{ steps.kind.outputs.kind }} from issue #${{ github.event.issue.number }}"
+          title: "feat(data): add ${{ steps.build.outputs.name }} (from #${{ github.event.issue.number }})"
+          body: |
+            Auto-generated from issue #${{ github.event.issue.number }} by @${{ github.event.issue.user.login }}.
+
+            Closes #${{ github.event.issue.number }}.
+
+            ### Maintainer review checklist
+            - [ ] Entry is real and its details are verifiable on its own public channels
+            - [ ] Website is the entity's own site (not a social page alone)
+            - [ ] No duplicate of an existing entry
+            - [ ] For gyms: coordinates point to the actual location (`[longitude, latitude]`, longitude negative for Ireland)
+
+            CI runs strict schema validation (and, for gyms, the Ireland bbox check) automatically.
+          labels: |
+            area:data
+            ${{ steps.kind.outputs.type_label }}
+            community-submission
+
+      - name: Comment back on issue (idempotent, success or failure)
+        if: always() && steps.kind.outputs.kind != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        env:
+          PR_URL: ${{ steps.cpr.outputs.pull-request-url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const marker = "<!-- bjjeire-bot:issue-to-pr -->";
+            const pr = process.env.PR_URL;
+            const run = process.env.RUN_URL;
+            const body = pr
+              ? `${marker}\n✅ Thanks! A draft pull request has been opened: ${pr}\n\nA maintainer will review and merge once CI passes.`
+              : `${marker}\n⚠️ I couldn't turn this into a pull request automatically.\n\n`
+                + `The most common causes are a **required field left blank** or **coordinates that don't look like an Ireland location**. `
+                + `Please edit the issue to fix it, then a maintainer will re-apply the approval label.\n\n`
+                + `[View the run log](${run}) for the exact error.`;
+
+            const existing = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const sticky = existing.find((c) => c.body && c.body.includes(marker));
+
+            if (sticky) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: sticky.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+            await core.summary
+              .addHeading("Issue → PR", 3)
+              .addRaw(pr ? `Issue #${context.issue.number} → PR ${pr}` : `Issue #${context.issue.number} → generation failed`)
+              .write();

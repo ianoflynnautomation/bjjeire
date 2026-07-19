@@ -1,0 +1,17 @@
+[
+  {
+    "id": "acce77000000000000000004",
+    "slug": "donegal-winter-gi-classic",
+    "name": "Donegal Winter Gi Classic",
+    "description": "North-west winter gi tournament in Letterkenny.",
+    "organisation": "Donegal BJJ",
+    "country": "Ireland",
+    "websiteUrl": "https://donegalbjj.example.ie/winter-gi-classic",
+    "registrationUrl": "https://donegalbjj.example.ie/winter-gi-classic/register",
+    "tags": ["gi", "winter"],
+    "startDate": "now+2d",
+    "endDate": "now+5d",
+    "isActive": true,
+    "createdBy": "acceptance-seed"
+  }
+]

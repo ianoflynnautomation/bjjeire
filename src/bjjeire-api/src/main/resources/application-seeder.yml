@@ -1,0 +1,10 @@
+spring:
+  main:
+    web-application-type: none
+
+bjjeire:
+  deactivation:
+    enabled: false
+  seeder:
+    data-root: ${BJJEIRE_SEEDER_DATAROOT:../../seeder}
+    dataset: ${SEED_DATASET:}

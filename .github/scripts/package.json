@@ -1,0 +1,13 @@
+{
+  "name": "bjjeire-issue-scripts",
+  "private": true,
+  "type": "module",
+  "description": "TypeScript generators that turn approved contribution issues into seeder data. Run directly with Node's native type-stripping (node >= 23.6); no build step.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.8.2"
+  }
+}

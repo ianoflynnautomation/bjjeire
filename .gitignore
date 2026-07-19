@@ -1,0 +1,101 @@
+# Java / Spring Boot / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle, if introduced later
+.gradle/
+build/
+!src/bjjeire-app/build/
+
+# Node.js / React / Vite
+node_modules/
+dist/
+coverage/
+npm-debug.log
+yarn-error.log
+.vite/
+.eslintcache
+
+# Test artifacts
+test-results/
+junit.xml
+*.lcov
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+allure*
+**/__screenshots__/
+**/__traces__/
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/*
+!.idea/.gitignore
+!.idea/vcs.xml
+!.idea/modules.xml
+!.idea/*.iml
+*.code-workspace
+
+# OS/editor temporary files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+
+# Local environment and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+secrets/
+certs/
+*.secret
+*.p12
+*.jks
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+
+# Local data
+logs/
+data/
+mongo-data/
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Generated documents
+*.md.bak
+*.md~
+*.docx
+*.xlsx
+*.pptx
+*.pdf
+
+# Local tool state
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/projects/
+.claude/todos/
+/tools/

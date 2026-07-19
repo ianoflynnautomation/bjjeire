@@ -1,0 +1,38 @@
+[
+  {
+    "id": "acce77900000000000000002",
+    "name": "Harbour City Jiu-Jitsu",
+    "description": "Acceptance-test fixture gym in Cork.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": false,
+      "freeClasses": null,
+      "freeDays": null,
+      "notes": null
+    },
+    "location": {
+      "address": "12 Quay Street, Cork, Co. Cork, Ireland",
+      "venue": "Harbour City Jiu-Jitsu",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.4706, 51.8985],
+        "placeName": "Cork City, Co. Cork",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": ["BJJGiAllLevels", "KidsBJJ"],
+    "website": "https://harbour-city-jiu-jitsu.example.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-02T00:00:00Z"
+  }
+]

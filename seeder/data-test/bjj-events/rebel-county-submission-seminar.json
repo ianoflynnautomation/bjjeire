@@ -1,0 +1,57 @@
+[
+  {
+    "id": "acce77e00000000000000002",
+    "name": "Rebel County Submission Seminar",
+    "description": "Acceptance-test fixture event in Cork (upcoming).",
+    "types": ["Seminar"],
+    "organiser": {
+      "name": "Rebel County BJJ",
+      "website": "https://rebel-county-bjj.example.ie/"
+    },
+    "status": "RegistrationOpen",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Cork",
+    "location": {
+      "address": "5 Academy Street, Cork, Co. Cork, Ireland",
+      "venue": "Rebel County BJJ Academy",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.468, 51.8998],
+        "placeName": "Cork City, Co. Cork",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "now+9d",
+      "endDate": "now+9d",
+      "sessions": []
+    },
+    "pricingOptions": [
+      {
+        "type": "FlatRate",
+        "amount": 40,
+        "durationDays": null,
+        "currency": "EUR"
+      },
+      {
+        "type": "Free",
+        "label": "Spectators",
+        "amount": 0,
+        "durationDays": null,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://rebel-county-bjj.example.ie/seminar",
+    "imageUrl": "/images/events/acce77e00000000000000002/lg.webp",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-02T00:00:00Z"
+  }
+]

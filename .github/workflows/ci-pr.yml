@@ -1,0 +1,364 @@
+name: CI PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "logs/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "docs/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  REACT_APP_PATH: "src/bjjeire-app"
+
+permissions:
+  contents: read
+
+jobs:
+  lint_workflows:
+    name: Lint Workflows
+    permissions:
+      contents: read
+      checks: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      zizmor-enforce: false
+
+  detect-changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      frontend: ${{ steps.changes.outputs.frontend }}
+      java-api: ${{ steps.changes.outputs.java_api }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - id: changes
+        uses: ./.github/actions/detect-changes
+
+  dependency_review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Dependency review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294  # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+  secret_scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e  # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Semgrep scan (ERROR severity only)
+        run: pipx run semgrep==1.168.0 scan --config p/java --config p/typescript --config p/react --severity ERROR --error --quiet
+
+  java_build_test:
+    name: Java Build & Test
+    needs: detect-changes
+    if: needs.detect-changes.outputs.java-api == 'true'
+    permissions:
+      contents: read
+      checks: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@main
+    with:
+      working-directory: src/bjjeire-api
+      java-version: "21"
+      maven-goals: verify
+      publish-test-report: true
+      test-report-name: Java Test Results
+
+  openapi_contract:
+    name: OpenAPI Contract
+    runs-on: ubuntu-latest
+    needs: [java_build_test]
+    if: needs.java_build_test.result == 'success'
+    timeout-minutes: 15
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95  # v5
+        with:
+          java-version: "21"
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: src/bjjeire-api/pom.xml
+      - name: Generate current OpenAPI contract (springdoc)
+        id: gen
+        uses: ./.github/actions/generate-openapi-contract
+        with:
+          output-path: ${{ github.workspace }}/artifacts/openapi/openapi-v1.json
+      - name: Write OpenAPI summary
+        shell: bash
+        env:
+          BYTES: ${{ steps.gen.outputs.bytes }}
+        run: |
+          {
+            echo "### OpenAPI contract"
+            echo ""
+            echo "| File | Size (bytes) |"
+            echo "| --- | --- |"
+            echo "| openapi-v1.json | ${BYTES} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload OpenAPI contract
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: openapi-v1-json
+          path: artifacts/openapi/openapi-v1.json
+          if-no-files-found: error
+          retention-days: 30
+
+  check_openapi_breaking:
+    name: Check OpenAPI Breaking Changes
+    runs-on: ubuntu-latest
+    needs: [openapi_contract]
+    if: needs.openapi_contract.result == 'success'
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Download current OpenAPI contract
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: openapi-v1-json
+          path: artifacts/openapi
+      - name: Compare against last published contract
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        with:
+          current-spec: artifacts/openapi/openapi-v1.json
+          image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
+          token: ${{ github.token }}
+          user: ${{ github.actor }}
+
+  check_frontend_api_compat:
+    name: Check Frontend API Compatibility
+    runs-on: ubuntu-latest
+    container:
+      image: node:26-bookworm-slim
+    needs: [openapi_contract]
+    if: needs.openapi_contract.result == 'success'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+          install: 'true'
+      - name: Download OpenAPI contract artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: openapi-v1-json
+          path: ${{ env.REACT_APP_PATH }}
+      - name: Regenerate frontend API types from contract
+        shell: bash
+        run: |
+          echo "::group::npm run gen:api-types:ci"
+          npm run gen:api-types:ci
+          echo "::endgroup::"
+      - name: Typecheck — catches DTO drift via api-compat.ts
+        shell: bash
+        run: |
+          echo "::group::tsc --noEmit"
+          npx tsc --noEmit
+          echo "::endgroup::"
+          echo "::notice title=Frontend API compat::No DTO drift detected against current OpenAPI contract"
+
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    container:
+      image: node:26-bookworm-slim
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 15
+    env:
+      HUSKY: "0"
+      SERVICES_API_HTTPS_0: "https://api-ci-placeholder:443"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+          install: 'true'
+      - name: Build
+        shell: bash
+        run: |
+          echo "::group::npm run build"
+          npm run build
+          echo "::endgroup::"
+          echo "::notice title=Build Frontend::Production bundle built"
+
+  frontend_checks:
+    name: Frontend Checks (lint + unit + pact)
+    runs-on: ubuntu-latest
+    container:
+      image: node:26-bookworm-slim
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    timeout-minutes: 15
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+          install: 'true'
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+      - name: ESLint check
+        run: npx eslint src --max-warnings 0
+      - name: Prettier format check
+        run: npx prettier --check src/
+      - name: Unit tests
+        run: npm test
+      - name: Pact consumer contract tests
+        run: npm run test:pact
+      - name: Upload Pact contracts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: frontend-pacts
+          path: ${{ env.REACT_APP_PATH }}/pacts/*.json
+          if-no-files-found: error
+          retention-days: 30
+
+  test_frontend_integration:
+    name: Test Frontend Integration + Coverage Gate
+    runs-on: ubuntu-latest
+    container:
+      image: node:26-bookworm-slim
+    needs: [frontend_checks, build_frontend]
+    if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
+    timeout-minutes: 10
+    env:
+      HUSKY: "0"
+    defaults:
+      run:
+        working-directory: ${{ env.REACT_APP_PATH }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+          install: 'true'
+      - name: Run integration tests with coverage gate
+        run: |
+          echo "::group::npm run test:coverage"
+          npm run test:coverage
+          echo "::endgroup::"
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: frontend-coverage
+          path: ${{ env.REACT_APP_PATH }}/coverage
+          if-no-files-found: error
+          retention-days: 7
+
+  test_frontend_browser:
+    name: Test Frontend Browser
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+    needs: [frontend_checks, build_frontend]
+    if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
+    timeout-minutes: 15
+    env:
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/react-test-browser
+        with:
+          working-directory: ${{ env.REACT_APP_PATH }}
+
+  pr_complete:
+    name: PR Checks Complete
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    needs:
+      - lint_workflows
+      - detect-changes
+      - dependency_review
+      - secret_scan
+      - sast
+      - java_build_test
+      - openapi_contract
+      - check_openapi_breaking
+      - check_frontend_api_compat
+      - build_frontend
+      - frontend_checks
+      - test_frontend_integration
+      - test_frontend_browser
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/actions/check-required-jobs
+      - name: Verify all required checks succeeded or were intentionally skipped
+        uses: ./.github/actions/check-required-jobs
+        with:
+          needs-json: ${{ toJson(needs) }}
+          summary-title: PR checks

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contribute data via pull request
+    url: https://github.com/ianoflynnautomation/BjjEire/blob/main/CONTRIBUTING.md
+    about: Prefer to open a PR directly? See the contribution guide.

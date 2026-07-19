@@ -1,0 +1,60 @@
+name: 'Generate OpenAPI Contract'
+description: 'Runs the springdoc OpenAPI integration test that writes the served /v3/api-docs spec to the requested path, then verifies the resulting JSON is non-empty. Needs a Docker daemon (Testcontainers Mongo) and a JDK on PATH.'
+
+inputs:
+  output-path:
+    description: 'Path where the OpenAPI JSON artifact should be written. Relative paths are resolved against working-directory. Passed to the test via OPENAPI_ARTIFACT_PATH.'
+    required: true
+  working-directory:
+    description: 'Directory containing the Maven module pom.xml.'
+    required: false
+    default: 'src/bjjeire-api'
+  test-class:
+    description: 'Failsafe integration test class that serves and exports the contract.'
+    required: false
+    default: 'OpenApiContractIT'
+
+outputs:
+  bytes:
+    description: 'Size of the generated artifact in bytes.'
+    value: ${{ steps.run.outputs.bytes }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate OpenAPI artifact
+      id: run
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        OPENAPI_ARTIFACT_PATH: ${{ inputs.output-path }}
+        TEST_CLASS: ${{ inputs.test-class }}
+      run: |
+        set -euo pipefail
+        case "$OPENAPI_ARTIFACT_PATH" in
+          /*) ;;
+          *) OPENAPI_ARTIFACT_PATH="$(pwd)/${OPENAPI_ARTIFACT_PATH}" ;;
+        esac
+        export OPENAPI_ARTIFACT_PATH
+        mkdir -p "$(dirname "$OPENAPI_ARTIFACT_PATH")"
+        echo "::group::mvn verify (OpenAPI contract generation)"
+        mvn --batch-mode --no-transfer-progress verify \
+          -Dtest=none -Dsurefire.failIfNoSpecifiedTests=false \
+          -Dit.test="$TEST_CLASS"
+        echo "::endgroup::"
+        if ! test -s "$OPENAPI_ARTIFACT_PATH"; then
+          echo "::error title=OpenAPI contract::Artifact was not generated at $OPENAPI_ARTIFACT_PATH"
+          exit 1
+        fi
+        if command -v jq >/dev/null 2>&1; then
+          if ! jq -e '.openapi and .paths' "$OPENAPI_ARTIFACT_PATH" >/dev/null; then
+            echo "::error title=OpenAPI contract::Artifact at $OPENAPI_ARTIFACT_PATH is not a valid OpenAPI document"
+            exit 1
+          fi
+        elif ! grep -q '"openapi"' "$OPENAPI_ARTIFACT_PATH" || ! grep -q '"paths"' "$OPENAPI_ARTIFACT_PATH"; then
+          echo "::error title=OpenAPI contract::Artifact at $OPENAPI_ARTIFACT_PATH is missing openapi/paths members"
+          exit 1
+        fi
+        BYTES=$(wc -c < "$OPENAPI_ARTIFACT_PATH")
+        echo "bytes=${BYTES}" >> "$GITHUB_OUTPUT"
+        echo "::notice title=OpenAPI contract::Generated ${BYTES} bytes at $OPENAPI_ARTIFACT_PATH"

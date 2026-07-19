@@ -1,0 +1,38 @@
+name: Add a store
+description: Submit a BJJ / grappling gear store to be added to the directory
+title: "[store] <Store name>"
+labels: ["area:data", "type:store"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing! A maintainer will review and, if it's a good fit, a pull request is opened automatically.
+        Prefer to open the PR yourself? See [CONTRIBUTING.md](https://github.com/ianoflynnautomation/BjjEire/blob/main/CONTRIBUTING.md).
+  - type: input
+    id: name
+    attributes:
+      label: Store name
+      placeholder: Jusports
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Website URL
+      placeholder: https://jusports.ie/
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description (optional)
+      description: One or two sentences about what the store sells.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm the information above is accurate and publicly available.
+          required: true
+        - label: I understand this is a community directory and a maintainer may edit or decline the submission.
+          required: true

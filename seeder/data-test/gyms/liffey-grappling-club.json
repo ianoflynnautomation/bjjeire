@@ -1,0 +1,38 @@
+[
+  {
+    "id": "acce77900000000000000003",
+    "name": "Liffey Grappling Club",
+    "description": "Acceptance-test fixture gym in Dublin.",
+    "status": "Active",
+    "county": "Dublin",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": null,
+      "freeDays": 7,
+      "notes": "One free trial week."
+    },
+    "location": {
+      "address": "34 Ormond Quay, Dublin 1, Ireland",
+      "venue": "Liffey Grappling Club",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-6.2673, 53.3465],
+        "placeName": "Dublin City, Co. Dublin",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": ["BJJGiAllLevels", "BJJNoGiAllLevels", "WomensOnly"],
+    "website": "https://liffey-grappling-club.example.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-03T00:00:00Z"
+  }
+]

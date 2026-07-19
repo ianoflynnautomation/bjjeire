@@ -1,0 +1,38 @@
+[
+  {
+    "id": "acce77900000000000000001",
+    "name": "Blackwater Valley BJJ",
+    "description": "Acceptance-test fixture gym in Cork.",
+    "status": "Active",
+    "county": "Cork",
+    "affiliation": null,
+    "trialOffer": {
+      "isAvailable": true,
+      "freeClasses": 1,
+      "freeDays": null,
+      "notes": "One free trial class."
+    },
+    "location": {
+      "address": "1 Riverside Walk, Fermoy, Co. Cork, Ireland",
+      "venue": "Blackwater Valley BJJ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-8.2721, 52.1399],
+        "placeName": "Fermoy, Co. Cork",
+        "placeId": null
+      }
+    },
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "offeredClasses": ["BJJGiAllLevels", "BJJNoGiAllLevels"],
+    "website": "https://blackwater-valley-bjj.example.ie/",
+    "timetableUrl": null,
+    "imageUrl": null,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]

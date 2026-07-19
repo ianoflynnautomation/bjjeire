@@ -1,0 +1,78 @@
+name: Add a competition
+description: Submit a BJJ / grappling competition to be added to the directory
+title: "[competition] <Competition name>"
+labels: ["area:data", "type:competition"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing! A maintainer will review and, if it's a good fit, a pull request is opened automatically.
+        Prefer to open the PR yourself? See [CONTRIBUTING.md](https://github.com/ianoflynnautomation/BjjEire/blob/main/CONTRIBUTING.md).
+  - type: input
+    id: name
+    attributes:
+      label: Competition name
+      placeholder: The Irish BJJ Open 2026
+    validations:
+      required: true
+  - type: input
+    id: organisation
+    attributes:
+      label: Organisation
+      description: Who runs the competition.
+      placeholder: Ireland BJJ
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+      description: One or two sentences.
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Website URL
+      placeholder: https://ireland-bjj.smoothcomp.com/en/event/30176
+    validations:
+      required: true
+  - type: input
+    id: registration
+    attributes:
+      label: Registration URL (optional)
+      placeholder: https://ireland-bjj.smoothcomp.com/en/event/30176/register
+  - type: input
+    id: start
+    attributes:
+      label: Start date (YYYY-MM-DD)
+      placeholder: "2026-05-23"
+    validations:
+      required: true
+  - type: input
+    id: end
+    attributes:
+      label: End date (YYYY-MM-DD, optional)
+      description: Leave blank for single-day competitions.
+      placeholder: "2026-05-24"
+  - type: checkboxes
+    id: tags
+    attributes:
+      label: Tags
+      options:
+        - label: Gi
+        - label: No-Gi
+        - label: Kids
+        - label: Adults
+        - label: IBJJF
+        - label: ADCC
+        - label: Open
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm the information above is accurate and publicly available.
+          required: true
+        - label: I understand this is a community directory and a maintainer may edit or decline the submission.
+          required: true
