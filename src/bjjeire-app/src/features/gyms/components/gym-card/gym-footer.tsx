@@ -30,7 +30,7 @@ export const GymFooter = function GymFooter({
     : `No website available for ${fallback}`
 
   return (
-    <div className="mt-auto border-t border-black/8 pt-3 dark:border-white/8">
+    <div className="mt-auto border-t border-hairline pt-3">
       <CardActionButton
         href={externalWebsiteUrl}
         icon={

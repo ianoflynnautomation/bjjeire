@@ -11,7 +11,7 @@ export const AboutMissionSection = function AboutMissionSection(): JSX.Element {
         title={uiContent.about.missionTitle}
         data-testid={AboutMissionTestIds.SECTION}
       >
-        <div className="space-y-4 leading-relaxed text-slate-700 dark:text-slate-300">
+        <div className="space-y-4 leading-relaxed text-fg-muted">
           <p data-testid={AboutMissionTestIds.PARAGRAPH_TEXT_1}>
             {uiContent.about.missionParagraph1}
           </p>

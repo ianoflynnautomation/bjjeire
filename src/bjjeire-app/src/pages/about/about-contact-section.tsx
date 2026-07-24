@@ -19,7 +19,7 @@ export const AboutContactSection = function AboutContactSection(): JSX.Element {
         data-testid={AboutContactTestIds.SECTION}
       >
         <p
-          className="text-slate-700 dark:text-slate-300"
+          className="text-fg-muted"
           data-testid={AboutContactTestIds.PARAGRAPH_TEXT}
         >
           {uiContent.about.contactPrefix}{' '}

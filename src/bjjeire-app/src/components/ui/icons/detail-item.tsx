@@ -25,7 +25,7 @@ export const DetailItem = function DetailItem({
   return (
     <div
       className={cn(
-        'flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300',
+        'flex items-start gap-x-2.5 text-fg-muted',
         className
       )}
       data-testid={rootTestId}

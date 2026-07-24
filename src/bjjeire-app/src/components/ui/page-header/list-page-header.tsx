@@ -30,7 +30,7 @@ export const ListPageHeader = function ListPageHeader({
       <GlowField />
       <div className="relative">
         <h2
-          className="display-expanded text-3xl font-black text-slate-900 sm:text-4xl dark:text-white"
+          className="display-expanded text-3xl font-black text-fg sm:text-4xl"
           data-testid={testIds.title}
         >
           {title}

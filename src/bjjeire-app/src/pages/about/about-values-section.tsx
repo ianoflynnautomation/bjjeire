@@ -12,7 +12,7 @@ export const AboutValuesSection = function AboutValuesSection(): JSX.Element {
         data-testid={AboutValuesTestIds.SECTION}
       >
         <ul
-          className="list-disc space-y-2 pl-6 text-slate-700 marker:text-primary-500 dark:text-slate-300 dark:marker:text-primary-400"
+          className="list-disc space-y-2 pl-6 text-fg-muted marker:text-primary-500 dark:marker:text-primary-400"
           data-testid={AboutValuesTestIds.LIST}
         >
           {uiContent.about.principles.map(item => (

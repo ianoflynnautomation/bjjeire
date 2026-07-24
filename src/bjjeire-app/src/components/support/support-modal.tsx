@@ -43,7 +43,7 @@ const SupportModal = function SupportModal({
         aria-modal="true"
         aria-labelledby={mainTitleId}
         aria-describedby={descriptionId}
-        className="animate-modal-show w-full max-w-md transform rounded-3xl border border-accent-200/80 bg-linear-to-b from-white to-accent-50/40 p-6 shadow-2xl shadow-accent-900/10 transition-all duration-300 ease-in-out sm:p-8"
+        className="animate-modal-show w-full max-w-md transform rounded-3xl border border-accent-500/30 bg-surface-solid p-6 shadow-2xl shadow-accent-900/20 ring-1 ring-hairline transition-all duration-300 ease-in-out sm:p-8 dark:border-accent-500/20 dark:bg-linear-to-b dark:from-ink-800 dark:to-ink-900"
         data-testid={SupportModalTestIds.CONTENT}
       >
         <header className="mb-6 flex items-center justify-between">
@@ -51,7 +51,7 @@ const SupportModal = function SupportModal({
             <BitcoinIcon className="h-8 w-8" />
             <h2
               id={mainTitleId}
-              className="text-2xl font-bold text-slate-900"
+              className="text-2xl font-bold text-fg"
               data-testid={mainTitleId}
             >
               {uiContent.supportModal.title}
@@ -60,7 +60,7 @@ const SupportModal = function SupportModal({
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-accent-100 hover:text-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2"
+            className="rounded-full p-1.5 text-fg-subtle transition-colors hover:bg-accent-100 hover:text-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 dark:hover:bg-accent-950 dark:hover:text-accent-300"
             aria-label={uiContent.supportModal.closeLabel}
             data-testid={SupportModalTestIds.CLOSE_BUTTON}
           >
@@ -68,7 +68,7 @@ const SupportModal = function SupportModal({
           </button>
         </header>
         <div className="space-y-6">
-          <p className="text-slate-700" id={descriptionId}>
+          <p className="text-fg-muted" id={descriptionId}>
             {uiContent.supportModal.description}
           </p>
           <div className="flex justify-center">
@@ -80,12 +80,12 @@ const SupportModal = function SupportModal({
             />
           </div>
           <div
-            className="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4"
+            className="rounded-2xl border border-warning-200 bg-warning-50/90 p-4 dark:border-warning-800/60 dark:bg-warning-950/50"
             data-testid={SupportModalTestIds.WARNING}
           >
-            <p className="flex items-start gap-2 text-sm text-yellow-900">
+            <p className="flex items-start gap-2 text-sm text-warning-900 dark:text-warning-500">
               <ExclamationTriangleIcon
-                className="h-5 w-5 shrink-0 text-yellow-600"
+                className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-500"
                 aria-hidden="true"
                 data-testid={`${SupportModalTestIds.WARNING}-icon`}
               />

@@ -32,7 +32,7 @@ export const EventFooter = function EventFooter({
     : `No website available for ${fallback}`
 
   return (
-    <div className="mt-auto border-t border-black/8 pt-3 dark:border-white/8">
+    <div className="mt-auto border-t border-hairline pt-3">
       <CardActionButton
         href={externalEventUrl}
         icon={<LinkIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />}

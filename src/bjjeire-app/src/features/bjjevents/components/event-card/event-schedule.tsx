@@ -71,7 +71,7 @@ export const EventSchedule = function EventSchedule({
       ))}
       {extraCount > 0 && (
         <p
-          className="pl-5 text-xs italic text-slate-500"
+          className="pl-5 text-xs italic text-fg-subtle"
           data-testid={EventCardTestIds.SCHEDULE_MORE}
         >
           +{extraCount} {scheduleContent.moreHoursSuffix}

@@ -11,15 +11,15 @@ const badgeVariants = cva(
         emerald:
           'bg-primary-100 text-primary-700 ring-primary-500/30 dark:bg-primary-900/40 dark:text-primary-300',
         slate:
-          'bg-slate-100 text-slate-600 ring-slate-400/40 dark:bg-slate-700/50 dark:text-slate-300 dark:ring-slate-600/40',
+          'bg-ink-100 text-ink-600 ring-ink-400/40 dark:bg-ink-700/50 dark:text-ink-300 dark:ring-ink-500/40',
         amber:
-          'bg-amber-100 text-amber-700 ring-amber-500/30 dark:bg-amber-900/40 dark:text-amber-300',
-        red: 'bg-red-100 text-red-700 ring-red-500/30 dark:bg-red-900/40 dark:text-red-300',
+          'bg-warning-50 text-warning-800 ring-warning-500/30 dark:bg-warning-950/40 dark:text-warning-500',
+        red: 'bg-danger-500/10 text-danger-500 ring-danger-500/30 dark:bg-danger-950/40 dark:text-danger-400',
         blue: 'bg-blue-100 text-blue-700 ring-blue-500/30 dark:bg-blue-900/40 dark:text-blue-300',
         neutral:
-          'bg-slate-100 text-slate-600 ring-slate-400/40 dark:bg-slate-700/50 dark:text-slate-300 dark:ring-slate-600/40',
+          'bg-ink-100 text-ink-600 ring-ink-400/40 dark:bg-ink-700/50 dark:text-ink-300 dark:ring-ink-500/40',
         beltWhite:
-          'bg-slate-100 text-slate-700 ring-slate-400/50 dark:bg-white/10 dark:text-slate-100 dark:ring-white/25',
+          'bg-ink-100 text-ink-700 ring-ink-400/50 dark:bg-white/10 dark:text-ink-100 dark:ring-white/25',
         beltBlue:
           'bg-blue-100 text-blue-700 ring-blue-500/30 dark:bg-blue-900/40 dark:text-blue-300',
         beltPurple:
@@ -27,7 +27,7 @@ const badgeVariants = cva(
         beltBrown:
           'bg-amber-100 text-amber-800 ring-amber-700/30 dark:bg-amber-950/60 dark:text-amber-200 dark:ring-amber-700/40',
         beltBlack:
-          'bg-slate-800 text-slate-100 ring-slate-500/40 dark:bg-slate-950 dark:text-slate-100 dark:ring-white/15',
+          'bg-ink-800 text-ink-100 ring-ink-500/40 dark:bg-ink-950 dark:text-ink-100 dark:ring-white/15',
       },
       size: {
         xs: 'px-2.5 py-0.5 text-xs',

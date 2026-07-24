@@ -29,7 +29,7 @@ const Navigation = function Navigation(): JSX.Element {
   return (
     <>
       <nav
-        className="sticky top-0 z-40 border-b border-black/6 bg-white/80 shadow-sm shadow-black/10 backdrop-blur-xl dark:border-white/6 dark:bg-slate-950/80 dark:shadow-black/20"
+        className="sticky top-0 z-40 border-b border-hairline bg-surface-solid/80 shadow-sm shadow-black/10 backdrop-blur-xl dark:bg-ink-950/80 dark:shadow-black/20"
         data-testid={NavigationTestIds.ROOT}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -75,7 +75,7 @@ const Navigation = function Navigation(): JSX.Element {
               )}
               <Button
                 onClick={openSupportModal}
-                variant="gradient"
+                variant="accent"
                 size="lg"
                 className="ml-2 gap-2.5"
                 data-testid={NavigationTestIds.SUPPORT_BUTTON}
@@ -88,7 +88,7 @@ const Navigation = function Navigation(): JSX.Element {
               <div className="ml-2 flex items-center sm:hidden">
                 <button
                   onClick={toggleMobileMenu}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-black/6 hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 dark:text-slate-400 dark:hover:bg-white/6 dark:hover:text-primary-400"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl p-2 text-fg-subtle transition-colors hover:bg-black/6 hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:hover:bg-white/6 dark:hover:text-primary-400"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}

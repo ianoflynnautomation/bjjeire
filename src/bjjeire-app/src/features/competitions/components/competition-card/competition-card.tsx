@@ -80,7 +80,7 @@ export const CompetitionCard = function CompetitionCard({
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-bold leading-snug text-slate-900 dark:text-white"
+            className="text-base font-bold leading-snug text-fg"
             data-testid={CompetitionCardTestIds.NAME}
           >
             {name || card.fallbackName}
@@ -90,7 +90,7 @@ export const CompetitionCard = function CompetitionCard({
         {/* Date */}
         {dateRange && (
           <div
-            className="mb-3 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400"
+            className="mb-3 flex items-center gap-1.5 text-sm text-fg-subtle"
             data-testid={CompetitionCardTestIds.DATE}
             aria-label={`${card.dateLabel}: ${dateRange}`}
           >
@@ -105,7 +105,7 @@ export const CompetitionCard = function CompetitionCard({
         {/* Description */}
         {description && (
           <p
-            className="mb-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+            className="mb-4 text-sm leading-relaxed text-fg-muted"
             data-testid={CompetitionCardTestIds.DESCRIPTION}
           >
             {description}
@@ -122,7 +122,7 @@ export const CompetitionCard = function CompetitionCard({
             {tags.map(tag => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700/60 dark:text-slate-300 dark:ring-slate-600"
+                className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-fg-muted ring-1 ring-hairline"
                 data-testid={CompetitionCardTestIds.TAG_ITEM}
               >
                 {tag}

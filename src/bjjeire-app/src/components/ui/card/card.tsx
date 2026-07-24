@@ -12,6 +12,7 @@ export const Card = function Card({
         'bg-surface backdrop-blur-sm ring-1 ring-hairline',
         'shadow-md shadow-black/10 transition-all duration-300 ease-in-out dark:shadow-black/30',
         'hover:-translate-y-1 hover:ring-primary-500/30 hover:shadow-xl hover:shadow-black/20 dark:hover:shadow-black/40',
+        'competition:hover:ring-accent-500/40',
         className
       )}
       {...props}

@@ -15,7 +15,7 @@ const LoadingState = function LoadingState({
 
   return (
     <div
-      className="flex w-full justify-center rounded-2xl bg-white/70 p-10 backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-black/8 dark:bg-slate-800/40 dark:shadow-black/20 dark:ring-white/8"
+      className="flex w-full justify-center rounded-2xl bg-surface p-10 backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-hairline dark:shadow-black/20"
       data-testid={rootTestId}
     >
       <LoadingSpinner

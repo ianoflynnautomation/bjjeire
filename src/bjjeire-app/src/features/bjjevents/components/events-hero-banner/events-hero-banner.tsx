@@ -8,7 +8,7 @@ const { hero } = uiContent.events
 export const EventsHeroBanner = function EventsHeroBanner(): JSX.Element {
   return (
     <section
-      className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-black/8 dark:ring-white/8"
+      className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-hairline"
       aria-label={hero.ariaLabel}
       data-testid={EventsHeroBannerTestIds.BANNER}
     >
@@ -20,7 +20,7 @@ export const EventsHeroBanner = function EventsHeroBanner(): JSX.Element {
         data-testid={EventsHeroBannerTestIds.IMAGE}
       /> */}
       <div
-        className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-slate-950/40 to-transparent"
+        className="absolute inset-0 bg-linear-to-t from-ink-950/80 via-ink-950/40 to-transparent"
         aria-hidden="true"
       />
       <TricolorEdge />
@@ -32,7 +32,7 @@ export const EventsHeroBanner = function EventsHeroBanner(): JSX.Element {
           {hero.tagline}
         </h1>
         <p
-          className="mt-2 text-base text-slate-300 drop-shadow sm:text-lg"
+          className="mt-2 text-base text-ink-300 drop-shadow sm:text-lg"
           data-testid={EventsHeroBannerTestIds.SUBTITLE}
         >
           {hero.subtitle}

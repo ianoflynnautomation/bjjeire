@@ -45,7 +45,7 @@ export const GymHeader = function GymHeader({
           <>
             {!isLoaded && (
               <div
-                className="absolute inset-0 animate-pulse bg-slate-200 dark:bg-slate-700"
+                className="absolute inset-0 animate-pulse bg-ink-200 dark:bg-ink-700"
                 aria-hidden="true"
                 data-testid={GymCardTestIds.IMAGE_SKELETON}
               />
@@ -72,15 +72,15 @@ export const GymHeader = function GymHeader({
           </>
         ) : (
           <div
-            className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800/60"
+            className="flex h-full w-full items-center justify-center bg-ink-100 dark:bg-ink-800/60"
             aria-hidden="true"
             data-testid={GymCardTestIds.IMAGE_FALLBACK}
           >
-            <BuildingStorefrontIcon className="h-16 w-16 text-slate-400 dark:text-slate-600" />
+            <BuildingStorefrontIcon className="h-16 w-16 text-ink-400 dark:text-ink-500" />
           </div>
         )}
         <div
-          className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-ink-900/60 to-transparent"
           aria-hidden="true"
         />
       </div>
@@ -88,7 +88,7 @@ export const GymHeader = function GymHeader({
         <div className="flex items-center justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-50"
+            className="text-base font-semibold leading-tight text-fg"
             data-testid={GymCardTestIds.NAME}
           >
             {displayName}
@@ -100,7 +100,7 @@ export const GymHeader = function GymHeader({
           />
         </div>
         <div
-          className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400"
+          className="flex items-center gap-1 text-xs text-fg-subtle"
           data-testid={GymCardTestIds.COUNTY}
         >
           <MapPinIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

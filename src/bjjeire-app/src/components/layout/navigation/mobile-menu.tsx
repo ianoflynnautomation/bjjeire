@@ -11,7 +11,7 @@ import { useRoutePrefetch } from './route-prefetch'
 const activeClass =
   'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
 const inactiveClass =
-  'border-transparent text-slate-500 hover:border-primary-500/40 hover:bg-black/4 hover:text-primary-600 dark:text-slate-400 dark:hover:bg-white/4 dark:hover:text-primary-300'
+  'border-transparent text-fg-subtle hover:border-primary-500/40 hover:bg-black/4 hover:text-primary-600 dark:hover:bg-white/4 dark:hover:text-primary-300'
 
 interface MobileMenuProps {
   onLinkClick: () => void
@@ -25,7 +25,7 @@ export const MobileMenu = function MobileMenu({
   return (
     <div
       id="mobile-menu-panel"
-      className="absolute z-30 w-full bg-white/95 shadow-xl ring-1 ring-black/6 backdrop-blur-xl sm:hidden dark:bg-slate-900/95 dark:ring-white/6"
+      className="absolute z-30 w-full bg-surface-solid/95 shadow-xl ring-1 ring-hairline backdrop-blur-xl sm:hidden"
       data-testid={NavigationTestIds.MOBILE_PANEL}
     >
       <div className="space-y-1 px-2 pb-3 pt-2">

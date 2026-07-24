@@ -30,7 +30,7 @@ function ButtonGroupFilterBase<T extends string | number>({
   return (
     <fieldset className={cn('flex-1', className)} data-testid={dataTestId}>
       <legend
-        className="mb-1.5 block text-sm font-semibold text-slate-600 dark:text-slate-300"
+        className="mb-1.5 block text-sm font-semibold text-fg-muted"
         data-testid={ButtonGroupFilterTestIds.LABEL}
       >
         {label}

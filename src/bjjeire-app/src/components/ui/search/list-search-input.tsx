@@ -43,14 +43,14 @@ export const ListSearchInput = function ListSearchInput({
     <div role="search" className="flex flex-col" data-testid={dataTestId}>
       <label
         htmlFor={inputId}
-        className="text-sm font-semibold text-slate-600 dark:text-slate-300"
+        className="text-sm font-semibold text-fg-muted"
       >
         {content.label}
       </label>
       <div className="relative mt-1">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <MagnifyingGlassIcon
-            className="h-4 w-4 text-slate-400"
+            className="h-4 w-4 text-fg-subtle"
             aria-hidden="true"
           />
         </div>
@@ -66,7 +66,7 @@ export const ListSearchInput = function ListSearchInput({
           aria-label={content.label}
           data-testid="search-input"
           autoComplete="off"
-          className="block w-full rounded-xl border border-black/10 bg-white py-2 pl-10 pr-10 text-base text-slate-700 shadow-sm ring-1 ring-transparent transition-colors focus:border-primary-500/50 focus:outline-none focus:ring-2 focus:ring-primary-500/60 sm:text-sm dark:border-white/10 dark:bg-slate-700/50 dark:text-slate-200 disabled:cursor-not-allowed disabled:opacity-70 disabled:bg-slate-100 dark:disabled:bg-slate-800/50"
+          className="block w-full rounded-xl border border-black/10 bg-white py-2 pl-10 pr-10 text-base text-fg-muted shadow-sm ring-1 ring-transparent transition-colors focus:border-primary-500/50 focus:outline-none focus:ring-2 focus:ring-primary-500/60 sm:text-sm dark:border-white/10 dark:bg-ink-700/50 dark:text-ink-200 disabled:cursor-not-allowed disabled:opacity-70 disabled:bg-ink-100 dark:disabled:bg-ink-800/50"
         />
         {value && (
           <button
@@ -74,7 +74,7 @@ export const ListSearchInput = function ListSearchInput({
             onClick={onClear}
             data-testid="search-clear-button"
             aria-label={content.clearLabel}
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors dark:hover:text-slate-200"
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-subtle hover:text-fg-muted transition-colors dark:hover:text-slate-200"
           >
             <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>

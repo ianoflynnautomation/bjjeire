@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant competition (&:where(.competition, .competition *));
 
 @theme {
   /* Type roles — distinctive, self-hosted variable fonts (see main.tsx).
@@ -12,46 +13,90 @@
   --font-mono:
     'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
 
-  /* Brand as semantic scales. `primary` == emerald, `accent` == orange today,
-     but every component now speaks `primary-*` / `accent-*`, so a rebrand is a
-     one-file change here rather than a find-and-replace across the app. Values
-     alias Tailwind's scales, so this is a zero-visual-change indirection. */
-  --color-primary-50: var(--color-emerald-50);
-  --color-primary-100: var(--color-emerald-100);
-  --color-primary-200: var(--color-emerald-200);
-  --color-primary-300: var(--color-emerald-300);
-  --color-primary-400: var(--color-emerald-400);
-  --color-primary-500: var(--color-emerald-500);
-  --color-primary-600: var(--color-emerald-600);
-  --color-primary-700: var(--color-emerald-700);
-  --color-primary-800: var(--color-emerald-800);
-  --color-primary-900: var(--color-emerald-900);
-  --color-primary-950: var(--color-emerald-950);
+  /* ── Ink (Academy mat neutral — cool-green undertone, not blue slate) ── */
+  --color-ink-50: #f4f7f7;
+  --color-ink-100: #e8eeef;
+  --color-ink-200: #c5d0d3;
+  --color-ink-300: #9aabaf;
+  --color-ink-400: #6b7c80;
+  --color-ink-500: #3a4a4e;
+  --color-ink-600: #243033;
+  --color-ink-700: #1a2428;
+  --color-ink-800: #121a1d;
+  --color-ink-900: #0c1214;
+  --color-ink-950: #070a0c;
 
-  --color-accent-50: var(--color-orange-50);
-  --color-accent-100: var(--color-orange-100);
-  --color-accent-200: var(--color-orange-200);
-  --color-accent-300: var(--color-orange-300);
-  --color-accent-400: var(--color-orange-400);
-  --color-accent-500: var(--color-orange-500);
-  --color-accent-600: var(--color-orange-600);
-  --color-accent-700: var(--color-orange-700);
-  --color-accent-800: var(--color-orange-800);
-  --color-accent-900: var(--color-orange-900);
-  --color-accent-950: var(--color-orange-950);
+  /* ── Primary (Tatami green) ── */
+  --color-primary-50: #ecfdf6;
+  --color-primary-100: #d1fae8;
+  --color-primary-200: #a7f3d4;
+  --color-primary-300: #6ee7b5;
+  --color-primary-400: #34d399;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+  --color-primary-950: #022c22;
 
-  /* Neutral surface system — theme-aware via the --ui-* vars below, so framed
-     surfaces (cards, headers) share one bg + hairline instead of repeating a
-     `bg-white/80 … dark:bg-slate-800/xx` / `ring-black/8 dark:ring-white/8` pair. */
+  /* ── Accent (Fight orange / Irish gold-orange) ── */
+  --color-accent-50: #fff7ed;
+  --color-accent-100: #ffedd5;
+  --color-accent-200: #fed7aa;
+  --color-accent-300: #fdba74;
+  --color-accent-400: #fb923c;
+  --color-accent-500: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-700: #c2410c;
+  --color-accent-800: #9a3412;
+  --color-accent-900: #7c2d12;
+  --color-accent-950: #431407;
+
+  /* ── Semantic ── */
+  --color-success-500: #22c55e;
+  --color-success-950: #052e16;
+  --color-warning-50: #fefce8;
+  --color-warning-200: #fde68a;
+  --color-warning-500: #eab308;
+  --color-warning-600: #ca8a04;
+  --color-warning-800: #854d0e;
+  --color-warning-900: #713f12;
+  --color-warning-950: #422006;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-950: #450a0a;
+  --color-info-500: #38bdf8;
+
+  /* Theme-aware semantic surfaces/text — resolved via --ui-* below. */
+  --color-canvas: var(--ui-canvas);
   --color-surface: var(--ui-surface);
+  --color-surface-solid: var(--ui-surface-solid);
+  --color-muted: var(--ui-muted);
+  --color-fg: var(--ui-fg);
+  --color-fg-muted: var(--ui-fg-muted);
+  --color-fg-subtle: var(--ui-fg-subtle);
   --color-hairline: var(--ui-hairline);
+  --color-border-strong: var(--ui-border-strong);
+  --color-ring-focus: var(--ui-ring-focus);
 
   /* Signature tricolor accent — define once, reuse everywhere. */
   --gradient-tricolor: linear-gradient(
     90deg,
     var(--color-primary-500),
-    rgb(255 255 255 / 0.3),
+    rgb(255 255 255 / 0.28),
     var(--color-accent-500)
+  );
+  --gradient-cta: linear-gradient(
+    135deg,
+    var(--color-primary-700),
+    var(--color-primary-500) 55%,
+    var(--color-primary-400)
+  );
+  --gradient-cta-hot: linear-gradient(
+    135deg,
+    var(--color-accent-700),
+    var(--color-accent-500) 50%,
+    var(--color-accent-400)
   );
 }
 
@@ -60,77 +105,114 @@
     scroll-behavior: smooth;
   }
 
-  /* Theme-aware values behind the surface tokens (see @theme). */
+  /* ── Daylight Dojo (light) ── */
   :root {
-    --ui-surface: rgb(255 255 255 / 0.8);
+    --ui-canvas: #f4f7f7;
+    --ui-surface: rgb(255 255 255 / 0.88);
+    --ui-surface-solid: #ffffff;
+    --ui-muted: #e8eeef;
+    --ui-fg: #0c1214;
+    --ui-fg-muted: #3a4a4e;
+    --ui-fg-subtle: #6b7c80;
     --ui-hairline: rgb(0 0 0 / 0.08);
+    --ui-border-strong: rgb(0 0 0 / 0.12);
+    --ui-ring-focus: rgb(5 150 105 / 0.7);
+    --ui-glow-primary: rgb(16 185 129 / 0.07);
+    --ui-glow-accent: rgb(249 115 22 / 0.05);
+    --ui-gradient-canvas: linear-gradient(180deg, #f4f7f7 0%, #e8eeef 100%);
+    --ui-weave-opacity: 0.03;
   }
 
+  /* ── Academy Dark (default product theme) ── */
   html.dark {
-    --ui-surface: rgb(30 41 59 / 0.5);
+    --ui-canvas: #0c1214;
+    --ui-surface: rgb(26 36 40 / 0.72);
+    --ui-surface-solid: #1a2428;
+    --ui-muted: #1a2428;
+    --ui-fg: #e8eeef;
+    --ui-fg-muted: #9aabaf;
+    --ui-fg-subtle: #6b7c80;
     --ui-hairline: rgb(255 255 255 / 0.08);
+    --ui-border-strong: rgb(255 255 255 / 0.14);
+    --ui-ring-focus: rgb(52 211 153 / 0.75);
+    --ui-glow-primary: rgb(16 185 129 / 0.18);
+    --ui-glow-accent: rgb(249 115 22 / 0.12);
+    --ui-gradient-canvas: linear-gradient(
+      180deg,
+      #070a0c 0%,
+      #0c1214 42%,
+      #0a1f1a 100%
+    );
+    --ui-weave-opacity: 0.045;
   }
 
-  /* Light mode (default) */
+  /* ── Competition Mode — higher contrast, orange-forward ── */
+  html.competition {
+    --ui-canvas: #050708;
+    --ui-surface: rgb(18 24 28 / 0.92);
+    --ui-surface-solid: #12181c;
+    --ui-muted: #141c20;
+    --ui-fg: #f4f7f7;
+    --ui-fg-muted: #c5d0d3;
+    --ui-fg-subtle: #9aabaf;
+    --ui-hairline: rgb(255 255 255 / 0.12);
+    --ui-border-strong: rgb(249 115 22 / 0.35);
+    --ui-ring-focus: rgb(251 146 60 / 0.8);
+    --ui-glow-primary: rgb(16 185 129 / 0.1);
+    --ui-glow-accent: rgb(249 115 22 / 0.28);
+    --ui-gradient-canvas: linear-gradient(
+      180deg,
+      #050708 0%,
+      #0a0f11 50%,
+      #1a0e06 100%
+    );
+    --ui-weave-opacity: 0.06;
+  }
+
   body {
     font-family: var(--font-sans);
-    color: #0f172a;
+    color: var(--ui-fg);
     overscroll-behavior: none;
     background:
       radial-gradient(
-        48rem 20rem at 100% -5%,
-        rgba(16, 185, 129, 0.07),
-        transparent 68%
-      ),
-      radial-gradient(
-        36rem 18rem at -5% 100%,
-        rgba(249, 115, 22, 0.05),
-        transparent 70%
-      ),
-      #f8fafc;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Dark mode */
-  html.dark body {
-    color: #f8fafc;
-    background:
-      radial-gradient(
         56rem 28rem at 100% -10%,
-        rgba(16, 185, 129, 0.2),
+        var(--ui-glow-primary),
         transparent 68%
       ),
       radial-gradient(
         48rem 26rem at -10% 100%,
-        rgba(249, 115, 22, 0.16),
+        var(--ui-glow-accent),
         transparent 70%
       ),
-      linear-gradient(180deg, #020617 0%, #0b1220 48%, #052e2b 100%);
+      var(--ui-gradient-canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Subtle gi weave — a fixed, low-opacity 45° cross-hatch behind all content
-     that suggests woven fabric without competing with the page. Sits above the
-     body gradient (canvas) and below in-flow content via z-index: -1. */
+  /* Subtle gi weave — fixed, low-opacity cross-hatch behind content. */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%230f172a' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%230f172a' stroke-width='1'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%230c1214' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%230c1214' stroke-width='1'/%3E%3C/svg%3E");
     background-size: 40px 16px;
-    opacity: 0.03;
+    opacity: var(--ui-weave-opacity);
   }
 
-  html.dark body::before {
+  html.dark body::before,
+  html.competition body::before {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%23ffffff' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E");
-    opacity: 0.05;
   }
 
   ::selection {
     color: #ffffff;
-    background: #047857;
+    background: var(--color-primary-700);
+  }
+
+  html.competition ::selection {
+    background: var(--color-accent-600);
   }
 
   a:focus-visible,
@@ -138,7 +220,7 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid rgba(52, 211, 153, 0.75);
+    outline: 2px solid var(--ui-ring-focus);
     outline-offset: 2px;
   }
 }
@@ -159,8 +241,7 @@
     animation: modal-show 0.3s ease-out forwards;
   }
 
-  /* Staggered list reveal — each item sets `--i` (its index) inline so the
-     grid unfurls as one orchestrated page-load moment. */
+  /* Staggered list reveal — each item sets `--i` (its index) inline. */
   @keyframes rise-in {
     from {
       opacity: 0;

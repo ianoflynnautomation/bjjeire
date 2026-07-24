@@ -44,7 +44,7 @@ export const StoreCard = function StoreCard({
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-bold leading-snug text-slate-900 dark:text-white"
+            className="text-base font-bold leading-snug text-fg"
             data-testid={StoresCardTestIds.NAME}
           >
             {name || card.fallbackName}
@@ -53,7 +53,7 @@ export const StoreCard = function StoreCard({
 
         {description && (
           <p
-            className="mb-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+            className="mb-4 text-sm leading-relaxed text-fg-muted"
             data-testid={StoresCardTestIds.DESCRIPTION}
           >
             {description}

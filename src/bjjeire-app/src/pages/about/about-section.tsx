@@ -26,7 +26,7 @@ export const AboutSection = function AboutSection({
       <TricolorEdge />
       <h2
         id={headingId}
-        className="mb-4 text-2xl font-bold text-slate-900 dark:text-white"
+        className="mb-4 text-2xl font-bold text-fg"
       >
         {title}
       </h2>
