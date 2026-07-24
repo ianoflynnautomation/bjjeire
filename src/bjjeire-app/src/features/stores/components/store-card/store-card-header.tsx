@@ -26,7 +26,7 @@ export const StoreCardHeader = function StoreCardHeader({
         <>
           {!isLoaded && (
             <div
-              className="absolute inset-0 animate-pulse bg-slate-700"
+              className="absolute inset-0 animate-pulse bg-slate-200 dark:bg-slate-700"
               aria-hidden="true"
               data-testid={StoresCardTestIds.LOGO_SKELETON}
             />
@@ -47,11 +47,11 @@ export const StoreCardHeader = function StoreCardHeader({
         </>
       ) : (
         <div
-          className="flex h-full w-full items-center justify-center bg-slate-800/60"
+          className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-800/60"
           aria-hidden="true"
           data-testid={StoresCardTestIds.LOGO_FALLBACK}
         >
-          <ShoppingBagIcon className="h-16 w-16 text-slate-600" />
+          <ShoppingBagIcon className="h-16 w-16 text-slate-400 dark:text-slate-600" />
         </div>
       )}
       <div

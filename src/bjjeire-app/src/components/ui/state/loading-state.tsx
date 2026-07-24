@@ -15,11 +15,11 @@ const LoadingState = function LoadingState({
 
   return (
     <div
-      className="flex w-full justify-center rounded-2xl bg-slate-800/40 p-10 backdrop-blur-sm shadow-md shadow-black/20 ring-1 ring-white/8"
+      className="flex w-full justify-center rounded-2xl bg-white/70 p-10 backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-black/8 dark:bg-slate-800/40 dark:shadow-black/20 dark:ring-white/8"
       data-testid={rootTestId}
     >
       <LoadingSpinner
-        color="text-emerald-400"
+        color="text-emerald-600 dark:text-emerald-400"
         text={message}
         size="lg"
         data-testid={LoadingStateTestIds.ROOT}

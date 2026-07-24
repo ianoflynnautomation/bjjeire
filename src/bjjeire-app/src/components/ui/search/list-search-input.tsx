@@ -74,7 +74,7 @@ export const ListSearchInput = function ListSearchInput({
             onClick={onClear}
             data-testid="search-clear-button"
             aria-label={content.clearLabel}
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-200 transition-colors"
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 transition-colors dark:hover:text-slate-200"
           >
             <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>
