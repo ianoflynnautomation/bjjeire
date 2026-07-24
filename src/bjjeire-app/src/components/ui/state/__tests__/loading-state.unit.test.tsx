@@ -12,7 +12,7 @@ describe('LoadingState light/dark surface', () => {
       .find(el => el.className.includes('rounded-2xl'))
 
     expect(surface).toBeDefined()
-    expect(surface!.className).toMatch(/(^|\s)bg-white\/70(\s|$)/)
-    expect(surface!.className).toContain('dark:bg-slate-800/40')
+    expect(surface?.className).toMatch(/(^|\s)bg-white\/70(\s|$)/)
+    expect(surface?.className).toContain('dark:bg-slate-800/40')
   })
 })

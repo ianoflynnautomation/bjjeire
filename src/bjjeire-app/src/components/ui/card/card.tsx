@@ -8,8 +8,8 @@ export const Card = function Card({
   return (
     <article
       className={cn(
-        'group flex h-full w-full max-w-sm flex-col overflow-hidden rounded-2xl',
-        'bg-white/80 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/50 dark:ring-white/8',
+        'group flex h-full w-full flex-col overflow-hidden rounded-2xl',
+        'bg-surface backdrop-blur-sm ring-1 ring-hairline',
         'shadow-md shadow-black/10 transition-all duration-300 ease-in-out dark:shadow-black/30',
         'hover:-translate-y-1 hover:ring-primary-500/30 hover:shadow-xl hover:shadow-black/20 dark:hover:shadow-black/40',
         className

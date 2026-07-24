@@ -22,7 +22,7 @@ export const EventCard = function EventCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >

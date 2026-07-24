@@ -23,7 +23,7 @@ export const ListPageHeader = function ListPageHeader({
 }: ListPageHeaderProps): JSX.Element {
   return (
     <header
-      className="relative mb-8 overflow-hidden rounded-3xl bg-white/80 px-5 py-6 backdrop-blur-sm ring-1 ring-black/8 sm:px-7 dark:bg-slate-800/40 dark:ring-white/8"
+      className="relative mb-8 overflow-hidden rounded-3xl bg-surface px-5 py-6 backdrop-blur-sm ring-1 ring-hairline sm:px-7"
       data-testid={testIds.root}
     >
       <TricolorEdge />
@@ -37,7 +37,7 @@ export const ListPageHeader = function ListPageHeader({
         </h2>
         {showTotal && totalLabel && (
           <p
-            className="mt-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-300"
+            className="mt-3 inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700 ring-1 ring-primary-500/30 dark:bg-primary-900/40 dark:text-primary-300"
             data-testid={testIds.total}
             aria-live="polite"
           >

@@ -55,7 +55,7 @@ const Pagination = function Pagination({
       {itemsText && (
         <p
           data-testid={PaginationTestIds.ITEMS_TEXT}
-          className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium tabular-nums text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-300"
+          className="inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-medium tabular-nums text-primary-700 ring-1 ring-primary-500/30 dark:bg-primary-900/40 dark:text-primary-300"
           aria-live="polite"
         >
           {itemsText}

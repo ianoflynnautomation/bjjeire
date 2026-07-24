@@ -27,8 +27,8 @@ export const SocialLink = function SocialLink({
       className={cn(
         'group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
-        'focus-visible:ring-emerald-500 focus-visible:ring-offset-slate-900',
-        'hover:ring-emerald-500/30'
+        'focus-visible:ring-primary-500 focus-visible:ring-offset-slate-900',
+        'hover:ring-primary-500/30'
       )}
     >
       <IconComponent

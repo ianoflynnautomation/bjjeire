@@ -29,12 +29,12 @@ export const StoreCard = function StoreCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-emerald-400/40 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent"
         aria-hidden="true"
       />
 

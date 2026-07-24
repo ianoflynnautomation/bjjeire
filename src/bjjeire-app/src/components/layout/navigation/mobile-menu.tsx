@@ -6,11 +6,12 @@ import { env } from '@/config/env'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { useNavItems } from './use-nav-items'
+import { useRoutePrefetch } from './route-prefetch'
 
 const activeClass =
-  'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+  'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
 const inactiveClass =
-  'border-transparent text-slate-500 hover:border-emerald-500/40 hover:bg-black/4 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-white/4 dark:hover:text-emerald-300'
+  'border-transparent text-slate-500 hover:border-primary-500/40 hover:bg-black/4 hover:text-primary-600 dark:text-slate-400 dark:hover:bg-white/4 dark:hover:text-primary-300'
 
 interface MobileMenuProps {
   onLinkClick: () => void
@@ -20,6 +21,7 @@ export const MobileMenu = function MobileMenu({
   onLinkClick,
 }: MobileMenuProps): JSX.Element {
   const navItems = useNavItems()
+  const prefetch = useRoutePrefetch()
   return (
     <div
       id="mobile-menu-panel"
@@ -31,7 +33,10 @@ export const MobileMenu = function MobileMenu({
           <NavLink
             key={id}
             to={to}
+            viewTransition
             onClick={onLinkClick}
+            onMouseEnter={() => prefetch(id)}
+            onFocus={() => prefetch(id)}
             className={({ isActive }) =>
               cn(
                 'block rounded-md border-l-4 px-3 py-2 text-base font-medium transition-colors',

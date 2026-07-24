@@ -40,6 +40,12 @@
   --color-accent-900: var(--color-orange-900);
   --color-accent-950: var(--color-orange-950);
 
+  /* Neutral surface system — theme-aware via the --ui-* vars below, so framed
+     surfaces (cards, headers) share one bg + hairline instead of repeating a
+     `bg-white/80 … dark:bg-slate-800/xx` / `ring-black/8 dark:ring-white/8` pair. */
+  --color-surface: var(--ui-surface);
+  --color-hairline: var(--ui-hairline);
+
   /* Signature tricolor accent — define once, reuse everywhere. */
   --gradient-tricolor: linear-gradient(
     90deg,
@@ -52,6 +58,17 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Theme-aware values behind the surface tokens (see @theme). */
+  :root {
+    --ui-surface: rgb(255 255 255 / 0.8);
+    --ui-hairline: rgb(0 0 0 / 0.08);
+  }
+
+  html.dark {
+    --ui-surface: rgb(30 41 59 / 0.5);
+    --ui-hairline: rgb(255 255 255 / 0.08);
   }
 
   /* Light mode (default) */
@@ -172,5 +189,14 @@
     .animate-modal-show {
       animation: none;
     }
+  }
+}
+
+/* Respect reduced-motion for the cross-page View Transition crossfade. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

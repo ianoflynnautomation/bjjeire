@@ -18,7 +18,7 @@ const sizeClasses: Record<NonNullable<LoadingSpinnerProps['size']>, string> = {
 
 const LoadingSpinner = function LoadingSpinner({
   size = 'md',
-  color = 'text-emerald-600',
+  color = 'text-primary-600',
   text,
   className,
   'data-testid': dataTestIdFromProp,

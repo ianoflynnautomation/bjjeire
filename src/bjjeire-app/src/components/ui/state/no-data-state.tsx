@@ -27,7 +27,7 @@ const NoDataState = function NoDataState({
       data-testid={rootTestId}
     >
       <InformationCircleIcon
-        className="mx-auto h-12 w-12 text-emerald-500 dark:text-emerald-400"
+        className="mx-auto h-12 w-12 text-primary-500 dark:text-primary-400"
         aria-hidden="true"
         data-testid={NoDataStateTestIds.ICON}
       />
@@ -54,7 +54,7 @@ const NoDataState = function NoDataState({
             Or{' '}
             <button
               onClick={onActionClick}
-              className="font-semibold text-emerald-600 transition-colors hover:text-emerald-700 focus:underline focus:outline-none dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="font-semibold text-primary-600 transition-colors hover:text-primary-700 focus:underline focus:outline-none dark:text-primary-400 dark:hover:text-primary-300"
               data-testid={NoDataStateTestIds.BUTTON}
             >
               {actionText}

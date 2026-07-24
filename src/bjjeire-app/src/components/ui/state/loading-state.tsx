@@ -19,7 +19,7 @@ const LoadingState = function LoadingState({
       data-testid={rootTestId}
     >
       <LoadingSpinner
-        color="text-emerald-600 dark:text-emerald-400"
+        color="text-primary-600 dark:text-primary-400"
         text={message}
         size="lg"
         data-testid={LoadingStateTestIds.ROOT}

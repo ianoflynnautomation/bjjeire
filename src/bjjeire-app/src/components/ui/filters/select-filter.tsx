@@ -46,7 +46,7 @@ function SelectFilterBase<T extends string | number>({
       </label>
       <div className="relative mt-1">
         <Icon
-          className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-emerald-400"
+          className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-400"
           aria-hidden="true"
           data-testid={SelectFilterTestIds.ICON}
         />
@@ -57,7 +57,7 @@ function SelectFilterBase<T extends string | number>({
           disabled={disabled}
           data-testid={SelectFilterTestIds.SELECT}
           className={cn(
-            'block w-full rounded-xl border border-black/10 bg-white py-2 pr-4 text-base text-slate-700 shadow-sm ring-1 ring-transparent transition-colors focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 sm:text-sm dark:border-white/10 dark:bg-slate-700/50 dark:text-slate-200',
+            'block w-full rounded-xl border border-black/10 bg-white py-2 pr-4 text-base text-slate-700 shadow-sm ring-1 ring-transparent transition-colors focus:border-primary-500/50 focus:outline-none focus:ring-2 focus:ring-primary-500/60 sm:text-sm dark:border-white/10 dark:bg-slate-700/50 dark:text-slate-200',
             'pl-10',
             disabled &&
               'cursor-not-allowed opacity-70 bg-slate-100 dark:bg-slate-800/50'

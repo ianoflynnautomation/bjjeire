@@ -43,7 +43,7 @@ const SupportModal = function SupportModal({
         aria-modal="true"
         aria-labelledby={mainTitleId}
         aria-describedby={descriptionId}
-        className="animate-modal-show w-full max-w-md transform rounded-3xl border border-orange-200/80 bg-linear-to-b from-white to-orange-50/40 p-6 shadow-2xl shadow-orange-900/10 transition-all duration-300 ease-in-out sm:p-8"
+        className="animate-modal-show w-full max-w-md transform rounded-3xl border border-accent-200/80 bg-linear-to-b from-white to-accent-50/40 p-6 shadow-2xl shadow-accent-900/10 transition-all duration-300 ease-in-out sm:p-8"
         data-testid={SupportModalTestIds.CONTENT}
       >
         <header className="mb-6 flex items-center justify-between">
@@ -60,7 +60,7 @@ const SupportModal = function SupportModal({
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-orange-100 hover:text-orange-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+            className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-accent-100 hover:text-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2"
             aria-label={uiContent.supportModal.closeLabel}
             data-testid={SupportModalTestIds.CLOSE_BUTTON}
           >

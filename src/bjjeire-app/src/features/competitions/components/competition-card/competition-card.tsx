@@ -64,12 +64,12 @@ export const CompetitionCard = function CompetitionCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-emerald-400/40 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent"
         aria-hidden="true"
       />
 
@@ -95,7 +95,7 @@ export const CompetitionCard = function CompetitionCard({
             aria-label={`${card.dateLabel}: ${dateRange}`}
           >
             <CalendarDaysIcon
-              className="h-4 w-4 shrink-0 text-emerald-500"
+              className="h-4 w-4 shrink-0 text-primary-500"
               aria-hidden="true"
             />
             <span>{dateRange}</span>

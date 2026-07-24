@@ -8,7 +8,7 @@ import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
 
-const initialEventFilters: GetBjjEventsPaginationQuery = {
+export const initialEventFilters: GetBjjEventsPaginationQuery = {
   county: 'all',
   types: [],
   page: env.PAGE_NUMBER,

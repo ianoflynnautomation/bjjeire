@@ -19,7 +19,7 @@ export const GymCard = function GymCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-400/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-400/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
