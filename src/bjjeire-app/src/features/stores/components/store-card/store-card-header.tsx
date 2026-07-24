@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ShoppingBagIcon } from '@heroicons/react/20/solid'
 import { useImageLoadState } from '@/hooks/useImageLoadState'
@@ -13,7 +12,7 @@ interface StoreCardHeaderProps {
   logoUrl?: string | null
 }
 
-export const StoreCardHeader = memo(function StoreCardHeader({
+export const StoreCardHeader = function StoreCardHeader({
   name,
   logoUrl,
 }: StoreCardHeaderProps): JSX.Element {
@@ -61,4 +60,4 @@ export const StoreCardHeader = memo(function StoreCardHeader({
       />
     </header>
   )
-})
+}

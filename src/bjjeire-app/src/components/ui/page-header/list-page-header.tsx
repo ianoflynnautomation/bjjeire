@@ -1,5 +1,6 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
+import { TricolorEdge } from '@/components/ui/decoration/tricolor-edge'
+import { GlowField } from '@/components/ui/decoration/glow-field'
 
 export interface ListPageHeaderTestIds {
   root: string
@@ -14,7 +15,7 @@ interface ListPageHeaderProps {
   testIds: ListPageHeaderTestIds
 }
 
-export const ListPageHeader = memo(function ListPageHeader({
+export const ListPageHeader = function ListPageHeader({
   title,
   totalLabel,
   showTotal = false,
@@ -25,21 +26,11 @@ export const ListPageHeader = memo(function ListPageHeader({
       className="relative mb-8 overflow-hidden rounded-3xl bg-white/80 px-5 py-6 backdrop-blur-sm ring-1 ring-black/8 sm:px-7 dark:bg-slate-800/40 dark:ring-white/8"
       data-testid={testIds.root}
     >
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-teal-500/10 blur-2xl"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-8 left-10 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl"
-        aria-hidden="true"
-      />
+      <TricolorEdge />
+      <GlowField />
       <div className="relative">
         <h2
-          className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white"
+          className="display-expanded text-3xl font-black text-slate-900 sm:text-4xl dark:text-white"
           data-testid={testIds.title}
         >
           {title}
@@ -56,4 +47,4 @@ export const ListPageHeader = memo(function ListPageHeader({
       </div>
     </header>
   )
-})
+}

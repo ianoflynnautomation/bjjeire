@@ -1,5 +1,4 @@
-import { memo } from 'react'
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import type { CompetitionDto } from '@/types/competitions'
 import { CompetitionCard } from './competition-card/competition-card'
 import { CompetitionsPageTestIds } from '@/constants/competitionDataTestIds'
@@ -11,7 +10,7 @@ interface CompetitionsListProps {
   competitions: CompetitionDto[]
 }
 
-export const CompetitionsList = memo(function CompetitionsList({
+export const CompetitionsList = function CompetitionsList({
   competitions,
 }: CompetitionsListProps): JSX.Element {
   return (
@@ -20,11 +19,15 @@ export const CompetitionsList = memo(function CompetitionsList({
       aria-label={list.ariaLabel}
       data-testid={CompetitionsPageTestIds.LIST}
     >
-      {competitions.map(competition => (
-        <li key={competition.id}>
+      {competitions.map((competition, index) => (
+        <li
+          key={competition.id}
+          className="animate-rise"
+          style={{ '--i': index } as CSSProperties}
+        >
           <CompetitionCard competition={competition} />
         </li>
       ))}
     </ul>
   )
-})
+}

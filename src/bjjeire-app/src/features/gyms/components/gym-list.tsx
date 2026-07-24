@@ -1,5 +1,4 @@
-import { memo } from 'react'
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymCard } from './gym-card'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
@@ -10,7 +9,7 @@ interface GymsListProps {
   'data-testid'?: string
 }
 
-export const GymsList = memo(function GymsList({
+export const GymsList = function GymsList({
   gyms,
   'data-testid': dataTestId,
 }: GymsListProps): JSX.Element {
@@ -22,11 +21,15 @@ export const GymsList = memo(function GymsList({
       data-testid={rootListTestId}
       aria-label={uiContent.gyms.list.ariaLabel}
     >
-      {gyms.map(gym => (
-        <li key={gym.id ?? gym.name} className="w-full">
+      {gyms.map((gym, index) => (
+        <li
+          key={gym.id ?? gym.name}
+          className="w-full animate-rise"
+          style={{ '--i': index } as CSSProperties}
+        >
           <GymCard gym={gym} data-testid={GymsPageTestIds.LIST_ITEM} />
         </li>
       ))}
     </ul>
   )
-})
+}

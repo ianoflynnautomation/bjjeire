@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react'
+import { useRef, type JSX } from 'react'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
@@ -12,10 +12,10 @@ interface SupportModalProps {
   onClose: () => void
 }
 
-const SupportModal = memo(function SupportModal({
+const SupportModal = function SupportModal({
   isOpen,
   onClose,
-}: SupportModalProps) {
+}: SupportModalProps): JSX.Element | null {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useFocusTrap(isOpen, onClose, closeButtonRef)
 
@@ -96,6 +96,6 @@ const SupportModal = memo(function SupportModal({
       </div>
     </div>
   )
-})
+}
 
 export default SupportModal

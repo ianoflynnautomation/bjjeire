@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
@@ -13,7 +12,7 @@ interface EventCardProps {
   'data-testid'?: string
 }
 
-export const EventCard = memo(function EventCard({
+export const EventCard = function EventCard({
   event,
   'data-testid': dataTestId,
 }: EventCardProps): JSX.Element {
@@ -53,4 +52,4 @@ export const EventCard = memo(function EventCard({
       </CardContent>
     </Card>
   )
-})
+}

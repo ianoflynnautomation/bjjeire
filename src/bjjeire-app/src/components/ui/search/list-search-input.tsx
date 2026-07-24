@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import type { JSX, KeyboardEvent } from 'react'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
 
@@ -18,7 +18,7 @@ interface ListSearchInputProps {
   dataTestId?: string
 }
 
-export const ListSearchInput = memo(function ListSearchInput({
+export const ListSearchInput = function ListSearchInput({
   inputId,
   content,
   value,
@@ -82,4 +82,4 @@ export const ListSearchInput = memo(function ListSearchInput({
       </div>
     </div>
   )
-})
+}

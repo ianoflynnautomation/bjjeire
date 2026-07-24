@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventType } from '@/types/event'
 import {
@@ -21,7 +20,7 @@ interface EventHeaderProps {
   headingId?: string
 }
 
-export const EventHeader = memo(function EventHeader({
+export const EventHeader = function EventHeader({
   name,
   types,
   county,
@@ -90,4 +89,4 @@ export const EventHeader = memo(function EventHeader({
       </div>
     </header>
   )
-})
+}

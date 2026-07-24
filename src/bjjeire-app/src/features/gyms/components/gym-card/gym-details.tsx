@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import {
   MapPinIcon,
@@ -21,7 +20,7 @@ interface GymDetailsProps {
   'data-testid'?: string
 }
 
-export const GymDetails = memo(function GymDetails({
+export const GymDetails = function GymDetails({
   gym,
   'data-testid': rootDataTestId,
 }: GymDetailsProps): JSX.Element {
@@ -100,4 +99,4 @@ export const GymDetails = memo(function GymDetails({
       </div>
     </section>
   )
-})
+}

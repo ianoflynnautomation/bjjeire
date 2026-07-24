@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { KnownPlatform } from './social-media.config'
 import { platformConfig } from './social-media.config'
@@ -10,7 +9,7 @@ interface SocialLinkProps {
   'data-testid'?: string
 }
 
-export const SocialLink = memo(function SocialLink({
+export const SocialLink = function SocialLink({
   platform,
   url,
   'data-testid': dataTestId,
@@ -41,4 +40,4 @@ export const SocialLink = memo(function SocialLink({
       />
     </a>
   )
-})
+}

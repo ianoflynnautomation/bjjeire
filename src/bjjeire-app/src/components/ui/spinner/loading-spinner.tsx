@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { SpinnerTestIds } from '@/constants/commonDataTestIds'
 import { cn } from '@/lib/cn'
@@ -17,7 +16,7 @@ const sizeClasses: Record<NonNullable<LoadingSpinnerProps['size']>, string> = {
   lg: 'w-12 h-12 border-4',
 }
 
-const LoadingSpinner = memo(function LoadingSpinner({
+const LoadingSpinner = function LoadingSpinner({
   size = 'md',
   color = 'text-emerald-600',
   text,
@@ -45,6 +44,6 @@ const LoadingSpinner = memo(function LoadingSpinner({
       <span className="sr-only">{text ?? 'Loading...'}</span>
     </div>
   )
-})
+}
 
 export default LoadingSpinner

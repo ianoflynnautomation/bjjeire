@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
 import { SparklesIcon } from '@heroicons/react/20/solid'
 import type { TrialOfferDto } from '@/types/gyms'
@@ -14,7 +13,7 @@ interface GymTrialOfferProps {
   'data-testid'?: string
 }
 
-export const GymTrialOffer = memo(function GymTrialOffer({
+export const GymTrialOffer = function GymTrialOffer({
   trialOffer,
   'data-testid': rootDataTestId,
 }: GymTrialOfferProps): JSX.Element | null {
@@ -50,4 +49,4 @@ export const GymTrialOffer = memo(function GymTrialOffer({
       <span className="font-medium">{displayContent}</span>
     </DetailItem>
   )
-})
+}

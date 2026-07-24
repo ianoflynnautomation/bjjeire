@@ -1,8 +1,7 @@
-import { memo } from 'react'
 import type { HTMLAttributes, JSX } from 'react'
 import { cn } from '@/lib/cn'
 
-export const CardContent = memo(function CardContent({
+export const CardContent = function CardContent({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>): JSX.Element {
@@ -12,4 +11,4 @@ export const CardContent = memo(function CardContent({
       {...props}
     />
   )
-})
+}

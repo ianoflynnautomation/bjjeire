@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { useImageLoadState } from '@/hooks/useImageLoadState'
 import type { GymStatus } from '@/types/gyms'
@@ -24,7 +23,7 @@ interface GymHeaderProps {
   headingId?: string
 }
 
-export const GymHeader = memo(function GymHeader({
+export const GymHeader = function GymHeader({
   name,
   county,
   status,
@@ -112,4 +111,4 @@ export const GymHeader = memo(function GymHeader({
       </div>
     </header>
   )
-})
+}

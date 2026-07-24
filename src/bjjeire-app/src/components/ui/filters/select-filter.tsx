@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { ChangeEvent, ComponentType, JSX } from 'react'
 import { MapPinIcon } from '@heroicons/react/20/solid'
 import { cn } from '@/lib/cn'
@@ -84,6 +83,6 @@ function SelectFilterBase<T extends string | number>({
   )
 }
 
-const SelectFilter = memo(SelectFilterBase) as typeof SelectFilterBase
+const SelectFilter = SelectFilterBase
 
 export default SelectFilter

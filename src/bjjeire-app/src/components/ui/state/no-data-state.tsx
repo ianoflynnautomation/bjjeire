@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
 import { NoDataStateTestIds } from '@/constants/commonDataTestIds'
@@ -12,7 +11,7 @@ interface NoDataStateProps {
   'data-testid'?: string
 }
 
-const NoDataState = memo(function NoDataState({
+const NoDataState = function NoDataState({
   title = 'No Items Found',
   messageLine1 = 'There are currently no items to display.',
   messageLine2 = 'Try adjusting your filters or check back later.',
@@ -66,6 +65,6 @@ const NoDataState = memo(function NoDataState({
       </p>
     </div>
   )
-})
+}
 
 export default NoDataState

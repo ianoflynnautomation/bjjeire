@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { ErrorStateTestIds } from '@/constants/commonDataTestIds'
@@ -11,7 +10,7 @@ interface ErrorStateProps {
   'data-testid'?: string
 }
 
-const ErrorState = memo(function ErrorState({
+const ErrorState = function ErrorState({
   message,
   title = 'Error Loading Data',
   onRetry,
@@ -51,6 +50,6 @@ const ErrorState = memo(function ErrorState({
       </Button>
     </div>
   )
-})
+}
 
 export default ErrorState

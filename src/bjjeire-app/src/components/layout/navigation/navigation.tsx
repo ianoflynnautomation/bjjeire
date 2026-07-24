@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import type { JSX } from 'react'
 import { Link } from 'react-router'
 import { Bars3Icon, SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 import SupportModal from '@/components/support/support-modal'
@@ -15,7 +15,7 @@ import { NavIconButton, navIconButtonClass } from './nav-icon-button'
 import { DesktopNavLinks } from './desktop-nav-links'
 import { MobileMenu } from './mobile-menu'
 
-const Navigation = memo(function Navigation() {
+const Navigation = function Navigation(): JSX.Element {
   const {
     isSupportModalOpen,
     isMobileMenuOpen,
@@ -38,7 +38,7 @@ const Navigation = memo(function Navigation() {
               <div className="flex shrink-0 items-center">
                 <Link
                   to={paths.home.getHref()}
-                  className="bg-linear-to-r from-emerald-400 to-orange-400 bg-clip-text text-2xl font-black text-transparent transition-opacity hover:opacity-85"
+                  className="display-expanded bg-linear-to-r from-emerald-400 to-orange-400 bg-clip-text text-2xl font-black text-transparent transition-opacity hover:opacity-85"
                   data-testid={NavigationTestIds.LOGO_LINK}
                 >
                   {uiContent.brand.displayName}
@@ -107,6 +107,6 @@ const Navigation = memo(function Navigation() {
       <SupportModal isOpen={isSupportModalOpen} onClose={closeSupportModal} />
     </>
   )
-})
+}
 
 export default Navigation

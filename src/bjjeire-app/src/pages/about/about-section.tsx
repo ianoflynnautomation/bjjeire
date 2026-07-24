@@ -1,5 +1,5 @@
-import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
+import { TricolorEdge } from '@/components/ui/decoration/tricolor-edge'
 
 interface AboutSectionProps {
   id: string
@@ -9,7 +9,7 @@ interface AboutSectionProps {
   'data-testid'?: string
 }
 
-export const AboutSection = memo(function AboutSection({
+export const AboutSection = function AboutSection({
   id,
   headingId,
   title,
@@ -23,10 +23,7 @@ export const AboutSection = memo(function AboutSection({
       data-testid={dataTestId}
       className="relative overflow-hidden rounded-3xl bg-white/80 p-6 backdrop-blur-sm ring-1 ring-black/8 dark:bg-slate-800/40 dark:ring-white/8"
     >
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-emerald-500 via-white/30 to-orange-500"
-        aria-hidden="true"
-      />
+      <TricolorEdge />
       <h2
         id={headingId}
         className="mb-4 text-2xl font-bold text-slate-900 dark:text-white"
@@ -36,4 +33,4 @@ export const AboutSection = memo(function AboutSection({
       {children}
     </section>
   )
-})
+}

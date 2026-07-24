@@ -1,4 +1,8 @@
-import { useQuery, type QueryObserverResult } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useQuery,
+  type QueryObserverResult,
+} from '@tanstack/react-query'
 import { useReducer, useCallback } from 'react'
 import type { HateoasPagination, PaginatedResponse } from '@/types/common'
 import { logger } from '@/lib/logger'
@@ -66,7 +70,7 @@ export function usePaginatedQuery<T, TParams extends { page?: number }>({
   >({
     queryKey: [...queryKeyBase, { ...params, page: currentPage }],
     queryFn: () => fetchFn({ ...params, page: currentPage }),
-    placeholderData: previousData => previousData,
+    placeholderData: keepPreviousData,
   })
 
   const handlePageChange = useCallback((url: string | null, page?: number) => {

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { ClassCategory } from '@/types/gyms'
 import { getClassCategoryLabel } from '@/utils/gym-display-utils'
@@ -14,7 +13,7 @@ interface GymOfferedClassesProps {
   'data-testid'?: string
 }
 
-export const GymOfferedClasses = memo(function GymOfferedClasses({
+export const GymOfferedClasses = function GymOfferedClasses({
   classes,
   'data-testid': rootDataTestId,
 }: GymOfferedClassesProps): JSX.Element | null {
@@ -42,4 +41,4 @@ export const GymOfferedClasses = memo(function GymOfferedClasses({
       </div>
     </DetailItem>
   )
-})
+}

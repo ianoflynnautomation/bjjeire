@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { BackgroundFetchingIndicatorTestIds } from '@/constants/commonDataTestIds'
 
@@ -6,7 +5,7 @@ interface BackgroundFetchingIndicatorProps {
   'data-testid'?: string
 }
 
-const BackgroundFetchingIndicator = memo(function BackgroundFetchingIndicator({
+const BackgroundFetchingIndicator = function BackgroundFetchingIndicator({
   'data-testid': dataTestId = BackgroundFetchingIndicatorTestIds.ROOT,
 }: BackgroundFetchingIndicatorProps): JSX.Element {
   return (
@@ -19,6 +18,6 @@ const BackgroundFetchingIndicator = memo(function BackgroundFetchingIndicator({
       Updating...
     </div>
   )
-})
+}
 
 export default BackgroundFetchingIndicator

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { buttonVariants } from '@/lib/button-variants'
 import { cn } from '@/lib/cn'
@@ -61,8 +60,6 @@ function ButtonGroupFilterBase<T extends string | number>({
   )
 }
 
-const ButtonGroupFilter = memo(
-  ButtonGroupFilterBase
-) as typeof ButtonGroupFilterBase
+const ButtonGroupFilter = ButtonGroupFilterBase
 
 export default ButtonGroupFilter

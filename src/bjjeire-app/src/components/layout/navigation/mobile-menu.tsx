@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import type { JSX } from 'react'
 import { NavLink } from 'react-router'
 import { cn } from '@/lib/cn'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
@@ -16,9 +16,9 @@ interface MobileMenuProps {
   onLinkClick: () => void
 }
 
-export const MobileMenu = memo(function MobileMenu({
+export const MobileMenu = function MobileMenu({
   onLinkClick,
-}: MobileMenuProps) {
+}: MobileMenuProps): JSX.Element {
   const navItems = useNavItems()
   return (
     <div
@@ -62,4 +62,4 @@ export const MobileMenu = memo(function MobileMenu({
       </div>
     </div>
   )
-})
+}

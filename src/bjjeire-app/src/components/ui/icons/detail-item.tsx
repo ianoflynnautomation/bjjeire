@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
 import { IconWrapper } from './icon-wrapper'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
@@ -13,7 +12,7 @@ interface DetailItemProps {
   'data-testid'?: string
 }
 
-export const DetailItem = memo(function DetailItem({
+export const DetailItem = function DetailItem({
   icon,
   children,
   className,
@@ -37,4 +36,4 @@ export const DetailItem = memo(function DetailItem({
       </div>
     </div>
   )
-})
+}

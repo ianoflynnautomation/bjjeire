@@ -1,13 +1,12 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { uiContent } from '@/config/ui-content'
 import { AboutPageTestIds } from '@/constants/aboutDataTestIds'
 
-export const AboutPageHeader = memo(function AboutPageHeader(): JSX.Element {
+export const AboutPageHeader = function AboutPageHeader(): JSX.Element {
   return (
     <header className="mb-10 text-center" data-testid={AboutPageTestIds.HEADER}>
       <h1
-        className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white"
+        className="display-expanded text-4xl font-black text-slate-900 sm:text-5xl dark:text-white"
         data-testid={AboutPageTestIds.HEADER_TITLE}
       >
         {uiContent.about.title}
@@ -20,4 +19,4 @@ export const AboutPageHeader = memo(function AboutPageHeader(): JSX.Element {
       </p>
     </header>
   )
-})
+}

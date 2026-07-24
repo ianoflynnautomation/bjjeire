@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { JSX } from 'react'
 import {
   GlobeAltIcon,
@@ -41,7 +41,7 @@ interface CompetitionCardProps {
   'data-testid'?: string
 }
 
-export const CompetitionCard = memo(function CompetitionCard({
+export const CompetitionCard = function CompetitionCard({
   competition,
   'data-testid': dataTestId,
 }: CompetitionCardProps): JSX.Element {
@@ -165,4 +165,4 @@ export const CompetitionCard = memo(function CompetitionCard({
       </CardContent>
     </Card>
   )
-})
+}

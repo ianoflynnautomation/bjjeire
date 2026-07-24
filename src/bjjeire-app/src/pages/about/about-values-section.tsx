@@ -1,11 +1,9 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { uiContent } from '@/config/ui-content'
 import { AboutSection } from './about-section'
 import { AboutValuesTestIds } from '@/constants/aboutDataTestIds'
 
-export const AboutValuesSection = memo(
-  function AboutValuesSection(): JSX.Element {
+export const AboutValuesSection = function AboutValuesSection(): JSX.Element {
     return (
       <AboutSection
         id="about-values"
@@ -24,4 +22,3 @@ export const AboutValuesSection = memo(
       </AboutSection>
     )
   }
-)

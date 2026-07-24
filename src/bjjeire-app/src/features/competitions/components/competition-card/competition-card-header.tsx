@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { TrophyIcon } from '@heroicons/react/20/solid'
 import { useImageLoadState } from '@/hooks/useImageLoadState'
@@ -13,7 +12,7 @@ interface CompetitionCardHeaderProps {
   logoUrl?: string | null
 }
 
-export const CompetitionCardHeader = memo(function CompetitionCardHeader({
+export const CompetitionCardHeader = function CompetitionCardHeader({
   name,
   logoUrl,
 }: CompetitionCardHeaderProps): JSX.Element {
@@ -61,4 +60,4 @@ export const CompetitionCardHeader = memo(function CompetitionCardHeader({
       />
     </header>
   )
-})
+}

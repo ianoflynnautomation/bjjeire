@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { County } from '@/constants/counties'
 import { COUNTIES } from '@/constants/counties'
@@ -35,7 +34,7 @@ interface EventFiltersProps {
   dataTestId?: string
 }
 
-export const EventFilters = memo(function EventFilters({
+export const EventFilters = function EventFilters({
   selectedCity,
   selectedTypes,
   onCityChange,
@@ -72,4 +71,4 @@ export const EventFilters = memo(function EventFilters({
       />
     </section>
   )
-})
+}

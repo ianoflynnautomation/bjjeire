@@ -7,10 +7,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
-/**
- * In-process cache: one region per cache tag with the same 5-minute expiration, where "remove by tag" clears the whole
- * region (list pages + by-id entries for that entity).
- */
 @Component
 public class ApiCache {
     public static final String BJJ_EVENTS_TAG = "bjjevents";

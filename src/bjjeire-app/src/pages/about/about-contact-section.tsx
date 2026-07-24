@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { uiContent } from '@/config/ui-content'
@@ -11,8 +10,7 @@ const socialMedia = {
   x: env.SOCIAL_INSTAGRAM_URL || undefined,
 }
 
-export const AboutContactSection = memo(
-  function AboutContactSection(): JSX.Element {
+export const AboutContactSection = function AboutContactSection(): JSX.Element {
     return (
       <AboutSection
         id="about-contact"
@@ -44,4 +42,3 @@ export const AboutContactSection = memo(
       </AboutSection>
     )
   }
-)

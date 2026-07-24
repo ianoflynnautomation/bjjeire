@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import type { JSX } from 'react'
 import { Link } from 'react-router'
 import { env } from '@/config/env'
 import { FooterTestIds } from '@/constants/commonDataTestIds'
@@ -11,9 +11,9 @@ interface FooterProps {
   'data-testid'?: string
 }
 
-const Footer = memo(function Footer({
+const Footer = function Footer({
   'data-testid': dataTestIdFromProp,
-}: FooterProps) {
+}: FooterProps): JSX.Element {
   const rootTestId = dataTestIdFromProp ?? FooterTestIds.ROOT
   const { stars } = useGitHubRepo(env.GITHUB_URL || undefined)
   const navItems = useNavItems()
@@ -90,6 +90,6 @@ const Footer = memo(function Footer({
       </div>
     </footer>
   )
-})
+}
 
 export default Footer

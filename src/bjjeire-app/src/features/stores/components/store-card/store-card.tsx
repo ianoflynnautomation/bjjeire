@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 
 import type { StoreDto } from '@/types/stores'
@@ -19,7 +18,7 @@ interface StoreCardProps {
   'data-testid'?: string
 }
 
-export const StoreCard = memo(function StoreCard({
+export const StoreCard = function StoreCard({
   store,
   'data-testid': dataTestId,
 }: StoreCardProps): JSX.Element {
@@ -75,4 +74,4 @@ export const StoreCard = memo(function StoreCard({
       </CardContent>
     </Card>
   )
-})
+}

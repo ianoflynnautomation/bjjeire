@@ -1,5 +1,4 @@
-import { memo } from 'react'
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { EventCard } from './event-card'
 import type { BjjEventDto } from '@/types/event'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
@@ -10,7 +9,7 @@ interface EventsListProps {
   'data-testid'?: string
 }
 
-export const EventsList = memo(function EventsList({
+export const EventsList = function EventsList({
   events,
   'data-testid': dataTestId,
 }: EventsListProps): JSX.Element {
@@ -22,14 +21,15 @@ export const EventsList = memo(function EventsList({
       data-testid={rootTestId}
       aria-label={uiContent.events.list.ariaLabel}
     >
-      {events.map(event => (
+      {events.map((event, index) => (
         <li
           key={event.id}
-          className="w-full"
+          className="w-full animate-rise"
+          style={{ '--i': index } as CSSProperties}
         >
           <EventCard event={event} data-testid={EventsPageTestIds.LIST_ITEM} />
         </li>
       ))}
     </ul>
   )
-})
+}

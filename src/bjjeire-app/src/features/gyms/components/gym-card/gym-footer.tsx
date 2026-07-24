@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
 import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
@@ -13,7 +12,7 @@ interface GymFooterProps {
   gymName: string
 }
 
-export const GymFooter = memo(function GymFooter({
+export const GymFooter = function GymFooter({
   websiteUrl,
   gymName,
 }: GymFooterProps): JSX.Element {
@@ -49,4 +48,4 @@ export const GymFooter = memo(function GymFooter({
       </CardActionButton>
     </div>
   )
-})
+}

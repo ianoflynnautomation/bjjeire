@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { HateoasPagination } from '@/types/common'
 import { buttonVariants } from '@/lib/button-variants'
@@ -16,7 +15,7 @@ interface PaginationProps {
   'data-testid'?: string
 }
 
-const Pagination = memo(function Pagination({
+const Pagination = function Pagination({
   currentPage,
   pagination,
   onPageChange,
@@ -89,6 +88,6 @@ const Pagination = memo(function Pagination({
       </div>
     </nav>
   )
-})
+}
 
 export default Pagination

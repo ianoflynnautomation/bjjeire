@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { JSX } from 'react'
 import {
   MapPinIcon,
@@ -26,7 +26,7 @@ interface EventDetailsProps {
   'data-testid'?: string
 }
 
-export const EventDetails = memo(function EventDetails({
+export const EventDetails = function EventDetails({
   event,
   'data-testid': sectionDataTestId,
 }: EventDetailsProps): JSX.Element {
@@ -129,4 +129,4 @@ export const EventDetails = memo(function EventDetails({
       )}
     </section>
   )
-})
+}

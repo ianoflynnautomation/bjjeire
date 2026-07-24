@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
@@ -10,7 +9,7 @@ interface GymCardProps {
   'data-testid'?: string
 }
 
-export const GymCard = memo(function GymCard({
+export const GymCard = function GymCard({
   gym,
   'data-testid': dataTestId,
 }: GymCardProps): JSX.Element {
@@ -45,4 +44,4 @@ export const GymCard = memo(function GymCard({
       </CardContent>
     </Card>
   )
-})
+}

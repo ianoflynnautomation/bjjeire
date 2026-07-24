@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react'
+import { useCallback } from 'react'
 import type { JSX } from 'react'
 import { buttonVariants } from '@/lib/button-variants'
 import { cn } from '@/lib/cn'
@@ -95,6 +95,4 @@ function MultiButtonGroupFilterBase<T extends string | number>({
   )
 }
 
-export const MultiButtonGroupFilter = memo(
-  MultiButtonGroupFilterBase
-) as typeof MultiButtonGroupFilterBase
+export const MultiButtonGroupFilter = MultiButtonGroupFilterBase

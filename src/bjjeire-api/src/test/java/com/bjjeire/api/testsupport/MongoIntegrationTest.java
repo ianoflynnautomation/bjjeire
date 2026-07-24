@@ -95,7 +95,7 @@ public abstract class MongoIntegrationTest {
         @Bean
         @ServiceConnection
         MongoDBContainer mongoDbContainer() {
-            return new MongoDBContainer("mongo:7.0");
+            return new MongoDBContainer("mongo:8.2");
         }
 
         @Bean

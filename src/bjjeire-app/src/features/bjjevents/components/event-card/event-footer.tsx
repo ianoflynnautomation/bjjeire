@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
@@ -13,7 +12,7 @@ interface EventFooterProps {
   eventName: string
 }
 
-export const EventFooter = memo(function EventFooter({
+export const EventFooter = function EventFooter({
   eventUrl,
   eventName,
 }: EventFooterProps): JSX.Element {
@@ -46,4 +45,4 @@ export const EventFooter = memo(function EventFooter({
       </CardActionButton>
     </div>
   )
-})
+}
