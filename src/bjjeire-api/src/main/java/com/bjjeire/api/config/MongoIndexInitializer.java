@@ -107,7 +107,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
 
     private void ensure(String collection, Index index, boolean critical) {
         try {
-            String created = mongoTemplate.indexOps(collection).ensureIndex(index);
+            String created = mongoTemplate.indexOps(collection).createIndex(index);
             log.info("Ensured index {} on collection {}", created, collection);
         } catch (RuntimeException exception) {
             if (critical) {
