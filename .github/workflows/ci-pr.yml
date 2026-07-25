@@ -38,7 +38,7 @@ jobs:
       frontend: ${{ steps.changes.outputs.frontend }}
       java-api: ${{ steps.changes.outputs.java_api }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - id: changes
@@ -52,7 +52,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Dependency review
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -81,7 +81,7 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Semgrep scan (ERROR severity only)
@@ -110,7 +110,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout PR
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Set up JDK
@@ -155,7 +155,7 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Download current OpenAPI contract
@@ -185,7 +185,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
@@ -226,7 +226,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
@@ -255,7 +255,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
@@ -294,7 +294,7 @@ jobs:
       run:
         working-directory: ${{ env.REACT_APP_PATH }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
@@ -326,7 +326,7 @@ jobs:
     env:
       HUSKY: "0"
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/react-test-browser
@@ -353,7 +353,7 @@ jobs:
       - test_frontend_integration
       - test_frontend_browser
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: .github/actions/check-required-jobs
