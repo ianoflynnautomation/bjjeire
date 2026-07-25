@@ -1,3 +1,13 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  // Formatting is owned by Spotless + palantir-java-format (`mvn spotless:apply`).
+  "java.format.enabled": false,
+  "[java]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {}
+  },
+  "cSpell.words": [
+    "bjjeire",
+    "springframework"
+  ]
 }

@@ -189,7 +189,6 @@ public class ApiExceptionHandler {
     }
 
     private static String dynamicErrorCode(ConstraintViolation<?> violation) {
-        @SuppressWarnings("unchecked")
         HibernateConstraintViolation<?> hibernateViolation = violation.unwrap(HibernateConstraintViolation.class);
         String payload = hibernateViolation.getDynamicPayload(String.class);
         return payload != null ? payload : "";

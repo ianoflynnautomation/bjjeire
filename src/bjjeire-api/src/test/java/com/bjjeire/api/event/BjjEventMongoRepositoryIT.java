@@ -94,8 +94,8 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/data/0/id").asText()).isEqualTo("202605310000000000000001");
-        assertThat(body.at("/data/0/name").asText()).isEqualTo("valid-open-mat");
+        assertThat(body.at("/data/0/id").asString()).isEqualTo("202605310000000000000001");
+        assertThat(body.at("/data/0/name").asString()).isEqualTo("valid-open-mat");
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
     }
 
@@ -129,7 +129,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(body.at("/data/0/id").asText()).isEqualTo("202605310000000000000051");
+        assertThat(body.at("/data/0/id").asString()).isEqualTo("202605310000000000000051");
     }
 
     @Test
@@ -169,14 +169,14 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 .getForEntity("/api/v1/BjjEvent?types=1&page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(seminar.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(seminar.at("/data/0/name").asText()).isEqualTo("seminar");
-        assertThat(seminar.at("/data/0/types/0").asText()).isEqualTo("Seminar");
+        assertThat(seminar.at("/data/0/name").asString()).isEqualTo("seminar");
+        assertThat(seminar.at("/data/0/types/0").asString()).isEqualTo("Seminar");
 
         JsonNode camp = objectMapper.readTree(restTemplate
                 .getForEntity("/api/v1/BjjEvent?types=3&page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(camp.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(camp.at("/data/0/name").asText()).isEqualTo("camp");
+        assertThat(camp.at("/data/0/name").asString()).isEqualTo("camp");
     }
 
     @Test
@@ -208,7 +208,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/pagination/nextPageUrl").asText())
+        assertThat(body.at("/pagination/nextPageUrl").asString())
                 .startsWith("http://")
                 .endsWith("/api/v1/BjjEvent?page=2&pageSize=1");
         assertThat(body.at("/pagination/previousPageUrl").isNull()).isTrue();
@@ -322,14 +322,14 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/id").asText()).isEqualTo("202605310000000000000021");
+        assertThat(body.at("/id").asString()).isEqualTo("202605310000000000000021");
         assertThat(body.at("/isActive").asBoolean()).isFalse();
-        assertThat(body.at("/types/0").asText()).isEqualTo("OpenMat");
-        assertThat(body.at("/schedule/kind").asText()).isEqualTo("FixedDates");
-        assertThat(body.at("/schedule/sessions/0/startTime").asText()).isEqualTo("10:00:00");
-        assertThat(body.at("/schedule/sessions/0/endTime").asText()).isEqualTo("12:00:00");
-        assertThat(body.at("/pricingOptions/0/type").asText()).isEqualTo("Free");
-        assertThat(body.at("/pricingOptions/1/type").asText()).isEqualTo("FlatRate");
+        assertThat(body.at("/types/0").asString()).isEqualTo("OpenMat");
+        assertThat(body.at("/schedule/kind").asString()).isEqualTo("FixedDates");
+        assertThat(body.at("/schedule/sessions/0/startTime").asString()).isEqualTo("10:00:00");
+        assertThat(body.at("/schedule/sessions/0/endTime").asString()).isEqualTo("12:00:00");
+        assertThat(body.at("/pricingOptions/0/type").asString()).isEqualTo("Free");
+        assertThat(body.at("/pricingOptions/1/type").asString()).isEqualTo("FlatRate");
         assertThat(body.at("/pricingOptions/1/amount").decimalValue()).isEqualByComparingTo(new BigDecimal("275"));
     }
 
@@ -343,8 +343,8 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(body.at("/data/id").asText()).isEqualTo("202605310000000000000061");
-        assertThat(body.at("/data/name").asText()).isEqualTo("Created Open Mat");
+        assertThat(body.at("/data/id").asString()).isEqualTo("202605310000000000000061");
+        assertThat(body.at("/data/name").asString()).isEqualTo("Created Open Mat");
         BjjEvent savedEvent =
                 bjjEventRepository.findById("202605310000000000000061").orElseThrow();
         assertThat(savedEvent.getCreatedBy()).isEqualTo(AUTHENTICATED_USER);
@@ -384,8 +384,8 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/data/id").asText()).isEqualTo(savedEvent.getId());
-        assertThat(body.at("/data/name").asText()).isEqualTo("Updated Event");
+        assertThat(body.at("/data/id").asString()).isEqualTo(savedEvent.getId());
+        assertThat(body.at("/data/name").asString()).isEqualTo("Updated Event");
         BjjEvent updatedEvent = bjjEventRepository.findById(savedEvent.getId()).orElseThrow();
         assertThat(updatedEvent.getName()).isEqualTo("Updated Event");
         assertThat(updatedEvent.getUpdatedBy()).isEqualTo(AUTHENTICATED_USER);
@@ -429,27 +429,33 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
             String startDate,
             String endDate,
             String createdAt) {
-        BjjEvent event = new BjjEvent();
-        event.setId(id);
-        event.setName(name);
-        event.setDescription("Open training session");
-        event.setCounty(county);
-        event.setTypes(types);
-        event.setStatus(status);
-        event.setOrganiser(new Organizer("BJJ Eire", "https://bjjeire.com"));
-        event.setSchedule(new BjjEventSchedule(
-                ScheduleKind.FixedDates,
-                Instant.parse(startDate),
-                Instant.parse(endDate),
-                List.of(new BjjEventSession(
-                        Instant.parse(startDate), null, LocalTime.of(10, 0), LocalTime.of(12, 0), "Session 1", null))));
-        event.setPricingOptions(List.of(
-                new PricingModel(PricingType.Free, null, null, BigDecimal.ZERO, null, null),
-                new PricingModel(PricingType.FlatRate, "Full pass", null, new BigDecimal("275"), 1, "EUR")));
-        event.setEventUrl("https://example.com/events/" + name);
-        event.setActive(isActive);
-        event.setCreatedOnUtc(Instant.parse(createdAt));
-        return event;
+
+        return BjjEvent.builder()
+                .id(id)
+                .name(name)
+                .description("Open training session")
+                .county(county)
+                .types(types)
+                .status(status)
+                .organiser(new Organizer("BJJ Eire", "https://bjjeire.com"))
+                .schedule(new BjjEventSchedule(
+                        ScheduleKind.FixedDates,
+                        Instant.parse(startDate),
+                        Instant.parse(endDate),
+                        List.of(new BjjEventSession(
+                                Instant.parse(startDate),
+                                null,
+                                LocalTime.of(10, 0),
+                                LocalTime.of(12, 0),
+                                "Session 1",
+                                null))))
+                .pricingOptions(List.of(
+                        new PricingModel(PricingType.Free, null, null, BigDecimal.ZERO, null, null),
+                        new PricingModel(PricingType.FlatRate, "Full pass", null, new BigDecimal("275"), 1, "EUR")))
+                .eventUrl("https://example.com/events/" + name)
+                .active(isActive)
+                .createdOnUtc(Instant.parse(createdAt))
+                .build();
     }
 
     private static String eventCommandJson(String id, String name) {
