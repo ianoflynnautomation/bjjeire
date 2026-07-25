@@ -40,7 +40,8 @@ const createEnv = (): Env => {
   for (const key in viteEnv) {
     if (key.startsWith('VITE_APP_')) {
       relevantEnvVars[key.replace('VITE_APP_', '')] = viteEnv[key] as
-        string | undefined
+        | string
+        | undefined
     }
   }
 
