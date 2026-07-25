@@ -24,7 +24,7 @@ export const GymCard = function GymCard({
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-amber-400/50 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-accent-400/50 to-transparent"
         aria-hidden="true"
       />
       <GymHeader

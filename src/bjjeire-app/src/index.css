@@ -13,59 +13,73 @@
   --font-mono:
     'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
 
-  /* ── Ink (Academy mat neutral — cool-green undertone, not blue slate) ── */
-  --color-ink-50: #f4f7f7;
-  --color-ink-100: #e8eeef;
-  --color-ink-200: #c5d0d3;
-  --color-ink-300: #9aabaf;
-  --color-ink-400: #6b7c80;
-  --color-ink-500: #3a4a4e;
-  --color-ink-600: #243033;
-  --color-ink-700: #1a2428;
-  --color-ink-800: #121a1d;
-  --color-ink-900: #0c1214;
-  --color-ink-950: #070a0c;
 
-  /* ── Primary (Tatami green) ── */
-  --color-primary-50: #ecfdf6;
-  --color-primary-100: #d1fae8;
-  --color-primary-200: #a7f3d4;
-  --color-primary-300: #6ee7b5;
-  --color-primary-400: #34d399;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
-  --color-primary-950: #022c22;
 
-  /* ── Accent (Fight orange / Irish gold-orange) ── */
-  --color-accent-50: #fff7ed;
-  --color-accent-100: #ffedd5;
-  --color-accent-200: #fed7aa;
-  --color-accent-300: #fdba74;
-  --color-accent-400: #fb923c;
-  --color-accent-500: #f97316;
-  --color-accent-600: #ea580c;
-  --color-accent-700: #c2410c;
-  --color-accent-800: #9a3412;
-  --color-accent-900: #7c2d12;
-  --color-accent-950: #431407;
+    /* ── Ink (Warm iron — black-belt neutral, warm not blue, no green murk) ── */
+  --color-ink-50: #f2f4ee;
+  --color-ink-100: #e6eae3;
+  --color-ink-200: #c8cfc5;
+  --color-ink-300: #9aa398;
+  --color-ink-400: #6c766a;
+  --color-ink-500: #414a40;
+  --color-ink-600: #2c332b;
+  --color-ink-700: #212620;
+  --color-ink-800: #171b16;
+  --color-ink-900: #10130f;
+  --color-ink-950: #0b0d0b;
 
-  /* ── Semantic ── */
+  /* ── Primary (Bottle green — competition gi patch) ── */
+  --color-primary-50: #ecf7f0;
+  --color-primary-100: #d3ecdf;
+  --color-primary-200: #a8d9bf;
+  --color-primary-300: #74c098;
+  --color-primary-400: #2fa366;
+  --color-primary-500: #17864f;
+  --color-primary-600: #0f6b40;
+  --color-primary-700: #0b5334;
+  --color-primary-800: #0a4229;
+  --color-primary-900: #08331f;
+  --color-primary-950: #041d12;
+
+  /* ── Accent (Ember orange — burnt, gritty) ── */
+  --color-accent-50: #fdf2ec;
+  --color-accent-100: #f9ddcd;
+  --color-accent-200: #f3bd9c;
+  --color-accent-300: #ee9a6b;
+  --color-accent-400: #ec7b45;
+  --color-accent-500: #dd5e28;
+  --color-accent-600: #b84a1b;
+  --color-accent-700: #933a16;
+  --color-accent-800: #7c2f12;
+  --color-accent-900: #66280f;
+  --color-accent-950: #371306;
+
+  /* ── Semantic (feedback hues — kept distinct from the bottle-green brand) ── */
+  --color-success-50: #ecfdf3;
+  --color-success-400: #4ade80;
   --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
   --color-success-950: #052e16;
   --color-warning-50: #fefce8;
   --color-warning-200: #fde68a;
+  --color-warning-400: #facc15;
   --color-warning-500: #eab308;
   --color-warning-600: #ca8a04;
+  --color-warning-700: #a16207;
   --color-warning-800: #854d0e;
   --color-warning-900: #713f12;
   --color-warning-950: #422006;
+  --color-danger-50: #fef2f2;
+  --color-danger-300: #fca5a5;
   --color-danger-400: #f87171;
   --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
   --color-danger-950: #450a0a;
+  --color-info-400: #60a5fa;
   --color-info-500: #38bdf8;
+  --color-info-600: #0284c7;
 
   /* Theme-aware semantic surfaces/text — resolved via --ui-* below. */
   --color-canvas: var(--ui-canvas);
@@ -105,66 +119,71 @@
     scroll-behavior: smooth;
   }
 
-  /* ── Daylight Dojo (light) ── */
+  /* ── Daylight Dojo (light — warm gi cotton, not stark white) ── */
   :root {
-    --ui-canvas: #f4f7f7;
-    --ui-surface: rgb(255 255 255 / 0.88);
+    --ui-canvas: #eceae1;
+    --ui-surface: rgb(255 255 255 / 0.86);
     --ui-surface-solid: #ffffff;
-    --ui-muted: #e8eeef;
-    --ui-fg: #0c1214;
-    --ui-fg-muted: #3a4a4e;
-    --ui-fg-subtle: #6b7c80;
-    --ui-hairline: rgb(0 0 0 / 0.08);
-    --ui-border-strong: rgb(0 0 0 / 0.12);
-    --ui-ring-focus: rgb(5 150 105 / 0.7);
-    --ui-glow-primary: rgb(16 185 129 / 0.07);
-    --ui-glow-accent: rgb(249 115 22 / 0.05);
-    --ui-gradient-canvas: linear-gradient(180deg, #f4f7f7 0%, #e8eeef 100%);
-    --ui-weave-opacity: 0.03;
+    --ui-muted: #e2e0d5;
+    --ui-fg: #10130f;
+    --ui-fg-muted: #414a40;
+    --ui-fg-subtle: #6c766a;
+    --ui-hairline: rgb(20 18 8 / 0.1);
+    --ui-border-strong: rgb(20 18 8 / 0.15);
+    --ui-ring-focus: rgb(15 107 64 / 0.7);
+    --ui-glow-primary: rgb(23 134 79 / 0.08);
+    --ui-glow-accent: rgb(221 94 40 / 0.06);
+    --ui-gradient-canvas: linear-gradient(
+      165deg,
+      #f0eee6 0%,
+      #e8e6db 55%,
+      #e2e0d3 100%
+    );
+    --ui-weave-opacity: 0.04;
   }
 
-  /* ── Academy Dark (default product theme) ── */
+  /* ── Academy Dark (default — warm iron obsidian, bottle-green glow) ── */
   html.dark {
-    --ui-canvas: #0c1214;
-    --ui-surface: rgb(26 36 40 / 0.72);
-    --ui-surface-solid: #1a2428;
-    --ui-muted: #1a2428;
-    --ui-fg: #e8eeef;
-    --ui-fg-muted: #9aabaf;
-    --ui-fg-subtle: #6b7c80;
+    --ui-canvas: #10130f;
+    --ui-surface: rgb(33 38 32 / 0.72);
+    --ui-surface-solid: #1b211a;
+    --ui-muted: #171b16;
+    --ui-fg: #e6eae3;
+    --ui-fg-muted: #9aa398;
+    --ui-fg-subtle: #6c766a;
     --ui-hairline: rgb(255 255 255 / 0.08);
     --ui-border-strong: rgb(255 255 255 / 0.14);
-    --ui-ring-focus: rgb(52 211 153 / 0.75);
-    --ui-glow-primary: rgb(16 185 129 / 0.18);
-    --ui-glow-accent: rgb(249 115 22 / 0.12);
+    --ui-ring-focus: rgb(47 163 102 / 0.8);
+    --ui-glow-primary: rgb(23 134 79 / 0.2);
+    --ui-glow-accent: rgb(221 94 40 / 0.14);
     --ui-gradient-canvas: linear-gradient(
       180deg,
-      #070a0c 0%,
-      #0c1214 42%,
-      #0a1f1a 100%
+      #0b0d0b 0%,
+      #10130f 45%,
+      #0c1a12 100%
     );
-    --ui-weave-opacity: 0.045;
+    --ui-weave-opacity: 0.05;
   }
 
-  /* ── Competition Mode — higher contrast, orange-forward ── */
+  /* ── Competition Mode — higher contrast, ember-forward ── */
   html.competition {
-    --ui-canvas: #050708;
-    --ui-surface: rgb(18 24 28 / 0.92);
-    --ui-surface-solid: #12181c;
-    --ui-muted: #141c20;
-    --ui-fg: #f4f7f7;
-    --ui-fg-muted: #c5d0d3;
-    --ui-fg-subtle: #9aabaf;
+    --ui-canvas: #070806;
+    --ui-surface: rgb(23 27 22 / 0.92);
+    --ui-surface-solid: #141811;
+    --ui-muted: #12160f;
+    --ui-fg: #f2f4ee;
+    --ui-fg-muted: #c8cfc5;
+    --ui-fg-subtle: #9aa398;
     --ui-hairline: rgb(255 255 255 / 0.12);
-    --ui-border-strong: rgb(249 115 22 / 0.35);
-    --ui-ring-focus: rgb(251 146 60 / 0.8);
-    --ui-glow-primary: rgb(16 185 129 / 0.1);
-    --ui-glow-accent: rgb(249 115 22 / 0.28);
+    --ui-border-strong: rgb(221 94 40 / 0.4);
+    --ui-ring-focus: rgb(236 123 69 / 0.85);
+    --ui-glow-primary: rgb(23 134 79 / 0.12);
+    --ui-glow-accent: rgb(221 94 40 / 0.32);
     --ui-gradient-canvas: linear-gradient(
       180deg,
-      #050708 0%,
-      #0a0f11 50%,
-      #1a0e06 100%
+      #070806 0%,
+      #0c0f0a 50%,
+      #1c0e05 100%
     );
     --ui-weave-opacity: 0.06;
   }
@@ -196,7 +215,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%230c1214' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%230c1214' stroke-width='1'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%2310130f' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%2310130f' stroke-width='1'/%3E%3C/svg%3E");
     background-size: 40px 16px;
     opacity: var(--ui-weave-opacity);
   }

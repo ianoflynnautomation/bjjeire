@@ -1,6 +1,11 @@
 import type { JSX } from 'react'
 import { Link } from 'react-router'
-import { Bars3Icon, SunIcon, MoonIcon } from '@heroicons/react/24/outline'
+import {
+  Bars3Icon,
+  SunIcon,
+  MoonIcon,
+  FireIcon,
+} from '@heroicons/react/24/outline'
 import SupportModal from '@/components/support/support-modal'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
@@ -24,7 +29,12 @@ const Navigation = function Navigation(): JSX.Element {
     toggleMobileMenu,
     closeMobileMenu,
   } = useNavigationState()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, cycleTheme } = useTheme()
+  const themeCycle = {
+    light: { Icon: SunIcon, nextLabel: 'Switch to dark mode' },
+    dark: { Icon: MoonIcon, nextLabel: 'Switch to competition mode' },
+    competition: { Icon: FireIcon, nextLabel: 'Switch to light mode' },
+  }[theme]
 
   return (
     <>
@@ -48,18 +58,10 @@ const Navigation = function Navigation(): JSX.Element {
             </div>
             <div className="flex items-center gap-2">
               <NavIconButton
-                onClick={toggleTheme}
-                aria-label={
-                  theme === 'dark'
-                    ? 'Switch to light mode'
-                    : 'Switch to dark mode'
-                }
+                onClick={cycleTheme}
+                aria-label={themeCycle.nextLabel}
               >
-                {theme === 'dark' ? (
-                  <SunIcon className="h-5 w-5" aria-hidden="true" />
-                ) : (
-                  <MoonIcon className="h-5 w-5" aria-hidden="true" />
-                )}
+                <themeCycle.Icon className="h-5 w-5" aria-hidden="true" />
               </NavIconButton>
               {env.GITHUB_URL && (
                 <a

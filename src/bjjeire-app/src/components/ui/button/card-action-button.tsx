@@ -8,7 +8,7 @@ const cardActionVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-linear-to-r from-primary-600 via-primary-500 to-green-500 hover:scale-[1.02] hover:from-primary-700 hover:to-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 focus-visible:ring-offset-2',
+          'bg-linear-to-r from-primary-600 via-primary-500 to-primary-400 hover:scale-[1.02] hover:from-primary-700 hover:to-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 focus-visible:ring-offset-2',
         unavailable:
           'cursor-not-allowed bg-ink-200 text-fg-subtle opacity-70 dark:bg-ink-700',
       },
