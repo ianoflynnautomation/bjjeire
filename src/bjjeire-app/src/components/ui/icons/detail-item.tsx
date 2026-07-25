@@ -24,10 +24,7 @@ export const DetailItem = function DetailItem({
 
   return (
     <div
-      className={cn(
-        'flex items-start gap-x-2.5 text-fg-muted',
-        className
-      )}
+      className={cn('flex items-start gap-x-2.5 text-fg-muted', className)}
       data-testid={rootTestId}
     >
       <IconWrapper className={iconClassName}>{icon}</IconWrapper>

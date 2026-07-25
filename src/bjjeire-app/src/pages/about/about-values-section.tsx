@@ -4,21 +4,21 @@ import { AboutSection } from './about-section'
 import { AboutValuesTestIds } from '@/constants/aboutDataTestIds'
 
 export const AboutValuesSection = function AboutValuesSection(): JSX.Element {
-    return (
-      <AboutSection
-        id="about-values"
-        headingId="about-values-heading"
-        title={uiContent.about.principlesTitle}
-        data-testid={AboutValuesTestIds.SECTION}
+  return (
+    <AboutSection
+      id="about-values"
+      headingId="about-values-heading"
+      title={uiContent.about.principlesTitle}
+      data-testid={AboutValuesTestIds.SECTION}
+    >
+      <ul
+        className="list-disc space-y-2 pl-6 text-fg-muted marker:text-primary-500 dark:marker:text-primary-400"
+        data-testid={AboutValuesTestIds.LIST}
       >
-        <ul
-          className="list-disc space-y-2 pl-6 text-fg-muted marker:text-primary-500 dark:marker:text-primary-400"
-          data-testid={AboutValuesTestIds.LIST}
-        >
-          {uiContent.about.principles.map(item => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </AboutSection>
-    )
-  }
+        {uiContent.about.principles.map(item => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </AboutSection>
+  )
+}

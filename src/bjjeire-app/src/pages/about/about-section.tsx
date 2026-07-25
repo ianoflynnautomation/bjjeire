@@ -24,10 +24,7 @@ export const AboutSection = function AboutSection({
       className="relative overflow-hidden rounded-3xl bg-surface p-6 backdrop-blur-sm ring-1 ring-hairline"
     >
       <TricolorEdge />
-      <h2
-        id={headingId}
-        className="mb-4 text-2xl font-bold text-fg"
-      >
+      <h2 id={headingId} className="mb-4 text-2xl font-bold text-fg">
         {title}
       </h2>
       {children}

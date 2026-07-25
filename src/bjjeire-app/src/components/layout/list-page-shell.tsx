@@ -73,9 +73,7 @@ export function ListPageShell<T>({
         {header}
 
         {filterBar && (
-          <div className="mb-6 border-b border-hairline pb-6">
-            {filterBar}
-          </div>
+          <div className="mb-6 border-b border-hairline pb-6">{filterBar}</div>
         )}
 
         <p className="sr-only" aria-live="polite" aria-atomic="true">

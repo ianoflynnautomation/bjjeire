@@ -51,9 +51,7 @@ describe('getEventTypeBannerGradient', () => {
   })
 
   it('given a Seminar event, when the banner gradient is resolved, then the accent gradient is returned', () => {
-    expect(getEventTypeBannerGradient(BjjEventType.Seminar)).toContain(
-      'accent'
-    )
+    expect(getEventTypeBannerGradient(BjjEventType.Seminar)).toContain('accent')
   })
 
   it('given an Other event, when the banner gradient is resolved, then the ink gradient is returned', () => {

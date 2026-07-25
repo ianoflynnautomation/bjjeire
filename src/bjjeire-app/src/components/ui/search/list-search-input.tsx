@@ -41,10 +41,7 @@ export const ListSearchInput = function ListSearchInput({
 
   return (
     <div role="search" className="flex flex-col" data-testid={dataTestId}>
-      <label
-        htmlFor={inputId}
-        className="text-sm font-semibold text-fg-muted"
-      >
+      <label htmlFor={inputId} className="text-sm font-semibold text-fg-muted">
         {content.label}
       </label>
       <div className="relative mt-1">
