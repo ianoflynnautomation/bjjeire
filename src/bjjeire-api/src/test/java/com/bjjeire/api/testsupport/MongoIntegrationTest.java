@@ -47,6 +47,9 @@ public abstract class MongoIntegrationTest {
 
     protected static final String AUTHENTICATED_USER = "integration-test";
 
+    /** Matches {@code bjjeire.auth.writer-scope} default in application.yml. */
+    protected static final String WRITER_SCOPE = "access_as_writer";
+
     @Autowired
     protected MongoTemplate mongoTemplate;
 
@@ -84,8 +87,14 @@ public abstract class MongoIntegrationTest {
     }
 
     protected static HttpEntity<String> jsonEntity(String body) {
+        return jsonEntity(body, "integration-test-token");
+    }
+
+    protected static HttpEntity<String> jsonEntity(String body, String bearerToken) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth("integration-test-token");
+        if (bearerToken != null) {
+            headers.setBearerAuth(bearerToken);
+        }
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(body, headers);
     }
@@ -104,12 +113,19 @@ public abstract class MongoIntegrationTest {
             return Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
         }
 
+        // Stub decoder: every token authenticates as the same user and, unless the token value
+        // contains "reader", carries the writer scope so existing write ITs keep passing. A
+        // "reader" token lets negative security tests assert 403 on writes.
         @Bean
         JwtDecoder jwtDecoder() {
-            return token -> Jwt.withTokenValue(token)
-                    .header("alg", "none")
-                    .claim("sub", AUTHENTICATED_USER)
-                    .build();
+            return token -> {
+                Jwt.Builder builder =
+                        Jwt.withTokenValue(token).header("alg", "none").claim("sub", AUTHENTICATED_USER);
+                if (!token.contains("reader")) {
+                    builder.claim("scope", WRITER_SCOPE);
+                }
+                return builder.build();
+            };
         }
     }
 }

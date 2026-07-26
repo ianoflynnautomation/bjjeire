@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Bjj Events")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.BJJ_EVENT, ApiRoutes.BJJ_EVENT_LOWERCASE})
+@RequestMapping(ApiRoutes.BJJ_EVENT)
 public class BjjEventController {
 
     private final BjjEventService bjjEventService;

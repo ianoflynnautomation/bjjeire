@@ -2,6 +2,7 @@ package com.bjjeire.api.store;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ class StoreMongoRepositoryIT extends MongoIntegrationTest {
         storeRepository.save(store("Active Store", true));
         storeRepository.save(store("Inactive Store", false));
 
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/Store?page=1&pageSize=20", String.class);
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.STORE + "?page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 

@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.GeoCoordinates;
 import com.bjjeire.api.common.Location;
@@ -67,7 +68,7 @@ class BjjEventControllerTest {
         given(bjjEventService.getAll(any(), any(), any(), anyBoolean(), anyString()))
                 .willReturn(pageOf(event(EVENT_ID)));
 
-        mockMvc.perform(get("/api/v1/BjjEvent").param("county", "Dublin").param("types", "OpenMat", "Camp"))
+        mockMvc.perform(get(ApiRoutes.BJJ_EVENT).param("county", "Dublin").param("types", "OpenMat", "Camp"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(EVENT_ID))
                 .andExpect(jsonPath("$.data[0].types[0]").value("Camp"))
@@ -82,7 +83,7 @@ class BjjEventControllerTest {
     void shouldReturnEventWithScheduleContractWhenGettingById() throws Exception {
         given(bjjEventService.getById(EVENT_ID)).willReturn(Optional.of(event(EVENT_ID)));
 
-        mockMvc.perform(get("/api/v1/BjjEvent/" + EVENT_ID))
+        mockMvc.perform(get(ApiRoutes.BJJ_EVENT + "/" + EVENT_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(EVENT_ID))
                 .andExpect(jsonPath("$.status").value("Upcoming"))
@@ -95,12 +96,12 @@ class BjjEventControllerTest {
     void shouldReturnNotFoundWhenEventIsMissing() throws Exception {
         given(bjjEventService.getById(MISSING_EVENT_ID)).willReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/BjjEvent/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
     }
 
     @Test
     void shouldRejectGetByIdWithoutCallingServiceWhenIdIsNotAnObjectId() throws Exception {
-        mockMvc.perform(get("/api/v1/BjjEvent/not-an-object-id"))
+        mockMvc.perform(get(ApiRoutes.BJJ_EVENT + "/not-an-object-id"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:validation-error"))
                 .andExpect(jsonPath("$.errors[0].field").value("Id"))
@@ -114,7 +115,7 @@ class BjjEventControllerTest {
     void shouldReturnCreatedWithBodyWhenEventIsValid() throws Exception {
         given(bjjEventService.create(any())).willAnswer(invocation -> new CreateBjjEventResponse(event(EVENT_ID)));
 
-        mockMvc.perform(post("/api/v1/BjjEvent")
+        mockMvc.perform(post(ApiRoutes.BJJ_EVENT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(eventCommandJson(EVENT_ID)))
                 .andExpect(status().isCreated())
@@ -126,7 +127,7 @@ class BjjEventControllerTest {
     void shouldReturnValidationErrorContractWhenFreePricingHasCurrency() throws Exception {
         String json = eventCommandJson(EVENT_ID).replace("\"currency\": null", "\"currency\": \"EUR\"");
 
-        mockMvc.perform(post("/api/v1/BjjEvent")
+        mockMvc.perform(post(ApiRoutes.BJJ_EVENT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
@@ -143,7 +144,7 @@ class BjjEventControllerTest {
         String json = eventCommandJson(EVENT_ID)
                 .replace("\"types\": [\"Camp\", \"OpenMat\"]", "\"types\": [\"Camp\", \"Camp\"]");
 
-        mockMvc.perform(post("/api/v1/BjjEvent")
+        mockMvc.perform(post(ApiRoutes.BJJ_EVENT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
@@ -154,7 +155,7 @@ class BjjEventControllerTest {
         String json = eventCommandJson(EVENT_ID)
                 .replace("\"appliesToTypes\": [\"OpenMat\"]", "\"appliesToTypes\": [\"Seminar\"]");
 
-        mockMvc.perform(post("/api/v1/BjjEvent")
+        mockMvc.perform(post(ApiRoutes.BJJ_EVENT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
@@ -162,7 +163,7 @@ class BjjEventControllerTest {
 
     @Test
     void shouldRejectCreateWhenIdIsNotAnObjectId() throws Exception {
-        mockMvc.perform(post("/api/v1/BjjEvent")
+        mockMvc.perform(post(ApiRoutes.BJJ_EVENT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(eventCommandJson("not-an-object-id")))
                 .andExpect(status().isBadRequest());
@@ -170,7 +171,7 @@ class BjjEventControllerTest {
 
     @Test
     void shouldRejectUpdateWithoutCallingServiceWhenPathAndBodyIdDiffer() throws Exception {
-        mockMvc.perform(put("/api/v1/BjjEvent/" + EVENT_ID)
+        mockMvc.perform(put(ApiRoutes.BJJ_EVENT + "/" + EVENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(eventCommandJson(OTHER_EVENT_ID)))
                 .andExpect(status().isBadRequest());
@@ -182,14 +183,14 @@ class BjjEventControllerTest {
     void shouldReturnNoContentWhenEventIsDeleted() throws Exception {
         given(bjjEventService.delete(EVENT_ID)).willReturn(true);
 
-        mockMvc.perform(delete("/api/v1/BjjEvent/" + EVENT_ID)).andExpect(status().isNoContent());
+        mockMvc.perform(delete(ApiRoutes.BJJ_EVENT + "/" + EVENT_ID)).andExpect(status().isNoContent());
     }
 
     @Test
     void shouldReturnNotFoundWhenDeletingMissingEvent() throws Exception {
         given(bjjEventService.delete(MISSING_EVENT_ID)).willReturn(false);
 
-        mockMvc.perform(delete("/api/v1/BjjEvent/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(delete(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
     }
 
     private static PagedResponse<BjjEventDto> pageOf(BjjEventDto dto) {

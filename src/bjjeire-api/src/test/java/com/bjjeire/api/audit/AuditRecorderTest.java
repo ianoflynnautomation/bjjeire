@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,15 @@ class AuditRecorderTest {
     private AuditInfoProvider auditInfoProvider;
 
     private AuditRecorder recorder;
+    private SimpleMeterRegistry meterRegistry;
 
     @BeforeEach
     void setUp() {
         given(auditInfoProvider.currentInstant()).willReturn(NOW);
         given(auditInfoProvider.currentUser()).willReturn("ops-user");
         given(auditInfoProvider.correlationId()).willReturn("trace-123");
-        recorder = new AuditRecorder(auditLogRepository, auditInfoProvider);
+        meterRegistry = new SimpleMeterRegistry();
+        recorder = new AuditRecorder(auditLogRepository, auditInfoProvider, meterRegistry);
     }
 
     @Test
@@ -55,5 +58,6 @@ class AuditRecorderTest {
 
         assertThatCode(() -> recorder.record(AuditAction.UpdateMany, "Competition", null, 3))
                 .doesNotThrowAnyException();
+        assertThat(meterRegistry.counter("audit.record.failures").count()).isEqualTo(1.0);
     }
 }

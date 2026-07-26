@@ -71,17 +71,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     }
 
     private static String clientIp(HttpServletRequest request) {
-        String cloudflareIp = request.getHeader("CF-Connecting-IP");
-        if (cloudflareIp != null && !cloudflareIp.isBlank()) {
-            return cloudflareIp.trim();
-        }
-
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",", 2)[0].trim();
-        }
-
-        return request.getRemoteAddr() == null ? "Unknown" : request.getRemoteAddr();
+        return ClientIps.resolve(request, "Unknown");
     }
 
     private static String userAgent(HttpServletRequest request) {

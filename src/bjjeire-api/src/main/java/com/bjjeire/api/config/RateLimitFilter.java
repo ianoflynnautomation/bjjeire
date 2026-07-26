@@ -1,5 +1,7 @@
 package com.bjjeire.api.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,10 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.ConcurrentMap;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,12 +21,28 @@ import tools.jackson.databind.ObjectMapper;
 
 @Component
 @Order(10)
-@RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
+    // Cap the number of tracked partitions so a flood of unique IPs (bots, CDN edges) cannot grow
+    // the map without bound, and expire idle windows so stale keys do not accumulate.
+    private static final int MAX_TRACKED_PARTITIONS = 100_000;
+
     private final BjjEireProperties properties;
     private final ObjectMapper objectMapper;
     private final Clock clock;
-    private final Map<String, Window> windows = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Window> windows;
+
+    public RateLimitFilter(BjjEireProperties properties, ObjectMapper objectMapper, Clock clock) {
+        this.properties = properties;
+        this.objectMapper = objectMapper;
+        this.clock = clock;
+
+        long windowSeconds = Math.max(properties.rateLimit().windowSeconds(), 60);
+        Cache<String, Window> cache = Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofSeconds(windowSeconds))
+                .maximumSize(MAX_TRACKED_PARTITIONS)
+                .build();
+        this.windows = cache.asMap();
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -82,17 +100,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return principal.getName();
         }
 
-        String cloudflareIp = request.getHeader("CF-Connecting-IP");
-        if (cloudflareIp != null && !cloudflareIp.isBlank()) {
-            return cloudflareIp.trim();
-        }
-
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",", 2)[0].trim();
-        }
-
-        return request.getRemoteAddr() == null ? "unknown" : request.getRemoteAddr();
+        return ClientIps.resolve(request, "unknown");
     }
 
     private static final class Window {

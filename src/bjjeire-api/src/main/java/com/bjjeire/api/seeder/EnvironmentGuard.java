@@ -13,17 +13,27 @@ public final class EnvironmentGuard {
         }
 
         System.err.println("ERROR: Seeder refused — environment is '" + environment + "'.");
-        System.err.println("Set ASPNETCORE_ENVIRONMENT=Development or pass --force to override.");
+        System.err.println("Set BJJ_ENVIRONMENT=Development (or pass --force) to override.");
         return false;
     }
 
-    // Keeps the established environment variable contract so the same compose files work
-    // for both stacks during the migration.
+    // Fail-closed: when no environment is configured we assume Production and refuse to seed.
+    // BJJ_ENVIRONMENT is the Java-native variable; ASPNETCORE_ENVIRONMENT / DOTNET_ENVIRONMENT
+    // are honoured so shared compose files keep working during the migration.
     private static String resolveEnvironment() {
-        String environment = System.getenv("ASPNETCORE_ENVIRONMENT");
-        if (environment == null) {
-            environment = System.getenv("DOTNET_ENVIRONMENT");
+        String environment = firstNonBlank(
+                System.getenv("BJJ_ENVIRONMENT"),
+                System.getenv("ASPNETCORE_ENVIRONMENT"),
+                System.getenv("DOTNET_ENVIRONMENT"));
+        return environment != null ? environment : "Production";
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
         }
-        return environment != null ? environment : "Development";
+        return null;
     }
 }

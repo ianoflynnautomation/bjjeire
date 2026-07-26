@@ -1,9 +1,14 @@
 package com.bjjeire.api.event;
 
+import java.util.List;
+
 public final class BjjEventMapper {
     private BjjEventMapper() {}
 
     public static BjjEventDto toDto(BjjEvent event) {
+        List<PricingModel> pricingOptions = event.getPricingOptions();
+        List<CalculatedCost> calculatedCosts = BjjEventCostCalculator.calculate(
+                event.getSchedule(), pricingOptions == null ? List.of() : pricingOptions);
         return new BjjEventDto(
                 event.getId(),
                 event.getName(),
@@ -19,7 +24,8 @@ public final class BjjEventMapper {
                 event.getPricingOptions(),
                 event.getEventUrl(),
                 event.getImageUrl(),
-                event.isActive());
+                event.isActive(),
+                calculatedCosts);
     }
 
     public static BjjEvent toEntity(BjjEventDto dto) {

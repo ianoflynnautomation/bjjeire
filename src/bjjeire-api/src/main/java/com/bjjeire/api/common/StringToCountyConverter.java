@@ -16,6 +16,7 @@ public class StringToCountyConverter implements Converter<String, County> {
                 return county;
             }
         }
-        return null;
+
+        throw new IllegalArgumentException("Unknown county '" + source + "'.");
     }
 }

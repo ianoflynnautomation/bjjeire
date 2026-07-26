@@ -2,9 +2,9 @@ package com.bjjeire.api.gym;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -26,7 +26,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         gymRepository.save(gym("Pending Gym", GymStatus.PendingApproval));
 
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/Gym?county=Dublin&page=1&pageSize=20", String.class);
+                restTemplate.getForEntity(ApiRoutes.GYM + "?county=Dublin&page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -37,26 +37,22 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
     }
 
-    @Disabled("Unknown-county handling not yet implemented")
     @Test
-    void shouldIgnoreUnknownCountyWhenListingGyms() throws Exception {
+    void shouldRejectUnknownCountyWhenListingGyms() {
         gymRepository.save(gym("Active Gym", GymStatus.Active));
 
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/Gym?county=Atlantis&page=1&pageSize=20", String.class);
+                restTemplate.getForEntity(ApiRoutes.GYM + "?county=Atlantis&page=1&pageSize=20", String.class);
 
-        JsonNode body = objectMapper.readTree(response.getBody());
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(body.at("/data/0/name").asText()).isEqualTo("Active Gym");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void shouldSerializeExplicitNullNavigationLinksWhenPageIsBeyondLast() throws Exception {
         gymRepository.save(gym("Active Gym", GymStatus.Active));
 
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/Gym?page=2&pageSize=20", String.class);
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.GYM + "?page=2&pageSize=20", String.class);
 
         JsonNode pagination = objectMapper.readTree(response.getBody()).at("/pagination");
 
@@ -69,7 +65,8 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     void shouldReturnNotFoundWhenGettingInactiveGymById() {
         Gym savedGym = gymRepository.save(gym("Pending Gym", GymStatus.PendingApproval));
 
-        ResponseEntity<String> response = restTemplate.getForEntity("/api/v1/Gym/" + savedGym.getId(), String.class);
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.GYM + "/" + savedGym.getId(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -77,7 +74,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     @Test
     void shouldPersistGymWithAuditFieldsWhenCreatingThroughAuthenticatedApi() throws Exception {
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/v1/Gym", jsonEntity(gymCommandJson(null, "Created Gym")), String.class);
+                ApiRoutes.GYM, jsonEntity(gymCommandJson(null, "Created Gym")), String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -94,7 +91,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         Gym savedGym = gymRepository.save(gym("Original Gym", GymStatus.Active));
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/Gym/" + savedGym.getId(),
+                ApiRoutes.GYM + "/" + savedGym.getId(),
                 HttpMethod.PUT,
                 jsonEntity(gymCommandJson(savedGym.getId(), "Updated Gym")),
                 String.class);
@@ -115,7 +112,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         Gym savedGym = gymRepository.save(gym("Deleted Gym", GymStatus.Active));
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/Gym/" + savedGym.getId(), HttpMethod.DELETE, jsonEntity(null), String.class);
+                ApiRoutes.GYM + "/" + savedGym.getId(), HttpMethod.DELETE, jsonEntity(null), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(gymRepository.findById(savedGym.getId())).isEmpty();
