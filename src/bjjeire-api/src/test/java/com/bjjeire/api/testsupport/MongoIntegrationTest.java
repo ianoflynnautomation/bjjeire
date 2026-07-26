@@ -47,6 +47,9 @@ public abstract class MongoIntegrationTest {
     protected static final String AUTHENTICATED_USER = "integration-test";
     protected static final String WRITER_SCOPE = "access_as_writer";
 
+    /** Matches {@code bjjeire.auth.writer-scope} default in application.yml. */
+    protected static final String WRITER_SCOPE = "access_as_writer";
+
     @Autowired
     protected MongoTemplate mongoTemplate;
 
@@ -110,6 +113,9 @@ public abstract class MongoIntegrationTest {
             return Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
         }
 
+        // Stub decoder: every token authenticates as the same user and, unless the token value
+        // contains "reader", carries the writer scope so existing write ITs keep passing. A
+        // "reader" token lets negative security tests assert 403 on writes.
         @Bean
         JwtDecoder jwtDecoder() {
             return token -> {
