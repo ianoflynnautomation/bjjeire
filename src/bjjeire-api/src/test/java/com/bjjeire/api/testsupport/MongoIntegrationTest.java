@@ -45,7 +45,6 @@ public abstract class MongoIntegrationTest {
 
     protected static final Instant FIXED_NOW = Instant.parse("2026-05-31T00:00:00Z");
     protected static final String AUTHENTICATED_USER = "integration-test";
-    protected static final String WRITER_SCOPE = "access_as_writer";
 
     /** Matches {@code bjjeire.auth.writer-scope} default in application.yml. */
     protected static final String WRITER_SCOPE = "access_as_writer";
