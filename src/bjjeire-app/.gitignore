@@ -13,6 +13,9 @@ dist-ssr
 pacts
 *.local
 
+# OpenAPI contract artifact downloaded during the CI api-compat job
+openapi-v1.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
