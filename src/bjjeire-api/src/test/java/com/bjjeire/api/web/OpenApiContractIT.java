@@ -2,6 +2,7 @@ package com.bjjeire.api.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,16 +34,16 @@ class OpenApiContractIT extends MongoIntegrationTest {
                 .isEqualTo("bearer");
         assertThat(document.at("/paths").propertyNames())
                 .contains(
-                        "/api/v1/Gym",
-                        "/api/v1/BjjEvent",
-                        "/api/v1/Competition",
-                        "/api/v1/Store",
-                        "/api/v1/Donate/bitcoin/qr");
+                        ApiRoutes.GYM,
+                        ApiRoutes.BJJ_EVENT,
+                        ApiRoutes.COMPETITION,
+                        ApiRoutes.STORE,
+                        ApiRoutes.DONATE + "/bitcoin/qr");
 
-        JsonNode gymGet = document.at("/paths/~1api~1v1~1Gym/get");
-        JsonNode gymPost = document.at("/paths/~1api~1v1~1Gym/post");
-        JsonNode eventPut = document.at("/paths/~1api~1v1~1BjjEvent~1{id}/put");
-        JsonNode eventDelete = document.at("/paths/~1api~1v1~1BjjEvent~1{id}/delete");
+        JsonNode gymGet = document.at(operationPointer(ApiRoutes.GYM, "get"));
+        JsonNode gymPost = document.at(operationPointer(ApiRoutes.GYM, "post"));
+        JsonNode eventPut = document.at(operationPointer(ApiRoutes.BJJ_EVENT + "/{id}", "put"));
+        JsonNode eventDelete = document.at(operationPointer(ApiRoutes.BJJ_EVENT + "/{id}", "delete"));
 
         assertThat(gymGet.has("security")).isFalse();
         assertThat(hasBearerSecurity(gymPost)).isTrue();
@@ -70,6 +71,11 @@ class OpenApiContractIT extends MongoIntegrationTest {
             Files.createDirectories(output.getParent());
         }
         Files.writeString(output, response.getBody());
+    }
+
+    // Builds a JSON Pointer into the OpenAPI paths object, escaping '/' as '~1' per RFC 6901.
+    private static String operationPointer(String route, String httpMethod) {
+        return "/paths/" + route.replace("/", "~1") + "/" + httpMethod;
     }
 
     private static boolean hasBearerSecurity(JsonNode operation) {

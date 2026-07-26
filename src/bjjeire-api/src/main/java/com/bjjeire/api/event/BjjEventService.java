@@ -22,6 +22,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +45,23 @@ public class BjjEventService {
         PagedResponse<BjjEventDto> cached = cache.getOrCreate(
                 ApiCache.BJJ_EVENTS_TAG, cacheKey, () -> loadPage(paginationRequest, county, types, includeInactive));
 
-        return PagedResponses.withNavigationLinks(cached, uriService, basePath);
+        return PagedResponses.withNavigationLinks(
+                cached, uriService, basePath, listFilters(county, types, includeInactive));
+    }
+
+    private static MultiValueMap<String, String> listFilters(
+            County county, List<BjjEventType> types, boolean includeInactive) {
+        MultiValueMap<String, String> filters = new LinkedMultiValueMap<>();
+        if (county != null) {
+            filters.add("county", county.name());
+        }
+        if (types != null) {
+            types.forEach(type -> filters.add("types", type.name()));
+        }
+        if (includeInactive) {
+            filters.add("includeInactive", "true");
+        }
+        return filters;
     }
 
     public Optional<BjjEventDto> getById(String id) {

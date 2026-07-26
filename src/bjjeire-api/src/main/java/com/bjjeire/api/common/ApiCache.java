@@ -15,6 +15,7 @@ public class ApiCache {
     public static final String STORES_TAG = "stores";
 
     private static final Duration EXPIRATION = Duration.ofMinutes(5);
+    private static final int MAX_ENTRIES_PER_REGION = 10_000;
 
     private final Map<String, Cache<String, Object>> regions = Map.of(
             BJJ_EVENTS_TAG, newRegion(),
@@ -48,6 +49,10 @@ public class ApiCache {
     }
 
     private static Cache<String, Object> newRegion() {
-        return Caffeine.newBuilder().expireAfterWrite(EXPIRATION).build();
+        return Caffeine.newBuilder()
+                .expireAfterWrite(EXPIRATION)
+                .maximumSize(MAX_ENTRIES_PER_REGION)
+                .recordStats()
+                .build();
     }
 }

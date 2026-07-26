@@ -15,6 +15,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,11 @@ public class CompetitionService {
         PagedResponse<CompetitionDto> cached = cache.getOrCreate(
                 ApiCache.COMPETITIONS_TAG, cacheKey, () -> loadPage(paginationRequest, includeInactive));
 
-        return PagedResponses.withNavigationLinks(cached, uriService, basePath);
+        MultiValueMap<String, String> filters = new LinkedMultiValueMap<>();
+        if (includeInactive) {
+            filters.add("includeInactive", "true");
+        }
+        return PagedResponses.withNavigationLinks(cached, uriService, basePath, filters);
     }
 
     private PagedResponse<CompetitionDto> loadPage(PaginationRequest paginationRequest, boolean includeInactive) {

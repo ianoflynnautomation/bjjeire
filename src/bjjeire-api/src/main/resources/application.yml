@@ -1,6 +1,9 @@
 spring:
   application:
     name: BjjEire.JavaApi
+  threads:
+    virtual:
+      enabled: true
   mongodb:
     uri: ${MONGODB_URI:mongodb://localhost:27017}
     database: ${MONGODB_DATABASE:BjjEire}

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.FEATURE_FLAG, ApiRoutes.FEATURE_FLAG_LOWERCASE})
+@RequestMapping(ApiRoutes.FEATURE_FLAG)
 public class FeatureFlagController {
     private static final List<String> FRONTEND_FLAGS = List.of("BjjEvents", "Gyms", "Competitions", "Stores");
 

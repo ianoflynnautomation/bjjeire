@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.config.BjjEireProperties;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ class FeatureFlagControllerTest {
 
     @Test
     void shouldReturnFrontendFeatureFlagsWhenListing() throws Exception {
-        mockMvc.perform(get("/api/v1/FeatureFlag"))
+        mockMvc.perform(get(ApiRoutes.FEATURE_FLAG))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.BjjEvents").value(true))
                 .andExpect(jsonPath("$.Gyms").value(true))
@@ -61,7 +62,7 @@ class FeatureFlagControllerTest {
                 .build();
 
         relaxedKeyMockMvc
-                .perform(get("/api/v1/featureflag"))
+                .perform(get(ApiRoutes.FEATURE_FLAG))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.BjjEvents").value(true))
                 .andExpect(jsonPath("$.Gyms").value(true))

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.DONATE, ApiRoutes.DONATE_LOWERCASE})
+@RequestMapping(ApiRoutes.DONATE)
 public class DonateController {
     private final BjjEireProperties properties;
 
