@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.22](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.21...frontend-v0.1.22) (2026-07-26)
+
+
+### ### Features
+
+* add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
+* add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
+* clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
+* remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
+* update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
+
+
+### ### Bug Fixes
+
+* card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
+* format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
+* format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
+* openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
+
 ## [0.1.21](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.20...frontend-v0.1.21) (2026-07-19)
 
 ### ### Features
