@@ -17,10 +17,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-/**
- * Entry point for the seeder profile; the Mongo index initializer runs first (order 1) so seeding always happens
- * against ensured indexes, mirroring the established order: indexes first, then collections.
- */
 @Component
 @Profile("seeder")
 @Order(2)

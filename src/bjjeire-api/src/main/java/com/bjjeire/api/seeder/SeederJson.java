@@ -15,11 +15,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Jackson configuration for reading seed JSON into domain entities, mirroring the original loader options: lenient
- * (case-insensitive, unknown fields ignored) for seeding, strict (unknown fields rejected) for --validate, and
- * relative-date parsing only for the data-test dataset.
- */
 public final class SeederJson {
     private SeederJson() {}
 

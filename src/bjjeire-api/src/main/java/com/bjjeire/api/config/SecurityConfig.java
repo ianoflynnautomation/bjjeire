@@ -24,8 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-// The seeder profile runs as a non-web one-shot CLI; web security has nothing
-// to secure there and cannot bootstrap without a servlet environment.
 @Profile("!seeder")
 @Configuration
 @EnableWebSecurity

@@ -14,10 +14,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.util.Pair;
 
-/**
- * Idempotent bulk upsert of JSON fixtures into Mongo, with dry-run reporting and optional pruning of documents that are
- * no longer present in the sources.
- */
 public class SeederService {
     public record SeedResult(int exitCode, List<String> ids) {}
 
