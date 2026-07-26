@@ -22,7 +22,8 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @Order(10)
 public class RateLimitFilter extends OncePerRequestFilter {
-
+    // Cap the number of tracked partitions so a flood of unique IPs (bots, CDN edges) cannot grow
+    // the map without bound, and expire idle windows so stale keys do not accumulate.
     private static final int MAX_TRACKED_PARTITIONS = 100_000;
 
     private final BjjEireProperties properties;
