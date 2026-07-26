@@ -4,763 +4,938 @@
  */
 
 export interface paths {
-    "/api/v1/gym/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get gym by ID */
-        get: operations["getById"];
-        /** Update gym */
-        put: operations["update"];
-        post?: never;
-        /** Delete gym */
-        delete: operations["delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bjjevent/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get BJJ event by ID */
-        get: operations["getById_1"];
-        /** Update BJJ event */
-        put: operations["update_1"];
-        post?: never;
-        /** Delete BJJ event */
-        delete: operations["delete_1"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/gym": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List gyms with pagination and filters */
-        get: operations["getAll"];
-        put?: never;
-        /** Create new gym */
-        post: operations["create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/bjjevent": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List BJJ events */
-        get: operations["getAll_1"];
-        put?: never;
-        /** Create new BJJ event */
-        post: operations["create_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["metrics"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["health"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/store": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getAll_2"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/featureflag": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/donate/bitcoin/qr": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getBitcoinQrCode"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/competition": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all competitions with pagination */
-        get: operations["getAll_3"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  '/api/v1/gym/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get gym by ID */
+    get: operations['getById']
+    /** Update gym */
+    put: operations['update']
+    post?: never
+    /** Delete gym */
+    delete: operations['delete']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjevent/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get BJJ event by ID */
+    get: operations['getById_1']
+    /** Update BJJ event */
+    put: operations['update_1']
+    post?: never
+    /** Delete BJJ event */
+    delete: operations['delete_1']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/gym': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List gyms with pagination and filters */
+    get: operations['getAll']
+    put?: never
+    /** Create new gym */
+    post: operations['create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjevent': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List BJJ events */
+    get: operations['getAll_1']
+    put?: never
+    /** Create new BJJ event */
+    post: operations['create_1']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/metrics': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['metrics']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/health': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['health']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/store': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['getAll_2']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/featureflag': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/donate/bitcoin/qr': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['getBitcoinQrCode']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/competition': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List all competitions with pagination */
+    get: operations['getAll_3']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
-    schemas: {
-        Affiliation: {
-            name?: string;
-            website?: string;
-        };
-        GeoCoordinates: {
-            type?: string;
-            coordinates?: number[];
-            placeName?: string;
-            placeId?: string;
-            /** Format: double */
-            readonly longitude?: number;
-            /** Format: double */
-            readonly latitude?: number;
-        };
-        GymDto: {
-            id?: string;
-            name: string;
-            description?: string;
-            /** @enum {string} */
-            status: "None" | "Active" | "PendingApproval" | "TemporarilyClosed" | "PermanentlyClosed" | "OpeningSoon" | "Draft" | "Rejected";
-            /** @enum {string} */
-            county: "None" | "Carlow" | "Cavan" | "Clare" | "Cork" | "Donegal" | "Dublin" | "Galway" | "Kerry" | "Kildare" | "Kilkenny" | "Laois" | "Leitrim" | "Limerick" | "Longford" | "Louth" | "Mayo" | "Meath" | "Monaghan" | "Offaly" | "Roscommon" | "Sligo" | "Tipperary" | "Waterford" | "Westmeath" | "Wexford" | "Wicklow" | "Antrim" | "Armagh" | "Derry" | "Down" | "Fermanagh" | "Tyrone";
-            affiliation?: components["schemas"]["Affiliation"];
-            trialOffer: components["schemas"]["TrialOffer"];
-            location: components["schemas"]["Location"];
-            socialMedia: components["schemas"]["SocialMedia"];
-            offeredClasses?: ("Uncategorized" | "BJJGiAllLevels" | "BJJNoGiAllLevels" | "WomensOnly" | "Wrestling" | "MuayThai" | "Boxing" | "StrengthTraining" | "YogaOrPilates" | "KidsBJJ" | "BJJGiFundamentals" | "BJJGiAdvanced" | "BJJNoGiFundamentals" | "BJJNoGiAdvanced" | "CompetitionTraining" | "ProTraining" | "Other")[];
-            website?: string;
-            timetableUrl?: string;
-            imageUrl?: string;
-            thumbnailUrl?: string;
-        };
-        Location: {
-            address?: string;
-            venue?: string;
-            coordinates?: components["schemas"]["GeoCoordinates"];
-        };
-        SocialMedia: {
-            instagram?: string;
-            facebook?: string;
-            x?: string;
-            youTube?: string;
-        };
-        TrialOffer: {
-            isAvailable?: boolean;
-            /** Format: int32 */
-            freeClasses?: number;
-            /** Format: int32 */
-            freeDays?: number;
-            notes?: string;
-        };
-        UpdateGymCommand: {
-            data: components["schemas"]["GymDto"];
-        };
-        UpdateGymResponse: {
-            data?: components["schemas"]["GymDto"];
-        };
-        BjjEventDto: {
-            id?: string;
-            name?: string;
-            description?: string;
-            types?: ("OpenMat" | "Seminar" | "Camp" | "Other")[];
-            organiser?: components["schemas"]["Organizer"];
-            /** @enum {string} */
-            status?: "Postponed" | "Upcoming" | "RegistrationOpen" | "RegistrationClosed" | "Ongoing" | "Completed" | "Canceled";
-            statusReason?: string;
-            socialMedia?: components["schemas"]["SocialMedia"];
-            /** @enum {string} */
-            county?: "None" | "Carlow" | "Cavan" | "Clare" | "Cork" | "Donegal" | "Dublin" | "Galway" | "Kerry" | "Kildare" | "Kilkenny" | "Laois" | "Leitrim" | "Limerick" | "Longford" | "Louth" | "Mayo" | "Meath" | "Monaghan" | "Offaly" | "Roscommon" | "Sligo" | "Tipperary" | "Waterford" | "Westmeath" | "Wexford" | "Wicklow" | "Antrim" | "Armagh" | "Derry" | "Down" | "Fermanagh" | "Tyrone";
-            location?: components["schemas"]["Location"];
-            schedule?: components["schemas"]["BjjEventSchedule"];
-            pricingOptions?: components["schemas"]["PricingModel"][];
-            eventUrl?: string;
-            imageUrl?: string;
-            isActive?: boolean;
-            readonly calculatedCosts?: components["schemas"]["CalculatedCost"][];
-        };
-        BjjEventSchedule: {
-            /** @enum {string} */
-            kind?: "FixedDates" | "WeeklyRecurring";
-            /** Format: date-time */
-            startDate?: string;
-            /** Format: date-time */
-            endDate?: string;
-            sessions?: components["schemas"]["BjjEventSession"][];
-        };
-        BjjEventSession: {
-            /** Format: date-time */
-            date?: string;
-            /** @enum {string} */
-            day?: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
-            startTime?: string;
-            endTime?: string;
-            title?: string;
-            types?: ("OpenMat" | "Seminar" | "Camp" | "Other")[];
-        };
-        CalculatedCost: {
-            label?: string;
-            /** @enum {string} */
-            unit?: "Free" | "Total" | "PerDay" | "PerSession";
-            amount?: number;
-            total?: number;
-            currency?: string;
-            appliesToTypes?: ("OpenMat" | "Seminar" | "Camp" | "Other")[];
-        };
-        Organizer: {
-            name?: string;
-            website?: string;
-        };
-        PricingModel: {
-            /** @enum {string} */
-            type?: "Free" | "FlatRate" | "PerSession" | "PerDay";
-            label?: string;
-            appliesToTypes?: ("OpenMat" | "Seminar" | "Camp" | "Other")[];
-            amount?: number;
-            /** Format: int32 */
-            durationDays?: number;
-            currency?: string;
-        };
-        UpdateBjjEventCommand: {
-            data: components["schemas"]["BjjEventDto"];
-        };
-        UpdateBjjEventResponse: {
-            data?: components["schemas"]["BjjEventDto"];
-        };
-        CreateGymCommand: {
-            data: components["schemas"]["GymDto"];
-        };
-        CreateGymResponse: {
-            data?: components["schemas"]["GymDto"];
-        };
-        CreateBjjEventCommand: {
-            data: components["schemas"]["BjjEventDto"];
-        };
-        CreateBjjEventResponse: {
-            data?: components["schemas"]["BjjEventDto"];
-        };
-        CompositeHealthDescriptor: components["schemas"]["HealthDescriptor"] & {
-            components?: {
-                [key: string]: components["schemas"]["HealthDescriptor"];
-            };
-            details?: {
-                [key: string]: components["schemas"]["HealthDescriptor"];
-            };
-        };
-        HealthDescriptor: {
-            description?: string;
-            status?: string;
-        };
-        IndicatedHealthDescriptor: components["schemas"]["HealthDescriptor"] & {
-            details?: {
-                [key: string]: unknown;
-            };
-        };
-        SystemHealthDescriptor: components["schemas"]["CompositeHealthDescriptor"] & {
-            groups?: string[];
-        };
-        PagedResponseStoreDto: {
-            data?: components["schemas"]["StoreDto"][];
-            pagination?: components["schemas"]["PaginationMetadata"];
-        };
-        PaginationMetadata: {
-            /** Format: int64 */
-            totalItems?: number;
-            /** Format: int32 */
-            currentPage?: number;
-            /** Format: int32 */
-            pageSize?: number;
-            /** Format: int32 */
-            totalPages?: number;
-            hasNextPage?: boolean;
-            hasPreviousPage?: boolean;
-            nextPageUrl?: string;
-            previousPageUrl?: string;
-        };
-        StoreDto: {
-            id?: string;
-            name?: string;
-            description?: string;
-            websiteUrl?: string;
-            logoUrl?: string;
-            isActive?: boolean;
-        };
-        PagedResponseGymDto: {
-            data?: components["schemas"]["GymDto"][];
-            pagination?: components["schemas"]["PaginationMetadata"];
-        };
-        CompetitionDto: {
-            id?: string;
-            slug?: string;
-            name?: string;
-            description?: string;
-            organisation?: string;
-            country?: string;
-            websiteUrl?: string;
-            registrationUrl?: string;
-            logoUrl?: string;
-            tags?: string[];
-            /** Format: date-time */
-            startDate?: string;
-            /** Format: date-time */
-            endDate?: string;
-            isActive?: boolean;
-        };
-        PagedResponseCompetitionDto: {
-            data?: components["schemas"]["CompetitionDto"][];
-            pagination?: components["schemas"]["PaginationMetadata"];
-        };
-        PagedResponseBjjEventDto: {
-            data?: components["schemas"]["BjjEventDto"][];
-            pagination?: components["schemas"]["PaginationMetadata"];
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+  schemas: {
+    Affiliation: {
+      name?: string
+      website?: string
+    }
+    GeoCoordinates: {
+      type?: string
+      coordinates?: number[]
+      placeName?: string
+      placeId?: string
+      /** Format: double */
+      readonly longitude?: number
+      /** Format: double */
+      readonly latitude?: number
+    }
+    GymDto: {
+      id?: string
+      name: string
+      description?: string
+      /** @enum {string} */
+      status:
+        | 'None'
+        | 'Active'
+        | 'PendingApproval'
+        | 'TemporarilyClosed'
+        | 'PermanentlyClosed'
+        | 'OpeningSoon'
+        | 'Draft'
+        | 'Rejected'
+      /** @enum {string} */
+      county:
+        | 'None'
+        | 'Carlow'
+        | 'Cavan'
+        | 'Clare'
+        | 'Cork'
+        | 'Donegal'
+        | 'Dublin'
+        | 'Galway'
+        | 'Kerry'
+        | 'Kildare'
+        | 'Kilkenny'
+        | 'Laois'
+        | 'Leitrim'
+        | 'Limerick'
+        | 'Longford'
+        | 'Louth'
+        | 'Mayo'
+        | 'Meath'
+        | 'Monaghan'
+        | 'Offaly'
+        | 'Roscommon'
+        | 'Sligo'
+        | 'Tipperary'
+        | 'Waterford'
+        | 'Westmeath'
+        | 'Wexford'
+        | 'Wicklow'
+        | 'Antrim'
+        | 'Armagh'
+        | 'Derry'
+        | 'Down'
+        | 'Fermanagh'
+        | 'Tyrone'
+      affiliation?: components['schemas']['Affiliation']
+      trialOffer: components['schemas']['TrialOffer']
+      location: components['schemas']['Location']
+      socialMedia: components['schemas']['SocialMedia']
+      offeredClasses?: (
+        | 'Uncategorized'
+        | 'BJJGiAllLevels'
+        | 'BJJNoGiAllLevels'
+        | 'WomensOnly'
+        | 'Wrestling'
+        | 'MuayThai'
+        | 'Boxing'
+        | 'StrengthTraining'
+        | 'YogaOrPilates'
+        | 'KidsBJJ'
+        | 'BJJGiFundamentals'
+        | 'BJJGiAdvanced'
+        | 'BJJNoGiFundamentals'
+        | 'BJJNoGiAdvanced'
+        | 'CompetitionTraining'
+        | 'ProTraining'
+        | 'Other'
+      )[]
+      website?: string
+      timetableUrl?: string
+      imageUrl?: string
+      thumbnailUrl?: string
+    }
+    Location: {
+      address?: string
+      venue?: string
+      coordinates?: components['schemas']['GeoCoordinates']
+    }
+    SocialMedia: {
+      instagram?: string
+      facebook?: string
+      x?: string
+      youTube?: string
+    }
+    TrialOffer: {
+      isAvailable?: boolean
+      /** Format: int32 */
+      freeClasses?: number
+      /** Format: int32 */
+      freeDays?: number
+      notes?: string
+    }
+    UpdateGymCommand: {
+      data: components['schemas']['GymDto']
+    }
+    UpdateGymResponse: {
+      data?: components['schemas']['GymDto']
+    }
+    BjjEventDto: {
+      id?: string
+      name?: string
+      description?: string
+      types?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
+      organiser?: components['schemas']['Organizer']
+      /** @enum {string} */
+      status?:
+        | 'Postponed'
+        | 'Upcoming'
+        | 'RegistrationOpen'
+        | 'RegistrationClosed'
+        | 'Ongoing'
+        | 'Completed'
+        | 'Canceled'
+      statusReason?: string
+      socialMedia?: components['schemas']['SocialMedia']
+      /** @enum {string} */
+      county?:
+        | 'None'
+        | 'Carlow'
+        | 'Cavan'
+        | 'Clare'
+        | 'Cork'
+        | 'Donegal'
+        | 'Dublin'
+        | 'Galway'
+        | 'Kerry'
+        | 'Kildare'
+        | 'Kilkenny'
+        | 'Laois'
+        | 'Leitrim'
+        | 'Limerick'
+        | 'Longford'
+        | 'Louth'
+        | 'Mayo'
+        | 'Meath'
+        | 'Monaghan'
+        | 'Offaly'
+        | 'Roscommon'
+        | 'Sligo'
+        | 'Tipperary'
+        | 'Waterford'
+        | 'Westmeath'
+        | 'Wexford'
+        | 'Wicklow'
+        | 'Antrim'
+        | 'Armagh'
+        | 'Derry'
+        | 'Down'
+        | 'Fermanagh'
+        | 'Tyrone'
+      location?: components['schemas']['Location']
+      schedule?: components['schemas']['BjjEventSchedule']
+      pricingOptions?: components['schemas']['PricingModel'][]
+      eventUrl?: string
+      imageUrl?: string
+      isActive?: boolean
+      readonly calculatedCosts?: components['schemas']['CalculatedCost'][]
+    }
+    BjjEventSchedule: {
+      /** @enum {string} */
+      kind?: 'FixedDates' | 'WeeklyRecurring'
+      /** Format: date-time */
+      startDate?: string
+      /** Format: date-time */
+      endDate?: string
+      sessions?: components['schemas']['BjjEventSession'][]
+    }
+    BjjEventSession: {
+      /** Format: date-time */
+      date?: string
+      /** @enum {string} */
+      day?:
+        | 'Sunday'
+        | 'Monday'
+        | 'Tuesday'
+        | 'Wednesday'
+        | 'Thursday'
+        | 'Friday'
+        | 'Saturday'
+      startTime?: string
+      endTime?: string
+      title?: string
+      types?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
+    }
+    CalculatedCost: {
+      label?: string
+      /** @enum {string} */
+      unit?: 'Free' | 'Total' | 'PerDay' | 'PerSession'
+      amount?: number
+      total?: number
+      currency?: string
+      appliesToTypes?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
+    }
+    Organizer: {
+      name?: string
+      website?: string
+    }
+    PricingModel: {
+      /** @enum {string} */
+      type?: 'Free' | 'FlatRate' | 'PerSession' | 'PerDay'
+      label?: string
+      appliesToTypes?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
+      amount?: number
+      /** Format: int32 */
+      durationDays?: number
+      currency?: string
+    }
+    UpdateBjjEventCommand: {
+      data: components['schemas']['BjjEventDto']
+    }
+    UpdateBjjEventResponse: {
+      data?: components['schemas']['BjjEventDto']
+    }
+    CreateGymCommand: {
+      data: components['schemas']['GymDto']
+    }
+    CreateGymResponse: {
+      data?: components['schemas']['GymDto']
+    }
+    CreateBjjEventCommand: {
+      data: components['schemas']['BjjEventDto']
+    }
+    CreateBjjEventResponse: {
+      data?: components['schemas']['BjjEventDto']
+    }
+    CompositeHealthDescriptor: components['schemas']['HealthDescriptor'] & {
+      components?: {
+        [key: string]: components['schemas']['HealthDescriptor']
+      }
+      details?: {
+        [key: string]: components['schemas']['HealthDescriptor']
+      }
+    }
+    HealthDescriptor: {
+      description?: string
+      status?: string
+    }
+    IndicatedHealthDescriptor: components['schemas']['HealthDescriptor'] & {
+      details?: {
+        [key: string]: unknown
+      }
+    }
+    SystemHealthDescriptor: components['schemas']['CompositeHealthDescriptor'] & {
+      groups?: string[]
+    }
+    PagedResponseStoreDto: {
+      data?: components['schemas']['StoreDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    PaginationMetadata: {
+      /** Format: int64 */
+      totalItems?: number
+      /** Format: int32 */
+      currentPage?: number
+      /** Format: int32 */
+      pageSize?: number
+      /** Format: int32 */
+      totalPages?: number
+      hasNextPage?: boolean
+      hasPreviousPage?: boolean
+      nextPageUrl?: string
+      previousPageUrl?: string
+    }
+    StoreDto: {
+      id?: string
+      name?: string
+      description?: string
+      websiteUrl?: string
+      logoUrl?: string
+      isActive?: boolean
+    }
+    PagedResponseGymDto: {
+      data?: components['schemas']['GymDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    CompetitionDto: {
+      id?: string
+      slug?: string
+      name?: string
+      description?: string
+      organisation?: string
+      country?: string
+      websiteUrl?: string
+      registrationUrl?: string
+      logoUrl?: string
+      tags?: string[]
+      /** Format: date-time */
+      startDate?: string
+      /** Format: date-time */
+      endDate?: string
+      isActive?: boolean
+    }
+    PagedResponseCompetitionDto: {
+      data?: components['schemas']['CompetitionDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    PagedResponseBjjEventDto: {
+      data?: components['schemas']['BjjEventDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+  }
+  responses: never
+  parameters: never
+  requestBodies: never
+  headers: never
+  pathItems: never
 }
-export type $defs = Record<string, never>;
+export type $defs = Record<string, never>
 export interface operations {
-    getById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["GymDto"];
-                };
-            };
-        };
-    };
-    update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateGymCommand"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UpdateGymResponse"];
-                };
-            };
-        };
-    };
-    delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getById_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["BjjEventDto"];
-                };
-            };
-        };
-    };
-    update_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateBjjEventCommand"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UpdateBjjEventResponse"];
-                };
-            };
-        };
-    };
-    delete_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getAll: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                county?: "None" | "Carlow" | "Cavan" | "Clare" | "Cork" | "Donegal" | "Dublin" | "Galway" | "Kerry" | "Kildare" | "Kilkenny" | "Laois" | "Leitrim" | "Limerick" | "Longford" | "Louth" | "Mayo" | "Meath" | "Monaghan" | "Offaly" | "Roscommon" | "Sligo" | "Tipperary" | "Waterford" | "Westmeath" | "Wexford" | "Wicklow" | "Antrim" | "Armagh" | "Derry" | "Down" | "Fermanagh" | "Tyrone";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PagedResponseGymDto"];
-                };
-            };
-        };
-    };
-    create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGymCommand"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CreateGymResponse"];
-                };
-            };
-        };
-    };
-    getAll_1: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                county?: "None" | "Carlow" | "Cavan" | "Clare" | "Cork" | "Donegal" | "Dublin" | "Galway" | "Kerry" | "Kildare" | "Kilkenny" | "Laois" | "Leitrim" | "Limerick" | "Longford" | "Louth" | "Mayo" | "Meath" | "Monaghan" | "Offaly" | "Roscommon" | "Sligo" | "Tipperary" | "Waterford" | "Westmeath" | "Wexford" | "Wicklow" | "Antrim" | "Armagh" | "Derry" | "Down" | "Fermanagh" | "Tyrone";
-                types?: ("OpenMat" | "Seminar" | "Camp" | "Other")[];
-                includeInactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PagedResponseBjjEventDto"];
-                };
-            };
-        };
-    };
-    create_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateBjjEventCommand"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CreateBjjEventResponse"];
-                };
-            };
-        };
-    };
-    metrics: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": string;
-                };
-            };
-        };
-    };
-    health: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CompositeHealthDescriptor"] | components["schemas"]["IndicatedHealthDescriptor"] | components["schemas"]["SystemHealthDescriptor"];
-                };
-            };
-        };
-    };
-    getAll_2: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PagedResponseStoreDto"];
-                };
-            };
-        };
-    };
-    get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        [key: string]: boolean;
-                    };
-                };
-            };
-        };
-    };
-    getBitcoinQrCode: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "image/svg+xml": string;
-                };
-            };
-        };
-    };
-    getAll_3: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                includeInactive?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PagedResponseCompetitionDto"];
-                };
-            };
-        };
-    };
+  getById: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['GymDto']
+        }
+      }
+    }
+  }
+  update: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateGymCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['UpdateGymResponse']
+        }
+      }
+    }
+  }
+  delete: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  getById_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEventDto']
+        }
+      }
+    }
+  }
+  update_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateBjjEventCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['UpdateBjjEventResponse']
+        }
+      }
+    }
+  }
+  delete_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  getAll: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+        county?:
+          | 'None'
+          | 'Carlow'
+          | 'Cavan'
+          | 'Clare'
+          | 'Cork'
+          | 'Donegal'
+          | 'Dublin'
+          | 'Galway'
+          | 'Kerry'
+          | 'Kildare'
+          | 'Kilkenny'
+          | 'Laois'
+          | 'Leitrim'
+          | 'Limerick'
+          | 'Longford'
+          | 'Louth'
+          | 'Mayo'
+          | 'Meath'
+          | 'Monaghan'
+          | 'Offaly'
+          | 'Roscommon'
+          | 'Sligo'
+          | 'Tipperary'
+          | 'Waterford'
+          | 'Westmeath'
+          | 'Wexford'
+          | 'Wicklow'
+          | 'Antrim'
+          | 'Armagh'
+          | 'Derry'
+          | 'Down'
+          | 'Fermanagh'
+          | 'Tyrone'
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseGymDto']
+        }
+      }
+    }
+  }
+  create: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateGymCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CreateGymResponse']
+        }
+      }
+    }
+  }
+  getAll_1: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+        county?:
+          | 'None'
+          | 'Carlow'
+          | 'Cavan'
+          | 'Clare'
+          | 'Cork'
+          | 'Donegal'
+          | 'Dublin'
+          | 'Galway'
+          | 'Kerry'
+          | 'Kildare'
+          | 'Kilkenny'
+          | 'Laois'
+          | 'Leitrim'
+          | 'Limerick'
+          | 'Longford'
+          | 'Louth'
+          | 'Mayo'
+          | 'Meath'
+          | 'Monaghan'
+          | 'Offaly'
+          | 'Roscommon'
+          | 'Sligo'
+          | 'Tipperary'
+          | 'Waterford'
+          | 'Westmeath'
+          | 'Wexford'
+          | 'Wicklow'
+          | 'Antrim'
+          | 'Armagh'
+          | 'Derry'
+          | 'Down'
+          | 'Fermanagh'
+          | 'Tyrone'
+        types?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
+        includeInactive?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseBjjEventDto']
+        }
+      }
+    }
+  }
+  create_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateBjjEventCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CreateBjjEventResponse']
+        }
+      }
+    }
+  }
+  metrics: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'text/plain': string
+        }
+      }
+    }
+  }
+  health: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*':
+            | components['schemas']['CompositeHealthDescriptor']
+            | components['schemas']['IndicatedHealthDescriptor']
+            | components['schemas']['SystemHealthDescriptor']
+        }
+      }
+    }
+  }
+  getAll_2: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseStoreDto']
+        }
+      }
+    }
+  }
+  get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': {
+            [key: string]: boolean
+          }
+        }
+      }
+    }
+  }
+  getBitcoinQrCode: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'image/svg+xml': string
+        }
+      }
+    }
+  }
+  getAll_3: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+        includeInactive?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseCompetitionDto']
+        }
+      }
+    }
+  }
 }
