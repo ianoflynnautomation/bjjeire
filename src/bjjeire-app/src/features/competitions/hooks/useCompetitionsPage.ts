@@ -6,7 +6,7 @@ import type {
 import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getCompetitions } from '@/features/competitions/api/get-competitions'
 
-const initialCompetitionFilters: GetCompetitionsPaginationQuery = {
+export const initialCompetitionFilters: GetCompetitionsPaginationQuery = {
   page: env.PAGE_NUMBER,
   pageSize: env.PAGE_SIZE,
 }

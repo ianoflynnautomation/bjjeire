@@ -38,7 +38,7 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(body.at("/data/0/slug").asText()).isEqualTo("future-open");
+        assertThat(body.at("/data/0/slug").asString()).isEqualTo("future-open");
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
     }
 
@@ -55,15 +55,15 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
 
     private static Competition competition(
             String slug, String name, boolean isActive, String startDate, String endDate) {
-        Competition competition = new Competition();
-        competition.setSlug(slug);
-        competition.setName(name);
-        competition.setOrganisation("IBJJF");
-        competition.setCountry("Ireland");
-        competition.setWebsiteUrl("https://example.com/" + slug);
-        competition.setStartDate(Instant.parse(startDate));
-        competition.setEndDate(Instant.parse(endDate));
-        competition.setActive(isActive);
-        return competition;
+        return Competition.builder()
+                .slug(slug)
+                .name(name)
+                .organisation("IBJJF")
+                .country("Ireland")
+                .websiteUrl("https://example.com/" + slug)
+                .startDate(Instant.parse(startDate))
+                .endDate(Instant.parse(endDate))
+                .isActive(isActive)
+                .build();
     }
 }

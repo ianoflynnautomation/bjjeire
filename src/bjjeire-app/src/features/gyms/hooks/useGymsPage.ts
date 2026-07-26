@@ -6,7 +6,7 @@ import { getGyms } from '@/features/gyms/api/get-gyms'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
 
-const initialGymFilters: GetGymsByCountyPaginationQuery = {
+export const initialGymFilters: GetGymsByCountyPaginationQuery = {
   county: 'all',
   page: env.PAGE_NUMBER,
   pageSize: env.PAGE_SIZE,

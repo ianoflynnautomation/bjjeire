@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { LinkIcon } from '@heroicons/react/20/solid'
 import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
@@ -13,7 +12,7 @@ interface EventFooterProps {
   eventName: string
 }
 
-export const EventFooter = memo(function EventFooter({
+export const EventFooter = function EventFooter({
   eventUrl,
   eventName,
 }: EventFooterProps): JSX.Element {
@@ -33,7 +32,7 @@ export const EventFooter = memo(function EventFooter({
     : `No website available for ${fallback}`
 
   return (
-    <div className="mt-auto border-t border-black/8 pt-3 dark:border-white/8">
+    <div className="mt-auto border-t border-hairline pt-3">
       <CardActionButton
         href={externalEventUrl}
         icon={<LinkIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />}
@@ -46,4 +45,4 @@ export const EventFooter = memo(function EventFooter({
       </CardActionButton>
     </div>
   )
-})
+}

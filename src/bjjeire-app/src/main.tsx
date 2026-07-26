@@ -12,6 +12,9 @@ import {
   type FeatureFlagsMap,
 } from '@/features/feature-flags'
 import { logger } from '@/lib/logger'
+import '@fontsource-variable/hanken-grotesk'
+import '@fontsource-variable/archivo/wdth.css'
+import '@fontsource-variable/jetbrains-mono'
 import './index.css'
 import App from './App'
 

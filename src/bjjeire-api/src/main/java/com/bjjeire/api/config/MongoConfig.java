@@ -15,8 +15,7 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 @Configuration
 public class MongoConfig {
-    // Existing documents store decimals as Decimal128 and times as "HH:mm:ss" strings;
-    // these converters keep documents interchangeable between both APIs.
+
     private static final DateTimeFormatter TIME_WRITE_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter TIME_READ_FORMAT = DateTimeFormatter.ofPattern("HH:mm[:ss]");
 

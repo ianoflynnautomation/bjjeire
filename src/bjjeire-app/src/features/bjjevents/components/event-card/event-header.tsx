@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventType } from '@/types/event'
 import {
@@ -21,7 +20,7 @@ interface EventHeaderProps {
   headingId?: string
 }
 
-export const EventHeader = memo(function EventHeader({
+export const EventHeader = function EventHeader({
   name,
   types,
   county,
@@ -50,7 +49,7 @@ export const EventHeader = memo(function EventHeader({
           />
         )}
         <div
-          className="absolute inset-0 bg-linear-to-t from-slate-900/70 to-transparent"
+          className="absolute inset-0 bg-linear-to-t from-ink-900/70 to-transparent"
           aria-hidden="true"
         />
       </div>
@@ -60,7 +59,7 @@ export const EventHeader = memo(function EventHeader({
           <h3
             id={headingId}
             data-testid={EventCardTestIds.NAME}
-            className="text-base font-semibold leading-tight text-slate-900 transition-colors dark:text-slate-50"
+            className="text-base font-semibold leading-tight text-fg transition-colors dark:text-fg"
           >
             {displayName}
           </h3>
@@ -78,7 +77,7 @@ export const EventHeader = memo(function EventHeader({
             </div>
           )}
         </div>
-        <div className="flex items-center text-slate-500 dark:text-slate-400">
+        <div className="flex items-center text-fg-subtle">
           <MapPinIcon
             className="mr-1 h-3.5 w-3.5 shrink-0"
             aria-hidden="true"
@@ -90,4 +89,4 @@ export const EventHeader = memo(function EventHeader({
       </div>
     </header>
   )
-})
+}

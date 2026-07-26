@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { JSX } from 'react'
 import {
   MapPinIcon,
@@ -26,7 +26,7 @@ interface EventDetailsProps {
   'data-testid'?: string
 }
 
-export const EventDetails = memo(function EventDetails({
+export const EventDetails = function EventDetails({
   event,
   'data-testid': sectionDataTestId,
 }: EventDetailsProps): JSX.Element {
@@ -66,7 +66,7 @@ export const EventDetails = memo(function EventDetails({
               href={mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
+              className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 dark:text-ink-300 dark:hover:text-primary-400"
               aria-label={`View ${name || 'event'} location on Google Maps`}
               data-testid={EventCardTestIds.ADDRESS_LINK}
             >
@@ -91,7 +91,7 @@ export const EventDetails = memo(function EventDetails({
               href={organiserUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
+              className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 dark:text-ink-300 dark:hover:text-primary-400"
               aria-label={`Visit organiser website for ${name || 'this event'}`}
               data-testid={EventCardTestIds.ORGANISER_LINK}
             >
@@ -129,4 +129,4 @@ export const EventDetails = memo(function EventDetails({
       )}
     </section>
   )
-})
+}

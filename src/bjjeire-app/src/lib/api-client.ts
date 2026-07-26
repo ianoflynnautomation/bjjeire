@@ -50,26 +50,23 @@ class ApiService {
   }
 
   private setupErrorLoggingInterceptor(): void {
-    this.instance.interceptors.response.use(
-      undefined,
-      (error: AxiosError) => {
-        if (error.response !== undefined) {
-          logger.error('API error:', {
-            status: error.response.status,
-            url: error.config?.url,
-            message: error.message,
-          })
-        } else if (error.request === undefined) {
-          logger.error('Error setting up request:', error.message)
-        } else {
-          logger.error('No response received:', {
-            url: error.config?.url,
-            message: error.message,
-          })
-        }
-        return Promise.reject(error)
+    this.instance.interceptors.response.use(undefined, (error: AxiosError) => {
+      if (error.response !== undefined) {
+        logger.error('API error:', {
+          status: error.response.status,
+          url: error.config?.url,
+          message: error.message,
+        })
+      } else if (error.request === undefined) {
+        logger.error('Error setting up request:', error.message)
+      } else {
+        logger.error('No response received:', {
+          url: error.config?.url,
+          message: error.message,
+        })
       }
-    )
+      return Promise.reject(error)
+    })
   }
 
   async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {

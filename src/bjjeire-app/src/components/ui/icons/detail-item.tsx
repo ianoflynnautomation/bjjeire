@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { ReactNode, JSX } from 'react'
 import { IconWrapper } from './icon-wrapper'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
@@ -13,7 +12,7 @@ interface DetailItemProps {
   'data-testid'?: string
 }
 
-export const DetailItem = memo(function DetailItem({
+export const DetailItem = function DetailItem({
   icon,
   children,
   className,
@@ -25,10 +24,7 @@ export const DetailItem = memo(function DetailItem({
 
   return (
     <div
-      className={cn(
-        'flex items-start gap-x-2.5 text-slate-600 dark:text-slate-300',
-        className
-      )}
+      className={cn('flex items-start gap-x-2.5 text-fg-muted', className)}
       data-testid={rootTestId}
     >
       <IconWrapper className={iconClassName}>{icon}</IconWrapper>
@@ -37,4 +33,4 @@ export const DetailItem = memo(function DetailItem({
       </div>
     </div>
   )
-})
+}

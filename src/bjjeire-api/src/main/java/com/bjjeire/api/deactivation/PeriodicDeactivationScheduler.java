@@ -8,10 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/**
- * On each tick, take a per-entity leader lease so only one replica sweeps, then flip expired documents to inactive. A
- * sweep failure for one entity must never stop the others.
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor

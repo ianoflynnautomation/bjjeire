@@ -27,14 +27,14 @@ export function getEventTypeBannerGradient(
   const typeValue = resolveEventType(eventType)
   switch (typeValue) {
     case BjjEventType.OpenMat:
-      return 'from-emerald-900/70 via-emerald-800/30 to-slate-900/20'
+      return 'from-primary-950/80 via-primary-900/40 to-ink-900/20'
     case BjjEventType.Camp:
-      return 'from-violet-900/70 via-violet-800/30 to-slate-900/20'
+      return 'from-ink-800/90 via-accent-950/40 to-ink-900/20'
     case BjjEventType.Seminar:
-      return 'from-amber-900/70 via-amber-800/30 to-slate-900/20'
+      return 'from-accent-950/70 via-accent-900/30 to-ink-900/20'
     case BjjEventType.Other:
     default:
-      return 'from-slate-700/60 via-slate-600/30 to-slate-900/20'
+      return 'from-ink-700/70 via-ink-600/30 to-ink-900/20'
   }
 }
 
@@ -44,13 +44,13 @@ export function getEventTypeColorClasses(
   const typeValue = resolveEventType(eventType)
   switch (typeValue) {
     case BjjEventType.OpenMat:
-      return 'bg-emerald-900/50 text-emerald-300 ring-1 ring-emerald-700/50'
+      return 'bg-primary-900/50 text-primary-300 ring-1 ring-primary-700/50'
     case BjjEventType.Camp:
-      return 'bg-violet-900/50 text-violet-300 ring-1 ring-violet-700/50'
+      return 'bg-ink-700/80 text-accent-300 ring-1 ring-accent-700/50'
     case BjjEventType.Seminar:
-      return 'bg-amber-900/50 text-amber-300 ring-1 ring-amber-700/50'
+      return 'bg-accent-950/60 text-accent-300 ring-1 ring-accent-700/50'
     case BjjEventType.Other:
     default:
-      return 'bg-slate-700/60 text-slate-300 ring-1 ring-slate-600/60'
+      return 'bg-ink-700/60 text-ink-300 ring-1 ring-ink-500/60'
   }
 }

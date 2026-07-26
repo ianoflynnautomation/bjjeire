@@ -42,7 +42,7 @@ function AppRoutes(): ReactElement {
 export default function App(): ReactElement {
   return (
     <Router>
-      <div className="min-h-screen text-slate-900 dark:text-slate-100">
+      <div className="min-h-screen text-fg">
         <Navigation />
         <main className="grow">
           <Suspense fallback={<PageSuspenseFallback />}>

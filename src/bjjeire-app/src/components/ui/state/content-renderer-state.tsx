@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { ReactNode } from 'react'
 import LoadingState from './loading-state'
 import ErrorState from './error-state'
@@ -72,6 +71,4 @@ function ContentRendererBase<T>({
   return null
 }
 
-export const ContentRenderer = memo(
-  ContentRendererBase
-) as typeof ContentRendererBase
+export const ContentRenderer = ContentRendererBase

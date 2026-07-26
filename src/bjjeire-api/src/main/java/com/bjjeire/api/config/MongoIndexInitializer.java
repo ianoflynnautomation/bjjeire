@@ -27,8 +27,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // Seeder --validate / --help are DB-free modes (the seeder exits
-        // before touching Mongo there); don't force a connection for them.
+
         if (args.containsOption("validate") || args.containsOption("help")) {
             log.info("Skipping index ensure — no-database mode requested");
             return;
@@ -107,7 +106,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
 
     private void ensure(String collection, Index index, boolean critical) {
         try {
-            String created = mongoTemplate.indexOps(collection).ensureIndex(index);
+            String created = mongoTemplate.indexOps(collection).createIndex(index);
             log.info("Ensured index {} on collection {}", created, collection);
         } catch (RuntimeException exception) {
             if (critical) {

@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { JSX } from 'react'
 import {
   GlobeAltIcon,
@@ -41,7 +41,7 @@ interface CompetitionCardProps {
   'data-testid'?: string
 }
 
-export const CompetitionCard = memo(function CompetitionCard({
+export const CompetitionCard = function CompetitionCard({
   competition,
   'data-testid': dataTestId,
 }: CompetitionCardProps): JSX.Element {
@@ -64,12 +64,12 @@ export const CompetitionCard = memo(function CompetitionCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-emerald-400/40 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent"
         aria-hidden="true"
       />
 
@@ -80,7 +80,7 @@ export const CompetitionCard = memo(function CompetitionCard({
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-bold leading-snug text-slate-900 dark:text-white"
+            className="text-base font-bold leading-snug text-fg"
             data-testid={CompetitionCardTestIds.NAME}
           >
             {name || card.fallbackName}
@@ -90,12 +90,12 @@ export const CompetitionCard = memo(function CompetitionCard({
         {/* Date */}
         {dateRange && (
           <div
-            className="mb-3 flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400"
+            className="mb-3 flex items-center gap-1.5 text-sm text-fg-subtle"
             data-testid={CompetitionCardTestIds.DATE}
             aria-label={`${card.dateLabel}: ${dateRange}`}
           >
             <CalendarDaysIcon
-              className="h-4 w-4 shrink-0 text-emerald-500"
+              className="h-4 w-4 shrink-0 text-primary-500"
               aria-hidden="true"
             />
             <span>{dateRange}</span>
@@ -105,7 +105,7 @@ export const CompetitionCard = memo(function CompetitionCard({
         {/* Description */}
         {description && (
           <p
-            className="mb-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+            className="mb-4 text-sm leading-relaxed text-fg-muted"
             data-testid={CompetitionCardTestIds.DESCRIPTION}
           >
             {description}
@@ -122,7 +122,7 @@ export const CompetitionCard = memo(function CompetitionCard({
             {tags.map(tag => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700/60 dark:text-slate-300 dark:ring-slate-600"
+                className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-fg-muted ring-1 ring-hairline"
                 data-testid={CompetitionCardTestIds.TAG_ITEM}
               >
                 {tag}
@@ -165,4 +165,4 @@ export const CompetitionCard = memo(function CompetitionCard({
       </CardContent>
     </Card>
   )
-})
+}

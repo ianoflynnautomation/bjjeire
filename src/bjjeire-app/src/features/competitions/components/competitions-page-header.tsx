@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ListPageHeader } from '@/components/ui/page-header/list-page-header'
 import { CompetitionsPageTestIds } from '@/constants/competitionDataTestIds'
@@ -11,7 +10,7 @@ interface CompetitionsPageHeaderProps {
   'data-testid'?: string
 }
 
-export const CompetitionsPageHeader = memo(function CompetitionsPageHeader({
+export const CompetitionsPageHeader = function CompetitionsPageHeader({
   totalCompetitions,
   'data-testid': baseTestId = CompetitionsPageTestIds.HEADER,
 }: CompetitionsPageHeaderProps): JSX.Element {
@@ -36,4 +35,4 @@ export const CompetitionsPageHeader = memo(function CompetitionsPageHeader({
       }}
     />
   )
-})
+}

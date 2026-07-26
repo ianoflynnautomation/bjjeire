@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventDto } from '@/types/event'
 import { EventSchedule, EventDetails, EventHeader, EventFooter } from '.'
@@ -13,7 +12,7 @@ interface EventCardProps {
   'data-testid'?: string
 }
 
-export const EventCard = memo(function EventCard({
+export const EventCard = function EventCard({
   event,
   'data-testid': dataTestId,
 }: EventCardProps): JSX.Element {
@@ -23,7 +22,7 @@ export const EventCard = memo(function EventCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
@@ -42,7 +41,7 @@ export const EventCard = memo(function EventCard({
 
         {schedule && (
           <div
-            className="mb-4 text-sm text-slate-600 dark:text-slate-300"
+            className="mb-4 text-sm text-fg-muted"
             data-testid={EventCardTestIds.SCHEDULE}
           >
             <EventSchedule schedule={schedule} />
@@ -53,4 +52,4 @@ export const EventCard = memo(function EventCard({
       </CardContent>
     </Card>
   )
-})
+}

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX, SVGProps } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { CloseIconTestIds } from '@/constants/commonDataTestIds'
@@ -7,7 +6,7 @@ type CloseIconProps = SVGProps<SVGSVGElement> & {
   'data-testid'?: string
 }
 
-export const CloseIcon = memo(function CloseIcon({
+export const CloseIcon = function CloseIcon({
   className,
   'data-testid': dataTestId = CloseIconTestIds.ROOT,
   ...props
@@ -20,4 +19,4 @@ export const CloseIcon = memo(function CloseIcon({
       {...props}
     />
   )
-})
+}

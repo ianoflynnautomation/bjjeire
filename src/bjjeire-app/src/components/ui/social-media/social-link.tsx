@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { KnownPlatform } from './social-media.config'
 import { platformConfig } from './social-media.config'
@@ -10,7 +9,7 @@ interface SocialLinkProps {
   'data-testid'?: string
 }
 
-export const SocialLink = memo(function SocialLink({
+export const SocialLink = function SocialLink({
   platform,
   url,
   'data-testid': dataTestId,
@@ -28,17 +27,17 @@ export const SocialLink = memo(function SocialLink({
       className={cn(
         'group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
-        'focus-visible:ring-emerald-500 focus-visible:ring-offset-slate-900',
-        'hover:ring-emerald-500/30'
+        'focus-visible:ring-primary-500 focus-visible:ring-offset-ink-900',
+        'hover:ring-primary-500/30'
       )}
     >
       <IconComponent
         className={cn(
-          'h-5 w-5 text-slate-400 transition-all duration-200 ease-in-out group-hover:scale-110',
+          'h-5 w-5 text-fg-subtle transition-all duration-200 ease-in-out group-hover:scale-110',
           hoverTextColorClass
         )}
         aria-hidden="true"
       />
     </a>
   )
-})
+}

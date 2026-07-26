@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 
 import type { StoreDto } from '@/types/stores'
@@ -19,7 +18,7 @@ interface StoreCardProps {
   'data-testid'?: string
 }
 
-export const StoreCard = memo(function StoreCard({
+export const StoreCard = function StoreCard({
   store,
   'data-testid': dataTestId,
 }: StoreCardProps): JSX.Element {
@@ -30,12 +29,12 @@ export const StoreCard = memo(function StoreCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-500/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-500/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-emerald-400/40 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent"
         aria-hidden="true"
       />
 
@@ -45,7 +44,7 @@ export const StoreCard = memo(function StoreCard({
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3
             id={headingId}
-            className="text-base font-bold leading-snug text-slate-900 dark:text-white"
+            className="text-base font-bold leading-snug text-fg"
             data-testid={StoresCardTestIds.NAME}
           >
             {name || card.fallbackName}
@@ -54,7 +53,7 @@ export const StoreCard = memo(function StoreCard({
 
         {description && (
           <p
-            className="mb-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+            className="mb-4 text-sm leading-relaxed text-fg-muted"
             data-testid={StoresCardTestIds.DESCRIPTION}
           >
             {description}
@@ -75,4 +74,4 @@ export const StoreCard = memo(function StoreCard({
       </CardContent>
     </Card>
   )
-})
+}

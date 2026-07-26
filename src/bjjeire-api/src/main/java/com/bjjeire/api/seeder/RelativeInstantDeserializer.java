@@ -15,12 +15,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Deserializes date-time values that may be expressed relative to seed time, e.g. "now", "now+7d", "now-30d",
- * "now+12h". Absolute ISO-8601 strings are parsed unchanged. It lets deterministic fixtures keep a fixed relationship
- * to "now" in every environment instead of relying on calendar dates that drift out of the API's time-based filters.
- * Registered only for the test dataset (data-test/**), never for production data.
- */
 public class RelativeInstantDeserializer extends JsonDeserializer<Instant> {
     private static final Pattern RELATIVE_TOKEN = Pattern.compile(
             "^now(?:\\s*(?<sign>[+-])\\s*(?<value>\\d+)\\s*(?<unit>[dhm]))?$", Pattern.CASE_INSENSITIVE);

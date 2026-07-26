@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { ClassCategory } from '@/types/gyms'
 import { getClassCategoryLabel } from '@/utils/gym-display-utils'
@@ -14,7 +13,7 @@ interface GymOfferedClassesProps {
   'data-testid'?: string
 }
 
-export const GymOfferedClasses = memo(function GymOfferedClasses({
+export const GymOfferedClasses = function GymOfferedClasses({
   classes,
   'data-testid': rootDataTestId,
 }: GymOfferedClassesProps): JSX.Element | null {
@@ -33,7 +32,7 @@ export const GymOfferedClasses = memo(function GymOfferedClasses({
         {classes.map(category => (
           <span
             key={category}
-            className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-500/30 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
+            className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-semibold text-primary-700 ring-1 ring-primary-500/30 transition-colors hover:bg-primary-200 dark:bg-primary-900/40 dark:text-primary-300 dark:hover:bg-primary-900/60"
             data-testid={GymCardTestIds.CLASSES_ITEM}
           >
             {getClassCategoryLabel(category)}
@@ -42,4 +41,4 @@ export const GymOfferedClasses = memo(function GymOfferedClasses({
       </div>
     </DetailItem>
   )
-})
+}

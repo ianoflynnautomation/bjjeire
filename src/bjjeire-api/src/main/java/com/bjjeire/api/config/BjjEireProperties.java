@@ -1,6 +1,7 @@
 package com.bjjeire.api.config;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -36,7 +37,7 @@ public record BjjEireProperties(
     }
 
     private static String normalizeFeatureFlagName(String name) {
-        return name.replace("-", "").replace("_", "").toLowerCase();
+        return name.replace("-", "").replace("_", "").toLowerCase(Locale.ROOT);
     }
 
     public record Auth(String writerScope) {}

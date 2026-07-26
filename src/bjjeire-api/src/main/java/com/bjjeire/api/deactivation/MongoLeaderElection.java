@@ -34,9 +34,6 @@ public class MongoLeaderElection {
         this(mongoTemplate, clock, null);
     }
 
-    // Identity override is used by tests so two instances can simulate two
-    // distinct replicas racing for the same lock. In production the identity
-    // defaults to the pod hostname / machine name.
     MongoLeaderElection(MongoTemplate mongoTemplate, Clock clock, String identity) {
         this.mongoTemplate = mongoTemplate;
         this.clock = clock;

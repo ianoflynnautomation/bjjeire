@@ -9,7 +9,7 @@ interface IconWrapperProps {
 
 export function IconWrapper({
   children,
-  className = 'h-5 w-5 text-emerald-500 dark:text-emerald-400',
+  className = 'h-5 w-5 text-primary-500 dark:text-primary-400',
   'aria-hidden': ariaHidden = true,
 }: IconWrapperProps): JSX.Element {
   return (

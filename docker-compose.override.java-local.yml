@@ -53,7 +53,7 @@ services:
       MONGODB_URI: mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password}@mongodb:${MONGODB_PORT:-27017}/${MONGODB_DB:-Mongodb}?authSource=admin&authMechanism=SCRAM-SHA-256
       MONGODB_DATABASE: ${MONGODB_DB:-Mongodb}
       BJJEIRE_SEEDER_DATAROOT: /seed-data
-      SEED_DATASET: ${SEED_DATASET:-}
+      SEED_DATASET: ${SEED_DATASET:-test}
       OTEL_SDK_DISABLED: "true"
     volumes:
       - ./seeder/data:/seed-data/data:ro

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { BjjEventDto, BjjEventSessionDto } from '@/types/event'
 import { formatDate, formatTime } from '@/utils/date-utils'
@@ -22,7 +21,7 @@ interface EventScheduleProps {
   'data-testid'?: string
 }
 
-export const EventSchedule = memo(function EventSchedule({
+export const EventSchedule = function EventSchedule({
   schedule,
   'data-testid': dataTestId = EventCardTestIds.SCHEDULE,
 }: EventScheduleProps): JSX.Element | null {
@@ -51,7 +50,7 @@ export const EventSchedule = memo(function EventSchedule({
           data-testid={EventCardTestIds.SCHEDULE_DATES}
         >
           <CalendarDaysIcon
-            className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400"
             aria-hidden="true"
           />
           <span>{dateText}</span>
@@ -64,7 +63,7 @@ export const EventSchedule = memo(function EventSchedule({
           data-testid={`${EventCardTestIds.SCHEDULE_SESSION}-${i}`}
         >
           <ClockIcon
-            className="h-3.5 w-3.5 shrink-0 text-emerald-500 dark:text-emerald-400"
+            className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400"
             aria-hidden="true"
           />
           <span>{formatSessionLine(session)}</span>
@@ -72,7 +71,7 @@ export const EventSchedule = memo(function EventSchedule({
       ))}
       {extraCount > 0 && (
         <p
-          className="pl-5 text-xs italic text-slate-500"
+          className="pl-5 text-xs italic text-fg-subtle"
           data-testid={EventCardTestIds.SCHEDULE_MORE}
         >
           +{extraCount} {scheduleContent.moreHoursSuffix}
@@ -80,4 +79,4 @@ export const EventSchedule = memo(function EventSchedule({
       )}
     </div>
   )
-})
+}

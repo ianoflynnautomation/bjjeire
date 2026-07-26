@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { County } from '@/constants/counties'
 import { COUNTIES } from '@/constants/counties'
@@ -35,7 +34,7 @@ interface EventFiltersProps {
   dataTestId?: string
 }
 
-export const EventFilters = memo(function EventFilters({
+export const EventFilters = function EventFilters({
   selectedCity,
   selectedTypes,
   onCityChange,
@@ -45,7 +44,7 @@ export const EventFilters = memo(function EventFilters({
 }: EventFiltersProps): JSX.Element {
   return (
     <section
-      className="rounded-2xl bg-white/80 p-4 backdrop-blur-sm shadow-sm shadow-black/10 ring-1 ring-black/6 sm:flex sm:flex-row sm:items-end sm:gap-4 dark:bg-slate-800/40 dark:shadow-black/20 dark:ring-white/6"
+      className="rounded-2xl bg-surface p-4 backdrop-blur-sm shadow-sm shadow-black/10 ring-1 ring-hairline sm:flex sm:flex-row sm:items-end sm:gap-4 dark:shadow-black/20"
       data-testid={dataTestId ?? EventsPageTestIds.FILTERS}
       aria-label={filters.ariaLabel}
     >
@@ -72,4 +71,4 @@ export const EventFilters = memo(function EventFilters({
       />
     </section>
   )
-})
+}

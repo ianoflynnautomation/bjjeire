@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import {
   MapPinIcon,
@@ -21,7 +20,7 @@ interface GymDetailsProps {
   'data-testid'?: string
 }
 
-export const GymDetails = memo(function GymDetails({
+export const GymDetails = function GymDetails({
   gym,
   'data-testid': rootDataTestId,
 }: GymDetailsProps): JSX.Element {
@@ -52,7 +51,7 @@ export const GymDetails = memo(function GymDetails({
               href={mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
+              className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 dark:text-ink-300 dark:hover:text-primary-400"
               data-testid={GymCardTestIds.ADDRESS_LINK}
             >
               {location.address} {location.venue && `(${location.venue})`}
@@ -75,7 +74,7 @@ export const GymDetails = memo(function GymDetails({
             href={ensureExternalUrlScheme(timetableUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-sm text-slate-600 underline-offset-2 transition-colors hover:text-emerald-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60 dark:text-slate-300 dark:hover:text-emerald-400"
+            className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 dark:text-ink-300 dark:hover:text-primary-400"
             data-testid={GymCardTestIds.TIMETABLE_LINK}
           >
             {gymCard.viewTimetableLink}
@@ -100,4 +99,4 @@ export const GymDetails = memo(function GymDetails({
       </div>
     </section>
   )
-})
+}

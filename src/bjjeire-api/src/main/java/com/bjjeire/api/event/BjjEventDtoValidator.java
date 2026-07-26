@@ -16,11 +16,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
-/**
- * Class-level validation rules for BjjEventDto (BjjEventDtoValidator + schedule/session/pricing and nested value-object
- * validators). Messages and error codes mirror BjjEire.Application.Common.Extensions.ValidationMessages; the error code
- * travels as Hibernate dynamic payload and is surfaced by ApiExceptionHandler.
- */
 public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, BjjEventDto> {
     public static final String CODE_REQUIRED = "FIELD_REQUIRED";
     public static final String CODE_MAX_LENGTH = "MAX_LENGTH_EXCEEDED";

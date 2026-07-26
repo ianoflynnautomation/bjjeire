@@ -37,44 +37,49 @@ describe('getEventTypeLabel', () => {
 })
 
 describe('getEventTypeBannerGradient', () => {
-  it('given an OpenMat event, when the banner gradient is resolved, then the emerald gradient is returned', () => {
+  it('given an OpenMat event, when the banner gradient is resolved, then the primary gradient is returned', () => {
     expect(getEventTypeBannerGradient(BjjEventType.OpenMat)).toContain(
-      'emerald'
+      'primary'
     )
   })
 
-  it('given a Camp event, when the banner gradient is resolved, then the violet gradient is returned', () => {
-    expect(getEventTypeBannerGradient(BjjEventType.Camp)).toContain('violet')
+  it('given a Camp event, when the banner gradient is resolved, then the ink/accent gradient is returned', () => {
+    const gradient = getEventTypeBannerGradient(BjjEventType.Camp)
+    expect(gradient).toContain('ink')
+    expect(gradient).toContain('accent')
+    expect(gradient).not.toContain('violet')
   })
 
-  it('given a Seminar event, when the banner gradient is resolved, then the amber gradient is returned', () => {
-    expect(getEventTypeBannerGradient(BjjEventType.Seminar)).toContain('amber')
+  it('given a Seminar event, when the banner gradient is resolved, then the accent gradient is returned', () => {
+    expect(getEventTypeBannerGradient(BjjEventType.Seminar)).toContain('accent')
   })
 
-  it('given an Other event, when the banner gradient is resolved, then the slate gradient is returned', () => {
-    expect(getEventTypeBannerGradient(BjjEventType.Other)).toContain('slate')
+  it('given an Other event, when the banner gradient is resolved, then the ink gradient is returned', () => {
+    expect(getEventTypeBannerGradient(BjjEventType.Other)).toContain('ink')
   })
 
-  it('given an unknown type, when the banner gradient is resolved, then the default slate gradient is returned', () => {
-    expect(getEventTypeBannerGradient('unknown')).toContain('slate')
+  it('given an unknown type, when the banner gradient is resolved, then the default ink gradient is returned', () => {
+    expect(getEventTypeBannerGradient('unknown')).toContain('ink')
   })
 })
 
 describe('getEventTypeColorClasses', () => {
-  it('given an OpenMat event, when the color classes are resolved, then the emerald classes are returned', () => {
-    expect(getEventTypeColorClasses(BjjEventType.OpenMat)).toContain('emerald')
+  it('given an OpenMat event, when the color classes are resolved, then the primary classes are returned', () => {
+    expect(getEventTypeColorClasses(BjjEventType.OpenMat)).toContain('primary')
   })
 
-  it('given a Camp event, when the color classes are resolved, then the violet classes are returned', () => {
-    expect(getEventTypeColorClasses(BjjEventType.Camp)).toContain('violet')
+  it('given a Camp event, when the color classes are resolved, then ink/accent classes are returned (not violet)', () => {
+    const classes = getEventTypeColorClasses(BjjEventType.Camp)
+    expect(classes).toContain('accent')
+    expect(classes).not.toContain('violet')
   })
 
-  it('given a Seminar event, when the color classes are resolved, then the amber classes are returned', () => {
-    expect(getEventTypeColorClasses(BjjEventType.Seminar)).toContain('amber')
+  it('given a Seminar event, when the color classes are resolved, then the accent classes are returned', () => {
+    expect(getEventTypeColorClasses(BjjEventType.Seminar)).toContain('accent')
   })
 
-  it('given an Other or unknown event, when the color classes are resolved, then the slate classes are returned', () => {
-    expect(getEventTypeColorClasses(BjjEventType.Other)).toContain('slate')
-    expect(getEventTypeColorClasses('unknown')).toContain('slate')
+  it('given an Other or unknown event, when the color classes are resolved, then the ink classes are returned', () => {
+    expect(getEventTypeColorClasses(BjjEventType.Other)).toContain('ink')
+    expect(getEventTypeColorClasses('unknown')).toContain('ink')
   })
 })

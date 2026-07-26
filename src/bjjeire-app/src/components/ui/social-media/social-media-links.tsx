@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { isKnownPlatform } from './social-media.config'
 import type { KnownPlatform } from './social-media.config'
@@ -11,7 +10,7 @@ interface SocialMediaLinksProps {
   'data-testid'?: string
 }
 
-export const SocialMediaLinks = memo(function SocialMediaLinks({
+export const SocialMediaLinks = function SocialMediaLinks({
   socialMedia,
   'data-testid': dataTestIdFromProp,
 }: SocialMediaLinksProps): JSX.Element | null {
@@ -53,4 +52,4 @@ export const SocialMediaLinks = memo(function SocialMediaLinks({
       ))}
     </div>
   )
-})
+}

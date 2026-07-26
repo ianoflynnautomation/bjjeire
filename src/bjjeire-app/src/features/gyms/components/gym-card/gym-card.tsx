@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
@@ -10,7 +9,7 @@ interface GymCardProps {
   'data-testid'?: string
 }
 
-export const GymCard = memo(function GymCard({
+export const GymCard = function GymCard({
   gym,
   'data-testid': dataTestId,
 }: GymCardProps): JSX.Element {
@@ -20,12 +19,12 @@ export const GymCard = memo(function GymCard({
 
   return (
     <Card
-      className="relative isolate focus-within:ring-2 focus-within:ring-emerald-400/60"
+      className="relative isolate focus-within:ring-2 focus-within:ring-primary-400/60"
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
       <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-amber-400/50 to-transparent"
+        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-accent-400/50 to-transparent"
         aria-hidden="true"
       />
       <GymHeader
@@ -45,4 +44,4 @@ export const GymCard = memo(function GymCard({
       </CardContent>
     </Card>
   )
-})
+}

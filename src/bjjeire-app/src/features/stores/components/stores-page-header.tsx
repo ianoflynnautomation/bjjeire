@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ListPageHeader } from '@/components/ui/page-header/list-page-header'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
@@ -11,7 +10,7 @@ interface StoresPageHeaderProps {
   'data-testid'?: string
 }
 
-export const StoresPageHeader = memo(function StoresPageHeader({
+export const StoresPageHeader = function StoresPageHeader({
   totalStores,
   'data-testid': baseTestId = StoresPageTestIds.HEADER,
 }: StoresPageHeaderProps): JSX.Element {
@@ -36,4 +35,4 @@ export const StoresPageHeader = memo(function StoresPageHeader({
       }}
     />
   )
-})
+}

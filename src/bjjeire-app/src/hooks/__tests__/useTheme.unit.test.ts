@@ -32,7 +32,7 @@ function setMatchMedia(prefersDark: boolean): void {
 beforeEach(() => {
   vi.clearAllMocks()
   localStorageMock.getItem.mockReturnValue(null)
-  document.documentElement.classList.remove('dark')
+  document.documentElement.classList.remove('dark', 'competition')
   document.documentElement.style.colorScheme = ''
   setMatchMedia(false)
 })
@@ -64,6 +64,12 @@ describe('useTheme — initial theme', () => {
     expect(result.current.theme).toBe('dark')
   })
 
+  it('given a stored competition preference, when the hook mounts, then the theme is competition', () => {
+    stubStorage('competition')
+    const { result } = renderHook(() => useTheme())
+    expect(result.current.theme).toBe('competition')
+  })
+
   it('given an invalid stored value, when the hook mounts, then the system preference is used', () => {
     stubStorage('blue')
     setMatchMedia(true)
@@ -84,17 +90,38 @@ describe('useTheme — DOM side effects', () => {
     stubStorage('dark')
     renderHook(() => useTheme())
     expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.classList.contains('competition')).toBe(
+      false
+    )
   })
 
-  it('given a light theme, when the hook mounts, then the dark class is removed from <html>', () => {
-    document.documentElement.classList.add('dark')
+  it('given a light theme, when the hook mounts, then neither dark nor competition class is on <html>', () => {
+    document.documentElement.classList.add('dark', 'competition')
     stubStorage('light')
     renderHook(() => useTheme())
     expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(document.documentElement.classList.contains('competition')).toBe(
+      false
+    )
+  })
+
+  it('given a competition theme, when the hook mounts, then both dark and competition classes are on <html>', () => {
+    stubStorage('competition')
+    renderHook(() => useTheme())
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.classList.contains('competition')).toBe(
+      true
+    )
   })
 
   it('given a dark theme, when the hook mounts, then colorScheme on <html> is dark', () => {
     stubStorage('dark')
+    renderHook(() => useTheme())
+    expect(document.documentElement.style.colorScheme).toBe('dark')
+  })
+
+  it('given a competition theme, when the hook mounts, then colorScheme on <html> is dark', () => {
+    stubStorage('competition')
     renderHook(() => useTheme())
     expect(document.documentElement.style.colorScheme).toBe('dark')
   })
@@ -113,71 +140,91 @@ describe('useTheme — DOM side effects', () => {
   })
 })
 
-describe('useTheme — toggleTheme', () => {
-  it('given a light theme, when the user toggles, then the theme becomes dark', () => {
+describe('useTheme — cycleTheme', () => {
+  it('given a light theme, when the user cycles, then the theme becomes dark', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
     })
 
     expect(result.current.theme).toBe('dark')
   })
 
-  it('given a dark theme, when the user toggles, then the theme becomes light', () => {
+  it('given a dark theme, when the user cycles, then the theme becomes competition', () => {
     stubStorage('dark')
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
+    })
+
+    expect(result.current.theme).toBe('competition')
+  })
+
+  it('given a competition theme, when the user cycles, then the theme wraps back to light', () => {
+    stubStorage('competition')
+    const { result } = renderHook(() => useTheme())
+
+    act(() => {
+      result.current.cycleTheme()
     })
 
     expect(result.current.theme).toBe('light')
   })
 
-  it('given a light theme, when the user toggles, then the dark class is added to <html>', () => {
-    stubStorage('light')
-    const { result } = renderHook(() => useTheme())
-
-    act(() => {
-      result.current.toggleTheme()
-    })
-
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
-  })
-
-  it('given a dark theme, when the user toggles, then the dark class is removed from <html>', () => {
+  it('given a dark theme, when the user cycles, then both dark and competition classes are on <html>', () => {
     stubStorage('dark')
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
+    })
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(document.documentElement.classList.contains('competition')).toBe(
+      true
+    )
+  })
+
+  it('given a competition theme, when the user cycles, then the classes are cleared for light', () => {
+    stubStorage('competition')
+    const { result } = renderHook(() => useTheme())
+
+    act(() => {
+      result.current.cycleTheme()
     })
 
     expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(document.documentElement.classList.contains('competition')).toBe(
+      false
+    )
   })
 
-  it('given a light theme, when the user toggles, then the new theme is persisted to localStorage', () => {
+  it('given a light theme, when the user cycles, then the new theme is persisted to localStorage', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
     })
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith(STORAGE_KEY, 'dark')
   })
 
-  it('given a toggled theme, when the user toggles again, then the original theme is restored', () => {
+  it('given three cycles from light, when complete, then the theme returns to light', () => {
     stubStorage('light')
     const { result } = renderHook(() => useTheme())
 
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
     })
     act(() => {
-      result.current.toggleTheme()
+      result.current.cycleTheme()
+    })
+    act(() => {
+      result.current.cycleTheme()
     })
 
     expect(result.current.theme).toBe('light')

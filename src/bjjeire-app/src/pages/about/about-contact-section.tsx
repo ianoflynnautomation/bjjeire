@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { SocialMediaLinks } from '@/components/ui/social-media/social-media-links'
 import { uiContent } from '@/config/ui-content'
@@ -11,37 +10,35 @@ const socialMedia = {
   x: env.SOCIAL_INSTAGRAM_URL || undefined,
 }
 
-export const AboutContactSection = memo(
-  function AboutContactSection(): JSX.Element {
-    return (
-      <AboutSection
-        id="about-contact"
-        headingId="about-contact-heading"
-        title={uiContent.about.contactTitle}
-        data-testid={AboutContactTestIds.SECTION}
+export const AboutContactSection = function AboutContactSection(): JSX.Element {
+  return (
+    <AboutSection
+      id="about-contact"
+      headingId="about-contact-heading"
+      title={uiContent.about.contactTitle}
+      data-testid={AboutContactTestIds.SECTION}
+    >
+      <p
+        className="text-fg-muted"
+        data-testid={AboutContactTestIds.PARAGRAPH_TEXT}
       >
-        <p
-          className="text-slate-700 dark:text-slate-300"
-          data-testid={AboutContactTestIds.PARAGRAPH_TEXT}
+        {uiContent.about.contactPrefix}{' '}
+        <a
+          href={`mailto:${env.CONTACT_EMAIL}`}
+          aria-label={`Send an email to ${env.CONTACT_EMAIL}`}
+          className="font-medium text-primary-600 transition-colors hover:text-primary-700 hover:underline dark:text-primary-400 dark:hover:text-primary-300"
+          data-testid={AboutContactTestIds.EMAIL_LINK}
         >
-          {uiContent.about.contactPrefix}{' '}
-          <a
-            href={`mailto:${env.CONTACT_EMAIL}`}
-            aria-label={`Send an email to ${env.CONTACT_EMAIL}`}
-            className="font-medium text-emerald-600 transition-colors hover:text-emerald-700 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
-            data-testid={AboutContactTestIds.EMAIL_LINK}
-          >
-            {env.CONTACT_EMAIL}
-          </a>
-          .
-        </p>
-        <div className="mt-4">
-          <SocialMediaLinks
-            socialMedia={socialMedia}
-            data-testid={AboutContactTestIds.SOCIAL_LINKS}
-          />
-        </div>
-      </AboutSection>
-    )
-  }
-)
+          {env.CONTACT_EMAIL}
+        </a>
+        .
+      </p>
+      <div className="mt-4">
+        <SocialMediaLinks
+          socialMedia={socialMedia}
+          data-testid={AboutContactTestIds.SOCIAL_LINKS}
+        />
+      </div>
+    </AboutSection>
+  )
+}

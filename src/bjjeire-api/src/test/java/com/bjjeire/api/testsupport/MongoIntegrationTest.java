@@ -42,9 +42,8 @@ import org.testcontainers.mongodb.MongoDBContainer;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = MongoIntegrationTest.SharedOverrides.class)
 public abstract class MongoIntegrationTest {
-    /** Fixed "now" every subclass can rely on when building past/future fixtures. */
-    protected static final Instant FIXED_NOW = Instant.parse("2026-05-31T00:00:00Z");
 
+    protected static final Instant FIXED_NOW = Instant.parse("2026-05-31T00:00:00Z");
     protected static final String AUTHENTICATED_USER = "integration-test";
 
     /** Matches {@code bjjeire.auth.writer-scope} default in application.yml. */
@@ -104,7 +103,7 @@ public abstract class MongoIntegrationTest {
         @Bean
         @ServiceConnection
         MongoDBContainer mongoDbContainer() {
-            return new MongoDBContainer("mongo:7.0");
+            return new MongoDBContainer("mongo:8.2");
         }
 
         @Bean

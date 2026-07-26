@@ -1,5 +1,4 @@
-import { memo } from 'react'
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import type { StoreDto } from '@/types/stores'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
@@ -11,7 +10,7 @@ interface StoresListProps {
   stores: StoreDto[]
 }
 
-export const StoresList = memo(function StoresList({
+export const StoresList = function StoresList({
   stores,
 }: StoresListProps): JSX.Element {
   return (
@@ -20,11 +19,15 @@ export const StoresList = memo(function StoresList({
       aria-label={list.ariaLabel}
       data-testid={StoresPageTestIds.LIST}
     >
-      {stores.map(store => (
-        <li key={store.id}>
+      {stores.map((store, index) => (
+        <li
+          key={store.id}
+          className="animate-rise"
+          style={{ '--i': index } as CSSProperties}
+        >
           <StoreCard store={store} />
         </li>
       ))}
     </ul>
   )
-})
+}

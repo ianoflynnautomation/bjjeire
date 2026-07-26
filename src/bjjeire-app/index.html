@@ -6,12 +6,12 @@
     <meta
       name="theme-color"
       media="(prefers-color-scheme: light)"
-      content="#f8fafc"
+      content="#f4f7f7"
     />
     <meta
       name="theme-color"
       media="(prefers-color-scheme: dark)"
-      content="#020617"
+      content="#0c1214"
     />
 
     <title>BJJ Éire — Find BJJ Events &amp; Gyms Across Ireland</title>
@@ -59,20 +59,19 @@
     <link rel="icon" type="image/svg+xml" href="/bjjeire.svg" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href="%VITE_APP_URL%" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=optional"
-    />
     <script>
       ;(function () {
         var s = localStorage.getItem('bjjeire-theme')
+
+        var comp = s === 'competition'
         var dark =
+          comp ||
           s === 'dark' ||
           (!s && globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
-        if (dark) document.documentElement.classList.add('dark')
-        document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        var root = document.documentElement
+        if (dark) root.classList.add('dark')
+        if (comp) root.classList.add('competition')
+        root.style.colorScheme = dark ? 'dark' : 'light'
       })()
     </script>
   </head>

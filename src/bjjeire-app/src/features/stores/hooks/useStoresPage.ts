@@ -3,7 +3,7 @@ import type { StoreDto, GetStorePaginationQuery } from '@/types/stores'
 import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getStores } from '@/features/stores/api/get-stores'
 
-const initialStoreFilters: GetStorePaginationQuery = {
+export const initialStoreFilters: GetStorePaginationQuery = {
   page: env.PAGE_NUMBER,
   pageSize: env.PAGE_SIZE,
 }

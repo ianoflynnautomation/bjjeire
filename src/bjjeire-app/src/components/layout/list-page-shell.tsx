@@ -73,9 +73,7 @@ export function ListPageShell<T>({
         {header}
 
         {filterBar && (
-          <div className="mb-6 border-b border-black/8 pb-6 dark:border-white/8">
-            {filterBar}
-          </div>
+          <div className="mb-6 border-b border-hairline pb-6">{filterBar}</div>
         )}
 
         <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -116,7 +114,7 @@ export function ListPageShell<T>({
           paginationInfo.totalPages > 1 &&
           !fetchError &&
           filteredItems.length > 0 && (
-            <div className="mt-10 border-t border-black/8 pt-8 dark:border-white/8">
+            <div className="mt-10 border-t border-hairline pt-8">
               <Pagination
                 currentPage={currentPage}
                 pagination={paginationInfo}

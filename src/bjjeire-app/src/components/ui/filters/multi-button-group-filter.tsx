@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react'
+import { useCallback } from 'react'
 import type { JSX } from 'react'
 import { buttonVariants } from '@/lib/button-variants'
 import { cn } from '@/lib/cn'
@@ -46,7 +46,7 @@ function MultiButtonGroupFilterBase<T extends string | number>({
   return (
     <fieldset className={cn('flex-1', className)} data-testid={dataTestId}>
       <legend
-        className="mb-1.5 block text-sm font-semibold text-slate-600 dark:text-slate-300"
+        className="mb-1.5 block text-sm font-semibold text-fg-muted"
         data-testid={ButtonGroupFilterTestIds.LABEL}
       >
         {label}
@@ -95,6 +95,4 @@ function MultiButtonGroupFilterBase<T extends string | number>({
   )
 }
 
-export const MultiButtonGroupFilter = memo(
-  MultiButtonGroupFilterBase
-) as typeof MultiButtonGroupFilterBase
+export const MultiButtonGroupFilter = MultiButtonGroupFilterBase

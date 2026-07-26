@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { TrophyIcon } from '@heroicons/react/20/solid'
 import { useImageLoadState } from '@/hooks/useImageLoadState'
@@ -13,7 +12,7 @@ interface CompetitionCardHeaderProps {
   logoUrl?: string | null
 }
 
-export const CompetitionCardHeader = memo(function CompetitionCardHeader({
+export const CompetitionCardHeader = function CompetitionCardHeader({
   name,
   logoUrl,
 }: CompetitionCardHeaderProps): JSX.Element {
@@ -27,7 +26,7 @@ export const CompetitionCardHeader = memo(function CompetitionCardHeader({
         <>
           {!isLoaded && (
             <div
-              className="absolute inset-0 animate-pulse bg-slate-700"
+              className="absolute inset-0 animate-pulse bg-ink-200 dark:bg-ink-700"
               aria-hidden="true"
               data-testid={CompetitionCardTestIds.LOGO_SKELETON}
             />
@@ -48,17 +47,17 @@ export const CompetitionCardHeader = memo(function CompetitionCardHeader({
         </>
       ) : (
         <div
-          className="flex h-full w-full items-center justify-center bg-slate-800/60"
+          className="flex h-full w-full items-center justify-center bg-ink-100 dark:bg-ink-800/60"
           aria-hidden="true"
           data-testid={CompetitionCardTestIds.LOGO_FALLBACK}
         >
-          <TrophyIcon className="h-16 w-16 text-slate-600" />
+          <TrophyIcon className="h-16 w-16 text-ink-400 dark:text-ink-500" />
         </div>
       )}
       <div
-        className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent"
+        className="absolute inset-0 bg-linear-to-t from-ink-900/60 to-transparent"
         aria-hidden="true"
       />
     </header>
   )
-})
+}

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import type { JSX } from 'react'
 import { ListPageHeader } from '@/components/ui/page-header/list-page-header'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
@@ -12,7 +11,7 @@ interface GymsPageHeaderProps {
   'data-testid'?: string
 }
 
-export const GymsPageHeader = memo(function GymsPageHeader({
+export const GymsPageHeader = function GymsPageHeader({
   countyName,
   totalGyms,
   'data-testid': baseTestId = GymsPageTestIds.HEADER,
@@ -41,4 +40,4 @@ export const GymsPageHeader = memo(function GymsPageHeader({
       }}
     />
   )
-})
+}

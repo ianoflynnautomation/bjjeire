@@ -189,7 +189,6 @@ public class ApiExceptionHandler {
     }
 
     private static String dynamicErrorCode(ConstraintViolation<?> violation) {
-        @SuppressWarnings("unchecked")
         HibernateConstraintViolation<?> hibernateViolation = violation.unwrap(HibernateConstraintViolation.class);
         String payload = hibernateViolation.getDynamicPayload(String.class);
         return payload != null ? payload : "";
@@ -198,7 +197,8 @@ public class ApiExceptionHandler {
     private static String pascalCasePath(String path) {
         StringBuilder result = new StringBuilder(path.length());
         boolean startOfSegment = true;
-        for (char c : path.toCharArray()) {
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
             result.append(startOfSegment ? Character.toUpperCase(c) : c);
             startOfSegment = c == '.';
         }
