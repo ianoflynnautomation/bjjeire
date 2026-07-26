@@ -12,7 +12,7 @@ class GeoCoordinatesTest {
 
     @Test
     void shouldSerializeDerivedLatitudeAndLongitudeFromGeoJsonOrder() throws Exception {
-        // GeoJSON coordinate order is [longitude, latitude].
+
         GeoCoordinates coordinates = new GeoCoordinates("Point", List.of(-6.2603, 53.3498), "Dublin", "place-id");
 
         JsonNode json = mapper.readTree(mapper.writeValueAsString(coordinates));

@@ -9,11 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-// Verifies the pricing-option resolution rules (values are part of the established API contract):
-//   Free      -> 0
-//   FlatRate  -> amount as-is
-//   PerDay    -> amount x durationDays (or schedule span, or 1)
-//   PerSession-> amount x sessions in scope (untagged sessions count for every scope)
 class BjjEventCostCalculatorTest {
     private static BjjEventSchedule threeDayCamp(BjjEventSession... sessions) {
         return new BjjEventSchedule(
