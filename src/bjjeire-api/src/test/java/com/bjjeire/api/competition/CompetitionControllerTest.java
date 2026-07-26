@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationMetadata;
 import com.bjjeire.api.web.ApiExceptionHandler;
@@ -41,7 +42,7 @@ class CompetitionControllerTest {
     void shouldReturnPagedCompetitionsWhenListing() throws Exception {
         given(competitionService.getAll(any(), anyBoolean(), anyString())).willReturn(pageOf(competition()));
 
-        mockMvc.perform(get("/api/v1/Competition").param("includeInactive", "true"))
+        mockMvc.perform(get(ApiRoutes.COMPETITION).param("includeInactive", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(COMPETITION_ID))
                 .andExpect(jsonPath("$.data[0].slug").value("irish-open"))
@@ -51,7 +52,7 @@ class CompetitionControllerTest {
 
     @Test
     void shouldRejectListingWhenIncludeInactiveIsNotBoolean() throws Exception {
-        mockMvc.perform(get("/api/v1/Competition").param("includeInactive", "invalid"))
+        mockMvc.perform(get(ApiRoutes.COMPETITION).param("includeInactive", "invalid"))
                 .andExpect(status().isBadRequest());
     }
 

@@ -33,14 +33,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(
-            HttpSecurity http, Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter)
+            HttpSecurity http,
+            Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter,
+            BjjEireProperties properties)
             throws Exception {
+        String writerAuthority = "SCOPE_" + properties.auth().writerScope();
         return http.cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 ApiRoutes.FEATURE_FLAG + "/**",
-                                ApiRoutes.FEATURE_FLAG_LOWERCASE + "/**",
                                 "/health",
                                 "/metrics",
                                 "/actuator/health/**",
@@ -51,16 +53,19 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,
                                 ApiRoutes.BJJ_EVENT + "/**",
-                                ApiRoutes.BJJ_EVENT_LOWERCASE + "/**",
                                 ApiRoutes.COMPETITION + "/**",
-                                ApiRoutes.COMPETITION_LOWERCASE + "/**",
                                 ApiRoutes.DONATE + "/**",
-                                ApiRoutes.DONATE_LOWERCASE + "/**",
                                 ApiRoutes.GYM + "/**",
-                                ApiRoutes.GYM_LOWERCASE + "/**",
-                                ApiRoutes.STORE + "/**",
-                                ApiRoutes.STORE_LOWERCASE + "/**")
+                                ApiRoutes.STORE + "/**")
                         .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/**")
+                        .hasAuthority(writerAuthority)
+                        .requestMatchers(HttpMethod.PUT, "/**")
+                        .hasAuthority(writerAuthority)
+                        .requestMatchers(HttpMethod.PATCH, "/**")
+                        .hasAuthority(writerAuthority)
+                        .requestMatchers(HttpMethod.DELETE, "/**")
+                        .hasAuthority(writerAuthority)
                         .anyRequest()
                         .authenticated())
                 .oauth2ResourceServer(

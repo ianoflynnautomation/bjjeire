@@ -57,6 +57,13 @@ class BjjEventMapperTest {
         assertThat(dto.pricingOptions().get(0).label()).isEqualTo("Full camp");
         assertThat(dto.pricingOptions().get(1).appliesToTypes()).containsExactly(BjjEventType.OpenMat);
         assertThat(dto.isActive()).isTrue();
+
+        assertThat(dto.calculatedCosts()).hasSize(2);
+        assertThat(dto.calculatedCosts().get(0).unit()).isEqualTo(CostUnit.Total);
+        assertThat(dto.calculatedCosts().get(0).total()).isEqualByComparingTo("275");
+        // PerDay day pass across the 3-day schedule (2026-07-25 .. 2026-07-27 inclusive).
+        assertThat(dto.calculatedCosts().get(1).unit()).isEqualTo(CostUnit.PerDay);
+        assertThat(dto.calculatedCosts().get(1).total()).isEqualByComparingTo("330");
     }
 
     @Test

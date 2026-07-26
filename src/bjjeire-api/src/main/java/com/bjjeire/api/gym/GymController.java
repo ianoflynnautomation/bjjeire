@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Gyms")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.GYM, ApiRoutes.GYM_LOWERCASE})
+@RequestMapping(ApiRoutes.GYM)
 public class GymController {
 
     private final GymService gymService;

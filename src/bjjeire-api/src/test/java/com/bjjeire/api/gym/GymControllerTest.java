@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationMetadata;
@@ -49,7 +50,7 @@ class GymControllerTest {
     void shouldReturnPagedGymsWhenListingByCounty() throws Exception {
         given(gymService.getAll(any(), any(), anyString())).willReturn(pageOf(gym(GYM_ID)));
 
-        mockMvc.perform(get("/api/v1/Gym").param("county", "Dublin"))
+        mockMvc.perform(get(ApiRoutes.GYM).param("county", "Dublin"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(GYM_ID))
                 .andExpect(jsonPath("$.data[0].status").value("Active"))
@@ -58,29 +59,20 @@ class GymControllerTest {
     }
 
     @Test
-    void shouldServeLowercaseRouteAliasWhenListing() throws Exception {
-        given(gymService.getAll(any(), any(), anyString())).willReturn(pageOf(gym(GYM_ID)));
-
-        mockMvc.perform(get("/api/v1/gym").param("county", "Dublin"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].id").value(GYM_ID));
-    }
-
-    @Test
     void shouldRejectListingWhenCountyIsUnknown() throws Exception {
-        mockMvc.perform(get("/api/v1/Gym").param("county", "Invalid")).andExpect(status().isBadRequest());
+        mockMvc.perform(get(ApiRoutes.GYM).param("county", "Invalid")).andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnNotFoundWhenGymIsMissing() throws Exception {
         given(gymService.getById(MISSING_GYM_ID)).willReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/Gym/" + MISSING_GYM_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(ApiRoutes.GYM + "/" + MISSING_GYM_ID)).andExpect(status().isNotFound());
     }
 
     @Test
     void shouldRejectGetByIdWithoutCallingServiceWhenIdIsNotAnObjectId() throws Exception {
-        mockMvc.perform(get("/api/v1/Gym/not-an-object-id"))
+        mockMvc.perform(get(ApiRoutes.GYM + "/not-an-object-id"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:validation-error"))
                 .andExpect(jsonPath("$.errors[0].field").value("Id"))
@@ -92,14 +84,14 @@ class GymControllerTest {
 
     @Test
     void shouldRejectDeleteWithoutCallingServiceWhenIdIsNotAnObjectId() throws Exception {
-        mockMvc.perform(delete("/api/v1/Gym/not-an-object-id")).andExpect(status().isBadRequest());
+        mockMvc.perform(delete(ApiRoutes.GYM + "/not-an-object-id")).andExpect(status().isBadRequest());
 
         then(gymService).should(never()).delete(anyString());
     }
 
     @Test
     void shouldRejectListingWhenPageIsBelowMinimum() throws Exception {
-        mockMvc.perform(get("/api/v1/Gym").param("page", "0"))
+        mockMvc.perform(get(ApiRoutes.GYM).param("page", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:validation-error"))
                 .andExpect(jsonPath("$.errors[0].field").value("Page"))
@@ -112,7 +104,7 @@ class GymControllerTest {
     void shouldReturnCreatedWithBodyWhenGymIsValid() throws Exception {
         given(gymService.create(any())).willReturn(new CreateGymResponse(gym(GYM_ID)));
 
-        mockMvc.perform(post("/api/v1/Gym")
+        mockMvc.perform(post(ApiRoutes.GYM)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gymCommandJson(GYM_ID)))
                 .andExpect(status().isCreated())
@@ -122,7 +114,7 @@ class GymControllerTest {
 
     @Test
     void shouldRejectUpdateWithoutCallingServiceWhenPathAndBodyIdDiffer() throws Exception {
-        mockMvc.perform(put("/api/v1/Gym/" + GYM_ID)
+        mockMvc.perform(put(ApiRoutes.GYM + "/" + GYM_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gymCommandJson(OTHER_GYM_ID)))
                 .andExpect(status().isBadRequest());
@@ -134,7 +126,7 @@ class GymControllerTest {
     void shouldReturnNoContentWhenGymIsDeleted() throws Exception {
         given(gymService.delete(GYM_ID)).willReturn(true);
 
-        mockMvc.perform(delete("/api/v1/Gym/" + GYM_ID)).andExpect(status().isNoContent());
+        mockMvc.perform(delete(ApiRoutes.GYM + "/" + GYM_ID)).andExpect(status().isNoContent());
     }
 
     private static PagedResponse<GymDto> pageOf(GymDto dto) {

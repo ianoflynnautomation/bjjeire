@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationMetadata;
 import com.bjjeire.api.web.ApiExceptionHandler;
@@ -39,7 +40,7 @@ class StoreControllerTest {
     void shouldReturnPagedStoresWhenListing() throws Exception {
         given(storeService.getAll(any(), anyString())).willReturn(pageOf(store()));
 
-        mockMvc.perform(get("/api/v1/Store"))
+        mockMvc.perform(get(ApiRoutes.STORE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(STORE_ID))
                 .andExpect(jsonPath("$.data[0].name").value("BJJ Shop"))
@@ -49,7 +50,7 @@ class StoreControllerTest {
 
     @Test
     void shouldRejectListingWhenPageIsNotANumber() throws Exception {
-        mockMvc.perform(get("/api/v1/Store").param("page", "invalid")).andExpect(status().isBadRequest());
+        mockMvc.perform(get(ApiRoutes.STORE).param("page", "invalid")).andExpect(status().isBadRequest());
     }
 
     private static PagedResponse<StoreDto> pageOf(StoreDto dto) {

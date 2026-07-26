@@ -19,6 +19,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +37,15 @@ public class GymService {
         PagedResponse<GymDto> cached =
                 cache.getOrCreate(ApiCache.GYMS_TAG, cacheKey, () -> loadPage(paginationRequest, county));
 
-        return PagedResponses.withNavigationLinks(cached, uriService, basePath);
+        return PagedResponses.withNavigationLinks(cached, uriService, basePath, listFilters(county));
+    }
+
+    private static MultiValueMap<String, String> listFilters(County county) {
+        MultiValueMap<String, String> filters = new LinkedMultiValueMap<>();
+        if (county != null) {
+            filters.add("county", county.name());
+        }
+        return filters;
     }
 
     public Optional<GymDto> getById(String id) {

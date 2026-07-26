@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.STORE, ApiRoutes.STORE_LOWERCASE})
+@RequestMapping(ApiRoutes.STORE)
 public class StoreController {
     private final StoreService storeService;
 

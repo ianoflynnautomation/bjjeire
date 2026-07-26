@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Competitions")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping({ApiRoutes.COMPETITION, ApiRoutes.COMPETITION_LOWERCASE})
+@RequestMapping(ApiRoutes.COMPETITION)
 public class CompetitionController {
 
     private final CompetitionService competitionService;

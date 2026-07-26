@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditLogEntry;
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import java.math.BigDecimal;
@@ -89,7 +90,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-06T00:00:00Z"));
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "/api/v1/BjjEvent?county=Dublin&types=OpenMat&page=1&pageSize=20", String.class);
+                ApiRoutes.BJJ_EVENT + "?county=Dublin&types=OpenMat&page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -122,8 +123,8 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-08-01T12:00:00Z",
                 "2026-01-02T00:00:00Z"));
 
-        ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/BjjEvent?types=OpenMat&types=Camp&page=1&pageSize=20", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                ApiRoutes.BJJ_EVENT + "?types=OpenMat&types=Camp&page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -166,14 +167,14 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-03T00:00:00Z"));
 
         JsonNode seminar = objectMapper.readTree(restTemplate
-                .getForEntity("/api/v1/BjjEvent?types=1&page=1&pageSize=20", String.class)
+                .getForEntity(ApiRoutes.BJJ_EVENT + "?types=1&page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(seminar.at("/pagination/totalItems").asInt()).isEqualTo(1);
         assertThat(seminar.at("/data/0/name").asText()).isEqualTo("seminar");
         assertThat(seminar.at("/data/0/types/0").asText()).isEqualTo("Seminar");
 
         JsonNode camp = objectMapper.readTree(restTemplate
-                .getForEntity("/api/v1/BjjEvent?types=3&page=1&pageSize=20", String.class)
+                .getForEntity(ApiRoutes.BJJ_EVENT + "?types=3&page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(camp.at("/pagination/totalItems").asInt()).isEqualTo(1);
         assertThat(camp.at("/data/0/name").asText()).isEqualTo("camp");
@@ -203,15 +204,26 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-02T00:00:00Z"));
 
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/BjjEvent?county=Dublin&page=1&pageSize=1", String.class);
+                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "?county=Dublin&page=1&pageSize=1", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(body.at("/pagination/nextPageUrl").asText())
                 .startsWith("http://")
-                .endsWith("/api/v1/BjjEvent?page=2&pageSize=1");
+                .contains(ApiRoutes.BJJ_EVENT + "?")
+                .contains("county=Dublin")
+                .contains("page=2")
+                .contains("pageSize=1");
         assertThat(body.at("/pagination/previousPageUrl").isNull()).isTrue();
+    }
+
+    @Test
+    void shouldRejectUnknownEventTypeWhenListing() {
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "?types=NotAType&page=1&pageSize=20", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -228,7 +240,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-01T00:00:00Z"));
 
         JsonNode first = objectMapper.readTree(restTemplate
-                .getForEntity("/api/v1/BjjEvent?page=1&pageSize=20", String.class)
+                .getForEntity(ApiRoutes.BJJ_EVENT + "?page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(first.at("/pagination/totalItems").asInt()).isEqualTo(1);
 
@@ -244,19 +256,19 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-08-01T12:00:00Z",
                 "2026-01-02T00:00:00Z"));
         JsonNode second = objectMapper.readTree(restTemplate
-                .getForEntity("/api/v1/BjjEvent?page=1&pageSize=20", String.class)
+                .getForEntity(ApiRoutes.BJJ_EVENT + "?page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(second.at("/pagination/totalItems").asInt()).isEqualTo(1);
 
         // An API write invalidates the tag, so the next read sees everything.
         ResponseEntity<String> created = restTemplate.postForEntity(
-                "/api/v1/BjjEvent",
+                ApiRoutes.BJJ_EVENT,
                 jsonEntity(eventCommandJson("202605310000000000000073", "api-created-event")),
                 String.class);
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         JsonNode third = objectMapper.readTree(restTemplate
-                .getForEntity("/api/v1/BjjEvent?page=1&pageSize=20", String.class)
+                .getForEntity(ApiRoutes.BJJ_EVENT + "?page=1&pageSize=20", String.class)
                 .getBody());
         assertThat(third.at("/pagination/totalItems").asInt()).isEqualTo(3);
     }
@@ -294,8 +306,8 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-08-01T12:00:00Z",
                 "2026-01-03T00:00:00Z"));
 
-        ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/BjjEvent?includeInactive=true&page=1&pageSize=20", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                ApiRoutes.BJJ_EVENT + "?includeInactive=true&page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -317,7 +329,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-01T00:00:00Z"));
 
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/BjjEvent/202605310000000000000021", String.class);
+                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "/202605310000000000000021", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -336,7 +348,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     @Test
     void shouldPersistEventWithAuditFieldsAndExpiryWhenCreatingThroughAuthenticatedApi() throws Exception {
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/v1/BjjEvent",
+                ApiRoutes.BJJ_EVENT,
                 jsonEntity(eventCommandJson("202605310000000000000061", "Created Open Mat")),
                 String.class);
 
@@ -356,7 +368,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     @Test
     void shouldRejectCreateWithoutPersistingWhenIdIsMissing() {
         ResponseEntity<String> response = restTemplate.postForEntity(
-                "/api/v1/BjjEvent", jsonEntity(eventCommandJson(null, "Created Open Mat")), String.class);
+                ApiRoutes.BJJ_EVENT, jsonEntity(eventCommandJson(null, "Created Open Mat")), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(bjjEventRepository.count()).isZero();
@@ -376,7 +388,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-01T00:00:00Z"));
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/BjjEvent/" + savedEvent.getId(),
+                ApiRoutes.BJJ_EVENT + "/" + savedEvent.getId(),
                 HttpMethod.PUT,
                 jsonEntity(eventCommandJson(savedEvent.getId(), "Updated Event")),
                 String.class);
@@ -408,7 +420,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 "2026-01-01T00:00:00Z"));
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "/api/v1/BjjEvent/" + savedEvent.getId(), HttpMethod.DELETE, jsonEntity(null), String.class);
+                ApiRoutes.BJJ_EVENT + "/" + savedEvent.getId(), HttpMethod.DELETE, jsonEntity(null), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(bjjEventRepository.findById(savedEvent.getId())).isEmpty();

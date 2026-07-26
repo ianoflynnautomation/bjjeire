@@ -2,6 +2,7 @@ package com.bjjeire.api.competition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
     @Test
     void shouldExcludeExpiredAndInactiveCompetitionsWhenListingByDefault() throws Exception {
         ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/Competition?page=1&pageSize=20", String.class);
+                restTemplate.getForEntity(ApiRoutes.COMPETITION + "?page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
@@ -43,8 +44,8 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
 
     @Test
     void shouldIncludeExpiredAndInactiveCompetitionsWhenRequested() throws Exception {
-        ResponseEntity<String> response =
-                restTemplate.getForEntity("/api/v1/Competition?includeInactive=true&page=1&pageSize=20", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                ApiRoutes.COMPETITION + "?includeInactive=true&page=1&pageSize=20", String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
 
