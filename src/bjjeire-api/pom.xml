@@ -164,8 +164,6 @@
                             <version>${error-prone.version}</version>
                         </path>
                     </annotationProcessorPaths>
-                    <!-- Error Prone needs jdk.compiler internals; forking with -J flags keeps the requirement in the
-                         pom so the build works identically everywhere (local, CI, Docker) without .mvn/jvm.config. -->
                     <fork>true</fork>
                     <compilerArgs>
                         <arg>-XDcompilePolicy=simple</arg>
