@@ -75,7 +75,6 @@ public final class BjjEventCostCalculator {
             return sessions.size();
         }
 
-        // Untagged sessions belong to every event type, so they always count.
         return (int) sessions.stream()
                 .filter(session -> session.types() == null
                         || session.types().isEmpty()
