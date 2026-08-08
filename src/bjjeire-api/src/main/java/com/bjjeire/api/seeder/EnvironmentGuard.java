@@ -17,9 +17,6 @@ public final class EnvironmentGuard {
         return false;
     }
 
-    // Fail-closed: when no environment is configured we assume Production and refuse to seed.
-    // BJJ_ENVIRONMENT is the Java-native variable; ASPNETCORE_ENVIRONMENT / DOTNET_ENVIRONMENT
-    // are honoured so shared compose files keep working during the migration.
     private static String resolveEnvironment() {
         String environment = firstNonBlank(
                 System.getenv("BJJ_ENVIRONMENT"),
