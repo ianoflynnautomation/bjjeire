@@ -15,9 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.stereotype.Component;
 
-/**
- * Single source of truth for Mongo indexes.
- */
+/** Single source of truth for Mongo indexes. */
 @Component
 @Slf4j
 @RequiredArgsConstructor
