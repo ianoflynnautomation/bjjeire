@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.23](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.22...frontend-v0.1.23) (2026-08-08)
+
+
+### ### Bug Fixes
+
+* publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
+
 ## [0.1.22](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.21...frontend-v0.1.22) (2026-07-26)
 
 
