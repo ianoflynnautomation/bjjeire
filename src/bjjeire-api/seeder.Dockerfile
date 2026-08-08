@@ -1,6 +1,7 @@
 FROM maven:3-eclipse-temurin-25 AS build
 WORKDIR /workspace
 COPY src/bjjeire-api/pom.xml .
+COPY src/bjjeire-api/config ./config
 COPY src/bjjeire-api/src ./src
 RUN mvn -q -DskipTests package
 
