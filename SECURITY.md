@@ -73,4 +73,3 @@ This section provides advice to users on how to configure or deploy the project 
 
 This section provides transparency on current security limitations and planned improvements. This helps users make informed decisions and avoids duplicate reports for known issues.
 
-
