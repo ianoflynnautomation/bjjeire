@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.31](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.30...frontend-v0.1.31) (2026-08-09)
+
+
+### Bug Fixes
+
+* frontend vars hardening ([da5ef38](https://github.com/ianoflynnautomation/bjjeire/commit/da5ef387036715a16c94b4914093c35ad29120f6))
+* frontend vars hardening ([7291c4a](https://github.com/ianoflynnautomation/bjjeire/commit/7291c4aeb7cf7652f9cf0be79deaca66d2f689ca))
+* ui format ([bff21d1](https://github.com/ianoflynnautomation/bjjeire/commit/bff21d1571c772d5bdb9a837c13f7495d3c59f77))
+
 ## [0.1.30](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.29...frontend-v0.1.30) (2026-08-09)
 
 
