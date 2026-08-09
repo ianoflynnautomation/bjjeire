@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.30](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.29...frontend-v0.1.30) (2026-08-09)
+
+
+### Features
+
+* add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
+* add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
+* clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
+* init commit ([9bc7d86](https://github.com/ianoflynnautomation/bjjeire/commit/9bc7d86fa58f92848dfd259eb06b3469c78881fd))
+* remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
+* update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
+
+
+### Bug Fixes
+
+* card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
+* format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
+* format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
+* openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
+* publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
+* release please drift api and ui ([424a573](https://github.com/ianoflynnautomation/bjjeire/commit/424a5738f4b4e18029d9fd0be51ac02486d73a05))
+* release please drift api and ui ([6b43e98](https://github.com/ianoflynnautomation/bjjeire/commit/6b43e98a111df259f089cc13808e5a3195681265))
+
 ## [0.1.29](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.27...frontend-v0.1.29) (2026-08-08)
 
 > **Note:** Reconciliation entry. The release-please version counter was rolled back at some point (git tags only reach `frontend-v0.1.23`, and this file carries duplicate/out-of-order `0.1.21`–`0.1.27` runs). Meanwhile a `v0.1.29` frontend image from the earlier release lineage still sits in GHCR and is what the Flux image policy (`>=0.1.0 <1.0.0`, highest-tag-wins) keeps selecting — so releases at `0.1.23` or below can never reach the cluster. The manifest is re-anchored to `0.1.29` so the next release cuts `0.1.30`, produces a fresh image that finally outranks the stale one, and numbering stays monotonic from here. The bullets below carry the real commits from the current build.

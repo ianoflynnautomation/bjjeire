@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.17](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.16...api-v0.1.17) (2026-08-09)
+
+
+### Bug Fixes
+
+* release please drift api and ui ([424a573](https://github.com/ianoflynnautomation/bjjeire/commit/424a5738f4b4e18029d9fd0be51ac02486d73a05))
+* release please drift api and ui ([6b43e98](https://github.com/ianoflynnautomation/bjjeire/commit/6b43e98a111df259f089cc13808e5a3195681265))
+
 ## [0.1.16](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.15...api-v0.1.16) (2026-08-08)
 
 
