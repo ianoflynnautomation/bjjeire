@@ -13,7 +13,7 @@ const EnvSchema = z.object({
   PAGE_SIZE: z.coerce.number().int().positive().optional().default(20),
   PAGE_NUMBER: z.coerce.number().int().positive().optional().default(1),
   MSAL_CLIENT_ID: z.string().default(''),
-  MSAL_TENANT_ID: z.union([z.string().uuid(), z.literal('')]).default(''),
+  MSAL_AUTHORITY: z.union([z.string().url(), z.literal('')]).default(''),
   MSAL_API_SCOPE: z.string().default(''),
   CONTACT_EMAIL: z.string().email().optional().default('info@bjj-eire.com'),
   SOCIAL_INSTAGRAM_URL: z
@@ -39,9 +39,9 @@ const createEnv = (): Env => {
 
   for (const key in viteEnv) {
     if (key.startsWith('VITE_APP_')) {
-      relevantEnvVars[key.replace('VITE_APP_', '')] = viteEnv[key] as
-        | string
-        | undefined
+      const rawValue = viteEnv[key] as string | undefined
+      relevantEnvVars[key.replace('VITE_APP_', '')] =
+        rawValue === '' ? undefined : rawValue
     }
   }
 

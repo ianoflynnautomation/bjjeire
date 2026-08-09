@@ -81,6 +81,7 @@ const Footer = function Footer({
 
         <div className="mt-8 border-t border-hairline pt-8 text-center">
           <p
+
             className="text-sm text-fg-muted"
             data-testid={FooterTestIds.COPYRIGHT}
           >
