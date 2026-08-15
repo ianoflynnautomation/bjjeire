@@ -191,7 +191,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post PR env link
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@feat/extract-reusable-ci
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@v1.1.0
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}

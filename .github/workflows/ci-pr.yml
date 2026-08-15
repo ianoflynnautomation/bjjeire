@@ -38,7 +38,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@feat/extract-reusable-ci
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.1.0
         with:
           filters: |
             frontend:
@@ -56,7 +56,7 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@v1.1.0
     with:
       dependency-review-fail-on-severity: high
       dependency-review-comment-summary: on-failure
@@ -98,7 +98,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@feat/extract-reusable-ci
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.1.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -143,7 +143,7 @@ jobs:
     if: needs.openapi_contract.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
     with:
       job-name: Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -164,7 +164,7 @@ jobs:
     if: contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
     with:
       job-name: Build Frontend
       working-directory: src/bjjeire-app
@@ -182,7 +182,7 @@ jobs:
     if: contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
     with:
       job-name: Frontend Checks
       working-directory: src/bjjeire-app
@@ -208,7 +208,7 @@ jobs:
     if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
     with:
       job-name: Integration Tests + Coverage
       working-directory: src/bjjeire-app
@@ -230,7 +230,7 @@ jobs:
     if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
     with:
       job-name: Vitest Browser Suite
       working-directory: src/bjjeire-app
@@ -265,7 +265,7 @@ jobs:
       - test_frontend_browser
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@feat/extract-reusable-ci
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.1.0
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: PR checks
