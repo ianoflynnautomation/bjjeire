@@ -141,7 +141,6 @@ jobs:
       app_env: staging
       base_url: ${{ needs.deploy-env.outputs.base_url }}
       api_base_url: ${{ needs.deploy-env.outputs.api_base_url }}
-      # API shards skip the Cloudflare edge via in-cluster Service DNS.
       internal_api_url: ${{ needs.deploy-env.outputs.internal_api_url }}
       test_repo: ianoflynnautomation/bjjeire-tests
       test_tags: "@smoke|@acceptance"
@@ -157,45 +156,47 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+      - name: Compose PR env comment
+        id: comment_body
+        shell: bash
         env:
           BASE_URL: ${{ needs.deploy-env.outputs.base_url }}
           API_URL: ${{ needs.deploy-env.outputs.api_base_url }}
           DEPLOY_RESULT: ${{ needs.deploy-env.result }}
           TEST_RESULT: ${{ needs.acceptance.result }}
+        run: |
+          set -euo pipefail
+          DEPLOY="${DEPLOY_RESULT:-unknown}"
+          TESTS="${TEST_RESULT:-unknown}"
+          if [ "$DEPLOY" = "success" ] && [ "$TESTS" = "success" ]; then
+            STATUS=PASS
+          else
+            STATUS=FAIL
+          fi
+          DELIM="body_$(date +%s%N)"
+          {
+            echo "body<<${DELIM}"
+            echo "## PR env: ${STATUS}"
+            echo ""
+            echo "| Stage | Result |"
+            echo "|---|---|"
+            echo "| Deploy | \`${DEPLOY}\` |"
+            echo "| Acceptance | \`${TESTS}\` |"
+            echo ""
+            echo "Frontend: ${BASE_URL:-(not deployed)}"
+            echo "API: ${API_URL:-(not deployed)}"
+            echo ""
+            echo "_Environment is reaped automatically when this PR closes (or after 2h)._"
+            echo "${DELIM}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Post PR env link
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@feat/extract-reusable-ci
         with:
-          script: |
-            const marker = '<!-- pr-env-validation -->';
-            const deploy = process.env.DEPLOY_RESULT || 'unknown';
-            const tests = process.env.TEST_RESULT || 'unknown';
-            const baseUrl = process.env.BASE_URL || '(not deployed)';
-            const apiUrl = process.env.API_URL || '(not deployed)';
-            const status = (deploy === 'success' && tests === 'success') ? 'PASS' : 'FAIL';
-
-            const body = [
-              marker,
-              `## PR env: ${status}`,
-              '',
-              '| Stage | Result |',
-              '|---|---|',
-              `| Deploy | \`${deploy}\` |`,
-              `| Acceptance | \`${tests}\` |`,
-              '',
-              `Frontend: ${baseUrl}`,
-              `API: ${apiUrl}`,
-              '',
-              '_Environment is reaped automatically when this PR closes (or after 2h)._',
-            ].join('\n');
-
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-            }
+          marker: "<!-- pr-env-validation -->"
+          body: ${{ steps.comment_body.outputs.body }}
+          issue-number: ${{ github.event.pull_request.number }}
+          summary-title: PR environment
 
   destroy-env:
     if: vars.PR_ENV_ENABLED == 'true' && github.event.action == 'closed'

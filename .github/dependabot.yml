@@ -60,10 +60,11 @@ updates:
           - "@testing-library/*"
           - "@vitest/*"
 
+  # Composite actions now live in bjjeire-ci-templates, which runs its own
+  # Dependabot over them — only this repo's workflows need scanning here.
   - package-ecosystem: github-actions
     directories:
       - /
-      - /.github/actions/*
     schedule:
       interval: weekly
       day: wednesday

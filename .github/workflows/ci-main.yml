@@ -14,9 +14,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  REACT_APP_PATH: "src/bjjeire-app"
-
 permissions:
   contents: read
 
@@ -26,19 +23,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      frontend: ${{ steps.changes.outputs.frontend }}
-      java-api: ${{ steps.changes.outputs.java_api }}
+      changes: ${{ steps.changes.outputs.changes }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - id: changes
-        uses: ./.github/actions/detect-changes
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@feat/extract-reusable-ci
+        with:
+          filters: |
+            frontend:
+              - 'src/bjjeire-app/**'
+            java_api:
+              - 'src/bjjeire-api/**'
+            java_api_image:
+              - 'src/bjjeire-api/src/main/**'
+              - 'src/bjjeire-api/pom.xml'
+              - 'src/bjjeire-api/Dockerfile'
 
   smoke_tests:
     name: Acceptance Tests (Docker Compose)
     needs: detect-changes
-    if: needs.detect-changes.outputs.java-api == 'true' || needs.detect-changes.outputs.frontend == 'true'
+    if: |
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: write
       actions: read
@@ -85,7 +93,7 @@ jobs:
   java_build_test:
     name: Java Build & Test
     needs: detect-changes
-    if: needs.detect-changes.outputs.java-api == 'true'
+    if: contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api')
     permissions:
       contents: read
       checks: write
@@ -101,7 +109,9 @@ jobs:
     name: Generate OpenAPI Contract
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.java-api == 'true' || needs.detect-changes.outputs.frontend == 'true'
+    if: |
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -115,8 +125,10 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate OpenAPI contract (springdoc)
-        uses: ./.github/actions/generate-openapi-contract
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@feat/extract-reusable-ci
         with:
+          working-directory: src/bjjeire-api
+          it-test: OpenApiContractIT
           output-path: ${{ github.workspace }}/artifacts/contracts/openapi-v1.json
       - name: Upload OpenAPI contract
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -128,43 +140,28 @@ jobs:
 
   generate_pact_contract:
     name: Generate Pact Contract
-    runs-on: ubuntu-latest
-    container:
-      image: node:26-bookworm-slim
     needs: detect-changes
-    if: needs.detect-changes.outputs.java-api == 'true' || needs.detect-changes.outputs.frontend == 'true'
-    timeout-minutes: 15
-    env:
-      HUSKY: "0"
-    defaults:
-      run:
-        working-directory: ${{ env.REACT_APP_PATH }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: ianoflynnautomation/bjjeire-ci-templates/actions/setup-node-cached@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
-        with:
-          working-directory: ${{ env.REACT_APP_PATH }}
-          install: 'true'
-      - name: Generate frontend Pact contract
-        shell: bash
-        run: |
-          echo "::group::npm run test:pact"
-          npm run test:pact
-          echo "::endgroup::"
-          if ! test -s pacts/BjjEireWeb-BjjEireApi.json; then
-            echo "::error title=Pact contract::pacts/BjjEireWeb-BjjEireApi.json was not generated"
-            exit 1
-          fi
-          echo "::notice title=Pact contract::Generated $(wc -c < pacts/BjjEireWeb-BjjEireApi.json) bytes"
-      - name: Upload Pact contract
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: main-pact-contract
-          path: ${{ env.REACT_APP_PATH }}/pacts/BjjEireWeb-BjjEireApi.json
-          if-no-files-found: error
-          retention-days: 30
+    if: |
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@feat/extract-reusable-ci
+    with:
+      job-name: Generate Pact Contract
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
+      commands: |
+        npm run test:pact
+        test -s pacts/BjjEireWeb-BjjEireApi.json || { echo "::error title=Pact contract::pacts/BjjEireWeb-BjjEireApi.json was not generated"; exit 1; }
+      artifact-name: main-pact-contract
+      artifact-path: src/bjjeire-app/pacts/BjjEireWeb-BjjEireApi.json
+      artifact-if-no-files-found: error
+      artifact-retention-days: 30
 
   publish_contracts_ghcr:
     name: Publish Contracts to GHCR
@@ -193,20 +190,6 @@ jobs:
           jq -e '.openapi and .paths' "$OPENAPI_ARTIFACT_PATH" > /dev/null
           jq -e '.consumer and .interactions' "$PACT_ARTIFACT_PATH" > /dev/null
           echo "::notice title=Contract validation::Both contract artifacts are structurally valid"
-      - name: Compute GHCR contract package names
-        id: ghcr_names
-        shell: bash
-        env:
-          REPO_OWNER: ${{ github.repository_owner }}
-        run: |
-          owner="${REPO_OWNER,,}"
-          openapi="ghcr.io/${owner}/bjjeire-openapi-contract"
-          pact="ghcr.io/${owner}/bjjeire-web-pacts"
-          {
-            echo "OPENAPI_IMAGE=${openapi}"
-            echo "PACT_IMAGE=${pact}"
-          } >> "$GITHUB_ENV"
-          echo "::notice title=GHCR targets::openapi=${openapi} pact=${pact}"
       - name: Gate — block publish on breaking changes
         uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
         with:
@@ -214,56 +197,32 @@ jobs:
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
           token: ${{ github.token }}
           user: ${{ github.actor }}
-      - name: Login to GHCR with ORAS
-        shell: bash
-        env:
-          GHCR_TOKEN: ${{ github.token }}
-          GHCR_USER: ${{ github.actor }}
-        run: |
-          echo "::add-mask::${GHCR_TOKEN}"
-          echo "::group::oras login ghcr.io"
-          printf '%s' "$GHCR_TOKEN" | oras login ghcr.io -u "$GHCR_USER" --password-stdin
-          echo "::endgroup::"
       - name: Publish OpenAPI contract to GHCR
-        id: push_openapi
-        shell: bash
-        run: |
-          echo "::group::oras push (openapi)"
-          openapi_dir="$(dirname "$OPENAPI_ARTIFACT_PATH")"
-          openapi_file="$(basename "$OPENAPI_ARTIFACT_PATH")"
-          cd "$openapi_dir"
-          oras push "${OPENAPI_IMAGE}:${GITHUB_SHA}" \
-            --artifact-type application/vnd.bjjeire.openapi.v1 \
-            "${openapi_file}:application/vnd.oai.openapi+json"
-          oras tag "${OPENAPI_IMAGE}:${GITHUB_SHA}" main latest
-          echo "::endgroup::"
-          echo "::notice title=OpenAPI published::${OPENAPI_IMAGE} tags=sha,main,latest"
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@feat/extract-reusable-ci
+        with:
+          file: ${{ env.OPENAPI_ARTIFACT_PATH }}
+          image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
+          artifact-type: application/vnd.bjjeire.openapi.v1
+          media-type: application/vnd.oai.openapi+json
+          tags: |
+            ${{ github.sha }}
+            main
+            latest
+          password: ${{ github.token }}
+          summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        id: push_pact
-        shell: bash
-        run: |
-          echo "::group::oras push (pact)"
-          pact_dir="$(dirname "$PACT_ARTIFACT_PATH")"
-          pact_file="$(basename "$PACT_ARTIFACT_PATH")"
-          cd "$pact_dir"
-          oras push "${PACT_IMAGE}:${GITHUB_SHA}" \
-            --artifact-type application/vnd.pact.consumer-contract \
-            "${pact_file}:application/vnd.pact.consumer-contract+json"
-          oras tag "${PACT_IMAGE}:${GITHUB_SHA}" main latest
-          echo "::endgroup::"
-          echo "::notice title=Pact published::${PACT_IMAGE} tags=sha,main,latest"
-      - name: Write contracts summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "### Published contracts"
-            echo ""
-            echo "| Contract | Image | Tags |"
-            echo "| --- | --- | --- |"
-            echo "| OpenAPI | \`${OPENAPI_IMAGE}\` | \`${GITHUB_SHA}\`, \`main\`, \`latest\` |"
-            echo "| Pact (web → api) | \`${PACT_IMAGE}\` | \`${GITHUB_SHA}\`, \`main\`, \`latest\` |"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@feat/extract-reusable-ci
+        with:
+          file: ${{ env.PACT_ARTIFACT_PATH }}
+          image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
+          artifact-type: application/vnd.pact.consumer-contract
+          media-type: application/vnd.pact.consumer-contract+json
+          tags: |
+            ${{ github.sha }}
+            main
+            latest
+          password: ${{ github.token }}
+          summary-title: Published Pact contract
 
   build_push:
     name: Build & Push Images
@@ -299,7 +258,7 @@ jobs:
   #   if: |
   #     needs.smoke_tests.result == 'success' &&
   #     needs.build_push.result == 'success' &&
-  #     (needs.detect-changes.outputs.java-api == 'true' || needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/'))
+  #     (contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') || contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend') || startsWith(github.ref, 'refs/tags/'))
   #   uses: ianoflynnautomation/bjjeire-tests/.github/workflows/acceptance.yml@main
   #   with:
   #     env_id: staging-${{ github.sha }}
@@ -328,13 +287,8 @@ jobs:
       - build_push
       # - acceptance_tests
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-          sparse-checkout: .github/actions/check-required-jobs
       - name: Verify all required main-branch jobs succeeded or were intentionally skipped
-        uses: ./.github/actions/check-required-jobs
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@feat/extract-reusable-ci
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: Main delivery
-

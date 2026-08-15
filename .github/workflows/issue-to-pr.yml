@@ -110,49 +110,37 @@ jobs:
             ${{ steps.kind.outputs.type_label }}
             community-submission
 
-      - name: Comment back on issue (idempotent, success or failure)
+      - name: Compose issue comment
+        id: comment_body
         if: always() && steps.kind.outputs.kind != ''
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        shell: bash
         env:
           PR_URL: ${{ steps.cpr.outputs.pull-request-url }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          DELIM="body_$(date +%s%N)"
+          {
+            echo "body<<${DELIM}"
+            if [ -n "$PR_URL" ]; then
+              echo "Thanks! A draft pull request has been opened: ${PR_URL}"
+              echo ""
+              echo "A maintainer will review and merge once CI passes."
+            else
+              echo "I couldn't turn this into a pull request automatically."
+              echo ""
+              echo "The most common causes are a **required field left blank** or **coordinates that don't look like an Ireland location**. Please edit the issue to fix it, then a maintainer will re-apply the approval label."
+              echo ""
+              echo "[View the run log](${RUN_URL}) for the exact error."
+            fi
+            echo "${DELIM}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Comment back on issue (idempotent, success or failure)
+        if: always() && steps.kind.outputs.kind != ''
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@feat/extract-reusable-ci
         with:
-          script: |
-            const marker = "<!-- bjjeire-bot:issue-to-pr -->";
-            const pr = process.env.PR_URL;
-            const run = process.env.RUN_URL;
-            const body = pr
-              ? `${marker}\n✅ Thanks! A draft pull request has been opened: ${pr}\n\nA maintainer will review and merge once CI passes.`
-              : `${marker}\n⚠️ I couldn't turn this into a pull request automatically.\n\n`
-                + `The most common causes are a **required field left blank** or **coordinates that don't look like an Ireland location**. `
-                + `Please edit the issue to fix it, then a maintainer will re-apply the approval label.\n\n`
-                + `[View the run log](${run}) for the exact error.`;
-
-            const existing = await github.paginate(github.rest.issues.listComments, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              per_page: 100,
-            });
-            const sticky = existing.find((c) => c.body && c.body.includes(marker));
-
-            if (sticky) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: sticky.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              });
-            }
-
-            await core.summary
-              .addHeading("Issue → PR", 3)
-              .addRaw(pr ? `Issue #${context.issue.number} → PR ${pr}` : `Issue #${context.issue.number} → generation failed`)
-              .write();
+          marker: "<!-- bjjeire-bot:issue-to-pr -->"
+          body: ${{ steps.comment_body.outputs.body }}
+          issue-number: ${{ github.event.issue.number }}
+          summary-title: Issue → PR

@@ -7,9 +7,15 @@ on:
       - ".github/labels.yml"
       - ".github/workflows/labels.yml"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print what would be upserted without calling the API"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  issues: write
+  contents: read
 
 concurrency:
   group: sync-labels
@@ -18,27 +24,10 @@ concurrency:
 jobs:
   sync:
     name: Upsert labels from labels.yml
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Sync labels
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          count="$(yq 'length' .github/labels.yml)"
-          echo "::notice title=Labels::syncing ${count} labels"
-          for i in $(seq 0 $((count - 1))); do
-            name="$(yq -r ".[$i].name" .github/labels.yml)"
-            color="$(yq -r ".[$i].color" .github/labels.yml)"
-            desc="$(yq -r ".[$i].description // \"\"" .github/labels.yml)"
-            echo "::group::${name}"
-            gh label create "$name" --color "$color" --description "$desc" --force
-            echo "::endgroup::"
-          done
-          echo "All labels synced." >> "$GITHUB_STEP_SUMMARY"
+    permissions:
+      contents: read
+      issues: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@feat/extract-reusable-ci
+    with:
+      labels-file: .github/labels.yml
+      dry-run: ${{ inputs.dry_run || false }}
