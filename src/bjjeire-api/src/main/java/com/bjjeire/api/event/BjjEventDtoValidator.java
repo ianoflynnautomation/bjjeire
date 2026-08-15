@@ -45,7 +45,9 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
         context.disableDefaultConstraintViolation();
         Violations violations = new Violations(context);
 
-        if (dto.id() == null || !OBJECT_ID.matcher(dto.id()).matches()) {
+        if (dto.id() != null
+                && !dto.id().isBlank()
+                && !OBJECT_ID.matcher(dto.id()).matches()) {
             violations.add("id", "The provided ID is not in a valid format.", CODE_PREDICATE);
         }
 

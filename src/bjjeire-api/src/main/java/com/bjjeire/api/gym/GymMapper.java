@@ -46,6 +46,10 @@ public final class GymMapper {
         gym.setImageUrl(dto.imageUrl());
     }
 
+    /**
+     * CDN convention: large assets end in {@code -lg.}; thumbs use {@code -thumb.}. When the marker is absent the
+     * original URL is returned unchanged.
+     */
     private static String thumbnailUrl(String imageUrl) {
         return imageUrl == null ? null : imageUrl.replace("-lg.", "-thumb.");
     }

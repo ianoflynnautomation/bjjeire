@@ -78,6 +78,18 @@ class BjjEventServiceTest {
     }
 
     @Test
+    void shouldAssignObjectIdWhenCreatingEventWithoutClientId() {
+        givenAuditContext();
+        givenSaveReturnsItsArgument();
+
+        CreateBjjEventResponse response = service.create(new CreateBjjEventCommand(dto(null)));
+
+        BjjEvent saved = capturedSave();
+        assertThat(saved.getId()).isNotBlank().matches("^[0-9a-fA-F]{24}$");
+        assertThat(response.data().id()).isEqualTo(saved.getId());
+    }
+
+    @Test
     void shouldApplyChangesAndAuditFieldsWhenUpdatingExistingEvent() {
         givenAuditContext();
         givenSaveReturnsItsArgument();

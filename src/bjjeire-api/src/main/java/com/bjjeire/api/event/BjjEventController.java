@@ -33,7 +33,12 @@ public class BjjEventController {
     private final BjjEventService bjjEventService;
 
     @GetMapping
-    @Operation(summary = "List BJJ events")
+    @Operation(summary = "List BJJ events", description = """
+                    Excludes events with status Completed always.
+                    When includeInactive is false (default), also requires isActive=true and a non-expired \
+                    schedule.endDate (null endDate is treated as non-expired).
+                    Canceled, Postponed, and other non-Completed statuses still appear when active and not expired.
+                    """)
     public ResponseEntity<PagedResponse<BjjEventDto>> getAll(
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize,

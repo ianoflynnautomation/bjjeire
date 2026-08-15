@@ -13,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Compatibility aliases for health/metrics used by compose healthchecks and Prometheus. {@code /metrics} is
+ * intentionally unauthenticated — restrict network access at the edge.
+ */
 @RestController
 @RequiredArgsConstructor
 public class OperationalEndpointController {

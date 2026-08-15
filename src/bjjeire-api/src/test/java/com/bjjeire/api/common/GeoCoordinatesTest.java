@@ -24,6 +24,15 @@ class GeoCoordinatesTest {
     }
 
     @Test
+    void shouldNotInventZeroCoordinatesWhenCoordinatesAreNull() {
+        GeoCoordinates coordinates = new GeoCoordinates("Point", null, "Unknown", null);
+
+        assertThat(coordinates.coordinates()).isNull();
+        assertThat(coordinates.latitude()).isZero();
+        assertThat(coordinates.longitude()).isZero();
+    }
+
+    @Test
     void shouldDeserializeIgnoringDerivedLatitudeAndLongitude() throws Exception {
         String payload = """
                 {

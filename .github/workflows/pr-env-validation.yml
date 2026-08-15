@@ -78,7 +78,7 @@ jobs:
       - name: Build & push API
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
         with:
-          context: .
+          context: ./src/bjjeire-api
           file: ./src/bjjeire-api/Dockerfile
           push: true
           tags: ${{ env.API_IMAGE }}:${{ env.IMAGE_TAG }}

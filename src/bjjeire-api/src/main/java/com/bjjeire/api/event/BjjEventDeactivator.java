@@ -23,7 +23,7 @@ public class BjjEventDeactivator implements Deactivator {
 
     @Override
     public String entityName() {
-        return "BjjEvent";
+        return BjjEvent.ENTITY_NAME;
     }
 
     @Override

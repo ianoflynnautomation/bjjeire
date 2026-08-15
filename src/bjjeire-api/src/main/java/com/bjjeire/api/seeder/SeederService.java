@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.FindAndReplaceOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.util.Pair;
 
 public class SeederService {
     public record SeedResult(int exitCode, List<String> ids) {}
@@ -84,17 +84,14 @@ public class SeederService {
     private SeedResult bulkUpsert(SeederCollection collection, List<Object> entities, List<String> ids) {
         // Seeder writes bypass the service layer, so the TTL stamp is applied here,
         // matching the expiry-stamping behaviour of the API's write path.
+        BulkOperations bulk = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, collection.type());
         for (Object entity : entities) {
             collection.stampExpiry().accept(entity);
-        }
-
-        BulkOperations bulk = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, collection.type());
-        for (Pair<String, Object> entry : zip(ids, entities)) {
+            String id = collection.idOf().apply(entity);
             bulk.replaceOne(
-                    new Query(Criteria.where("_id").is(entry.getFirst())),
-                    entry.getSecond(),
-                    org.springframework.data.mongodb.core.FindAndReplaceOptions.options()
-                            .upsert());
+                    Query.query(Criteria.where("_id").is(id)),
+                    entity,
+                    FindAndReplaceOptions.options().upsert());
         }
 
         try {
@@ -106,11 +103,5 @@ public class SeederService {
             System.err.println("  FAILED: " + exception.getMessage());
             return new SeedResult(ExitCodes.FAILURE, ids);
         }
-    }
-
-    private static List<Pair<String, Object>> zip(List<String> ids, List<Object> entities) {
-        return java.util.stream.IntStream.range(0, ids.size())
-                .mapToObj(i -> Pair.of(ids.get(i), entities.get(i)))
-                .toList();
     }
 }

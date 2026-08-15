@@ -49,9 +49,9 @@ class BjjEventDtoValidatorTest {
     }
 
     @Test
-    void nullIdIsRejected() {
+    void nullIdIsAllowedForServerGeneratedCreates() {
         assertThat(validator.validate(withId(null)))
-                .anyMatch(v -> v.getPropertyPath().toString().equals("id"));
+                .noneMatch(v -> v.getPropertyPath().toString().equals("id"));
     }
 
     @Test

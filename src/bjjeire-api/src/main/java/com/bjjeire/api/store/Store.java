@@ -15,8 +15,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("Store")
+@Document(Store.ENTITY_NAME)
 public class Store {
+    public static final String ENTITY_NAME = "Store";
+
     @Id
     private String id;
 

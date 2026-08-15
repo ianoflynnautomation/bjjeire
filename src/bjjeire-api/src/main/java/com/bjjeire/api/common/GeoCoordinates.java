@@ -10,18 +10,15 @@ public record GeoCoordinates(String type, List<Double> coordinates, String place
         if (type == null || type.isBlank()) {
             type = "Point";
         }
-        if (coordinates == null) {
-            coordinates = List.of(0.0, 0.0);
-        }
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public double latitude() {
-        return coordinates.size() > 1 ? coordinates.get(1) : 0.0;
+        return coordinates != null && coordinates.size() > 1 ? coordinates.get(1) : 0.0;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public double longitude() {
-        return coordinates.isEmpty() ? 0.0 : coordinates.get(0);
+        return coordinates != null && !coordinates.isEmpty() ? coordinates.get(0) : 0.0;
     }
 }
