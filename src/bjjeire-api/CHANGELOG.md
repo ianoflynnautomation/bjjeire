@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.18](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.17...api-v0.1.18) (2026-08-15)
+
+
+### Bug Fixes
+
+* failing test ([a2ccd04](https://github.com/ianoflynnautomation/bjjeire/commit/a2ccd04cc10b8d88ba0597a295a23ac33426ae05))
+
 ## [0.1.17](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.16...api-v0.1.17) (2026-08-09)
 
 
