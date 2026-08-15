@@ -1,0 +1,9 @@
+# The API image builds with this directory as its context, so the repo-root
+# .dockerignore does not apply. Keep local build output out of the context.
+
+target/
+*.log
+
+CHANGELOG.md
+RELEASE_TRIGGER.md
+.DS_Store

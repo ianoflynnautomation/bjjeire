@@ -23,7 +23,7 @@ public class CompetitionDeactivator implements Deactivator {
 
     @Override
     public String entityName() {
-        return "Competition";
+        return Competition.ENTITY_NAME;
     }
 
     @Override

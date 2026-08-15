@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -74,6 +75,9 @@ public class BjjEventService {
 
     public CreateBjjEventResponse create(CreateBjjEventCommand command) {
         BjjEvent event = BjjEventMapper.toEntity(command.data());
+        if (event.getId() == null || event.getId().isBlank()) {
+            event.setId(new ObjectId().toHexString());
+        }
         event.setCreatedOnUtc(auditInfoProvider.currentInstant());
         event.setCreatedBy(auditInfoProvider.currentUser());
         event.stampExpiry();
@@ -106,9 +110,8 @@ public class BjjEventService {
         }
 
         mongoTemplate.remove(event);
-        auditRecorder.record(AuditAction.Delete, "BjjEvent", id, 1);
-        // Hard invalidate only — no write-through after delete.
-        cache.remove(ApiCache.BJJ_EVENTS_TAG, byIdCacheKey(id));
+        auditRecorder.record(AuditAction.Delete, BjjEvent.ENTITY_NAME, id, 1);
+        // Hard invalidate only — no write-through after delete. removeByTag covers the by-id key.
         cache.removeByTag(ApiCache.BJJ_EVENTS_TAG);
         return true;
     }

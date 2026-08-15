@@ -366,9 +366,28 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldRejectCreateWithoutPersistingWhenIdIsMissing() {
+    void shouldPersistWithServerGeneratedIdWhenIdIsMissing() throws Exception {
         ResponseEntity<String> response = restTemplate.postForEntity(
                 ApiRoutes.BJJ_EVENT, jsonEntity(eventCommandJson(null, "Created Open Mat")), String.class);
+
+        JsonNode body = objectMapper.readTree(response.getBody());
+        String generatedId = body.at("/data/id").asString();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(generatedId).matches("^[0-9a-fA-F]{24}$");
+
+        BjjEvent savedEvent = bjjEventRepository.findById(generatedId).orElseThrow();
+        assertThat(savedEvent.getName()).isEqualTo("Created Open Mat");
+        assertThat(savedEvent.getCreatedBy()).isEqualTo(AUTHENTICATED_USER);
+        assertThat(savedEvent.getCreatedOnUtc()).isNotNull();
+    }
+
+    @Test
+    void shouldRejectCreateWithoutPersistingWhenIdIsMalformed() {
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                ApiRoutes.BJJ_EVENT,
+                jsonEntity(eventCommandJson("not-an-object-id", "Created Open Mat")),
+                String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(bjjEventRepository.count()).isZero();

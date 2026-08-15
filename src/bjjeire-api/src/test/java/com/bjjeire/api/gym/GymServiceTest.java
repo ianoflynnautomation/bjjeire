@@ -2,6 +2,7 @@ package com.bjjeire.api.gym;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -31,9 +32,6 @@ class GymServiceTest {
     private static final String AUDIT_USER = "audit-user";
 
     @Mock
-    private GymRepository gymRepository;
-
-    @Mock
     private MongoTemplate mongoTemplate;
 
     @Mock
@@ -51,20 +49,39 @@ class GymServiceTest {
     @BeforeEach
     void setUp() {
         cache = new ApiCache();
-        service = new GymService(gymRepository, mongoTemplate, auditInfoProvider, auditRecorder, cache, uriService);
+        service = new GymService(mongoTemplate, auditInfoProvider, auditRecorder, cache, uriService);
     }
 
     @Test
     void shouldStampAuditFieldsWhenCreatingGym() {
         givenAuditContext();
-        given(gymRepository.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         CreateGymResponse response = service.create(new CreateGymCommand(dto(GYM_ID)));
 
         ArgumentCaptor<Gym> gym = ArgumentCaptor.forClass(Gym.class);
-        then(gymRepository).should().save(gym.capture());
+        then(mongoTemplate).should().save(gym.capture());
         assertThat(gym.getValue().getCreatedOnUtc()).isEqualTo(NOW);
         assertThat(gym.getValue().getCreatedBy()).isEqualTo(AUDIT_USER);
+        assertThat(response.data().id()).isEqualTo(GYM_ID);
+    }
+
+    @Test
+    void shouldClearBlankIdSoMongoCanAssignOneWhenCreatingGym() {
+        givenAuditContext();
+        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> {
+            Gym gym = invocation.getArgument(0);
+            if (gym.getId() == null) {
+                gym.setId(GYM_ID);
+            }
+            return gym;
+        });
+
+        CreateGymResponse response = service.create(new CreateGymCommand(dto("   ")));
+
+        ArgumentCaptor<Gym> gym = ArgumentCaptor.forClass(Gym.class);
+        then(mongoTemplate).should().save(gym.capture());
+        assertThat(gym.getValue().getId()).isEqualTo(GYM_ID);
         assertThat(response.data().id()).isEqualTo(GYM_ID);
     }
 
@@ -72,8 +89,8 @@ class GymServiceTest {
     void shouldApplyChangesAndAuditFieldsWhenUpdatingExistingGym() {
         givenAuditContext();
         Gym existing = activeGym(GYM_ID, "Old Name");
-        given(gymRepository.findById(GYM_ID)).willReturn(Optional.of(existing));
-        given(gymRepository.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
+        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         Optional<UpdateGymResponse> response = service.update(GYM_ID, new UpdateGymCommand(dto("ignored")));
 
@@ -86,63 +103,63 @@ class GymServiceTest {
 
     @Test
     void shouldReturnEmptyWithoutSavingWhenUpdatingMissingGym() {
-        given(gymRepository.findById("missing")).willReturn(Optional.empty());
+        given(mongoTemplate.findById("missing", Gym.class)).willReturn(null);
 
         Optional<UpdateGymResponse> response = service.update("missing", new UpdateGymCommand(dto("missing")));
 
         assertThat(response).isEmpty();
-        then(gymRepository).should(never()).save(any(Gym.class));
+        then(mongoTemplate).should(never()).save(any(Gym.class));
     }
 
     @Test
     void shouldHideNonActiveGymWhenGettingById() {
         Gym pending = activeGym(GYM_ID, "Pending Gym");
         pending.setStatus(GymStatus.PendingApproval);
-        given(gymRepository.findById(GYM_ID)).willReturn(Optional.of(pending));
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(pending);
 
         assertThat(service.getById(GYM_ID)).isEmpty();
     }
 
     @Test
     void shouldServeRepeatGetByIdFromCache() {
-        given(gymRepository.findById(GYM_ID)).willReturn(Optional.of(activeGym(GYM_ID, "Cached Gym")));
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(activeGym(GYM_ID, "Cached Gym"));
 
         assertThat(service.getById(GYM_ID)).isPresent();
         assertThat(service.getById(GYM_ID)).isPresent();
 
-        then(gymRepository).should(times(1)).findById(GYM_ID);
+        then(mongoTemplate).should(times(1)).findById(GYM_ID, Gym.class);
     }
 
     @Test
     void shouldPrimeByIdCacheOnCreateSoFollowUpReadSkipsMongo() {
         givenAuditContext();
-        given(gymRepository.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         service.create(new CreateGymCommand(dto(GYM_ID)));
         Optional<GymDto> cachedRead = service.getById(GYM_ID);
 
         assertThat(cachedRead).isPresent();
-        then(gymRepository).should(never()).findById(GYM_ID);
+        then(mongoTemplate).should(never()).findById(eq(GYM_ID), eq(Gym.class));
     }
 
     @Test
     void shouldRecordAuditAndEvictCacheWhenDeletingGym() {
         Gym existing = activeGym(GYM_ID, "Doomed Gym");
-        given(gymRepository.findById(GYM_ID)).willReturn(Optional.of(existing));
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
         assertThat(service.getById(GYM_ID)).isPresent();
 
         boolean deleted = service.delete(GYM_ID);
-        given(gymRepository.findById(GYM_ID)).willReturn(Optional.empty());
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(null);
 
         assertThat(deleted).isTrue();
-        then(gymRepository).should().delete(existing);
-        then(auditRecorder).should().record(AuditAction.Delete, "Gym", GYM_ID, 1);
+        then(mongoTemplate).should().remove(existing);
+        then(auditRecorder).should().record(AuditAction.Delete, Gym.ENTITY_NAME, GYM_ID, 1);
         assertThat(service.getById(GYM_ID)).isEmpty();
     }
 
     @Test
     void shouldReturnFalseWithoutAuditingWhenDeletingMissingGym() {
-        given(gymRepository.findById("missing")).willReturn(Optional.empty());
+        given(mongoTemplate.findById("missing", Gym.class)).willReturn(null);
 
         boolean deleted = service.delete("missing");
 

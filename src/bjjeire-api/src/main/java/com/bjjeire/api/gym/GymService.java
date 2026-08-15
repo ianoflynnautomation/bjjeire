@@ -25,7 +25,6 @@ import org.springframework.util.MultiValueMap;
 @Service
 @RequiredArgsConstructor
 public class GymService {
-    private final GymRepository gymRepository;
     private final MongoTemplate mongoTemplate;
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
@@ -49,36 +48,38 @@ public class GymService {
     }
 
     public Optional<GymDto> getById(String id) {
-        GymDto dto = cache.getOrCreate(
-                ApiCache.GYMS_TAG,
-                byIdCacheKey(id),
-                () -> gymRepository
-                        .findById(id)
-                        .filter(gym -> gym.getStatus() == GymStatus.Active)
-                        .map(GymMapper::toDto)
-                        .orElse(null));
+        GymDto dto = cache.getOrCreate(ApiCache.GYMS_TAG, byIdCacheKey(id), () -> {
+            Gym gym = mongoTemplate.findById(id, Gym.class);
+            if (gym == null || gym.getStatus() != GymStatus.Active) {
+                return null;
+            }
+            return GymMapper.toDto(gym);
+        });
         return Optional.ofNullable(dto);
     }
 
     public CreateGymResponse create(CreateGymCommand command) {
         Gym gym = GymMapper.toEntity(command.data());
+        if (gym.getId() != null && gym.getId().isBlank()) {
+            gym.setId(null);
+        }
         gym.setCreatedOnUtc(auditInfoProvider.currentInstant());
         gym.setCreatedBy(auditInfoProvider.currentUser());
 
-        Gym saved = gymRepository.save(gym);
+        Gym saved = mongoTemplate.save(gym);
         GymDto dto = GymMapper.toDto(saved);
         invalidateAndPrime(dto);
         return new CreateGymResponse(dto);
     }
 
     public Optional<UpdateGymResponse> update(String id, UpdateGymCommand command) {
-        return gymRepository.findById(id).map(existing -> {
+        return Optional.ofNullable(mongoTemplate.findById(id, Gym.class)).map(existing -> {
             GymMapper.apply(command.data(), existing);
             existing.setId(id);
             existing.setUpdatedOnUtc(auditInfoProvider.currentInstant());
             existing.setUpdatedBy(auditInfoProvider.currentUser());
 
-            Gym saved = gymRepository.save(existing);
+            Gym saved = mongoTemplate.save(existing);
             GymDto dto = GymMapper.toDto(saved);
             invalidateAndPrime(dto);
             return new UpdateGymResponse(dto);
@@ -86,17 +87,14 @@ public class GymService {
     }
 
     public boolean delete(String id) {
-        return gymRepository
-                .findById(id)
-                .map(gym -> {
-                    gymRepository.delete(gym);
-                    auditRecorder.record(AuditAction.Delete, "Gym", id, 1);
-                    // Hard invalidate only — no write-through after delete.
-                    cache.remove(ApiCache.GYMS_TAG, byIdCacheKey(id));
-                    cache.removeByTag(ApiCache.GYMS_TAG);
-                    return true;
-                })
-                .orElse(false);
+        Gym gym = mongoTemplate.findById(id, Gym.class);
+        if (gym == null) {
+            return false;
+        }
+        mongoTemplate.remove(gym);
+        auditRecorder.record(AuditAction.Delete, Gym.ENTITY_NAME, id, 1);
+        cache.removeByTag(ApiCache.GYMS_TAG);
+        return true;
     }
 
     // Write-through: evict tag-scoped entries, then prime the by-id key with

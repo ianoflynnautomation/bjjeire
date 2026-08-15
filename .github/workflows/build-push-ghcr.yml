@@ -51,19 +51,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      java-api: ${{ steps.changes.outputs.java_api_image }}
-      frontend: ${{ steps.changes.outputs.frontend }}
+      changes: ${{ steps.changes.outputs.changes }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - id: changes
-        uses: ./.github/actions/detect-changes
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.1.0
+        with:
+          filters: |
+            frontend:
+              - 'src/bjjeire-app/**'
+            java_api_image:
+              - 'src/bjjeire-api/src/main/**'
+              - 'src/bjjeire-api/pom.xml'
+              - 'src/bjjeire-api/Dockerfile'
 
   build-push-java-api:
     name: Build & Push Java API Image
     needs: detect-changes
-    if: needs.detect-changes.outputs.java-api == 'true' || startsWith(github.ref, 'refs/tags/')
+    if: contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api_image') || startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: read
       packages: write
@@ -91,7 +98,7 @@ jobs:
   build-push-frontend:
     name: Build & Push Frontend Image
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true' || startsWith(github.ref, 'refs/tags/')
+    if: contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend') || startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: read
       packages: write

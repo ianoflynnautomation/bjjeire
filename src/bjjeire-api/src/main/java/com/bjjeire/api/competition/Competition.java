@@ -18,9 +18,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("Competition")
+@Document(Competition.ENTITY_NAME)
 public class Competition {
 
+    public static final String ENTITY_NAME = "Competition";
     public static final Duration EXPIRY_GRACE = Duration.ofDays(365L * 2);
 
     @Id

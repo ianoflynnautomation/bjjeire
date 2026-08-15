@@ -1,5 +1,9 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.competition.Competition;
+import com.bjjeire.api.event.BjjEvent;
+import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.store.Store;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +15,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.stereotype.Component;
 
-/**
- * Single source of truth for Mongo indexes. Runs at every startup; creation is idempotent so query performance never
- * depends on the seeder having run. Non-critical failures are logged and skipped; the unique slug constraint is
- * critical and fails startup.
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
         dropObsolete("BjjEvent", "ix_event_county_status_endDate");
 
         ensure(
-                "Gym",
+                Gym.ENTITY_NAME,
                 new Index()
                         .on("status", Sort.Direction.ASC)
                         .on("county", Sort.Direction.ASC)
@@ -45,7 +44,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 false);
 
         ensure(
-                "BjjEvent",
+                BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("schedule.endDate", Sort.Direction.ASC)
@@ -53,7 +52,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 false);
 
         ensure(
-                "BjjEvent",
+                BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("county", Sort.Direction.ASC)
                         .on("isActive", Sort.Direction.ASC)
@@ -61,7 +60,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 false);
 
         ensure(
-                "BjjEvent",
+                BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("expiresAt", Sort.Direction.ASC)
                         .named("ttl_event_expiresAt")
@@ -69,7 +68,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 false);
 
         ensure(
-                "Competition",
+                Competition.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("endDate", Sort.Direction.ASC)
@@ -86,7 +85,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 true);
 
         ensure(
-                "Competition",
+                Competition.ENTITY_NAME,
                 new Index()
                         .on("expiresAt", Sort.Direction.ASC)
                         .named("ttl_competition_expiresAt")
@@ -94,7 +93,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 false);
 
         ensure(
-                "Store",
+                Store.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("name", Sort.Direction.ASC)

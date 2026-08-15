@@ -20,8 +20,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("Gym")
+@Document(Gym.ENTITY_NAME)
 public class Gym {
+    public static final String ENTITY_NAME = "Gym";
+
     @Id
     private String id;
 
