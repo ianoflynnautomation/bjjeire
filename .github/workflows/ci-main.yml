@@ -48,27 +48,26 @@ jobs:
       contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
       contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
-      contents: write
+      contents: read
       actions: read
       packages: write
       id-token: write
       pages: write
-      checks: write
       pull-requests: write
-    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/playwright-docker.yml@main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # main — flip to @v1 once v1.2.0 is released
     with:
-      compose_files: |
-          docker-compose.yml
-          docker-compose.override.java-local.yml
-          docker-compose.override.ci.yml
-      compose_pre_up_script: .github/scripts/smoke-pre-up.sh
-      seed_data: true
-      compose_health_url: http://localhost:5003/health
-      base_url: http://localhost:3000
-      api_base_url: http://localhost:5003
-      test_repo: ianoflynnautomation/bjjeire-tests
-      test_tags: "@acceptance"
-      playwright_projects: |
+      compose-files: |
+        docker-compose.yml
+        docker-compose.override.java-local.yml
+        docker-compose.override.ci.yml
+      compose-pre-up-script: .github/scripts/smoke-pre-up.sh
+      seed-command: docker compose run --rm seeder
+      compose-health-url: http://localhost:5003/health
+      base-url: http://localhost:3000
+      api-url: http://localhost:5003
+      test-repo: ianoflynnautomation/bjjeire-tests
+      test-tags: "@acceptance"
+      playwright-projects: |
         api
         chromium-desktop
         firefox-desktop
@@ -78,7 +77,7 @@ jobs:
         a11y
         mobile-iphone
         mobile-galaxy
-      project_shard_overrides: |
+      project-shard-overrides: |
         api=3
         firefox-desktop=4
         webkit-desktop=3
@@ -87,8 +86,31 @@ jobs:
         a11y=1
         mobile-iphone=1
         mobile-galaxy=1
-      publish_report: true
-      fail_on_flaky: false
+      config-map: |
+        api=playwright.api.config.ts
+      default-config: playwright.ui.config.ts
+      runner-image: ghcr.io/ianoflynnautomation/bjjeire-playwright
+      runner-workdir: /home/pwuser/app
+      compose-project-prefix: bjj
+      env-vars: |
+        ACCEPT_INVALID_CERTS=true
+      publish-report: true
+      fail-on-flaky: false
+    secrets:
+      test-env-vars: |
+        MONGO_URL=${{ secrets.EPHEMERAL_MONGO_URL }}
+        MONGO_DB=${{ secrets.EPHEMERAL_MONGO_DB }}
+        AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
+        AZURE_TESTS_CLIENT_ID=${{ secrets.AZURE_TESTS_CLIENT_ID }}
+        AZURE_TESTS_CLIENT_SECRET=${{ secrets.AZURE_TESTS_CLIENT_SECRET }}
+        AZURE_API_SCOPE=${{ secrets.AZURE_API_SCOPE }}
+        AZURE_AUTHORITY=${{ secrets.AZURE_AUTHORITY }}
+        CF_ACCESS_CLIENT_ID=${{ secrets.CF_ACCESS_CLIENT_ID }}
+        CF_ACCESS_CLIENT_SECRET=${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        PW_TEST_USER=${{ secrets.PW_TEST_USER }}
+        PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
+        OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
+        OTEL_EXPORTER_OTLP_HEADERS=${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
 
   java_build_test:
     name: Java Build & Test
