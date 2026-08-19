@@ -143,7 +143,7 @@ jobs:
     if: needs.openapi_contract.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -164,7 +164,7 @@ jobs:
     if: contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Build Frontend
       working-directory: src/bjjeire-app
@@ -182,7 +182,7 @@ jobs:
     if: contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Frontend Checks
       working-directory: src/bjjeire-app
@@ -208,7 +208,7 @@ jobs:
     if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Integration Tests + Coverage
       working-directory: src/bjjeire-app
@@ -230,7 +230,7 @@ jobs:
     if: needs.frontend_checks.result == 'success' && needs.build_frontend.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Vitest Browser Suite
       working-directory: src/bjjeire-app
