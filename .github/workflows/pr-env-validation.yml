@@ -367,6 +367,9 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
     name: Destroy pr-${{ github.event.pull_request.number }}
     needs: [unlabel-preview]
+    permissions:
+      contents: read
+      id-token: write
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
     with:
       env-id: pr-${{ github.event.pull_request.number }}

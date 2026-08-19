@@ -49,6 +49,10 @@ jobs:
               - 'src/bjjeire-api/src/main/**'
               - 'src/bjjeire-api/pom.xml'
               - 'src/bjjeire-api/Dockerfile'
+            seeder:
+              - 'src/bjjeire-api/seeder.Dockerfile'
+              - 'src/bjjeire-api/src/main/java/com/bjjeire/api/seeder/**'
+              - 'seeder/data/**'
 
   security:
     name: Security
@@ -71,7 +75,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -229,7 +233,8 @@ jobs:
     needs: detect-changes
     if: |
       contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
-      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'seeder')
     permissions:
       contents: read
       actions: read
