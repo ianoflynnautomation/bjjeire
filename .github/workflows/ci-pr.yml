@@ -224,6 +224,64 @@ jobs:
       upload-artifact-always: true
       artifact-retention-days: 7
 
+  compose_smoke:
+    name: Compose smoke
+    needs: detect-changes
+    if: |
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+      actions: read
+      packages: write
+      id-token: write
+      pages: write
+      pull-requests: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # v1.2.0
+    with:
+      compose-files: |
+        docker-compose.yml
+        docker-compose.override.java-local.yml
+        docker-compose.override.ci.yml
+      compose-pre-up-script: .github/scripts/smoke-pre-up.sh
+      seed-command: docker compose run --rm seeder
+      compose-health-url: http://localhost:5003/health
+      base-url: http://localhost:3000
+      api-url: http://localhost:5003
+      test-repo: ianoflynnautomation/bjjeire-tests
+      test-tags: "@smoke"
+      playwright-projects: |
+        api
+        chromium-desktop
+      project-shard-overrides: |
+        api=2
+        chromium-desktop=2
+      config-map: |
+        api=playwright.api.config.ts
+      default-config: playwright.ui.config.ts
+      runner-image: ghcr.io/ianoflynnautomation/bjjeire-playwright
+      runner-workdir: /home/pwuser/app
+      compose-project-prefix: bjj
+      env-vars: |
+        ACCEPT_INVALID_CERTS=true
+      publish-report: true
+      fail-on-flaky: false
+    secrets:
+      test-env-vars: |
+        MONGO_URL=${{ secrets.EPHEMERAL_MONGO_URL }}
+        MONGO_DB=${{ secrets.EPHEMERAL_MONGO_DB }}
+        AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
+        AZURE_TESTS_CLIENT_ID=${{ secrets.AZURE_TESTS_CLIENT_ID }}
+        AZURE_TESTS_CLIENT_SECRET=${{ secrets.AZURE_TESTS_CLIENT_SECRET }}
+        AZURE_API_SCOPE=${{ secrets.AZURE_API_SCOPE }}
+        AZURE_AUTHORITY=${{ secrets.AZURE_AUTHORITY }}
+        CF_ACCESS_CLIENT_ID=${{ secrets.CF_ACCESS_CLIENT_ID }}
+        CF_ACCESS_CLIENT_SECRET=${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        PW_TEST_USER=${{ secrets.PW_TEST_USER }}
+        PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
+        OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
+        OTEL_EXPORTER_OTLP_HEADERS=${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
+
   test_frontend_browser:
     name: Test Frontend Browser
     needs: [frontend_checks, build_frontend]
@@ -263,6 +321,7 @@ jobs:
       - frontend_checks
       - test_frontend_integration
       - test_frontend_browser
+      - compose_smoke
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
         uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.1.0

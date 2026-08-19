@@ -34,6 +34,9 @@ on:
       frontend_image_digest:
         description: "Digest (sha256:...) of the pushed frontend image, if built."
         value: ${{ jobs.build-push-frontend.outputs.image-digest }}
+      seeder_image_digest:
+        description: "Digest (sha256:...) of the pushed seeder image, if built."
+        value: ${{ jobs.build-push-seeder.outputs.image-digest }}
   workflow_dispatch:
     inputs:
       push_images:
@@ -66,6 +69,10 @@ jobs:
               - 'src/bjjeire-api/src/main/**'
               - 'src/bjjeire-api/pom.xml'
               - 'src/bjjeire-api/Dockerfile'
+            seeder:
+              - 'src/bjjeire-api/seeder.Dockerfile'
+              - 'src/bjjeire-api/src/main/java/com/bjjeire/api/seeder/**'
+              - 'seeder/data/**'
 
   build-push-java-api:
     name: Build & Push Java API Image
@@ -85,9 +92,9 @@ jobs:
       push: ${{ inputs.push_images && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
       tags: |
         type=sha,format=short
+        type=raw,value=${{ github.sha }}
         type=semver,pattern={{version}}
         type=semver,pattern={{major}}.{{minor}}
-        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       labels: |
         org.opencontainers.image.title=bjjeire-api
         org.opencontainers.image.description=BjjEire Spring Boot 4 Java 25 API
@@ -112,9 +119,9 @@ jobs:
       push: ${{ inputs.push_images && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
       tags: |
         type=sha,format=short
+        type=raw,value=${{ github.sha }}
         type=semver,pattern={{version}}
         type=semver,pattern={{major}}.{{minor}}
-        type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
       labels: |
         org.opencontainers.image.title=bjjeire-frontend
         org.opencontainers.image.description=BjjEire React 19 + Vite + nginx frontend
@@ -132,3 +139,36 @@ jobs:
         VITE_APP_SOCIAL_INSTAGRAM_URL=${{ secrets.VITE_APP_SOCIAL_INSTAGRAM_URL }}
         VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
         VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
+
+  build-push-seeder:
+    name: Build & Push Seeder Image
+    needs: detect-changes
+    if: |
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api_image') ||
+      contains(fromJSON(needs.detect-changes.outputs.changes), 'seeder') ||
+      startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      image-name: bjjeire-seeder
+      dockerfile: ./src/bjjeire-api/seeder.Dockerfile
+      context: .
+      push: ${{ inputs.push_images && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
+      tags: |
+        type=sha,format=short
+        type=raw,value=${{ github.sha }}
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+      labels: |
+        org.opencontainers.image.title=bjjeire-seeder
+        org.opencontainers.image.description=BjjEire MongoDB seeder
+        org.opencontainers.image.vendor=BjjEire
+        org.opencontainers.image.licenses=MIT
+        org.opencontainers.image.url=https://bjjeire.com
+
