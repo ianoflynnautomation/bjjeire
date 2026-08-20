@@ -225,7 +225,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@9f7cdb6063f07b29a86e4bfd759b0b7d3c4377b5  # v1.4.1
     with:
       mode: ephemeral
       env-id: sha-${{ github.run_id }}
@@ -233,6 +233,7 @@ jobs:
       cluster-resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
       cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
       cluster-domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
+      root-domain: ${{ vars.AKS_ROOT_DOMAIN != '' && vars.AKS_ROOT_DOMAIN || 'bjjeire.com' }}
       ttl: 4h
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: '@acceptance'
