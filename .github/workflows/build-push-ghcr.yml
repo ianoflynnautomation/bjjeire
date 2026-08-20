@@ -60,7 +60,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.3.0
         with:
           filters: |
             frontend:

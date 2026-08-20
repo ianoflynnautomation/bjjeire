@@ -29,7 +29,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.3.0
         with:
           filters: |
             frontend:
@@ -80,7 +80,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.3.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -153,7 +153,7 @@ jobs:
           token: ${{ github.token }}
           user: ${{ github.actor }}
       - name: Publish OpenAPI contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.3.0
         with:
           file: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -166,7 +166,7 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.3.0
         with:
           file: ${{ env.PACT_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
@@ -321,7 +321,7 @@ jobs:
       - promote_images
     steps:
       - name: Verify all required main-branch jobs succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.3.0
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: Main delivery
