@@ -51,9 +51,6 @@ class OpenApiContractIT extends MongoIntegrationTest {
         assertThat(hasBearerSecurity(eventDelete)).isTrue();
     }
 
-    // CI contract export: when
-    // OPENAPI_ARTIFACT_PATH is set, the served spec is written there for the
-    // breaking-change gate and frontend type generation. Skipped otherwise.
     @Test
     void shouldExportOpenApiArtifactWhenRequestedByCi() throws Exception {
         String artifactPath = System.getenv("OPENAPI_ARTIFACT_PATH");

@@ -34,6 +34,7 @@ services:
       - READ_ONLY_MODE_ENABLED=${READ_ONLY_MODE_ENABLED:-true}
       - ENTRA_ISSUER_URI=${ENTRA_ISSUER_URI}
       - ENTRA_AUDIENCE=${ENTRA_AUDIENCE}
+      - ENTRA_AUDIENCE_URI=${ENTRA_AUDIENCE_URI:-}
       - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-bjjeire-api}
       - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME:-bjjeire-api},deployment.environment=${SPRING_PROFILES_ACTIVE:-production}
     volumes:
