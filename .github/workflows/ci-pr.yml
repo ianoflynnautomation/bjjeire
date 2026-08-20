@@ -38,7 +38,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.3.0
         with:
           filters: |
             frontend:
@@ -102,7 +102,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.3.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -329,7 +329,7 @@ jobs:
       - compose_smoke
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.1.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.3.0
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: PR checks
