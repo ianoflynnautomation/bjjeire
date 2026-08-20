@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.19](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.18...api-v0.1.19) (2026-08-20)
+
+
+### Features
+
+* harden test workflows ci cd ([3082c7d](https://github.com/ianoflynnautomation/bjjeire/commit/3082c7dd17636939722444e6946b725da93ea506))
+
 ## [0.1.18](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.17...api-v0.1.18) (2026-08-15)
 
 

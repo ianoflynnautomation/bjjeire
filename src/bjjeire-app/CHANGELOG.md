@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.32](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.31...frontend-v0.1.32) (2026-08-20)
+
+
+### Features
+
+* harden test workflows ci cd ([3082c7d](https://github.com/ianoflynnautomation/bjjeire/commit/3082c7dd17636939722444e6946b725da93ea506))
+
 ## [0.1.31](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.30...frontend-v0.1.31) (2026-08-09)
 
 
