@@ -75,7 +75,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@9f7cdb6063f07b29a86e4bfd759b0b7d3c4377b5  # v1.4.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
