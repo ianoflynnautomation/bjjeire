@@ -218,7 +218,7 @@ jobs:
           namespace: ${{ env.PREVIEW_NS }}
           name: bjj-eire
           timeout: 10m
-          cluster-domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
+          cluster-domain: ${{ vars.AKS_ROOT_DOMAIN != '' && vars.AKS_ROOT_DOMAIN || 'bjjeire.com' }}
           env-id: ${{ env.PREVIEW_NS }}
 
       - name: Collect diagnostics
