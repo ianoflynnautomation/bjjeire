@@ -1,28 +1,22 @@
 name: PR Env Validation
 
-# Per-PR ephemeral environment + acceptance tests on AKS (Tier 2).
+# Per-PR preview environment on AKS, owned by Flux.
 #
 # Lifecycle:
-#   - opened/synchronize/reopened → build PR images, deploy to pr-N namespace,
-#     run sharded Playwright suite against pr-N.<cluster domain>
-#   - closed                      → destroy pr-N namespace (TTL janitor is the
-#                                   safety net if this is skipped)
+#   opened/synchronize/reopened
+#     1. Build + push pr-<n>-<headsha> images (docker-build-push.yml)
+#     2. Add label deploy-preview — ResourceSetInputProvider picks it up
+#     3. Wait for HelmRelease bjj-eire in namespace pr-<n>
+#     4. Run Playwright against the preview URLs
+#   closed
+#     Remove deploy-preview (Flux prunes) and delete the namespace as backup
 #
-# Rollout switch: every job is gated on the PR_ENV_ENABLED repo variable so
-# this workflow stays inert until the dev cluster + ARC runners exist. Set
-# PR_ENV_ENABLED=true (Actions → Variables) to turn it on. Run alongside the
-# Docker-Compose smoke_tests in ci-main.yml until trusted, then decide overlap.
+# Gated on PR_ENV_ENABLED. Fork PRs are skipped (no secrets, no write labels).
 #
-# Required repo secrets:
-#   AZURE_TENANT_ID         — Entra tenant
-#   AZURE_CLIENT_ID         — uami-gha-prenv-* client ID (output of identity.tf)
-#   AZURE_SUBSCRIPTION_ID   — subscription containing the AKS cluster
-#
-# Required repo vars (Actions → Variables, not Secrets):
-#   PR_ENV_ENABLED          — 'true' to activate this workflow
-#   AKS_RESOURCE_GROUP      — e.g. rg-bjjeire-dev-swn-01
-#   AKS_CLUSTER_NAME        — e.g. aks-bjjeire-dev-swn-01
-#   AKS_CLUSTER_DOMAIN      — e.g. dev.bjjeire.com
+# Required repo vars: PR_ENV_ENABLED, AKS_RESOURCE_GROUP, AKS_CLUSTER_NAME,
+# AKS_CLUSTER_DOMAIN.
+# Required secrets: AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_SUBSCRIPTION_ID
+# plus the Playwright test-env-vars set (Entra, CF Access, PW_TEST_*).
 
 on:
   pull_request:
@@ -41,105 +35,220 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
-  packages: write
-  pull-requests: write
 
 env:
-  REGISTRY: ghcr.io
-  API_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-api
-  FRONTEND_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-frontend
-  SEEDER_IMAGE: ghcr.io/${{ github.repository_owner }}/bjjeire-seeder
   IMAGE_TAG: pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  PREVIEW_NS: pr-${{ github.event.pull_request.number }}
 
 jobs:
-  build-images:
-    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
-    name: Build & push PR images
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    outputs:
-      image_tag: ${{ env.IMAGE_TAG }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Login to GHCR
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
-
-      - name: Build & push API
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
-        with:
-          context: ./src/bjjeire-api
-          file: ./src/bjjeire-api/Dockerfile
-          push: true
-          tags: ${{ env.API_IMAGE }}:${{ env.IMAGE_TAG }}
-          cache-from: |
-            type=gha,scope=api-${{ github.ref_name }}
-            type=gha,scope=api-main
-          cache-to: type=gha,scope=api-${{ github.ref_name }},mode=max
-
-      - name: Build & push Frontend
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
-        with:
-          context: .
-          file: ./src/bjjeire-app/Dockerfile
-          push: true
-          tags: ${{ env.FRONTEND_IMAGE }}:${{ env.IMAGE_TAG }}
-          cache-from: |
-            type=gha,scope=frontend-${{ github.ref_name }}
-            type=gha,scope=frontend-main
-          cache-to: type=gha,scope=frontend-${{ github.ref_name }},mode=max
-
-      - name: Build & push Seeder
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
-        with:
-          context: .
-          file: ./src/bjjeire-api/seeder.Dockerfile
-          push: true
-          tags: ${{ env.SEEDER_IMAGE }}:${{ env.IMAGE_TAG }}
-          cache-from: |
-            type=gha,scope=seeder-${{ github.ref_name }}
-            type=gha,scope=seeder-main
-          cache-to: type=gha,scope=seeder-${{ github.ref_name }},mode=max
-
-  deploy-env:
-    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
-    name: Deploy pr-${{ github.event.pull_request.number }}
-    needs: [build-images]
-    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/pr-env.yml@main
+  build-api:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Build API image
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
     with:
-      action: deploy
-      pr_number: ${{ github.event.pull_request.number }}
-      image_tag: ${{ needs.build-images.outputs.image_tag }}
-      cluster_resource_group: ${{ vars.AKS_RESOURCE_GROUP }}
-      cluster_name: ${{ vars.AKS_CLUSTER_NAME }}
-      cluster_domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
-    secrets: inherit
+      image-name: bjjeire-api
+      dockerfile: ./src/bjjeire-api/Dockerfile
+      context: ./src/bjjeire-api
+      push: true
+      tags: |
+        type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+      cache-scope: bjjeire-api-pr
+      labels: |
+        org.opencontainers.image.title=bjjeire-api
+
+  build-frontend:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Build frontend image
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      image-name: bjjeire-frontend
+      dockerfile: ./src/bjjeire-app/Dockerfile
+      push: true
+      tags: |
+        type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+      cache-scope: bjjeire-frontend-pr
+      labels: |
+        org.opencontainers.image.title=bjjeire-frontend
+    secrets:
+      SECRET_BUILD_ARGS: |
+        VITE_APP_MSAL_CLIENT_ID=${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
+        VITE_APP_MSAL_AUTHORITY=${{ secrets.VITE_APP_MSAL_AUTHORITY }}
+        VITE_APP_MSAL_API_SCOPE=${{ secrets.VITE_APP_MSAL_API_SCOPE }}
+        VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
+        VITE_APP_APP_URL=${{ secrets.VITE_APP_URL }}
+        VITE_APP_CONTACT_EMAIL=${{ secrets.VITE_APP_CONTACT_EMAIL }}
+        VITE_APP_SOCIAL_INSTAGRAM_URL=${{ secrets.VITE_APP_SOCIAL_INSTAGRAM_URL }}
+        VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
+        VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
+
+  build-seeder:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Build seeder image
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    with:
+      image-name: bjjeire-seeder
+      dockerfile: ./src/bjjeire-api/seeder.Dockerfile
+      context: .
+      push: true
+      tags: |
+        type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+      cache-scope: bjjeire-seeder-pr
+      labels: |
+        org.opencontainers.image.title=bjjeire-seeder
+
+  label-preview:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Label deploy-preview
+    needs: [build-api, build-frontend, build-seeder]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Ensure label and apply it
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const label = 'deploy-preview'
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label,
+              })
+            } catch (err) {
+              if (err.status !== 404) throw err
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label,
+                color: '0e8a16',
+                description: 'Flux preview environment for this PR',
+              })
+            }
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label],
+            })
+            core.notice(`Labeled #${context.issue.number} ${label}`)
+
+  wait-ready:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Wait for Flux preview
+    needs: [label-preview]
+    runs-on: gha-runner-scale-set
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      base_url: ${{ steps.wait.outputs.base-url }}
+      api_base_url: ${{ steps.wait.outputs.api-url }}
+      internal_api_url: ${{ steps.wait.outputs.internal-api-url }}
+      namespace: ${{ steps.wait.outputs.namespace }}
+    steps:
+      - name: Log in to AKS
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/azure-aks-login@c6f59b274994c0819cc0aecda3329fdd2c8698d7  # v1.1.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+          install-helm: "false"
+
+      - name: Wait until HelmRelease exists
+        env:
+          NS: ${{ env.PREVIEW_NS }}
+        run: |
+          set -euo pipefail
+          echo "::group::Waiting for helmrelease/bjj-eire in ${NS}"
+          for _ in $(seq 1 60); do
+            if kubectl -n "${NS}" get helmrelease bjj-eire >/dev/null 2>&1; then
+              echo "  present"
+              echo "::endgroup::"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::endgroup::"
+          echo "::error title=Preview not created::HelmRelease bjj-eire did not appear in ${NS} within 5m — check ResourceSetInputProvider bjj-eire-prs and the deploy-preview label"
+          exit 1
+
+      - name: Wait for HelmRelease Ready
+        id: wait
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
+        with:
+          namespace: ${{ env.PREVIEW_NS }}
+          name: bjj-eire
+          timeout: 10m
+          cluster-domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
+          env-id: ${{ env.PREVIEW_NS }}
+
+      - name: Collect diagnostics
+        if: failure()
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/collect-k8s-diagnostics@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
+        with:
+          namespace: ${{ env.PREVIEW_NS }}
+          helm-release: bjj-eire
+          flux-helmrelease: bjj-eire
+          upload-artifact: "true"
+          artifact-name: k8s-diagnostics-${{ env.PREVIEW_NS }}
 
   acceptance:
-    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed'
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     name: Acceptance tests
-    needs: [deploy-env]
+    needs: [wait-ready]
     permissions:
       contents: read
       actions: read
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # main — flip to @v1 once v1.2.0 is released
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # v1.2.0
     with:
       app-env: staging
-      base-url: ${{ needs.deploy-env.outputs.base_url }}
-      api-url: ${{ needs.deploy-env.outputs.api_base_url }}
+      base-url: ${{ needs.wait-ready.outputs.base_url }}
+      api-url: ${{ needs.wait-ready.outputs.api_base_url }}
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: "@smoke|@acceptance"
       shard-total: 4
@@ -152,7 +261,7 @@ jobs:
         api=playwright.api.config.ts
       default-config: playwright.ui.config.ts
       project-env-overrides: |
-        api:API_URL=${{ needs.deploy-env.outputs.internal_api_url }}
+        api:API_URL=${{ needs.wait-ready.outputs.internal_api_url }}
         api:CF_ACCESS_CLIENT_ID=
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
@@ -170,10 +279,15 @@ jobs:
         PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
 
   pr-comment:
-    if: vars.PR_ENV_ENABLED == 'true' && github.event.action != 'closed' && always()
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      always()
     name: Post PR env link
-    needs: [deploy-env, acceptance]
+    needs: [wait-ready, acceptance]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       pull-requests: write
     steps:
@@ -181,9 +295,9 @@ jobs:
         id: comment_body
         shell: bash
         env:
-          BASE_URL: ${{ needs.deploy-env.outputs.base_url }}
-          API_URL: ${{ needs.deploy-env.outputs.api_base_url }}
-          DEPLOY_RESULT: ${{ needs.deploy-env.result }}
+          BASE_URL: ${{ needs.wait-ready.outputs.base_url }}
+          API_URL: ${{ needs.wait-ready.outputs.api_base_url }}
+          DEPLOY_RESULT: ${{ needs.wait-ready.result }}
           TEST_RESULT: ${{ needs.acceptance.result }}
         run: |
           set -euo pipefail
@@ -201,13 +315,13 @@ jobs:
             echo ""
             echo "| Stage | Result |"
             echo "|---|---|"
-            echo "| Deploy | \`${DEPLOY}\` |"
+            echo "| Flux preview | \`${DEPLOY}\` |"
             echo "| Acceptance | \`${TESTS}\` |"
             echo ""
             echo "Frontend: ${BASE_URL:-(not deployed)}"
             echo "API: ${API_URL:-(not deployed)}"
             echo ""
-            echo "_Environment is reaped automatically when this PR closes (or after 2h)._"
+            echo "_Reaped when this PR closes or after the janitor TTL (2h)._"
             echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
 
@@ -219,14 +333,52 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           summary-title: PR environment
 
+  unlabel-preview:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Remove deploy-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: 'deploy-preview',
+              })
+            } catch (err) {
+              if (err.status !== 404) throw err
+              core.notice('deploy-preview already absent')
+            }
+
   destroy-env:
-    if: vars.PR_ENV_ENABLED == 'true' && github.event.action == 'closed'
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     name: Destroy pr-${{ github.event.pull_request.number }}
-    uses: ianoflynnautomation/bjjeire-tests/.github/workflows/pr-env.yml@main
+    needs: [unlabel-preview]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
     with:
-      action: destroy
-      pr_number: ${{ github.event.pull_request.number }}
-      cluster_resource_group: ${{ vars.AKS_RESOURCE_GROUP }}
-      cluster_name: ${{ vars.AKS_CLUSTER_NAME }}
-      cluster_domain: ${{ vars.AKS_CLUSTER_DOMAIN }}
-    secrets: inherit
+      env-id: pr-${{ github.event.pull_request.number }}
+      cluster-resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+      cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+      helm-release: bjj-eire
+      flux-helmrelease: bjj-eire
+      runs-on: gha-runner-scale-set
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

@@ -12,7 +12,7 @@ const AboutPage = lazy(() => import('@/pages/AboutPage'))
 
 function AppRoutes(): ReactElement {
   // Flags are resolved synchronously at boot (see main.tsx → loadFeatureFlags)
-  // so this read is hot from the start — no race, no flash redirect.
+  // so this read is hot from the start — no race condition, no flash redirect.
   const flags = use(FeatureFlagContext)
 
   const defaultPath =
