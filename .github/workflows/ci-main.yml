@@ -101,7 +101,7 @@ jobs:
       contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.1.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
     with:
       job-name: Generate Pact Contract
       working-directory: src/bjjeire-app
