@@ -262,6 +262,7 @@ jobs:
       default-config: playwright.ui.config.ts
       project-env-overrides: |
         api:API_URL=${{ needs.wait-ready.outputs.internal_api_url }}
+        api:CF_ACCESS_REQUIRED=false
         api:CF_ACCESS_CLIENT_ID=
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
