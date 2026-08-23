@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-  detect-changes:
+  detect_changes:
     name: Detect Changed Paths
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -29,30 +29,18 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
-          filters: |
-            frontend:
-              - 'src/bjjeire-app/**'
-            java_api:
-              - 'src/bjjeire-api/**'
-            java_api_image:
-              - 'src/bjjeire-api/src/main/**'
-              - 'src/bjjeire-api/pom.xml'
-              - 'src/bjjeire-api/Dockerfile'
-            seeder:
-              - 'src/bjjeire-api/seeder.Dockerfile'
-              - 'src/bjjeire-api/src/main/java/com/bjjeire/api/seeder/**'
-              - 'seeder/data/**'
+          filters: .github/path-filters.yml
 
   java_build_test:
     name: Java Build & Test
-    needs: detect-changes
-    if: contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api')
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api')
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -63,10 +51,10 @@ jobs:
   generate_openapi_contract:
     name: Generate OpenAPI Contract
     runs-on: ubuntu-latest
-    needs: detect-changes
+    needs: detect_changes
     if: |
-      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
-      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -80,7 +68,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -95,13 +83,13 @@ jobs:
 
   generate_pact_contract:
     name: Generate Pact Contract
-    needs: detect-changes
+    needs: detect_changes
     if: |
-      contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api') ||
-      contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend')
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api') ||
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
     with:
       job-name: Generate Pact Contract
       working-directory: src/bjjeire-app
@@ -153,7 +141,7 @@ jobs:
           token: ${{ github.token }}
           user: ${{ github.actor }}
       - name: Publish OpenAPI contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
           file: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -166,7 +154,7 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
           file: ${{ env.PACT_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
@@ -179,6 +167,8 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published Pact contract
 
+  # Images are independent of contract publish. Gate on Java when it ran so a
+  # red verify never ships; seeder/frontend-only changes skip Java and still build.
   build_push:
     name: Build & Push Images
     permissions:
@@ -187,14 +177,20 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    needs: [publish_contracts_ghcr, java_build_test]
+    needs: [detect_changes, java_build_test]
     if: |
       always() &&
-      needs.publish_contracts_ghcr.result == 'success' &&
-      (needs.java_build_test.result == 'success' || needs.java_build_test.result == 'skipped')
+      (needs.java_build_test.result == 'success' || needs.java_build_test.result == 'skipped') &&
+      (
+        contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api_image') ||
+        contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend') ||
+        contains(fromJSON(needs.detect_changes.outputs.changes), 'seeder') ||
+        startsWith(github.ref, 'refs/tags/')
+      )
     uses: ./.github/workflows/build-push-ghcr.yml
     with:
       push_images: true
+      changes: ${{ needs.detect_changes.outputs.changes }}
     secrets:
       VITE_APP_MSAL_CLIENT_ID: ${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
       VITE_APP_MSAL_AUTHORITY: ${{ secrets.VITE_APP_MSAL_AUTHORITY }}
@@ -210,14 +206,14 @@ jobs:
   # Gated on ACCEPTANCE_AKS_ENABLED until the rebuilt dev cluster + ARC pool
   # are back. Compose @smoke lives on ci-pr.yml.
   acceptance_ephemeral:
-    name: Acceptance Tests (AKS ephemeral)
-    needs: [detect-changes, build_push]
+    name: Acceptance Tests (AKS Ephemeral)
+    needs: [detect_changes, build_push]
     if: |
       vars.ACCEPTANCE_AKS_ENABLED == 'true' &&
       needs.build_push.result == 'success' &&
-      (contains(fromJSON(needs.detect-changes.outputs.changes), 'java_api_image') ||
-       contains(fromJSON(needs.detect-changes.outputs.changes), 'frontend') ||
-       contains(fromJSON(needs.detect-changes.outputs.changes), 'seeder') ||
+      (contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api_image') ||
+       contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend') ||
+       contains(fromJSON(needs.detect_changes.outputs.changes), 'seeder') ||
        startsWith(github.ref, 'refs/tags/'))
     permissions:
       contents: read
@@ -259,7 +255,7 @@ jobs:
         PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
 
   promote_images:
-    name: Promote sha → main
+    name: Promote SHA to Main
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [build_push, acceptance_ephemeral]
@@ -313,7 +309,7 @@ jobs:
     timeout-minutes: 5
     if: always()
     needs:
-      - detect-changes
+      - detect_changes
       - java_build_test
       - generate_openapi_contract
       - generate_pact_contract
@@ -323,7 +319,7 @@ jobs:
       - promote_images
     steps:
       - name: Verify all required main-branch jobs succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: Main delivery

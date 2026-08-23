@@ -40,8 +40,12 @@ docker compose -f docker-compose.yml -f docker-compose.override.local.yml up -d
 - `certs/` for HTTPS dev certs
 
 ## Platform
-- All images built for `linux/arm64` (Apple Silicon)
-- Change to `linux/amd64` for CI/CD or x86 servers
+- Local compose defaults to `linux/arm64` (Apple Silicon). CI override (`docker-compose.override.ci.yml`) uses `linux/amd64`.
+- GHCR images on `main` are multi-arch (`linux/amd64,linux/arm64`). PR preview images are `linux/amd64` only.
+
+## API / seeder images
+- Multi-stage: `dependency:go-offline` then `package` so source-only changes reuse the Maven cache layer
+- Runtime user is UID 10001 (non-root). API healthchecks still use `curl` in the image
 
 ## Resource Limits
 - Default: 0.50 CPU / 512MB RAM per service

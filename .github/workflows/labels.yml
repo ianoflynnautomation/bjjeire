@@ -1,4 +1,4 @@
-name: Sync labels
+name: Sync Labels
 
 on:
   push:
@@ -22,12 +22,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  sync:
-    name: Upsert labels from labels.yml
+  sync_labels:
+    name: Sync Labels
     permissions:
       contents: read
       issues: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
     with:
       labels-file: .github/labels.yml
       dry-run: ${{ inputs.dry_run || false }}

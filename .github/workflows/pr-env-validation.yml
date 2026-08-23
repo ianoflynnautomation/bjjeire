@@ -1,4 +1,4 @@
-name: PR Env Validation
+name: PR Environment Validation
 
 # Per-PR preview environment on AKS, owned by Flux.
 #
@@ -42,12 +42,48 @@ env:
   PREVIEW_NS: pr-${{ github.event.pull_request.number }}
 
 jobs:
-  build-api:
+  detect_changes:
+    name: Detect Changed Paths
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Build API image
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changes: ${{ steps.changes.outputs.changes }}
+      preview: ${{ steps.preview.outputs.preview }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - id: changes
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        with:
+          filters: .github/path-filters.yml
+      - id: preview
+        env:
+          CHANGES: ${{ steps.changes.outputs.changes }}
+        run: |
+          set -euo pipefail
+          preview=false
+          if printf '%s' "${CHANGES:-[]}" | jq -e 'index("java_api_image") or index("frontend") or index("seeder")' >/dev/null; then
+            preview=true
+          fi
+          echo "preview=${preview}" >> "$GITHUB_OUTPUT"
+          echo "::notice title=PR preview::needed=${preview} changes=${CHANGES:-[]}"
+
+  # Flux pins all three images to one pr-<n>-<sha> tag, so any deployable
+  # change rebuilds the set. Skip the whole preview when nothing deployable
+  # changed. amd64-only — AKS nodes are amd64; share GHA cache with main.
+  build_api_image:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.detect_changes.outputs.preview == 'true'
+    name: Build API Image
+    needs: detect_changes
     permissions:
       contents: read
       packages: write
@@ -59,19 +95,22 @@ jobs:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
       context: ./src/bjjeire-api
+      platforms: linux/amd64
       push: true
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-api-pr
+      cache-scope: bjjeire-api
       labels: |
         org.opencontainers.image.title=bjjeire-api
 
-  build-frontend:
+  build_frontend_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    name: Build frontend image
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.detect_changes.outputs.preview == 'true'
+    name: Build Frontend Image
+    needs: detect_changes
     permissions:
       contents: read
       packages: write
@@ -82,10 +121,11 @@ jobs:
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
+      platforms: linux/amd64
       push: true
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-frontend-pr
+      cache-scope: bjjeire-frontend
       labels: |
         org.opencontainers.image.title=bjjeire-frontend
     secrets:
@@ -100,12 +140,14 @@ jobs:
         VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
         VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
 
-  build-seeder:
+  build_seeder_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    name: Build seeder image
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.detect_changes.outputs.preview == 'true'
+    name: Build Seeder Image
+    needs: detect_changes
     permissions:
       contents: read
       packages: write
@@ -117,20 +159,21 @@ jobs:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile
       context: .
+      platforms: linux/amd64
       push: true
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-seeder-pr
+      cache-scope: bjjeire-seeder
       labels: |
         org.opencontainers.image.title=bjjeire-seeder
 
-  label-preview:
+  label_preview:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Label deploy-preview
-    needs: [build-api, build-frontend, build-seeder]
+    name: Label Deploy Preview
+    needs: [build_api_image, build_frontend_image, build_seeder_image]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -166,13 +209,13 @@ jobs:
             })
             core.notice(`Labeled #${context.issue.number} ${label}`)
 
-  wait-ready:
+  wait_preview_ready:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Wait for Flux preview
-    needs: [label-preview]
+    name: Wait for Flux Preview
+    needs: [label_preview]
     runs-on: gha-runner-scale-set
     timeout-minutes: 20
     permissions:
@@ -233,13 +276,13 @@ jobs:
           upload-artifact: "true"
           artifact-name: k8s-diagnostics-${{ env.PREVIEW_NS }}
 
-  acceptance:
+  test_acceptance:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Acceptance tests
-    needs: [wait-ready]
+    name: Acceptance Tests
+    needs: [wait_preview_ready]
     permissions:
       contents: read
       actions: read
@@ -253,8 +296,8 @@ jobs:
       # those hostnames to the in-cluster Istio gateway so traffic never
       # hits Cloudflare Bot Fight. API shards still override API_URL to
       # Service DNS below.
-      base-url: ${{ needs.wait-ready.outputs.base_url }}
-      api-url: ${{ needs.wait-ready.outputs.api_base_url }}
+      base-url: ${{ needs.wait_preview_ready.outputs.base_url }}
+      api-url: ${{ needs.wait_preview_ready.outputs.api_base_url }}
       env-vars: |
         PIN_CLUSTER_GATEWAY=true
       test-repo: ianoflynnautomation/bjjeire-tests
@@ -269,7 +312,7 @@ jobs:
         api=playwright.api.config.ts
       default-config: playwright.ui.config.ts
       project-env-overrides: |
-        api:API_URL=${{ needs.wait-ready.outputs.internal_api_url }}
+        api:API_URL=${{ needs.wait_preview_ready.outputs.internal_api_url }}
         api:CF_ACCESS_REQUIRED=false
         api:CF_ACCESS_CLIENT_ID=
         api:CF_ACCESS_CLIENT_SECRET=
@@ -288,14 +331,15 @@ jobs:
         PW_TEST_USER=${{ secrets.PW_TEST_USER }}
         PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
 
-  pr-comment:
+  comment_preview:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      always()
-    name: Post PR env link
-    needs: [wait-ready, acceptance]
+      always() &&
+      needs.wait_preview_ready.result != 'skipped'
+    name: Comment Preview Environment
+    needs: [wait_preview_ready, test_acceptance]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -305,10 +349,10 @@ jobs:
         id: comment_body
         shell: bash
         env:
-          BASE_URL: ${{ needs.wait-ready.outputs.base_url }}
-          API_URL: ${{ needs.wait-ready.outputs.api_base_url }}
-          DEPLOY_RESULT: ${{ needs.wait-ready.result }}
-          TEST_RESULT: ${{ needs.acceptance.result }}
+          BASE_URL: ${{ needs.wait_preview_ready.outputs.base_url }}
+          API_URL: ${{ needs.wait_preview_ready.outputs.api_base_url }}
+          DEPLOY_RESULT: ${{ needs.wait_preview_ready.result }}
+          TEST_RESULT: ${{ needs.test_acceptance.result }}
         run: |
           set -euo pipefail
           DEPLOY="${DEPLOY_RESULT:-unknown}"
@@ -336,19 +380,19 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post PR env link
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}
           issue-number: ${{ github.event.pull_request.number }}
           summary-title: PR environment
 
-  unlabel-preview:
+  unlabel_preview:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Remove deploy-preview
+    name: Remove Deploy Preview
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -370,13 +414,13 @@ jobs:
               core.notice('deploy-preview already absent')
             }
 
-  destroy-env:
+  destroy_preview:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    name: Destroy pr-${{ github.event.pull_request.number }}
-    needs: [unlabel-preview]
+    name: Destroy Preview Environment
+    needs: [unlabel_preview]
     permissions:
       contents: read
       id-token: write

@@ -1,7 +1,6 @@
-name: Acceptance (staging)
+name: Acceptance Staging
 
 # Runs the same Playwright suite against the long-lived staging environment.
-# No deploy, no seeder, no destroy. Refuse to run against production hosts.
 
 on:
   schedule:
@@ -16,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  guard:
-    name: Refuse production hosts
+  refuse_production_hosts:
+    name: Refuse Production Hosts
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -49,9 +48,9 @@ jobs:
           done
           echo "::notice title=Staging targets::frontend=${BASE} api=${API}"
 
-  tests:
-    name: Playwright against staging
-    needs: [guard]
+  test_acceptance_staging:
+    name: Acceptance Tests (Staging)
+    needs: [refuse_production_hosts]
     permissions:
       contents: read
       actions: read

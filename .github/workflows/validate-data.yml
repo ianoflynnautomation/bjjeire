@@ -21,8 +21,8 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  validate-data:
-    name: Validate data against Domain entities
+  validate_seeder_data:
+    name: Validate Seeder Data
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -50,8 +50,8 @@ jobs:
           echo "::endgroup::"
           echo "::notice title=Data validation::All seeder data deserializes into Domain entities"
 
-  ireland-coordinates:
-    name: Coordinates within Ireland bounding box
+  validate_ireland_coordinates:
+    name: Validate Ireland Coordinates
     runs-on: ubuntu-latest
     container:
       image: node:26-bookworm-slim

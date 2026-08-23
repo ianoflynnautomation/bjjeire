@@ -22,8 +22,8 @@ permissions:
   contents: read
 
 jobs:
-  cleanup:
-    name: Cleanup
+  cleanup_artifacts:
+    name: Cleanup Artifacts
     permissions:
       actions: write
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/cleanup-artifacts.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
