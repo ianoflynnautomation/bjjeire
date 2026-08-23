@@ -19,6 +19,12 @@ class ApiService {
 
   private setupRequestInterceptor(): void {
     this.instance.interceptors.request.use(async config => {
+      const method = (config.method ?? 'get').toLowerCase()
+      // Catalog GETs are permitAll. A Bearer for a deleted SPA/API (typical
+      // after teardown) makes Spring's JWT filter 401 those public reads.
+      if (method === 'get') {
+        return config
+      }
       const accounts = msalInstance.getAllAccounts()
       if (accounts.length === 0) {
         return config
@@ -31,19 +37,11 @@ class ApiService {
         })
         config.headers.set('Authorization', `Bearer ${result.accessToken}`)
       } catch (error) {
-        // GETs are public reads and may proceed anonymously; writes are
-        // protected and must never be sent unauthenticated
-        if ((config.method ?? 'get').toLowerCase() !== 'get') {
-          logger.error(
-            'Silent token acquisition failed — blocking unauthenticated write:',
-            { url: config.url }
-          )
-          throw error
-        }
-        logger.warn(
-          'Silent token acquisition failed — proceeding without auth:',
-          error
+        logger.error(
+          'Silent token acquisition failed — blocking unauthenticated write:',
+          { url: config.url }
         )
+        throw error
       }
       return config
     })

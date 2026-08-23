@@ -17,6 +17,7 @@ spring:
           issuer-uri: ${ENTRA_ISSUER_URI:https://login.microsoftonline.com/REPLACE_WITH_YOUR_TENANT_ID/v2.0}
           audiences:
             - ${ENTRA_AUDIENCE:api://REPLACE_WITH_YOUR_CLIENT_ID}
+            - ${ENTRA_AUDIENCE_URI:${ENTRA_AUDIENCE:api://REPLACE_WITH_YOUR_CLIENT_ID}}
 
 server:
   port: ${SERVER_PORT:${PORT:8080}}

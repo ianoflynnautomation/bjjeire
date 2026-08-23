@@ -1,7 +1,6 @@
-name: Acceptance (staging)
+name: Acceptance Staging
 
 # Runs the same Playwright suite against the long-lived staging environment.
-# No deploy, no seeder, no destroy. Refuse to run against production hosts.
 
 on:
   schedule:
@@ -16,8 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  guard:
-    name: Refuse production hosts
+  refuse_production_hosts:
+    name: Refuse Production Hosts
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -49,22 +48,23 @@ jobs:
           done
           echo "::notice title=Staging targets::frontend=${BASE} api=${API}"
 
-  tests:
-    name: Playwright against staging
-    needs: [guard]
+  test_acceptance_staging:
+    name: Acceptance Tests (Staging)
+    needs: [refuse_production_hosts]
     permissions:
       contents: read
       actions: read
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@77d3238a8e555c7f51b256cd0301454000b0b7bf  # v1.4.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       mode: existing
       base-url: ${{ vars.STAGING_BASE_URL }}
       api-url: ${{ vars.STAGING_API_URL }}
       test-tags: "@acceptance"
       fail-on-flaky: true
+      fail-fast: false
       publish-report: true
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest

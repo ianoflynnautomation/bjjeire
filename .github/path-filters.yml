@@ -1,0 +1,22 @@
+frontend:
+  - "src/bjjeire-app/**"
+  - "Caddyfile"
+  - "tools/images/**"
+java_api:
+  - "src/bjjeire-api/**"
+java_api_image:
+  - "src/bjjeire-api/src/main/**"
+  - "src/bjjeire-api/pom.xml"
+  - "src/bjjeire-api/Dockerfile"
+seeder:
+  - "src/bjjeire-api/seeder.Dockerfile"
+  - "src/bjjeire-api/src/main/java/com/bjjeire/api/seeder/**"
+  - "seeder/data/**"
+compose:
+  - "docker-compose.yml"
+  - "docker-compose.override*.yml"
+  - ".github/scripts/smoke-pre-up.sh"
+  - "src/bjjeire-api/Dockerfile"
+  - "src/bjjeire-api/seeder.Dockerfile"
+  - "src/bjjeire-app/Dockerfile"
+  - "Caddyfile"

@@ -110,7 +110,7 @@ describe('api.delete', () => {
 })
 
 describe('request interceptor — auth', () => {
-  it('given a signed-in MSAL account, when a request is sent, then the Bearer token is attached', async () => {
+  it('given a signed-in MSAL account, when a GET is sent, then no Authorization header is attached', async () => {
     mockMsalInstance.getAllAccounts.mockReturnValue([
       { username: 'user@test.com' },
     ])
@@ -120,13 +120,34 @@ describe('request interceptor — auth', () => {
 
     let authHeader: string | null = null
     server.use(
-      http.get(`${BASE}/protected`, ({ request }) => {
+      http.get(`${BASE}/catalog`, ({ request }) => {
         authHeader = request.headers.get('Authorization')
         return HttpResponse.json({ ok: true })
       })
     )
 
-    await api.get('protected')
+    await api.get('catalog')
+    expect(authHeader).toBeNull()
+    expect(mockMsalInstance.acquireTokenSilent).not.toHaveBeenCalled()
+  })
+
+  it('given a signed-in MSAL account, when a POST is sent, then the Bearer token is attached', async () => {
+    mockMsalInstance.getAllAccounts.mockReturnValue([
+      { username: 'user@test.com' },
+    ])
+    mockMsalInstance.acquireTokenSilent.mockResolvedValue({
+      accessToken: 'test-token',
+    })
+
+    let authHeader: string | null = null
+    server.use(
+      http.post(`${BASE}/protected`, ({ request }) => {
+        authHeader = request.headers.get('Authorization')
+        return HttpResponse.json({ ok: true })
+      })
+    )
+
+    await api.post('protected', { name: 'x' })
     expect(authHeader).toBe('Bearer test-token')
   })
 
@@ -168,14 +189,13 @@ describe('request interceptor — auth', () => {
     expect(requestReachedServer).not.toHaveBeenCalled()
   })
 
-  it('given token acquisition fails, when a GET is sent, then it proceeds without auth and logs a warning', async () => {
+  it('given token acquisition would fail, when a GET is sent, then MSAL is not called and no Authorization header is attached', async () => {
     mockMsalInstance.getAllAccounts.mockReturnValue([
       { username: 'user@test.com' },
     ])
     mockMsalInstance.acquireTokenSilent.mockRejectedValue(
       new Error('Token expired')
     )
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     let authHeader: string | null = null
     server.use(
@@ -187,10 +207,7 @@ describe('request interceptor — auth', () => {
 
     await api.get('fallback')
     expect(authHeader).toBeNull()
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[bjjeire] Silent token acquisition failed — proceeding without auth:',
-      expect.any(Error)
-    )
+    expect(mockMsalInstance.acquireTokenSilent).not.toHaveBeenCalled()
   })
 })
 

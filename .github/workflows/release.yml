@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  release-please:
+  release_please:
     name: Release Please
     runs-on: ubuntu-latest
     permissions:
@@ -69,13 +69,13 @@ jobs:
 
           echo "::notice title=Resolved::api_released=$API_RELEASED api_version=$API_VERSION | frontend_released=$FRONTEND_RELEASED frontend_version=$FRONTEND_VERSION"
 
-  publish-api-artifacts:
+  publish_api_artifacts:
     name: Publish API Release Artifacts
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: release-please
-    if: needs.release-please.outputs.api_released == 'true'
+    needs: release_please
+    if: needs.release_please.outputs.api_released == 'true'
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -98,18 +98,18 @@ jobs:
       - name: Upload artifacts to GitHub Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v3.0.2
         with:
-          tag_name: ${{ needs.release-please.outputs.api_tag }}
+          tag_name: ${{ needs.release_please.outputs.api_tag }}
           files: src/bjjeire-api/target/bjjeire-api-*.jar
 
-  publish-frontend-artifacts:
-    name: Publish Frontend Dist Artifacts
+  publish_frontend_artifacts:
+    name: Publish Frontend Release Artifacts
     runs-on: ubuntu-latest
     container:
       image: node:26-bookworm-slim
     permissions:
       contents: write
-    needs: release-please
-    if: needs.release-please.outputs.frontend_released == 'true'
+    needs: release_please
+    if: needs.release_please.outputs.frontend_released == 'true'
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -144,97 +144,63 @@ jobs:
       - name: Upload artifacts to GitHub Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v3.0.2
         with:
-          tag_name: ${{ needs.release-please.outputs.frontend_tag }}
+          tag_name: ${{ needs.release_please.outputs.frontend_tag }}
           files: frontend-dist.tar.gz
 
-  build-push-api-image:
-    name: Build & Push API Image (Release)
+  # Retag the already-promoted :main digest. ci-main built and accepted these
+  # images; rebuilding here would ignore that gate and double the build cost.
+  tag_release_images:
+    name: Tag Release Images from Main
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: release_please
+    if: >
+      needs.release_please.outputs.api_released == 'true' ||
+      needs.release_please.outputs.frontend_released == 'true'
     permissions:
       contents: read
       packages: write
-      id-token: write
-      attestations: write
-      security-events: write
-    needs: release-please
-    if: needs.release-please.outputs.api_released == 'true'
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
-    with:
-      image-name: bjjeire-api
-      dockerfile: ./src/bjjeire-api/Dockerfile
-      context: ./src/bjjeire-api
-      cache-scope: bjjeire-api-main
-      tags: |
-        type=raw,value=v${{ needs.release-please.outputs.api_version }}
-        type=raw,value=latest
-      labels: |
-        org.opencontainers.image.title=bjjeire-api
-        org.opencontainers.image.version=${{ needs.release-please.outputs.api_version }}
-        org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-        org.opencontainers.image.revision=${{ github.sha }}
-      build-args: |
-        APP_VERSION=${{ needs.release-please.outputs.api_version }}
+    env:
+      REGISTRY: ghcr.io
+      OWNER: ${{ github.repository_owner }}
+      API_RELEASED: ${{ needs.release_please.outputs.api_released }}
+      API_VERSION: ${{ needs.release_please.outputs.api_version }}
+      FRONTEND_RELEASED: ${{ needs.release_please.outputs.frontend_released }}
+      FRONTEND_VERSION: ${{ needs.release_please.outputs.frontend_version }}
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f  # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  build-push-seeder-image:
-    name: Build & Push Seeder Image (Release)
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-      attestations: write
-      security-events: write
-    needs: release-please
-    if: needs.release-please.outputs.api_released == 'true'
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
-    with:
-      image-name: bjjeire-seeder
-      dockerfile: ./src/bjjeire-api/seeder.Dockerfile
-      context: .
-      cache-scope: bjjeire-seeder-main
-      tags: |
-        type=raw,value=v${{ needs.release-please.outputs.api_version }}
-        type=raw,value=latest
-      labels: |
-        org.opencontainers.image.title=bjjeire-seeder
-        org.opencontainers.image.version=${{ needs.release-please.outputs.api_version }}
-        org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-        org.opencontainers.image.revision=${{ github.sha }}
-      build-args: |
-        APP_VERSION=${{ needs.release-please.outputs.api_version }}
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
 
-  build-push-frontend-image:
-    name: Build & Push Frontend Image (Release)
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-      attestations: write
-      security-events: write
-    needs: release-please
-    if: needs.release-please.outputs.frontend_released == 'true'
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
-    with:
-      image-name: bjjeire-frontend
-      dockerfile: ./src/bjjeire-app/Dockerfile
-      cache-scope: bjjeire-frontend-main
-      tags: |
-        type=raw,value=v${{ needs.release-please.outputs.frontend_version }}
-        type=raw,value=latest
-      labels: |
-        org.opencontainers.image.title=bjjeire-frontend
-        org.opencontainers.image.version=${{ needs.release-please.outputs.frontend_version }}
-        org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-        org.opencontainers.image.revision=${{ github.sha }}
-      build-args: |
-        APP_VERSION=${{ needs.release-please.outputs.frontend_version }}
-    secrets:
-      # Public config baked into the SPA bundle — not credentials.
-      SECRET_BUILD_ARGS: |
-        VITE_APP_MSAL_CLIENT_ID=${{ secrets.VITE_APP_MSAL_CLIENT_ID }}
-        VITE_APP_MSAL_AUTHORITY=${{ secrets.VITE_APP_MSAL_AUTHORITY }}
-        VITE_APP_MSAL_API_SCOPE=${{ secrets.VITE_APP_MSAL_API_SCOPE }}
-        VITE_APP_CF_BEACON_TOKEN=${{ secrets.VITE_APP_CF_BEACON_TOKEN }}
-        VITE_APP_APP_URL=${{ secrets.VITE_APP_URL }}
-        VITE_APP_CONTACT_EMAIL=${{ secrets.VITE_APP_CONTACT_EMAIL }}
-        VITE_APP_SOCIAL_INSTAGRAM_URL=${{ secrets.VITE_APP_SOCIAL_INSTAGRAM_URL }}
-        VITE_APP_SOCIAL_FACEBOOK_URL=${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
-        VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
+      - name: Tag :main as semver and latest
+        shell: bash
+        run: |
+          set -euo pipefail
+          retag() {
+            local name="$1" version="$2"
+            local ref="${REGISTRY}/${OWNER}/${name}"
+            echo "::group::${name} v${version}"
+            if ! docker buildx imagetools inspect "${ref}:main" >/dev/null 2>&1; then
+              echo "::error title=Missing main tag::${ref}:main does not exist — wait for ci-main promote, then re-run"
+              exit 1
+            fi
+            docker buildx imagetools create \
+              --tag "${ref}:v${version}" \
+              --tag "${ref}:latest" \
+              "${ref}:main"
+            echo "::notice title=Tagged::${ref}:v${version} and :latest from :main"
+            echo "::endgroup::"
+          }
+          if [ "${API_RELEASED}" = "true" ]; then
+            retag bjjeire-api "${API_VERSION}"
+            retag bjjeire-seeder "${API_VERSION}"
+          fi
+          if [ "${FRONTEND_RELEASED}" = "true" ]; then
+            retag bjjeire-frontend "${FRONTEND_VERSION}"
+          fi
