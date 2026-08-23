@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.20](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.19...api-v0.1.20) (2026-08-23)
+
+
+### Features
+
+* add ephemeral test env ([d6f9383](https://github.com/ianoflynnautomation/bjjeire/commit/d6f93838e09675eb996739450eee2fbb7d7cf3a3))
+* add ephemeral test env ([23899ba](https://github.com/ianoflynnautomation/bjjeire/commit/23899baad131ff0fcc0938c0f63571f47a7b6ba0))
+
 ## [0.1.19](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.18...api-v0.1.19) (2026-08-20)
 
 

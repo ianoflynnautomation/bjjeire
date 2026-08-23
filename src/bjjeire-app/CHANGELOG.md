@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.33](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.32...frontend-v0.1.33) (2026-08-23)
+
+
+### Features
+
+* add ephemeral test env ([d6f9383](https://github.com/ianoflynnautomation/bjjeire/commit/d6f93838e09675eb996739450eee2fbb7d7cf3a3))
+
+
+### Bug Fixes
+
+* ui acceptance tests ([4a33d66](https://github.com/ianoflynnautomation/bjjeire/commit/4a33d6604e24aca1732f2456e03827e20ddd5668))
+
 ## [0.1.32](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.31...frontend-v0.1.32) (2026-08-20)
 
 
