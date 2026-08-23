@@ -7,7 +7,8 @@ name: PR Env Validation
 #     1. Build + push pr-<n>-<headsha> images (docker-build-push.yml)
 #     2. Add label deploy-preview — ResourceSetInputProvider picks it up
 #     3. Wait for HelmRelease bjj-eire in namespace pr-<n>
-#     4. Run Playwright against the preview URLs
+#     4. Run Playwright against in-cluster Service DNS (skips Cloudflare
+#        Bot Fight). Public https://pr-N.bjjeire.com stays for humans.
 #   closed
 #     Remove deploy-preview (Flux prunes) and delete the namespace as backup
 #
@@ -181,6 +182,7 @@ jobs:
       base_url: ${{ steps.wait.outputs.base-url }}
       api_base_url: ${{ steps.wait.outputs.api-url }}
       internal_api_url: ${{ steps.wait.outputs.internal-api-url }}
+      internal_base_url: "http://bjj-frontend.${{ env.PREVIEW_NS }}.svc.cluster.local"
       namespace: ${{ steps.wait.outputs.namespace }}
     steps:
       - name: Log in to AKS
@@ -247,7 +249,11 @@ jobs:
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       app-env: staging
-      base-url: ${{ needs.wait-ready.outputs.base_url }}
+      # In-cluster frontend Service. Caddy proxies /api to bjj-api, so UI
+      # shards never cross Cloudflare Bot Fight (which cannot be skipped
+      # with WAF rules or CF-Access service tokens). Public URLs stay on
+      # wait-ready outputs for the PR comment.
+      base-url: ${{ needs.wait-ready.outputs.internal_base_url }}
       api-url: ${{ needs.wait-ready.outputs.api_base_url }}
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: "@smoke|@acceptance"
@@ -267,7 +273,7 @@ jobs:
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
-      fail-fast: true
+      fail-fast: false
     secrets:
       test-env-vars: |
         AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
