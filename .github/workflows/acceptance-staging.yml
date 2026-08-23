@@ -58,13 +58,14 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       mode: existing
       base-url: ${{ vars.STAGING_BASE_URL }}
       api-url: ${{ vars.STAGING_API_URL }}
       test-tags: "@acceptance"
       fail-on-flaky: true
+      fail-fast: false
       publish-report: true
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest

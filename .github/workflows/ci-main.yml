@@ -225,7 +225,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       mode: ephemeral
       env-id: sha-${{ github.run_id }}
@@ -242,6 +242,7 @@ jobs:
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
       fail-on-flaky: true
+      fail-fast: true
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

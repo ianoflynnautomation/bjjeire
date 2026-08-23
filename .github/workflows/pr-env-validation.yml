@@ -244,7 +244,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # v1.2.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       app-env: staging
       base-url: ${{ needs.wait-ready.outputs.base_url }}
@@ -267,6 +267,7 @@ jobs:
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
+      fail-fast: true
     secrets:
       test-env-vars: |
         AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}

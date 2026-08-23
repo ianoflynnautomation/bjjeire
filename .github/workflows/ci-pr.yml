@@ -242,7 +242,7 @@ jobs:
       id-token: write
       pages: write
       pull-requests: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@cf8cd586a13d524028cdf41c72c2f502ac246722  # v1.2.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
     with:
       compose-files: |
         docker-compose.yml
@@ -271,6 +271,7 @@ jobs:
         ACCEPT_INVALID_CERTS=true
       publish-report: true
       fail-on-flaky: false
+      fail-fast: true
     secrets:
       test-env-vars: |
         MONGO_URL=${{ secrets.EPHEMERAL_MONGO_URL }}
