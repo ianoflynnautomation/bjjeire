@@ -380,7 +380,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post PR env link
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@7852f19cc97d30c3fee0eb4db8ba4c7cca62dc1f  # v1.4.4
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}
