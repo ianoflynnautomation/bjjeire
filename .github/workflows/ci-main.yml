@@ -141,7 +141,7 @@ jobs:
           token: ${{ github.token }}
           user: ${{ github.actor }}
       - name: Publish OpenAPI contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@7852f19cc97d30c3fee0eb4db8ba4c7cca62dc1f  # v1.4.4
         with:
           file: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -154,7 +154,7 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@7852f19cc97d30c3fee0eb4db8ba4c7cca62dc1f  # v1.4.4
         with:
           file: ${{ env.PACT_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
