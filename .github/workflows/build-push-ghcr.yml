@@ -83,7 +83,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           filters: .github/path-filters.yml
 
@@ -103,7 +103,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
@@ -139,7 +139,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
@@ -187,7 +187,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile

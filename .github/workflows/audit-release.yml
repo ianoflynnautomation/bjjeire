@@ -36,7 +36,7 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-release.yml@141b7b1d3328f0b2e9fcb886c1a5ff1f4e74bf22  # v1.5.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-release.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       java-working-directory: src/bjjeire-api
       frontend-working-directory: src/bjjeire-app
