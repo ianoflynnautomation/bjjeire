@@ -175,8 +175,9 @@ jobs:
         npx eslint src --max-warnings 0
         npx prettier --check src/
         mkdir -p test-results
-        npx vitest run --coverage --project unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-unit.xml
+        npx vitest run --project unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-unit.xml
         npx vitest run --project integration --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-integration.xml
+        npx vitest run --coverage --project unit --project integration
         npm run test:pact
         npx vite build
       artifact-name: frontend-build-test
