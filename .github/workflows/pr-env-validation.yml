@@ -308,6 +308,11 @@ jobs:
         chromium-desktop
         firefox-desktop
         webkit-desktop
+      project-shard-overrides: |
+        api=2
+        chromium-desktop=4
+        firefox-desktop=1
+        webkit-desktop=1
       config-map: |
         api=playwright.api.config.ts
       default-config: playwright.ui.config.ts
@@ -318,6 +323,7 @@ jobs:
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
+      fail-on-flaky: true
       fail-fast: false
     secrets:
       test-env-vars: |

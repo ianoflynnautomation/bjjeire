@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       zizmor-enforce: false
 
@@ -38,7 +38,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
         with:
           filters: .github/path-filters.yml
 
@@ -48,7 +48,7 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       dependency-review-fail-on-severity: high
       dependency-review-comment-summary: on-failure
@@ -63,7 +63,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -92,7 +92,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -124,7 +124,7 @@ jobs:
           name: openapi-v1-json
           path: artifacts/openapi
       - name: Compare against last published contract
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
         with:
           current-spec: artifacts/openapi/openapi-v1.json
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -137,7 +137,7 @@ jobs:
     if: needs.generate_openapi_contract.result == 'success'
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Check Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -158,7 +158,7 @@ jobs:
     if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Frontend Build & Test
       working-directory: src/bjjeire-app
@@ -172,13 +172,16 @@ jobs:
         npx tsc --noEmit
         npx eslint src --max-warnings 0
         npx prettier --check src/
-        npx vitest run --coverage --project unit --project integration
+        mkdir -p test-results
+        npx vitest run --coverage --project unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-unit.xml
+        npx vitest run --project integration --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-integration.xml
         npm run test:pact
         npx vite build
       artifact-name: frontend-build-test
       artifact-path: |
         src/bjjeire-app/pacts/*.json
         src/bjjeire-app/coverage
+        src/bjjeire-app/test-results/*.xml
       artifact-if-no-files-found: error
       upload-artifact-always: true
       artifact-retention-days: 7
@@ -189,7 +192,7 @@ jobs:
     if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Test Frontend Browser
       working-directory: src/bjjeire-app
@@ -218,7 +221,7 @@ jobs:
       id-token: write
       pages: write
       pull-requests: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       compose-files: |
         docker-compose.yml
@@ -246,7 +249,7 @@ jobs:
       env-vars: |
         ACCEPT_INVALID_CERTS=true
       publish-report: false
-      fail-on-flaky: false
+      fail-on-flaky: true
       fail-fast: false
     secrets:
       test-env-vars: |
@@ -264,6 +267,92 @@ jobs:
         OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
         OTEL_EXPORTER_OTLP_HEADERS=${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
 
+  package_java_reports:
+    name: Package Java reports for PR audit PDF
+    needs: java_build_test
+    if: always() && (needs.java_build_test.result == 'success' || needs.java_build_test.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
+    with:
+      download-artifact-name: maven-test-results
+      download-artifact-pattern: ""
+      source: java
+      job-name: java_build_test
+      skip-reason: Maven Surefire/Failsafe XML was not uploaded by java_build_test on the PR validation pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        unit|java|**/surefire-reports/*.xml
+        integration|java|**/failsafe-reports/*.xml
+
+  package_frontend_reports:
+    name: Package frontend reports for PR audit PDF
+    needs: frontend_build_test
+    if: always() && (needs.frontend_build_test.result == 'success' || needs.frontend_build_test.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
+    with:
+      download-artifact-name: frontend-build-test
+      download-artifact-pattern: ""
+      source: frontend
+      job-name: frontend_build_test
+      skip-reason: Vitest JUnit XML was not uploaded by frontend_build_test on the PR validation pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        unit|frontend|**/vitest-unit.xml
+        integration|frontend|**/vitest-integration.xml
+
+  package_compose_reports:
+    name: Package compose smoke reports for PR audit PDF
+    needs: compose_smoke
+    if: always() && (needs.compose_smoke.result == 'success' || needs.compose_smoke.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
+    with:
+      download-artifact-name: playwright-docker-json-results
+      download-artifact-pattern: ""
+      source: compose
+      job-name: compose_smoke
+      skip-reason: Playwright JSON was not uploaded by compose_smoke on the PR validation pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        system|compose|**/*.json
+
+  audit_report:
+    name: Generate executive test report (PR validation)
+    needs:
+      - package_java_reports
+      - package_frontend_reports
+      - package_compose_reports
+    if: always()
+    permissions:
+      contents: write
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
+    with:
+      product: BjjEire
+      title: BjjEire PR Validation — Audit-Ready Compliance Release Report
+      environment: PR validation
+      required-categories: unit,integration,acceptance,system
+      strict-missing: false
+      fail-on-test-failure: true
+      artifact-name: bjjeire-pr-audit-release-report
+      artifact-retention-days: 14
+      download-pattern: report-*
+      attach-to-tag: ""
+      runs-on: ubuntu-latest
+
   pr_complete:
     name: PR Checks Complete
     runs-on: ubuntu-latest
@@ -280,9 +369,13 @@ jobs:
       - frontend_build_test
       - test_frontend_browser
       - compose_smoke
+      - package_java_reports
+      - package_frontend_reports
+      - package_compose_reports
+      - audit_report
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: PR checks

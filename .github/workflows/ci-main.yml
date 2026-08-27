@@ -47,6 +47,8 @@ jobs:
       maven-goals: verify
       publish-test-report: true
       test-report-name: Java Test Results
+      test-results-artifact-name: maven-test-results
+      artifact-retention-days: 14
 
   generate_openapi_contract:
     name: Generate OpenAPI Contract
@@ -105,6 +107,32 @@ jobs:
       artifact-path: src/bjjeire-app/pacts/BjjEireWeb-BjjEireApi.json
       artifact-if-no-files-found: error
       artifact-retention-days: 30
+
+  frontend_build_test:
+    name: Frontend Unit & Integration
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    with:
+      job-name: Frontend Unit & Integration
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 20
+      env-vars: |
+        HUSKY=0
+        SERVICES_API_HTTPS_0=https://api-ci-placeholder:443
+      commands: |
+        mkdir -p test-results
+        npx vitest run --project unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-unit.xml
+        npx vitest run --project integration --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-integration.xml
+      artifact-name: frontend-test-results
+      artifact-path: src/bjjeire-app/test-results/*.xml
+      artifact-if-no-files-found: error
+      upload-artifact-always: true
+      artifact-retention-days: 14
 
   publish_contracts_ghcr:
     name: Publish Contracts to GHCR
@@ -233,12 +261,20 @@ jobs:
       ttl: 4h
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: '@acceptance'
-      shard-total: 8
+      shard-total: 4
+      playwright-projects: |
+        api
+        chromium-desktop
+        firefox-desktop
+        webkit-desktop
+        snapshots
+        a11y
+        mobile-iphone
       keep-on-failure: true
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
       fail-on-flaky: true
-      fail-fast: true
+      fail-fast: false
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -303,6 +339,92 @@ jobs:
           promote bjjeire-frontend "${FRONTEND_DIGEST}"
           promote bjjeire-seeder "${SEEDER_DIGEST}"
 
+  package_java_reports:
+    name: Package Java reports for main audit PDF
+    needs: java_build_test
+    if: always() && (needs.java_build_test.result == 'success' || needs.java_build_test.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@141b7b1d3328f0b2e9fcb886c1a5ff1f4e74bf22  # v1.5.0
+    with:
+      download-artifact-name: maven-test-results
+      download-artifact-pattern: ""
+      source: java
+      job-name: java_build_test
+      skip-reason: Maven Surefire/Failsafe XML was not uploaded by java_build_test on the main delivery pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        unit|java|**/surefire-reports/*.xml
+        integration|java|**/failsafe-reports/*.xml
+
+  package_frontend_reports:
+    name: Package frontend reports for main audit PDF
+    needs: frontend_build_test
+    if: always() && (needs.frontend_build_test.result == 'success' || needs.frontend_build_test.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@141b7b1d3328f0b2e9fcb886c1a5ff1f4e74bf22  # v1.5.0
+    with:
+      download-artifact-name: frontend-test-results
+      download-artifact-pattern: ""
+      source: frontend
+      job-name: frontend_build_test
+      skip-reason: Vitest JUnit XML was not uploaded by frontend_build_test on the main delivery pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        unit|frontend|**/vitest-unit.xml
+        integration|frontend|**/vitest-integration.xml
+
+  package_acceptance_reports:
+    name: Package AKS acceptance reports for main audit PDF
+    needs: acceptance_ephemeral
+    if: always() && (needs.acceptance_ephemeral.result == 'success' || needs.acceptance_ephemeral.result == 'failure')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@141b7b1d3328f0b2e9fcb886c1a5ff1f4e74bf22  # v1.5.0
+    with:
+      download-artifact-name: playwright-json-results
+      download-artifact-pattern: ""
+      source: acceptance
+      job-name: acceptance_ephemeral
+      skip-reason: Playwright JSON was not uploaded by acceptance_ephemeral on the main delivery pipeline
+      fail-if-empty: false
+      artifact-retention-days: 14
+      runs-on: ubuntu-latest
+      packages: |
+        system|acceptance|**/*.json
+
+  audit_report:
+    name: Generate executive test report (main release pipeline)
+    needs:
+      - package_java_reports
+      - package_frontend_reports
+      - package_acceptance_reports
+    if: always()
+    permissions:
+      contents: write
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@141b7b1d3328f0b2e9fcb886c1a5ff1f4e74bf22  # v1.5.0
+    with:
+      product: BjjEire
+      title: BjjEire Main Delivery — Audit-Ready Compliance Release Report
+      environment: Main release pipeline
+      required-categories: unit,integration,acceptance,system
+      strict-missing: false
+      fail-on-test-failure: true
+      artifact-name: bjjeire-main-audit-release-report
+      artifact-retention-days: 90
+      download-pattern: report-*
+      attach-to-tag: ""
+      runs-on: ubuntu-latest
+
   main_complete:
     name: Main Delivery Complete
     runs-on: ubuntu-latest
@@ -313,10 +435,15 @@ jobs:
       - java_build_test
       - generate_openapi_contract
       - generate_pact_contract
+      - frontend_build_test
       - publish_contracts_ghcr
       - build_push
       - acceptance_ephemeral
       - promote_images
+      - package_java_reports
+      - package_frontend_reports
+      - package_acceptance_reports
+      - audit_report
     steps:
       - name: Verify all required main-branch jobs succeeded or were intentionally skipped
         uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0

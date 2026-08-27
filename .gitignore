@@ -93,6 +93,11 @@ mongo-data/
 *.pptx
 *.pdf
 
+# Python helper venvs
+.venv/
+__pycache__/
+*.pyc
+
 # Local tool state
 CLAUDE.local.md
 .claude/settings.local.json

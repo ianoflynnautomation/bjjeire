@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import { baseTestConfig, sharedExclude } from './vitest.base'
 
+process.env.VITE_APP_URL ??= 'http://localhost:3000'
+
 export default mergeConfig(
   baseTestConfig(),
   defineConfig({
