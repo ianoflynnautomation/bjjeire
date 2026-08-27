@@ -36,8 +36,7 @@ import org.testcontainers.mongodb.MongoDBContainer;
  * Base class for MongoDB-backed integration tests.
  *
  * <p>A single container and a single Spring context are shared by every subclass: the container is started once per JVM
- * (never stopped between classes) and the identical context configuration lets Spring's context cache reuse one
- * application context for the whole failsafe run.
+ *  and the identical context configuration lets Spring's context cache reuse one application context for the whole failsafe run.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = MongoIntegrationTest.SharedOverrides.class)

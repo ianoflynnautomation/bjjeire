@@ -20,8 +20,7 @@ class ApiService {
   private setupRequestInterceptor(): void {
     this.instance.interceptors.request.use(async config => {
       const method = (config.method ?? 'get').toLowerCase()
-      // Catalog GETs are permitAll. A Bearer for a deleted SPA/API (typical
-      // after teardown) makes Spring's JWT filter 401 those public reads.
+
       if (method === 'get') {
         return config
       }
