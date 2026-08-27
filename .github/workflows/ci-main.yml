@@ -29,7 +29,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           filters: .github/path-filters.yml
 
@@ -40,7 +40,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -70,7 +70,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -92,7 +92,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       job-name: Generate Pact Contract
       working-directory: src/bjjeire-app
@@ -116,7 +116,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       job-name: Frontend Unit & Integration
       working-directory: src/bjjeire-app
@@ -164,14 +164,14 @@ jobs:
           jq -e '.consumer and .interactions' "$PACT_ARTIFACT_PATH" > /dev/null
           echo "::notice title=Contract validation::Both contract artifacts are structurally valid"
       - name: Gate — block publish on breaking changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           current-spec: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
           token: ${{ github.token }}
           user: ${{ github.actor }}
       - name: Publish OpenAPI contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           file: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -184,7 +184,7 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           file: ${{ env.PACT_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
@@ -232,7 +232,7 @@ jobs:
       VITE_APP_SOCIAL_FACEBOOK_URL: ${{ secrets.VITE_APP_SOCIAL_FACEBOOK_URL }}
       VITE_APP_GITHUB_URL: ${{ secrets.VITE_APP_GITHUB_URL }}
 
-  # AKS ephemeral acceptance via Flux (sha-env apply + HelmRelease wait).
+  # AKS ephemeral acceptance via Flux (Static InputProvider + HelmRelease wait).
   # Gated on ACCEPTANCE_AKS_ENABLED until the rebuilt dev cluster + ARC pool
   # are back. Compose @smoke lives on ci-pr.yml.
   acceptance_ephemeral:
@@ -251,7 +251,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       mode: ephemeral
       env-id: sha-${{ github.run_id }}
@@ -348,7 +348,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       download-artifact-name: maven-test-results
       download-artifact-pattern: ""
@@ -369,7 +369,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       download-artifact-name: frontend-test-results
       download-artifact-pattern: ""
@@ -390,7 +390,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       download-artifact-name: playwright-json-results
       download-artifact-pattern: ""
@@ -413,7 +413,7 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
     with:
       product: BjjEire
       title: BjjEire Main Delivery — Audit-Ready Compliance Release Report
@@ -448,7 +448,7 @@ jobs:
       - audit_report
     steps:
       - name: Verify all required main-branch jobs succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: Main delivery
