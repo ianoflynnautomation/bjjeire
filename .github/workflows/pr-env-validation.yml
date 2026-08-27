@@ -311,6 +311,8 @@ jobs:
         PIN_CLUSTER_GATEWAY=true
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: "@smoke|@acceptance"
+      # Recommended on D8ds_v6 (32 GiB): 8 concurrent jobs. Keep shards;
+      # do not collapse to shard-total: 1.
       shard-total: 4
       playwright-projects: |
         api
