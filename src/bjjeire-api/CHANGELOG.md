@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.21](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.20...api-v0.1.21) (2026-08-27)
+
+
+### Features
+
+* add test reporting compliance ([afc66a1](https://github.com/ianoflynnautomation/bjjeire/commit/afc66a1900eafe0e95ef99afd1ecfc9014fe243f))
+
+
+### Bug Fixes
+
+* apply spotless wrap on MongoIntegrationTest javadoc ([0c5c2a1](https://github.com/ianoflynnautomation/bjjeire/commit/0c5c2a1e6685e3ec1b0006cb1adf371812e2bf8a))
+* failing ci ([129d96c](https://github.com/ianoflynnautomation/bjjeire/commit/129d96c4e533bf9a4f526509a628da4b38560db2))
+
 ## [0.1.20](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.19...api-v0.1.20) (2026-08-23)
 
 
