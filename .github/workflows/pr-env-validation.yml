@@ -75,9 +75,10 @@ jobs:
 
   # Flux pins all three images to one pr-<n>-<sha> tag, so any deployable
   # change rebuilds the set. Skip the whole preview when nothing deployable
-  # changed. amd64-only — AKS nodes are amd64; share GHA cache with main.
-  # attest: false — buildx provenance + GHCR attestations produce an OCI
-  # index that AKS containerd rejects with "no match for platform in manifest".
+  # changed. arm64-only — the apps node pool is Standard_D2ps_v6 (arm64);
+  # amd64 images pull then fail with exec format error. Native arm GHA
+  # runners avoid QEMU. attest: false — provenance indexes confuse AKS
+  # containerd ("no match for platform in manifest").
   build_api_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
@@ -97,12 +98,13 @@ jobs:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
       context: ./src/bjjeire-api
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
       attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-api
+      cache-scope: bjjeire-api-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-api
 
@@ -124,12 +126,13 @@ jobs:
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
       attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-frontend
+      cache-scope: bjjeire-frontend-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-frontend
     secrets:
@@ -163,12 +166,13 @@ jobs:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile
       context: .
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
       attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-seeder
+      cache-scope: bjjeire-seeder-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-seeder
 
