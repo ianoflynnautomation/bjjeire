@@ -2,8 +2,6 @@
 
 import { defineConfig } from 'vitest/config'
 
-// Root config: coverage and reporters are root-only options in Vitest
-// projects mode. Per-suite options live in the vitest.*.config.ts projects.
 export default defineConfig({
   test: {
     reporters: process.env.GITHUB_ACTIONS

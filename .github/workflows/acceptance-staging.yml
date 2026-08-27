@@ -57,7 +57,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@2e9d7cdf3b650d6e3e7b0424008c8e1645d28377  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       mode: existing
       base-url: ${{ vars.STAGING_BASE_URL }}

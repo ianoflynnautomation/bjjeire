@@ -27,7 +27,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       labels-file: .github/labels.yml
       dry-run: ${{ inputs.dry_run || false }}

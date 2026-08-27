@@ -58,7 +58,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           filters: .github/path-filters.yml
       - id: preview
@@ -75,7 +75,10 @@ jobs:
 
   # Flux pins all three images to one pr-<n>-<sha> tag, so any deployable
   # change rebuilds the set. Skip the whole preview when nothing deployable
-  # changed. amd64-only — AKS nodes are amd64; share GHA cache with main.
+  # changed. arm64-only — the apps node pool is Standard_D2ps_v6 (arm64);
+  # amd64 images pull then fail with exec format error. Native arm GHA
+  # runners avoid QEMU. attest: false — provenance indexes confuse AKS
+  # containerd ("no match for platform in manifest").
   build_api_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
@@ -90,16 +93,18 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
       context: ./src/bjjeire-api
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-api
+      cache-scope: bjjeire-api-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-api
 
@@ -117,15 +122,17 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-frontend
+      cache-scope: bjjeire-frontend-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-frontend
     secrets:
@@ -154,16 +161,18 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@26e45d2ba093606c068491a8adfdcbcb768309e8  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile
       context: .
-      platforms: linux/amd64
+      platforms: linux/arm64
+      runs-on: ubuntu-24.04-arm
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
-      cache-scope: bjjeire-seeder
+      cache-scope: bjjeire-seeder-arm64
       labels: |
         org.opencontainers.image.title=bjjeire-seeder
 
@@ -229,7 +238,7 @@ jobs:
       namespace: ${{ steps.wait.outputs.namespace }}
     steps:
       - name: Log in to AKS
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/azure-aks-login@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/azure-aks-login@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -258,7 +267,7 @@ jobs:
 
       - name: Wait for HelmRelease Ready
         id: wait
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           namespace: ${{ env.PREVIEW_NS }}
           name: bjj-eire
@@ -268,7 +277,7 @@ jobs:
 
       - name: Collect diagnostics
         if: failure()
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/collect-k8s-diagnostics@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/collect-k8s-diagnostics@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           namespace: ${{ env.PREVIEW_NS }}
           helm-release: bjj-eire
@@ -289,7 +298,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@b64e5a4eb35bfdf6025dbf8088a0dd8e7a085311  # main
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       app-env: staging
       # Public HTTPS origin (SPA/MSAL need it). PIN_CLUSTER_GATEWAY maps
@@ -308,6 +317,11 @@ jobs:
         chromium-desktop
         firefox-desktop
         webkit-desktop
+      project-shard-overrides: |
+        api=2
+        chromium-desktop=4
+        firefox-desktop=1
+        webkit-desktop=1
       config-map: |
         api=playwright.api.config.ts
       default-config: playwright.ui.config.ts
@@ -318,6 +332,7 @@ jobs:
         api:CF_ACCESS_CLIENT_SECRET=
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
+      fail-on-flaky: true
       fail-fast: false
     secrets:
       test-env-vars: |
@@ -380,7 +395,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post PR env link
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@f51b5ef3b6c34b56452d6bec29337e9d4240b078  # v1.3.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}
@@ -424,7 +439,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@e5a0f9590443cd2705b9da764d6a9c3571cc8700  # v1.4.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       env-id: pr-${{ github.event.pull_request.number }}
       cluster-resource-group: ${{ vars.AKS_RESOURCE_GROUP }}

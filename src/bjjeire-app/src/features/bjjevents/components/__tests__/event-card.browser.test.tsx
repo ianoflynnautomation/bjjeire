@@ -87,18 +87,25 @@ describe('EventCard (browser)', () => {
   })
 
   it('given a card, when a link is focused via Tab, then :focus-visible matches', async () => {
-    await render(
+    const screen = await render(
       <EventCard
         event={MOCK_EVENT_FULL}
         data-testid={EventsPageTestIds.LIST_ITEM}
       />
     )
 
+    await expect
+      .element(screen.getByTestId(EventsPageTestIds.LIST_ITEM))
+      .toBeVisible()
+
     await page.elementLocator(document.body).click()
     await userEvent.tab()
-    const focused = document.activeElement as HTMLElement
 
-    expect(focused.tagName).toBe('A')
-    expect(focused.matches(':focus-visible')).toBe(true)
+    await expect
+      .poll(() => (document.activeElement as HTMLElement | null)?.tagName)
+      .toBe('A')
+    expect(
+      (document.activeElement as HTMLElement).matches(':focus-visible')
+    ).toBe(true)
   })
 })
