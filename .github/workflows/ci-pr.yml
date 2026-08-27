@@ -137,6 +137,7 @@ jobs:
     if: needs.generate_openapi_contract.result == 'success'
     permissions:
       contents: read
+      actions: read
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Check Frontend API Compatibility
@@ -158,6 +159,7 @@ jobs:
     if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
+      actions: read
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Frontend Build & Test
@@ -192,6 +194,7 @@ jobs:
     if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
+      actions: read
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@1851fac7a3f3c6ca1ece79fdd2d10fa5bb977429  # v1.5.2
     with:
       job-name: Test Frontend Browser
