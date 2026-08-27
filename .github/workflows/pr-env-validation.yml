@@ -76,6 +76,8 @@ jobs:
   # Flux pins all three images to one pr-<n>-<sha> tag, so any deployable
   # change rebuilds the set. Skip the whole preview when nothing deployable
   # changed. amd64-only — AKS nodes are amd64; share GHA cache with main.
+  # attest: false — buildx provenance + GHCR attestations produce an OCI
+  # index that AKS containerd rejects with "no match for platform in manifest".
   build_api_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
@@ -97,6 +99,7 @@ jobs:
       context: ./src/bjjeire-api
       platforms: linux/amd64
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
       cache-scope: bjjeire-api
@@ -123,6 +126,7 @@ jobs:
       dockerfile: ./src/bjjeire-app/Dockerfile
       platforms: linux/amd64
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
       cache-scope: bjjeire-frontend
@@ -161,6 +165,7 @@ jobs:
       context: .
       platforms: linux/amd64
       push: true
+      attest: false
       tags: |
         type=raw,value=pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
       cache-scope: bjjeire-seeder
