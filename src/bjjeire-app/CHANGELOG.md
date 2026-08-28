@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.33...frontend-v0.1.34) (2026-08-27)
+
+
+### Features
+
+* add test reporting compliance ([afc66a1](https://github.com/ianoflynnautomation/bjjeire/commit/afc66a1900eafe0e95ef99afd1ecfc9014fe243f))
+* add test reporting compliance ([0e60b46](https://github.com/ianoflynnautomation/bjjeire/commit/0e60b468291ddaec55874b755c49a151ad467a43))
+
+
+### Bug Fixes
+
+* failing ci ([0c65f7f](https://github.com/ianoflynnautomation/bjjeire/commit/0c65f7f764569476b762b7e0de6e61df91779ebe))
+* failing ci ([129d96c](https://github.com/ianoflynnautomation/bjjeire/commit/129d96c4e533bf9a4f526509a628da4b38560db2))
+
 ## [0.1.33](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.32...frontend-v0.1.33) (2026-08-23)
 
 
