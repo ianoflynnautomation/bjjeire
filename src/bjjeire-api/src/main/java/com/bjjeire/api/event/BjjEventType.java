@@ -1,7 +1,5 @@
 package com.bjjeire.api.event;
 
-// Numeric wire codes match the legacy API contract. Code 2 is intentionally unused
-// (retired type) so existing clients that still send integers keep working.
 public enum BjjEventType {
     OpenMat(0),
     Seminar(1),

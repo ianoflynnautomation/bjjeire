@@ -68,6 +68,17 @@ jobs:
       publish-report: true
       runs-on: gha-runner-scale-set
       report-runs-on: ubuntu-latest
+      shard-total: 4
+      project-shard-overrides: |
+        api=2
+        chromium-desktop=4
+        firefox-desktop=1
+        webkit-desktop=1
+        chromium-wide=1
+        snapshots=1
+        a11y=1
+        mobile-iphone=1
+        mobile-galaxy=1
       playwright-projects: |
         api
         chromium-desktop
