@@ -11,7 +11,7 @@ export function formatFetchError(error: unknown): string {
     const message = error.message.toLowerCase()
     const code = (error as { code?: unknown }).code
     // Browser fetch network failures surface as TypeErrors with these
-    // messages (Chrome, Firefox, Safari); other TypeErrors are code bugs
+    // messages (Chrome, Firefox); other TypeErrors are code bugs
     if (
       code === 'ERR_NETWORK' ||
       message.includes('failed to fetch') ||
