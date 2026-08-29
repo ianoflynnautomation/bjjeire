@@ -26,7 +26,7 @@ jobs:
     name: Cleanup Artifacts
     permissions:
       actions: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/cleanup-artifacts.yml@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/cleanup-artifacts.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
     with:
       retention-days: ${{ fromJSON(github.event.inputs.retention_days || '30') }}
       dry-run: ${{ (github.event.inputs.dry_run || 'false') == 'true' }}
