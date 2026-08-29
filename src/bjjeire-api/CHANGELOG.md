@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.23](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.22...api-v0.1.23) (2026-08-29)
+
+
+### Bug Fixes
+
+* trigger tests ([9f533d4](https://github.com/ianoflynnautomation/bjjeire/commit/9f533d42e8f91b0e305be05ae28408105b97f690))
+
 ## [0.1.22](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.21...api-v0.1.22) (2026-08-29)
 
 
