@@ -138,7 +138,7 @@ jobs:
 
       - name: Comment back on issue (idempotent, success or failure)
         if: always() && steps.kind.outputs.kind != ''
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@2162415849bfd26a2a9284487c21425626e088a8  # v1.6.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
         with:
           marker: "<!-- bjjeire-bot:issue-to-pr -->"
           body: ${{ steps.comment_body.outputs.body }}
