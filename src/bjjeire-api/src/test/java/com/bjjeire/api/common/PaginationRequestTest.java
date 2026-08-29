@@ -12,7 +12,7 @@ class PaginationRequestTest {
         "1,    1,   1,    1",
         "2,    50,  2,    50",
         "1000, 100, 1000, 100",
-        // out of bounds: falls back to the contract defaults (page 1, pageSize 20)
+        // out of bounds: falls back to the contract defaults.
         "0,    101, 1,    20",
         "-1,   20,  1,    20",
         "1,    0,   1,    20",
