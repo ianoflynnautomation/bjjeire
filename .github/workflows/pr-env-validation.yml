@@ -58,7 +58,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           filters: .github/path-filters.yml
       - id: preview
@@ -87,7 +87,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
@@ -116,7 +116,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
@@ -155,7 +155,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile
@@ -232,7 +232,7 @@ jobs:
       namespace: ${{ steps.wait.outputs.namespace }}
     steps:
       - name: Log in to AKS
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/azure-aks-login@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/azure-aks-login@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -261,7 +261,7 @@ jobs:
 
       - name: Wait for HelmRelease Ready
         id: wait
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           namespace: ${{ env.PREVIEW_NS }}
           name: bjj-eire
@@ -271,7 +271,7 @@ jobs:
 
       - name: Collect diagnostics
         if: failure()
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/collect-k8s-diagnostics@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/collect-k8s-diagnostics@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           namespace: ${{ env.PREVIEW_NS }}
           helm-release: bjj-eire
@@ -292,7 +292,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       app-env: staging
       base-url: ${{ needs.wait_preview_ready.outputs.base_url }}
@@ -385,7 +385,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Post PR env link
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}
@@ -429,7 +429,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       env-id: pr-${{ github.event.pull_request.number }}
       cluster-resource-group: ${{ vars.AKS_RESOURCE_GROUP }}

@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       zizmor-enforce: false
 
@@ -38,7 +38,7 @@ jobs:
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           filters: .github/path-filters.yml
 
@@ -48,7 +48,7 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       dependency-review-fail-on-severity: high
       dependency-review-comment-summary: on-failure
@@ -63,7 +63,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -92,7 +92,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
@@ -124,7 +124,7 @@ jobs:
           name: openapi-v1-json
           path: artifacts/openapi
       - name: Compare against last published contract
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           current-spec: artifacts/openapi/openapi-v1.json
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -138,7 +138,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       job-name: Check Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -160,7 +160,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       job-name: Frontend Build & Test
       working-directory: src/bjjeire-app
@@ -196,7 +196,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       job-name: Test Frontend Browser
       working-directory: src/bjjeire-app
@@ -225,7 +225,7 @@ jobs:
       id-token: write
       pages: write
       pull-requests: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       compose-files: |
         docker-compose.yml
@@ -278,7 +278,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       download-artifact-name: maven-test-results
       download-artifact-pattern: ""
@@ -299,7 +299,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       download-artifact-name: frontend-build-test
       download-artifact-pattern: ""
@@ -320,7 +320,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       download-artifact-name: playwright-docker-json-results
       download-artifact-pattern: ""
@@ -343,7 +343,7 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
       product: BjjEire
       title: BjjEire PR Validation — Audit-Ready Compliance Release Report
@@ -379,7 +379,7 @@ jobs:
       - audit_report
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@6bba6a07ce3357aa8daeb0cb909a5b0b7ccbc5eb  # v1.6.1
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: PR checks
