@@ -95,6 +95,7 @@ jobs:
       (needs.detect_changes.result == 'success' || needs.detect_changes.result == 'skipped') &&
       (
         contains(fromJSON(inputs.changes != '' && inputs.changes || needs.detect_changes.outputs.changes || '[]'), 'java_api_image') ||
+        github.ref == 'refs/heads/main' ||
         startsWith(github.ref, 'refs/tags/')
       )
     permissions:
@@ -131,6 +132,7 @@ jobs:
       (needs.detect_changes.result == 'success' || needs.detect_changes.result == 'skipped') &&
       (
         contains(fromJSON(inputs.changes != '' && inputs.changes || needs.detect_changes.outputs.changes || '[]'), 'frontend') ||
+        github.ref == 'refs/heads/main' ||
         startsWith(github.ref, 'refs/tags/')
       )
     permissions:
@@ -179,6 +181,7 @@ jobs:
         contains(fromJSON(inputs.changes != '' && inputs.changes || needs.detect_changes.outputs.changes || '[]'), 'frontend') ||
         contains(fromJSON(inputs.changes != '' && inputs.changes || needs.detect_changes.outputs.changes || '[]'), 'java_api_image') ||
         contains(fromJSON(inputs.changes != '' && inputs.changes || needs.detect_changes.outputs.changes || '[]'), 'seeder') ||
+        github.ref == 'refs/heads/main' ||
         startsWith(github.ref, 'refs/tags/')
       )
     permissions:
