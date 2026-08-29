@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.22](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.21...api-v0.1.22) (2026-08-29)
+
+
+### Bug Fixes
+
+* fix:  ([8fe08ac](https://github.com/ianoflynnautomation/bjjeire/commit/8fe08ac4753bdbc20ec4c07f2e97bffd2b5f1a91))
+* acceptance tests shard and version ([67a00ed](https://github.com/ianoflynnautomation/bjjeire/commit/67a00ed20196ee426eac46f8cbca80b4d4e5ee39))
+* failing test ([f4de559](https://github.com/ianoflynnautomation/bjjeire/commit/f4de55947e60ca2c9a60fbc6b522e9abc5298552))
+
 ## [0.1.21](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.20...api-v0.1.21) (2026-08-27)
 
 
