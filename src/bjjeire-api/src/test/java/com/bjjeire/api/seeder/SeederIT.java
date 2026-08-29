@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
 
 class SeederIT extends MongoIntegrationTest {
-    // The canonical JSON sources at the repo root.
+    
     private static final Path DATA_ROOT = Path.of("../../seeder");
 
     @Autowired

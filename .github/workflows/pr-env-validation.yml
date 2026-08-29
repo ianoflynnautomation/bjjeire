@@ -73,12 +73,6 @@ jobs:
           echo "preview=${preview}" >> "$GITHUB_OUTPUT"
           echo "::notice title=PR preview::needed=${preview} changes=${CHANGES:-[]}"
 
-  # Flux pins all three images to one pr-<n>-<sha> tag, so any deployable
-  # change rebuilds the set. Skip the whole preview when nothing deployable
-  # changed. arm64-only — the apps node pool is Standard_D2ps_v6 (arm64);
-  # amd64 images pull then fail with exec format error. Native arm GHA
-  # runners avoid QEMU. attest: false — provenance indexes confuse AKS
-  # containerd ("no match for platform in manifest").
   build_api_image:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
@@ -301,18 +295,12 @@ jobs:
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-tests.yml@cebd9eb6db4762cfc798c3935c6b2ef8577c3bf4  # v1.5.3
     with:
       app-env: staging
-      # Public HTTPS origin (SPA/MSAL need it). PIN_CLUSTER_GATEWAY maps
-      # those hostnames to the in-cluster Istio gateway so traffic never
-      # hits Cloudflare Bot Fight. API shards still override API_URL to
-      # Service DNS below.
       base-url: ${{ needs.wait_preview_ready.outputs.base_url }}
       api-url: ${{ needs.wait_preview_ready.outputs.api_base_url }}
       env-vars: |
         PIN_CLUSTER_GATEWAY=true
       test-repo: ianoflynnautomation/bjjeire-tests
       test-tags: "@smoke|@acceptance"
-      # Recommended on D8ds_v6 (32 GiB): 8 concurrent jobs. Keep shards;
-      # do not collapse to shard-total: 1.
       shard-total: 4
       playwright-projects: |
         api
