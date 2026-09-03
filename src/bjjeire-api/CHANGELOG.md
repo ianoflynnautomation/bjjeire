@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.24](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.23...api-v0.1.24) (2026-09-03)
+
+
+### Features
+
+* add aplaytest to ci ([606c1ac](https://github.com/ianoflynnautomation/bjjeire/commit/606c1ac3a621b6b1bea204d40a0e5f6786005235))
+
+
+### Bug Fixes
+
+* ci main permission issue ([ed1da39](https://github.com/ianoflynnautomation/bjjeire/commit/ed1da392bfab8e73a13c46882de5f4a00318c265))
+* failing ci ([118caf1](https://github.com/ianoflynnautomation/bjjeire/commit/118caf10856b92b1c7e0cba4b848e7b7fa8233d3))
+* trigger ci ([7cbe7c3](https://github.com/ianoflynnautomation/bjjeire/commit/7cbe7c37dee1685ddcbc7e1f37275e6eae9e210e))
+* trigger ci ([afe3ac2](https://github.com/ianoflynnautomation/bjjeire/commit/afe3ac20de6f792da61a9f8e449e37fc73e3b975))
+
 ## [0.1.23](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.22...api-v0.1.23) (2026-08-29)
 
 
