@@ -325,6 +325,9 @@ jobs:
       actions: read
       packages: read # the aplaytest image is pulled from GHCR
       id-token: write # OIDC token for AZURE_FEDERATED_TOKEN_FILE (no az CLI)
+      # Required by the reusable workflow's job even when comment-on-pr is
+      # false: nested jobs cannot request more than the caller grants.
+      pull-requests: write
     # Lives in the aplaytest repo, not bjjeire-ci-templates: it runs `aplaytest`
     # and parses its verdict JSON, so no other project could call it.
     # SHA-pinned. Bump when you take an aplaytest release; do not float on @main.
