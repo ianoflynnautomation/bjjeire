@@ -323,12 +323,13 @@ jobs:
     permissions:
       contents: read
       actions: read
-      packages: read # the atest image is pulled from GHCR
+      packages: read # the aplaytest image is pulled from GHCR
       id-token: write # OIDC token for AZURE_FEDERATED_TOKEN_FILE (no az CLI)
-    # Lives in the atest repo, not bjjeire-ci-templates: it runs `atest` and
-    # parses atest's verdict JSON, so no other project could call it.
-    # SHA-pinned. Bump when you take an atest release; do not float on @main.
-    uses: ianoflynnautomation/atest/.github/workflows/atest-analyze.yml@090e29fa773ec50866fc94885bdee3f3e4dee333  # main 2026-09-02
+    # Lives in the aplaytest repo, not bjjeire-ci-templates: it runs `aplaytest`
+    # and parses its verdict JSON, so no other project could call it.
+    # SHA-pinned. Bump when you take an aplaytest release; do not float on @main.
+    # Repo was renamed atest → aplaytest; Actions `uses:` does not follow redirects.
+    uses: ianoflynnautomation/aplaytest/.github/workflows/atest-analyze.yml@cc60a96a21179c396a913cf434af7e59d5a28f13  # main 2026-09-02
     with:
       results-artifact: playwright-json-results
       history-account: ${{ vars.ATEST_HISTORY_ACCOUNT }}
