@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-/** Locks in that mutating endpoints require the configured writer scope, not merely any valid JWT. */
 class WriteAuthorizationIT extends MongoIntegrationTest {
 
     @Test

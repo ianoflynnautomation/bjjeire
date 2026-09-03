@@ -300,6 +300,52 @@ jobs:
         PW_TEST_USER=${{ secrets.PW_TEST_USER }}
         PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
 
+  # Gives `fail-on-flaky` a memory. Runs 33253028409 (main) and 33251984798
+  # (PR) both went red with ZERO failed tests: six passed on retry, the gate
+  # fired, and on main that also skipped promote_images — images built,
+  # scanned, never promoted. The gate cannot tell one bad night from a test
+  # that has flipped every week for a month. This records every run and scores
+  # each (test, project) pair against a 90-day window so somebody can.
+  #
+  # DELIBERATELY ABSENT FROM main_complete. It is advisory, and a job that
+  # cannot change the merge verdict must not sit in the branch-protection
+  # aggregator — a broken analyzer would otherwise block every merge. It shows
+  # red in the checks list when it breaks, which is the right amount of noise.
+  #
+  # This is the WRITE side: main is the only ref granted Contributor on the
+  # history account, so the baseline describes trunk.
+  atest_analyze:
+    name: Flake Analysis (atest)
+    needs: acceptance_ephemeral
+    # The interesting runs are the red ones, so `always()`. Skipped upstream
+    # means no suite ran and there is nothing to analyse.
+    if: always() && needs.acceptance_ephemeral.result != 'skipped'
+    permissions:
+      contents: read
+      actions: read
+      packages: read # the aplaytest image is pulled from GHCR
+      id-token: write # OIDC token for AZURE_FEDERATED_TOKEN_FILE (no az CLI)
+    # Lives in the aplaytest repo, not bjjeire-ci-templates: it runs `aplaytest`
+    # and parses its verdict JSON, so no other project could call it.
+    # SHA-pinned. Bump when you take an aplaytest release; do not float on @main.
+    # Repo was renamed atest → aplaytest; Actions `uses:` does not follow redirects.
+    uses: ianoflynnautomation/aplaytest/.github/workflows/atest-analyze.yml@cc60a96a21179c396a913cf434af7e59d5a28f13  # main 2026-09-02
+    with:
+      results-artifact: playwright-json-results
+      history-account: ${{ vars.ATEST_HISTORY_ACCOUNT }}
+      history-prefix: bjjeire-java
+      history-window-days: 90
+      history-retain-days: 90
+      # `main` until atest cuts a release: docker-publish.yml only moves
+      # `latest` on a version tag, so it does not exist yet. Set the
+      # ATEST_VERSION repo variable to pin a version once one exists.
+      atest-tag: ${{ vars.ATEST_VERSION != '' && vars.ATEST_VERSION || 'main' }}
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ATEST_HISTORY_CLIENT_ID: ${{ secrets.ATEST_HISTORY_CLIENT_ID }}
+
   promote_images:
     name: Promote SHA to Main
     runs-on: ubuntu-latest

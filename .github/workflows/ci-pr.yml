@@ -271,6 +271,50 @@ jobs:
         OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
         OTEL_EXPORTER_OTLP_HEADERS=${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
 
+  # The READ side of the flake baseline. Scores this branch's smoke run against
+  # trunk's history and never adds to it — the PR identity holds Storage Blob
+  # Data Reader, and the URL says `?readonly=1` so atest declares the intent
+  # rather than discovering it as a 403 per shard file. A pull request that
+  # introduces an unstable test must not enter the baseline before anyone has
+  # decided to merge it.
+  #
+  # DELIBERATELY ABSENT FROM pr_complete: advisory analysis must not be able to
+  # block a merge. It shows red in the checks list when it breaks, which is the
+  # right amount of noise for something that gates nothing.
+  atest_analyze:
+    name: Flake Analysis (atest)
+    needs: compose_smoke
+    # The interesting runs are the red ones, so `always()`. compose_smoke is
+    # path-filtered, and skipped means no suite ran.
+    if: always() && needs.compose_smoke.result != 'skipped'
+    permissions:
+      contents: read
+      actions: read
+      packages: read # the aplaytest image is pulled from GHCR
+      id-token: write # OIDC token for AZURE_FEDERATED_TOKEN_FILE (no az CLI)
+      pull-requests: write
+    # Lives in the aplaytest repo, not bjjeire-ci-templates: it runs `aplaytest`
+    # and parses its verdict JSON, so no other project could call it.
+    # SHA-pinned. Bump when you take an aplaytest release; do not float on @main.
+    # Repo was renamed atest → aplaytest; Actions `uses:` does not follow redirects.
+    uses: ianoflynnautomation/aplaytest/.github/workflows/atest-analyze.yml@cc60a96a21179c396a913cf434af7e59d5a28f13  # main 2026-09-02
+    with:
+      results-artifact: playwright-docker-json-results
+      history-account: ${{ vars.ATEST_HISTORY_ACCOUNT }}
+      # Same prefix as ci-main: the PR is scored against the baseline main
+      # writes, so they have to be reading and writing the same keys.
+      history-prefix: bjjeire-java
+      history-window-days: 90
+      comment-on-pr: true
+      # `main` until atest cuts a release: docker-publish.yml only moves
+      # `latest` on a version tag, so it does not exist yet. Set the
+      # ATEST_VERSION repo variable to pin a version once one exists.
+      atest-tag: ${{ vars.ATEST_VERSION != '' && vars.ATEST_VERSION || 'main' }}
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
   package_java_reports:
     name: Package Java reports for PR audit PDF
     needs: java_build_test
