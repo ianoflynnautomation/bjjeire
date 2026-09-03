@@ -1,0 +1,90 @@
+name: Destroy Ephemeral Env
+
+# Manual teardown for a PR preview or SHA acceptance environment.
+#
+# Companion to `keep-on-failure: true` in ci-main.yml: a failed suite
+# deliberately leaves its namespace up for triage, with the Kyverno TTL janitor
+# as the backstop (4h for SHA envs). This gives you a button to reclaim the
+# environment as soon as you are done, instead of waiting the TTL out.
+#
+# For SHA envs the Static ResourceSetInputProvider MUST go too — deleting only
+# the namespace leaves the input in place and Flux immediately recreates it.
+# Leave `input-provider` at the default and it is derived from env-id.
+
+on:
+  workflow_dispatch:
+    inputs:
+      env-id:
+        description: "Namespace to destroy, e.g. sha-33253028409 or pr-101."
+        type: string
+        required: true
+      input-provider:
+        description: >-
+          Static ResourceSetInputProvider to delete first. Leave empty to derive
+          it from env-id for sha-* envs. PR previews are owned by the
+          bjj-eire-prs provider, so leave empty and remove the deploy-preview
+          label instead, or the PR provider will recreate the namespace.
+        type: string
+        required: false
+        default: ""
+      wait-timeout:
+        description: "How long to wait for the namespace to terminate. 0 skips the wait."
+        type: string
+        required: false
+        default: "3m"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never let two teardowns race on the same namespace.
+  group: destroy-ephemeral-${{ inputs.env-id }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Resolve teardown inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      input-provider: ${{ steps.r.outputs.input_provider }}
+    steps:
+      - name: Validate env-id and derive the input provider
+        id: r
+        env:
+          ENV_ID: ${{ inputs.env-id }}
+          PROVIDER: ${{ inputs.input-provider }}
+        run: |
+          set -euo pipefail
+          # Guard the destructive path in the caller too, not just in the
+          # reusable workflow's label check: a typo'd env-id should fail here
+          # rather than reach a cluster at all.
+          if ! printf '%s' "${ENV_ID}" | grep -qE '^(pr|sha)-[a-zA-Z0-9][a-zA-Z0-9-]*$'; then
+            echo "::error title=Refusing to destroy::env-id '${ENV_ID}' is not an ephemeral namespace (expected pr-* or sha-*)"
+            exit 1
+          fi
+          provider="${PROVIDER}"
+          if [ -z "${provider}" ] && case "${ENV_ID}" in sha-*) true ;; *) false ;; esac; then
+            provider="${ENV_ID}"
+            echo "::notice title=Derived provider::Will delete ResourceSetInputProvider '${provider}' so Flux does not recreate the namespace"
+          fi
+          echo "input_provider=${provider}" >> "$GITHUB_OUTPUT"
+
+  destroy:
+    name: Destroy ${{ inputs.env-id }}
+    needs: resolve
+    permissions:
+      contents: read
+      id-token: write
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/flux-ephemeral-teardown.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    with:
+      env-id: ${{ inputs.env-id }}
+      cluster-resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+      cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+      flux-helmrelease: bjj-eire
+      input-provider: ${{ needs.resolve.outputs.input-provider }}
+      wait-timeout: ${{ inputs.wait-timeout }}
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
