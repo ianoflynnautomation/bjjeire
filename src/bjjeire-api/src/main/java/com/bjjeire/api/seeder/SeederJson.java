@@ -37,8 +37,6 @@ public final class SeederJson {
         return mapper;
     }
 
-    // The JSON contract uses isActive/createdAt/updatedAt; Lombok's
-    // accessors would otherwise surface these as active/createdOnUtc/updatedOnUtc.
     private interface EntityJsonMixin {
         @JsonProperty("isActive")
         boolean isActive();
