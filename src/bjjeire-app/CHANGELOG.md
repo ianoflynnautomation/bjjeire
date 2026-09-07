@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.35](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.34...frontend-v0.1.35) (2026-09-07)
+
+
+### Bug Fixes
+
+* trigger ci ([7cbe7c3](https://github.com/ianoflynnautomation/bjjeire/commit/7cbe7c37dee1685ddcbc7e1f37275e6eae9e210e))
+* trigger ci ([afe3ac2](https://github.com/ianoflynnautomation/bjjeire/commit/afe3ac20de6f792da61a9f8e449e37fc73e3b975))
+* trigger new ci run ([6b1cf18](https://github.com/ianoflynnautomation/bjjeire/commit/6b1cf182b339eaae6303a1bc6dddb14155006190))
+* trigger new ci run ([f55da25](https://github.com/ianoflynnautomation/bjjeire/commit/f55da250daaf92aca597ac7e7c3cc8755b28d339))
+
 ## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.33...frontend-v0.1.34) (2026-08-27)
 
 
