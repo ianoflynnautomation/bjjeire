@@ -134,7 +134,6 @@ function calculatePricingOption(
     }
   }
 
-  // FlatRate and anything unrecognised: the amount is the total
   return { label, total: amountValue, unit: 'event', currency }
 }
 
