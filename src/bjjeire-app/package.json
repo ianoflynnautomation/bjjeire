@@ -70,7 +70,7 @@
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "8.59.3",
     "@typescript-eslint/parser": "8.59.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^6.1.1",
     "@vitest/browser": "^4.1.9",
     "@vitest/browser-playwright": "^4.1.9",
     "@vitest/coverage-v8": "^4.1.9",
@@ -93,7 +93,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "8.59.3",
-    "vite": "^8.0.16",
+    "vite": "^8.2.2",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9",
     "vitest-browser-react": "^2.2.0"
