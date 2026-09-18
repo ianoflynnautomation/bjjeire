@@ -44,6 +44,7 @@ For data PRs: name the entity and link its website or social media.
 - [ ] `mvn -pl src/bjjeire-api verify` passes (backend changes)
 - [ ] `npm run lint && npm run typecheck && npm test` passes (frontend changes)
 - [ ] Tests added or updated to cover the change
+- [ ] Living spec updated under `specs/features/` and `specs/database-contracts/` (or N/A)
 - [ ] Both light and dark themes verified (UI changes) — screenshots below
 - [ ] No unrelated changes bundled in
 

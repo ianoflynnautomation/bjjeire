@@ -19,10 +19,12 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Colours, themes, `PageLayout` | [ADR-0007](docs/adr/0007-dark-theme-only.md) |
 | User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
+| Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 
 Architecture: [docs/architecture.md](docs/architecture.md).
-Pipelines: [docs/ci-cd.md](docs/ci-cd.md).
-Full index: [docs/README.md](docs/README.md).
+Living specs: [specs/](specs/).
+Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md).
+=======
 
 ## Working Style
 
