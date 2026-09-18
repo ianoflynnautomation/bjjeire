@@ -24,8 +24,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 Architecture: [docs/architecture.md](docs/architecture.md).
 Living specs: [specs/](specs/).
 Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md).
-Pipelines: [docs/ci-cd.md](docs/ci-cd.md).
-Full index: [docs/README.md](docs/README.md).
+=======
 
 ## Working Style
 
@@ -99,13 +98,32 @@ npm run build
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.
 
+## CI Guardrails
+
+Full detail in [docs/ci-cd.md](docs/ci-cd.md). The parts that bite:
+
+- **Path filters gate almost every job.** If a job you expected did not run,
+  check [`.github/path-filters.yml`](.github/path-filters.yml) before assuming
+  the pipeline is broken. A filter that is too narrow lets a breaking change
+  through untested.
+- **`java_api_image` is deliberately narrower than `java_api`** — a test-only
+  change runs tests without rebuilding an image.
+- **Adding a job does not gate merges** until it is also in `pr_complete.needs`
+  (or `main_complete.needs`). The one job that must stay out is
+  `atest_analyze`.
+- **Reusable workflows are SHA-pinned** to `bjjeire-ci-templates` v1.6.2. Bump
+  the pin deliberately; do not float on a tag or `@main`.
+- **Changing the API surface breaks two checks by design**:
+  `check_openapi_breaking` and `check_frontend_api_compat`. Fix the SPA in the
+  same pull request.
+- Force the Compose smoke suite on any PR with the **`run-smoke`** label.
+- Never commit secrets. Azure auth is OIDC (`id-token: write`), and
+  `VITE_APP_*` values are public build arguments, not secrets.
+
 ## Release Conventions
 
 - API version tags use `api-v*`.
 - Frontend version tags use `frontend-v*`.
 - Conventional Commits: `feat:`, `fix:`, `feat!:`.
-
-## Claude Coordination
-
-- `CLAUDE.md` is the top-level Claude guide.
-- When shared repo conventions change, update both `AGENTS.md` and `CLAUDE.md`.
+- This repository publishes **images and contracts**; it does not deploy them.
+  Flux does, from `bjjeire-gitops`, using the chart from `bjjeire-deploy`.
