@@ -17,6 +17,18 @@
 
 BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25 Spring Boot REST API, and MongoDB persistence.
 
+![Architecture](docs/diagrams/architecture.drawio.svg)
+
+## Documentation
+
+| | |
+|---|---|
+| **[Architecture](docs/architecture.md)** | Runtime topology, package-by-feature API, frontend structure, contracts, repository boundaries |
+| **[CI/CD](docs/ci-cd.md)** | CI PR and CI main pipelines — job graphs, path filters, gating, promotion |
+| **[Decisions (ADRs)](docs/adr/)** | Why the API is package-by-feature, why contracts ship as OCI artifacts, why flake analysis gates nothing |
+| **[All docs](docs/)** | Full index |
+| **[AGENTS.md](AGENTS.md)** | Conventions and guardrails — for coding agents and new contributors alike |
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -113,12 +125,21 @@ bash build-react.sh
 
 ## CI/CD
 
-GitHub Actions build, test, release, and publish Docker images to GHCR:
+GitHub Actions build, test, release, and publish Docker images and contracts to
+GHCR. **Full detail — job graphs, gating rules, and failure modes — is in
+[docs/ci-cd.md](docs/ci-cd.md).**
 
 | Workflow | File | Purpose |
 |---|---|---|
-| Build & Push | `.github/workflows/build-push-ghcr.yml` | Build multi-platform Docker images and push to GHCR |
-| Release | `.github/workflows/release.yml` | Automate versioned releases via release-please |
+| **CI PR** | `.github/workflows/ci-pr.yml` | Merge gate: build, test, contract checks, Compose `@smoke`. `pr_complete` is the required check |
+| **CI Main** | `.github/workflows/ci-main.yml` | Publish contracts, build images, ephemeral acceptance, promote digests to `:main` |
+| Build & Push | `.github/workflows/build-push-ghcr.yml` | Multi-arch image build, scan, attest, push |
+| PR Env Validation | `.github/workflows/pr-env-validation.yml` | Flux preview on AKS + Playwright acceptance |
+| Release | `.github/workflows/release.yml` | Versioned releases via release-please |
+| Audit Release Report | `.github/workflows/audit-release.yml` | Compliance pack (release ID, SHA-256 catalog, PDF + Step Summary) |
+
+Debugging a red acceptance job: [docs/acceptance-ci-debug.md](docs/acceptance-ci-debug.md).
+Audit-ready release PDF: [docs/release-test-report.md](docs/release-test-report.md).
 
 ## Versioning
 

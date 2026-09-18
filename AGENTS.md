@@ -1,6 +1,28 @@
-# BjjEire — Codex Instructions
+# BjjEire — Agent Instructions
 
-Keep this file short, repo-specific, and optimized for Codex.
+This is the single source of agent instructions for this repository.
+`CLAUDE.md` points here — keep changes in this file.
+
+## Read this before you change anything
+
+Several things here look like inconsistencies and are deliberate. The reasoning
+lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
+
+| If you are touching… | Read first |
+|---|---|
+| Where a new backend class goes | [ADR-0001](docs/adr/0001-package-by-feature-api.md) |
+| The API's HTTP surface | [ADR-0002](docs/adr/0002-contracts-as-oci-artifacts.md) — a breaking change blocks the merge |
+| A CI workflow or a path filter | [ADR-0003](docs/adr/0003-path-filtered-ci-with-aggregator-gate.md) — a job not in the aggregator gates nothing |
+| Image tagging or promotion | [ADR-0004](docs/adr/0004-promote-images-by-digest.md) |
+| `atest_analyze` / flaky tests | [ADR-0005](docs/adr/0005-flake-analysis-is-advisory.md) — never add it to an aggregator |
+| Any `VITE_APP_*` value | [ADR-0006](docs/adr/0006-vite-config-is-baked-at-image-build.md) — baked at build time, not runtime |
+| Colours, themes, `PageLayout` | [ADR-0007](docs/adr/0007-dark-theme-only.md) |
+| User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
+| Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
+
+Architecture: [docs/architecture.md](docs/architecture.md).
+Pipelines: [docs/ci-cd.md](docs/ci-cd.md).
+Full index: [docs/README.md](docs/README.md).
 
 ## Working Style
 
@@ -74,13 +96,32 @@ npm run build
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.
 
+## CI Guardrails
+
+Full detail in [docs/ci-cd.md](docs/ci-cd.md). The parts that bite:
+
+- **Path filters gate almost every job.** If a job you expected did not run,
+  check [`.github/path-filters.yml`](.github/path-filters.yml) before assuming
+  the pipeline is broken. A filter that is too narrow lets a breaking change
+  through untested.
+- **`java_api_image` is deliberately narrower than `java_api`** — a test-only
+  change runs tests without rebuilding an image.
+- **Adding a job does not gate merges** until it is also in `pr_complete.needs`
+  (or `main_complete.needs`). The one job that must stay out is
+  `atest_analyze`.
+- **Reusable workflows are SHA-pinned** to `bjjeire-ci-templates` v1.6.2. Bump
+  the pin deliberately; do not float on a tag or `@main`.
+- **Changing the API surface breaks two checks by design**:
+  `check_openapi_breaking` and `check_frontend_api_compat`. Fix the SPA in the
+  same pull request.
+- Force the Compose smoke suite on any PR with the **`run-smoke`** label.
+- Never commit secrets. Azure auth is OIDC (`id-token: write`), and
+  `VITE_APP_*` values are public build arguments, not secrets.
+
 ## Release Conventions
 
 - API version tags use `api-v*`.
 - Frontend version tags use `frontend-v*`.
 - Conventional Commits: `feat:`, `fix:`, `feat!:`.
-
-## Claude Coordination
-
-- `CLAUDE.md` is the top-level Claude guide.
-- When shared repo conventions change, update both `AGENTS.md` and `CLAUDE.md`.
+- This repository publishes **images and contracts**; it does not deploy them.
+  Flux does, from `bjjeire-gitops`, using the chart from `bjjeire-deploy`.
