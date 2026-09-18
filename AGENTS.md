@@ -1,6 +1,31 @@
-# BjjEire — Codex Instructions
+# BjjEire — Agent Instructions
 
-Keep this file short, repo-specific, and optimized for Codex.
+This is the single source of agent instructions for this repository.
+`CLAUDE.md` points here — keep changes in this file.
+
+## Read this before you change anything
+
+Several things here look like inconsistencies and are deliberate. The reasoning
+lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
+
+| If you are touching… | Read first |
+|---|---|
+| Where a new backend class goes | [ADR-0001](docs/adr/0001-package-by-feature-api.md) |
+| The API's HTTP surface | [ADR-0002](docs/adr/0002-contracts-as-oci-artifacts.md) — a breaking change blocks the merge |
+| A CI workflow or a path filter | [ADR-0003](docs/adr/0003-path-filtered-ci-with-aggregator-gate.md) — a job not in the aggregator gates nothing |
+| Image tagging or promotion | [ADR-0004](docs/adr/0004-promote-images-by-digest.md) |
+| `atest_analyze` / flaky tests | [ADR-0005](docs/adr/0005-flake-analysis-is-advisory.md) — never add it to an aggregator |
+| Any `VITE_APP_*` value | [ADR-0006](docs/adr/0006-vite-config-is-baked-at-image-build.md) — baked at build time, not runtime |
+| Colours, themes, `PageLayout` | [ADR-0007](docs/adr/0007-dark-theme-only.md) |
+| User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
+| Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
+| Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
+
+Architecture: [docs/architecture.md](docs/architecture.md).
+Living specs: [specs/](specs/).
+Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md).
+Pipelines: [docs/ci-cd.md](docs/ci-cd.md).
+Full index: [docs/README.md](docs/README.md).
 
 ## Working Style
 
