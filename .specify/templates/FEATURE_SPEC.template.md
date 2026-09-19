@@ -71,3 +71,7 @@ User stories are prioritized journeys. Each story is independently testable.
 | Story | App tests (this repo) | Acceptance (`bjjeire-tests`) |
 |---|---|---|
 | US1 | `src/bjjeire-api/src/test/...` · `src/bjjeire-app/src/**/__tests__/` | `tests/features/<feature>/*.acceptance.spec.ts` |
+
+When this feature is living, add `specs/stc/<feature>/` (AC-IDs, `contract.yaml`,
+`traceability.md`). Template: `stc-check.template.md`. Strategy:
+`docs/testing-strategy.md`.

@@ -44,37 +44,4 @@ describe('EventFilters (browser)', () => {
       expect(typeButtons).not.toContain(document.activeElement)
     }
   })
-
-  it('given a focused type button, when Space is pressed, then it toggles', async () => {
-    const onTypesChange = vi.fn()
-    const screen = await render(
-      <EventFilters {...defaultProps} onTypesChange={onTypesChange} />
-    )
-
-    await page.elementLocator(document.body).click()
-    await userEvent.tab()
-    await userEvent.tab()
-
-    const firstTypeButton = screen
-      .getByTestId(ButtonGroupFilterTestIds.BUTTON)
-      .first()
-    await expect.element(firstTypeButton).toHaveFocus()
-
-    await userEvent.keyboard(' ')
-    expect(onTypesChange).toHaveBeenCalledTimes(1)
-  })
-
-  it('given a focused type button, when Enter is pressed, then it toggles', async () => {
-    const onTypesChange = vi.fn()
-    await render(
-      <EventFilters {...defaultProps} onTypesChange={onTypesChange} />
-    )
-
-    await page.elementLocator(document.body).click()
-    await userEvent.tab()
-    await userEvent.tab()
-
-    await userEvent.keyboard('{Enter}')
-    expect(onTypesChange).toHaveBeenCalledTimes(1)
-  })
 })

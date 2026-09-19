@@ -17,11 +17,17 @@ specs/
 │   ├── bjj-event.md
 │   ├── competition.md
 │   └── store.md
-└── features/                     # visitor-facing feature specs
-    ├── gyms.md
-    ├── events.md
-    ├── competitions.md
-    └── stores.md
+├── features/                     # visitor-facing feature specs
+│   ├── gyms.md
+│   ├── events.md
+│   ├── competitions.md
+│   └── stores.md
+└── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
+    ├── README.md
+    ├── gyms/
+    ├── events/
+    ├── competitions/
+    └── stores/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).
@@ -51,5 +57,6 @@ capability.
 
 1. Read `.specify/memory/constitution.md`.
 2. Read the feature spec and database contract for the slice.
-3. Follow `.specify/rules/` for the language you are editing.
-4. If the wire shape moves, update the contract **in the same PR**.
+3. Read or create `specs/stc/<feature>/` (check catalog + traceability). See [docs/testing-strategy.md](../docs/testing-strategy.md).
+4. Follow `.specify/rules/` for the language you are editing.
+5. If the wire shape moves, update the contract **in the same PR**.

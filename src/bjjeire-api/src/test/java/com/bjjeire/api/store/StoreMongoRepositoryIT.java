@@ -34,6 +34,23 @@ class StoreMongoRepositoryIT extends MongoIntegrationTest {
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
     }
 
+    @Test
+    void shouldListActiveStoresOrderedByName() throws Exception {
+        storeRepository.save(store("Zebra Store", true));
+        storeRepository.save(store("Alpha Store", true));
+        storeRepository.save(store("Inactive Store", false));
+
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.STORE + "?page=1&pageSize=20", String.class);
+
+        JsonNode data = objectMapper.readTree(response.getBody()).at("/data");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(data).hasSize(2);
+        assertThat(data.get(0).at("/name").asText()).isEqualTo("Alpha Store");
+        assertThat(data.get(1).at("/name").asText()).isEqualTo("Zebra Store");
+    }
+
     private static Store store(String name, boolean isActive) {
         Store store = new Store();
         store.setName(name);

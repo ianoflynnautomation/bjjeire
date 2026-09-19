@@ -8,6 +8,9 @@ paths:
 
 # Testing Conventions
 
+Layer ownership, Spec-To-Check overlays (`specs/stc/`), and agent TDD rules:
+[docs/testing-strategy.md](../../docs/testing-strategy.md).
+
 ## TDD Workflow — Always Tests First
 Follow Red → Green → Refactor for every new feature or bug fix:
 

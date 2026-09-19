@@ -46,6 +46,63 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
   })
 
+  it('given loaded gyms, when the user types a search term, then only matching gyms remain visible', async () => {
+    seedGyms([
+      createGym({ name: 'Elite Fighters Academy', county: 'Dublin' }),
+      createGym({ name: 'Community BJJ Club', county: 'Cork' }),
+    ])
+    const { user } = renderGymsPage()
+
+    await screen.findByText('Elite Fighters Academy')
+
+    await user.type(screen.getByRole('searchbox'), 'Community')
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText('Elite Fighters Academy')
+      ).not.toBeInTheDocument()
+    )
+    expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
+  })
+
+  it('given an active search, when the visitor clears it, then gyms from the full listing are displayed again', async () => {
+    seedGyms([
+      createGym({ name: 'Elite Fighters Academy', county: 'Dublin' }),
+      createGym({ name: 'Community BJJ Club', county: 'Cork' }),
+    ])
+    const { user } = renderGymsPage()
+
+    await screen.findByText('Elite Fighters Academy')
+    await user.type(screen.getByRole('searchbox'), 'Community')
+    await waitFor(() =>
+      expect(
+        screen.queryByText('Elite Fighters Academy')
+      ).not.toBeInTheDocument()
+    )
+
+    await user.click(screen.getByRole('button', { name: /clear search/i }))
+
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
+    expect(screen.getByText('Community BJJ Club')).toBeInTheDocument()
+  })
+
+  it('given the API failed once, when the visitor retries, then the gym list is displayed', async () => {
+    seedGymsError()
+    const { user } = renderGymsPage()
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
+
+    seedGyms([createGym({ name: 'Elite Fighters Academy' })])
+    await user.click(screen.getByRole('button', { name: /retry/i }))
+
+    expect(
+      await screen.findByText('Elite Fighters Academy')
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
   it('given a loaded page, when the user selects a county filter, then only that county is fetched and shown', async () => {
     const dublinGym = createGym({
       name: 'Elite Fighters Academy',

@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import PageErrorBoundary from '../page-error-boundary'
 import { logger } from '@/lib/logger'
@@ -44,6 +45,23 @@ describe('PageErrorBoundary', () => {
       'Unhandled error caught by PageErrorBoundary',
       expect.objectContaining({ error: expect.any(Error) })
     )
+  })
+
+  it('given a caught error, when retry is clicked, then the page reload is requested', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(logger, 'error').mockImplementation(() => {})
+    const reload = vi.fn()
+    vi.stubGlobal('location', { reload })
+
+    render(
+      <PageErrorBoundary>
+        <Bomb shouldThrow />
+      </PageErrorBoundary>
+    )
+
+    await user.click(screen.getByRole('button', { name: /retry/i }))
+
+    expect(reload).toHaveBeenCalledOnce()
   })
 
   it('given a custom error message, when a child throws, then that message is shown in the alert', () => {

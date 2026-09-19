@@ -51,6 +51,17 @@ describe('GymTrialOffer', () => {
     expect(labeledElement).toHaveTextContent(expectedText)
   })
 
+  it('given only notes, when the offer renders, then the notes are shown without a free-class prefix', () => {
+    const trial: TrialOfferDto = {
+      isAvailable: true,
+      notes: 'Drop in welcome',
+    }
+    render(<GymTrialOffer trialOffer={trial} />)
+
+    const labeledElement = screen.getByLabelText('Trial Offer: Drop in welcome')
+    expect(labeledElement).toHaveTextContent('Drop in welcome')
+  })
+
   it('given an available trial without details, when the offer renders, then a fallback message is shown', () => {
     const trial: TrialOfferDto = { isAvailable: true }
     render(<GymTrialOffer trialOffer={trial} />)

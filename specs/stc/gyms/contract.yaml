@@ -1,0 +1,42 @@
+feature: gyms
+openapi:
+  served: /v3/api-docs
+  artifact: ghcr.io/<owner>/bjjeire-openapi-contract
+  routes:
+    - method: GET
+      path: /api/v1/gym
+      auth: public
+      response: PagedResponse<GymDto>
+    - method: GET
+      path: /api/v1/gym/{id}
+      auth: public
+    - method: POST
+      path: /api/v1/gym
+      auth: bearer
+    - method: PUT
+      path: /api/v1/gym/{id}
+      auth: bearer
+    - method: DELETE
+      path: /api/v1/gym/{id}
+      auth: bearer
+pagination:
+  page: 1-based
+  pageSize: max 100
+filters:
+  county: County enum; unknown → 400
+  name_search: client-side only
+invariants:
+  - geojson_coordinates: [longitude, latitude]
+  - trialOffer.isAvailable: boolean, never null
+  - gym_status_wire: PascalCase GymStatus
+  - feature_flag: Gyms fail-closed → /about
+  - cache_tag: GYMS_TAG invalidated on writes
+pointers:
+  database: specs/database-contracts/gym.md
+  feature_spec: specs/features/gyms.md
+  pact: src/bjjeire-app/src/contracts/pact/gym.pact.test.ts
+  msw: src/bjjeire-app/src/testing/msw/handlers/gyms.ts
+  generated_types: src/bjjeire-app/src/types/generated/api.ts
+  ui_strings: src/bjjeire-app/src/config/ui-content.ts
+  test_ids: src/bjjeire-app/src/constants/gymDataTestIds.ts
+  api_routes_spa: src/bjjeire-app/src/config/api-routes.ts

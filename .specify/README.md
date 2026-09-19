@@ -13,7 +13,8 @@ owns. The constitution, templates, and rules were adopted in place
 | `memory/constitution.md` | Non-negotiable principles (already true of the code) |
 | `rules/` | Language digests for agents and gh-aw (long form remains `.claude/rules/`) |
 | `templates/` | Spec Kit + Spec2Cloud-flavoured templates |
-| `../specs/` | Living specifications |
+| `templates/stc-check.template.md` | Spec-To-Check overlay (`specs/stc/<feature>/`) |
+| `../specs/` | Living specifications + `specs/stc/` check catalogs |
 
 New numbered features (optional Spec Kit flow):
 

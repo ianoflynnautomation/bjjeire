@@ -101,6 +101,40 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldListUpcomingEventsOrderedByCreatedAt() throws Exception {
+        bjjEventRepository.save(event(
+                "202605310000000000000091",
+                "Alpha Event",
+                County.Dublin,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-02T00:00:00Z"));
+        bjjEventRepository.save(event(
+                "202605310000000000000092",
+                "Zebra Event",
+                County.Dublin,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-01T00:00:00Z"));
+
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "?page=1&pageSize=20", String.class);
+
+        JsonNode data = objectMapper.readTree(response.getBody()).at("/data");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(data).hasSize(2);
+        assertThat(data.get(0).at("/name").asString()).isEqualTo("Zebra Event");
+        assertThat(data.get(1).at("/name").asString()).isEqualTo("Alpha Event");
+    }
+
+    @Test
     void shouldMatchEventsWhereAnyTypeOverlapsRequestedTypes() throws Exception {
         bjjEventRepository.save(event(
                 "202605310000000000000051",

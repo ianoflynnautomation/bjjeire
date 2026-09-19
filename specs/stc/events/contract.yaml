@@ -1,0 +1,45 @@
+feature: events
+openapi:
+  served: /v3/api-docs
+  artifact: ghcr.io/<owner>/bjjeire-openapi-contract
+  routes:
+    - method: GET
+      path: /api/v1/bjjevent
+      auth: public
+      response: PagedResponse<BjjEventDto>
+    - method: GET
+      path: /api/v1/bjjevent/{id}
+      auth: public
+    - method: POST
+      path: /api/v1/bjjevent
+      auth: bearer
+    - method: PUT
+      path: /api/v1/bjjevent/{id}
+      auth: bearer
+    - method: DELETE
+      path: /api/v1/bjjevent/{id}
+      auth: bearer
+pagination:
+  page: 1-based
+  pageSize: max 100
+filters:
+  county: County enum; unknown → 400
+  types: BjjEventType enum or numeric stored value; unknown → 400
+  name_search: client-side only
+sort: createdAt ascending
+invariants:
+  - geojson_coordinates: [longitude, latitude]
+  - organiser_spelling: organiser (British) on the wire
+  - listing_excludes: inactive, expired, completed
+  - expiresAt: endDate + 2y TTL
+  - feature_flag: BjjEvents fail-closed
+  - cache_tag: BJJ_EVENTS_TAG invalidated on API writes
+pointers:
+  database: specs/database-contracts/bjj-event.md
+  feature_spec: specs/features/events.md
+  pact: src/bjjeire-app/src/contracts/pact/bjjevent.pact.test.ts
+  msw: src/bjjeire-app/src/testing/msw/handlers/bjj-events.ts
+  generated_types: src/bjjeire-app/src/types/generated/api.ts
+  ui_strings: src/bjjeire-app/src/config/ui-content.ts
+  test_ids: src/bjjeire-app/src/constants/eventDataTestIds.ts
+  api_routes_spa: src/bjjeire-app/src/config/api-routes.ts
