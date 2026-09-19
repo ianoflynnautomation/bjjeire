@@ -68,11 +68,6 @@ export const CompetitionCard = function CompetitionCard({
       data-testid={rootTestId}
       aria-labelledby={headingId}
     >
-      <div
-        className="pointer-events-none absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent"
-        aria-hidden="true"
-      />
-
       <CompetitionCardHeader name={name} logoUrl={logoUrl} />
 
       <CardContent>

@@ -10,7 +10,7 @@ const BackgroundFetchingIndicator = function BackgroundFetchingIndicator({
 }: BackgroundFetchingIndicatorProps): JSX.Element {
   return (
     <div
-      className="absolute -top-4 left-1/2 z-10 -translate-x-1/2 transform rounded-full bg-surface-solid/90 px-3 py-1 text-xs font-semibold text-primary-600 shadow-sm ring-1 ring-hairline backdrop-blur-sm dark:text-primary-300"
+      className="absolute -top-4 left-1/2 z-10 -translate-x-1/2 transform rounded-full bg-surface-solid px-3 py-1 text-xs font-semibold text-primary-700 shadow-card ring-1 ring-hairline dark:text-primary-300"
       role="status"
       aria-live="polite"
       data-testid={dataTestId}

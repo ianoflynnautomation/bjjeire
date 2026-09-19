@@ -9,10 +9,10 @@ describe('LoadingState surface', () => {
 
     const surface = screen
       .getAllByTestId(LoadingStateTestIds.ROOT)
-      .find(el => el.className.includes('rounded-2xl'))
+      .find(el => el.className.includes('rounded-xl'))
 
     expect(surface).toBeDefined()
-    expect(surface?.className).toMatch(/(^|\s)bg-surface(\s|$)/)
+    expect(surface?.className).toMatch(/(^|\s)bg-surface-solid(\s|$)/)
     expect(surface?.className).toMatch(/(^|\s)ring-hairline(\s|$)/)
   })
 })

@@ -3,6 +3,23 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant competition (&:where(.competition, .competition *));
 
+/*
+  Academy palette — charcoal, pine, parchment, copper.
+  Dark surfaces are near-black with no green cast. Irish identity is the
+  pine CTA and copper, used sparingly — never as a page wash.
+
+  Dark (primary)                         Light
+  Canvas   #0E0E0E  charcoal             #EFEDE4  oatmeal
+  Surface  #171717  lifted charcoal      #F7F5EE  warm stone
+  Text     #EDEDED  off-white            #1A1A18  charcoal
+  Muted    #A3A3A3                       #56584F
+  Subtle   #8A8A8A                       #5C5E56
+  Border   white/8                       charcoal/10
+  CTA      #3F6F56 pine / parchment      #274838 pine / parchment
+  Brass    #C5A56A (match-day edges)
+  Bitcoin  #F7931A (Support button — orange + white)
+*/
+
 @theme {
   /* Type roles — distinctive, self-hosted variable fonts (see main.tsx).
      `font-display` / `font-sans` / `font-mono` utilities derive from these. */
@@ -11,67 +28,75 @@
     'Archivo Variable', 'Hanken Grotesk Variable', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', monospace;
 
-  --color-ink-50: #f2f4ee;
-  --color-ink-100: #e6eae3;
-  --color-ink-200: #c8cfc5;
-  --color-ink-300: #9aa398;
-  --color-ink-400: #6c766a;
-  --color-ink-500: #414a40;
-  --color-ink-600: #2c332b;
-  --color-ink-700: #212620;
-  --color-ink-800: #171b16;
-  --color-ink-900: #10130f;
-  --color-ink-950: #0b0d0b;
+  /* Neutrals — warm oatmeal lights, true charcoal darks (no green cast). */
+  --color-ink-50: #f4f2ea;
+  --color-ink-100: #e8e6dc;
+  --color-ink-200: #d0cec3;
+  --color-ink-300: #a8a8a3;
+  --color-ink-400: #8a8a86;
+  --color-ink-500: #5a5a58;
+  --color-ink-600: #3a3a3a;
+  --color-ink-700: #2a2a2a;
+  --color-ink-800: #1a1a1a;
+  --color-ink-900: #111111;
+  --color-ink-950: #0a0a0a;
 
-  --color-primary-50: #ecf7f0;
-  --color-primary-100: #d3ecdf;
-  --color-primary-200: #a8d9bf;
-  --color-primary-300: #74c098;
-  --color-primary-400: #2fa366;
-  --color-primary-500: #17864f;
-  --color-primary-600: #0f6b40;
-  --color-primary-700: #0b5334;
-  --color-primary-800: #0a4229;
-  --color-primary-900: #08331f;
-  --color-primary-950: #041d12;
+  /* Celtic pine — bottle green, not Kelly / neon emerald. */
+  --color-primary-50: #eef3ef;
+  --color-primary-100: #d5e4da;
+  --color-primary-200: #b0cbb8;
+  --color-primary-300: #82ab90;
+  --color-primary-400: #5a8a6e;
+  --color-primary-500: #3f6f56;
+  --color-primary-600: #325a46;
+  --color-primary-700: #274838;
+  --color-primary-800: #1e382c;
+  --color-primary-900: #162920;
+  --color-primary-950: #0c1a14;
 
-  --color-accent-50: #fdf2ec;
-  --color-accent-100: #f9ddcd;
-  --color-accent-200: #f3bd9c;
-  --color-accent-300: #ee9a6b;
-  --color-accent-400: #ec7b45;
-  --color-accent-500: #dd5e28;
-  --color-accent-600: #b84a1b;
-  --color-accent-700: #933a16;
-  --color-accent-800: #7c2f12;
-  --color-accent-900: #66280f;
-  --color-accent-950: #371306;
+  /* Bitcoin — official mark orange, Support CTA only. */
+  --color-bitcoin: #f7931a;
+  --color-bitcoin-hover: #e07d0f;
 
-  --color-success-50: #ecfdf3;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-950: #052e16;
-  --color-warning-50: #fefce8;
-  --color-warning-200: #fde68a;
-  --color-warning-400: #facc15;
-  --color-warning-500: #eab308;
-  --color-warning-600: #ca8a04;
-  --color-warning-700: #a16207;
-  --color-warning-800: #854d0e;
-  --color-warning-900: #713f12;
-  --color-warning-950: #422006;
-  --color-danger-50: #fef2f2;
-  --color-danger-300: #fca5a5;
-  --color-danger-400: #f87171;
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
-  --color-danger-700: #b91c1c;
-  --color-danger-950: #450a0a;
-  --color-info-400: #60a5fa;
-  --color-info-500: #38bdf8;
-  --color-info-600: #0284c7;
+  /* Brass — champagne metal, not amber-bottle orange. */
+  --color-accent-50: #fbf6ec;
+  --color-accent-100: #f3e8d0;
+  --color-accent-200: #e6d0a4;
+  --color-accent-300: #d4b483;
+  --color-accent-400: #c5a56a;
+  --color-accent-500: #b08a4a;
+  --color-accent-600: #946f38;
+  --color-accent-700: #75582c;
+  --color-accent-800: #574121;
+  --color-accent-900: #3b2c17;
+  --color-accent-950: #21180c;
+
+  /* Functional — same chroma family as the brand, never candy Tailwind. */
+  --color-success-50: #eaf2ec;
+  --color-success-400: #5a8a6e;
+  --color-success-500: #3f6f56;
+  --color-success-600: #325a46;
+  --color-success-700: #274838;
+  --color-success-950: #0c1a14;
+  --color-warning-50: #f5f0e3;
+  --color-warning-200: #e4d4a8;
+  --color-warning-400: #c4a45a;
+  --color-warning-500: #a8883c;
+  --color-warning-600: #866c2e;
+  --color-warning-700: #685524;
+  --color-warning-800: #52431d;
+  --color-warning-900: #3c3116;
+  --color-warning-950: #221c0c;
+  --color-danger-50: #f6eeee;
+  --color-danger-300: #d2a8a4;
+  --color-danger-400: #c07b74;
+  --color-danger-500: #a85a54;
+  --color-danger-600: #8c4843;
+  --color-danger-700: #6f3a36;
+  --color-danger-950: #2a1614;
+  --color-info-400: #7a8b96;
+  --color-info-500: #5e6f7a;
+  --color-info-600: #47565e;
 
   --color-canvas: var(--ui-canvas);
   --color-surface: var(--ui-surface);
@@ -83,24 +108,14 @@
   --color-hairline: var(--ui-hairline);
   --color-border-strong: var(--ui-border-strong);
   --color-ring-focus: var(--ui-ring-focus);
+  --color-overlay: var(--ui-overlay);
 
-  /* Signature tricolor accent — define once, reuse everywhere. */
+  --shadow-card: var(--ui-shadow-card);
+
+  /* Hairline Irish mark — pine into copper, no white stripe. */
   --gradient-tricolor: linear-gradient(
     90deg,
-    var(--color-primary-500),
-    rgb(255 255 255 / 0.28),
-    var(--color-accent-500)
-  );
-  --gradient-cta: linear-gradient(
-    135deg,
-    var(--color-primary-700),
-    var(--color-primary-500) 55%,
-    var(--color-primary-400)
-  );
-  --gradient-cta-hot: linear-gradient(
-    135deg,
-    var(--color-accent-700),
-    var(--color-accent-500) 50%,
+    var(--color-primary-600),
     var(--color-accent-400)
   );
 }
@@ -110,103 +125,74 @@
     scroll-behavior: smooth;
   }
 
-  /* ── Daylight Dojo (light — warm gi cotton, not stark white) ── */
+  /* ── Light — parchment / oatmeal, pine charcoal type ── */
   :root {
-    --ui-canvas: #eceae1;
-    --ui-surface: rgb(255 255 255 / 0.86);
-    --ui-surface-solid: #ffffff;
-    --ui-muted: #e2e0d5;
-    --ui-fg: #10130f;
-    --ui-fg-muted: #414a40;
-    --ui-fg-subtle: #6c766a;
-    --ui-hairline: rgb(20 18 8 / 0.1);
-    --ui-border-strong: rgb(20 18 8 / 0.15);
-    --ui-ring-focus: rgb(15 107 64 / 0.7);
-    --ui-glow-primary: rgb(23 134 79 / 0.08);
-    --ui-glow-accent: rgb(221 94 40 / 0.06);
-    --ui-gradient-canvas: linear-gradient(
-      165deg,
-      #f0eee6 0%,
-      #e8e6db 55%,
-      #e2e0d3 100%
-    );
-    --ui-weave-opacity: 0.04;
+    --ui-canvas: #efede4;
+    --ui-surface: #f7f5ee;
+    --ui-surface-solid: #f9f7f1;
+    --ui-muted: #e5e2d8;
+    --ui-fg: #1a1a18;
+    --ui-fg-muted: #56584f;
+    --ui-fg-subtle: #5c5e56;
+    --ui-hairline: rgb(26 26 24 / 0.1);
+    --ui-border-strong: rgb(26 26 24 / 0.16);
+    --ui-ring-focus: rgb(39 72 56 / 0.75);
+    --ui-overlay: rgb(14 14 14 / 0.5);
+    --ui-shadow-card: 0 1px 2px rgb(26 26 24 / 0.06);
+    --ui-weave-opacity: 0.028;
   }
 
-  /* ── Academy Dark (default — warm iron obsidian, bottle-green glow) ── */
+  /* ── Dark (default) — near-black charcoal, pine only on CTAs ── */
   html.dark {
-    --ui-canvas: #10130f;
-    --ui-surface: rgb(33 38 32 / 0.72);
-    --ui-surface-solid: #1b211a;
-    --ui-muted: #171b16;
-    --ui-fg: #e6eae3;
-    --ui-fg-muted: #9aa398;
-    --ui-fg-subtle: #6c766a;
+    --ui-canvas: #0e0e0e;
+    --ui-surface: #171717;
+    --ui-surface-solid: #1a1a1a;
+    --ui-muted: #0a0a0a;
+    --ui-fg: #ededed;
+    --ui-fg-muted: #a3a3a3;
+    --ui-fg-subtle: #8a8a8a;
     --ui-hairline: rgb(255 255 255 / 0.08);
     --ui-border-strong: rgb(255 255 255 / 0.14);
-    --ui-ring-focus: rgb(47 163 102 / 0.8);
-    --ui-glow-primary: rgb(23 134 79 / 0.2);
-    --ui-glow-accent: rgb(221 94 40 / 0.14);
-    --ui-gradient-canvas: linear-gradient(
-      180deg,
-      #0b0d0b 0%,
-      #10130f 45%,
-      #0c1a12 100%
-    );
-    --ui-weave-opacity: 0.05;
+    --ui-ring-focus: rgb(130 171 144 / 0.85);
+    --ui-overlay: rgb(0 0 0 / 0.64);
+    --ui-shadow-card: 0 1px 2px rgb(0 0 0 / 0.45);
+    --ui-weave-opacity: 0.03;
   }
 
-  /* ── Competition Mode — higher contrast, ember-forward ── */
+  /* ── Competition — deeper black, copper edges, no green wash ── */
   html.competition {
-    --ui-canvas: #070806;
-    --ui-surface: rgb(23 27 22 / 0.92);
-    --ui-surface-solid: #141811;
-    --ui-muted: #12160f;
-    --ui-fg: #f2f4ee;
-    --ui-fg-muted: #c8cfc5;
-    --ui-fg-subtle: #9aa398;
+    --ui-canvas: #080808;
+    --ui-surface: #141414;
+    --ui-surface-solid: #161616;
+    --ui-muted: #050505;
+    --ui-fg: #f4f4f4;
+    --ui-fg-muted: #c4c4c4;
+    --ui-fg-subtle: #a3a3a3;
     --ui-hairline: rgb(255 255 255 / 0.12);
-    --ui-border-strong: rgb(221 94 40 / 0.4);
-    --ui-ring-focus: rgb(236 123 69 / 0.85);
-    --ui-glow-primary: rgb(23 134 79 / 0.12);
-    --ui-glow-accent: rgb(221 94 40 / 0.32);
-    --ui-gradient-canvas: linear-gradient(
-      180deg,
-      #070806 0%,
-      #0c0f0a 50%,
-      #1c0e05 100%
-    );
-    --ui-weave-opacity: 0.06;
+    --ui-border-strong: rgb(197 165 106 / 0.4);
+    --ui-ring-focus: rgb(212 180 131 / 0.85);
+    --ui-overlay: rgb(0 0 0 / 0.72);
+    --ui-shadow-card: 0 1px 2px rgb(0 0 0 / 0.55);
+    --ui-weave-opacity: 0.035;
   }
 
   body {
     font-family: var(--font-sans);
     color: var(--ui-fg);
+    background-color: var(--ui-canvas);
     overscroll-behavior: none;
-    background:
-      radial-gradient(
-        56rem 28rem at 100% -10%,
-        var(--ui-glow-primary),
-        transparent 68%
-      ),
-      radial-gradient(
-        48rem 26rem at -10% 100%,
-        var(--ui-glow-accent),
-        transparent 70%
-      ),
-      var(--ui-gradient-canvas);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Subtle gi weave — fixed, low-opacity cross-hatch behind content. */
+  /* Subtle gi weave — almost invisible; texture, not decoration. */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%2310130f' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%2310130f' stroke-width='1'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 4h40M0 8h40M0 12h40' stroke='%231A1A18' stroke-width='0.5'/%3E%3Cpath d='M0 0v16' stroke='%231A1A18' stroke-width='1'/%3E%3C/svg%3E");
     background-size: 40px 16px;
     opacity: var(--ui-weave-opacity);
   }
@@ -217,7 +203,7 @@
   }
 
   ::selection {
-    color: #ffffff;
+    color: #f4f2ea;
     background: var(--color-primary-700);
   }
 
@@ -239,7 +225,7 @@
   @keyframes modal-show {
     0% {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.98);
     }
     100% {
       opacity: 1;
@@ -248,24 +234,24 @@
   }
 
   .animate-modal-show {
-    animation: modal-show 0.3s ease-out forwards;
+    animation: modal-show 0.2s ease-out forwards;
   }
 
   /* Staggered list reveal — each item sets `--i` (its index) inline. */
   @keyframes rise-in {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.98);
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
   }
 
   .animate-rise {
-    animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: calc(min(var(--i, 0), 12) * 55ms);
+    animation: rise-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(min(var(--i, 0), 12) * 45ms);
   }
 
   /* Expanded display face for headline moments (logo, page titles). */

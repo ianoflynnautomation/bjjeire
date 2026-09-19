@@ -35,7 +35,7 @@ export const CompetitionCardHeader = function CompetitionCardHeader({
             src={visibleLogoUrl}
             alt={`${card.logoAlt} ${name}`}
             className={cn(
-              'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+              'h-full w-full object-cover',
               !isLoaded && 'opacity-0'
             )}
             loading="lazy"

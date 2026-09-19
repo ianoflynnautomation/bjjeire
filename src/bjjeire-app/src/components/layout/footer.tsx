@@ -20,7 +20,7 @@ const Footer = function Footer({
 
   return (
     <footer
-      className="min-h-70 border-t border-hairline bg-muted dark:bg-ink-950"
+      className="min-h-70 border-t border-hairline bg-muted"
       data-testid={rootTestId}
     >
       <div className="mx-auto min-w-[320px] max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -39,7 +39,7 @@ const Footer = function Footer({
                   <Link
                     to={item.to}
                     viewTransition
-                    className="font-medium text-primary-600 underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-primary-400 dark:hover:text-primary-300"
+                    className="font-medium text-primary-700 underline-offset-2 transition-colors hover:text-primary-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-primary-300 dark:hover:text-primary-200"
                     data-testid={FooterTestIds.QUICK_LINK}
                   >
                     {item.label}
@@ -59,7 +59,7 @@ const Footer = function Footer({
                 href={env.GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-fg-muted ring-1 ring-hairline transition-colors hover:bg-ink-200 hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:bg-ink-800/60 dark:hover:bg-ink-700/60 dark:hover:text-white"
+                className="inline-flex items-center gap-2.5 rounded-lg bg-surface-solid px-4 py-2.5 text-sm font-medium text-fg-muted ring-1 ring-hairline transition-colors hover:bg-canvas hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"
                 data-testid={FooterTestIds.GITHUB_LINK}
                 aria-label={uiContent.footer.githubLinkLabel}
               >
@@ -67,7 +67,7 @@ const Footer = function Footer({
                 {uiContent.footer.githubLinkLabel}
                 {stars !== undefined && (
                   <span
-                    className="ml-1 min-w-16 rounded-full bg-ink-200 px-2 py-0.5 text-xs font-semibold text-fg-muted dark:bg-ink-700 dark:text-ink-300"
+                    className="ml-1 min-w-16 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-fg-muted"
                     data-testid={FooterTestIds.GITHUB_STARS}
                   >
                     ★ {stars.toLocaleString()}{' '}

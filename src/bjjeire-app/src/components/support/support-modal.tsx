@@ -33,7 +33,7 @@ const SupportModal = function SupportModal({
           onClose()
         }
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 transition-opacity duration-200 ease-out"
       data-testid={SupportModalTestIds.OVERLAY}
     >
       {/* NOSONAR: <dialog> breaks flex centering via browser default position:absolute — using div+role is intentional */}
@@ -43,7 +43,7 @@ const SupportModal = function SupportModal({
         aria-modal="true"
         aria-labelledby={mainTitleId}
         aria-describedby={descriptionId}
-        className="animate-modal-show w-full max-w-md transform rounded-3xl border border-accent-500/30 bg-surface-solid p-6 shadow-2xl shadow-accent-900/20 ring-1 ring-hairline transition-all duration-300 ease-in-out sm:p-8 dark:border-accent-500/20 dark:bg-linear-to-b dark:from-ink-800 dark:to-ink-900"
+        className="animate-modal-show w-full max-w-md transform rounded-2xl bg-surface-solid p-6 shadow-card ring-1 ring-hairline sm:p-8"
         data-testid={SupportModalTestIds.CONTENT}
       >
         <header className="mb-6 flex items-center justify-between">

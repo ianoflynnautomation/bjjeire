@@ -44,13 +44,13 @@ export function getEventTypeColorClasses(
   const typeValue = resolveEventType(eventType)
   switch (typeValue) {
     case BjjEventType.OpenMat:
-      return 'bg-primary-900/50 text-primary-300 ring-1 ring-primary-700/50'
+      return 'bg-primary-100 text-primary-800 ring-1 ring-primary-700/20 dark:bg-primary-900/50 dark:text-primary-300 dark:ring-primary-400/20'
     case BjjEventType.Camp:
-      return 'bg-ink-700/80 text-accent-300 ring-1 ring-accent-700/50'
+      return 'bg-accent-100 text-accent-800 ring-1 ring-accent-600/20 dark:bg-ink-800 dark:text-accent-300 dark:ring-accent-500/25'
     case BjjEventType.Seminar:
-      return 'bg-accent-950/60 text-accent-300 ring-1 ring-accent-700/50'
+      return 'bg-accent-50 text-accent-800 ring-1 ring-accent-500/20 dark:bg-accent-950/60 dark:text-accent-300 dark:ring-accent-500/25'
     case BjjEventType.Other:
     default:
-      return 'bg-ink-700/60 text-ink-300 ring-1 ring-ink-500/60'
+      return 'bg-muted text-fg-muted ring-1 ring-hairline dark:bg-ink-800 dark:text-ink-300'
   }
 }

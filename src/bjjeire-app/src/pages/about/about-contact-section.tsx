@@ -26,7 +26,7 @@ export const AboutContactSection = function AboutContactSection(): JSX.Element {
         <a
           href={`mailto:${env.CONTACT_EMAIL}`}
           aria-label={`Send an email to ${env.CONTACT_EMAIL}`}
-          className="font-medium text-primary-600 transition-colors hover:text-primary-700 hover:underline dark:text-primary-400 dark:hover:text-primary-300"
+          className="font-medium text-primary-700 transition-colors hover:text-primary-800 hover:underline dark:text-primary-300 dark:hover:text-primary-200"
           data-testid={AboutContactTestIds.EMAIL_LINK}
         >
           {env.CONTACT_EMAIL}

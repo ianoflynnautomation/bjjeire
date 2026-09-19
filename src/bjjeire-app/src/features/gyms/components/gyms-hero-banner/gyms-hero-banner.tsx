@@ -8,7 +8,7 @@ const { hero } = uiContent.gyms
 export const GymsHeroBanner = function GymsHeroBanner(): JSX.Element {
   return (
     <section
-      className="relative mb-8 overflow-hidden rounded-3xl ring-1 ring-hairline"
+      className="relative mb-8 overflow-hidden rounded-xl ring-1 ring-hairline"
       aria-label={hero.ariaLabel}
       data-testid={GymsHeroBannerTestIds.BANNER}
     >
@@ -32,7 +32,7 @@ export const GymsHeroBanner = function GymsHeroBanner(): JSX.Element {
       {/* Text content anchored to bottom of banner */}
       <div className="absolute inset-x-0 bottom-0 px-4 py-5 sm:px-6 sm:py-8 lg:px-10">
         <h1
-          className="text-2xl font-black tracking-tight text-white drop-shadow-lg sm:text-3xl lg:text-5xl"
+          className="text-2xl font-bold tracking-tight text-ink-50 drop-shadow-sm sm:text-3xl lg:text-5xl"
           data-testid={GymsHeroBannerTestIds.TAGLINE}
         >
           {hero.tagline}

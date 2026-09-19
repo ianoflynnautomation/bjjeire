@@ -7,9 +7,9 @@ import { useRoutePrefetch } from './route-prefetch'
 
 const linkBaseClass =
   'relative inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-left after:rounded-full after:bg-primary-500 after:transition-transform after:duration-200 after:ease-out motion-reduce:after:transition-none'
-const activeClass = 'text-primary-600 after:scale-x-100 dark:text-primary-400'
+const activeClass = 'text-primary-700 after:scale-x-100 dark:text-primary-300'
 const inactiveClass =
-  'text-fg-subtle after:scale-x-0 hover:text-primary-600 hover:after:scale-x-100 dark:hover:text-primary-300'
+  'text-fg-subtle after:scale-x-0 hover:text-primary-700 hover:after:scale-x-100 dark:hover:text-primary-200'
 
 export const DesktopNavLinks = function DesktopNavLinks(): JSX.Element {
   const navItems = useNavItems()

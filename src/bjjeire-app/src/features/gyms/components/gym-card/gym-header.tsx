@@ -60,7 +60,7 @@ export const GymHeader = function GymHeader({
               sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) calc(50vw - 2rem), 400px"
               alt={`${gymCard.imageAlt} ${displayName}`}
               className={cn(
-                'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+                'h-full w-full object-cover',
                 !isLoaded && 'opacity-0'
               )}
               loading="lazy"

@@ -6,7 +6,7 @@ export const AboutPageHeader = function AboutPageHeader(): JSX.Element {
   return (
     <header className="mb-10 text-center" data-testid={AboutPageTestIds.HEADER}>
       <h1
-        className="display-expanded text-4xl font-black text-fg sm:text-5xl"
+        className="display-expanded text-4xl font-bold text-fg sm:text-5xl"
         data-testid={AboutPageTestIds.HEADER_TITLE}
       >
         {uiContent.about.title}

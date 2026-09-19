@@ -39,7 +39,7 @@ const Navigation = function Navigation(): JSX.Element {
   return (
     <>
       <nav
-        className="sticky top-0 z-40 border-b border-hairline bg-surface-solid/80 shadow-sm shadow-black/10 backdrop-blur-xl dark:bg-ink-950/80 dark:shadow-black/20"
+        className="sticky top-0 z-40 border-b border-hairline bg-surface-solid/92 backdrop-blur-md dark:bg-canvas/92"
         data-testid={NavigationTestIds.ROOT}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -48,7 +48,7 @@ const Navigation = function Navigation(): JSX.Element {
               <div className="flex shrink-0 items-center">
                 <Link
                   to={paths.home.getHref()}
-                  className="display-expanded bg-linear-to-r from-primary-400 to-accent-400 bg-clip-text text-2xl font-black text-transparent transition-opacity hover:opacity-85"
+                  className="display-expanded text-2xl font-bold text-fg transition-colors hover:text-primary-700 dark:hover:text-primary-300"
                   data-testid={NavigationTestIds.LOGO_LINK}
                 >
                   {uiContent.brand.displayName}
@@ -82,7 +82,7 @@ const Navigation = function Navigation(): JSX.Element {
                 className="ml-2 gap-2.5"
                 data-testid={NavigationTestIds.SUPPORT_BUTTON}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white p-0.5 shadow-sm ring-1 ring-black/5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white p-0.5">
                   <BitcoinIcon className="h-full w-full" aria-hidden="true" />
                 </span>
                 {uiContent.navigation.supportButtonLabel}
@@ -90,7 +90,7 @@ const Navigation = function Navigation(): JSX.Element {
               <div className="ml-2 flex items-center sm:hidden">
                 <button
                   onClick={toggleMobileMenu}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl p-2 text-fg-subtle transition-colors hover:bg-black/6 hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:hover:bg-white/6 dark:hover:text-primary-400"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-fg-subtle transition-colors hover:bg-muted hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"
                   aria-expanded={isMobileMenuOpen}
                   aria-controls="mobile-menu-panel"
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}

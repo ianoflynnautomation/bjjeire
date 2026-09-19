@@ -63,7 +63,7 @@ export const ListSearchInput = function ListSearchInput({
           aria-label={content.label}
           data-testid="search-input"
           autoComplete="off"
-          className="block w-full rounded-xl border border-black/10 bg-white py-2 pl-10 pr-10 text-base text-fg-muted shadow-sm ring-1 ring-transparent transition-colors focus:border-primary-500/50 focus:outline-none focus:ring-2 focus:ring-primary-500/60 sm:text-sm dark:border-white/10 dark:bg-ink-700/50 dark:text-ink-200 disabled:cursor-not-allowed disabled:opacity-70 disabled:bg-ink-100 dark:disabled:bg-ink-800/50"
+          className="block w-full rounded-lg border border-hairline bg-surface-solid py-2 pl-10 pr-10 text-base text-fg shadow-card ring-1 ring-transparent transition-colors focus:border-primary-500/40 focus:outline-none focus:ring-2 focus:ring-ring-focus sm:text-sm disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70"
         />
         {value && (
           <button

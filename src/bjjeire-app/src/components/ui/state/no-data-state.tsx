@@ -23,7 +23,7 @@ const NoDataState = function NoDataState({
 
   return (
     <div
-      className="my-10 rounded-2xl bg-surface p-6 text-center backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-hairline dark:shadow-black/20"
+      className="my-10 rounded-xl bg-surface-solid p-6 text-center shadow-card ring-1 ring-hairline"
       data-testid={rootTestId}
     >
       <InformationCircleIcon
@@ -54,7 +54,7 @@ const NoDataState = function NoDataState({
             Or{' '}
             <button
               onClick={onActionClick}
-              className="font-semibold text-primary-600 transition-colors hover:text-primary-700 focus:underline focus:outline-none dark:text-primary-400 dark:hover:text-primary-300"
+              className="font-semibold text-primary-700 transition-colors hover:text-primary-800 focus:underline focus:outline-none dark:text-primary-300 dark:hover:text-primary-200"
               data-testid={NoDataStateTestIds.BUTTON}
             >
               {actionText}

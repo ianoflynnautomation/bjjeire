@@ -44,7 +44,7 @@ export const EventFilters = function EventFilters({
 }: EventFiltersProps): JSX.Element {
   return (
     <section
-      className="rounded-2xl bg-surface p-4 backdrop-blur-sm shadow-sm shadow-black/10 ring-1 ring-hairline sm:flex sm:flex-row sm:items-end sm:gap-4 dark:shadow-black/20"
+      className="rounded-xl bg-surface-solid p-4 ring-1 ring-hairline sm:flex sm:flex-row sm:items-end sm:gap-4"
       data-testid={dataTestId ?? EventsPageTestIds.FILTERS}
       aria-label={filters.ariaLabel}
     >

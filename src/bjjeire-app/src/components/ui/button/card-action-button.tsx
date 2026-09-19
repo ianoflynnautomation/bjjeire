@@ -3,14 +3,13 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/cn'
 
 const cardActionVariants = cva(
-  'inline-flex min-h-11 w-full items-center justify-center gap-x-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200',
+  'inline-flex min-h-11 w-full items-center justify-center gap-x-2 rounded-lg px-3.5 py-2.5 text-sm font-semibold transition-colors duration-150',
   {
     variants: {
       variant: {
         primary:
-          'bg-linear-to-r from-primary-600 via-primary-500 to-primary-400 hover:scale-[1.02] hover:from-primary-700 hover:to-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/70 focus-visible:ring-offset-2',
-        unavailable:
-          'cursor-not-allowed bg-ink-200 text-fg-subtle opacity-70 dark:bg-ink-700',
+          'bg-primary-700 text-ink-50 hover:bg-primary-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas dark:bg-primary-500 dark:hover:bg-primary-600',
+        unavailable: 'cursor-not-allowed bg-muted text-fg-subtle opacity-70',
       },
     },
     defaultVariants: { variant: 'primary' },
