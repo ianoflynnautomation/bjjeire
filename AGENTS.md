@@ -20,6 +20,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
+| Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
 
 Architecture: [docs/architecture.md](docs/architecture.md).
 Living specs: [specs/](specs/).

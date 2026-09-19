@@ -21,9 +21,7 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    void seedCompetitions() {
-        competitionRepository.save(
-                competition("future-open", "Future Open", true, "2026-08-01T09:00:00Z", "2026-08-02T18:00:00Z"));
+    void seedHiddenCompetitions() {
         competitionRepository.save(
                 competition("expired-open", "Expired Open", true, "2026-01-01T09:00:00Z", "2026-01-02T18:00:00Z"));
         competitionRepository.save(
@@ -32,6 +30,9 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
 
     @Test
     void shouldExcludeExpiredAndInactiveCompetitionsWhenListingByDefault() throws Exception {
+        competitionRepository.save(
+                competition("future-open", "Future Open", true, "2026-08-01T09:00:00Z", "2026-08-02T18:00:00Z"));
+
         ResponseEntity<String> response =
                 restTemplate.getForEntity(ApiRoutes.COMPETITION + "?page=1&pageSize=20", String.class);
 
@@ -44,6 +45,9 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
 
     @Test
     void shouldIncludeExpiredAndInactiveCompetitionsWhenRequested() throws Exception {
+        competitionRepository.save(
+                competition("future-open", "Future Open", true, "2026-08-01T09:00:00Z", "2026-08-02T18:00:00Z"));
+
         ResponseEntity<String> response = restTemplate.getForEntity(
                 ApiRoutes.COMPETITION + "?includeInactive=true&page=1&pageSize=20", String.class);
 
@@ -51,6 +55,24 @@ class CompetitionMongoRepositoryIT extends MongoIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldListUpcomingCompetitionsOrderedByStartDate() throws Exception {
+        competitionRepository.save(
+                competition("alpha-open", "Alpha Open", true, "2026-08-01T09:00:00Z", "2026-08-02T18:00:00Z"));
+        competitionRepository.save(
+                competition("zebra-open", "Zebra Open", true, "2026-07-01T09:00:00Z", "2026-07-02T18:00:00Z"));
+
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.COMPETITION + "?page=1&pageSize=20", String.class);
+
+        JsonNode data = objectMapper.readTree(response.getBody()).at("/data");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(data).hasSize(2);
+        assertThat(data.get(0).at("/slug").asString()).isEqualTo("zebra-open");
+        assertThat(data.get(1).at("/slug").asString()).isEqualTo("alpha-open");
     }
 
     private static Competition competition(

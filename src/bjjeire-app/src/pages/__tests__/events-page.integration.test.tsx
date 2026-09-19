@@ -49,6 +49,23 @@ describe('EventsPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('Cork Seminar')).toBeInTheDocument()
   })
 
+  it('given loaded events, when the user types a search term, then only matching events remain visible', async () => {
+    seedEvents([
+      createEvent({ name: 'Dublin Open Mat 2026', county: County.Dublin }),
+      createEvent({ name: 'Cork Seminar', county: County.Cork }),
+    ])
+    const { user } = renderEventsPage()
+
+    await screen.findByText('Dublin Open Mat 2026')
+
+    await user.type(screen.getByRole('searchbox'), 'Cork')
+
+    await waitFor(() =>
+      expect(screen.queryByText('Dublin Open Mat 2026')).not.toBeInTheDocument()
+    )
+    expect(screen.getByText('Cork Seminar')).toBeInTheDocument()
+  })
+
   it('given a loaded page, when the user selects a county filter, then only that county is fetched and shown', async () => {
     const dublinEvent = createEvent({
       name: 'Dublin Open Mat 2026',

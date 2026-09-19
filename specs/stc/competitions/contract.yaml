@@ -1,0 +1,34 @@
+feature: competitions
+openapi:
+  served: /v3/api-docs
+  artifact: ghcr.io/<owner>/bjjeire-openapi-contract
+  routes:
+    - method: GET
+      path: /api/v1/competition
+      auth: public
+      response: PagedResponse<CompetitionDto>
+pagination:
+  page: 1-based
+  pageSize: max 100
+filters:
+  includeInactive: boolean, default false
+  name_search: client-side only
+sort: startDate ascending, then name
+invariants:
+  - slug: unique (ix_competition_slug_unique)
+  - listing_excludes: inactive and endDate < now unless includeInactive
+  - expiresAt: endDate + 2y TTL
+  - country_default: Ireland
+  - no_location_or_county: do not invent them
+  - feature_flag: Competitions fail-closed
+  - cache_tag: COMPETITIONS_TAG
+  - writes: not mapped on CompetitionController (living spec FR-004 is ahead of the API)
+pointers:
+  database: specs/database-contracts/competition.md
+  feature_spec: specs/features/competitions.md
+  pact: src/bjjeire-app/src/contracts/pact/competition.pact.test.ts
+  msw: src/bjjeire-app/src/testing/msw/handlers/competitions.ts
+  generated_types: src/bjjeire-app/src/types/generated/api.ts
+  ui_strings: src/bjjeire-app/src/config/ui-content.ts
+  test_ids: src/bjjeire-app/src/constants/competitionDataTestIds.ts
+  api_routes_spa: src/bjjeire-app/src/config/api-routes.ts

@@ -4,6 +4,7 @@
 |---|---|
 | [architecture.md](architecture.md) | Runtime topology, package-by-feature API, frontend structure, contracts, repository boundaries |
 | [ci-cd.md](ci-cd.md) | **CI PR** and **CI main** pipelines in detail — job DAGs, path filters, gating, promotion, secrets |
+| [testing-strategy.md](testing-strategy.md) | Spec-To-Check overlay, test-layer matrix, agent TDD rules, contract/flake/property-based upgrades |
 | [adr/](adr/) | Architecture decision records — *why* it is built this way |
 | [diagrams/](diagrams/) | `architecture.drawio.svg` — renders on GitHub, editable in draw.io |
 | [contract-testing.md](contract-testing.md) | Pact and OpenAPI contract workflow |
@@ -13,7 +14,7 @@
 
 ## Reading order
 
-**New here:** [architecture.md](architecture.md) → [ci-cd.md](ci-cd.md).
+**New here:** [architecture.md](architecture.md) → [ci-cd.md](ci-cd.md). Writing tests: [testing-strategy.md](testing-strategy.md).
 
 **A CI job went red:** [ci-cd.md § common failures](ci-cd.md#common-failures).
 For acceptance specifically, [acceptance-ci-debug.md](acceptance-ci-debug.md).

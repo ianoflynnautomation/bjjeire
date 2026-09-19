@@ -38,13 +38,20 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldRejectUnknownCountyWhenListingGyms() {
-        gymRepository.save(gym("Active Gym", GymStatus.Active));
+    void shouldListActiveGymsOrderedByName() throws Exception {
+        gymRepository.save(gym("Zebra Gym", GymStatus.Active));
+        gymRepository.save(gym("Alpha Gym", GymStatus.Active));
+        gymRepository.save(gym("Pending Gym", GymStatus.PendingApproval));
 
         ResponseEntity<String> response =
-                restTemplate.getForEntity(ApiRoutes.GYM + "?county=Atlantis&page=1&pageSize=20", String.class);
+                restTemplate.getForEntity(ApiRoutes.GYM + "?page=1&pageSize=20", String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        JsonNode data = objectMapper.readTree(response.getBody()).at("/data");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(data).hasSize(2);
+        assertThat(data.get(0).at("/name").asText()).isEqualTo("Alpha Gym");
+        assertThat(data.get(1).at("/name").asText()).isEqualTo("Zebra Gym");
     }
 
     @Test
@@ -108,6 +115,30 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldRoundTripGeoJsonCoordinatesAndOfferedClassesWhenCreatingThroughAuthenticatedApi() throws Exception {
+        ResponseEntity<String> created = restTemplate.postForEntity(
+                ApiRoutes.GYM, jsonEntity(gymCommandJson(null, "Geo Gym", "[\"KidsBJJ\"]")), String.class);
+
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        String id = objectMapper.readTree(created.getBody()).at("/data/id").asText();
+
+        ResponseEntity<String> fetched = restTemplate.getForEntity(ApiRoutes.GYM + "/" + id, String.class);
+        JsonNode coordinates = objectMapper.readTree(fetched.getBody()).at("/location/coordinates");
+        JsonNode offeredClasses = objectMapper.readTree(fetched.getBody()).at("/offeredClasses");
+
+        assertThat(fetched.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(coordinates.at("/coordinates/0").asDouble()).isEqualTo(-6.2603);
+        assertThat(coordinates.at("/coordinates/1").asDouble()).isEqualTo(53.3498);
+        assertThat(coordinates.at("/longitude").asDouble()).isEqualTo(-6.2603);
+        assertThat(coordinates.at("/latitude").asDouble()).isEqualTo(53.3498);
+        assertThat(offeredClasses.get(0).asText()).isEqualTo("KidsBJJ");
+
+        Gym savedGym = gymRepository.findById(id).orElseThrow();
+        assertThat(savedGym.getLocation().coordinates().coordinates()).containsExactly(-6.2603, 53.3498);
+        assertThat(savedGym.getOfferedClasses()).containsExactly(ClassCategory.KidsBJJ);
+    }
+
+    @Test
     void shouldRemoveGymWhenDeletingThroughAuthenticatedApi() {
         Gym savedGym = gymRepository.save(gym("Deleted Gym", GymStatus.Active));
 
@@ -127,6 +158,10 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     private static String gymCommandJson(String id, String name) {
+        return gymCommandJson(id, name, "[]");
+    }
+
+    private static String gymCommandJson(String id, String name, String offeredClassesJson) {
         String idJson = id == null ? "null" : "\"" + id + "\"";
         return """
             {
@@ -143,13 +178,13 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
                   "coordinates": { "type": "Point", "coordinates": [-6.2603, 53.3498], "placeName": "Dublin", "placeId": "test" }
                 },
                 "socialMedia": { "instagram": null, "facebook": null, "x": null, "youTube": null },
-                "offeredClasses": [],
+                "offeredClasses": %s,
                 "website": "https://example.com",
                 "timetableUrl": null,
                 "imageUrl": "https://cdn.bjjeire.com/gyms/test-lg.webp",
                 "thumbnailUrl": "https://cdn.bjjeire.com/gyms/test-thumb.webp"
               }
             }
-            """.formatted(idJson, name);
+            """.formatted(idJson, name, offeredClassesJson);
     }
 }
