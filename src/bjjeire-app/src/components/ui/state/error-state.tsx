@@ -21,7 +21,7 @@ const ErrorState = function ErrorState({
   return (
     <div
       role="alert"
-      className="my-10 rounded-2xl border border-danger-500/30 bg-surface p-6 text-center backdrop-blur-sm shadow-md shadow-black/10 ring-1 ring-hairline dark:shadow-black/20"
+      className="my-10 rounded-xl border border-danger-500/25 bg-surface-solid p-6 text-center shadow-card ring-1 ring-hairline"
       data-testid={rootTestId}
     >
       <ExclamationTriangleIcon

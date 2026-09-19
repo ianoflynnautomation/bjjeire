@@ -38,7 +38,7 @@ export const EventHeader = function EventHeader({
           <img
             src={imageUrl}
             alt={`Poster for ${displayName}`}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover"
             loading="lazy"
             data-testid={EventCardTestIds.IMAGE}
           />
@@ -69,7 +69,7 @@ export const EventHeader = function EventHeader({
                 <span
                   key={String(type)}
                   data-testid={EventCardTestIds.TYPE}
-                  className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider shadow-sm ${getEventTypeColorClasses(type)}`}
+                  className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${getEventTypeColorClasses(type)}`}
                 >
                   {getEventTypeLabel(type)}
                 </span>

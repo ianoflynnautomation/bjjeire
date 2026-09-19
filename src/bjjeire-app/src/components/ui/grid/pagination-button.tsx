@@ -26,7 +26,7 @@ export function PaginationButton({
       data-testid={dataTestId}
       className={cn(
         buttonVariants({ variant: 'outline', size: 'sm' }),
-        'gap-1.5 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md'
+        'gap-1.5'
       )}
       onClick={onClick}
       disabled={disabled}
