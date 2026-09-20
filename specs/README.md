@@ -22,12 +22,17 @@ specs/
 │   ├── events.md
 │   ├── competitions.md
 │   └── stores.md
-└── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
+├── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
+│   ├── README.md
+│   ├── gyms/
+│   ├── events/
+│   ├── competitions/
+│   └── stores/
+└── playwright/                   # Playwright Test Agent plans (tests live in bjjeire-tests)
     ├── README.md
-    ├── gyms/
-    ├── events/
-    ├── competitions/
-    └── stores/
+    ├── seed.md
+    ├── smoke.md
+    └── regression.md
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).

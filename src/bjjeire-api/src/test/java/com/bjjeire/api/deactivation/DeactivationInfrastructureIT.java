@@ -65,7 +65,6 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
 
         assertThat(replicaA.tryAcquire("BjjEvent", Duration.ofMinutes(10))).isTrue();
         assertThat(replicaB.tryAcquire("BjjEvent", Duration.ofMinutes(10))).isFalse();
-        // The current holder can renew its own lease.
         assertThat(replicaA.tryAcquire("BjjEvent", Duration.ofMinutes(10))).isTrue();
         // A different lock name is an independent lease.
         assertThat(replicaB.tryAcquire("Competition", Duration.ofMinutes(10))).isTrue();

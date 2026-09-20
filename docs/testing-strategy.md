@@ -560,7 +560,7 @@ Two different Playwright uses. Do not collapse them.
 - axe-core and screenshot snapshots live **here**, not in Vitest unit tests (the SPA testing README is explicit).
 - Seeded data is shared with `seeder/data-test/` and `bjjeire-tests/tests/testdata/seeded/`.
 
-**Do not** add Playwright coverage in this repo that duplicates `bjjeire-tests`. **Do not** grow Vitest browser tests into a second E2E suite.
+**Do not** add Playwright `*.spec.ts` in this repo. Agent **plans** for smoke/regression live in [`specs/playwright/`](../specs/playwright/); the generator writes specs in `bjjeire-tests`. **Do not** grow Vitest browser tests into a second E2E suite.
 
 ---
 
