@@ -111,7 +111,6 @@ public class BjjEventService {
 
         mongoTemplate.remove(event);
         auditRecorder.record(AuditAction.Delete, BjjEvent.ENTITY_NAME, id, 1);
-        // Hard invalidate only — no write-through after delete. removeByTag covers the by-id key.
         cache.removeByTag(ApiCache.BJJ_EVENTS_TAG);
         return true;
     }
