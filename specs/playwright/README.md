@@ -39,7 +39,9 @@ Copy the generated definitions over `.claude/agents/playwright-test-*.md` and
 points at this folder and bjjeire-tests.
 
 MCP: `.github/mcp.json` and `.vscode/mcp.json` start
-`tools/playwright-test-mcp.sh`, which `cd`s into bjjeire-tests.
+`tools/playwright-test-mcp.sh`, which `cd`s into bjjeire-tests
+(`BJJ_EIRE_TESTS_ROOT`, or sibling `../bjjeire-tests`). The script
+exits 1 if that checkout is missing.
 
 ## Seed
 
