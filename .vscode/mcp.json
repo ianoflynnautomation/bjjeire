@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "playwright-test": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tools/playwright-test-mcp.sh"]
+    }
+  },
+  "inputs": []
+}

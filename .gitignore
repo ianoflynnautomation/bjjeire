@@ -39,6 +39,7 @@ allure*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/mcp.json
 .idea/*
 !.idea/.gitignore
 !.idea/vcs.xml
@@ -108,3 +109,4 @@ CLAUDE.local.md
 !/tools/images/
 /tools/images/*
 !/tools/images/processed/
+!/tools/playwright-test-mcp.sh
