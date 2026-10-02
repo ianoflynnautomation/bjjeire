@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.35](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.34...frontend-v0.1.35) (2026-10-02)
+
+
+### Features
+
+* fix openapi defects and speed up CI pipeline ([45fe350](https://github.com/ianoflynnautomation/bjjeire/commit/45fe3502c28e181d722cd5939b7dca08454fbd4c))
+* fix openapi defects and speed up CI pipeline ([d5c469e](https://github.com/ianoflynnautomation/bjjeire/commit/d5c469ee3729acf35771f1b50fd9fc02afc5b160))
+
+
+### Bug Fixes
+
+* comment format ([36a3ec8](https://github.com/ianoflynnautomation/bjjeire/commit/36a3ec84a8421429c35989c3b71a2e475941d35c))
+* failing frontend lint ([5a2e39c](https://github.com/ianoflynnautomation/bjjeire/commit/5a2e39cffa7747935881df6647a2745dcbb1b96a))
+* format ([a6e3338](https://github.com/ianoflynnautomation/bjjeire/commit/a6e3338dbb934f4628985f6bc5111d97308b9ea4))
+* playwright version mismatch ([ab12c0d](https://github.com/ianoflynnautomation/bjjeire/commit/ab12c0d0a86c4424254941533e867ad21e7fe25a))
+* trigger ci ([7cbe7c3](https://github.com/ianoflynnautomation/bjjeire/commit/7cbe7c37dee1685ddcbc7e1f37275e6eae9e210e))
+* trigger ci ([afe3ac2](https://github.com/ianoflynnautomation/bjjeire/commit/afe3ac20de6f792da61a9f8e449e37fc73e3b975))
+* trigger new ci run ([6b1cf18](https://github.com/ianoflynnautomation/bjjeire/commit/6b1cf182b339eaae6303a1bc6dddb14155006190))
+* trigger new ci run ([f55da25](https://github.com/ianoflynnautomation/bjjeire/commit/f55da250daaf92aca597ac7e7c3cc8755b28d339))
+
 ## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.33...frontend-v0.1.34) (2026-08-27)
 
 
