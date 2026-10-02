@@ -306,7 +306,7 @@ jobs:
       packages: read
       id-token: write
       pages: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/acceptance-gate.yml@837fe03ead4d0e5c251cdf01e7aa29ada1282366  # v1.8.0
     with:
       mode: ephemeral
       env-id: sha-${{ github.run_id }}
