@@ -135,7 +135,7 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
 
     @State("feature flags are configured")
     void featureFlagsAreConfigured() {
-        // Flags come from configuration, not Mongo.
+        // Flags come from configuration, not Mongo DB.
     }
 
     private static Location location() {
