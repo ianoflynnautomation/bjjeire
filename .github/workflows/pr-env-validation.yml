@@ -261,7 +261,7 @@ jobs:
 
       - name: Wait for HelmRelease Ready
         id: wait
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/flux-wait-helmrelease@e30dc28dd2e56f9830b74187f7504d50ee7a593a  # v1.7.0
         with:
           namespace: ${{ env.PREVIEW_NS }}
           name: bjj-eire
