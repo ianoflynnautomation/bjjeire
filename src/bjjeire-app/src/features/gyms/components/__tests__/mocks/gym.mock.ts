@@ -45,8 +45,6 @@ export const MOCK_GYM_FULL: GymDto = createGym({
   timetableUrl: 'https://elitefighters.ie/timetable',
   imageUrl: 'https://example.com/images/elite_gym.jpg',
   thumbnailUrl: 'https://example.com/images/elite_gym_thumb.jpg',
-  createdOnUtc: '2026-01-01T00:00:00.000Z',
-  updatedOnUtc: '2026-01-01T00:00:00.000Z',
 })
 
 export const MOCK_GYM_MINIMAL: GymDto = createGym({

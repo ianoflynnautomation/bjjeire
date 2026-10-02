@@ -1,5 +1,6 @@
 package com.bjjeire.api.competition;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,10 +65,11 @@ public class Competition {
     private String updatedBy;
 
     public Instant computeExpiresAt() {
-        return endDate != null ? endDate.plus(EXPIRY_GRACE) : null;
+        return OpenEndedInstant.isOpen(endDate) ? null : endDate.plus(EXPIRY_GRACE);
     }
 
     public void stampExpiry() {
+        endDate = OpenEndedInstant.store(endDate);
         expiresAt = computeExpiresAt();
     }
 }

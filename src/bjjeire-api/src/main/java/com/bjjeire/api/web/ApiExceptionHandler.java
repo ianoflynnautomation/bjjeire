@@ -12,6 +12,8 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.engine.HibernateConstraintViolation;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -113,6 +115,18 @@ public class ApiExceptionHandler {
         detail.setTitle("Forbidden");
         attachTraceId(detail, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(detail);
+    }
+
+    @ExceptionHandler({DuplicateKeyException.class, OptimisticLockingFailureException.class})
+    public ResponseEntity<ProblemDetail> handleConflict(Exception exception, HttpServletRequest request) {
+        String detail = exception instanceof OptimisticLockingFailureException
+                ? "The resource was modified by someone else. Reload it and retry."
+                : "A resource with this id already exists.";
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detail);
+        problem.setType(java.net.URI.create("urn:bjjeire:conflict"));
+        problem.setTitle("Conflict");
+        attachTraceId(problem, request);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
     }
 
     @ExceptionHandler(ResponseStatusException.class)

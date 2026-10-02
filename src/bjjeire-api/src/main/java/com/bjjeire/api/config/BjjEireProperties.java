@@ -1,5 +1,6 @@
 package com.bjjeire.api.config;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,9 +57,25 @@ public record BjjEireProperties(
         }
     }
 
-    public record RateLimit(boolean enabled, int permitLimit, int windowSeconds, int rejectionStatusCode) {
+    public record RateLimit(
+            boolean enabled, int permitLimit, int windowSeconds, int rejectionStatusCode, String trustedProxies) {
+        public RateLimit(boolean enabled, int permitLimit, int windowSeconds, int rejectionStatusCode) {
+            this(enabled, permitLimit, windowSeconds, rejectionStatusCode, "");
+        }
+
         public RateLimit {
             rejectionStatusCode = rejectionStatusCode <= 0 ? 429 : rejectionStatusCode;
+            trustedProxies = trustedProxies == null ? "" : trustedProxies;
+        }
+
+        public List<String> trustedProxyAddresses() {
+            if (trustedProxies.isBlank()) {
+                return List.of();
+            }
+            return Arrays.stream(trustedProxies.split(","))
+                    .map(String::trim)
+                    .filter(value -> !value.isEmpty())
+                    .toList();
         }
     }
 

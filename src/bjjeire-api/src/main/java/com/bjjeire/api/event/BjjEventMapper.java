@@ -1,14 +1,16 @@
 package com.bjjeire.api.event;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import java.util.List;
 
 public final class BjjEventMapper {
     private BjjEventMapper() {}
 
     public static BjjEventDto toDto(BjjEvent event) {
+        BjjEventSchedule schedule = expose(event.getSchedule());
         List<PricingModel> pricingOptions = event.getPricingOptions();
-        List<CalculatedCost> calculatedCosts = BjjEventCostCalculator.calculate(
-                event.getSchedule(), pricingOptions == null ? List.of() : pricingOptions);
+        List<CalculatedCost> calculatedCosts =
+                BjjEventCostCalculator.calculate(schedule, pricingOptions == null ? List.of() : pricingOptions);
         return new BjjEventDto(
                 event.getId(),
                 event.getName(),
@@ -20,11 +22,12 @@ public final class BjjEventMapper {
                 event.getSocialMedia(),
                 event.getCounty(),
                 event.getLocation(),
-                event.getSchedule(),
+                schedule,
                 event.getPricingOptions(),
                 event.getEventUrl(),
                 event.getImageUrl(),
                 event.isActive(),
+                event.getVersion(),
                 calculatedCosts);
     }
 
@@ -46,10 +49,29 @@ public final class BjjEventMapper {
         event.setSocialMedia(dto.socialMedia());
         event.setCounty(dto.county());
         event.setLocation(dto.location());
-        event.setSchedule(dto.schedule());
+        event.setSchedule(store(dto.schedule()));
         event.setPricingOptions(dto.pricingOptions());
         event.setEventUrl(dto.eventUrl());
         event.setImageUrl(dto.imageUrl());
         event.setActive(dto.isActive());
+    }
+
+    private static BjjEventSchedule store(BjjEventSchedule schedule) {
+        if (schedule == null) {
+            return null;
+        }
+        return new BjjEventSchedule(
+                schedule.kind(), schedule.startDate(), OpenEndedInstant.store(schedule.endDate()), schedule.sessions());
+    }
+
+    private static BjjEventSchedule expose(BjjEventSchedule schedule) {
+        if (schedule == null) {
+            return null;
+        }
+        return new BjjEventSchedule(
+                schedule.kind(),
+                schedule.startDate(),
+                OpenEndedInstant.expose(schedule.endDate()),
+                schedule.sessions());
     }
 }

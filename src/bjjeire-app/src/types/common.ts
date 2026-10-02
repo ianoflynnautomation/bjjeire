@@ -16,8 +16,6 @@ export interface PaginatedResponse<T> {
 
 export interface BaseApiEntityModel {
   id?: string
-  createdOnUtc?: string | null
-  updatedOnUtc?: string | null
 }
 
 export interface MapLocationCoordinates {

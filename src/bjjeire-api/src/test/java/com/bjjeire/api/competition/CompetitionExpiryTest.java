@@ -2,6 +2,7 @@ package com.bjjeire.api.competition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +26,18 @@ class CompetitionExpiryTest {
         competition.stampExpiry();
 
         assertThat(competition.getExpiresAt()).isNull();
+        assertThat(competition.getEndDate()).isEqualTo(OpenEndedInstant.VALUE);
+    }
+
+    @Test
+    void stampExpiryClearsExpiresAtWhenEndDateIsTheOpenEndedSentinel() {
+        Competition competition = new Competition();
+        competition.setEndDate(OpenEndedInstant.VALUE);
+        competition.setExpiresAt(Instant.parse("2026-08-01T12:00:00Z"));
+
+        competition.stampExpiry();
+
+        assertThat(competition.getExpiresAt()).isNull();
+        assertThat(competition.getEndDate()).isEqualTo(OpenEndedInstant.VALUE);
     }
 }

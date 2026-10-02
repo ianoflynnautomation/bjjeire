@@ -96,7 +96,11 @@ class BjjEventControllerTest {
     void shouldReturnNotFoundWhenEventIsMissing() throws Exception {
         given(bjjEventService.getById(MISSING_EVENT_ID)).willReturn(Optional.empty());
 
-        mockMvc.perform(get(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"))
+                .andExpect(jsonPath("$.title").value("Resource Not Found"))
+                .andExpect(jsonPath("$.traceId").exists());
     }
 
     @Test
@@ -174,7 +178,12 @@ class BjjEventControllerTest {
         mockMvc.perform(put(ApiRoutes.BJJ_EVENT + "/" + EVENT_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(eventCommandJson(OTHER_EVENT_ID)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:validation-error"))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].field").value("Id"))
+                .andExpect(jsonPath("$.errors[0].errorCode").value("ID_MISMATCH"))
+                .andExpect(jsonPath("$.traceId").exists());
 
         then(bjjEventService).should(never()).update(anyString(), any(UpdateBjjEventCommand.class));
     }
@@ -190,7 +199,10 @@ class BjjEventControllerTest {
     void shouldReturnNotFoundWhenDeletingMissingEvent() throws Exception {
         given(bjjEventService.delete(MISSING_EVENT_ID)).willReturn(false);
 
-        mockMvc.perform(delete(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(delete(ApiRoutes.BJJ_EVENT + "/" + MISSING_EVENT_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"))
+                .andExpect(jsonPath("$.title").value("Resource Not Found"));
     }
 
     private static PagedResponse<BjjEventDto> pageOf(BjjEventDto dto) {

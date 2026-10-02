@@ -13,6 +13,7 @@ import jakarta.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
@@ -312,6 +313,36 @@ class BjjEventDtoValidatorTest {
         assertThat(violations)
                 .anyMatch(v -> v.getMessage().equals("Longitude must be between -180 and 180 inclusive."))
                 .anyMatch(v -> v.getMessage().equals("Latitude must be between -90 and 90 inclusive."));
+    }
+
+    @Test
+    void tooManySessionsAreRejected() {
+        List<BjjEventSession> sessions = new ArrayList<>();
+        for (int i = 0; i < BjjEventDtoValidator.MAX_SESSIONS + 1; i++) {
+            sessions.add(new BjjEventSession(
+                    Instant.parse("2026-07-25T00:00:00Z"), null, LocalTime.of(10, 0), LocalTime.of(16, 0), null, null));
+        }
+        BjjEventDto dto = withSchedule(new BjjEventSchedule(
+                ScheduleKind.FixedDates,
+                Instant.parse("2026-07-25T00:00:00Z"),
+                Instant.parse("2026-07-27T00:00:00Z"),
+                sessions));
+
+        assertThat(validator.validate(dto))
+                .anyMatch(v -> v.getPropertyPath().toString().equals("schedule.sessions")
+                        && v.getMessage().equals("Sessions cannot exceed 64 entries."));
+    }
+
+    @Test
+    void tooManyPricingOptionsAreRejected() {
+        List<PricingModel> pricingOptions = new ArrayList<>();
+        for (int i = 0; i < BjjEventDtoValidator.MAX_PRICING_OPTIONS + 1; i++) {
+            pricingOptions.add(new PricingModel(PricingType.Free, null, null, BigDecimal.ZERO, null, null));
+        }
+
+        assertThat(validator.validate(withPricing(pricingOptions)))
+                .anyMatch(v -> v.getPropertyPath().toString().equals("pricingOptions")
+                        && v.getMessage().equals("Pricing Options cannot exceed 16 entries."));
     }
 
     private static BjjEventDto validDto() {

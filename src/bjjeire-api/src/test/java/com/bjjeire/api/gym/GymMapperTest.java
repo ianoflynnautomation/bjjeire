@@ -14,6 +14,7 @@ class GymMapperTest {
         gym.setStatus(GymStatus.Active);
         gym.setCounty(County.Dublin);
         gym.setImageUrl("https://cdn.bjjeire.com/gyms/test-lg.webp");
+        gym.setVersion(4L);
 
         GymDto dto = GymMapper.toDto(gym);
 
@@ -22,5 +23,6 @@ class GymMapperTest {
         assertThat(dto.status()).isEqualTo(GymStatus.Active);
         assertThat(dto.county()).isEqualTo(County.Dublin);
         assertThat(dto.thumbnailUrl()).isEqualTo("https://cdn.bjjeire.com/gyms/test-thumb.webp");
+        assertThat(dto.version()).isEqualTo(4L);
     }
 }

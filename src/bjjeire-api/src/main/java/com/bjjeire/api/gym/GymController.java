@@ -5,6 +5,7 @@ import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationRequest;
 import com.bjjeire.api.common.ValidObjectId;
+import com.bjjeire.api.web.ApiProblems;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,10 +48,7 @@ public class GymController {
     @GetMapping("/{id}")
     @Operation(summary = "Get gym by ID")
     public ResponseEntity<GymDto> getById(@PathVariable @ValidObjectId String id) {
-        return gymService
-                .getById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return gymService.getById(id).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }
 
     @PostMapping
@@ -68,21 +66,18 @@ public class GymController {
             @PathVariable @ValidObjectId String id, @RequestBody @Valid UpdateGymCommand command) {
 
         if (command.data().id() != null && !id.equals(command.data().id())) {
-            return ResponseEntity.badRequest().build();
+            throw ApiProblems.idMismatch();
         }
 
-        return gymService
-                .update(id, command)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return gymService.update(id, command).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete gym")
     public ResponseEntity<Void> delete(@PathVariable @ValidObjectId String id) {
-        boolean deleted = gymService.delete(id);
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        if (!gymService.delete(id)) {
+            throw ApiProblems.notFound();
+        }
+        return ResponseEntity.noContent().build();
     }
 }

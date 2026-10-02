@@ -3,7 +3,6 @@ import { uiContent } from '@/config/ui-content'
 
 const { statusLabels, classCategoryLabels } = uiContent.gyms
 
-// Partial: statuses added server-side must fall back gracefully at runtime
 const gymStatusLabels: Partial<Record<GymStatus, string>> = {
   [GymStatus.Active]: statusLabels.active,
   [GymStatus.PendingApproval]: statusLabels.pendingApproval,

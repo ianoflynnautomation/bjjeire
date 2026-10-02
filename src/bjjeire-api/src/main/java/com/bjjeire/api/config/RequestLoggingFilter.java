@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -15,8 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @Order(5)
+@RequiredArgsConstructor
 public class RequestLoggingFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestLoggingFilter.class);
+
+    private final BjjEireProperties properties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,8 +36,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
     }
 
-    private static void log(
-            HttpServletRequest request, HttpServletResponse response, String traceId, double elapsedMs) {
+    private void log(HttpServletRequest request, HttpServletResponse response, String traceId, double elapsedMs) {
         int status = response.getStatus();
         if (isSuccessfulHealthCheck(request, status)) {
             LOGGER.debug(message(), args(request, response, traceId, elapsedMs));
@@ -54,8 +57,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         return "HTTP {} {} responded {} in {} ms for TraceId {} ClientIP={} UserAgent=\"{}\" Host={} Scheme={} UserId={}";
     }
 
-    private static Object[] args(
-            HttpServletRequest request, HttpServletResponse response, String traceId, double elapsedMs) {
+    private Object[] args(HttpServletRequest request, HttpServletResponse response, String traceId, double elapsedMs) {
         return new Object[] {
             request.getMethod(),
             request.getRequestURI(),
@@ -70,8 +72,8 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         };
     }
 
-    private static String clientIp(HttpServletRequest request) {
-        return ClientIps.resolve(request, "Unknown");
+    private String clientIp(HttpServletRequest request) {
+        return ClientIps.resolve(request, "Unknown", properties.rateLimit().trustedProxyAddresses());
     }
 
     private static String userAgent(HttpServletRequest request) {

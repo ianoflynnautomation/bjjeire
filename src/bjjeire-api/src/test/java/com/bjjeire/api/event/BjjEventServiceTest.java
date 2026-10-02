@@ -1,6 +1,7 @@
 package com.bjjeire.api.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -11,6 +12,7 @@ import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.common.County;
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.common.UriService;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,34 +60,47 @@ class BjjEventServiceTest {
     @Test
     void shouldStampAuditFieldsWhenCreatingEvent() {
         givenAuditContext();
-        givenSaveReturnsItsArgument();
+        givenInsertReturnsItsArgument();
 
         CreateBjjEventResponse response = service.create(new CreateBjjEventCommand(dto(EVENT_ID)));
 
-        BjjEvent saved = capturedSave();
+        BjjEvent saved = capturedInsert();
         assertThat(saved.getCreatedOnUtc()).isEqualTo(NOW);
         assertThat(saved.getCreatedBy()).isEqualTo(AUDIT_USER);
         assertThat(response.data().id()).isEqualTo(EVENT_ID);
+        then(mongoTemplate).should(never()).save(any(BjjEvent.class));
     }
 
     @Test
     void shouldStampExpiryFromScheduleEndDateWhenCreatingEvent() {
         givenAuditContext();
-        givenSaveReturnsItsArgument();
+        givenInsertReturnsItsArgument();
 
         service.create(new CreateBjjEventCommand(dto(EVENT_ID)));
 
-        assertThat(capturedSave().getExpiresAt()).isEqualTo(END_DATE.plus(BjjEvent.EXPIRY_GRACE));
+        assertThat(capturedInsert().getExpiresAt()).isEqualTo(END_DATE.plus(BjjEvent.EXPIRY_GRACE));
+    }
+
+    @Test
+    void shouldStoreOpenEndedEndDateAsSentinelAndSkipExpiryWhenCreatingEvent() {
+        givenAuditContext();
+        givenInsertReturnsItsArgument();
+
+        service.create(new CreateBjjEventCommand(dto(EVENT_ID, null)));
+
+        BjjEvent saved = capturedInsert();
+        assertThat(saved.getSchedule().endDate()).isEqualTo(OpenEndedInstant.VALUE);
+        assertThat(saved.getExpiresAt()).isNull();
     }
 
     @Test
     void shouldAssignObjectIdWhenCreatingEventWithoutClientId() {
         givenAuditContext();
-        givenSaveReturnsItsArgument();
+        givenInsertReturnsItsArgument();
 
         CreateBjjEventResponse response = service.create(new CreateBjjEventCommand(dto(null)));
 
-        BjjEvent saved = capturedSave();
+        BjjEvent saved = capturedInsert();
         assertThat(saved.getId()).isNotBlank().matches("^[0-9a-fA-F]{24}$");
         assertThat(response.data().id()).isEqualTo(saved.getId());
     }
@@ -94,9 +110,11 @@ class BjjEventServiceTest {
         givenAuditContext();
         givenSaveReturnsItsArgument();
         BjjEvent existing = existingEvent(EVENT_ID, "Old Name");
+        existing.setVersion(4L);
         given(mongoTemplate.findById(EVENT_ID, BjjEvent.class)).willReturn(existing);
 
-        Optional<UpdateBjjEventResponse> response = service.update(EVENT_ID, new UpdateBjjEventCommand(dto("ignored")));
+        Optional<UpdateBjjEventResponse> response = service.update(
+                EVENT_ID, new UpdateBjjEventCommand(dto("ignored").withVersion(4L)));
 
         assertThat(response).isPresent();
         assertThat(response.orElseThrow().data().id()).isEqualTo(EVENT_ID);
@@ -118,6 +136,20 @@ class BjjEventServiceTest {
     }
 
     @Test
+    void shouldRejectUpdateWhenVersionIsMissingOrStale() {
+        BjjEvent existing = existingEvent(EVENT_ID, "Old Name");
+        existing.setVersion(4L);
+        given(mongoTemplate.findById(EVENT_ID, BjjEvent.class)).willReturn(existing);
+
+        assertThatThrownBy(() -> service.update(EVENT_ID, new UpdateBjjEventCommand(dto("ignored"))))
+                .isInstanceOf(OptimisticLockingFailureException.class);
+        assertThatThrownBy(() -> service.update(
+                        EVENT_ID, new UpdateBjjEventCommand(dto("ignored").withVersion(3L))))
+                .isInstanceOf(OptimisticLockingFailureException.class);
+        then(mongoTemplate).should(never()).save(any(BjjEvent.class));
+    }
+
+    @Test
     void shouldServeRepeatGetByIdFromCache() {
         given(mongoTemplate.findById(EVENT_ID, BjjEvent.class)).willReturn(existingEvent(EVENT_ID, "Cached Event"));
 
@@ -130,7 +162,7 @@ class BjjEventServiceTest {
     @Test
     void shouldPrimeByIdCacheOnCreateSoFollowUpReadSkipsMongo() {
         givenAuditContext();
-        givenSaveReturnsItsArgument();
+        givenInsertReturnsItsArgument();
 
         service.create(new CreateBjjEventCommand(dto(EVENT_ID)));
         Optional<BjjEventDto> cachedRead = service.getById(EVENT_ID);
@@ -175,13 +207,17 @@ class BjjEventServiceTest {
         given(auditInfoProvider.currentUser()).willReturn(AUDIT_USER);
     }
 
+    private void givenInsertReturnsItsArgument() {
+        given(mongoTemplate.insert(any(BjjEvent.class))).willAnswer(invocation -> invocation.getArgument(0));
+    }
+
     private void givenSaveReturnsItsArgument() {
         given(mongoTemplate.save(any(BjjEvent.class))).willAnswer(invocation -> invocation.getArgument(0));
     }
 
-    private BjjEvent capturedSave() {
+    private BjjEvent capturedInsert() {
         ArgumentCaptor<BjjEvent> event = ArgumentCaptor.forClass(BjjEvent.class);
-        then(mongoTemplate).should().save(event.capture());
+        then(mongoTemplate).should().insert(event.capture());
         return event.getValue();
     }
 
@@ -193,6 +229,10 @@ class BjjEventServiceTest {
     }
 
     private static BjjEventDto dto(String id) {
+        return dto(id, END_DATE);
+    }
+
+    private static BjjEventDto dto(String id, Instant endDate) {
         return new BjjEventDto(
                 id,
                 "Dublin Open Mat",
@@ -205,7 +245,7 @@ class BjjEventServiceTest {
                 County.Dublin,
                 null,
                 new BjjEventSchedule(
-                        ScheduleKind.FixedDates, Instant.parse("2026-08-01T10:00:00Z"), END_DATE, List.of()),
+                        ScheduleKind.FixedDates, Instant.parse("2026-08-01T10:00:00Z"), endDate, List.of()),
                 List.of(new PricingModel(PricingType.Free, null, null, BigDecimal.ZERO, null, null)),
                 "https://example.com/events/open-mat",
                 null,

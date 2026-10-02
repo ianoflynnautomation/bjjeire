@@ -2,27 +2,27 @@ import type { County } from '@/constants/counties'
 import type { BaseApiEntityModel, LocationDto, SocialMediaDto } from './common'
 
 export enum BjjEventType {
-  OpenMat = 0,
-  Seminar = 1,
-  Camp = 3,
-  Other = 4,
+  OpenMat = 'OpenMat',
+  Seminar = 'Seminar',
+  Camp = 'Camp',
+  Other = 'Other',
 }
 
 export enum PricingType {
-  Free = 0,
-  FlatRate = 1,
-  PerSession = 2,
-  PerDay = 3,
+  Free = 'Free',
+  FlatRate = 'FlatRate',
+  PerSession = 'PerSession',
+  PerDay = 'PerDay',
 }
 
 export enum EventStatus {
-  Upcoming = 1,
-  RegistrationOpen = 2,
-  RegistrationClosed = 3,
-  Ongoing = 4,
-  Completed = 5,
-  Canceled = 6,
-  Postponed = 7,
+  Postponed = 'Postponed',
+  Upcoming = 'Upcoming',
+  RegistrationOpen = 'RegistrationOpen',
+  RegistrationClosed = 'RegistrationClosed',
+  Ongoing = 'Ongoing',
+  Completed = 'Completed',
+  Canceled = 'Canceled',
 }
 
 export enum ScheduleKind {

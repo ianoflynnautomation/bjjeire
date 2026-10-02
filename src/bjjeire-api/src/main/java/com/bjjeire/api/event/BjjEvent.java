@@ -2,6 +2,7 @@ package com.bjjeire.api.event;
 
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.Location;
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.common.SocialMedia;
 import java.time.Duration;
 import java.time.Instant;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -28,6 +30,9 @@ public class BjjEvent {
 
     @Id
     private String id;
+
+    @Version
+    private Long version;
 
     @Field("expiresAt")
     private Instant expiresAt;
@@ -62,12 +67,20 @@ public class BjjEvent {
     private String updatedBy;
 
     public Instant computeExpiresAt() {
-        return schedule != null && schedule.endDate() != null
-                ? schedule.endDate().plus(EXPIRY_GRACE)
-                : null;
+        if (schedule == null || OpenEndedInstant.isOpen(schedule.endDate())) {
+            return null;
+        }
+        return schedule.endDate().plus(EXPIRY_GRACE);
     }
 
     public void stampExpiry() {
+        if (schedule != null) {
+            schedule = new BjjEventSchedule(
+                    schedule.kind(),
+                    schedule.startDate(),
+                    OpenEndedInstant.store(schedule.endDate()),
+                    schedule.sessions());
+        }
         expiresAt = computeExpiresAt();
     }
 }

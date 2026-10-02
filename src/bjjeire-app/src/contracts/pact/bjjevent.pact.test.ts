@@ -22,7 +22,7 @@ describe('Pact - BjjEvent consumer contract', () => {
           data: eachLike({
             id: string(),
             name: string(),
-            type: string(),
+            types: eachLike(string()),
             status: string(),
             county: string(),
             organiser: like({ name: string() }),
@@ -31,7 +31,7 @@ describe('Pact - BjjEvent consumer contract', () => {
               venue: string(),
             }),
             schedule: like({}),
-            pricing: like({ type: string() }),
+            pricingOptions: eachLike({ type: string() }),
             socialMedia: like({}),
           }),
           pagination: like({

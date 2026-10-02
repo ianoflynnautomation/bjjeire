@@ -8,7 +8,7 @@ export const buttonVariants = cva(
         gradient:
           'border border-primary-800/20 bg-primary-700 text-ink-50 hover:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:border-primary-400/20',
         accent:
-          'border border-bitcoin/20 bg-bitcoin text-white hover:bg-bitcoin-hover',
+          'border border-bitcoin/20 bg-bitcoin text-ink-900 hover:bg-bitcoin-hover',
         solid:
           'border border-primary-800/20 bg-primary-700 text-ink-50 hover:bg-primary-800 dark:bg-primary-500 dark:hover:bg-primary-600 dark:border-primary-400/20',
         outline:

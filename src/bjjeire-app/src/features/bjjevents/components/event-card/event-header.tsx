@@ -67,7 +67,7 @@ export const EventHeader = function EventHeader({
             <div className="flex flex-wrap justify-end gap-1">
               {types.map(type => (
                 <span
-                  key={String(type)}
+                  key={type}
                   data-testid={EventCardTestIds.TYPE}
                   className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${getEventTypeColorClasses(type)}`}
                 >

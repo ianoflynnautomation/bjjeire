@@ -60,9 +60,7 @@ describe('getBjjEvents', () => {
 
     await getBjjEvents({ ...defaults, types: [BjjEventType.Camp] })
 
-    expect(getUrl().searchParams.getAll('types')).toEqual([
-      String(BjjEventType.Camp),
-    ])
+    expect(getUrl().searchParams.getAll('types')).toEqual([BjjEventType.Camp])
   })
 
   it('given multiple event type filters, when events are requested, then the types param is repeated per type', async () => {
@@ -74,8 +72,8 @@ describe('getBjjEvents', () => {
     })
 
     expect(getUrl().searchParams.getAll('types')).toEqual([
-      String(BjjEventType.Camp),
-      String(BjjEventType.Seminar),
+      BjjEventType.Camp,
+      BjjEventType.Seminar,
     ])
   })
 

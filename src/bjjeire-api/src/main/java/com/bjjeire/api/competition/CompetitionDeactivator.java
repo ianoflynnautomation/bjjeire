@@ -31,7 +31,6 @@ public class CompetitionDeactivator implements Deactivator {
         Query expired = new Query(new Criteria()
                 .andOperator(
                         Criteria.where("isActive").is(true),
-                        Criteria.where("endDate").ne(null),
                         Criteria.where("endDate").lt(nowUtc)));
         Update update = Update.update("isActive", false)
                 .set("updatedAt", nowUtc)

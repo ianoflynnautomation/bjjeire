@@ -22,4 +22,5 @@ public record GymDto(
         String website,
         String timetableUrl,
         String imageUrl,
-        String thumbnailUrl) {}
+        String thumbnailUrl,
+        Long version) {}

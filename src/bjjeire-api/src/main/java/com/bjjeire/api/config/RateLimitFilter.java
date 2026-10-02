@@ -11,6 +11,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import org.springframework.core.annotation.Order;
@@ -28,12 +29,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final BjjEireProperties properties;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final List<String> trustedProxies;
     private final ConcurrentMap<String, Window> windows;
 
     public RateLimitFilter(BjjEireProperties properties, ObjectMapper objectMapper, Clock clock) {
         this.properties = properties;
         this.objectMapper = objectMapper;
         this.clock = clock;
+        this.trustedProxies = properties.rateLimit().trustedProxyAddresses();
 
         long windowSeconds = Math.max(properties.rateLimit().windowSeconds(), 60);
         Cache<String, Window> cache = Caffeine.newBuilder()
@@ -41,6 +44,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 .maximumSize(MAX_TRACKED_PARTITIONS)
                 .build();
         this.windows = cache.asMap();
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return "/health".equals(uri)
+                || uri.startsWith("/health/")
+                || "/metrics".equals(uri)
+                || uri.startsWith("/actuator/");
     }
 
     @Override
@@ -91,7 +103,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         objectMapper.writeValue(response.getOutputStream(), problem);
     }
 
-    private static String partitionKey(HttpServletRequest request) {
+    private String partitionKey(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         if (principal != null
                 && principal.getName() != null
@@ -99,7 +111,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             return principal.getName();
         }
 
-        return ClientIps.resolve(request, "unknown");
+        return ClientIps.resolve(request, "unknown", trustedProxies);
     }
 
     private static final class Window {

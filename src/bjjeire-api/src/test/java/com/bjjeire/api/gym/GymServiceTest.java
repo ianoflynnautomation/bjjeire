@@ -1,6 +1,7 @@
 package com.bjjeire.api.gym;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,21 +57,21 @@ class GymServiceTest {
     @Test
     void shouldStampAuditFieldsWhenCreatingGym() {
         givenAuditContext();
-        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+        givenInsertReturnsItsArgument();
 
         CreateGymResponse response = service.create(new CreateGymCommand(dto(GYM_ID)));
 
-        ArgumentCaptor<Gym> gym = ArgumentCaptor.forClass(Gym.class);
-        then(mongoTemplate).should().save(gym.capture());
-        assertThat(gym.getValue().getCreatedOnUtc()).isEqualTo(NOW);
-        assertThat(gym.getValue().getCreatedBy()).isEqualTo(AUDIT_USER);
+        Gym gym = capturedInsert();
+        assertThat(gym.getCreatedOnUtc()).isEqualTo(NOW);
+        assertThat(gym.getCreatedBy()).isEqualTo(AUDIT_USER);
         assertThat(response.data().id()).isEqualTo(GYM_ID);
+        then(mongoTemplate).should(never()).save(any(Gym.class));
     }
 
     @Test
     void shouldClearBlankIdSoMongoCanAssignOneWhenCreatingGym() {
         givenAuditContext();
-        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> {
+        given(mongoTemplate.insert(any(Gym.class))).willAnswer(invocation -> {
             Gym gym = invocation.getArgument(0);
             if (gym.getId() == null) {
                 gym.setId(GYM_ID);
@@ -79,9 +81,7 @@ class GymServiceTest {
 
         CreateGymResponse response = service.create(new CreateGymCommand(dto("   ")));
 
-        ArgumentCaptor<Gym> gym = ArgumentCaptor.forClass(Gym.class);
-        then(mongoTemplate).should().save(gym.capture());
-        assertThat(gym.getValue().getId()).isEqualTo(GYM_ID);
+        assertThat(capturedInsert().getId()).isEqualTo(GYM_ID);
         assertThat(response.data().id()).isEqualTo(GYM_ID);
     }
 
@@ -89,10 +89,11 @@ class GymServiceTest {
     void shouldApplyChangesAndAuditFieldsWhenUpdatingExistingGym() {
         givenAuditContext();
         Gym existing = activeGym(GYM_ID, "Old Name");
+        existing.setVersion(3L);
         given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
         given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
 
-        Optional<UpdateGymResponse> response = service.update(GYM_ID, new UpdateGymCommand(dto("ignored")));
+        Optional<UpdateGymResponse> response = service.update(GYM_ID, new UpdateGymCommand(dto("ignored", 3L)));
 
         assertThat(response).isPresent();
         assertThat(response.orElseThrow().data().id()).isEqualTo(GYM_ID);
@@ -108,6 +109,19 @@ class GymServiceTest {
         Optional<UpdateGymResponse> response = service.update("missing", new UpdateGymCommand(dto("missing")));
 
         assertThat(response).isEmpty();
+        then(mongoTemplate).should(never()).save(any(Gym.class));
+    }
+
+    @Test
+    void shouldRejectUpdateWhenVersionIsMissingOrStale() {
+        Gym existing = activeGym(GYM_ID, "Old Name");
+        existing.setVersion(3L);
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
+
+        assertThatThrownBy(() -> service.update(GYM_ID, new UpdateGymCommand(dto("ignored"))))
+                .isInstanceOf(OptimisticLockingFailureException.class);
+        assertThatThrownBy(() -> service.update(GYM_ID, new UpdateGymCommand(dto("ignored", 2L))))
+                .isInstanceOf(OptimisticLockingFailureException.class);
         then(mongoTemplate).should(never()).save(any(Gym.class));
     }
 
@@ -133,7 +147,7 @@ class GymServiceTest {
     @Test
     void shouldPrimeByIdCacheOnCreateSoFollowUpReadSkipsMongo() {
         givenAuditContext();
-        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+        givenInsertReturnsItsArgument();
 
         service.create(new CreateGymCommand(dto(GYM_ID)));
         Optional<GymDto> cachedRead = service.getById(GYM_ID);
@@ -172,6 +186,16 @@ class GymServiceTest {
         given(auditInfoProvider.currentUser()).willReturn(AUDIT_USER);
     }
 
+    private void givenInsertReturnsItsArgument() {
+        given(mongoTemplate.insert(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+    }
+
+    private Gym capturedInsert() {
+        ArgumentCaptor<Gym> gym = ArgumentCaptor.forClass(Gym.class);
+        then(mongoTemplate).should().insert(gym.capture());
+        return gym.getValue();
+    }
+
     private static Gym activeGym(String id, String name) {
         Gym gym = new Gym();
         gym.setId(id);
@@ -182,6 +206,10 @@ class GymServiceTest {
     }
 
     private static GymDto dto(String id) {
+        return dto(id, null);
+    }
+
+    private static GymDto dto(String id, Long version) {
         return new GymDto(
                 id,
                 "BJJ Dublin",
@@ -196,6 +224,7 @@ class GymServiceTest {
                 "https://example.com",
                 null,
                 null,
-                null);
+                null,
+                version);
     }
 }

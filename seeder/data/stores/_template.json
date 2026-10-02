@@ -2,7 +2,10 @@
   {
     "id": "000000000000000000000000",
     "name": "Example BJJ Store",
-    "status": "Active",
+    "description": "Example grappling equipment shop.",
+    "websiteUrl": "https://example.ie",
+    "logoUrl": null,
+    "isActive": true,
     "createdBy": "community",
     "createdAt": "2026-04-14T00:00:00Z",
     "updatedBy": null,

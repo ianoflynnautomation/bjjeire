@@ -1,5 +1,6 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
@@ -13,6 +14,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,91 +36,139 @@ public class MongoIndexInitializer implements ApplicationRunner {
             return;
         }
 
+        migrate();
         dropObsolete("BjjEvent", "ix_event_county_status_endDate");
+        ensureIndexes();
+        log.info("All Mongo indexes ensured");
+    }
 
+    private void ensureIndexes() {
         ensure(
                 Gym.ENTITY_NAME,
                 new Index()
                         .on("status", Sort.Direction.ASC)
                         .on("county", Sort.Direction.ASC)
                         .on("name", Sort.Direction.ASC)
-                        .named("ix_gym_status_county_name"),
-                false);
+                        .named("ix_gym_status_county_name"));
+
+        ensure(
+                Gym.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("name", Sort.Direction.ASC)
+                        .named("ix_gym_status_name"));
 
         ensure(
                 BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("schedule.endDate", Sort.Direction.ASC)
-                        .named("ix_event_isActive_endDate"),
-                false);
+                        .named("ix_event_isActive_endDate"));
 
         ensure(
                 BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("county", Sort.Direction.ASC)
                         .on("isActive", Sort.Direction.ASC)
-                        .named("ix_event_county_isActive"),
-                false);
+                        .named("ix_event_county_isActive"));
+
+        ensure(
+                BjjEvent.ENTITY_NAME,
+                new Index()
+                        .on("isActive", Sort.Direction.ASC)
+                        .on("status", Sort.Direction.ASC)
+                        .on("createdAt", Sort.Direction.ASC)
+                        .named("ix_event_isActive_status_createdAt"));
+
+        ensure(
+                BjjEvent.ENTITY_NAME,
+                new Index()
+                        .on("county", Sort.Direction.ASC)
+                        .on("isActive", Sort.Direction.ASC)
+                        .on("status", Sort.Direction.ASC)
+                        .on("createdAt", Sort.Direction.ASC)
+                        .named("ix_event_county_isActive_status_createdAt"));
 
         ensure(
                 BjjEvent.ENTITY_NAME,
                 new Index()
                         .on("expiresAt", Sort.Direction.ASC)
                         .named("ttl_event_expiresAt")
-                        .expire(EXPIRE_AT_STORED_DATE),
-                false);
+                        .expire(EXPIRE_AT_STORED_DATE));
 
         ensure(
                 Competition.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("endDate", Sort.Direction.ASC)
-                        .named("ix_competition_isActive_endDate"),
-                false);
+                        .named("ix_competition_isActive_endDate"));
 
-        // Unique correctness constraint — critical: a failure to build this must fail fast.
         ensure(
-                "Competition",
+                Competition.ENTITY_NAME,
+                new Index()
+                        .on("isActive", Sort.Direction.ASC)
+                        .on("startDate", Sort.Direction.ASC)
+                        .on("name", Sort.Direction.ASC)
+                        .named("ix_competition_isActive_startDate_name"));
+
+        ensure(
+                Competition.ENTITY_NAME,
                 new Index()
                         .on("slug", Sort.Direction.ASC)
                         .named("ix_competition_slug_unique")
-                        .unique(),
-                true);
+                        .unique());
 
         ensure(
                 Competition.ENTITY_NAME,
                 new Index()
                         .on("expiresAt", Sort.Direction.ASC)
                         .named("ttl_competition_expiresAt")
-                        .expire(EXPIRE_AT_STORED_DATE),
-                false);
+                        .expire(EXPIRE_AT_STORED_DATE));
 
         ensure(
                 Store.ENTITY_NAME,
                 new Index()
                         .on("isActive", Sort.Direction.ASC)
                         .on("name", Sort.Direction.ASC)
-                        .named("ix_store_isActive_name"),
-                false);
-
-        log.info("All Mongo indexes ensured");
+                        .named("ix_store_isActive_name"));
     }
 
-    private void ensure(String collection, Index index, boolean critical) {
-        try {
-            String created = mongoTemplate.indexOps(collection).createIndex(index);
-            log.info("Ensured index {} on collection {}", created, collection);
-        } catch (RuntimeException exception) {
-            if (critical) {
-                throw exception;
-            }
-            log.warn(
-                    "Non-critical index {} on collection {} could not be ensured",
-                    index.getIndexKeys(),
-                    collection,
-                    exception);
-        }
+    public void migrate() {
+        long events = mongoTemplate
+                .updateMulti(
+                        Query.query(new Criteria()
+                                .andOperator(
+                                        Criteria.where("schedule").ne(null),
+                                        Criteria.where("schedule.endDate").is(null))),
+                        Update.update("schedule.endDate", OpenEndedInstant.VALUE),
+                        BjjEvent.ENTITY_NAME)
+                .getModifiedCount();
+        long competitions = mongoTemplate
+                .updateMulti(
+                        Query.query(Criteria.where("endDate").is(null)),
+                        Update.update("endDate", OpenEndedInstant.VALUE),
+                        Competition.ENTITY_NAME)
+                .getModifiedCount();
+        long gyms = initializeVersion(Gym.ENTITY_NAME);
+        long versionedEvents = initializeVersion(BjjEvent.ENTITY_NAME);
+        log.info(
+                "Stored-document migration updated {} open-ended events, {} open-ended competitions, {} gym versions, {} event versions",
+                events,
+                competitions,
+                gyms,
+                versionedEvents);
+    }
+
+    private long initializeVersion(String collection) {
+        return mongoTemplate
+                .updateMulti(
+                        Query.query(Criteria.where("version").exists(false)), Update.update("version", 0L), collection)
+                .getModifiedCount();
+    }
+
+    private void ensure(String collection, Index index) {
+        String created = mongoTemplate.indexOps(collection).createIndex(index);
+        log.info("Ensured index {} on collection {}", created, collection);
     }
 
     private void dropObsolete(String collection, String name) {

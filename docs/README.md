@@ -8,7 +8,7 @@
 | [Playwright agents](../specs/playwright/README.md) | Planner/generator/healer plans in this repo; executable tests in `bjjeire-tests` |
 | [adr/](adr/) | Architecture decision records — *why* it is built this way |
 | [diagrams/](diagrams/) | `architecture.drawio.svg` — renders on GitHub, editable in draw.io |
-| [contract-testing.md](contract-testing.md) | Pact and OpenAPI contract workflow |
+| [contract-testing.md](contract-testing.md) | Field change, breaking OpenAPI diff, SPA types, and acceptance |
 | [acceptance-ci-debug.md](acceptance-ci-debug.md) | Debugging a red acceptance job |
 | [cutover-checklist.md](cutover-checklist.md) | Release cutover steps |
 | [release-test-report.md](release-test-report.md) | Audit-ready release PDF |

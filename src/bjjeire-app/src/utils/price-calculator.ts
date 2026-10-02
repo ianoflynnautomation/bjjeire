@@ -23,14 +23,10 @@ type PricingTypeName = keyof typeof PricingType
 function resolvePricingTypeName(
   type: PricingType | string | null | undefined
 ): PricingTypeName | undefined {
-  if (type === undefined || type === null) {
+  if (type === undefined || type === null || !(type in PricingType)) {
     return undefined
   }
-  if (typeof type === 'string') {
-    return type in PricingType ? (type as PricingTypeName) : undefined
-  }
-  const name = PricingType[type] as PricingTypeName | undefined
-  return name
+  return type as PricingTypeName
 }
 
 function getEventDurationDays(
@@ -52,7 +48,7 @@ function getEventDurationDays(
 }
 
 function normaliseType(type: BjjEventType | string): string {
-  return String(type).replace(/\s+/g, '').toLowerCase()
+  return type.replace(/\s+/g, '').toLowerCase()
 }
 
 function sessionMatchesScope(

@@ -23,9 +23,31 @@ public record BjjEventDto(
         String eventUrl,
         String imageUrl,
         boolean isActive,
+        Long version,
 
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         List<CalculatedCost> calculatedCosts) {
+
+    public BjjEventDto withVersion(Long version) {
+        return new BjjEventDto(
+                id,
+                name,
+                description,
+                types,
+                organiser,
+                status,
+                statusReason,
+                socialMedia,
+                county,
+                location,
+                schedule,
+                pricingOptions,
+                eventUrl,
+                imageUrl,
+                isActive,
+                version,
+                calculatedCosts);
+    }
 
     public BjjEventDto(
             String id,
@@ -59,6 +81,7 @@ public record BjjEventDto(
                 eventUrl,
                 imageUrl,
                 isActive,
+                null,
                 null);
     }
 }

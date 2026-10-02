@@ -17,8 +17,10 @@ describe('Pact - FeatureFlag consumer contract', () => {
       .willRespondWith(200, builder => {
         builder.headers({ 'content-type': 'application/json' })
         builder.jsonBody({
-          showDonateButton: boolean(true),
-          enableDarkMode: boolean(false),
+          BjjEvents: boolean(),
+          Gyms: boolean(),
+          Competitions: boolean(),
+          Stores: boolean(),
         })
       })
       .executeTest(async mockServer => {

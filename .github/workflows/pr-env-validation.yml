@@ -315,6 +315,7 @@ jobs:
       config-map: |
         api=playwright.api.config.ts
       default-config: playwright.ui.config.ts
+      playwright-image: mcr.microsoft.com/playwright:v1.63.0-noble
       project-env-overrides: |
         api:API_URL=${{ needs.wait_preview_ready.outputs.internal_api_url }}
         api:CF_ACCESS_REQUIRED=false
