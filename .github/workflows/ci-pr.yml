@@ -325,7 +325,7 @@ jobs:
     with:
       job-name: Test Frontend Browser
       working-directory: src/bjjeire-app
-      container-image: mcr.microsoft.com/playwright:v1.61.0-noble
+      container-image: mcr.microsoft.com/playwright:v1.63.0-noble
       cache-key-prefix: bjjeire-app
       timeout-minutes: 15
       env-vars: |
