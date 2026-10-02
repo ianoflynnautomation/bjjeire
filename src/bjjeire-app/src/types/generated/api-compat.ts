@@ -18,11 +18,12 @@ type _GymKeyCheck = KeysArePublished<GymDto, ApiGymDto>
 type _EventKeyCheck = KeysArePublished<BjjEventDto, ApiBjjEventDto>
 type _CompetitionKeyCheck = KeysArePublished<CompetitionDto, ApiCompetitionDto>
 type _StoreKeyCheck = KeysArePublished<StoreDto, ApiStoreDto>
-type _PageUrlAllowsNull = null extends components['schemas']['PaginationMetadata']['nextPageUrl']
-  ? null extends components['schemas']['PaginationMetadata']['previousPageUrl']
-    ? true
+type _PageUrlAllowsNull =
+  null extends components['schemas']['PaginationMetadata']['nextPageUrl']
+    ? null extends components['schemas']['PaginationMetadata']['previousPageUrl']
+      ? true
+      : never
     : never
-  : never
 
 const _gymOk: _GymKeyCheck = true
 const _eventOk: _EventKeyCheck = true
