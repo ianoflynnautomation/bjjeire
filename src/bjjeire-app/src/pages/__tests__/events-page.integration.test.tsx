@@ -113,7 +113,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
 
     const { getLastUrl } = seedEventsByParam(
       'types',
-      { [String(BjjEventType.Camp)]: [camp] },
+      { [BjjEventType.Camp]: [camp] },
       [openMat, camp]
     )
 
@@ -128,9 +128,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
     expect(screen.queryByText('Dublin Open Mat')).not.toBeInTheDocument()
 
     await waitFor(() => {
-      expect(getLastUrl()?.searchParams.get('types')).toBe(
-        String(BjjEventType.Camp)
-      )
+      expect(getLastUrl()?.searchParams.get('types')).toBe(BjjEventType.Camp)
       expect(getLastUrl()?.searchParams.get('page')).toBe('1')
     })
   })
