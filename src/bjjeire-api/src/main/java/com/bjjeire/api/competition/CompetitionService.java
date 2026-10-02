@@ -44,13 +44,8 @@ public class CompetitionService {
         Query query = new Query();
         if (!includeInactive) {
             Instant now = clock.instant();
-            query.addCriteria(new Criteria()
-                    .andOperator(
-                            Criteria.where("isActive").is(true),
-                            new Criteria()
-                                    .orOperator(
-                                            Criteria.where("endDate").is(null),
-                                            Criteria.where("endDate").gte(now))));
+            query.addCriteria(Criteria.where("isActive").is(true));
+            query.addCriteria(Criteria.where("endDate").gte(now));
         }
 
         long totalItems = mongoTemplate.count(query, Competition.class);

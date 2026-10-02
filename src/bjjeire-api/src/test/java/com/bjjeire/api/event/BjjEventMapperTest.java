@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.Location;
+import com.bjjeire.api.common.OpenEndedInstant;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -127,5 +128,45 @@ class BjjEventMapperTest {
         assertThat(event.getTypes()).containsExactly(BjjEventType.Seminar);
         assertThat(event.getCounty()).isEqualTo(County.Cork);
         assertThat(event.isActive()).isTrue();
+    }
+
+    @Test
+    void toDtoExposesOpenEndedEndDateAsNullAndStillCalculatesCost() {
+        BjjEvent event = new BjjEvent();
+        event.setSchedule(new BjjEventSchedule(
+                SCHEDULE.kind(), SCHEDULE.startDate(), OpenEndedInstant.VALUE, SCHEDULE.sessions()));
+        event.setPricingOptions(PRICING_OPTIONS);
+        event.setActive(true);
+
+        BjjEventDto dto = BjjEventMapper.toDto(event);
+
+        assertThat(dto.schedule().endDate()).isNull();
+        assertThat(dto.calculatedCosts()).hasSize(2);
+        assertThat(dto.calculatedCosts().get(0).total()).isEqualByComparingTo("275");
+        assertThat(dto.calculatedCosts().get(1).total()).isEqualByComparingTo("110");
+    }
+
+    @Test
+    void toEntityStoresMissingEndDateAsSentinel() {
+        BjjEventDto dto = new BjjEventDto(
+                "665624c1ad01ce465c6cf789",
+                "Ground Game Camp",
+                "Coach: Paulo Miyao",
+                List.of(BjjEventType.Camp),
+                new Organizer("BJJ Eire", "https://bjjeire.com"),
+                EventStatus.Upcoming,
+                null,
+                null,
+                County.Clare,
+                null,
+                new BjjEventSchedule(SCHEDULE.kind(), SCHEDULE.startDate(), null, SCHEDULE.sessions()),
+                PRICING_OPTIONS,
+                "https://groundgame.camp/",
+                null,
+                true);
+
+        BjjEvent event = BjjEventMapper.toEntity(dto);
+
+        assertThat(event.getSchedule().endDate()).isEqualTo(OpenEndedInstant.VALUE);
     }
 }

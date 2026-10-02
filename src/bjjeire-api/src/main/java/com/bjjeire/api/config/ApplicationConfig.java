@@ -1,5 +1,6 @@
 package com.bjjeire.api.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Clock;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -24,6 +25,10 @@ public class ApplicationConfig {
         SimpleModule module = new SimpleModule();
         module.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
         module.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm[:ss]")));
-        return builder -> builder.addModule(module);
+
+        return builder -> builder.changeDefaultPropertyInclusion(inclusion -> inclusion
+                        .withValueInclusion(JsonInclude.Include.NON_NULL)
+                        .withContentInclusion(JsonInclude.Include.NON_NULL))
+                .addModule(module);
     }
 }

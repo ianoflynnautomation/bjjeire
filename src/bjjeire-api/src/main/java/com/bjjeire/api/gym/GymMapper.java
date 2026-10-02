@@ -21,7 +21,8 @@ public final class GymMapper {
                 gym.getWebsite(),
                 gym.getTimetableUrl(),
                 gym.getImageUrl(),
-                thumbnailUrl(gym.getImageUrl()));
+                thumbnailUrl(gym.getImageUrl()),
+                gym.getVersion());
     }
 
     public static Gym toEntity(GymDto dto) {

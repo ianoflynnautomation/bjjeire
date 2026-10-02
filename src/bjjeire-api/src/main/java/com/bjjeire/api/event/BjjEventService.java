@@ -9,6 +9,7 @@ import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PagedResponses;
 import com.bjjeire.api.common.PaginationRequest;
 import com.bjjeire.api.common.UriService;
+import com.bjjeire.api.common.Versions;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -82,7 +83,7 @@ public class BjjEventService {
         event.setCreatedBy(auditInfoProvider.currentUser());
         event.stampExpiry();
 
-        BjjEvent saved = mongoTemplate.save(event);
+        BjjEvent saved = mongoTemplate.insert(event);
         BjjEventDto dto = BjjEventMapper.toDto(saved);
         invalidateAndPrime(dto);
         return new CreateBjjEventResponse(dto);
@@ -90,6 +91,7 @@ public class BjjEventService {
 
     public Optional<UpdateBjjEventResponse> update(String id, UpdateBjjEventCommand command) {
         return Optional.ofNullable(mongoTemplate.findById(id, BjjEvent.class)).map(existing -> {
+            Versions.requireMatch(command.data().version(), existing.getVersion());
             BjjEventMapper.apply(command.data(), existing);
             existing.setId(id);
             existing.setUpdatedOnUtc(auditInfoProvider.currentInstant());
@@ -127,17 +129,12 @@ public class BjjEventService {
     private PagedResponse<BjjEventDto> loadPage(
             PaginationRequest paginationRequest, County county, List<BjjEventType> types, boolean includeInactive) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("status").ne(EventStatus.Completed));
+        query.addCriteria(Criteria.where("status").in(EventStatus.listable()));
 
         if (!includeInactive) {
             Instant now = clock.instant();
-            query.addCriteria(new Criteria()
-                    .andOperator(
-                            Criteria.where("isActive").is(true),
-                            new Criteria()
-                                    .orOperator(
-                                            Criteria.where("schedule.endDate").is(null),
-                                            Criteria.where("schedule.endDate").gte(now))));
+            query.addCriteria(Criteria.where("active").is(true));
+            query.addCriteria(Criteria.where("schedule.endDate").gte(now));
         }
 
         if (county != null) {
@@ -150,7 +147,7 @@ public class BjjEventService {
 
         long totalItems = mongoTemplate.count(query, BjjEvent.class);
         int pageIndex = paginationRequest.page() - 1;
-        query.with(PageRequest.of(pageIndex, paginationRequest.pageSize(), Sort.by(Sort.Order.asc("createdAt"))));
+        query.with(PageRequest.of(pageIndex, paginationRequest.pageSize(), Sort.by(Sort.Order.asc("createdOnUtc"))));
 
         List<BjjEventDto> events = mongoTemplate.find(query, BjjEvent.class).stream()
                 .map(BjjEventMapper::toDto)

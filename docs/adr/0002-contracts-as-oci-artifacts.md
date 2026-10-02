@@ -53,14 +53,18 @@ Three checks consume it:
   check is what actually prevents a breaking spec from becoming the baseline
   every future PR is measured against. Removing the main-side gate would let
   one merge quietly redefine "not breaking".
-- A deliberate breaking change requires a deliberate action — accepting the
-  gate failure — rather than passing silently.
+- A deliberate breaking change is a line in
+  `contracts/openapi-accepted-breaks.txt`, reviewed in the pull request. The
+  gate still fails every other break. The same file is used before publish on
+  main, so the new document can become the baseline. Delete the line after
+  `:latest` includes that change, or the same break stays allowed.
 - **The first publish has no baseline**, so the gate is vacuous until one
   exists. A fresh fork or a renamed package starts with no protection.
 - OCI artifacts are less discoverable than a broker UI. There is no web view of
   contract history; inspection means `oras pull` or the GHCR package page.
-- Pact verification here is consumer-side only. The API does not currently
-  verify the published pact in its own build.
+- The API verifies the SPA pact in the same pipeline, after the consumer job
+  uploads it (`verify_pact_provider`). There is still no Pact Broker. A second
+  consumer would publish its own artifact; this job verifies the web pact only.
 
 ## Alternatives considered
 

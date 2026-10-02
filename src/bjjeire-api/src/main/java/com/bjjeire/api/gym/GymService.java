@@ -9,6 +9,7 @@ import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PagedResponses;
 import com.bjjeire.api.common.PaginationRequest;
 import com.bjjeire.api.common.UriService;
+import com.bjjeire.api.common.Versions;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -66,7 +67,7 @@ public class GymService {
         gym.setCreatedOnUtc(auditInfoProvider.currentInstant());
         gym.setCreatedBy(auditInfoProvider.currentUser());
 
-        Gym saved = mongoTemplate.save(gym);
+        Gym saved = mongoTemplate.insert(gym);
         GymDto dto = GymMapper.toDto(saved);
         invalidateAndPrime(dto);
         return new CreateGymResponse(dto);
@@ -74,6 +75,7 @@ public class GymService {
 
     public Optional<UpdateGymResponse> update(String id, UpdateGymCommand command) {
         return Optional.ofNullable(mongoTemplate.findById(id, Gym.class)).map(existing -> {
+            Versions.requireMatch(command.data().version(), existing.getVersion());
             GymMapper.apply(command.data(), existing);
             existing.setId(id);
             existing.setUpdatedOnUtc(auditInfoProvider.currentInstant());

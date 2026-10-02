@@ -41,10 +41,11 @@ bjjeire:
   donation:
     bitcoin-address: ${DONATION_BITCOIN_ADDRESS:${Donation__BitcoinAddress:REPLACE_WITH_OFFICIAL_ADDRESS}}
   rate-limit:
-    enabled: ${RATE_LIMIT_ENABLED:${RateLimitOptions__EnableRateLimiting:false}}
-    permit-limit: ${RATE_LIMIT_PERMIT_LIMIT:${RateLimitOptions__PermitLimit:0}}
-    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:${RateLimitOptions__WindowInSeconds:0}}
+    enabled: ${RATE_LIMIT_ENABLED:${RateLimitOptions__EnableRateLimiting:true}}
+    permit-limit: ${RATE_LIMIT_PERMIT_LIMIT:${RateLimitOptions__PermitLimit:600}}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:${RateLimitOptions__WindowInSeconds:60}}
     rejection-status-code: ${RATE_LIMIT_REJECTION_STATUS_CODE:${RateLimitOptions__RejectionStatusCode:429}}
+    trusted-proxies: ${RATE_LIMIT_TRUSTED_PROXIES:}
   read-only-mode:
     enabled: ${READ_ONLY_MODE_ENABLED:${ReadOnlyMode__Enabled:true}}
   feature-flags:

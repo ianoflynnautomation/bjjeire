@@ -4,18 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditLogEntry;
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.competition.CompetitionDeactivator;
+import com.bjjeire.api.config.MongoIndexInitializer;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.event.BjjEventDeactivator;
 import com.bjjeire.api.event.BjjEventSchedule;
 import com.bjjeire.api.event.ScheduleKind;
+import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.index.IndexInfo;
@@ -30,6 +36,9 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
     @Autowired
     private Clock clock;
 
+    @Autowired
+    private MongoIndexInitializer indexes;
+
     @Test
     void shouldEnsureCatalogIndexesIncludingTtlAndUniqueSlugOnStartup() {
         List<String> eventIndexes = mongoTemplate.indexOps("BjjEvent").getIndexInfo().stream()
@@ -39,9 +48,15 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
                 mongoTemplate.indexOps("Competition").getIndexInfo();
 
         assertThat(eventIndexes)
-                .contains("ix_event_isActive_endDate", "ix_event_county_isActive", "ttl_event_expiresAt");
+                .contains(
+                        "ix_event_isActive_endDate",
+                        "ix_event_county_isActive",
+                        "ttl_event_expiresAt",
+                        "ix_event_isActive_status_createdAt",
+                        "ix_event_county_isActive_status_createdAt");
         assertThat(mongoTemplate.indexOps("Gym").getIndexInfo())
-                .anyMatch(index -> index.getName().equals("ix_gym_status_county_name"));
+                .anyMatch(index -> index.getName().equals("ix_gym_status_county_name"))
+                .anyMatch(index -> index.getName().equals("ix_gym_status_name"));
         assertThat(mongoTemplate.indexOps("Store").getIndexInfo())
                 .anyMatch(index -> index.getName().equals("ix_store_isActive_name"));
 
@@ -53,6 +68,7 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
 
         assertThat(competitionIndexes)
                 .anyMatch(index -> index.getName().equals("ix_competition_isActive_endDate"))
+                .anyMatch(index -> index.getName().equals("ix_competition_isActive_startDate_name"))
                 .anyMatch(index -> index.getName().equals("ttl_competition_expiresAt"))
                 .anyMatch(index -> index.getName().equals("ix_competition_slug_unique") && index.isUnique());
     }
@@ -86,12 +102,17 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
         assertThat(deactivated).isEqualTo(1);
         BjjEvent flipped = mongoTemplate.findById("202605310000000000000101", BjjEvent.class);
         assertThat(flipped.isActive()).isFalse();
+        assertThat(flipped.getVersion()).isEqualTo(1L);
         assertThat(flipped.getUpdatedOnUtc()).isEqualTo(FIXED_NOW);
         assertThat(flipped.getUpdatedBy()).isEqualTo("system");
         assertThat(mongoTemplate
                         .findById("202605310000000000000102", BjjEvent.class)
                         .isActive())
                 .isTrue();
+        assertThat(mongoTemplate
+                        .findById("202605310000000000000102", BjjEvent.class)
+                        .getVersion())
+                .isZero();
         assertThat(mongoTemplate
                         .findById("202605310000000000000104", BjjEvent.class)
                         .isActive())
@@ -126,6 +147,41 @@ class DeactivationInfrastructureIT extends MongoIntegrationTest {
                         .findById("202605310000000000000203", Competition.class)
                         .isActive())
                 .isTrue();
+    }
+
+    @Test
+    void shouldRewriteLegacyNullEndDatesAndMissingVersions() {
+        mongoTemplate
+                .getCollection(BjjEvent.ENTITY_NAME)
+                .insertOne(new Document("_id", new ObjectId("202605310000000000000301"))
+                        .append("name", "legacy-open")
+                        .append("isActive", true)
+                        .append("status", "Upcoming")
+                        .append("createdAt", Date.from(FIXED_NOW))
+                        .append("schedule", new Document("kind", "WeeklyRecurring").append("sessions", List.of())));
+        mongoTemplate
+                .getCollection(Gym.ENTITY_NAME)
+                .insertOne(new Document("_id", new ObjectId("202605310000000000000302"))
+                        .append("name", "legacy-gym")
+                        .append("status", "Active"));
+        mongoTemplate
+                .getCollection(Competition.ENTITY_NAME)
+                .insertOne(new Document("_id", new ObjectId("202605310000000000000303"))
+                        .append("slug", "legacy-open")
+                        .append("name", "legacy")
+                        .append("isActive", true));
+
+        indexes.migrate();
+
+        BjjEvent event = mongoTemplate.findById("202605310000000000000301", BjjEvent.class);
+        assertThat(event.getSchedule().endDate()).isEqualTo(OpenEndedInstant.VALUE);
+        assertThat(event.getVersion()).isZero();
+        assertThat(mongoTemplate.findById("202605310000000000000302", Gym.class).getVersion())
+                .isZero();
+        assertThat(mongoTemplate
+                        .findById("202605310000000000000303", Competition.class)
+                        .getEndDate())
+                .isEqualTo(OpenEndedInstant.VALUE);
     }
 
     private static BjjEvent event(String id, boolean isActive, String endDate) {

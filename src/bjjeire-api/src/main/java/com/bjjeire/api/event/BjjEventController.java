@@ -5,6 +5,7 @@ import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationRequest;
 import com.bjjeire.api.common.ValidObjectId;
+import com.bjjeire.api.web.ApiProblems;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,10 +55,7 @@ public class BjjEventController {
     @GetMapping("/{id}")
     @Operation(summary = "Get BJJ event by ID")
     public ResponseEntity<BjjEventDto> getById(@PathVariable @ValidObjectId String id) {
-        return bjjEventService
-                .getById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return bjjEventService.getById(id).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }
 
     @PostMapping
@@ -74,21 +72,18 @@ public class BjjEventController {
             @PathVariable @ValidObjectId String id, @RequestBody @Valid UpdateBjjEventCommand command) {
 
         if (command.data().id() != null && !id.equals(command.data().id())) {
-            return ResponseEntity.badRequest().build();
+            throw ApiProblems.idMismatch();
         }
 
-        return bjjEventService
-                .update(id, command)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return bjjEventService.update(id, command).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete BJJ event")
     public ResponseEntity<Void> delete(@PathVariable @ValidObjectId String id) {
-        boolean deleted = bjjEventService.delete(id);
-        return deleted
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+        if (!bjjEventService.delete(id)) {
+            throw ApiProblems.notFound();
+        }
+        return ResponseEntity.noContent().build();
     }
 }

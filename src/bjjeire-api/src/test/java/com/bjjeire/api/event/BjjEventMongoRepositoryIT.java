@@ -6,6 +6,7 @@ import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditLogEntry;
 import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -168,53 +169,6 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldFilterByNumericEventTypeCodeMatchingTheClientEnum() throws Exception {
-        bjjEventRepository.save(event(
-                "202605310000000000000081",
-                "open-mat",
-                County.Clare,
-                List.of(BjjEventType.OpenMat),
-                EventStatus.Upcoming,
-                true,
-                "2026-08-01T10:00:00Z",
-                "2026-08-01T12:00:00Z",
-                "2026-01-01T00:00:00Z"));
-        bjjEventRepository.save(event(
-                "202605310000000000000082",
-                "seminar",
-                County.Clare,
-                List.of(BjjEventType.Seminar),
-                EventStatus.Upcoming,
-                true,
-                "2026-08-01T10:00:00Z",
-                "2026-08-01T12:00:00Z",
-                "2026-01-02T00:00:00Z"));
-        bjjEventRepository.save(event(
-                "202605310000000000000083",
-                "camp",
-                County.Clare,
-                List.of(BjjEventType.Camp),
-                EventStatus.Upcoming,
-                true,
-                "2026-08-01T10:00:00Z",
-                "2026-08-01T12:00:00Z",
-                "2026-01-03T00:00:00Z"));
-
-        JsonNode seminar = objectMapper.readTree(restTemplate
-                .getForEntity(ApiRoutes.BJJ_EVENT + "?types=1&page=1&pageSize=20", String.class)
-                .getBody());
-        assertThat(seminar.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(seminar.at("/data/0/name").asString()).isEqualTo("seminar");
-        assertThat(seminar.at("/data/0/types/0").asString()).isEqualTo("Seminar");
-
-        JsonNode camp = objectMapper.readTree(restTemplate
-                .getForEntity(ApiRoutes.BJJ_EVENT + "?types=3&page=1&pageSize=20", String.class)
-                .getBody());
-        assertThat(camp.at("/pagination/totalItems").asInt()).isEqualTo(1);
-        assertThat(camp.at("/data/0/name").asString()).isEqualTo("camp");
-    }
-
-    @Test
     void shouldBuildAbsoluteNavigationLinksWithOnlyPageAndPageSize() throws Exception {
         bjjEventRepository.save(event(
                 "202605310000000000000061",
@@ -254,10 +208,12 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
 
     @Test
     void shouldRejectUnknownEventTypeWhenListing() {
-        ResponseEntity<String> response =
-                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "?types=NotAType&page=1&pageSize=20", String.class);
+        for (String type : List.of("NotAType", "1", "3")) {
+            ResponseEntity<String> response = restTemplate.getForEntity(
+                    ApiRoutes.BJJ_EVENT + "?types=" + type + "&page=1&pageSize=20", String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Test
@@ -443,7 +399,7 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
         ResponseEntity<String> response = restTemplate.exchange(
                 ApiRoutes.BJJ_EVENT + "/" + savedEvent.getId(),
                 HttpMethod.PUT,
-                jsonEntity(eventCommandJson(savedEvent.getId(), "Updated Event")),
+                jsonEntity(eventCommandJson(savedEvent.getId(), "Updated Event", savedEvent.getVersion())),
                 String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
@@ -482,6 +438,86 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                         && entry.getEntityType().equals("BjjEvent")
                         && savedEvent.getId().equals(entry.getEntityId())
                         && entry.getActor().equals(AUTHENTICATED_USER));
+    }
+
+    @Test
+    void shouldRejectASecondCreateWithTheSameId() throws Exception {
+        String json = eventCommandJson("202605310000000000000081", "Duplicate Open Mat");
+
+        ResponseEntity<String> created =
+                restTemplate.postForEntity(ApiRoutes.BJJ_EVENT, jsonEntity(json), String.class);
+        ResponseEntity<String> duplicate =
+                restTemplate.postForEntity(ApiRoutes.BJJ_EVENT, jsonEntity(json), String.class);
+
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(duplicate.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(objectMapper.readTree(duplicate.getBody()).at("/type").asString())
+                .isEqualTo("urn:bjjeire:conflict");
+    }
+
+    @Test
+    void shouldRejectUpdateWhenVersionIsStale() throws Exception {
+        BjjEvent savedEvent = bjjEventRepository.save(event(
+                "202605310000000000000082",
+                "Original Event",
+                County.Dublin,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-01T00:00:00Z"));
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                ApiRoutes.BJJ_EVENT + "/" + savedEvent.getId(),
+                HttpMethod.PUT,
+                jsonEntity(eventCommandJson(savedEvent.getId(), "Updated Event", savedEvent.getVersion() + 1)),
+                String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(objectMapper.readTree(response.getBody()).at("/type").asString())
+                .isEqualTo("urn:bjjeire:conflict");
+        assertThat(bjjEventRepository.findById(savedEvent.getId()).orElseThrow().getName())
+                .isEqualTo("Original Event");
+    }
+
+    @Test
+    void shouldListOpenEndedEventsAndHideTheSentinelEndDate() throws Exception {
+        BjjEvent listed = event(
+                "202605310000000000000091",
+                "open-ended",
+                County.Dublin,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-01T00:00:00Z");
+        listed.setSchedule(new BjjEventSchedule(ScheduleKind.WeeklyRecurring, null, OpenEndedInstant.VALUE, List.of()));
+        bjjEventRepository.save(listed);
+
+        BjjEvent hidden = event(
+                "202605310000000000000092",
+                "legacy-null-end",
+                County.Dublin,
+                List.of(BjjEventType.OpenMat),
+                EventStatus.Upcoming,
+                true,
+                "2026-08-01T10:00:00Z",
+                "2026-08-01T12:00:00Z",
+                "2026-01-02T00:00:00Z");
+        hidden.setSchedule(new BjjEventSchedule(ScheduleKind.WeeklyRecurring, null, null, List.of()));
+        bjjEventRepository.save(hidden);
+
+        ResponseEntity<String> response =
+                restTemplate.getForEntity(ApiRoutes.BJJ_EVENT + "?page=1&pageSize=20", String.class);
+        JsonNode body = objectMapper.readTree(response.getBody());
+        JsonNode endDate = body.at("/data/0/schedule/endDate");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(body.at("/pagination/totalItems").asInt()).isEqualTo(1);
+        assertThat(body.at("/data/0/id").asString()).isEqualTo("202605310000000000000091");
+        assertThat(endDate.isNull() || endDate.isMissingNode()).isTrue();
     }
 
     private static BjjEvent event(
@@ -524,7 +560,12 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     private static String eventCommandJson(String id, String name) {
+        return eventCommandJson(id, name, null);
+    }
+
+    private static String eventCommandJson(String id, String name, Long version) {
         String idJson = id == null ? "null" : "\"" + id + "\"";
+        String versionJson = version == null ? "" : ",\n                \"version\": " + version;
         return """
             {
               "data": {
@@ -555,9 +596,9 @@ class BjjEventMongoRepositoryIT extends MongoIntegrationTest {
                 ],
                 "eventUrl": "https://example.com/events/open-mat",
                 "imageUrl": null,
-                "isActive": true
+                "isActive": true%s
               }
             }
-            """.formatted(idJson, name);
+            """.formatted(idJson, name, versionJson);
     }
 }

@@ -67,7 +67,11 @@ class GymControllerTest {
     void shouldReturnNotFoundWhenGymIsMissing() throws Exception {
         given(gymService.getById(MISSING_GYM_ID)).willReturn(Optional.empty());
 
-        mockMvc.perform(get(ApiRoutes.GYM + "/" + MISSING_GYM_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(ApiRoutes.GYM + "/" + MISSING_GYM_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"))
+                .andExpect(jsonPath("$.title").value("Resource Not Found"))
+                .andExpect(jsonPath("$.traceId").exists());
     }
 
     @Test
@@ -117,7 +121,12 @@ class GymControllerTest {
         mockMvc.perform(put(ApiRoutes.GYM + "/" + GYM_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gymCommandJson(OTHER_GYM_ID)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:validation-error"))
+                .andExpect(jsonPath("$.title").value("Validation Failed"))
+                .andExpect(jsonPath("$.errors[0].field").value("Id"))
+                .andExpect(jsonPath("$.errors[0].errorCode").value("ID_MISMATCH"))
+                .andExpect(jsonPath("$.traceId").exists());
 
         then(gymService).should(never()).update(anyString(), any(UpdateGymCommand.class));
     }
@@ -148,7 +157,8 @@ class GymControllerTest {
                 "https://example.com",
                 null,
                 "https://cdn.bjjeire.com/gyms/test-lg.webp",
-                "https://cdn.bjjeire.com/gyms/test-thumb.webp");
+                "https://cdn.bjjeire.com/gyms/test-thumb.webp",
+                null);
     }
 
     private static String gymCommandJson(String id) {

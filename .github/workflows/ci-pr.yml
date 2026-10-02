@@ -71,8 +71,6 @@ jobs:
       publish-test-report: true
       test-report-name: Java Test Results
 
-  # Parallel with java_build_test — maven-build-test.yml cannot export extra
-  # artifacts, so OpenAPI still uses maven-openapi-export (single IT, not full verify).
   generate_openapi_contract:
     name: Generate OpenAPI Contract
     runs-on: ubuntu-latest
@@ -124,12 +122,13 @@ jobs:
           name: openapi-v1-json
           path: artifacts/openapi
       - name: Compare against last published contract
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
         with:
           current-spec: artifacts/openapi/openapi-v1.json
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
           token: ${{ github.token }}
           user: ${{ github.actor }}
+          err-ignore: contracts/openapi-accepted-breaks.txt
 
   check_frontend_api_compat:
     name: Check Frontend API Compatibility
@@ -138,7 +137,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
     with:
       job-name: Check Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -153,41 +152,167 @@ jobs:
         npm run gen:api-types:ci
         npx tsc --noEmit
 
-  frontend_build_test:
-    name: Frontend Build & Test
+  frontend_typecheck:
+    name: Frontend Typecheck
     needs: detect_changes
     if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
     with:
-      job-name: Frontend Build & Test
+      job-name: Frontend Typecheck
       working-directory: src/bjjeire-app
       container-image: node:26-bookworm-slim
       cache-key-prefix: bjjeire-app
-      timeout-minutes: 20
+      timeout-minutes: 15
       env-vars: |
         HUSKY=0
-        SERVICES_API_HTTPS_0=https://api-ci-placeholder:443
+      commands: npx tsc --noEmit
+
+  frontend_lint:
+    name: Frontend Lint
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    with:
+      job-name: Frontend Lint
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
       commands: |
-        npx tsc --noEmit
         npx eslint src --max-warnings 0
         npx prettier --check src/
+
+  frontend_unit:
+    name: Frontend Unit Tests
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    with:
+      job-name: Frontend Unit Tests
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
+      commands: |
         mkdir -p test-results
         npx vitest run --project unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-unit.xml
-        npx vitest run --project integration --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-integration.xml
-        # npx vitest run --coverage --project unit --project integration
-        npm run test:pact
-        npx vite build
-      artifact-name: frontend-build-test
-      artifact-path: |
-        src/bjjeire-app/pacts/*.json
-        src/bjjeire-app/coverage
-        src/bjjeire-app/test-results/*.xml
+      artifact-name: frontend-vitest-unit
+      artifact-path: src/bjjeire-app/test-results/vitest-unit.xml
       artifact-if-no-files-found: error
       upload-artifact-always: true
       artifact-retention-days: 7
+
+  frontend_integration:
+    name: Frontend Integration Tests
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    with:
+      job-name: Frontend Integration Tests
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
+      commands: |
+        mkdir -p test-results
+        npx vitest run --project integration --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-integration.xml
+      artifact-name: frontend-vitest-integration
+      artifact-path: src/bjjeire-app/test-results/vitest-integration.xml
+      artifact-if-no-files-found: error
+      upload-artifact-always: true
+      artifact-retention-days: 7
+
+  frontend_pact:
+    name: Frontend Pact
+    needs: detect_changes
+    if: |
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend') ||
+      contains(fromJSON(needs.detect_changes.outputs.changes), 'java_api')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    with:
+      job-name: Frontend Pact
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
+      commands: npm run test:pact
+      artifact-name: frontend-pact
+      artifact-path: src/bjjeire-app/pacts/*.json
+      artifact-if-no-files-found: error
+      artifact-retention-days: 7
+
+  frontend_build:
+    name: Frontend Build
+    needs: detect_changes
+    if: contains(fromJSON(needs.detect_changes.outputs.changes), 'frontend')
+    permissions:
+      contents: read
+      actions: read
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    with:
+      job-name: Frontend Build
+      working-directory: src/bjjeire-app
+      container-image: node:26-bookworm-slim
+      cache-key-prefix: bjjeire-app
+      timeout-minutes: 15
+      env-vars: |
+        HUSKY=0
+        SERVICES_API_HTTPS_0=https://api-ci-placeholder:443
+      commands: npx vite build
+
+  verify_pact_provider:
+    name: Verify Pact Provider
+    needs: frontend_pact
+    if: needs.frontend_pact.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Download consumer pact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: frontend-pact
+          path: src/bjjeire-api/pacts
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961  # v5
+        with:
+          java-version: "25"
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: src/bjjeire-api/pom.xml
+      - name: Verify the SPA pact against the API
+        working-directory: src/bjjeire-api
+        run: |
+          set -euo pipefail
+          echo "::group::mvn verify -Ppact-provider"
+          mvn --batch-mode --no-transfer-progress verify -Ppact-provider
+          echo "::endgroup::"
+          echo "::notice title=Pact provider::BjjEireApi satisfied the consumer pact"
 
   test_frontend_browser:
     name: Test Frontend Browser
@@ -196,7 +321,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
     with:
       job-name: Test Frontend Browser
       working-directory: src/bjjeire-app
@@ -324,18 +449,22 @@ jobs:
 
   package_frontend_reports:
     name: Package frontend reports for PR audit PDF
-    needs: frontend_build_test
-    if: always() && (needs.frontend_build_test.result == 'success' || needs.frontend_build_test.result == 'failure')
+    needs: [frontend_unit, frontend_integration]
+    if: |
+      always() && (
+        needs.frontend_unit.result == 'success' || needs.frontend_unit.result == 'failure' ||
+        needs.frontend_integration.result == 'success' || needs.frontend_integration.result == 'failure'
+      )
     permissions:
       contents: read
       actions: read
     uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
     with:
-      download-artifact-name: frontend-build-test
-      download-artifact-pattern: ""
+      download-artifact-name: ""
+      download-artifact-pattern: frontend-vitest-*
       source: frontend
-      job-name: frontend_build_test
-      skip-reason: Vitest JUnit XML was not uploaded by frontend_build_test on the PR validation pipeline
+      job-name: frontend_unit
+      skip-reason: Vitest JUnit XML was not uploaded by frontend_unit or frontend_integration on the PR validation pipeline
       fail-if-empty: false
       artifact-retention-days: 14
       runs-on: ubuntu-latest
@@ -400,7 +529,13 @@ jobs:
       - generate_openapi_contract
       - check_openapi_breaking
       - check_frontend_api_compat
-      - frontend_build_test
+      - frontend_typecheck
+      - frontend_lint
+      - frontend_unit
+      - frontend_integration
+      - frontend_pact
+      - verify_pact_provider
+      - frontend_build
       - test_frontend_browser
       - compose_smoke
       - package_java_reports

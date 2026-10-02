@@ -1,5 +1,6 @@
 package com.bjjeire.api.competition;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import java.util.List;
 
 public final class CompetitionMapper {
@@ -18,7 +19,7 @@ public final class CompetitionMapper {
                 competition.getLogoUrl(),
                 competition.getTags() == null ? List.of() : List.copyOf(competition.getTags()),
                 competition.getStartDate(),
-                competition.getEndDate(),
+                OpenEndedInstant.expose(competition.getEndDate()),
                 competition.isActive());
     }
 }

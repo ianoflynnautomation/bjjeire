@@ -2,13 +2,14 @@ package com.bjjeire.api.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class GeoCoordinatesTest {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Test
     void shouldSerializeDerivedLatitudeAndLongitudeFromGeoJsonOrder() throws Exception {
@@ -24,12 +25,16 @@ class GeoCoordinatesTest {
     }
 
     @Test
-    void shouldNotInventZeroCoordinatesWhenCoordinatesAreNull() {
+    void shouldNotInventZeroCoordinatesWhenCoordinatesAreNull() throws Exception {
         GeoCoordinates coordinates = new GeoCoordinates("Point", null, "Unknown", null);
 
+        JsonNode json = mapper.readTree(mapper.writeValueAsString(coordinates));
+
         assertThat(coordinates.coordinates()).isNull();
-        assertThat(coordinates.latitude()).isZero();
-        assertThat(coordinates.longitude()).isZero();
+        assertThat(coordinates.latitude()).isNull();
+        assertThat(coordinates.longitude()).isNull();
+        assertThat(json.has("latitude")).isFalse();
+        assertThat(json.has("longitude")).isFalse();
     }
 
     @Test

@@ -68,6 +68,67 @@ class CrossCuttingFilterTest {
     }
 
     @Test
+    void spoofedForwardedForDoesNotSplitTheBucketWhenThePeerIsUntrusted() throws Exception {
+        MockMvc mockMvc = rateLimited(new BjjEireProperties.RateLimit(true, 1, 60, 429));
+
+        mockMvc.perform(get("/test").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    request.addHeader("X-Forwarded-For", "198.51.100.1");
+                    return request;
+                }))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/test").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    request.addHeader("X-Forwarded-For", "198.51.100.2");
+                    return request;
+                }))
+                .andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void forwardedForSplitsTheBucketWhenThePeerIsTrusted() throws Exception {
+        MockMvc mockMvc = rateLimited(new BjjEireProperties.RateLimit(true, 1, 60, 429, "203.0.113.1"));
+
+        mockMvc.perform(get("/test").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    request.addHeader("X-Forwarded-For", "198.51.100.1");
+                    return request;
+                }))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/test").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    request.addHeader("X-Forwarded-For", "198.51.100.2");
+                    return request;
+                }))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/test").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    request.addHeader("X-Forwarded-For", "198.51.100.1");
+                    return request;
+                }))
+                .andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void healthChecksDoNotConsumeAPermit() throws Exception {
+        MockMvc mockMvc = rateLimited(new BjjEireProperties.RateLimit(true, 1, 60, 429));
+
+        mockMvc.perform(get("/health").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    return request;
+                }))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/health").with(request -> {
+                    request.setRemoteAddr("203.0.113.1");
+                    return request;
+                }))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void securityHeadersAreApplied() throws Exception {
         MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new TestController())
                 .addFilters(new SecurityHeadersFilter())
@@ -78,6 +139,14 @@ class CrossCuttingFilterTest {
                 .andExpect(header().string("X-Frame-Options", "DENY"))
                 .andExpect(header().string("Referrer-Policy", "no-referrer"))
                 .andExpect(header().string("Content-Security-Policy", containsString("default-src 'self'")));
+    }
+
+    private MockMvc rateLimited(BjjEireProperties.RateLimit rateLimit) {
+        BjjEireProperties properties = properties(rateLimit, new BjjEireProperties.ReadOnlyMode(false));
+        Clock clock = Clock.fixed(Instant.parse("2026-06-03T06:00:00Z"), ZoneOffset.UTC);
+        return MockMvcBuilders.standaloneSetup(new TestController())
+                .addFilters(new RateLimitFilter(properties, objectMapper, clock))
+                .build();
     }
 
     private static BjjEireProperties properties(

@@ -30,12 +30,12 @@ public class BjjEventDeactivator implements Deactivator {
     public long deactivateExpired(Instant nowUtc) {
         Query expired = new Query(new Criteria()
                 .andOperator(
-                        Criteria.where("isActive").is(true),
-                        Criteria.where("schedule.endDate").ne(null),
+                        Criteria.where("active").is(true),
                         Criteria.where("schedule.endDate").lt(nowUtc)));
-        Update update = Update.update("isActive", false)
+        Update update = Update.update("active", false)
                 .set("updatedAt", nowUtc)
-                .set("updatedBy", auditInfoProvider.currentUser());
+                .set("updatedBy", auditInfoProvider.currentUser())
+                .inc("version", 1);
 
         long modified =
                 mongoTemplate.updateMulti(expired, update, BjjEvent.class).getModifiedCount();

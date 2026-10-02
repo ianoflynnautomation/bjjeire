@@ -13,12 +13,12 @@ public record GeoCoordinates(String type, List<Double> coordinates, String place
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public double latitude() {
-        return coordinates != null && coordinates.size() > 1 ? coordinates.get(1) : 0.0;
+    public Double latitude() {
+        return coordinates != null && coordinates.size() > 1 ? coordinates.get(1) : null;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public double longitude() {
-        return coordinates != null && !coordinates.isEmpty() ? coordinates.get(0) : 0.0;
+    public Double longitude() {
+        return coordinates != null && !coordinates.isEmpty() ? coordinates.get(0) : null;
     }
 }

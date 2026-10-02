@@ -6,7 +6,10 @@ else is periodic or on-demand.
 
 Most jobs are thin callers of reusable workflows in
 [`bjjeire-ci-templates`](https://github.com/ianoflynnautomation/bjjeire-ci-templates),
-SHA-pinned to `513f5c1c…` (v1.6.2). Bump that pin in one place per workflow.
+SHA-pinned per workflow. `node-build-test.yml` is pinned to `f69cd6a…` so
+`npm ci` restores the npm download cache. The other callers in these pipelines
+stay on `513f5c1c…` (v1.6.2), except the OpenAPI breaking gate at v1.8.0.
+Bump a pin in one place per workflow.
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
@@ -66,7 +69,13 @@ flowchart TD
 
     DC --> JBT["java_build_test<br>if: java_api"]
     DC --> GOC["generate_openapi_contract<br>if: java_api"]
-    DC --> FBT["frontend_build_test<br>if: frontend"]
+    DC --> FTC["frontend_typecheck<br>if: frontend"]
+    DC --> FL["frontend_lint<br>if: frontend"]
+    DC --> FU["frontend_unit<br>if: frontend"]
+    DC --> FI["frontend_integration<br>if: frontend"]
+    DC --> FP["frontend_pact<br>if: frontend OR java_api"]
+    FP --> VPP[verify_pact_provider]
+    DC --> FB["frontend_build<br>if: frontend"]
     DC --> TFB["test_frontend_browser<br>if: frontend"]
     DC --> CS["compose_smoke<br>if: compose OR label run-smoke"]
 
@@ -76,7 +85,8 @@ flowchart TD
     CS --> AA["atest_analyze<br>advisory — not in pr_complete"]
 
     JBT --> PJR[package_java_reports]
-    FBT --> PFR[package_frontend_reports]
+    FU --> PFR[package_frontend_reports]
+    FI --> PFR
     CS --> PCR[package_compose_reports]
     PJR --> AR[audit_report]
     PFR --> AR
@@ -87,7 +97,13 @@ flowchart TD
     JBT --> PC
     COB --> PC
     CFAC --> PC
-    FBT --> PC
+    FTC --> PC
+    FL --> PC
+    FU --> PC
+    FI --> PC
+    FP --> PC
+    VPP --> PC
+    FB --> PC
     TFB --> PC
     CS --> PC
     AR --> PC
@@ -107,7 +123,13 @@ flowchart TD
 | `generate_openapi_contract` | `java_api` | Runs the single `OpenApiContractIT` via `maven-openapi-export` and uploads `openapi-v1-json`. Runs **in parallel** with `java_build_test` rather than reusing its output, because `maven-build-test.yml` cannot export extra artifacts. |
 | `check_openapi_breaking` | after contract | Compares the generated spec against the last published contract in GHCR. **This is a merge blocker.** |
 | `check_frontend_api_compat` | after contract | Downloads the spec into the frontend, regenerates API types, and runs `tsc --noEmit`. Catches an API change that would break the SPA before either side merges. |
-| `frontend_build_test` | `frontend` | `tsc`, ESLint (`--max-warnings 0`), Prettier check, Vitest unit + integration with JUnit output, Pact, `vite build`. |
+| `frontend_typecheck` | `frontend` | `tsc --noEmit`. Parallel with the other frontend jobs. |
+| `frontend_lint` | `frontend` | ESLint (`--max-warnings 0`) and Prettier check. |
+| `frontend_unit` | `frontend` | Vitest unit project, JUnit XML uploaded as `frontend-vitest-unit`. |
+| `frontend_integration` | `frontend` | Vitest integration project, JUnit XML uploaded as `frontend-vitest-integration`. |
+| `frontend_pact` | `frontend` or `java_api` | `npm run test:pact`. Pact JSON uploaded as `frontend-pact`. An API-only change still produces the current SPA pact so the provider can replay it. |
+| `verify_pact_provider` | after `frontend_pact` succeeds | `mvn verify -Ppact-provider`. Replays the pact against the API. |
+| `frontend_build` | `frontend` | `vite build`. `SERVICES_API_HTTPS_0` is set because the Vite config reads it. |
 | `test_frontend_browser` | `frontend` | Vitest browser-mode in the Playwright container. Uploads traces/screenshots **only on failure**. |
 | `compose_smoke` | `compose` or label | Brings up the full stack via Compose, seeds it, and runs `@smoke` from `bjjeire-tests` across `api` and `chromium-desktop`, 2 shards each. `fail-on-flaky: true`. |
 | `atest_analyze` | after smoke | Flake scoring — see below. |
@@ -140,10 +162,13 @@ flowchart TD
     DC --> JBT["java_build_test<br>if: java_api"]
     DC --> GOC["generate_openapi_contract<br>if: java_api OR frontend"]
     DC --> GPC["generate_pact_contract<br>if: java_api OR frontend"]
-    DC --> FBT["frontend_build_test<br>if: frontend"]
+    DC --> FU["frontend_unit<br>if: frontend"]
+    DC --> FI["frontend_integration<br>if: frontend"]
 
+    GPC --> VPP[verify_pact_provider]
     GOC --> PCG[publish_contracts_ghcr]
     GPC --> PCG
+    VPP --> PCG
     PCG -->|breaking gate blocks publish| GHCR[(GHCR OCI artifacts<br>openapi-contract · web-pacts)]
 
     JBT --> BP["build_push<br>needs java green or skipped"]
@@ -157,7 +182,8 @@ flowchart TD
     PI -->|tag digest as :main| IMG
 
     JBT --> PJR[package_java_reports]
-    FBT --> PFR[package_frontend_reports]
+    FU --> PFR[package_frontend_reports]
+    FI --> PFR
     AE --> PAR[package_acceptance_reports]
     PJR --> AR[audit_report]
     PFR --> AR
@@ -166,6 +192,7 @@ flowchart TD
     AR --> MC[[main_complete]]
     PI --> MC
     PCG --> MC
+    VPP --> MC
     BP --> MC
 
     classDef advisory fill:#FDEBD0,stroke:#C87F0A
@@ -310,7 +337,7 @@ stale value ships a frontend that talks to the wrong API.
 
 | Symptom | Cause |
 |---|---|
-| `check_openapi_breaking` red | A controller signature or DTO changed incompatibly. Either make it additive or accept the break deliberately. |
+| `check_openapi_breaking` red | A controller signature or DTO changed incompatibly. Make it additive, or add one line per intended break to `contracts/openapi-accepted-breaks.txt` and delete those lines after the new baseline is published. |
 | `check_frontend_api_compat` red | The API changed and the generated TS types no longer typecheck. Fix the SPA in the same PR. |
 | A job you expected did not run | Path filters. Check `detect_changes` output; add the `run-smoke` label to force compose. |
 | Everything skipped | `paths-ignore` matched — docs/markdown-only change. |

@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.bson.types.Decimal128;
+import org.springframework.boot.mongodb.autoconfigure.MongoClientSettingsBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -18,6 +20,14 @@ public class MongoConfig {
 
     private static final DateTimeFormatter TIME_WRITE_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter TIME_READ_FORMAT = DateTimeFormatter.ofPattern("HH:mm[:ss]");
+
+    @Bean
+    MongoClientSettingsBuilderCustomizer mongoClientTimeouts() {
+        return settings -> settings.applyToSocketSettings(
+                        socket -> socket.connectTimeout(5, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS))
+                .applyToClusterSettings(cluster -> cluster.serverSelectionTimeout(5, TimeUnit.SECONDS))
+                .applyToConnectionPoolSettings(pool -> pool.maxSize(50).maxWaitTime(2, TimeUnit.SECONDS));
+    }
 
     @Bean
     MongoCustomConversions mongoCustomConversions() {

@@ -3,6 +3,7 @@ package com.bjjeire.api.common;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -68,5 +69,29 @@ class ApiCacheTest {
     @Test
     void unknownTagIsRejected() {
         assertThatThrownBy(() -> cache.put("nope", "key", "value")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void publishesHitAndMissCountersWhenAMeterRegistryIsPresent() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        ApiCache measured = new ApiCache(registry);
+
+        measured.getOrCreate(ApiCache.GYMS_TAG, "key", () -> "value");
+        measured.getOrCreate(ApiCache.GYMS_TAG, "key", () -> "other");
+
+        assertThat(registry.get("cache.gets")
+                        .tag("cache", "api.cache")
+                        .tag("region", ApiCache.GYMS_TAG)
+                        .tag("result", "miss")
+                        .functionCounter()
+                        .count())
+                .isEqualTo(1);
+        assertThat(registry.get("cache.gets")
+                        .tag("cache", "api.cache")
+                        .tag("region", ApiCache.GYMS_TAG)
+                        .tag("result", "hit")
+                        .functionCounter()
+                        .count())
+                .isEqualTo(1);
     }
 }

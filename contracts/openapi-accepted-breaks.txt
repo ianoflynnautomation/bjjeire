@@ -1,0 +1,1 @@
+# No accepted breaks. See docs/contract-testing.md for the line format.

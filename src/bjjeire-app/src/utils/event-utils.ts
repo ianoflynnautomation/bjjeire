@@ -5,10 +5,10 @@ import { uiContent } from '@/config/ui-content'
 function resolveEventType(
   eventType: BjjEventType | string
 ): BjjEventType | undefined {
-  const normalized = String(eventType).replace(/\s+/g, '').toLowerCase()
+  const normalized = eventType.replace(/\s+/g, '').toLowerCase()
   return BJJ_EVENT_TYPES.find(
     t =>
-      t.value === eventType ||
+      t.value.toLowerCase() === normalized ||
       t.label.replace(/\s+/g, '').toLowerCase() === normalized
   )?.value
 }

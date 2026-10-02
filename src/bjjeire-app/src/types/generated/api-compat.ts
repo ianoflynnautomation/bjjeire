@@ -9,27 +9,25 @@ type ApiBjjEventDto = components['schemas']['BjjEventDto']
 type ApiCompetitionDto = components['schemas']['CompetitionDto']
 type ApiStoreDto = components['schemas']['StoreDto']
 
-type KeysExist<Api, Frontend> = {
-  [K in keyof Frontend]-?: K extends keyof Api ? true : never
-}
+// A property typed `never` is assignable to `true`, so a mapped `true | never`
+// check stays green when the SPA invents a field. Exclude is the check that fails.
+type KeysArePublished<Frontend, Api> =
+  Exclude<keyof Frontend, keyof Api> extends never ? true : never
 
-type _GymKeyCheck = KeysExist<ApiGymDto, Omit<GymDto, 'socialMedia'>>
-type _EventKeyCheck = KeysExist<
-  ApiBjjEventDto,
-  Omit<BjjEventDto, 'socialMedia'>
->
-type _CompetitionKeyCheck = KeysExist<ApiCompetitionDto, CompetitionDto>
-type _StoreKeyCheck = KeysExist<ApiStoreDto, StoreDto>
+type _GymKeyCheck = KeysArePublished<GymDto, ApiGymDto>
+type _EventKeyCheck = KeysArePublished<BjjEventDto, ApiBjjEventDto>
+type _CompetitionKeyCheck = KeysArePublished<CompetitionDto, ApiCompetitionDto>
+type _StoreKeyCheck = KeysArePublished<StoreDto, ApiStoreDto>
+type _PageUrlAllowsNull = null extends components['schemas']['PaginationMetadata']['nextPageUrl']
+  ? null extends components['schemas']['PaginationMetadata']['previousPageUrl']
+    ? true
+    : never
+  : never
 
-type _AssertGym = _GymKeyCheck extends Record<string, true> ? true : never
-type _AssertEvent = _EventKeyCheck extends Record<string, true> ? true : never
-type _AssertCompetition =
-  _CompetitionKeyCheck extends Record<string, true> ? true : never
-type _AssertStore = _StoreKeyCheck extends Record<string, true> ? true : never
+const _gymOk: _GymKeyCheck = true
+const _eventOk: _EventKeyCheck = true
+const _competitionOk: _CompetitionKeyCheck = true
+const _storeOk: _StoreKeyCheck = true
+const _pageUrlsOk: _PageUrlAllowsNull = true
 
-const _gymOk: _AssertGym = true
-const _eventOk: _AssertEvent = true
-const _competitionOk: _AssertCompetition = true
-const _storeOk: _AssertStore = true
-
-export { _gymOk, _eventOk, _competitionOk, _storeOk }
+export { _gymOk, _eventOk, _competitionOk, _storeOk, _pageUrlsOk }

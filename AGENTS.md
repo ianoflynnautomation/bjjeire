@@ -113,8 +113,10 @@ Full detail in [docs/ci-cd.md](docs/ci-cd.md). The parts that bite:
 - **Adding a job does not gate merges** until it is also in `pr_complete.needs`
   (or `main_complete.needs`). The one job that must stay out is
   `atest_analyze`.
-- **Reusable workflows are SHA-pinned** to `bjjeire-ci-templates` v1.6.2. Bump
-  the pin deliberately; do not float on a tag or `@main`.
+- **Reusable workflows are SHA-pinned.** Most callers stay on
+  `bjjeire-ci-templates` v1.6.2. `node-build-test.yml` is pinned to `f69cd6a`
+  for the npm download cache. Bump a pin deliberately; do not float on a tag
+  or `@main`.
 - **Changing the API surface breaks two checks by design**:
   `check_openapi_breaking` and `check_frontend_api_compat`. Fix the SPA in the
   same pull request.

@@ -32,6 +32,9 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
     public static final String CODE_INCLUSIVE_BETWEEN = "INCLUSIVE_BETWEEN_VALUE";
     public static final String CODE_PREDICATE = "PredicateValidator";
 
+    static final int MAX_SESSIONS = 64;
+    static final int MAX_PRICING_OPTIONS = 16;
+
     private static final Pattern OBJECT_ID = Pattern.compile("^[0-9a-fA-F]{24}$");
     private static final Set<String> VALID_CURRENCIES =
             Set.of("EUR", "USD", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", "INR", "BRL");
@@ -173,6 +176,11 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
             violations.add("schedule.sessions", "Sessions cannot contain null entries.", CODE_NO_NULL_ENTRIES);
             return;
         }
+        if (sessions.size() > MAX_SESSIONS) {
+            violations.add(
+                    "schedule.sessions", "Sessions cannot exceed " + MAX_SESSIONS + " entries.", CODE_MAX_LENGTH);
+            return;
+        }
 
         for (int i = 0; i < sessions.size(); i++) {
             validateSession(sessions.get(i), "schedule.sessions[" + i + "]", violations);
@@ -263,6 +271,13 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
         }
         if (containsNull(pricingOptions)) {
             violations.add("pricingOptions", "Pricing Options cannot contain null entries.", CODE_NO_NULL_ENTRIES);
+            return;
+        }
+        if (pricingOptions.size() > MAX_PRICING_OPTIONS) {
+            violations.add(
+                    "pricingOptions",
+                    "Pricing Options cannot exceed " + MAX_PRICING_OPTIONS + " entries.",
+                    CODE_MAX_LENGTH);
             return;
         }
         for (int i = 0; i < pricingOptions.size(); i++) {

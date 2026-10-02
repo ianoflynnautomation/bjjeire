@@ -69,13 +69,18 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldReturnNotFoundWhenGettingInactiveGymById() {
+    void shouldReturnNotFoundWhenGettingInactiveGymById() throws Exception {
         Gym savedGym = gymRepository.save(gym("Pending Gym", GymStatus.PendingApproval));
 
         ResponseEntity<String> response =
                 restTemplate.getForEntity(ApiRoutes.GYM + "/" + savedGym.getId(), String.class);
 
+        JsonNode body = objectMapper.readTree(response.getBody());
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(body.at("/type").asText()).isEqualTo("urn:bjjeire:not-found");
+        assertThat(body.at("/title").asText()).isEqualTo("Resource Not Found");
+        assertThat(body.at("/traceId").asText()).isNotBlank();
     }
 
     @Test
@@ -100,7 +105,7 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
         ResponseEntity<String> response = restTemplate.exchange(
                 ApiRoutes.GYM + "/" + savedGym.getId(),
                 HttpMethod.PUT,
-                jsonEntity(gymCommandJson(savedGym.getId(), "Updated Gym")),
+                jsonEntity(gymCommandJson(savedGym.getId(), "Updated Gym", "[]", savedGym.getVersion())),
                 String.class);
 
         JsonNode body = objectMapper.readTree(response.getBody());
@@ -139,6 +144,36 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldRejectASecondCreateWithTheSameId() throws Exception {
+        String json = gymCommandJson("202605310000000000000081", "Duplicate Gym");
+
+        ResponseEntity<String> created = restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(json), String.class);
+        ResponseEntity<String> duplicate = restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(json), String.class);
+
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(duplicate.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(objectMapper.readTree(duplicate.getBody()).at("/type").asText())
+                .isEqualTo("urn:bjjeire:conflict");
+    }
+
+    @Test
+    void shouldRejectUpdateWhenVersionIsStale() throws Exception {
+        Gym savedGym = gymRepository.save(gym("Original Gym", GymStatus.Active));
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                ApiRoutes.GYM + "/" + savedGym.getId(),
+                HttpMethod.PUT,
+                jsonEntity(gymCommandJson(savedGym.getId(), "Updated Gym", "[]", savedGym.getVersion() + 1)),
+                String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(objectMapper.readTree(response.getBody()).at("/type").asText())
+                .isEqualTo("urn:bjjeire:conflict");
+        assertThat(gymRepository.findById(savedGym.getId()).orElseThrow().getName())
+                .isEqualTo("Original Gym");
+    }
+
+    @Test
     void shouldRemoveGymWhenDeletingThroughAuthenticatedApi() {
         Gym savedGym = gymRepository.save(gym("Deleted Gym", GymStatus.Active));
 
@@ -158,11 +193,16 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     private static String gymCommandJson(String id, String name) {
-        return gymCommandJson(id, name, "[]");
+        return gymCommandJson(id, name, "[]", null);
     }
 
     private static String gymCommandJson(String id, String name, String offeredClassesJson) {
+        return gymCommandJson(id, name, offeredClassesJson, null);
+    }
+
+    private static String gymCommandJson(String id, String name, String offeredClassesJson, Long version) {
         String idJson = id == null ? "null" : "\"" + id + "\"";
+        String versionJson = version == null ? "" : ",\n                \"version\": " + version;
         return """
             {
               "data": {
@@ -182,9 +222,9 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
                 "website": "https://example.com",
                 "timetableUrl": null,
                 "imageUrl": "https://cdn.bjjeire.com/gyms/test-lg.webp",
-                "thumbnailUrl": "https://cdn.bjjeire.com/gyms/test-thumb.webp"
+                "thumbnailUrl": "https://cdn.bjjeire.com/gyms/test-thumb.webp"%s
               }
             }
-            """.formatted(idJson, name, offeredClassesJson);
+            """.formatted(idJson, name, offeredClassesJson, versionJson);
     }
 }

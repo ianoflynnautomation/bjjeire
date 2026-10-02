@@ -457,8 +457,9 @@ export interface components {
       totalPages?: number
       hasNextPage?: boolean
       hasPreviousPage?: boolean
-      nextPageUrl?: string
-      previousPageUrl?: string
+      /** Absent links are JSON null. */
+      nextPageUrl?: string | null
+      previousPageUrl?: string | null
     }
     StoreDto: {
       id?: string

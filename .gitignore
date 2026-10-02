@@ -24,6 +24,7 @@ yarn-error.log
 
 # Test artifacts
 test-results/
+src/bjjeire-api/pacts/
 junit.xml
 *.lcov
 /playwright-report/

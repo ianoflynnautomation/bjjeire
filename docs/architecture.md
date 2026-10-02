@@ -93,8 +93,13 @@ request: `SecurityConfig` (Entra JWT validation), `RateLimitFilter`,
 `ReadOnlyModeFilter`, `SecurityHeadersFilter`, `RequestLoggingFilter`, and
 `ClientIps` for resolving the caller behind Cloudflare.
 
-`MongoIndexInitializer` creates indexes at startup — including the geospatial
-index the location queries need.
+`MongoIndexInitializer` creates the compound indexes the list queries use and
+rewrites a missing `endDate` to a sentinel so those queries stay one range. A
+failure to build any of those indexes stops startup.
+
+`ApiCache` is an in-process cache with a five-minute write expiry. A write or
+deactivation sweep evicts entries only on the replica that performed it. Other
+replicas can serve the previous page until that entry expires.
 
 ### Conventions
 

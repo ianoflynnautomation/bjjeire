@@ -2,6 +2,7 @@ package com.bjjeire.api.seeder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.config.SeederProperties;
 import com.bjjeire.api.event.BjjEvent;
@@ -56,14 +57,22 @@ class SeederIT extends MongoIntegrationTest {
             assertThat(event.getTypes()).isNotEmpty();
             assertThat(event.getPricingOptions()).isNotEmpty();
             if (event.getSchedule() != null && event.getSchedule().endDate() != null) {
-                assertThat(event.getExpiresAt())
-                        .isEqualTo(event.getSchedule().endDate().plus(BjjEvent.EXPIRY_GRACE));
+                if (OpenEndedInstant.isOpen(event.getSchedule().endDate())) {
+                    assertThat(event.getExpiresAt()).isNull();
+                } else {
+                    assertThat(event.getExpiresAt())
+                            .isEqualTo(event.getSchedule().endDate().plus(BjjEvent.EXPIRY_GRACE));
+                }
             }
         });
-        assertThat(mongoTemplate.findAll(Competition.class))
-                .filteredOn(competition -> competition.getEndDate() != null)
-                .allSatisfy(competition -> assertThat(competition.getExpiresAt())
-                        .isEqualTo(competition.getEndDate().plus(Competition.EXPIRY_GRACE)));
+        assertThat(mongoTemplate.findAll(Competition.class)).allSatisfy(competition -> {
+            if (OpenEndedInstant.isOpen(competition.getEndDate())) {
+                assertThat(competition.getExpiresAt()).isNull();
+            } else {
+                assertThat(competition.getExpiresAt())
+                        .isEqualTo(competition.getEndDate().plus(Competition.EXPIRY_GRACE));
+            }
+        });
     }
 
     @Test

@@ -109,11 +109,11 @@ describe('calculateEventPrices', () => {
       ])
     })
 
-    it('given the API string form of the pricing type, when prices are calculated, then it is treated like the enum', () => {
+    it('given the published pricing type name, when prices are calculated, then the flat amount is returned', () => {
       expect(
         calculateEventPrices(undefined, [
           {
-            type: 'FlatRate' as unknown as PricingType,
+            type: PricingType.FlatRate,
             amount: 75,
             currency: EUR,
           },
