@@ -32,7 +32,7 @@ ENV VITE_APP_GITHUB_URL=${VITE_APP_GITHUB_URL}
 
 RUN npm run build
 
-FROM caddy:2.11.4-alpine
+FROM caddy:2.11.6-alpine
 ARG APP_VERSION=dev
 LABEL org.opencontainers.image.version="${APP_VERSION}"
 
