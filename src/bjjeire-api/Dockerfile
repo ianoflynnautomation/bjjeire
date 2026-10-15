@@ -1,4 +1,4 @@
-FROM maven:3-eclipse-temurin-25 AS deps
+FROM maven:3-eclipse-temurin-27 AS deps
 WORKDIR /workspace
 COPY pom.xml .
 COPY config ./config
