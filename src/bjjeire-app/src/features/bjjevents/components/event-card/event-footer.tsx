@@ -25,11 +25,11 @@ export const EventFooter = function EventFooter({
     ? eventCard.moreInfoButton
     : eventCard.noInfoButton
   const ariaLabel = externalEventUrl
-    ? `Get more information about ${fallback}`
-    : `No information available for ${fallback}`
+    ? `${eventCard.moreInfoAriaPrefix} ${fallback}`
+    : `${eventCard.noInfoAriaPrefix} ${fallback}`
   const title = externalEventUrl
-    ? `Visit website for ${fallback}`
-    : `No website available for ${fallback}`
+    ? `${uiContent.shared.visitWebsiteFor} ${fallback}`
+    : `${uiContent.shared.noWebsiteFor} ${fallback}`
 
   return (
     <div className="mt-auto border-t border-hairline pt-3">

@@ -174,6 +174,49 @@ class GymMongoRepositoryIT extends MongoIntegrationTest {
     }
 
     @Test
+    void shouldRejectCreateWithoutPersistingWhenIdIsMalformed() {
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                ApiRoutes.GYM, jsonEntity(gymCommandJson("not-an-object-id", "Bad Id")), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(gymRepository.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectCreateWithoutPersistingWhenWebsiteIsNotHttp() {
+        String json = gymCommandJson(null, "Bad Url").replace("https://example.com", "javascript:alert(1)");
+
+        ResponseEntity<String> response = restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(json), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(gymRepository.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectCreateWithoutPersistingWhenCoordinatesAreNotAPair() {
+        String json = gymCommandJson(null, "Bad Point").replace("[-6.2603, 53.3498]", "[-6.2603]");
+
+        ResponseEntity<String> response = restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(json), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(gymRepository.count()).isZero();
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenCreatedGymIsNotActive() throws Exception {
+        String json = gymCommandJson("202605310000000000000082", "Pending Gym")
+                .replace("\"status\": \"Active\"", "\"status\": \"PendingApproval\"");
+
+        ResponseEntity<String> created = restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(json), String.class);
+        String id = objectMapper.readTree(created.getBody()).at("/data/id").asString();
+
+        ResponseEntity<String> fetched = restTemplate.getForEntity(ApiRoutes.GYM + "/" + id, String.class);
+
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(fetched.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void shouldRemoveGymWhenDeletingThroughAuthenticatedApi() {
         Gym savedGym = gymRepository.save(gym("Deleted Gym", GymStatus.Active));
 

@@ -1,5 +1,20 @@
 export const shared = {
   countySuffix: 'County',
+  loading: 'Loading...',
+  loadingData: 'Loading data...',
+  loadingPage: 'Loading page...',
+  updating: 'Updating...',
+  errorTitle: 'Error Loading Data',
+  retry: 'Retry',
+  pageError: 'Something went wrong. Please try refreshing the page.',
+  emptyTitle: 'No Items Found',
+  emptyLine1: 'There are currently no items to display.',
+  emptyLine2: 'Try adjusting your filters or check back later.',
+  emptyActionJoiner: 'Or',
+  viewOn: 'View on',
+  forLabel: 'for',
+  visitWebsiteFor: 'Visit website for',
+  noWebsiteFor: 'No website available for',
   errors: {
     unexpected: 'An unexpected error occurred. Please try again.',
     network:

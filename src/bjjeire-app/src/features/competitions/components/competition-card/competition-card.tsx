@@ -5,7 +5,14 @@ import {
   ClipboardDocumentListIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/20/solid'
-import { format, parseISO, isSameDay, isSameMonth, isSameYear } from 'date-fns'
+import {
+  format,
+  parseISO,
+  isSameDay,
+  isSameMonth,
+  isSameYear,
+  isValid,
+} from 'date-fns'
 import type { CompetitionDto } from '@/types/competitions'
 import { Card, CardContent } from '@/components/ui/card/card'
 import { CardActionButton } from '@/components/ui/button/button'
@@ -14,6 +21,8 @@ import {
   CompetitionsPageTestIds,
   CompetitionCardTestIds,
 } from '@/constants/competitionDataTestIds'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
+import { asArray, readString } from '@/utils/untrusted'
 import { CompetitionCardHeader } from './competition-card-header'
 
 const { card } = uiContent.competitions
@@ -23,10 +32,13 @@ function formatDateRange(startDate?: string, endDate?: string): string | null {
     return null
   }
   const start = parseISO(startDate)
-  if (!endDate || isSameDay(start, parseISO(endDate))) {
+  if (!isValid(start)) {
+    return null
+  }
+  const end = endDate ? parseISO(endDate) : undefined
+  if (!end || !isValid(end) || isSameDay(start, end)) {
     return format(start, 'd MMMM yyyy')
   }
-  const end = parseISO(endDate)
   if (isSameMonth(start, end)) {
     return `${format(start, 'd')}–${format(end, 'd MMMM yyyy')}`
   }
@@ -59,7 +71,11 @@ export const CompetitionCard = function CompetitionCard({
     () => formatDateRange(startDate, endDate),
     [startDate, endDate]
   )
-  const headingId = `competition-card-heading-${competition.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const headingId = `competition-card-heading-${competition.id ?? readString(name).replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const websiteHref = ensureExternalUrlScheme(websiteUrl)
+  const registrationHref = ensureExternalUrlScheme(registrationUrl)
+  const displayName = readString(name)
+  const tagList = asArray(tags)
   const rootTestId = dataTestId ?? CompetitionsPageTestIds.LIST_ITEM
 
   return (
@@ -78,7 +94,7 @@ export const CompetitionCard = function CompetitionCard({
             className="text-base font-bold leading-snug text-fg"
             data-testid={CompetitionCardTestIds.NAME}
           >
-            {name || card.fallbackName}
+            {displayName || card.fallbackName}
           </h3>
         </div>
 
@@ -108,13 +124,13 @@ export const CompetitionCard = function CompetitionCard({
         )}
 
         {/* Tags */}
-        {tags.length > 0 && (
+        {tagList.length > 0 && (
           <div
             className="mb-4 flex flex-wrap gap-1.5"
             aria-label={card.tagsLabel}
             data-testid={CompetitionCardTestIds.TAGS}
           >
-            {tags.map(tag => (
+            {tagList.map(tag => (
               <span
                 key={tag}
                 className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-fg-muted ring-1 ring-hairline"
@@ -129,26 +145,26 @@ export const CompetitionCard = function CompetitionCard({
         {/* Action buttons */}
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
           <CardActionButton
-            href={websiteUrl || undefined}
+            href={websiteHref}
             icon={<GlobeAltIcon className="h-4 w-4" aria-hidden="true" />}
-            aria-label={`${websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton} for ${name}`}
-            title={websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton}
+            aria-label={`${websiteHref ? card.visitWebsiteButton : card.noWebsiteButton} ${uiContent.shared.forLabel} ${displayName}`}
+            title={websiteHref ? card.visitWebsiteButton : card.noWebsiteButton}
             data-testid={CompetitionCardTestIds.WEBSITE_BUTTON}
             className="flex-1"
           >
-            {websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton}
+            {websiteHref ? card.visitWebsiteButton : card.noWebsiteButton}
           </CardActionButton>
 
-          {registrationUrl && (
+          {registrationHref && (
             <CardActionButton
-              href={registrationUrl}
+              href={registrationHref}
               icon={
                 <ClipboardDocumentListIcon
                   className="h-4 w-4"
                   aria-hidden="true"
                 />
               }
-              aria-label={`${card.registerButton} for ${name}`}
+              aria-label={`${card.registerButton} ${uiContent.shared.forLabel} ${displayName}`}
               title={card.registerButton}
               data-testid={CompetitionCardTestIds.REGISTER_BUTTON}
               className="flex-1"

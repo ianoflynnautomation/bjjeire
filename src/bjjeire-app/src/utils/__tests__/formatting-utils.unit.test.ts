@@ -35,6 +35,16 @@ describe('ensureExternalUrlScheme', () => {
       'HTTP://example.com'
     )
   })
+
+  it('given a javascript URL, when the scheme is ensured, then the link is dropped', () => {
+    expect(ensureExternalUrlScheme('javascript:alert(1)')).toBeUndefined()
+  })
+
+  it('given a data URL, when the scheme is ensured, then the link is dropped', () => {
+    expect(
+      ensureExternalUrlScheme('data:text/html,<script>alert(1)</script>')
+    ).toBeUndefined()
+  })
 })
 
 describe('formatDisplayUrl', () => {

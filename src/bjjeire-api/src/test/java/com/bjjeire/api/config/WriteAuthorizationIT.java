@@ -16,6 +16,16 @@ class WriteAuthorizationIT extends MongoIntegrationTest {
                 restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(gymCommandJson(), null), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).contains("urn:bjjeire:unauthorized");
+    }
+
+    @Test
+    void shouldRejectMalformedBearerWithUnauthorized() {
+        ResponseEntity<String> response =
+                restTemplate.postForEntity(ApiRoutes.GYM, jsonEntity(gymCommandJson(), "not a token"), String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(response.getBody()).contains("urn:bjjeire:unauthorized");
     }
 
     @Test
@@ -24,6 +34,7 @@ class WriteAuthorizationIT extends MongoIntegrationTest {
                 ApiRoutes.GYM, jsonEntity(gymCommandJson(), "reader-token-without-writer-scope"), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).contains("urn:bjjeire:forbidden");
     }
 
     @Test

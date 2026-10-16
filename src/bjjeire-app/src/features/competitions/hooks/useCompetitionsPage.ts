@@ -5,6 +5,7 @@ import type {
 } from '@/types/competitions'
 import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getCompetitions } from '@/features/competitions/api/get-competitions'
+import { asArray, readString } from '@/utils/untrusted'
 
 export const initialCompetitionFilters: GetCompetitionsPaginationQuery = {
   page: env.PAGE_NUMBER,
@@ -17,11 +18,13 @@ function competitionMatchesSearch(
 ): boolean {
   const lower = term.toLowerCase()
   return (
-    competition.name.toLowerCase().includes(lower) ||
-    (competition.description?.toLowerCase().includes(lower) ?? false) ||
-    competition.country.toLowerCase().includes(lower) ||
-    competition.organisation.toLowerCase().includes(lower) ||
-    competition.tags.some(t => t.toLowerCase().includes(lower))
+    readString(competition.name).toLowerCase().includes(lower) ||
+    readString(competition.description).toLowerCase().includes(lower) ||
+    readString(competition.country).toLowerCase().includes(lower) ||
+    readString(competition.organisation).toLowerCase().includes(lower) ||
+    asArray(competition.tags).some(tag =>
+      readString(tag).toLowerCase().includes(lower)
+    )
   )
 }
 

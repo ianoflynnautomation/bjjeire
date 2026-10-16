@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { ErrorStateTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 
 interface ErrorStateProps {
@@ -12,7 +13,7 @@ interface ErrorStateProps {
 
 const ErrorState = function ErrorState({
   message,
-  title = 'Error Loading Data',
+  title = uiContent.shared.errorTitle,
   onRetry,
   'data-testid': dataTestIdFromProp,
 }: ErrorStateProps): JSX.Element {
@@ -46,7 +47,7 @@ const ErrorState = function ErrorState({
         className="mt-6"
         data-testid={ErrorStateTestIds.BUTTON}
       >
-        Retry
+        {uiContent.shared.retry}
       </Button>
     </div>
   )

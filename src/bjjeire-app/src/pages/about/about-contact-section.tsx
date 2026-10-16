@@ -7,7 +7,7 @@ import { AboutContactTestIds } from '@/constants/aboutDataTestIds'
 
 const socialMedia = {
   instagram: env.SOCIAL_INSTAGRAM_URL || undefined,
-  x: env.SOCIAL_INSTAGRAM_URL || undefined,
+  facebook: env.SOCIAL_FACEBOOK_URL || undefined,
 }
 
 export const AboutContactSection = function AboutContactSection(): JSX.Element {
@@ -25,7 +25,7 @@ export const AboutContactSection = function AboutContactSection(): JSX.Element {
         {uiContent.about.contactPrefix}{' '}
         <a
           href={`mailto:${env.CONTACT_EMAIL}`}
-          aria-label={`Send an email to ${env.CONTACT_EMAIL}`}
+          aria-label={`${uiContent.about.contactEmailAriaPrefix} ${env.CONTACT_EMAIL}`}
           className="font-medium text-primary-700 transition-colors hover:text-primary-800 hover:underline dark:text-primary-300 dark:hover:text-primary-200"
           data-testid={AboutContactTestIds.EMAIL_LINK}
         >

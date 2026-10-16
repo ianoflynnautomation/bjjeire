@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ContextConfiguration;
@@ -61,6 +62,8 @@ public abstract class MongoIntegrationTest {
     @BeforeEach
     void configureRestTemplate() {
         RestTemplate template = new RestTemplate();
+        // HttpURLConnection hides a 401 body once WWW-Authenticate is set.
+        template.setRequestFactory(new JdkClientHttpRequestFactory());
         template.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:" + port));
         template.setErrorHandler(response -> false);
         this.restTemplate = template;

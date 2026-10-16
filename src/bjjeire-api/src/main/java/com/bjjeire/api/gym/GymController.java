@@ -52,7 +52,10 @@ public class GymController {
     }
 
     @PostMapping
-    @Operation(summary = "Create new gym")
+    @Operation(summary = "Create new gym", description = """
+                    Not safe to retry without an id. A missing or blank id inserts a new document. \
+                    The same id again returns 409 and does not replay the created response.
+                    """)
     public ResponseEntity<CreateGymResponse> create(@RequestBody @Valid CreateGymCommand command) {
         CreateGymResponse response = gymService.create(command);
 
@@ -61,7 +64,10 @@ public class GymController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update gym")
+    @Operation(summary = "Update gym", description = """
+                    Replaces the gym. Send the full resource and the version from the last read. \
+                    A missing or stale version returns 409. Retry only after reloading.
+                    """)
     public ResponseEntity<UpdateGymResponse> update(
             @PathVariable @ValidObjectId String id, @RequestBody @Valid UpdateGymCommand command) {
 
@@ -73,7 +79,7 @@ public class GymController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete gym")
+    @Operation(summary = "Delete gym", description = "Deletes the gym. A second delete of the same id returns 404.")
     public ResponseEntity<Void> delete(@PathVariable @ValidObjectId String id) {
         if (!gymService.delete(id)) {
             throw ApiProblems.notFound();

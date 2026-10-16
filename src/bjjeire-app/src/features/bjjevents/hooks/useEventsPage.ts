@@ -7,6 +7,7 @@ import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
+import { readField, readString } from '@/utils/untrusted'
 
 export const initialEventFilters: GetBjjEventsPaginationQuery = {
   county: 'all',
@@ -18,11 +19,13 @@ export const initialEventFilters: GetBjjEventsPaginationQuery = {
 function eventMatchesSearch(event: BjjEventDto, term: string): boolean {
   const lower = term.toLowerCase()
   return (
-    event.name.toLowerCase().includes(lower) ||
-    (event.description?.toLowerCase().includes(lower) ?? false) ||
-    event.county.toLowerCase().includes(lower) ||
-    (event.location?.address.toLowerCase().includes(lower) ?? false) ||
-    (event.organiser?.name.toLowerCase().includes(lower) ?? false)
+    readString(event.name).toLowerCase().includes(lower) ||
+    readString(event.description).toLowerCase().includes(lower) ||
+    readString(event.county).toLowerCase().includes(lower) ||
+    readString(readField(event.location, 'address'))
+      .toLowerCase()
+      .includes(lower) ||
+    readString(readField(event.organiser, 'name')).toLowerCase().includes(lower)
   )
 }
 

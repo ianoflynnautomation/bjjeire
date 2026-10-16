@@ -82,6 +82,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ProblemDetail> handleTypeMismatch(
             MethodArgumentTypeMismatchException exception, HttpServletRequest request) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        detail.setType(ProblemTypes.BAD_REQUEST);
         detail.setTitle("Bad Request");
         attachTraceId(detail, request);
         return ResponseEntity.badRequest().body(detail);
@@ -90,7 +91,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler({NoSuchElementException.class, NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ProblemDetail> handleNotFound(Exception exception, HttpServletRequest request) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
-        detail.setType(java.net.URI.create("urn:bjjeire:not-found"));
+        detail.setType(ProblemTypes.NOT_FOUND);
         detail.setTitle("Resource Not Found");
         attachTraceId(detail, request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(detail);
@@ -101,7 +102,7 @@ public class ApiExceptionHandler {
             AuthenticationException exception, HttpServletRequest request) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED, "Authentication is required and has failed or has not yet been provided.");
-        detail.setType(java.net.URI.create("https://datatracker.ietf.org/doc/html/rfc7235#section-3.1"));
+        detail.setType(ProblemTypes.UNAUTHORIZED);
         detail.setTitle("Unauthorized");
         attachTraceId(detail, request);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(detail);
@@ -111,7 +112,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ProblemDetail> handleForbidden(AccessDeniedException exception, HttpServletRequest request) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.FORBIDDEN, "You do not have permission to perform this action.");
-        detail.setType(java.net.URI.create("https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.3"));
+        detail.setType(ProblemTypes.FORBIDDEN);
         detail.setTitle("Forbidden");
         attachTraceId(detail, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(detail);
@@ -123,7 +124,7 @@ public class ApiExceptionHandler {
                 ? "The resource was modified by someone else. Reload it and retry."
                 : "A resource with this id already exists.";
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detail);
-        problem.setType(java.net.URI.create("urn:bjjeire:conflict"));
+        problem.setType(ProblemTypes.CONFLICT);
         problem.setTitle("Conflict");
         attachTraceId(problem, request);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
@@ -146,7 +147,7 @@ public class ApiExceptionHandler {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please contact support with Error ID: " + errorId + ".");
-        detail.setType(java.net.URI.create("https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1"));
+        detail.setType(ProblemTypes.INTERNAL);
         detail.setTitle("Internal Server Error");
         detail.setProperty("errorId", errorId);
         attachTraceId(detail, request);
@@ -157,7 +158,7 @@ public class ApiExceptionHandler {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 "One or more validation errors occurred. Please see the 'errors' property for details.");
-        detail.setType(java.net.URI.create("urn:bjjeire:validation-error"));
+        detail.setType(ProblemTypes.VALIDATION);
         detail.setTitle("Validation Failed");
         detail.setProperty("errors", errors);
         attachTraceId(detail, request);

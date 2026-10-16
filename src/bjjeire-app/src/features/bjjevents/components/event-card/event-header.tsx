@@ -1,5 +1,7 @@
 import type { JSX } from 'react'
 import type { BjjEventType } from '@/types/event'
+import { useImageLoadState } from '@/hooks/useImageLoadState'
+import { asArray } from '@/utils/untrusted'
 import {
   getEventTypeLabel,
   getEventTypeColorClasses,
@@ -27,19 +29,22 @@ export const EventHeader = function EventHeader({
   imageUrl,
   headingId,
 }: EventHeaderProps): JSX.Element {
+  const { hasError, handleError } = useImageLoadState()
+  const eventTypes = asArray(types)
   // The first type drives the fallback banner gradient
-  const primaryType = types[0] ?? ''
+  const primaryType = eventTypes[0] ?? ''
   const displayName = name || eventCard.fallbackName
 
   return (
     <header className="relative">
       <div className="relative h-40 w-full overflow-hidden">
-        {imageUrl ? (
+        {imageUrl && !hasError ? (
           <img
             src={imageUrl}
-            alt={`Poster for ${displayName}`}
+            alt={`${eventCard.posterAltPrefix} ${displayName}`}
             className="h-full w-full object-cover"
             loading="lazy"
+            onError={handleError}
             data-testid={EventCardTestIds.IMAGE}
           />
         ) : (
@@ -63,9 +68,9 @@ export const EventHeader = function EventHeader({
           >
             {displayName}
           </h3>
-          {types.length > 0 && (
+          {eventTypes.length > 0 && (
             <div className="flex flex-wrap justify-end gap-1">
-              {types.map(type => (
+              {eventTypes.map(type => (
                 <span
                   key={type}
                   data-testid={EventCardTestIds.TYPE}

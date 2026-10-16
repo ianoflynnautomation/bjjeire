@@ -58,7 +58,7 @@ export const EventDetails = function EventDetails({
       {location && (
         <DetailItem
           icon={<MapPinIcon />}
-          ariaLabel={`Location: ${location.address || location.venue || 'Details unavailable'}`}
+          ariaLabel={`${eventCard.locationAriaPrefix} ${location.address || location.venue || eventCard.locationUnavailable}`}
           data-testid={EventCardTestIds.ADDRESS}
         >
           {mapsUrl ? (
@@ -67,7 +67,7 @@ export const EventDetails = function EventDetails({
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-ink-300 dark:hover:text-primary-300"
-              aria-label={`View ${name || 'event'} location on Google Maps`}
+              aria-label={`${eventCard.mapsLinkPrefix} ${name || eventCard.mapsFallbackName} ${eventCard.mapsLinkSuffix}`}
               data-testid={EventCardTestIds.ADDRESS_LINK}
             >
               {location.address || location.venue || eventCard.viewOnMap}
@@ -83,7 +83,7 @@ export const EventDetails = function EventDetails({
       {organiserDisplay && (
         <DetailItem
           icon={<UserCircleIcon />}
-          ariaLabel={`Organised by: ${organiserDisplay}`}
+          ariaLabel={`${eventCard.organiserAriaPrefix} ${organiserDisplay}`}
           data-testid={EventCardTestIds.ORGANISER}
         >
           {organiserUrl ? (
@@ -92,7 +92,7 @@ export const EventDetails = function EventDetails({
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-ink-300 dark:hover:text-primary-300"
-              aria-label={`Visit organiser website for ${name || 'this event'}`}
+              aria-label={`${eventCard.organiserLinkAriaPrefix} ${name || eventCard.fallbackRef}`}
               data-testid={EventCardTestIds.ORGANISER_LINK}
             >
               {eventCard.organisedByLabel}: {organiserDisplay}
@@ -111,7 +111,7 @@ export const EventDetails = function EventDetails({
           <DetailItem
             key={`${price.label ?? price.unit}-${index}`}
             icon={<CurrencyDollarIcon />}
-            ariaLabel={`Event pricing: ${pricingDisplay}`}
+            ariaLabel={`${eventCard.pricingAriaPrefix} ${pricingDisplay}`}
             data-testid={EventCardTestIds.PRICING}
           >
             {pricingDisplay}

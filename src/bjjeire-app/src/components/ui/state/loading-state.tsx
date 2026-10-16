@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
 import { LoadingStateTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
 interface LoadingStateProps {
   message?: string
@@ -8,7 +9,7 @@ interface LoadingStateProps {
 }
 
 const LoadingState = function LoadingState({
-  message = 'Loading data...',
+  message = uiContent.shared.loadingData,
   'data-testid': dataTestIdFromProp,
 }: LoadingStateProps): JSX.Element {
   const rootTestId = dataTestIdFromProp ?? LoadingStateTestIds.ROOT

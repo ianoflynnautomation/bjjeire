@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import Navigation from '../navigation'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 import { renderWithProviders } from '@/testing/render-utils'
 
 // Navigation renders the theme toggle, whose useTheme hook reads localStorage.
@@ -65,6 +66,28 @@ describe('Navigation', () => {
       ).not.toBeInTheDocument()
       expect(
         screen.getByTestId(NavigationTestIds.MOBILE_TOGGLE)
+      ).toHaveAttribute('aria-expanded', 'false')
+    })
+
+    it('given an open menu, when Escape is pressed, then the panel closes', async () => {
+      const { user } = renderWithProviders(<Navigation />, { featureFlags })
+
+      await user.click(screen.getByTestId(NavigationTestIds.MOBILE_TOGGLE))
+      expect(
+        screen.getByRole('button', {
+          name: uiContent.navigation.closeMobileMenuLabel,
+        })
+      ).toHaveAttribute('aria-expanded', 'true')
+
+      await user.keyboard('{Escape}')
+
+      expect(
+        screen.queryByTestId(NavigationTestIds.MOBILE_PANEL)
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole('button', {
+          name: uiContent.navigation.openMobileMenuLabel,
+        })
       ).toHaveAttribute('aria-expanded', 'false')
     })
   })

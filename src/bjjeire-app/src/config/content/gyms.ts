@@ -77,5 +77,6 @@ export const gyms = {
     noWebsiteButton: 'Website Unavailable',
     trialOfferFallback: 'Trial offer available (details not specified)',
     trialOfferAriaPrefix: 'Trial Offer:',
+    locationAriaPrefix: 'Location:',
   },
 } as const

@@ -52,13 +52,36 @@ describe('SupportModal', () => {
     expect(onClose).toHaveBeenCalledOnce()
   })
 
-  it('given an open modal, when the dialog is clicked, then onClose is not called', async () => {
+  it('given an open modal, when the dialog content is clicked, then onClose is not called', async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
     render(<SupportModal isOpen onClose={onClose} />)
 
-    await user.click(screen.getByRole('dialog'))
+    await user.click(screen.getByTestId(SupportModalTestIds.CONTENT))
 
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('given an open modal, when Escape is pressed, then onClose is called', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    render(<SupportModal isOpen onClose={onClose} />)
+
+    await user.keyboard('{Escape}')
+
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  it('given an open modal, when it opens, then the close button is focused and page scroll is locked', () => {
+    const { unmount } = render(<SupportModal isOpen onClose={vi.fn()} />)
+
+    expect(
+      screen.getByRole('button', { name: uiContent.supportModal.closeLabel })
+    ).toHaveFocus()
+    expect(document.body.style.overflow).toBe('hidden')
+
+    unmount()
+
+    expect(document.body.style.overflow).toBe('')
   })
 })

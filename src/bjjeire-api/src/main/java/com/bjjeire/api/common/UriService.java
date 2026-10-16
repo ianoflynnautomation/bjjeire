@@ -1,24 +1,27 @@
 package com.bjjeire.api.common;
 
-import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
-@Component
-public class UriService {
-    public String pageUri(String path, int page, int pageSize) {
-        return pageUri(path, page, pageSize, null);
-    }
+/** Builds pagination links for the current request. */
+public interface UriService {
+    /**
+     * Builds a page link.
+     *
+     * @param path resource path
+     * @param page 1-based page
+     * @param pageSize page size
+     * @return absolute page URI
+     */
+    String pageUri(String path, int page, int pageSize);
 
-    public String pageUri(String path, int page, int pageSize, MultiValueMap<String, String> extraQuery) {
-        UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(path)
-                .queryParam("page", page)
-                .queryParam("pageSize", pageSize);
-        if (extraQuery != null) {
-            extraQuery.forEach(builder::queryParam);
-        }
-        return builder.build().toUriString();
-    }
+    /**
+     * Builds a page link with extra query parameters.
+     *
+     * @param path resource path
+     * @param page 1-based page
+     * @param pageSize page size
+     * @param extraQuery additional query parameters, or null
+     * @return absolute page URI
+     */
+    String pageUri(String path, int page, int pageSize, MultiValueMap<String, String> extraQuery);
 }

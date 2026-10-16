@@ -3,6 +3,7 @@ import type { CompetitionDto } from '@/types/competitions'
 import { CompetitionCard } from './competition-card/competition-card'
 import { CompetitionsPageTestIds } from '@/constants/competitionDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { readString } from '@/utils/untrusted'
 
 const { list } = uiContent.competitions
 
@@ -21,7 +22,7 @@ export const CompetitionsList = function CompetitionsList({
     >
       {competitions.map((competition, index) => (
         <li
-          key={competition.id}
+          key={competition.id ?? `${readString(competition.name)}-${index}`}
           className="animate-rise"
           style={{ '--i': index } as CSSProperties}
         >

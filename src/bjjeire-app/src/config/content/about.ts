@@ -17,4 +17,5 @@ export const about = {
   contactTitle: 'Get Involved',
   contactPrefix:
     'Have a gym to add, a correction to report, or want to contribute? Email',
+  contactEmailAriaPrefix: 'Send an email to',
 } as const

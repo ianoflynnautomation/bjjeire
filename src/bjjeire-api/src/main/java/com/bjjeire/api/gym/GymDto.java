@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
+@ValidGym
 public record GymDto(
         String id,
         @NotBlank @Size(max = 100) String name,
