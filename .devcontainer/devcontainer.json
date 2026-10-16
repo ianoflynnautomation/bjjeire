@@ -1,99 +1,139 @@
 // BJJ Éire — Dev Container (Java 25 Spring Boot + React SPA + MongoDB)
 // Docs: https://containers.dev/implementors/json_reference/
 {
-    "name": "BJJ Éire Development Environment",
-    "image": "mcr.microsoft.com/devcontainers/java:25-bookworm",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-
-    "features": {
-        "ghcr.io/devcontainers/features/java:1": {
-            "version": "none",
-            "installMaven": "true",
-            "mavenVersion": "latest",
-            "installGradle": "false"
-        },
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "24",
-            "nodeGypDependencies": true
-        },
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "installZsh": true,
-            "configureZshAsDefaultShell": false,
-            "upgradePackages": true
-        },
-        "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  "name": "BJJ Éire Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/java:25-bookworm",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": false,
+      "upgradePackages": false
     },
-
-    "remoteUser": "vscode",
-    "mounts": [
-        "source=bjjeire-m2-cache,target=/home/vscode/.m2,type=volume"
-    ],
-
-    "postCreateCommand": "bash .devcontainer/post-create-commands.sh",
-
-    "remoteEnv": {
-        "JAVA_HOME": "/usr/lib/jvm/msopenjdk-current",
-        "MAVEN_OPTS": "-XX:+UseParallelGC -Dmaven.artifact.threads=8",
-        "SPRING_OUTPUT_ANSI_ENABLED": "ALWAYS"
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "26",
+      "nodeGypDependencies": true
     },
-
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "vscjava.vscode-java-pack",
-                "vscjava.vscode-spring-boot-dashboard",
-                "vscjava.vscode-spring-initializr",
-                "redhat.vscode-xml",
-
-                "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode",
-                "ms-kubernetes-tools.vscode-kubernetes-tools",
-                "bradlc.vscode-tailwindcss",
-                "vitest.explorer",
-
-                "mongodb.mongodb-vscode",
-                "redhat.vscode-yaml",
-                "github.vscode-github-actions",
-
-                "EditorConfig.EditorConfig",
-                "github.vscode-pull-request-github",
-                "usernamehw.errorlens",
-                "streetsidesoftware.code-spell-checker",
-                "christian-kohler.path-intellisense"
-            ],
-            "settings": {
-                "terminal.integrated.defaultProfile.linux": "bash",
-                "editor.formatOnSave": true,
-                "editor.codeActionsOnSave": {
-                    "source.fixAll.eslint": "explicit"
-                },
-                "eslint.workingDirectories": [
-                    "src/bjjeire-app"
-                ],
-
-                "java.configuration.updateBuildConfiguration": "automatic",
-                "java.compile.nullAnalysis.mode": "automatic",
-
-                "java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
-                // Formatting is enforced by Spotless + palantir-java-format (`./mvnw spotless:apply`),
-                // so disable the built-in Eclipse formatter to avoid conflicting reformats.
-                "java.format.enabled": false,
-                "maven.executable.preferMavenWrapper": true
-            }
-        }
-    },
-
-    // Spring Boot (8080 direct / 5003 via compose), Vite dev server, web, Mongo, JVM debug.
-    "forwardPorts": [8080, 5003, 3000, 5173, 60743, 27017, 5005],
-    "portsAttributes": {
-        "8080":  { "label": "Spring Boot API (direct)", "onAutoForward": "notify" },
-        "5003":  { "label": "API (docker compose)",     "onAutoForward": "notify" },
-        "3000":  { "label": "Web (docker compose)",     "onAutoForward": "notify" },
-        "5173":  { "label": "Vite dev server",          "onAutoForward": "openBrowser" },
-        "60743": { "label": "Frontend (HTTPS dev)",     "onAutoForward": "silent" },
-        "27017": { "label": "MongoDB",                  "onAutoForward": "silent" },
-        "5005":  { "label": "JVM remote debug",         "onAutoForward": "silent" }
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "remoteUser": "vscode",
+  "runArgs": [
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "mounts": [
+    "source=bjjeire-m2-cache,target=/home/vscode/.m2,type=volume",
+    "source=bjjeire-npm-cache,target=/home/vscode/.npm,type=volume",
+    "source=bjjeire-claude-${devcontainerId},target=/home/vscode/.claude,type=volume",
+    "source=bjjeire-grok-${devcontainerId},target=/home/vscode/.grok,type=volume",
+    "source=bjjeire-gh-${devcontainerId},target=/home/vscode/.config/gh,type=volume"
+  ],
+  // Create and rebuild. Post-create does not run again when the image is rebuilt.
+  "updateContentCommand": "bash .devcontainer/post-create-commands.sh",
+  "containerEnv": {
+    "JAVA_HOME": "/usr/lib/jvm/msopenjdk-current",
+    "MAVEN_OPTS": "-XX:+UseParallelGC -Dmaven.artifact.threads=8",
+    "SPRING_OUTPUT_ANSI_ENABLED": "ALWAYS",
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+    "GROK_HOME": "/home/vscode/.grok",
+    "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal",
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+    "XAI_API_KEY": "${localEnv:XAI_API_KEY}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-boot-dashboard",
+        "vmware.vscode-spring-boot",
+        "redhat.vscode-xml",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "vitest.explorer",
+        "ms-playwright.playwright",
+        "mongodb.mongodb-vscode",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "EditorConfig.EditorConfig",
+        "github.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "streetsidesoftware.code-spell-checker",
+        "christian-kohler.path-intellisense"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.env.linux": {
+          "PATH": "/home/vscode/.local/bin:/home/vscode/.grok/bin:${env:PATH}"
+        },
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.workingDirectories": [
+          "src/bjjeire-app"
+        ],
+        "[java]": {
+          "editor.formatOnSave": false
+        },
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.import.maven.enabled": true,
+        "java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+        // Formatting is enforced by Spotless + palantir-java-format (`./mvnw spotless:apply`).
+        "java.format.enabled": false,
+        "maven.executable.preferMavenWrapper": true,
+        "typescript.tsdk": "src/bjjeire-app/node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
     }
+  },
+  // Spring Boot (8080 direct / 5003 via compose), Vite (PORT in src/bjjeire-app/.env),
+  // compose web, Mongo, JVM debug. Login callbacks use otherPortsAttributes.
+  "forwardPorts": [
+    8080,
+    5003,
+    3000,
+    60743,
+    27017,
+    5005
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot API",
+      "onAutoForward": "notify"
+    },
+    "5003": {
+      "label": "API (compose)",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Web (compose)",
+      "onAutoForward": "notify"
+    },
+    "60743": {
+      "label": "Vite",
+      "onAutoForward": "openBrowser"
+    },
+    "27017": {
+      "label": "MongoDB",
+      "onAutoForward": "silent"
+    },
+    "5005": {
+      "label": "JVM debug",
+      "onAutoForward": "silent"
+    }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "silent"
+  }
 }
