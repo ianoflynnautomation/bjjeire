@@ -11,6 +11,12 @@ export default mergeConfig(
   baseTestConfig(),
   defineConfig({
     plugins: [tailwindcss()],
+    // Pre-bundle deps discovered mid-run; otherwise Vite reloads the page and
+    // the in-flight test file fails to import ("Failed to fetch dynamically
+    // imported module").
+    optimizeDeps: {
+      include: ['@azure/msal-react', 'react-dom/client'],
+    },
     test: {
       name: 'browser',
       retry: process.env.CI ? 1 : 0,

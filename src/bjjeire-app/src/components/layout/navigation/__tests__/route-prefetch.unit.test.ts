@@ -6,9 +6,7 @@ import { initialGymFilters } from '@/features/gyms/hooks/useGymsPage'
 describe('prefetchRouteData', () => {
   it('given a prefetchable route id, then it primes the same first-page query key the list page uses', () => {
     const queryClient = new QueryClient()
-    const spy = vi
-      .spyOn(queryClient, 'prefetchQuery')
-      .mockResolvedValue(undefined)
+    const spy = vi.spyOn(queryClient, 'query').mockResolvedValue(undefined)
 
     prefetchRouteData(queryClient, 'gyms')
 
@@ -21,9 +19,7 @@ describe('prefetchRouteData', () => {
 
   it('given a route with no list query (about) or an unknown id, then it does not prefetch', () => {
     const queryClient = new QueryClient()
-    const spy = vi
-      .spyOn(queryClient, 'prefetchQuery')
-      .mockResolvedValue(undefined)
+    const spy = vi.spyOn(queryClient, 'query').mockResolvedValue(undefined)
 
     prefetchRouteData(queryClient, 'about')
     prefetchRouteData(queryClient, 'does-not-exist')

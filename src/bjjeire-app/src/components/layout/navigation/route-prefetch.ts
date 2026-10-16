@@ -1,4 +1,4 @@
-import { useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { noop, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { getGyms } from '@/features/gyms/api/get-gyms'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 import { getCompetitions } from '@/features/competitions/api/get-competitions'
@@ -23,29 +23,38 @@ const registry: Partial<
   Record<string, (queryClient: QueryClient) => Promise<void>>
 > = {
   events: queryClient =>
-    queryClient.prefetchQuery({
-      queryKey: ['bjjevents', withPage(initialEventFilters)],
-      queryFn: () => getBjjEvents(withPage(initialEventFilters)),
-      staleTime: PREFETCH_STALE_TIME,
-    }),
+    queryClient
+      .query({
+        queryKey: ['bjjevents', withPage(initialEventFilters)],
+        queryFn: () => getBjjEvents(withPage(initialEventFilters)),
+        staleTime: PREFETCH_STALE_TIME,
+      })
+      // Discard the data and swallow errors, as prefetchQuery did.
+      .then(noop, noop),
   gyms: queryClient =>
-    queryClient.prefetchQuery({
-      queryKey: ['gyms', withPage(initialGymFilters)],
-      queryFn: () => getGyms(withPage(initialGymFilters)),
-      staleTime: PREFETCH_STALE_TIME,
-    }),
+    queryClient
+      .query({
+        queryKey: ['gyms', withPage(initialGymFilters)],
+        queryFn: () => getGyms(withPage(initialGymFilters)),
+        staleTime: PREFETCH_STALE_TIME,
+      })
+      .then(noop, noop),
   competitions: queryClient =>
-    queryClient.prefetchQuery({
-      queryKey: ['competitions', withPage(initialCompetitionFilters)],
-      queryFn: () => getCompetitions(withPage(initialCompetitionFilters)),
-      staleTime: PREFETCH_STALE_TIME,
-    }),
+    queryClient
+      .query({
+        queryKey: ['competitions', withPage(initialCompetitionFilters)],
+        queryFn: () => getCompetitions(withPage(initialCompetitionFilters)),
+        staleTime: PREFETCH_STALE_TIME,
+      })
+      .then(noop, noop),
   stores: queryClient =>
-    queryClient.prefetchQuery({
-      queryKey: ['stores', withPage(initialStoreFilters)],
-      queryFn: () => getStores(withPage(initialStoreFilters)),
-      staleTime: PREFETCH_STALE_TIME,
-    }),
+    queryClient
+      .query({
+        queryKey: ['stores', withPage(initialStoreFilters)],
+        queryFn: () => getStores(withPage(initialStoreFilters)),
+        staleTime: PREFETCH_STALE_TIME,
+      })
+      .then(noop, noop),
 }
 
 /** Warm the first page of a route's data. No-op for routes without a list query (e.g. About). */
