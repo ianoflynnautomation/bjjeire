@@ -60,7 +60,7 @@ docker compose --profile app -f docker-compose.yml -f docker-compose.override.ja
 ```
 
 ```bash
-docker compose --profile app -f docker-compose.yml -f docker-compose.override.local.yml down
+docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml down
 ```
 
 ### Pull Images from GHCR
