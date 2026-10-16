@@ -12,7 +12,12 @@ import {
 
 const DEFAULT_SEARCH_PAGE_SIZE = 100
 
-interface UseListPageParams<T, TParams extends { page?: number }> {
+interface PageableParams {
+  page?: number
+  pageSize?: number
+}
+
+interface UseListPageParams<T, TParams extends PageableParams> {
   queryKeyBase: string[]
   fetchFn: (params: TParams) => Promise<PaginatedResponse<T>>
   initialParams: TParams
@@ -37,7 +42,7 @@ export interface UseListPageResult<T, TParams> {
   search: UseListPageSearchResult<T>
 }
 
-export function useListPage<T, TParams extends { page?: number }>({
+export function useListPage<T, TParams extends PageableParams>({
   queryKeyBase,
   fetchFn,
   initialParams,
@@ -64,10 +69,11 @@ export function useListPage<T, TParams extends { page?: number }>({
   })
 
   useEffect(() => {
-    updateFilters({
+    const paging: PageableParams = {
       page: 1,
       pageSize: search.isSearchActive ? searchPageSize : env.PAGE_SIZE,
-    } as unknown as Partial<TParams>)
+    }
+    updateFilters(paging as Partial<TParams>)
   }, [search.isSearchActive, searchPageSize, updateFilters])
 
   const items = useMemo(() => data ?? [], [data])

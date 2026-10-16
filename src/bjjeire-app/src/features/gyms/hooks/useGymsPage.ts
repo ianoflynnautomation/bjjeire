@@ -5,6 +5,7 @@ import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getGyms } from '@/features/gyms/api/get-gyms'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
+import { asArray, readField, readString } from '@/utils/untrusted'
 
 export const initialGymFilters: GetGymsByCountyPaginationQuery = {
   county: 'all',
@@ -15,11 +16,15 @@ export const initialGymFilters: GetGymsByCountyPaginationQuery = {
 function gymMatchesSearch(gym: GymDto, term: string): boolean {
   const lower = term.toLowerCase()
   return (
-    gym.name.toLowerCase().includes(lower) ||
-    (gym.description?.toLowerCase().includes(lower) ?? false) ||
-    gym.county.toLowerCase().includes(lower) ||
-    gym.location.address.toLowerCase().includes(lower) ||
-    gym.offeredClasses.some(c => c.toLowerCase().includes(lower))
+    readString(gym.name).toLowerCase().includes(lower) ||
+    readString(gym.description).toLowerCase().includes(lower) ||
+    readString(gym.county).toLowerCase().includes(lower) ||
+    readString(readField(gym.location, 'address'))
+      .toLowerCase()
+      .includes(lower) ||
+    asArray(gym.offeredClasses).some(offeredClass =>
+      readString(offeredClass).toLowerCase().includes(lower)
+    )
   )
 }
 

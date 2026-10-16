@@ -12,6 +12,7 @@ import { getGoogleMapsUrl } from '@/utils/map-utils'
 import { GymCardTestIds } from '@/constants/gymDataTestIds'
 import { DetailItemTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { readField, readString } from '@/utils/untrusted'
 
 const gymCard = uiContent.gyms.card
 
@@ -27,8 +28,11 @@ export const GymDetails = function GymDetails({
   const { location, timetableUrl, socialMedia, offeredClasses, trialOffer } =
     gym
 
-  const headingId = `gym-details-heading-${gym.id ?? gym.name.replaceAll(/\s+/gu, '-')}`
+  const headingId = `gym-details-heading-${gym.id ?? readString(gym.name).replaceAll(/\s+/gu, '-')}`
+  const address = readString(readField(location, 'address'))
+  const venue = readString(readField(location, 'venue'))
   const mapsUrl = getGoogleMapsUrl(location)
+  const place = [address, venue].filter(Boolean).join(', ')
 
   return (
     <section
@@ -40,10 +44,10 @@ export const GymDetails = function GymDetails({
         {gymCard.detailsSrLabel} {gym.name || gymCard.fallbackRef}
       </h4>
 
-      {location.address && (
+      {address && (
         <DetailItem
           icon={<MapPinIcon />}
-          ariaLabel={`Location: ${location.address}, ${location.venue || ''}`}
+          ariaLabel={`${gymCard.locationAriaPrefix} ${place}`}
           data-testid={GymCardTestIds.ADDRESS}
         >
           {mapsUrl ? (
@@ -54,11 +58,11 @@ export const GymDetails = function GymDetails({
               className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-ink-300 dark:hover:text-primary-300"
               data-testid={GymCardTestIds.ADDRESS_LINK}
             >
-              {location.address} {location.venue && `(${location.venue})`}
+              {address} {venue && `(${venue})`}
             </a>
           ) : (
             <span data-testid={GymCardTestIds.ADDRESS_LINK}>
-              {location.address} {location.venue && `(${location.venue})`}
+              {address} {venue && `(${venue})`}
             </span>
           )}
         </DetailItem>

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import type { JSX } from 'react'
 import { Link } from 'react-router'
 import {
@@ -30,10 +31,36 @@ const Navigation = function Navigation(): JSX.Element {
     closeMobileMenu,
   } = useNavigationState()
   const { theme, cycleTheme } = useTheme()
+
+  useEffect(() => {
+    if (!isMobileMenuOpen || isSupportModalOpen) {
+      return
+    }
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') {
+        return
+      }
+      event.preventDefault()
+      closeMobileMenu()
+    }
+    document.addEventListener('keydown', onKeyDown)
+
+    return (): void => {
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isMobileMenuOpen, isSupportModalOpen, closeMobileMenu])
+
   const themeCycle = {
-    light: { Icon: SunIcon, nextLabel: 'Switch to dark mode' },
-    dark: { Icon: MoonIcon, nextLabel: 'Switch to competition mode' },
-    competition: { Icon: FireIcon, nextLabel: 'Switch to light mode' },
+    light: { Icon: SunIcon, nextLabel: uiContent.navigation.switchToDark },
+    dark: {
+      Icon: MoonIcon,
+      nextLabel: uiContent.navigation.switchToCompetition,
+    },
+    competition: {
+      Icon: FireIcon,
+      nextLabel: uiContent.navigation.switchToLight,
+    },
   }[theme]
 
   return (
@@ -96,7 +123,9 @@ const Navigation = function Navigation(): JSX.Element {
                   data-testid={NavigationTestIds.MOBILE_TOGGLE}
                 >
                   <span className="sr-only">
-                    {uiContent.navigation.openMobileMenuLabel}
+                    {isMobileMenuOpen
+                      ? uiContent.navigation.closeMobileMenuLabel
+                      : uiContent.navigation.openMobileMenuLabel}
                   </span>
                   <Bars3Icon className="h-6 w-6" aria-hidden="true" />
                 </button>

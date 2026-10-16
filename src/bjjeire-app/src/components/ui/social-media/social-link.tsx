@@ -2,6 +2,8 @@ import type { JSX } from 'react'
 import type { KnownPlatform } from './social-media.config'
 import { platformConfig } from './social-media.config'
 import { cn } from '@/lib/cn'
+import { uiContent } from '@/config/ui-content'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 
 interface SocialLinkProps {
   platform: KnownPlatform
@@ -15,14 +17,19 @@ export const SocialLink = function SocialLink({
   'data-testid': dataTestId,
 }: SocialLinkProps): JSX.Element | null {
   const { IconComponent, label, hoverTextColorClass } = platformConfig[platform]
+  const href = ensureExternalUrlScheme(url)
+  if (!href) {
+    return null
+  }
+  const linkLabel = `${uiContent.shared.viewOn} ${label}`
 
   return (
     <a
-      href={url}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`View on ${label}`}
-      title={`View on ${label}`}
+      aria-label={linkLabel}
+      title={linkLabel}
       data-testid={dataTestId}
       className={cn(
         'group rounded-full p-1.5 ring-1 ring-transparent transition-all duration-200 ease-in-out',

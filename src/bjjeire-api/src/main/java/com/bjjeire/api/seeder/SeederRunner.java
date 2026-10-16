@@ -84,7 +84,7 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
     }
 
     private int seed(List<SeederCollection> toRun, SeederArgs options) {
-        SeederService seeder = new SeederService(mongoTemplate, options.dryRun());
+        SeederService seeder = new SeederServiceImpl(mongoTemplate, options.dryRun());
         int result = ExitCodes.SUCCESS;
 
         for (SeederCollection collection : toRun) {

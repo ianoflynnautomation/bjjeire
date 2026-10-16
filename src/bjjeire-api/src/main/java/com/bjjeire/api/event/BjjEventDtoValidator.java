@@ -1,12 +1,13 @@
 package com.bjjeire.api.event;
 
 import com.bjjeire.api.common.GeoCoordinates;
+import com.bjjeire.api.common.GeoJsonPoints;
+import com.bjjeire.api.common.HttpUrls;
 import com.bjjeire.api.common.Location;
 import com.bjjeire.api.common.SocialMedia;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -127,7 +128,7 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
     private static void validateCoordinates(GeoCoordinates coordinates, Violations violations) {
         requireString(coordinates.type(), 50, "location.coordinates.type", "Type", violations);
         List<Double> values = coordinates.coordinates();
-        if (values == null || values.size() != 2 || containsNull(values)) {
+        if (!GeoJsonPoints.isPair(values)) {
             violations.add(
                     "location.coordinates.coordinates",
                     "Coordinates must be a [longitude, latitude] pair.",
@@ -135,13 +136,13 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
         } else {
             double longitude = values.get(0);
             double latitude = values.get(1);
-            if (longitude < -180.0 || longitude > 180.0) {
+            if (!GeoJsonPoints.longitudeInRange(longitude)) {
                 violations.add(
                         "location.coordinates.longitude",
                         "Longitude must be between -180 and 180 inclusive.",
                         CODE_INCLUSIVE_BETWEEN);
             }
-            if (latitude < -90.0 || latitude > 90.0) {
+            if (!GeoJsonPoints.latitudeInRange(latitude)) {
                 violations.add(
                         "location.coordinates.latitude",
                         "Latitude must be between -90 and 90 inclusive.",
@@ -425,20 +426,8 @@ public class BjjEventDtoValidator implements ConstraintValidator<ValidBjjEvent, 
         if (url == null || url.isBlank()) {
             return;
         }
-        if (!isValidHttpUrl(url)) {
+        if (!HttpUrls.isHttpOrHttps(url)) {
             violations.add(path, name + " must be a valid URL.", CODE_INVALID_URL);
-        }
-    }
-
-    private static boolean isValidHttpUrl(String url) {
-        try {
-            URI uri = URI.create(url);
-            return uri.isAbsolute()
-                    && ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
-                    && uri.getHost() != null
-                    && !uri.getHost().isBlank();
-        } catch (IllegalArgumentException exception) {
-            return false;
         }
     }
 

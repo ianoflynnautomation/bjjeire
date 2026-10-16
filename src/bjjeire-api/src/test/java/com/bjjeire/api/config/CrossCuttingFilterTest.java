@@ -35,7 +35,8 @@ class CrossCuttingFilterTest {
         mockMvc.perform(post("/test"))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(header().string("Allow", "GET, HEAD, OPTIONS"))
-                .andExpect(jsonPath("$.title").value("Method Not Allowed"));
+                .andExpect(jsonPath("$.title").value("Method Not Allowed"))
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:method-not-allowed"));
     }
 
     @Test
@@ -62,6 +63,7 @@ class CrossCuttingFilterTest {
                 }))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(header().string("Retry-After", "60"))
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:rate-limit-exceeded"))
                 .andExpect(jsonPath("$.title").value("API Rate Limit Exceeded"))
                 .andExpect(jsonPath("$.limit").value(1))
                 .andExpect(jsonPath("$.windowSeconds").value(60));

@@ -3,6 +3,7 @@ import type { GymDto } from '@/types/gyms'
 import { GymHeader, GymDetails, GymFooter } from '.'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 import { Card, CardContent } from '@/components/ui/card/card'
+import { readString } from '@/utils/untrusted'
 
 interface GymCardProps {
   gym: GymDto
@@ -14,7 +15,7 @@ export const GymCard = function GymCard({
   'data-testid': dataTestId,
 }: GymCardProps): JSX.Element {
   const { name, county, status, imageUrl, thumbnailUrl, website } = gym
-  const headingId = `gym-card-heading-${gym.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const headingId = `gym-card-heading-${gym.id ?? readString(name).replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? GymsPageTestIds.LIST_ITEM
 
   return (

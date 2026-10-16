@@ -1,11 +1,16 @@
-import { useRef, type JSX } from 'react'
+import {
+  useLayoutEffect,
+  useRef,
+  type JSX,
+  type MouseEvent,
+  type SyntheticEvent,
+} from 'react'
 import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { ExclamationTriangleIcon } from '@heroicons/react/20/solid'
 import { CloseIcon } from '@/components/ui/icons/close-icon'
 import { SupportModalTestIds } from '@/constants/commonDataTestIds'
 import { API_ROUTES } from '@/config/api-routes'
 import { uiContent } from '@/config/ui-content'
-import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 interface SupportModalProps {
   isOpen: boolean
@@ -17,33 +22,87 @@ const SupportModal = function SupportModal({
   onClose,
 }: SupportModalProps): JSX.Element | null {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
-  const dialogRef = useFocusTrap(isOpen, onClose, closeButtonRef)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const onCloseRef = useRef(onClose)
 
-  const mainTitleId = SupportModalTestIds.TITLE
-  const descriptionId = `${SupportModalTestIds.ROOT}-description`
+  useLayoutEffect(() => {
+    onCloseRef.current = onClose
+  })
+
+  useLayoutEffect(() => {
+    const dialog = dialogRef.current
+    if (!isOpen || !dialog) {
+      return
+    }
+
+    // jsdom's HTMLDialogElement has no showModal/close. Browsers use them for
+    // the focus trap and the inert background. The open attribute alone is
+    // only the fallback so the dialog is not hidden where showModal is missing.
+    if (!dialog.open) {
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal()
+      } else {
+        dialog.open = true
+      }
+    }
+    closeButtonRef.current?.focus()
+
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') {
+        return
+      }
+      event.preventDefault()
+      onCloseRef.current()
+    }
+    document.addEventListener('keydown', onKeyDown)
+
+    return (): void => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = originalOverflow
+      if (typeof dialog.close === 'function') {
+        if (dialog.open) {
+          dialog.close()
+        }
+      } else {
+        dialog.open = false
+      }
+    }
+  }, [isOpen])
 
   if (!isOpen) {
     return null
   }
 
+  const mainTitleId = SupportModalTestIds.TITLE
+  const descriptionId = `${SupportModalTestIds.ROOT}-description`
+
+  const onCancel = (event: SyntheticEvent<HTMLDialogElement>): void => {
+    event.preventDefault()
+    onClose()
+  }
+
+  const onBackdropMouseDown = (event: MouseEvent<HTMLDialogElement>): void => {
+    if (event.target === event.currentTarget) {
+      onClose()
+    }
+  }
+
   return (
-    <div
-      onMouseDown={event => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
-      }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 transition-opacity duration-200 ease-out"
+    <dialog
+      ref={dialogRef}
+      aria-modal="true"
+      aria-labelledby={mainTitleId}
+      aria-describedby={descriptionId}
+      onCancel={onCancel}
+      onMouseDown={onBackdropMouseDown}
       data-testid={SupportModalTestIds.OVERLAY}
+      className="fixed top-1/2 left-1/2 m-0 w-[min(28rem,calc(100%-2rem))] max-w-md -translate-x-1/2 -translate-y-1/2 border-0 bg-transparent p-0 text-fg backdrop:bg-overlay"
     >
-      {/* NOSONAR: <dialog> breaks flex centering via browser default position:absolute — using div+role is intentional */}
       <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={mainTitleId}
-        aria-describedby={descriptionId}
-        className="animate-modal-show w-full max-w-md transform rounded-2xl bg-surface-solid p-6 shadow-card ring-1 ring-hairline sm:p-8"
+        className="animate-modal-show rounded-2xl bg-surface-solid p-6 shadow-card ring-1 ring-hairline sm:p-8"
         data-testid={SupportModalTestIds.CONTENT}
       >
         <header className="mb-6 flex items-center justify-between">
@@ -60,7 +119,7 @@ const SupportModal = function SupportModal({
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="rounded-full p-1.5 text-fg-subtle transition-colors hover:bg-accent-100 hover:text-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 dark:hover:bg-accent-950 dark:hover:text-accent-300"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-fg-subtle transition-colors hover:bg-muted hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"
             aria-label={uiContent.supportModal.closeLabel}
             data-testid={SupportModalTestIds.CLOSE_BUTTON}
           >
@@ -94,7 +153,7 @@ const SupportModal = function SupportModal({
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }
 

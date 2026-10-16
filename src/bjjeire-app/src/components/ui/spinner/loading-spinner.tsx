@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { SpinnerTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 import { cn } from '@/lib/cn'
 
 interface LoadingSpinnerProps {
@@ -41,7 +42,7 @@ const LoadingSpinner = function LoadingSpinner({
         aria-hidden="true"
       />
       {text && <p className={cn('mt-3 text-sm font-medium', color)}>{text}</p>}
-      <span className="sr-only">{text ?? 'Loading...'}</span>
+      <span className="sr-only">{text ?? uiContent.shared.loading}</span>
     </div>
   )
 }

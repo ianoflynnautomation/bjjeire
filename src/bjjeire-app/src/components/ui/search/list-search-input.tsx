@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react'
 import type { JSX, KeyboardEvent } from 'react'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { ListSearchInputTestIds } from '@/constants/commonDataTestIds'
 
 export interface ListSearchContent {
   label: string
@@ -61,7 +62,7 @@ export const ListSearchInput = function ListSearchInput({
           placeholder={content.placeholder}
           disabled={disabled}
           aria-label={content.label}
-          data-testid="search-input"
+          data-testid={ListSearchInputTestIds.INPUT}
           autoComplete="off"
           className="block w-full rounded-lg border border-hairline bg-surface-solid py-2 pl-10 pr-10 text-base text-fg shadow-card ring-1 ring-transparent transition-colors focus:border-primary-500/40 focus:outline-none focus:ring-2 focus:ring-ring-focus sm:text-sm disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70"
         />
@@ -69,9 +70,9 @@ export const ListSearchInput = function ListSearchInput({
           <button
             type="button"
             onClick={onClear}
-            data-testid="search-clear-button"
+            data-testid={ListSearchInputTestIds.CLEAR}
             aria-label={content.clearLabel}
-            className="absolute inset-y-0 right-0 flex items-center pr-3 text-fg-subtle hover:text-fg-muted transition-colors"
+            className="absolute inset-y-0 right-0 flex items-center rounded-md pr-3 text-fg-subtle transition-colors hover:text-fg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"
           >
             <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>

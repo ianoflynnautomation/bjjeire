@@ -9,7 +9,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 class UriServiceTest {
-    private final UriService uriService = new UriService();
+    private final UriService uriService = new UriServiceImpl();
 
     @AfterEach
     void resetRequestContext() {

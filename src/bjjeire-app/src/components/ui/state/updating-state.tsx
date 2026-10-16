@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import { BackgroundFetchingIndicatorTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
 interface BackgroundFetchingIndicatorProps {
   'data-testid'?: string
@@ -15,7 +16,7 @@ const BackgroundFetchingIndicator = function BackgroundFetchingIndicator({
       aria-live="polite"
       data-testid={dataTestId}
     >
-      Updating...
+      {uiContent.shared.updating}
     </div>
   )
 }

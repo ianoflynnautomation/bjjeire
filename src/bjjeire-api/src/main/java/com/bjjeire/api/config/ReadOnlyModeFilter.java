@@ -1,11 +1,11 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.web.ProblemTypes;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
@@ -37,7 +37,7 @@ public class ReadOnlyModeFilter extends OncePerRequestFilter {
                 HttpStatus.METHOD_NOT_ALLOWED,
                 "The API is currently in read-only mode. Write operations are disabled.");
         problem.setTitle("Method Not Allowed");
-        problem.setType(URI.create("https://tools.ietf.org/html/rfc7231#section-6.5.5"));
+        problem.setType(ProblemTypes.METHOD_NOT_ALLOWED);
 
         response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
         response.setHeader("Allow", "GET, HEAD, OPTIONS");

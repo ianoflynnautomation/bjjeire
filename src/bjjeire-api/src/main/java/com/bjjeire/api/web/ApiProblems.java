@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 public final class ApiProblems {
-    private static final URI NOT_FOUND = URI.create("urn:bjjeire:not-found");
-    private static final URI VALIDATION = URI.create("urn:bjjeire:validation-error");
+    private static final URI NOT_FOUND = ProblemTypes.NOT_FOUND;
+    private static final URI VALIDATION = ProblemTypes.VALIDATION;
 
     private ApiProblems() {}
 

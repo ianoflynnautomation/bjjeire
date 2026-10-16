@@ -74,6 +74,11 @@ export const SupportModalTestIds = {
   WARNING: 'support-modal-warning',
 }
 
+export const ListSearchInputTestIds = {
+  INPUT: 'search-input',
+  CLEAR: 'search-clear-button',
+}
+
 export const BadgeTestIds = { ROOT: 'badge' }
 export const CloseIconTestIds = { ROOT: 'close-icon' }
 export const DetailItemTestIds = { ROOT: 'detail-item' }

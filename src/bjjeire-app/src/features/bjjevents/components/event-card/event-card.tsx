@@ -6,6 +6,7 @@ import {
   EventCardTestIds,
 } from '@/constants/eventDataTestIds'
 import { Card, CardContent } from '@/components/ui/card/card'
+import { readString } from '@/utils/untrusted'
 
 interface EventCardProps {
   event: BjjEventDto
@@ -17,7 +18,7 @@ export const EventCard = function EventCard({
   'data-testid': dataTestId,
 }: EventCardProps): JSX.Element {
   const { name, eventUrl, schedule, types, county, imageUrl } = event
-  const headingId = `event-card-heading-${event.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const headingId = `event-card-heading-${event.id ?? readString(name).replaceAll(/\s+/gu, '-').toLowerCase()}`
   const rootTestId = dataTestId ?? EventsPageTestIds.LIST_ITEM
 
   return (

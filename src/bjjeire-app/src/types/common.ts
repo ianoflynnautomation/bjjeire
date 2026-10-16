@@ -32,8 +32,9 @@ export interface MapLocationData {
 export interface GeoCoordinatesDto {
   type: 'Point'
   coordinates: [number, number]
-  latitude: number
-  longitude: number
+  // Derived from coordinates. The served schema omits both when the pair is absent.
+  latitude?: number
+  longitude?: number
   placeName?: string | null
   placeId?: string | null
 }
