@@ -56,7 +56,7 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25
 ### Run with Docker Compose
 
 ```bash
-docker compose --profile app -f docker-compose.yml -f docker-compose.override.local.yml up --build --wait
+docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml up --build --wait
 ```
 
 ```bash

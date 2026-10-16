@@ -7,25 +7,25 @@ const EnvSchema = z.object({
     .enum(['true', 'false'])
     .transform(val => val === 'true')
     .optional()
-    .default('false'),
-  APP_URL: z.string().url().optional().default('http://localhost:60743'),
+    .default(false),
+  APP_URL: z.url().optional().default('http://localhost:60743'),
   APP_MOCK_API_PORT: z.coerce.number().int().positive().optional().default(443),
   PAGE_SIZE: z.coerce.number().int().positive().optional().default(20),
   PAGE_NUMBER: z.coerce.number().int().positive().optional().default(1),
   MSAL_CLIENT_ID: z.string().default(''),
-  MSAL_AUTHORITY: z.union([z.string().url(), z.literal('')]).default(''),
+  MSAL_AUTHORITY: z.union([z.url(), z.literal('')]).default(''),
   MSAL_API_SCOPE: z.string().default(''),
-  CONTACT_EMAIL: z.string().email().optional().default('info@bjj-eire.com'),
+  CONTACT_EMAIL: z.email().optional().default('info@bjj-eire.com'),
   SOCIAL_INSTAGRAM_URL: z
-    .union([z.string().url(), z.literal('')])
+    .union([z.url(), z.literal('')])
     .optional()
     .default(''),
   SOCIAL_FACEBOOK_URL: z
-    .union([z.string().url(), z.literal('')])
+    .union([z.url(), z.literal('')])
     .optional()
     .default(''),
   GITHUB_URL: z
-    .union([z.string().url(), z.literal('')])
+    .union([z.url(), z.literal('')])
     .optional()
     .default(''),
   CF_BEACON_TOKEN: z.string().optional().default(''),
@@ -50,11 +50,11 @@ const createEnv = (): Env => {
   if (!parsedEnv.success) {
     logger.error(
       'Invalid environment variables:',
-      parsedEnv.error.flatten().fieldErrors
+      z.flattenError(parsedEnv.error).fieldErrors
     )
     throw new Error(
       `Invalid environment variables provided.\nThe following variables are missing or invalid:\n${Object.entries(
-        parsedEnv.error.flatten().fieldErrors
+        z.flattenError(parsedEnv.error).fieldErrors
       )
         .map(([k, v]) => `- ${k}: ${v.join(', ')}`)
         .join('\n')}`
