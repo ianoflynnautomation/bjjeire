@@ -16,9 +16,11 @@ and flipping the old one's status — not editing it.
 | [0004](0004-promote-images-by-digest.md) | Images are promoted by digest, never rebuilt for a new tag | Accepted |
 | [0005](0005-flake-analysis-is-advisory.md) | Flake analysis is advisory and excluded from the merge gate | Accepted |
 | [0006](0006-vite-config-is-baked-at-image-build.md) | Frontend configuration is baked in at image build time | Accepted |
-| [0007](0007-dark-theme-only.md) | The SPA ships a single dark theme | Accepted |
+| [0007](0007-dark-theme-only.md) | The SPA ships a single dark theme | Superseded by [0011](0011-light-dark-competition-themes.md) |
 | [0008](0008-ui-strings-and-test-ids-are-centralised.md) | User-visible strings and test IDs live in central modules | Accepted |
 | [0009](0009-audit-report-on-every-pipeline.md) | Every pipeline produces an audit-ready test report | Accepted |
+| [0010](0010-spec-driven-development-and-agentic-workflows.md) | Specs are the living contract; agents run through gh-aw | Accepted |
+| [0011](0011-light-dark-competition-themes.md) | The SPA has light, dark, and competition themes | Accepted |
 
 ## Adding one
 

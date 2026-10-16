@@ -34,6 +34,7 @@ Same empty / network / server-error pattern as gyms.
 - **FR-002**: `expiresAt` TTL eventually removes documents after `endDate + 2y`
 - **FR-003**: Public reads, authenticated writes
 - **FR-004**: Organiser field uses British spelling `organiser` on the wire
+- **FR-005**: A write accepts at most 64 sessions and 16 pricing options
 
 ## Success criteria
 

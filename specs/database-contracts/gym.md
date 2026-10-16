@@ -6,6 +6,11 @@
 **Seeder template**: `seeder/data/gyms/_template.json`
 **API**: `GET/POST /api/v1/gym`, `GET/PUT/DELETE /api/v1/gym/{id}`
 
+Create without an id inserts a new gym. The same id again is 409 and does not
+replay the created response. Update is a full `PUT` and requires the `version`
+from the last read; a missing or stale version is 409. A second delete is 404.
+There is no `Idempotency-Key`.
+
 ## Document
 
 | Field | Mongo | Type | Notes |

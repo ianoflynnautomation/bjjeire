@@ -64,6 +64,7 @@ mockedApiGet.mockResolvedValue(createPaginatedGyms([gym], 1, 1))
 - Unit tests (`*Test`): Mockito for repositories/collaborators, MockMvc standalone for controllers — test services/domain logic in isolation
 - Integration tests (`*IT`): real MongoDB via Testcontainers — extend `testsupport.MongoIntegrationTest`
 - Never mock MongoDB in integration tests — divergence caused prod issues previously
+- The shared `RestTemplate` uses the JDK HTTP client. `HttpURLConnection` drops a 401 body when `WWW-Authenticate` is set, so an assertion on that body looks empty even though the server wrote it
 
 ### Naming
 - Test class: `{ClassUnderTest}Test` (unit) or `{ClassUnderTest}IT` / `{Area}IT` (integration)

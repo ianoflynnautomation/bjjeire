@@ -31,8 +31,10 @@ Invalid values → 400 ProblemDetail.
 | `placeName` | string | |
 | `placeId` | string \| null | |
 
-`latitude()` / `longitude()` are read-only JSON properties derived from the
-array. Dublin example: `[-6.2603, 53.3498]`.
+`latitude` / `longitude` are read-only JSON properties derived from
+`coordinates[1]` and `coordinates[0]`. Jackson omits both when the pair is
+absent, so a venue without a point does not include them. The published
+schema keeps them optional numbers. Dublin example: `[-6.2603, 53.3498]`.
 
 ## `SocialMedia`
 
@@ -46,8 +48,10 @@ array. Dublin example: `[-6.2603, 53.3498]`.
 ## Pagination
 
 Request: `page` (min 1), `pageSize` (1–100, default 20).
-Response: `PagedResponse<T>` with `PaginationMetadata` (page, pageSize,
-totalCount, totalPages, links).
+Response: `PagedResponse<T>` with `pagination` fields `totalItems`,
+`currentPage`, `pageSize`, `totalPages`, `hasNextPage`, `hasPreviousPage`,
+`nextPageUrl`, and `previousPageUrl`. A page past the end has an empty `data`
+array and null link fields.
 
 ## Audit fields (on every aggregate)
 

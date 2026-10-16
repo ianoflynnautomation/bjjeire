@@ -98,7 +98,7 @@ run: mvn verify -Dreports="TestResults"
 ```
 
 ## Browser Tests
-- Run in `mcr.microsoft.com/playwright:v1.61.0-noble` container (Chromium pre-installed)
+- Run in `mcr.microsoft.com/playwright:v1.63.0-noble` container (Chromium pre-installed)
 - Update the Playwright container version when upgrading `@playwright/test` or `@vitest/browser-playwright`
 - Test files: `**/*.browser.test.{ts,tsx}`
 - Screenshots on failure saved to `__screenshots__/` (uploaded as CI artifact)

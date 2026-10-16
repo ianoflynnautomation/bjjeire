@@ -26,7 +26,8 @@ com/bjjeire/api/
   web/           config/          seeder/
 ```
 
-`event/` contains `BjjEventController`, `BjjEventService`,
+`event/` contains `BjjEventController`, `BjjEventService` (the use-case
+interface) and `BjjEventServiceImpl`,
 `BjjEventRepository`, `BjjEvent`, `BjjEventDto`, `BjjEventMapper`,
 `BjjEventDtoValidator`, `BjjEventCostCalculator`, `BjjEventDeactivator`, the
 command and response records, and the enums only that feature uses
@@ -48,6 +49,10 @@ package.
 - Everything one feature needs is in one directory. Adding a feature is one new
   package, not five edits.
 - The blast radius of a feature change is visible from the file tree.
+- A feature service interface lives in the feature package, next to its one
+  implementation (`BjjEventService` / `BjjEventServiceImpl`). Callers depend on
+  the interface. That is not a ports package and does not reverse the rejection
+  of hexagonal layering below.
 - **The pressure is on `common`.** The failure mode is not misplaced feature
   code — it is `common` slowly accumulating types that only two features share,
   until it is the layered design again under a different name. Something

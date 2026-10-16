@@ -31,11 +31,10 @@ paths:
 - No `../../..` relative imports anywhere
 
 ## Styling
-- Tailwind CSS 4 — dark theme only (`class="dark"` on root)
-- Card base: `bg-slate-800/50 backdrop-blur-sm ring-1 ring-white/[0.08]`
-- PageLayout is transparent — never add bg colors there
-- Irish theme: emerald + orange only, no shamrock emojis
-- Use `cn()` from `@/lib/utils` for conditional class merging
+- Tailwind CSS 4. Tokens and the light, dark, and competition values live in `src/index.css`. Use those semantic utilities. Do not add slate glass, raw hex, or a second palette.
+- Themes are light (bright), dark, and competition, owned by `useTheme` ([ADR-0011](../../docs/adr/0011-light-dark-competition-themes.md)). Do not remove one, and do not toggle the theme inside a component.
+- PageLayout stays transparent.
+- Use `cn()` from `@/lib/cn` for conditional class merging
 
 ## UI Components
 - `Button`, `Card`, `CardContent`, `Badge` from `src/components/ui/`

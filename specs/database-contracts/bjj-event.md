@@ -3,7 +3,12 @@
 **Collection**: `BjjEvent`
 **Java**: `com.bjjeire.api.event.BjjEvent`
 **Seeder template**: `seeder/data/bjj-events/_template.json`
-**API**: `/api/v1/bjjevent`
+**API**: `GET/POST /api/v1/bjjevent`, `GET/PUT/DELETE /api/v1/bjjevent/{id}`
+
+Create without an id inserts a new event. The same id again is 409 and does not
+replay the created response. Update is a full `PUT` and requires the `version`
+from the last read; a missing or stale version is 409. A second delete is 404.
+There is no `Idempotency-Key`.
 
 ## Document
 
@@ -20,7 +25,7 @@
 | `statusReason` | `statusReason` | string | |
 | `socialMedia` | `socialMedia` | `SocialMedia` | |
 | `county` | `county` | `County` | |
-| `location` | `location` | `Location` | |
+| `location` | `location` | `Location` | derived `latitude` / `longitude` omitted when the pair is absent |
 | `schedule` | `schedule` | `BjjEventSchedule` | missing `endDate` is stored as `9999-12-31T00:00:00Z` and returned as null |
 | `pricingOptions` | `pricingOptions` | `PricingModel[]` | |
 | `eventUrl` | `eventUrl` | string | |
@@ -49,6 +54,8 @@ Startup fails if any of these cannot be built.
 - `stampExpiry()` stores a missing `endDate` as the open-ended sentinel and
   sets `expiresAt` from a real `endDate + EXPIRY_GRACE` (2 years). The sentinel
   does not get an `expiresAt`.
+- Coordinates `[lng, lat]`. Derived `latitude` / `longitude` are omitted when the pair is absent (same rule as [shared.md](shared.md)).
+- A write accepts at most 64 `schedule.sessions` and 16 `pricingOptions`.
 - Updates require the `version` loaded with the event. A mismatch is HTTP 409.
 - Creates insert. A repeated id is HTTP 409.
 - List filters: pagination + county; client-side name search in the SPA.

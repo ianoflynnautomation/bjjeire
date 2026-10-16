@@ -16,7 +16,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Image tagging or promotion | [ADR-0004](docs/adr/0004-promote-images-by-digest.md) |
 | `atest_analyze` / flaky tests | [ADR-0005](docs/adr/0005-flake-analysis-is-advisory.md) — never add it to an aggregator |
 | Any `VITE_APP_*` value | [ADR-0006](docs/adr/0006-vite-config-is-baked-at-image-build.md) — baked at build time, not runtime |
-| Colours, themes, `PageLayout` | [ADR-0007](docs/adr/0007-dark-theme-only.md) |
+| Colours, themes, `PageLayout` | [ADR-0011](docs/adr/0011-light-dark-competition-themes.md) — light, dark, and competition; `PageLayout` stays transparent |
 | User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
@@ -26,7 +26,18 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 Architecture: [docs/architecture.md](docs/architecture.md).
 Living specs: [specs/](specs/).
 Constitution: [.specify/memory/constitution.md](.specify/memory/constitution.md).
-=======
+
+## Agent layout
+
+One instruction file, one skill tree. Harness folders are links, not copies.
+
+- **Instructions.** This file is the single source of agent instructions. `CLAUDE.md` is an `@AGENTS.md` import so Claude Code loads this file. Edit this file only.
+- **Skills.** Each skill is `.agents/skills/<name>/SKILL.md`. That directory is the copy you edit. `.claude/skills` and `.grok/skills` are symlinks to it. Codex, Cursor, and Copilot read `.agents/skills`. Claude Code reads `.claude/skills`. Grok reads both and keeps one skill per name. Do not add a root `skills/` directory, and do not replace the symlinks with copies or with a Markdown pointer.
+- **Copilot / gh-aw.** `.github/skills/agentic-workflows` is a symlink to `../../.agents/skills/agentic-workflows`.
+- **Rules.** Narrow rules stay in `.claude/rules/`. They are not a second copy of this file.
+- **Commands.** Slash commands live once in `.claude/commands/`. Claude Code and Grok both read that directory.
+- **Subagents.** Claude subagents stay in `.claude/agents/`. Grok agent definitions stay in `.grok/agents/` because the file format differs.
+- **Symlinks.** Relative links. macOS and Linux checkouts follow them. A Windows checkout needs `core.symlinks=true`.
 
 ## Working Style
 
@@ -83,7 +94,7 @@ npm run build
 - All user-visible strings live in `src/bjjeire-app/src/config/ui-content.ts`.
 - Data test IDs come from `src/bjjeire-app/src/constants/*DataTestIds.ts`.
 - CVA variants live in `src/bjjeire-app/src/lib/`.
-- Dark theme only; do not introduce light `PageLayout` backgrounds.
+- Themes are light (bright), dark, and competition, applied by `useTheme`. Do not remove one. `PageLayout` stays transparent.
 - Paginated list endpoints use `usePaginatedQuery`.
 
 ## Testing Guardrails

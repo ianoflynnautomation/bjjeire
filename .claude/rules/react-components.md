@@ -50,12 +50,12 @@ interface MyComponentProps {
 
 ## Styling
 - Tailwind CSS 4 only — no inline styles, no CSS modules
-- Use `cn()` from `@/lib/utils` for conditional classes:
+- Use `cn()` from `@/lib/cn` for conditional classes:
   ```tsx
   className={cn('base-classes', condition && 'conditional-class', className)}
   ```
 - Accept optional `className` prop on reusable components to allow caller overrides
-- Dark theme is always active — use `dark:` variants, never toggle light/dark in components
+- Themes are light (bright), dark, and competition, owned by `useTheme` ([ADR-0011](../../docs/adr/0011-light-dark-competition-themes.md)). Style with the semantic tokens in `src/index.css` and with `dark:` / `competition:` variants. Do not toggle the theme inside a component
 
 ## Accessibility
 - Interactive elements (`button`, `input`, `select`) must have an accessible label (`aria-label` or associated `<label>`)

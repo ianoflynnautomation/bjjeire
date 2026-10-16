@@ -1,6 +1,6 @@
 # ADR-0007: The SPA ships a single dark theme
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0011](0011-light-dark-competition-themes.md)
 - **Date:** 2026-09-09 (recorded; decision predates this record)
 - **Applies to:** `src/bjjeire-app/src/` — layouts, CVA variants in `lib/`, snapshot tests
 

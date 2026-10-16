@@ -67,7 +67,7 @@ com/bjjeire/api/
 ```
 
 A feature package is self-contained. `event/` holds `BjjEventController`,
-`BjjEventService`, `BjjEventRepository`, `BjjEvent`, `BjjEventDto`,
+`BjjEventService` and `BjjEventServiceImpl`, `BjjEventRepository`, `BjjEvent`, `BjjEventDto`,
 `BjjEventMapper`, `BjjEventDtoValidator`, the command/response records, and the
 feature's enums (`EventStatus`, `PricingType`, `WeekDay`) — roughly 25 types
 that only that feature uses.
@@ -132,7 +132,7 @@ Conventions the linters do not catch:
 - **All user-visible strings** live in `config/ui-content.ts`.
 - Data test IDs come from `constants/*DataTestIds.ts` — never inline literals.
 - CVA variants live in `lib/`.
-- **Dark theme only.** Do not introduce light `PageLayout` backgrounds.
+- **Three themes:** light (bright), dark, and competition, applied by `useTheme` ([ADR-0011](adr/0011-light-dark-competition-themes.md)). `PageLayout` stays transparent.
 - Paginated lists use `usePaginatedQuery`.
 - `useSearchParams` tests need `MemoryRouter` from `react-router`.
 
