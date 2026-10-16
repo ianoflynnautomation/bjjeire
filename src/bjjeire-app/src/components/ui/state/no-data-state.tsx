@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { InformationCircleIcon } from '@heroicons/react/20/solid'
 import { NoDataStateTestIds } from '@/constants/commonDataTestIds'
+import { uiContent } from '@/config/ui-content'
 
 interface NoDataStateProps {
   title?: string
@@ -12,9 +13,9 @@ interface NoDataStateProps {
 }
 
 const NoDataState = function NoDataState({
-  title = 'No Items Found',
-  messageLine1 = 'There are currently no items to display.',
-  messageLine2 = 'Try adjusting your filters or check back later.',
+  title = uiContent.shared.emptyTitle,
+  messageLine1 = uiContent.shared.emptyLine1,
+  messageLine2 = uiContent.shared.emptyLine2,
   actionText,
   onActionClick,
   'data-testid': dataTestIdFromProp,
@@ -23,6 +24,7 @@ const NoDataState = function NoDataState({
 
   return (
     <div
+      role="status"
       className="my-10 rounded-xl bg-surface-solid p-6 text-center shadow-card ring-1 ring-hairline"
       data-testid={rootTestId}
     >
@@ -31,12 +33,12 @@ const NoDataState = function NoDataState({
         aria-hidden="true"
         data-testid={NoDataStateTestIds.ICON}
       />
-      <p
+      <h3
         className="mt-3 text-lg font-bold text-fg"
         data-testid={NoDataStateTestIds.TITLE}
       >
         {title}
-      </p>
+      </h3>
       <p
         className="mt-1 text-sm text-fg-subtle"
         data-testid={NoDataStateTestIds.MESSAGE_LINE1}
@@ -51,10 +53,10 @@ const NoDataState = function NoDataState({
         {onActionClick && actionText && (
           <>
             {' '}
-            Or{' '}
+            {uiContent.shared.emptyActionJoiner}{' '}
             <button
               onClick={onActionClick}
-              className="font-semibold text-primary-700 transition-colors hover:text-primary-800 focus:underline focus:outline-none dark:text-primary-300 dark:hover:text-primary-200"
+              className="rounded-sm font-semibold text-primary-700 underline-offset-2 transition-colors hover:text-primary-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-primary-300 dark:hover:text-primary-200"
               data-testid={NoDataStateTestIds.BUTTON}
             >
               {actionText}

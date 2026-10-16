@@ -26,8 +26,8 @@ export const GymFooter = function GymFooter({
     ? gymCard.visitWebsiteButton
     : gymCard.noWebsiteButton
   const label = externalWebsiteUrl
-    ? `Visit website for ${fallback}`
-    : `No website available for ${fallback}`
+    ? `${uiContent.shared.visitWebsiteFor} ${fallback}`
+    : `${uiContent.shared.noWebsiteFor} ${fallback}`
 
   return (
     <div className="mt-auto border-t border-hairline pt-3">

@@ -53,7 +53,7 @@ class BjjEventServiceTest {
     @BeforeEach
     void setUp() {
         cache = new ApiCache();
-        service = new BjjEventService(
+        service = new BjjEventServiceImpl(
                 mongoTemplate, Clock.systemUTC(), auditInfoProvider, auditRecorder, cache, uriService);
     }
 

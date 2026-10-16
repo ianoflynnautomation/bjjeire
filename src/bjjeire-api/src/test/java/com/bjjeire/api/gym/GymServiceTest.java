@@ -51,7 +51,7 @@ class GymServiceTest {
     @BeforeEach
     void setUp() {
         cache = new ApiCache();
-        service = new GymService(mongoTemplate, auditInfoProvider, auditRecorder, cache, uriService);
+        service = new GymServiceImpl(mongoTemplate, auditInfoProvider, auditRecorder, cache, uriService);
     }
 
     @Test
@@ -157,6 +157,42 @@ class GymServiceTest {
     }
 
     @Test
+    void shouldNotServeNonActiveGymFromCacheAfterCreate() {
+        givenAuditContext();
+        givenInsertReturnsItsArgument();
+
+        service.create(new CreateGymCommand(dto(GYM_ID, null, GymStatus.PendingApproval)));
+
+        assertThat(service.getById(GYM_ID)).isEmpty();
+        then(mongoTemplate).should().findById(eq(GYM_ID), eq(Gym.class));
+    }
+
+    @Test
+    void shouldNotServeGymByIdAfterUpdateLeavesItInactive() {
+        givenAuditContext();
+        Gym existing = activeGym(GYM_ID, "Old Name");
+        existing.setVersion(3L);
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
+        given(mongoTemplate.save(any(Gym.class))).willAnswer(invocation -> invocation.getArgument(0));
+
+        service.update(GYM_ID, new UpdateGymCommand(dto(GYM_ID, 3L, GymStatus.PendingApproval)));
+
+        assertThat(service.getById(GYM_ID)).isEmpty();
+        then(mongoTemplate).should(times(2)).findById(GYM_ID, Gym.class);
+    }
+
+    @Test
+    void shouldIgnoreCachedNonActiveGymAndLoadFromMongo() {
+        cache.put(ApiCache.GYMS_TAG, "Gym_Id" + GYM_ID, dto(GYM_ID, null, GymStatus.Rejected));
+        given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(activeGym(GYM_ID, "Now Active"));
+
+        Optional<GymDto> result = service.getById(GYM_ID);
+
+        assertThat(result).isPresent();
+        assertThat(result.orElseThrow().name()).isEqualTo("Now Active");
+    }
+
+    @Test
     void shouldRecordAuditAndEvictCacheWhenDeletingGym() {
         Gym existing = activeGym(GYM_ID, "Doomed Gym");
         given(mongoTemplate.findById(GYM_ID, Gym.class)).willReturn(existing);
@@ -206,15 +242,19 @@ class GymServiceTest {
     }
 
     private static GymDto dto(String id) {
-        return dto(id, null);
+        return dto(id, null, GymStatus.Active);
     }
 
     private static GymDto dto(String id, Long version) {
+        return dto(id, version, GymStatus.Active);
+    }
+
+    private static GymDto dto(String id, Long version, GymStatus status) {
         return new GymDto(
                 id,
                 "BJJ Dublin",
                 "",
-                GymStatus.Active,
+                status,
                 County.Dublin,
                 null,
                 null,

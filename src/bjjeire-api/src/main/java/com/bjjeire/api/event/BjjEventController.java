@@ -59,7 +59,10 @@ public class BjjEventController {
     }
 
     @PostMapping
-    @Operation(summary = "Create new BJJ event")
+    @Operation(summary = "Create new BJJ event", description = """
+                    Not safe to retry without an id. A missing or blank id inserts a new document. \
+                    The same id again returns 409 and does not replay the created response.
+                    """)
     public ResponseEntity<CreateBjjEventResponse> create(@RequestBody @Valid CreateBjjEventCommand command) {
         CreateBjjEventResponse response = bjjEventService.create(command);
         URI location = URI.create(ApiRoutes.BJJ_EVENT + "/" + response.data().id());
@@ -67,7 +70,10 @@ public class BjjEventController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update BJJ event")
+    @Operation(summary = "Update BJJ event", description = """
+                    Replaces the event. Send the full resource and the version from the last read. \
+                    A missing or stale version returns 409. Retry only after reloading.
+                    """)
     public ResponseEntity<UpdateBjjEventResponse> update(
             @PathVariable @ValidObjectId String id, @RequestBody @Valid UpdateBjjEventCommand command) {
 
@@ -79,7 +85,9 @@ public class BjjEventController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete BJJ event")
+    @Operation(
+            summary = "Delete BJJ event",
+            description = "Deletes the event. A second delete of the same id returns 404.")
     public ResponseEntity<Void> delete(@PathVariable @ValidObjectId String id) {
         if (!bjjEventService.delete(id)) {
             throw ApiProblems.notFound();

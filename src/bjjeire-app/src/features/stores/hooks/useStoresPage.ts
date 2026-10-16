@@ -2,6 +2,7 @@ import { env } from '@/config/env'
 import type { StoreDto, GetStorePaginationQuery } from '@/types/stores'
 import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getStores } from '@/features/stores/api/get-stores'
+import { readString } from '@/utils/untrusted'
 
 export const initialStoreFilters: GetStorePaginationQuery = {
   page: env.PAGE_NUMBER,
@@ -11,8 +12,8 @@ export const initialStoreFilters: GetStorePaginationQuery = {
 function storeMatchesSearch(store: StoreDto, term: string): boolean {
   const lower = term.toLowerCase()
   return (
-    store.name.toLowerCase().includes(lower) ||
-    (store.description?.toLowerCase().includes(lower) ?? false)
+    readString(store.name).toLowerCase().includes(lower) ||
+    readString(store.description).toLowerCase().includes(lower)
   )
 }
 

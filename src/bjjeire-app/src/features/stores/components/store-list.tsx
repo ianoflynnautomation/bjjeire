@@ -2,6 +2,7 @@ import type { CSSProperties, JSX } from 'react'
 import type { StoreDto } from '@/types/stores'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { readString } from '@/utils/untrusted'
 import { StoreCard } from './store-card/store-card'
 
 const { list } = uiContent.stores
@@ -21,7 +22,7 @@ export const StoresList = function StoresList({
     >
       {stores.map((store, index) => (
         <li
-          key={store.id}
+          key={store.id ?? `${readString(store.name)}-${index}`}
           className="animate-rise"
           style={{ '--i': index } as CSSProperties}
         >

@@ -1,5 +1,6 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.web.ProblemTypes;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.FilterChain;
@@ -84,7 +85,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         int retryAfterSeconds = Math.max(1, (int) (window.resetAtEpochSecond - now));
         Map<String, Object> problem = new LinkedHashMap<>();
-        problem.put("type", "urn:bjjeire:rate-limit-exceeded");
+        problem.put("type", ProblemTypes.RATE_LIMIT.toString());
         problem.put("title", "API Rate Limit Exceeded");
         problem.put("status", options.rejectionStatusCode());
         problem.put(

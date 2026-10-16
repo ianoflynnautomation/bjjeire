@@ -4,14 +4,15 @@ import { formatDate, formatTime } from '@/utils/date-utils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
+import { asArray, readString } from '@/utils/untrusted'
 
 const { schedule: scheduleContent } = uiContent.events
 
 const MAX_VISIBLE_SESSIONS = 3
 
 function formatSessionLine(session: BjjEventSessionDto): string {
-  const when = session.date ? formatDate(session.date) : (session.day ?? '')
-  const times = `${formatTime(session.startTime)}–${formatTime(session.endTime)}`
+  const when = session.date ? formatDate(session.date) : readString(session.day)
+  const times = `${formatTime(readString(session.startTime))}–${formatTime(readString(session.endTime))}`
   const base = when ? `${when}: ${times}` : times
   return session.title ? `${base} · ${session.title}` : base
 }
@@ -39,8 +40,9 @@ export const EventSchedule = function EventSchedule({
     dateText = `${scheduleContent.endsPrefix} ${formatDate(schedule.endDate)}`
   }
 
-  const sessions = schedule.sessions.slice(0, MAX_VISIBLE_SESSIONS)
-  const extraCount = schedule.sessions.length - sessions.length
+  const allSessions = asArray(schedule.sessions)
+  const sessions = allSessions.slice(0, MAX_VISIBLE_SESSIONS)
+  const extraCount = allSessions.length - sessions.length
 
   return (
     <div className="space-y-1.5" data-testid={dataTestId}>

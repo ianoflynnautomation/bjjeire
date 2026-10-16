@@ -1,5 +1,6 @@
 import type { JSX } from 'react'
 import LoadingSpinner from '@/components/ui/spinner/loading-spinner'
+import { uiContent } from '@/config/ui-content'
 
 export function PageSuspenseFallback(): JSX.Element {
   return (
@@ -7,7 +8,7 @@ export function PageSuspenseFallback(): JSX.Element {
       <LoadingSpinner
         size="lg"
         color="text-primary-500 dark:text-primary-300"
-        text="Loading page..."
+        text={uiContent.shared.loadingPage}
       />
     </div>
   )

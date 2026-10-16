@@ -33,11 +33,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter,
+            SecurityProblemHandlers problemHandlers,
             BjjEireProperties properties)
             throws Exception {
         String writerAuthority = "SCOPE_" + properties.auth().writerScope();
         return http.cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
+                .exceptionHandling(handling ->
+                        handling.authenticationEntryPoint(problemHandlers).accessDeniedHandler(problemHandlers))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 ApiRoutes.FEATURE_FLAG + "/**",
@@ -66,8 +69,9 @@ public class SecurityConfig {
                         .hasAuthority(writerAuthority)
                         .anyRequest()
                         .authenticated())
-                .oauth2ResourceServer(
-                        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+                .oauth2ResourceServer(oauth2 -> oauth2.authenticationEntryPoint(problemHandlers)
+                        .accessDeniedHandler(problemHandlers)
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .build();
     }
 

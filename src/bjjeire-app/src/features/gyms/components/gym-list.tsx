@@ -3,6 +3,7 @@ import type { GymDto } from '@/types/gyms'
 import { GymCard } from './gym-card'
 import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { readString } from '@/utils/untrusted'
 
 interface GymsListProps {
   gyms: GymDto[]
@@ -23,7 +24,7 @@ export const GymsList = function GymsList({
     >
       {gyms.map((gym, index) => (
         <li
-          key={gym.id ?? gym.name}
+          key={gym.id ?? `${readString(gym.name)}-${index}`}
           className="w-full animate-rise"
           style={{ '--i': index } as CSSProperties}
         >

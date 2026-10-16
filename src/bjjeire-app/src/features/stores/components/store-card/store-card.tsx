@@ -9,6 +9,8 @@ import {
 } from '@/constants/storeDataTestIds'
 import { GlobeAltIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
+import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
+import { readString } from '@/utils/untrusted'
 import { StoreCardHeader } from './store-card-header'
 
 const { card } = uiContent.stores
@@ -24,7 +26,8 @@ export const StoreCard = function StoreCard({
 }: StoreCardProps): JSX.Element {
   const { name, description, websiteUrl, logoUrl } = store
 
-  const headingId = `store-card-heading-${store.id ?? name.replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const headingId = `store-card-heading-${store.id ?? readString(name).replaceAll(/\s+/gu, '-').toLowerCase()}`
+  const websiteHref = ensureExternalUrlScheme(websiteUrl)
   const rootTestId = dataTestId ?? StoresPageTestIds.LIST_ITEM
 
   return (
@@ -56,14 +59,14 @@ export const StoreCard = function StoreCard({
         )}
         <div className="mt-auto flex flex-col gap-2 sm:flex-row">
           <CardActionButton
-            href={websiteUrl || undefined}
+            href={websiteHref}
             icon={<GlobeAltIcon className="h-4 w-4" aria-hidden="true" />}
-            aria-label={`${websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton} for ${name}`}
-            title={websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton}
+            aria-label={`${websiteHref ? card.visitWebsiteButton : card.noWebsiteButton} ${uiContent.shared.forLabel} ${readString(name)}`}
+            title={websiteHref ? card.visitWebsiteButton : card.noWebsiteButton}
             data-testid={StoresCardTestIds.WEBSITE_BUTTON}
             className="flex-1"
           >
-            {websiteUrl ? card.visitWebsiteButton : card.noWebsiteButton}
+            {websiteHref ? card.visitWebsiteButton : card.noWebsiteButton}
           </CardActionButton>
         </div>
       </CardContent>

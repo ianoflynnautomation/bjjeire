@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { ButtonHTMLAttributes, JSX } from 'react'
 import type { VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/cn'
@@ -8,7 +9,7 @@ interface ButtonProps
     ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-export function Button({
+export const Button = memo(function Button({
   variant,
   size,
   className,
@@ -20,6 +21,6 @@ export function Button({
       {...props}
     />
   )
-}
+})
 
 export { CardActionButton } from './card-action-button'

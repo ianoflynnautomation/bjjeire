@@ -3,6 +3,7 @@ import { EventCard } from './event-card'
 import type { BjjEventDto } from '@/types/event'
 import { EventsPageTestIds } from '@/constants/eventDataTestIds'
 import { uiContent } from '@/config/ui-content'
+import { readString } from '@/utils/untrusted'
 
 interface EventsListProps {
   events: BjjEventDto[]
@@ -23,7 +24,7 @@ export const EventsList = function EventsList({
     >
       {events.map((event, index) => (
         <li
-          key={event.id}
+          key={event.id ?? `${readString(event.name)}-${index}`}
           className="w-full animate-rise"
           style={{ '--i': index } as CSSProperties}
         >
