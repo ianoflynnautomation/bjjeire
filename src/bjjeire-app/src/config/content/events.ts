@@ -30,7 +30,6 @@ export const events = {
     organiserLinkAriaPrefix: 'Visit organiser website for',
     pricingAriaPrefix: 'Event pricing:',
     moreInfoAriaPrefix: 'Get more information about',
-    noInfoAriaPrefix: 'No information available for',
   },
   schedule: {
     fixedDatesTitle: 'Event Dates & Times',

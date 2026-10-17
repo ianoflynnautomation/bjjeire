@@ -33,6 +33,39 @@ repository provisions the cluster or the edge — see
 A detailed, editable version is
 [`diagrams/architecture.drawio.svg`](diagrams/architecture.drawio.svg).
 
+## End user flow
+
+A visitor reads the public catalogue. `GET` of `/api/v1/featureflag` and of
+the event, gym, competition, store, and donate resources needs no account.
+`/` redirects to the first enabled section among events, gyms, competitions,
+and stores, or to `/about` when none are enabled. `POST`, `PUT`, `PATCH`, and
+`DELETE` require an Entra bearer token with the writer role. The SPA attaches
+that token only on a non-GET request when an MSAL account is present.
+
+```mermaid
+sequenceDiagram
+    participant User as Visitor
+    participant Edge as Cloudflare
+    participant SPA as bjjeire-app
+    participant API as bjjeire-api
+    participant DB as MongoDB
+
+    User->>Edge: Open the site
+    Edge->>SPA: Serve the bundle through Istio
+    SPA->>API: GET /api/v1/featureflag
+    API-->>SPA: Return the enabled sections
+    SPA-->>User: Show events, gyms, competitions, or stores
+    User->>SPA: Open a list
+    SPA->>API: GET /api/v1/gym, bjjevent, competition, or store
+    API->>DB: Read the page
+    DB-->>API: Return documents
+    API-->>SPA: Return JSON
+    SPA-->>User: Render the page
+```
+
+The same sequence is on the [README](../README.md#end-user-flow). Edit both
+together. How a change is built and shipped is the [delivery flow](#delivery-flow).
+
 ## Repository layout
 
 ```
@@ -193,9 +226,67 @@ This repository publishes **images and contracts**. It does not deploy them —
 Flux does, from `bjjeire-gitops`, using the chart from `bjjeire-deploy`.
 A code change reaching production is three repositories' worth of movement.
 
+## Delivery flow
+
+`ci-pr.yml` decides whether a pull request can merge. `ci-main.yml` publishes
+what this repository owns. Neither workflow deploys to a cluster.
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant PR as ci-pr.yml
+    participant Main as ci-main.yml
+    participant GHCR as GHCR
+    participant Rel as release.yml
+    participant Flux as Flux
+    participant Git as bjjeire-gitops
+
+    Dev->>PR: Open a pull request to main
+    PR->>PR: Path filters, then the merge gates
+    PR-->>Dev: pr_complete
+    Dev->>Main: Merge to main
+    par Contracts and images
+        Main->>GHCR: Publish OpenAPI and Pact
+    and
+        Main->>GHCR: Push image digests
+        Main->>GHCR: Tag the accepted digests :main
+    end
+    Rel->>GHCR: Retag :main as vX.Y.Z and latest
+    Flux->>GHCR: Select the highest vX.Y.Z tag in policy range
+    Flux->>Git: Commit the dev overlay tag onto main
+    Git-->>Flux: Reconcile the dev HelmRelease
+    Dev->>Git: Open a pull request for the staging or prod tag
+    Git-->>Dev: Review and merge
+    Git-->>Flux: Reconcile that cluster
+```
+
+Ephemeral acceptance sits between the image push and the `:main` tag when
+`ACCEPTANCE_AKS_ENABLED` is true. While that flag is off, a skipped acceptance
+still allows the tag. Contract publish does not wait for the image build, and
+the image build does not wait for contract publish.
+
+`release.yml` retags `:main` as `vX.Y.Z` and `latest` only when release-please
+cuts a release. It does not wait on `ci-main.yml`. If `:main` is missing, that
+job fails and is re-run after promotion. The dev ImagePolicy matches
+`^vX.Y.Z$`, so a `:main` tag alone does not move the cluster.
+
+Image automation is installed only on the dev cluster
+(`kubernetes/apps/overlays/aks-bjjeire-dev-sdc-01`). `ImageUpdateAutomation`
+checks out `main`, commits `chore(flux): update bjj-eire image tags`, and
+pushes that branch. There is no Flux pull request to review. Staging and prod
+overlays carry `$imagepolicy` markers, and their kustomizations do not install
+the automation. A person opens the pull request that changes those tags.
+After it merges, Flux on that cluster reconciles the HelmRelease.
+
+The sequences to edit when a CI job is added or removed are
+[CI PR](ci-cd.md#ci-pr-sequence) and [CI Main](ci-cd.md#ci-main-sequence).
+Each one is followed by the job DAG in the same file. Keep this picture at the
+workflow boundary. The same sequence is on the
+[README](../README.md#delivery-flow). Edit both together.
+
 ## Where to go next
 
-- [ci-cd.md](ci-cd.md) — CI PR and CI main pipelines in detail
+- [ci-cd.md](ci-cd.md) — CI PR and CI main sequences, job graphs, and path filters
 - [adr/](adr/) — why the platform is shaped this way
 - [contract-testing.md](contract-testing.md) — Pact and OpenAPI workflow
 - [acceptance-ci-debug.md](acceptance-ci-debug.md) — debugging a red acceptance job

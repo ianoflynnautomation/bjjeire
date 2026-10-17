@@ -11,6 +11,12 @@ SHA-pinned per workflow. `node-build-test.yml` is pinned to `f69cd6a…` so
 stay on `513f5c1c…` (v1.6.2), except the OpenAPI breaking gate at v1.8.0.
 Bump a pin in one place per workflow.
 
+The sequence under each pipeline is the handoff. The flowchart under it is the
+job DAG, including which jobs the aggregator requires. When a job is added or
+removed, update both pictures in this file. The end-user flow and the
+delivery flow live in [architecture.md](architecture.md) and are also on the
+README. Do not paste these CI sequences into the README.
+
 | Workflow | Trigger | Purpose |
 |---|---|---|
 | [`ci-pr.yml`](../.github/workflows/ci-pr.yml) | `pull_request` → `main` | Merge gate: lint, security, build, test, contracts, smoke |
@@ -58,6 +64,59 @@ of matched filters. Almost every downstream job is `if:`-gated on
 
 Merge gate. Concurrency is per pull request with `cancel-in-progress: true`, so
 a new push supersedes the running job.
+
+### CI PR sequence
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant PR as ci-pr.yml
+    participant API as bjjeire-api
+    participant SPA as bjjeire-app
+    participant Smoke as Compose smoke
+    participant Gate as pr_complete
+
+    Dev->>PR: Open or update a pull request to main
+    par Always
+        PR->>PR: Lint workflows
+    and
+        PR->>PR: Review dependencies and run SAST
+    and
+        PR->>PR: detect_changes from path-filters.yml
+    end
+
+    par Filtered work
+        PR->>API: mvn verify when java_api matches
+        API-->>PR: Return Surefire and Failsafe results
+    and
+        PR->>API: OpenApiContractIT when java_api matches
+        API-->>PR: Return openapi-v1.json
+        PR->>PR: Breaking gate and SPA typecheck, side by side
+    and
+        PR->>SPA: test:pact when frontend or java_api matches
+        SPA-->>API: Hand over the consumer pact
+        API-->>PR: Return provider verification
+    and
+        PR->>SPA: Typecheck, lint, Vitest, vite build, and browser tests when frontend matches
+        SPA-->>PR: Return frontend results
+    and
+        PR->>Smoke: Seed and run @smoke when compose matches, or the run-smoke label is set
+        Smoke-->>PR: Return smoke results
+    end
+
+    Note over Smoke,Gate: atest_analyze scores flakes after smoke and is not a pr_complete need
+    PR->>PR: Package reports and write the audit PDF
+    PR->>Gate: check-required-jobs
+    Gate-->>Dev: PR Checks Complete
+```
+
+A job whose filter did not match is skipped, and `pr_complete` counts that
+skip as a pass. A docs-only change matches `paths-ignore`, so this workflow
+does not start. OpenAPI export runs beside `mvn verify` because the Maven
+reusable workflow does not publish the spec artifact. `atest_analyze` still
+shows in the checks list.
+
+### CI PR job graph
 
 ```mermaid
 flowchart TD
@@ -154,6 +213,58 @@ Adding a job to the pipeline does not gate merges until you also add it to
 Runs on push to `main`. Concurrency is per ref with
 **`cancel-in-progress: false`** — main runs queue rather than cancel, so a
 promotion is never interrupted halfway.
+
+### CI Main sequence
+
+```mermaid
+sequenceDiagram
+    participant Push as Push to main
+    participant CI as ci-main.yml
+    participant API as bjjeire-api
+    participant SPA as bjjeire-app
+    participant GHCR as GHCR
+    participant AKS as AKS
+    participant Gate as main_complete
+
+    Push->>CI: Start CI Main Delivery
+    CI->>CI: detect_changes from path-filters.yml
+
+    par Tests, contracts, and images
+        CI->>API: mvn verify when java_api matches
+        API-->>CI: Return test results
+        CI->>GHCR: Build and push images when an image filter matches
+        GHCR-->>CI: Return digests
+        CI->>AKS: @acceptance when ACCEPTANCE_AKS_ENABLED is true
+        AKS-->>CI: Return a pass, or skip while the flag is off
+        CI->>GHCR: Tag each built digest as :main
+        GHCR-->>CI: Confirm promotion
+    and
+        CI->>API: OpenApiContractIT when java_api or frontend matches
+        API-->>CI: Return openapi-v1.json
+        CI->>SPA: test:pact, started with the OpenAPI export
+        SPA-->>API: Hand over the consumer pact
+        API-->>CI: Return provider verification
+        CI->>GHCR: Breaking gate, then publish both contracts
+        GHCR-->>CI: Tag sha, main, and latest
+    and
+        CI->>SPA: Vitest unit and integration when frontend matches
+        SPA-->>CI: Return JUnit results
+    end
+
+    Note over AKS,Gate: atest_analyze writes the trunk flake baseline and is not a main_complete need
+    CI->>Gate: Audit PDF and check-required-jobs
+    Gate-->>Push: Main Delivery Complete
+```
+
+Image build waits until `java_build_test` has succeeded or was skipped. It does
+not wait for contract publish. On `main`, a `build_push` that starts builds the
+API, frontend, and seeder images. OpenAPI export and pact generation start
+together; publish waits for both, and for provider verification. Promotion
+runs only when the build succeeded and acceptance succeeded or was skipped. An
+empty digest is left on its previous `:main` tag. `atest_analyze` is outside
+`main_complete`.
+
+### CI Main job graph
 
 ```mermaid
 flowchart TD

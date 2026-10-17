@@ -18,7 +18,7 @@ describe('GymFooter', () => {
       const { getByRole } = render(
         <GymFooter {...defaultProps} websiteUrl={websiteUrl} />
       )
-      const expectedAriaLabel = `No website available for ${defaultProps.gymName}`
+      const expectedAriaLabel = `Website Unavailable for ${defaultProps.gymName}`
       const button = getByRole('button', { name: expectedAriaLabel })
 
       expect(button).toBeInTheDocument()
@@ -52,7 +52,7 @@ describe('GymFooter', () => {
       <GymFooter gymName="" websiteUrl={undefined} />
     )
 
-    const expectedAriaLabel = 'No website available for this gym'
+    const expectedAriaLabel = 'Website Unavailable for this gym'
     const button = getByRole('button', { name: expectedAriaLabel })
 
     expect(button).toBeInTheDocument()

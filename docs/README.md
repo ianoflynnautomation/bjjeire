@@ -2,8 +2,8 @@
 
 | Doc | Contents |
 |---|---|
-| [architecture.md](architecture.md) | Runtime topology, package-by-feature API, frontend structure, contracts, repository boundaries |
-| [ci-cd.md](ci-cd.md) | **CI PR** and **CI main** pipelines in detail — job DAGs, path filters, gating, promotion, secrets |
+| [architecture.md](architecture.md) | Runtime topology, end user flow, delivery flow, package-by-feature API, repository boundaries |
+| [ci-cd.md](ci-cd.md) | **CI PR** and **CI main** sequences and job DAGs, path filters, gating, promotion, secrets |
 | [testing-strategy.md](testing-strategy.md) | Spec-To-Check overlay, test-layer matrix, agent TDD rules, contract/flake/property-based upgrades |
 | [Playwright agents](../specs/playwright/README.md) | Planner/generator/healer plans in this repo; executable tests in `bjjeire-tests` |
 | [adr/](adr/) | Architecture decision records — *why* it is built this way |

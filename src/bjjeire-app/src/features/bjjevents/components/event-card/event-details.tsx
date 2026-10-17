@@ -41,6 +41,17 @@ export const EventDetails = function EventDetails({
   const organiserDisplay = formatOrganiserDisplay(organiser)
   const organiserUrl = ensureExternalUrlScheme(organiser?.website)
   const mapsUrl = getGoogleMapsUrl(location)
+  const addressText =
+    [location?.address, location?.venue, eventCard.viewOnMap].find(
+      (value): value is string => Boolean(value)
+    ) ?? eventCard.viewOnMap
+  const mapsLinkLabel = `${addressText}. ${eventCard.mapsLinkPrefix} ${name || eventCard.mapsFallbackName} ${eventCard.mapsLinkSuffix}`
+  const organiserText = organiserDisplay
+    ? `${eventCard.organisedByLabel}: ${organiserDisplay}`
+    : undefined
+  const organiserLinkLabel = organiserText
+    ? `${organiserText}. ${eventCard.organiserLinkAriaPrefix} ${name || eventCard.fallbackRef}`
+    : undefined
 
   return (
     <section
@@ -67,14 +78,14 @@ export const EventDetails = function EventDetails({
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-ink-300 dark:hover:text-primary-300"
-              aria-label={`${eventCard.mapsLinkPrefix} ${name || eventCard.mapsFallbackName} ${eventCard.mapsLinkSuffix}`}
+              aria-label={mapsLinkLabel}
               data-testid={EventCardTestIds.ADDRESS_LINK}
             >
-              {location.address || location.venue || eventCard.viewOnMap}
+              {addressText}
             </a>
           ) : (
             <span data-testid={EventCardTestIds.ADDRESS_LINK}>
-              {location.address || location.venue || eventCard.viewOnMap}
+              {addressText}
             </span>
           )}
         </DetailItem>
@@ -92,10 +103,10 @@ export const EventDetails = function EventDetails({
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-sm text-fg-muted underline-offset-2 transition-colors hover:text-primary-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-ink-300 dark:hover:text-primary-300"
-              aria-label={`${eventCard.organiserLinkAriaPrefix} ${name || eventCard.fallbackRef}`}
+              aria-label={organiserLinkLabel}
               data-testid={EventCardTestIds.ORGANISER_LINK}
             >
-              {eventCard.organisedByLabel}: {organiserDisplay}
+              {organiserText}
             </a>
           ) : (
             <span data-testid={EventCardTestIds.ORGANISER_LINK}>

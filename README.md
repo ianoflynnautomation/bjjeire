@@ -23,8 +23,8 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25
 
 | | |
 |---|---|
-| **[Architecture](docs/architecture.md)** | Runtime topology, package-by-feature API, frontend structure, contracts, repository boundaries |
-| **[CI/CD](docs/ci-cd.md)** | CI PR and CI main pipelines — job graphs, path filters, gating, promotion |
+| **[Architecture](docs/architecture.md)** | Runtime topology, package-by-feature API. The [end user flow](#end-user-flow) and [delivery flow](#delivery-flow) are below |
+| **[CI/CD](docs/ci-cd.md)** | [CI PR sequence](docs/ci-cd.md#ci-pr-sequence), [CI Main sequence](docs/ci-cd.md#ci-main-sequence), job graphs, path filters, promotion |
 | **[Decisions (ADRs)](docs/adr/)** | Why the API is package-by-feature, why contracts ship as OCI artifacts, why flake analysis gates nothing |
 | **[All docs](docs/)** | Full index |
 | **[AGENTS.md](AGENTS.md)** | Conventions and guardrails — for coding agents and new contributors alike |
@@ -57,6 +57,8 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25
 
 ```bash
 docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml up --build --wait
+
+docker compose --profile seed -f docker-compose.yml -f docker-compose.override.java-local.yml run --rm --build seeder
 ```
 
 ```bash
@@ -109,6 +111,35 @@ npm install
 npm run dev
 ```
 
+## End user flow
+
+A visitor reads the public catalogue. List and detail GETs need no account.
+Home sends the visitor to the first enabled section, or to About when none
+are enabled. A write sends an Entra bearer token and needs the writer role.
+
+```mermaid
+sequenceDiagram
+    participant User as Visitor
+    participant Edge as Cloudflare
+    participant SPA as bjjeire-app
+    participant API as bjjeire-api
+    participant DB as MongoDB
+
+    User->>Edge: Open the site
+    Edge->>SPA: Serve the bundle through Istio
+    SPA->>API: GET /api/v1/featureflag
+    API-->>SPA: Return the enabled sections
+    SPA-->>User: Show events, gyms, competitions, or stores
+    User->>SPA: Open a list
+    SPA->>API: GET /api/v1/gym, bjjevent, competition, or store
+    API->>DB: Read the page
+    DB-->>API: Return documents
+    API-->>SPA: Return JSON
+    SPA-->>User: Render the page
+```
+
+The same picture is in [docs/architecture.md](docs/architecture.md#end-user-flow).
+
 ## Testing
 
 Backend:
@@ -126,8 +157,56 @@ bash build-react.sh
 ## CI/CD
 
 GitHub Actions build, test, release, and publish Docker images and contracts to
-GHCR. **Full detail — job graphs, gating rules, and failure modes — is in
-[docs/ci-cd.md](docs/ci-cd.md).**
+GHCR. Job sequences, gating rules, and failure modes are in
+[docs/ci-cd.md](docs/ci-cd.md).
+
+### Delivery flow
+
+`ci-pr.yml` decides whether a pull request can merge. `ci-main.yml` publishes
+what this repository owns. Neither workflow deploys to a cluster.
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant PR as ci-pr.yml
+    participant Main as ci-main.yml
+    participant GHCR as GHCR
+    participant Rel as release.yml
+    participant Flux as Flux
+    participant Git as bjjeire-gitops
+
+    Dev->>PR: Open a pull request to main
+    PR->>PR: Path filters, then the merge gates
+    PR-->>Dev: pr_complete
+    Dev->>Main: Merge to main
+    par Contracts and images
+        Main->>GHCR: Publish OpenAPI and Pact
+    and
+        Main->>GHCR: Push image digests
+        Main->>GHCR: Tag the accepted digests :main
+    end
+    Rel->>GHCR: Retag :main as vX.Y.Z and latest
+    Flux->>GHCR: Select the highest vX.Y.Z tag in policy range
+    Flux->>Git: Commit the dev overlay tag onto main
+    Git-->>Flux: Reconcile the dev HelmRelease
+    Dev->>Git: Open a pull request for the staging or prod tag
+    Git-->>Dev: Review and merge
+    Git-->>Flux: Reconcile that cluster
+```
+
+Ephemeral acceptance sits between the image push and the `:main` tag when
+`ACCEPTANCE_AKS_ENABLED` is true. While that flag is off, a skipped acceptance
+still allows the tag. Contract publish and the image build overlap.
+
+`release.yml` retags `:main` only when release-please cuts a release, and it
+does not wait on `ci-main.yml`. Flux follows `vX.Y.Z`, not `:main`. On dev,
+image automation commits that tag straight to `bjjeire-gitops` `main`. It does
+not open a pull request. Staging and prod change through a reviewed pull
+request in that repo, and Flux reconciles after the merge.
+
+The same picture is in [docs/architecture.md](docs/architecture.md#delivery-flow).
+The job sequences are [CI PR](docs/ci-cd.md#ci-pr-sequence) and
+[CI Main](docs/ci-cd.md#ci-main-sequence).
 
 | Workflow | File | Purpose |
 |---|---|---|

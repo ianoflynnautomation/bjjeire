@@ -26,7 +26,7 @@ export const shared = {
     ofSeparator: 'of',
     itemsSuffix: 'items',
     pageAriaPrefix: 'Page',
-    prevButton: 'Prev',
+    prevButton: 'Previous',
     prevButtonAriaLabel: 'Previous page',
     nextButton: 'Next',
     nextButtonAriaLabel: 'Next page',

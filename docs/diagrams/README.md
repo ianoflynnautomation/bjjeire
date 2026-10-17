@@ -46,6 +46,9 @@ production through three of them. Only the leftmost two columns are owned by
 this repository; the rest is context. See
 [../architecture.md](../architecture.md#repository-boundaries).
 
-The Mermaid diagrams in [../ci-cd.md](../ci-cd.md) carry the **job-level** CI
-DAGs — this file deliberately summarises each pipeline as one box. Update the
-Mermaid for job changes; reach for this file when the shape of delivery changes.
+The Mermaid in [../ci-cd.md](../ci-cd.md) carries the **job-level** sequences
+and DAGs. [../architecture.md](../architecture.md) carries the end-user flow
+and the delivery flow. Both sequences are also shown in the root README; edit
+both copies together. This file summarises each pipeline as one box. Update
+the Mermaid when a job changes, and this file when the shape of delivery
+changes. Do not paste the CI sequences into the README.

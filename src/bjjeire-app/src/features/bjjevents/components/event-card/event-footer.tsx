@@ -26,7 +26,7 @@ export const EventFooter = function EventFooter({
     : eventCard.noInfoButton
   const ariaLabel = externalEventUrl
     ? `${eventCard.moreInfoAriaPrefix} ${fallback}`
-    : `${eventCard.noInfoAriaPrefix} ${fallback}`
+    : `${buttonText} ${uiContent.shared.forLabel} ${fallback}`
   const title = externalEventUrl
     ? `${uiContent.shared.visitWebsiteFor} ${fallback}`
     : `${uiContent.shared.noWebsiteFor} ${fallback}`
