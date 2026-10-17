@@ -19,7 +19,7 @@ describe('EventDetails', () => {
     it('given an organiser with a website, when details render, then the organiser is a safe external link', () => {
       render(<EventDetails event={MOCK_EVENT_FULL} />)
       const link = screen.getByRole('link', {
-        name: /visit organiser website for dublin open mat/i,
+        name: /organised by: grapplingireland\.ie\. visit organiser website for dublin open mat/i,
       })
       expect(link).toHaveAttribute('href', 'https://grapplingireland.ie')
       expect(link).toHaveAttribute('target', '_blank')
@@ -44,7 +44,7 @@ describe('EventDetails', () => {
     it('given a location, when details render, then a Google Maps link is shown', () => {
       render(<EventDetails event={MOCK_EVENT_FULL} />)
       const link = screen.getByRole('link', {
-        name: /view dublin open mat location on google maps/i,
+        name: /12 grand canal dock, dublin, d02 a1b2\. view dublin open mat location on google maps/i,
       })
       expect(link).toBeInTheDocument()
     })

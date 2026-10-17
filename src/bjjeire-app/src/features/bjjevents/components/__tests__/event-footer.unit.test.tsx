@@ -17,7 +17,7 @@ describe('EventFooter', () => {
       const { getByRole } = render(
         <EventFooter {...defaultProps} eventUrl={eventUrl} />
       )
-      const expectedAriaLabel = `No information available for ${defaultProps.eventName}`
+      const expectedAriaLabel = `Information Unavailable for ${defaultProps.eventName}`
       const button = getByRole('button', { name: expectedAriaLabel })
 
       expect(button).toBeInTheDocument()
@@ -60,7 +60,7 @@ describe('EventFooter', () => {
       <EventFooter eventName="" eventUrl={undefined} />
     )
 
-    const expectedAriaLabel = 'No information available for this event'
+    const expectedAriaLabel = 'Information Unavailable for this event'
     const button = getByRole('button', { name: expectedAriaLabel })
 
     expect(button).toBeInTheDocument()
