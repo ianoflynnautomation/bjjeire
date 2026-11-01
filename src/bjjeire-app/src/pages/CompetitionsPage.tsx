@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { CompetitionsList } from '@/features/competitions/components/competitions-list'
 import { CompetitionsPageHeader } from '@/features/competitions/components/competitions-page-header'
 import { ListSearchInput } from '@/components/ui/search/list-search-input'
@@ -10,6 +11,7 @@ import { CompetitionsPageTestIds } from '@/constants/competitionDataTestIds'
 const { search, errors, noData } = uiContent.competitions
 
 export default function CompetitionsPage(): JSX.Element {
+  useDocumentTitle(uiContent.competitions.documentTitle)
   const page = useCompetitionsPage()
   const {
     filteredItems: filteredCompetitions,
@@ -33,7 +35,7 @@ export default function CompetitionsPage(): JSX.Element {
         />
       }
       filterBar={
-        <div className="sm:w-160 shrink-0">
+        <div className="w-full sm:max-w-160">
           <ListSearchInput
             inputId="competition-search"
             content={search}

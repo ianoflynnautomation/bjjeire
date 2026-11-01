@@ -1,32 +1,30 @@
 export const competitions = {
+  documentTitle: 'BJJ Competitions | BJJ Éire',
   pageTitle: {
-    all: 'BJJ Competition Organisations',
+    all: 'BJJ Competitions',
     foundPrefix: 'Found',
-    foundSuffixSingular: 'organisation.',
-    foundSuffixPlural: 'organisations.',
-  },
-  filters: {
-    organisationLabel: 'Organisation',
-    allOrganisationsOption: 'All Organisations',
+    foundSuffixSingular: 'competition.',
+    foundSuffixPlural: 'competitions.',
   },
   hero: {
-    tagline: 'BJJ Competition Organisations',
+    tagline: 'BJJ Competitions',
     subtitle:
-      'Links to official websites for Brazilian Jiu-Jitsu active competition organisations in Ireland and internationally.',
+      'Find Brazilian Jiu-Jitsu competitions in Ireland and internationally, with links to their official websites.',
     imageAlt: 'BJJ Éire competitions banner',
   },
   search: {
     label: 'Search competitions',
-    placeholder: 'Search by name, organisation, country…',
+    placeholder: 'Search by name',
     clearLabel: 'Clear search',
     resultsSrPrefix: 'Showing',
     resultsSrSuffix: 'competitions',
     noResultsTitle: 'No Results Found',
     noResultsMessage:
       'No competitions matched your search. Try different keywords.',
+    noResultsHint: 'Check the spelling or try fewer words.',
   },
   list: {
-    ariaLabel: 'Brazilian Jiu-Jitsu competition organisations',
+    ariaLabel: 'Brazilian Jiu-Jitsu competitions',
   },
   errors: {
     loadFailed: 'Failed to load competitions. Please try again.',
