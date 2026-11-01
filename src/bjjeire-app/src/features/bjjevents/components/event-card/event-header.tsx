@@ -60,7 +60,7 @@ export const EventHeader = function EventHeader({
       </div>
 
       <div className="flex flex-col gap-1.5 p-3 pb-2">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <h3
             id={headingId}
             data-testid={EventCardTestIds.NAME}

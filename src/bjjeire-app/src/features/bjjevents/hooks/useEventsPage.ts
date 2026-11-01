@@ -1,13 +1,15 @@
 import { useCallback, useMemo } from 'react'
 import type { County } from '@/constants/counties'
 import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
-import type { BjjEventType } from '@/types/event'
+import { BjjEventType } from '@/types/event'
 import { env } from '@/config/env'
 import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getBjjEvents } from '@/features/bjjevents/api/get-bjj-events'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
-import { readField, readString } from '@/utils/untrusted'
+import { countyUrlFilter, type ListUrlFilter } from '@/utils/list-url-state'
+import { textMatchesSearch } from '@/utils/search-text'
+import { readField } from '@/utils/untrusted'
 
 export const initialEventFilters: GetBjjEventsPaginationQuery = {
   county: 'all',
@@ -16,17 +18,29 @@ export const initialEventFilters: GetBjjEventsPaginationQuery = {
   pageSize: env.PAGE_SIZE,
 }
 
+const KNOWN_EVENT_TYPES = new Set<string>(Object.values(BjjEventType))
+
+const EVENT_URL_FILTERS: readonly ListUrlFilter<GetBjjEventsPaginationQuery>[] =
+  [
+    countyUrlFilter<GetBjjEventsPaginationQuery>(),
+    {
+      key: 'types',
+      read: values =>
+        values.filter((value): value is BjjEventType =>
+          KNOWN_EVENT_TYPES.has(value)
+        ),
+      write: value => (Array.isArray(value) ? value : []),
+    },
+  ]
+
 function eventMatchesSearch(event: BjjEventDto, term: string): boolean {
-  const lower = term.toLowerCase()
-  return (
-    readString(event.name).toLowerCase().includes(lower) ||
-    readString(event.description).toLowerCase().includes(lower) ||
-    readString(event.county).toLowerCase().includes(lower) ||
-    readString(readField(event.location, 'address'))
-      .toLowerCase()
-      .includes(lower) ||
-    readString(readField(event.organiser, 'name')).toLowerCase().includes(lower)
-  )
+  return [
+    event.name,
+    event.description,
+    event.county,
+    readField(event.location, 'address'),
+    readField(event.organiser, 'name'),
+  ].some(value => textMatchesSearch(value, term))
 }
 
 type EventFilterKey = keyof Omit<
@@ -51,6 +65,7 @@ export function useEventsPage(): UseEventsPageResult {
     fetchFn: getBjjEvents,
     initialParams: initialEventFilters,
     matchesSearch: eventMatchesSearch,
+    urlFilters: EVENT_URL_FILTERS,
   })
 
   const { activeFilters, updateFilters } = listPage

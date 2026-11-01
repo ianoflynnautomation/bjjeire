@@ -1,6 +1,10 @@
 import type { JSX } from 'react'
 import type { BjjEventDto, BjjEventSessionDto } from '@/types/event'
-import { formatDate, formatTime } from '@/utils/date-utils'
+import {
+  formatDate,
+  formatIrishDateRange,
+  formatTime,
+} from '@/utils/date-utils'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
@@ -32,10 +36,9 @@ export const EventSchedule = function EventSchedule({
 
   let dateText = ''
   if (schedule.startDate) {
-    dateText = formatDate(schedule.startDate)
-    if (schedule.endDate && schedule.endDate !== schedule.startDate) {
-      dateText += ` – ${formatDate(schedule.endDate)}`
-    }
+    dateText =
+      formatIrishDateRange(schedule.startDate, schedule.endDate) ??
+      formatDate(schedule.startDate)
   } else if (schedule.endDate) {
     dateText = `${scheduleContent.endsPrefix} ${formatDate(schedule.endDate)}`
   }

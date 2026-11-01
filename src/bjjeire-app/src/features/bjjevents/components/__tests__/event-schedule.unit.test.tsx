@@ -33,7 +33,7 @@ describe('EventSchedule', () => {
           }}
         />
       )
-      expect(screen.getByText('April 1, 2026')).toBeInTheDocument()
+      expect(screen.getByText('1 April 2026')).toBeInTheDocument()
     })
 
     it('given differing start and end dates, when the schedule renders, then a date range is shown', () => {
@@ -48,7 +48,7 @@ describe('EventSchedule', () => {
         />
       )
       expect(
-        screen.getByText('April 1, 2026 – April 3, 2026')
+        screen.getByText('1–3 April 2026')
       ).toBeInTheDocument()
     })
 
@@ -63,7 +63,7 @@ describe('EventSchedule', () => {
           }}
         />
       )
-      expect(screen.getByText('April 1, 2026')).toBeInTheDocument()
+      expect(screen.getByText('1 April 2026')).toBeInTheDocument()
       expect(screen.queryByText(/–/)).not.toBeInTheDocument()
     })
 
@@ -77,7 +77,7 @@ describe('EventSchedule', () => {
           }}
         />
       )
-      expect(screen.getByText('Ends April 5, 2026')).toBeInTheDocument()
+      expect(screen.getByText('Ends 5 April 2026')).toBeInTheDocument()
     })
 
     it('given dated sessions with titles, when the schedule renders, then the date and title are shown', () => {
@@ -98,7 +98,7 @@ describe('EventSchedule', () => {
           }}
         />
       )
-      expect(screen.getByText(/July 25, 2026: /)).toBeInTheDocument()
+      expect(screen.getByText(/25 July 2026: /)).toBeInTheDocument()
       expect(screen.getByText(/Day 1 — Gi/)).toBeInTheDocument()
     })
   })

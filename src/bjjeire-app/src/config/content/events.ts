@@ -1,4 +1,5 @@
 export const events = {
+  documentTitle: 'BJJ Events in Ireland | BJJ Éire',
   pageTitle: {
     all: 'All BJJ Events',
     prefix: 'BJJ Events in',

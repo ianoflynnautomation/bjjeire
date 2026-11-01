@@ -19,7 +19,7 @@ describe('EventDetails', () => {
     it('given an organiser with a website, when details render, then the organiser is a safe external link', () => {
       render(<EventDetails event={MOCK_EVENT_FULL} />)
       const link = screen.getByRole('link', {
-        name: /organised by: grapplingireland\.ie\. visit organiser website for dublin open mat/i,
+        name: /organised by: grappling ireland\. visit organiser website for dublin open mat/i,
       })
       expect(link).toHaveAttribute('href', 'https://grapplingireland.ie')
       expect(link).toHaveAttribute('target', '_blank')
