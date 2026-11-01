@@ -38,7 +38,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/sync-labels.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
     with:
       labels-file: .github/labels.yml
 
