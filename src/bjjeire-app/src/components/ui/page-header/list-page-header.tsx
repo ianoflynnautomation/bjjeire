@@ -11,6 +11,7 @@ interface ListPageHeaderProps {
   title: string
   totalLabel?: string
   showTotal?: boolean
+  titleAs?: 'h1' | 'h2'
   testIds: ListPageHeaderTestIds
 }
 
@@ -18,6 +19,7 @@ export const ListPageHeader = function ListPageHeader({
   title,
   totalLabel,
   showTotal = false,
+  titleAs: Title = 'h2',
   testIds,
 }: ListPageHeaderProps): JSX.Element {
   return (
@@ -27,12 +29,12 @@ export const ListPageHeader = function ListPageHeader({
     >
       <TricolorEdge />
       <div className="relative">
-        <h2
+        <Title
           className="display-expanded text-3xl font-bold text-fg sm:text-4xl"
           data-testid={testIds.title}
         >
           {title}
-        </h2>
+        </Title>
         {showTotal && totalLabel && (
           <p
             className="mt-3 inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-fg-muted ring-1 ring-hairline"

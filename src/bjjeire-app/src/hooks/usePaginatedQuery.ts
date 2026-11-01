@@ -25,6 +25,7 @@ interface PaginatedQueryResult<T, TParams> {
   params: TParams
   handlePageChange: (url: string | null, page?: number) => void
   updateFilters: (newFilters: Partial<TParams>) => void
+  syncState: (filters: Partial<TParams>, page: number) => void
   refetch: () => Promise<QueryObserverResult<PaginatedResponse<T>>>
 }
 
@@ -36,6 +37,7 @@ interface QueryState<TParams> {
 type QueryAction<TParams> =
   | { type: 'SET_PAGE'; page: number }
   | { type: 'UPDATE_FILTERS'; filters: Partial<TParams> }
+  | { type: 'SYNC'; filters: Partial<TParams>; page: number }
 
 function queryReducer<TParams extends { page?: number }>(
   state: QueryState<TParams>,
@@ -49,7 +51,32 @@ function queryReducer<TParams extends { page?: number }>(
         params: { ...state.params, ...action.filters, page: 1 },
         currentPage: 1,
       }
+    case 'SYNC':
+      return {
+        params: { ...state.params, ...action.filters, page: action.page },
+        currentPage: action.page,
+      }
   }
+}
+
+export function resolvePageTarget(url: string | null, page?: number): number {
+  if (page !== undefined) {
+    return page
+  }
+  if (url) {
+    try {
+      const pageParam = new URL(url).searchParams.get('page')
+      if (pageParam) {
+        return Number.parseInt(pageParam, 10)
+      }
+    } catch (err) {
+      logger.warn(
+        'usePaginatedQuery: malformed pagination URL, defaulting to page 1',
+        err
+      )
+    }
+  }
+  return 1
 }
 
 export function usePaginatedQuery<T, TParams extends { page?: number }>({
@@ -74,29 +101,15 @@ export function usePaginatedQuery<T, TParams extends { page?: number }>({
   })
 
   const handlePageChange = useCallback((url: string | null, page?: number) => {
-    if (page !== undefined) {
-      dispatch({ type: 'SET_PAGE', page })
-      return
-    }
-    if (url) {
-      try {
-        const pageParam = new URL(url).searchParams.get('page')
-        if (pageParam) {
-          dispatch({ type: 'SET_PAGE', page: Number.parseInt(pageParam, 10) })
-          return
-        }
-      } catch (err) {
-        logger.warn(
-          'usePaginatedQuery: malformed pagination URL, defaulting to page 1',
-          err
-        )
-      }
-    }
-    dispatch({ type: 'SET_PAGE', page: 1 })
+    dispatch({ type: 'SET_PAGE', page: resolvePageTarget(url, page) })
   }, [])
 
   const updateFilters = useCallback((newFilters: Partial<TParams>) => {
     dispatch({ type: 'UPDATE_FILTERS', filters: newFilters })
+  }, [])
+
+  const syncState = useCallback((filters: Partial<TParams>, page: number) => {
+    dispatch({ type: 'SYNC', filters, page })
   }, [])
 
   return {
@@ -109,6 +122,7 @@ export function usePaginatedQuery<T, TParams extends { page?: number }>({
     currentPage,
     handlePageChange,
     updateFilters,
+    syncState,
     refetch,
   }
 }

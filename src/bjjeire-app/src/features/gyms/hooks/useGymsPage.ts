@@ -5,7 +5,8 @@ import { useListPage, type UseListPageResult } from '@/hooks/useListPage'
 import { getGyms } from '@/features/gyms/api/get-gyms'
 import { scrollToTop } from '@/utils/scroll-utils'
 import { getCountyDisplayLabel } from '@/utils/county-utils'
-import { asArray, readField, readString } from '@/utils/untrusted'
+import { countyUrlFilter } from '@/utils/list-url-state'
+import { textMatchesSearch } from '@/utils/search-text'
 
 export const initialGymFilters: GetGymsByCountyPaginationQuery = {
   county: 'all',
@@ -13,18 +14,11 @@ export const initialGymFilters: GetGymsByCountyPaginationQuery = {
   pageSize: env.PAGE_SIZE,
 }
 
+const GYM_URL_FILTERS = [countyUrlFilter<GetGymsByCountyPaginationQuery>()]
+
 function gymMatchesSearch(gym: GymDto, term: string): boolean {
-  const lower = term.toLowerCase()
   return (
-    readString(gym.name).toLowerCase().includes(lower) ||
-    readString(gym.description).toLowerCase().includes(lower) ||
-    readString(gym.county).toLowerCase().includes(lower) ||
-    readString(readField(gym.location, 'address'))
-      .toLowerCase()
-      .includes(lower) ||
-    asArray(gym.offeredClasses).some(offeredClass =>
-      readString(offeredClass).toLowerCase().includes(lower)
-    )
+    textMatchesSearch(gym.name, term) || textMatchesSearch(gym.county, term)
   )
 }
 
@@ -42,6 +36,7 @@ export function useGymsPage(): UseGymsPageResult {
     fetchFn: getGyms,
     initialParams: initialGymFilters,
     matchesSearch: gymMatchesSearch,
+    urlFilters: GYM_URL_FILTERS,
   })
 
   const { activeFilters, updateFilters } = listPage

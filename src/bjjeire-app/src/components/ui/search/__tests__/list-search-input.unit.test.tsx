@@ -45,6 +45,7 @@ describe('ListSearchInput', () => {
     await user.click(screen.getByRole('button', { name: content.clearLabel }))
 
     expect(onClear).toHaveBeenCalledOnce()
+    expect(screen.getByRole('searchbox', { name: content.label })).toHaveFocus()
   })
 
   it('given a focused input, when Escape is pressed, then onClear is called', async () => {
@@ -64,5 +65,6 @@ describe('ListSearchInput', () => {
     await user.keyboard('{Escape}')
 
     expect(onClear).toHaveBeenCalledOnce()
+    expect(screen.getByRole('searchbox', { name: content.label })).toHaveFocus()
   })
 })

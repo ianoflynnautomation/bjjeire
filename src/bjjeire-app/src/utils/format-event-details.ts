@@ -55,11 +55,11 @@ export function formatOrganiserDisplay(
     return undefined
   }
   const { website, name } = organiser
-  if (website) {
-    return (
-      parseWebsiteHostname(website) ??
-      (name || website.replace(/^https?:\/\//, '').replace(/^www\./, ''))
-    )
+  if (name || !website) {
+    return name
   }
-  return name
+  return (
+    parseWebsiteHostname(website) ??
+    website.replace(/^https?:\/\//, '').replace(/^www\./, '')
+  )
 }

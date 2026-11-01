@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { GymsList } from '@/features/gyms/components/gym-list'
 import { GymsPageHeader } from '@/features/gyms/components/gym-page-header'
 import { GymsHeroBanner } from '@/features/gyms/components/gyms-hero-banner'
@@ -13,6 +14,7 @@ import { GymsPageTestIds } from '@/constants/gymDataTestIds'
 const { filters, search, errors, noData } = uiContent.gyms
 
 export default function GymsPage(): JSX.Element {
+  useDocumentTitle(uiContent.gyms.documentTitle)
   const page = useGymsPage()
   const {
     filteredItems: filteredGyms,
@@ -53,7 +55,7 @@ export default function GymsPage(): JSX.Element {
             disabled={isFetching || isLoading}
             className="sm:w-64 shrink-0"
           />
-          <div className="sm:w-160 shrink-0">
+          <div className="w-full min-w-0 sm:max-w-160">
             <ListSearchInput
               inputId="gym-search"
               content={search}

@@ -21,7 +21,8 @@ export function formatFetchError(error: unknown): string {
     ) {
       return errors.network
     }
-    return error.message || errors.unexpected
+    // Technical detail is logged by the API client; visitors get plain advice.
+    return errors.server
   }
 
   if (typeof error === 'string') {

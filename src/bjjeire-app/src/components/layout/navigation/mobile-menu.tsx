@@ -25,7 +25,7 @@ export const MobileMenu = function MobileMenu({
   return (
     <div
       id="mobile-menu-panel"
-      className="absolute z-30 w-full border-b border-hairline bg-surface-solid sm:hidden"
+      className="absolute z-30 w-full border-b border-hairline bg-surface-solid md:hidden"
       data-testid={NavigationTestIds.MOBILE_PANEL}
     >
       <div className="space-y-1 px-2 pb-3 pt-2">

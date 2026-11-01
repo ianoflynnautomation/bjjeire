@@ -85,7 +85,7 @@ export const GymHeader = function GymHeader({
         />
       </div>
       <div className="flex flex-col gap-1.5 p-3 pb-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h3
             id={headingId}
             className="text-base font-semibold leading-tight text-fg"

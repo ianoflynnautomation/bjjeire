@@ -30,14 +30,20 @@ export const ListSearchInput = function ListSearchInput({
 }: ListSearchInputProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // The clear button unmounts once the value is empty, so focus moves to the
+  // input rather than falling back to the top of the page.
+  const handleClear = useCallback(() => {
+    onClear()
+    inputRef.current?.focus()
+  }, [onClear])
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Escape') {
-        onClear()
-        inputRef.current?.blur()
+        handleClear()
       }
     },
-    [onClear]
+    [handleClear]
   )
 
   return (
@@ -69,7 +75,7 @@ export const ListSearchInput = function ListSearchInput({
         {value && (
           <button
             type="button"
-            onClick={onClear}
+            onClick={handleClear}
             data-testid={ListSearchInputTestIds.CLEAR}
             aria-label={content.clearLabel}
             className="absolute inset-y-0 right-0 flex items-center rounded-md pr-3 text-fg-subtle transition-colors hover:text-fg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"
