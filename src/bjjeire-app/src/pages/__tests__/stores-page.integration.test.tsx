@@ -65,6 +65,21 @@ describe('StoresPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('Scramble Brand')).toBeInTheDocument()
   })
 
+  it('given a word only in a store description, when the user searches it, then no stores match', async () => {
+    seedStores([
+      createStore({ name: 'Tatami Fightwear', description: 'Premium gis' }),
+    ])
+    const { user } = renderStoresPage()
+
+    await screen.findByText('Tatami Fightwear')
+
+    await user.type(screen.getByRole('searchbox'), 'Premium')
+
+    await waitFor(() =>
+      expect(screen.getByText('No Results Found')).toBeInTheDocument()
+    )
+  })
+
   it('given multiple result pages, when the user clicks next page, then the next page is fetched and shown', async () => {
     const storePage1 = createStore({ name: 'Tatami Fightwear' })
     const storePage2 = createStore({ name: 'Scramble Brand' })
@@ -87,5 +102,46 @@ describe('StoresPage Integration (API + Query + UI)', () => {
     await waitFor(() => {
       expect(getLastUrl()?.searchParams.get('page')).toBe('2')
     })
+  })
+
+  it('given the page opens, when it renders, then the store title is the main heading', async () => {
+    seedStores([createStore({ name: 'Tatami Fightwear' })])
+    renderStoresPage()
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'BJJ Clothing Stores',
+      })
+    ).toBeInTheDocument()
+  })
+
+  it('given a search with no match, when the message shows, then it does not mention filters', async () => {
+    seedStores([createStore({ name: 'Tatami Fightwear' })])
+    const { user } = renderStoresPage()
+    await screen.findByText('Tatami Fightwear')
+
+    await user.type(screen.getByRole('searchbox'), 'zzz')
+
+    await waitFor(() =>
+      expect(screen.getByText('No Results Found')).toBeInTheDocument()
+    )
+    expect(screen.queryByText(/filters/i)).not.toBeInTheDocument()
+  })
+
+  it('given a name with an accent, when the visitor searches without it, then the store matches', async () => {
+    seedStores([
+      createStore({ name: 'Brú Fightwear' }),
+      createStore({ name: 'Tatami Fightwear' }),
+    ])
+    const { user } = renderStoresPage()
+    await screen.findByText('Brú Fightwear')
+
+    await user.type(screen.getByRole('searchbox'), 'Bru')
+
+    await waitFor(() =>
+      expect(screen.queryByText('Tatami Fightwear')).not.toBeInTheDocument()
+    )
+    expect(screen.getByText('Brú Fightwear')).toBeInTheDocument()
   })
 })
