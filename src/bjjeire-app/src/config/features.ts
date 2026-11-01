@@ -1,34 +1,37 @@
-import { lazy } from 'react'
-import type { ComponentType, LazyExoticComponent } from 'react'
 import { paths } from '@/config/paths'
+import type { FeatureFlagName } from '@/features/feature-flags/definitions'
+import {
+  lazyWithPreload,
+  type PreloadableComponent,
+} from '@/lib/lazy-with-preload'
 
 export interface FeatureConfig {
-  flag: string
+  flag: FeatureFlagName
   path: string
-  Component: LazyExoticComponent<ComponentType>
+  Component: PreloadableComponent
 }
 
 export const features = [
   {
     flag: 'BjjEvents',
     path: paths.events.path,
-    Component: lazy(() => import('@/pages/EventsPage')),
+    Component: lazyWithPreload(() => import('@/pages/EventsPage')),
   },
   {
     flag: 'Gyms',
     path: paths.gyms.path,
-    Component: lazy(() => import('@/pages/GymsPage')),
+    Component: lazyWithPreload(() => import('@/pages/GymsPage')),
   },
   {
     flag: 'Competitions',
     path: paths.competitions.path,
-    Component: lazy(() => import('@/pages/CompetitionsPage')),
+    Component: lazyWithPreload(() => import('@/pages/CompetitionsPage')),
   },
   {
     flag: 'Stores',
     path: paths.stores.path,
-    Component: lazy(() => import('@/pages/StoresPage')),
+    Component: lazyWithPreload(() => import('@/pages/StoresPage')),
   },
 ] as const satisfies readonly FeatureConfig[]
 
-export type FeatureFlagName = (typeof features)[number]['flag']
+export const AboutPage = lazyWithPreload(() => import('@/pages/AboutPage'))

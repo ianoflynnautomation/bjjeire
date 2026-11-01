@@ -31,10 +31,10 @@ Let an expensive subtree lag behind a fast-changing input:
 
 ```tsx
 const deferredQuery = useDeferredValue(query)
-const results = useMemo(() => search.filterItems(items, deferredQuery), [items, deferredQuery])
+const results = search.filterItems(items, deferredQuery)
 ```
 
-Pairs well with the `filteredItems` memo pattern in `rules/react.md`.
+The React Compiler caches `results`. Do not wrap it in `useMemo`. See `rules/react.md`.
 
 ## Code Splitting — `Suspense` + `lazy`
 

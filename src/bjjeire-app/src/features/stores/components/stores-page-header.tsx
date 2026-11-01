@@ -26,6 +26,7 @@ export const StoresPageHeader = function StoresPageHeader({
   return (
     <ListPageHeader
       title={pageTitle.all}
+      titleAs="h1"
       totalLabel={totalLabel}
       showTotal={totalStores !== undefined && totalStores > 0}
       testIds={{

@@ -44,7 +44,7 @@ paths:
 
 ## Third-Party Integrations
 - Cloudflare Analytics: script loaded from Cloudflare CDN — verify the src URL is unchanged when updating
-- Azure MSAL: pin the `@azure/msal-browser` and `@azure/msal-react` versions — do not use `latest` range
+- Azure MSAL: pin the `@azure/msal-browser` version — do not use `latest` range
 - Google Places: API calls are proxied through the backend API — the API key is never exposed to the frontend
 
 ## What NOT to Do

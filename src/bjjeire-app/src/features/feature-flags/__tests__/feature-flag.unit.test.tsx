@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { screen } from '@testing-library/react'
-import { FeatureFlag, useFeatureFlag } from '../index'
+import { FeatureFlag, FeatureGate, useFeatureFlag } from '../index'
 import { DEFAULT_FLAGS } from '../types'
 import {
   renderWithProviders,
@@ -52,6 +52,43 @@ describe('useFeatureFlag', () => {
       })
       expect(result.current).toBe(flags[flag])
     }
+  })
+})
+
+describe('FeatureGate', () => {
+  it('given an enabled flag, when the gate renders, then only the children are in the document', () => {
+    renderWithProviders(
+      <FeatureGate flag="BjjEvents" fallback={<span>Coming soon</span>}>
+        <span>Events content</span>
+      </FeatureGate>,
+      { featureFlags: { BjjEvents: true } }
+    )
+
+    expect(screen.getByText('Events content')).toBeInTheDocument()
+    expect(screen.queryByText('Coming soon')).not.toBeInTheDocument()
+  })
+
+  it('given a disabled flag, when the gate renders, then the children are not mounted and the fallback is shown', () => {
+    renderWithProviders(
+      <FeatureGate flag="BjjEvents" fallback={<span>Coming soon</span>}>
+        <span>Events content</span>
+      </FeatureGate>,
+      { featureFlags: { BjjEvents: false } }
+    )
+
+    expect(screen.queryByText('Events content')).not.toBeInTheDocument()
+    expect(screen.getByText('Coming soon')).toBeInTheDocument()
+  })
+
+  it('given a disabled flag and no fallback, when the gate renders, then nothing is shown', () => {
+    renderWithProviders(
+      <FeatureGate flag="Gyms">
+        <span>Gyms content</span>
+      </FeatureGate>,
+      { featureFlags: { Gyms: false } }
+    )
+
+    expect(screen.queryByText('Gyms content')).not.toBeInTheDocument()
   })
 })
 

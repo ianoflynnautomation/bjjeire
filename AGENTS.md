@@ -90,7 +90,7 @@ npm run build
 ## Frontend Guardrails
 
 - Cross-folder imports use `@/`; same-folder imports stay relative.
-- Components use `memo(function ComponentName())`.
+- Components are named functions: `export const ComponentName = function ComponentName()`. Do not wrap them in `memo`. The React Compiler (`reactCompilerPreset()` in `src/bjjeire-app/vite.base.config.ts`) memoizes components and render values. Existing `memo`, `useMemo`, and `useCallback` calls can stay; do not add new ones unless the compiler bails out of that function.
 - All user-visible strings live in `src/bjjeire-app/src/config/ui-content.ts`.
 - Data test IDs come from `src/bjjeire-app/src/constants/*DataTestIds.ts`.
 - CVA variants live in `src/bjjeire-app/src/lib/`.
@@ -101,7 +101,7 @@ npm run build
 
 - TDD first: write the failing test before implementation.
 - `useSearchParams` tests must use `MemoryRouter` from `react-router`.
-- Wrap nullable array defaults in `useMemo(() => data ?? [], [data])`.
+- Nullable array defaults are `data ?? []`. The React Compiler keeps that reference stable, so do not wrap it in `useMemo`.
 - `useEffect` cleanup functions need an explicit return type when returning cleanup.
 - Seeder JSON must use `"isAvailable": false`, never `null`.
 

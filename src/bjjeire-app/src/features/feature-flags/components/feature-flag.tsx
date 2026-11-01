@@ -1,6 +1,6 @@
-import type { JSX, ReactNode } from 'react'
-import { useFeatureFlag } from '../hooks/use-feature-flag'
+import { memo, type JSX, type ReactNode } from 'react'
 import type { FeatureFlagName } from '../types'
+import { FeatureGate } from './feature-gate'
 
 interface FeatureFlagProps {
   name: FeatureFlagName
@@ -8,11 +8,14 @@ interface FeatureFlagProps {
   fallback?: ReactNode
 }
 
-export const FeatureFlag = function FeatureFlag({
+export const FeatureFlag = memo(function FeatureFlag({
   name,
   children,
   fallback = null,
 }: FeatureFlagProps): JSX.Element {
-  const enabled = useFeatureFlag(name)
-  return <>{enabled ? children : fallback}</>
-}
+  return (
+    <FeatureGate flag={name} fallback={fallback}>
+      {children}
+    </FeatureGate>
+  )
+})

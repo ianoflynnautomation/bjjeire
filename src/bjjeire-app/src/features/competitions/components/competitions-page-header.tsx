@@ -26,6 +26,7 @@ export const CompetitionsPageHeader = function CompetitionsPageHeader({
   return (
     <ListPageHeader
       title={pageTitle.all}
+      titleAs="h1"
       totalLabel={totalLabel}
       showTotal={totalCompetitions !== undefined && totalCompetitions > 0}
       testIds={{

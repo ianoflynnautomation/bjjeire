@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { StoresList } from '@/features/stores/components/store-list'
 import { StoresPageHeader } from '@/features/stores/components/stores-page-header'
 import { ListSearchInput } from '@/components/ui/search/list-search-input'
@@ -10,6 +11,7 @@ import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 const { search, errors, noData } = uiContent.stores
 
 export default function StoresPage(): JSX.Element {
+  useDocumentTitle(uiContent.stores.documentTitle)
   const page = useStoresPage()
   const {
     filteredItems: filteredStores,
@@ -33,7 +35,7 @@ export default function StoresPage(): JSX.Element {
         />
       }
       filterBar={
-        <div className="shrink-0 sm:w-160">
+        <div className="w-full sm:max-w-160">
           <ListSearchInput
             inputId="store-search"
             content={search}

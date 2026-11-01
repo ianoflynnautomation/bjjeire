@@ -70,3 +70,8 @@ services:
 
   mongodb:
     profiles: !override ["app", "seed"]
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G

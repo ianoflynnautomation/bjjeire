@@ -16,7 +16,7 @@ export const DesktopNavLinks = function DesktopNavLinks(): JSX.Element {
   const prefetch = useRoutePrefetch()
   return (
     <div
-      className="hidden sm:ml-6 sm:flex sm:space-x-8"
+      className="hidden md:ml-6 md:flex md:space-x-8"
       data-testid={NavigationTestIds.DESKTOP_LINKS}
     >
       {navItems.map(item => (

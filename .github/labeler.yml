@@ -1,0 +1,54 @@
+# Area labels only. Type labels come from the pull request title.
+# A pull request can carry more than one area label.
+# Branch names are not used. feature/ does not mean type/feature.
+# With sync-labels, an area label is removed when its files leave the diff.
+#
+# Type labels (type/feature, breaking, …) stay out of this file. The type
+# job owns them. A label that is not listed here (run-smoke, deploy-preview,
+# community-submission, type:gym, …) is left alone.
+
+area/frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/bjjeire-app/**
+          - Caddyfile
+          - tools/images/**
+
+area/backend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/bjjeire-api/**
+          - pom.xml
+
+# Existing issue-form label. Quoted because the name contains a colon.
+# Issue templates still apply it; on a pull request it now follows the files.
+"area:data":
+  - changed-files:
+      - any-glob-to-any-file:
+          - seeder/data/**
+          - seeder/data-test/**
+
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - specs/**
+          - .specify/**
+          - contracts/**
+          - "*.md"
+          - "**/*.md"
+
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - .gitignore
+          - docker-compose*.yml
+
+area/dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/package-lock.json"
+          - "**/package.json"
+          - "**/pom.xml"
+          - .github/dependabot.yml

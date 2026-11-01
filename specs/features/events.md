@@ -28,6 +28,8 @@ Search is client-side; county and type are server filters.
 
 Same empty / network / server-error pattern as gyms.
 
+Dates are shown as they fall in Ireland (`Europe/Dublin`), wherever the visitor is.
+
 ## Requirements
 
 - **FR-001**: Listing returns upcoming/active events only

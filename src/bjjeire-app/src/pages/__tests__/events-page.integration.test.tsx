@@ -156,4 +156,32 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       expect(getLastUrl()?.searchParams.get('page')).toBe('2')
     })
   })
+
+  describe('URL state', () => {
+    it('given a link with a county and event types, when the page opens, then those filters are applied', async () => {
+      const { getLastUrl } = seedEventsByParam('county', {}, [])
+      renderEventsPage(['/events?county=Cork&types=Seminar&types=Camp'])
+
+      expect(
+        await screen.findByRole('combobox', { name: /select county/i })
+      ).toHaveValue('Cork')
+      await waitFor(() => {
+        expect(getLastUrl()?.searchParams.get('county')).toBe('Cork')
+        expect(getLastUrl()?.searchParams.getAll('types')).toEqual([
+          BjjEventType.Seminar,
+          BjjEventType.Camp,
+        ])
+      })
+    })
+
+    it('given a link with unknown filter values, when the page opens, then they are ignored', async () => {
+      const { getLastUrl } = seedEventsByParam('county', {}, [])
+      renderEventsPage(['/events?county=Atlantis&types=Nope'])
+
+      await waitFor(() => {
+        expect(getLastUrl()?.searchParams.has('county')).toBe(false)
+        expect(getLastUrl()?.searchParams.has('types')).toBe(false)
+      })
+    })
+  })
 })

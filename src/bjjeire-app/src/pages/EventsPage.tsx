@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { EventFilters } from '@/features/bjjevents/components/event-filters/event-filters'
 import { ListSearchInput } from '@/components/ui/search/list-search-input'
 import { EventsPageHeader } from '@/features/bjjevents/components/event-page-header'
@@ -12,6 +13,7 @@ import { useEventsPage } from '@/features/bjjevents/hooks/useEventsPage'
 const { search, errors, noData } = uiContent.events
 
 export default function EventsPage(): JSX.Element {
+  useDocumentTitle(uiContent.events.documentTitle)
   const page = useEventsPage()
   const {
     filteredItems: filteredEvents,
@@ -51,7 +53,7 @@ export default function EventsPage(): JSX.Element {
             disabled={isFetching || isLoading}
             dataTestId={EventsPageTestIds.FILTERS}
           />
-          <div className="mt-4 sm:w-160">
+          <div className="mt-4 w-full sm:max-w-160">
             <ListSearchInput
               inputId="event-search"
               content={search}

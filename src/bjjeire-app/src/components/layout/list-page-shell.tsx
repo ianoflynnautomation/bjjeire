@@ -10,6 +10,7 @@ interface ListPageShellContent {
   search: {
     noResultsTitle: string
     noResultsMessage: string
+    noResultsHint?: string
     resultsSrPrefix: string
     resultsSrSuffix: string
   }
@@ -102,7 +103,9 @@ export function ListPageShell<T>({
                 : content.noData.messageLine1
             }
             noDataMessageLine2={
-              search.isSearchActive ? undefined : content.noData.messageLine2
+              search.isSearchActive
+                ? content.search.noResultsHint
+                : content.noData.messageLine2
             }
             isInitialLoad={isInitialLoading}
             showBackgroundFetchingIndicator={filteredItems.length > 0}

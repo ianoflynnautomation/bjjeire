@@ -77,22 +77,28 @@ describe('formatOrganiserDisplay', () => {
     expect(formatOrganiserDisplay({ name: '', website: '' })).toBeUndefined()
   })
 
-  it('given a valid website, when the display is formatted, then the hostname without www is returned', () => {
+  it('given a name and a valid website, when the display is formatted, then the organiser name is returned', () => {
     expect(
       formatOrganiserDisplay({
         name: 'Org',
         website: 'https://www.example.com',
       })
-    ).toBe('example.com')
+    ).toBe('Org')
   })
 
-  it('given a scheme-less website, when the display is formatted, then the hostname without www is returned', () => {
+  it('given no name and a valid website, when the display is formatted, then the hostname without www is returned', () => {
     expect(
-      formatOrganiserDisplay({ name: 'Org', website: 'www.example.com' })
+      formatOrganiserDisplay({ name: '', website: 'https://www.example.com' })
     ).toBe('example.com')
   })
 
-  it('given a bare domain, when the display is formatted, then the hostname is returned', () => {
+  it('given no name and a scheme-less website, when the display is formatted, then the hostname without www is returned', () => {
+    expect(
+      formatOrganiserDisplay({ name: '', website: 'www.example.com' })
+    ).toBe('example.com')
+  })
+
+  it('given no name and a bare domain, when the display is formatted, then the hostname is returned', () => {
     expect(
       formatOrganiserDisplay({ name: '', website: 'example.com/team' })
     ).toBe('example.com')

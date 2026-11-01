@@ -2,88 +2,78 @@
 
 ## [0.1.35](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.34...frontend-v0.1.35) (2026-10-16)
 
-
 ### Features
 
-* fix openapi defects and speed up CI pipeline ([45fe350](https://github.com/ianoflynnautomation/bjjeire/commit/45fe3502c28e181d722cd5939b7dca08454fbd4c))
-* fix openapi defects and speed up CI pipeline ([d5c469e](https://github.com/ianoflynnautomation/bjjeire/commit/d5c469ee3729acf35771f1b50fd9fc02afc5b160))
-
+- fix openapi defects and speed up CI pipeline ([45fe350](https://github.com/ianoflynnautomation/bjjeire/commit/45fe3502c28e181d722cd5939b7dca08454fbd4c))
+- fix openapi defects and speed up CI pipeline ([d5c469e](https://github.com/ianoflynnautomation/bjjeire/commit/d5c469ee3729acf35771f1b50fd9fc02afc5b160))
 
 ### Bug Fixes
 
-* comment format ([36a3ec8](https://github.com/ianoflynnautomation/bjjeire/commit/36a3ec84a8421429c35989c3b71a2e475941d35c))
-* failing frontend lint ([5a2e39c](https://github.com/ianoflynnautomation/bjjeire/commit/5a2e39cffa7747935881df6647a2745dcbb1b96a))
-* format ([a6e3338](https://github.com/ianoflynnautomation/bjjeire/commit/a6e3338dbb934f4628985f6bc5111d97308b9ea4))
-* playwright version mismatch ([ab12c0d](https://github.com/ianoflynnautomation/bjjeire/commit/ab12c0d0a86c4424254941533e867ad21e7fe25a))
-* trigger ci ([7cbe7c3](https://github.com/ianoflynnautomation/bjjeire/commit/7cbe7c37dee1685ddcbc7e1f37275e6eae9e210e))
-* trigger ci ([afe3ac2](https://github.com/ianoflynnautomation/bjjeire/commit/afe3ac20de6f792da61a9f8e449e37fc73e3b975))
-* trigger new ci run ([6b1cf18](https://github.com/ianoflynnautomation/bjjeire/commit/6b1cf182b339eaae6303a1bc6dddb14155006190))
-* trigger new ci run ([f55da25](https://github.com/ianoflynnautomation/bjjeire/commit/f55da250daaf92aca597ac7e7c3cc8755b28d339))
+- comment format ([36a3ec8](https://github.com/ianoflynnautomation/bjjeire/commit/36a3ec84a8421429c35989c3b71a2e475941d35c))
+- failing frontend lint ([5a2e39c](https://github.com/ianoflynnautomation/bjjeire/commit/5a2e39cffa7747935881df6647a2745dcbb1b96a))
+- format ([a6e3338](https://github.com/ianoflynnautomation/bjjeire/commit/a6e3338dbb934f4628985f6bc5111d97308b9ea4))
+- playwright version mismatch ([ab12c0d](https://github.com/ianoflynnautomation/bjjeire/commit/ab12c0d0a86c4424254941533e867ad21e7fe25a))
+- trigger ci ([7cbe7c3](https://github.com/ianoflynnautomation/bjjeire/commit/7cbe7c37dee1685ddcbc7e1f37275e6eae9e210e))
+- trigger ci ([afe3ac2](https://github.com/ianoflynnautomation/bjjeire/commit/afe3ac20de6f792da61a9f8e449e37fc73e3b975))
+- trigger new ci run ([6b1cf18](https://github.com/ianoflynnautomation/bjjeire/commit/6b1cf182b339eaae6303a1bc6dddb14155006190))
+- trigger new ci run ([f55da25](https://github.com/ianoflynnautomation/bjjeire/commit/f55da250daaf92aca597ac7e7c3cc8755b28d339))
 
 ## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.33...frontend-v0.1.34) (2026-08-27)
 
-
 ### Features
 
-* add test reporting compliance ([afc66a1](https://github.com/ianoflynnautomation/bjjeire/commit/afc66a1900eafe0e95ef99afd1ecfc9014fe243f))
-* add test reporting compliance ([0e60b46](https://github.com/ianoflynnautomation/bjjeire/commit/0e60b468291ddaec55874b755c49a151ad467a43))
-
+- add test reporting compliance ([afc66a1](https://github.com/ianoflynnautomation/bjjeire/commit/afc66a1900eafe0e95ef99afd1ecfc9014fe243f))
+- add test reporting compliance ([0e60b46](https://github.com/ianoflynnautomation/bjjeire/commit/0e60b468291ddaec55874b755c49a151ad467a43))
 
 ### Bug Fixes
 
-* failing ci ([0c65f7f](https://github.com/ianoflynnautomation/bjjeire/commit/0c65f7f764569476b762b7e0de6e61df91779ebe))
-* failing ci ([129d96c](https://github.com/ianoflynnautomation/bjjeire/commit/129d96c4e533bf9a4f526509a628da4b38560db2))
+- failing ci ([0c65f7f](https://github.com/ianoflynnautomation/bjjeire/commit/0c65f7f764569476b762b7e0de6e61df91779ebe))
+- failing ci ([129d96c](https://github.com/ianoflynnautomation/bjjeire/commit/129d96c4e533bf9a4f526509a628da4b38560db2))
 
 ## [0.1.33](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.32...frontend-v0.1.33) (2026-08-23)
 
-
 ### Features
 
-* add ephemeral test env ([d6f9383](https://github.com/ianoflynnautomation/bjjeire/commit/d6f93838e09675eb996739450eee2fbb7d7cf3a3))
-
+- add ephemeral test env ([d6f9383](https://github.com/ianoflynnautomation/bjjeire/commit/d6f93838e09675eb996739450eee2fbb7d7cf3a3))
 
 ### Bug Fixes
 
-* ui acceptance tests ([4a33d66](https://github.com/ianoflynnautomation/bjjeire/commit/4a33d6604e24aca1732f2456e03827e20ddd5668))
+- ui acceptance tests ([4a33d66](https://github.com/ianoflynnautomation/bjjeire/commit/4a33d6604e24aca1732f2456e03827e20ddd5668))
 
 ## [0.1.32](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.31...frontend-v0.1.32) (2026-08-20)
 
-
 ### Features
 
-* harden test workflows ci cd ([3082c7d](https://github.com/ianoflynnautomation/bjjeire/commit/3082c7dd17636939722444e6946b725da93ea506))
+- harden test workflows ci cd ([3082c7d](https://github.com/ianoflynnautomation/bjjeire/commit/3082c7dd17636939722444e6946b725da93ea506))
 
 ## [0.1.31](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.30...frontend-v0.1.31) (2026-08-09)
 
-
 ### Bug Fixes
 
-* frontend vars hardening ([da5ef38](https://github.com/ianoflynnautomation/bjjeire/commit/da5ef387036715a16c94b4914093c35ad29120f6))
-* frontend vars hardening ([7291c4a](https://github.com/ianoflynnautomation/bjjeire/commit/7291c4aeb7cf7652f9cf0be79deaca66d2f689ca))
-* ui format ([bff21d1](https://github.com/ianoflynnautomation/bjjeire/commit/bff21d1571c772d5bdb9a837c13f7495d3c59f77))
+- frontend vars hardening ([da5ef38](https://github.com/ianoflynnautomation/bjjeire/commit/da5ef387036715a16c94b4914093c35ad29120f6))
+- frontend vars hardening ([7291c4a](https://github.com/ianoflynnautomation/bjjeire/commit/7291c4aeb7cf7652f9cf0be79deaca66d2f689ca))
+- ui format ([bff21d1](https://github.com/ianoflynnautomation/bjjeire/commit/bff21d1571c772d5bdb9a837c13f7495d3c59f77))
 
 ## [0.1.30](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.29...frontend-v0.1.30) (2026-08-09)
 
-
 ### Features
 
-* add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
-* add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
-* clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
-* init commit ([9bc7d86](https://github.com/ianoflynnautomation/bjjeire/commit/9bc7d86fa58f92848dfd259eb06b3469c78881fd))
-* remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
-* update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
-
+- add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
+- add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
+- clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
+- init commit ([9bc7d86](https://github.com/ianoflynnautomation/bjjeire/commit/9bc7d86fa58f92848dfd259eb06b3469c78881fd))
+- remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
+- update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
 
 ### Bug Fixes
 
-* card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
-* format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
-* format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
-* openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
-* publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
-* release please drift api and ui ([424a573](https://github.com/ianoflynnautomation/bjjeire/commit/424a5738f4b4e18029d9fd0be51ac02486d73a05))
-* release please drift api and ui ([6b43e98](https://github.com/ianoflynnautomation/bjjeire/commit/6b43e98a111df259f089cc13808e5a3195681265))
+- card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
+- format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
+- format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
+- openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
+- publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
+- release please drift api and ui ([424a573](https://github.com/ianoflynnautomation/bjjeire/commit/424a5738f4b4e18029d9fd0be51ac02486d73a05))
+- release please drift api and ui ([6b43e98](https://github.com/ianoflynnautomation/bjjeire/commit/6b43e98a111df259f089cc13808e5a3195681265))
 
 ## [0.1.29](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.27...frontend-v0.1.29) (2026-08-08)
 
@@ -91,19 +81,19 @@
 
 ### Features
 
-* add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
-* add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
-* clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
-* remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
-* update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
+- add competition theme ([e5929f4](https://github.com/ianoflynnautomation/bjjeire/commit/e5929f47b2a5657d34cb9466721660903b0618a3))
+- add hover prefetch ([b88968b](https://github.com/ianoflynnautomation/bjjeire/commit/b88968bd07505e728e1f8cd947ed29461322cf2c))
+- clean up index css ([f064b4e](https://github.com/ianoflynnautomation/bjjeire/commit/f064b4efc7c2d90b5be472dc728466eaf089b1a9))
+- remove hardcoded memo after react 19 upgrade ([11b4af6](https://github.com/ianoflynnautomation/bjjeire/commit/11b4af6b0e2d86b402a12838c29854fc885c04ca))
+- update UI theme design ([9036d77](https://github.com/ianoflynnautomation/bjjeire/commit/9036d773bb1b66440568fe606df8c68413865e13))
 
 ### Bug Fixes
 
-* publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
-* card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
-* format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
-* format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
-* openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
+- publish first Java API image ([b19425a](https://github.com/ianoflynnautomation/bjjeire/commit/b19425a446d5730896eaa64e9594a2ec040a8b87))
+- card header dark only patterns ([49d9b61](https://github.com/ianoflynnautomation/bjjeire/commit/49d9b614be570aa08efa8e11e4c8cab78a51a003))
+- format and linting ([45888f9](https://github.com/ianoflynnautomation/bjjeire/commit/45888f916890e8367528a3ce142a238860d0c42a))
+- format api ([1f32eaa](https://github.com/ianoflynnautomation/bjjeire/commit/1f32eaaa7b324c327fea86273201dc1c4ee6731c))
+- openai drift ([2367a60](https://github.com/ianoflynnautomation/bjjeire/commit/2367a60890246e7becda8db74da9a15f14cbeb8c))
 
 ## [0.1.27](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.26...frontend-v0.1.27) (2026-07-11)
 

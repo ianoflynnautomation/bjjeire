@@ -4,6 +4,7 @@ import { createListSeeds, testApiUrl } from '@/testing/seed-helpers'
 import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import type { GymDto } from '@/types/gyms'
 import GymsPage from '@/pages/GymsPage'
+import { RouterProbe } from '@/testing/router-probe'
 
 export const GYMS_API = testApiUrl(API_ROUTES.gyms)
 
@@ -23,8 +24,17 @@ export function seedGymsByCounty(
   return seeds.seedByParam('county', byCounty, fallback)
 }
 
-export function renderGymsPage(): ReturnType<typeof renderWithProviders> {
-  return renderWithProviders(<GymsPage />, {
-    featureFlags: { BjjEvents: true, Gyms: true },
-  })
+export function renderGymsPage(
+  initialRoutes?: string[]
+): ReturnType<typeof renderWithProviders> {
+  return renderWithProviders(
+    <>
+      <GymsPage />
+      <RouterProbe />
+    </>,
+    {
+      featureFlags: { BjjEvents: true, Gyms: true },
+      ...(initialRoutes ? { initialRoutes } : {}),
+    }
+  )
 }

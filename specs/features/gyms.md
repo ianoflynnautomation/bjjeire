@@ -20,7 +20,7 @@ A visitor opens Gyms and sees published gyms they can scan, search, and filter.
 
 ## User Story 2 — Find a gym by name or county (P1)
 
-Search is client-side on the loaded page. County is a server filter.
+Search matches gym name and county only, client-side over up to 100 gyms fetched for the search. County is a server filter.
 
 1. Given a gym name, when a visitor searches, then only that gym is displayed
 2. Given part of a gym name, when a visitor searches, then the matching gym is displayed
@@ -52,6 +52,7 @@ Map URL uses **latitude, longitude** in the Google query string (derived from Ge
 - **FR-004**: Writes require Entra JWT
 - **FR-005**: Status values are `GymStatus` PascalCase on the wire
 - **FR-006**: Feature flag fail-closed: gyms route redirects to `/about` if the flag is off
+- **FR-007**: Page and county are URL state (`?page=`, `?county=`): they survive reload, can be shared, and Back steps through them. Typing a search replaces the history entry instead of adding one. Changing the search or a filter returns to page 1
 
 ## Success criteria
 

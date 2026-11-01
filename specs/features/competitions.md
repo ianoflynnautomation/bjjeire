@@ -18,7 +18,9 @@
 1. Given a competition name / part of a name, when a visitor searches, then only that competition is displayed
 2. Given the listing spans more than one page, when a visitor moves between pages, then each page shows its own competitions
 
-Search is client-side. There is no county on this aggregate.
+Search matches the competition name only and is client-side. There is no county on this aggregate.
+
+Dates are shown as they fall in Ireland (`Europe/Dublin`), wherever the visitor is.
 
 ## User Story 3 — Empty and error (P2)
 

@@ -1,4 +1,5 @@
 export const about = {
+  documentTitle: 'About | BJJ Éire',
   title: 'About BJJ Éire',
   subtitle:
     'A community-built, open source directory for Brazilian Jiu-Jitsu gyms and events across Ireland.',

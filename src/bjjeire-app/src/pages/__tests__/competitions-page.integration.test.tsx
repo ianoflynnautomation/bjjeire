@@ -69,4 +69,62 @@ describe('CompetitionsPage Integration (API + Query + UI)', () => {
       expect(screen.getByText(/no competitions found/i)).toBeInTheDocument()
     )
   })
+
+  it('given the page opens, when it renders, then the competition title is the main heading', async () => {
+    seedCompetitions([])
+    renderCompetitionsPage()
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'BJJ Competitions',
+      })
+    ).toBeInTheDocument()
+  })
+
+  it('given several competitions, when the page renders, then the count names competitions', async () => {
+    seedCompetitions([
+      createCompetition({ name: 'Grappling Open' }),
+      createCompetition({ name: 'NAGA Ireland' }),
+    ])
+    renderCompetitionsPage()
+
+    expect(await screen.findByText('Found 2 competitions.')).toBeInTheDocument()
+  })
+
+  it.each(['Letterkenny', 'Donegal BJJ', 'Portugal', 'submission-only'])(
+    'given "%s" appears only outside a competition name, when the user searches it, then no competitions match',
+    async term => {
+      seedCompetitions([
+        createCompetition({
+          name: 'Winter Classic',
+          description: 'Held in Letterkenny.',
+          organisation: 'Donegal BJJ',
+          country: 'Portugal',
+          tags: ['submission-only'],
+        }),
+      ])
+      const { user } = renderCompetitionsPage()
+      await screen.findByText('Winter Classic')
+
+      await user.type(screen.getByRole('searchbox'), term)
+
+      await waitFor(() =>
+        expect(screen.getByText('No Results Found')).toBeInTheDocument()
+      )
+    }
+  )
+
+  it('given a search with no match, when the message shows, then it does not mention filters', async () => {
+    seedCompetitions([createCompetition({ name: 'Grappling Open' })])
+    const { user } = renderCompetitionsPage()
+    await screen.findByText('Grappling Open')
+
+    await user.type(screen.getByRole('searchbox'), 'zzz')
+
+    await waitFor(() =>
+      expect(screen.getByText('No Results Found')).toBeInTheDocument()
+    )
+    expect(screen.queryByText(/filters/i)).not.toBeInTheDocument()
+  })
 })

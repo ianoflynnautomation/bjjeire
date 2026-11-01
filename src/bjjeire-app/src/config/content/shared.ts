@@ -17,6 +17,7 @@ export const shared = {
   noWebsiteFor: 'No website available for',
   errors: {
     unexpected: 'An unexpected error occurred. Please try again.',
+    server: 'Something went wrong on our side. Please try again in a moment.',
     network:
       'Could not connect to the server. Please check your internet connection and try again.',
   },

@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router'
 import { useDebounce } from '@/hooks/useDebounce'
+import { LIST_PAGE_PARAM } from '@/utils/list-url-state'
 
 const SEARCH_PARAM = 'q'
 
@@ -25,6 +26,7 @@ export function useListPageSearch<T>(
       setSearchParams(
         prev => {
           const next = new URLSearchParams(prev)
+          next.delete(LIST_PAGE_PARAM)
           if (term) {
             next.set(SEARCH_PARAM, term)
           } else {
@@ -42,6 +44,7 @@ export function useListPageSearch<T>(
     setSearchParams(
       prev => {
         const next = new URLSearchParams(prev)
+        next.delete(LIST_PAGE_PARAM)
         next.delete(SEARCH_PARAM)
         return next
       },

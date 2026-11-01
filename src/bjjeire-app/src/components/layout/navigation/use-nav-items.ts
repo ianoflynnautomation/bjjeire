@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { paths } from '@/config/paths'
-import { useFeatureFlag } from '@/features/feature-flags'
+import { useFeatureFlagClient } from '@/features/feature-flags'
+import type { FeatureFlagName } from '@/features/feature-flags'
 
 interface NavItem {
   to: string
@@ -8,47 +9,33 @@ interface NavItem {
   id: 'events' | 'gyms' | 'competitions' | 'stores' | 'about'
 }
 
+const FEATURE_NAV_ITEMS = [
+  { flag: 'BjjEvents', id: 'events', route: paths.events },
+  { flag: 'Gyms', id: 'gyms', route: paths.gyms },
+  { flag: 'Competitions', id: 'competitions', route: paths.competitions },
+  { flag: 'Stores', id: 'stores', route: paths.stores },
+] as const satisfies readonly {
+  flag: FeatureFlagName
+  id: NavItem['id']
+  route: { readonly label: string; getHref: () => string }
+}[]
+
 export function useNavItems(): NavItem[] {
-  const eventsEnabled = useFeatureFlag('BjjEvents')
-  const gymsEnabled = useFeatureFlag('Gyms')
-  const competitionsEnabled = useFeatureFlag('Competitions')
-  const storesEnabled = useFeatureFlag('Stores')
+  const client = useFeatureFlagClient()
 
   return useMemo(() => {
-    const items: NavItem[] = []
-    if (eventsEnabled) {
-      items.push({
-        to: paths.events.getHref(),
-        label: paths.events.label,
-        id: 'events',
-      })
-    }
-    if (gymsEnabled) {
-      items.push({
-        to: paths.gyms.getHref(),
-        label: paths.gyms.label,
-        id: 'gyms',
-      })
-    }
-    if (competitionsEnabled) {
-      items.push({
-        to: paths.competitions.getHref(),
-        label: paths.competitions.label,
-        id: 'competitions',
-      })
-    }
-    if (storesEnabled) {
-      items.push({
-        to: paths.stores.getHref(),
-        label: paths.stores.label,
-        id: 'stores',
-      })
-    }
+    const items: NavItem[] = FEATURE_NAV_ITEMS.filter(item =>
+      client.isEnabled(item.flag)
+    ).map(item => ({
+      to: item.route.getHref(),
+      label: item.route.label,
+      id: item.id,
+    }))
     items.push({
       to: paths.about.getHref(),
       label: paths.about.label,
       id: 'about',
     })
     return items
-  }, [eventsEnabled, gymsEnabled, competitionsEnabled, storesEnabled])
+  }, [client])
 }

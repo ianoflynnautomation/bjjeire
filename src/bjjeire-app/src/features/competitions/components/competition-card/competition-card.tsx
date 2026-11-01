@@ -5,14 +5,6 @@ import {
   ClipboardDocumentListIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/20/solid'
-import {
-  format,
-  parseISO,
-  isSameDay,
-  isSameMonth,
-  isSameYear,
-  isValid,
-} from 'date-fns'
 import type { CompetitionDto } from '@/types/competitions'
 import { Card, CardContent } from '@/components/ui/card/card'
 import { CardActionButton } from '@/components/ui/button/button'
@@ -21,32 +13,12 @@ import {
   CompetitionsPageTestIds,
   CompetitionCardTestIds,
 } from '@/constants/competitionDataTestIds'
+import { formatIrishDateRange } from '@/utils/date-utils'
 import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 import { asArray, readString } from '@/utils/untrusted'
 import { CompetitionCardHeader } from './competition-card-header'
 
 const { card } = uiContent.competitions
-
-function formatDateRange(startDate?: string, endDate?: string): string | null {
-  if (!startDate) {
-    return null
-  }
-  const start = parseISO(startDate)
-  if (!isValid(start)) {
-    return null
-  }
-  const end = endDate ? parseISO(endDate) : undefined
-  if (!end || !isValid(end) || isSameDay(start, end)) {
-    return format(start, 'd MMMM yyyy')
-  }
-  if (isSameMonth(start, end)) {
-    return `${format(start, 'd')}–${format(end, 'd MMMM yyyy')}`
-  }
-  if (isSameYear(start, end)) {
-    return `${format(start, 'd MMMM')} – ${format(end, 'd MMMM yyyy')}`
-  }
-  return `${format(start, 'd MMMM yyyy')} – ${format(end, 'd MMMM yyyy')}`
-}
 
 interface CompetitionCardProps {
   competition: CompetitionDto
@@ -68,7 +40,7 @@ export const CompetitionCard = function CompetitionCard({
     logoUrl,
   } = competition
   const dateRange = useMemo(
-    () => formatDateRange(startDate, endDate),
+    () => formatIrishDateRange(startDate, endDate),
     [startDate, endDate]
   )
   const headingId = `competition-card-heading-${competition.id ?? readString(name).replaceAll(/\s+/gu, '-').toLowerCase()}`

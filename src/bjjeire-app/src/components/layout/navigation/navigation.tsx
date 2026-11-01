@@ -15,6 +15,7 @@ import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 import { env } from '@/config/env'
+import { cn } from '@/lib/cn'
 import { useTheme } from '@/hooks/useTheme'
 import { useNavigationState } from '@/hooks/useNavigationState'
 import { NavIconButton, navIconButtonClass } from './nav-icon-button'
@@ -75,7 +76,7 @@ const Navigation = function Navigation(): JSX.Element {
               <div className="flex shrink-0 items-center">
                 <Link
                   to={paths.home.getHref()}
-                  className="display-expanded text-2xl font-bold text-fg transition-colors hover:text-primary-700 dark:hover:text-primary-300"
+                  className="display-expanded text-xl font-bold sm:text-2xl text-fg transition-colors hover:text-primary-700 dark:hover:text-primary-300"
                   data-testid={NavigationTestIds.LOGO_LINK}
                 >
                   {uiContent.brand.displayName}
@@ -95,7 +96,7 @@ const Navigation = function Navigation(): JSX.Element {
                   href={env.GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={navIconButtonClass}
+                  className={cn(navIconButtonClass, 'max-md:hidden')}
                   aria-label={uiContent.navigation.githubLinkLabel}
                   data-testid={NavigationTestIds.GITHUB_LINK}
                 >
@@ -106,15 +107,17 @@ const Navigation = function Navigation(): JSX.Element {
                 onClick={openSupportModal}
                 variant="accent"
                 size="lg"
-                className="ml-2 gap-2.5"
+                className="gap-2.5 sm:ml-2"
                 data-testid={NavigationTestIds.SUPPORT_BUTTON}
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white p-0.5">
                   <BitcoinIcon className="h-full w-full" aria-hidden="true" />
                 </span>
-                {uiContent.navigation.supportButtonLabel}
+                <span className="sr-only min-[400px]:not-sr-only">
+                  {uiContent.navigation.supportButtonLabel}
+                </span>
               </Button>
-              <div className="ml-2 flex items-center sm:hidden">
+              <div className="flex items-center md:hidden">
                 <button
                   onClick={toggleMobileMenu}
                   className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-fg-subtle transition-colors hover:bg-muted hover:text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus"

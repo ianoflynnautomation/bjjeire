@@ -16,7 +16,7 @@
 
 1. Given a store name / part of a name, when a visitor searches, then only that store is displayed
 
-Search is client-side. No county filter.
+Search matches the store name only and is client-side. No county filter.
 
 ## User Story 3 — Empty and error (P2)
 

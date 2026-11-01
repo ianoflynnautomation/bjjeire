@@ -28,8 +28,9 @@ between code and tests explicit:
 
 - CVA variants live in `src/bjjeire-app/src/lib/`.
 - Cross-folder imports use `@/`; same-folder imports stay relative.
-- Components are declared `memo(function ComponentName())`, so the function
-  name appears in React DevTools and test output rather than `Anonymous`.
+- Components are named functions (`function ComponentName`), so the name
+  appears in React DevTools and test output rather than `Anonymous`. The
+  React Compiler memoizes them; `memo()` is not part of this contract.
 
 ## Consequences
 

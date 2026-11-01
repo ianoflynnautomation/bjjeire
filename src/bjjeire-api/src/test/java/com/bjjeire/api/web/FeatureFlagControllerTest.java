@@ -1,6 +1,9 @@
 package com.bjjeire.api.web;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,7 +33,11 @@ class FeatureFlagControllerTest {
                         "Competitions", false,
                         "Stores", true));
 
-        mockMvc = MockMvcBuilders.standaloneSetup(new FeatureFlagController(properties))
+        mockMvc = mockMvc(properties);
+    }
+
+    private static MockMvc mockMvc(BjjEireProperties properties) {
+        return MockMvcBuilders.standaloneSetup(new FeatureFlagController(new FeatureFlagServiceImpl(properties)))
                 .build();
     }
 
@@ -58,8 +65,7 @@ class FeatureFlagControllerTest {
                         "competitions", true,
                         "stores", true));
 
-        MockMvc relaxedKeyMockMvc = MockMvcBuilders.standaloneSetup(new FeatureFlagController(properties))
-                .build();
+        MockMvc relaxedKeyMockMvc = mockMvc(properties);
 
         relaxedKeyMockMvc
                 .perform(get(ApiRoutes.FEATURE_FLAG))
@@ -68,5 +74,13 @@ class FeatureFlagControllerTest {
                 .andExpect(jsonPath("$.Gyms").value(true))
                 .andExpect(jsonPath("$.Competitions").value(true))
                 .andExpect(jsonPath("$.Stores").value(true));
+    }
+
+    @Test
+    void shouldIgnoreCallerIdentityWhenListing() throws Exception {
+        mockMvc.perform(get(ApiRoutes.FEATURE_FLAG).param("subjectKey", "ian@example.com"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Gyms").value(true))
+                .andExpect(content().string(not(containsString("ian@example.com"))));
     }
 }

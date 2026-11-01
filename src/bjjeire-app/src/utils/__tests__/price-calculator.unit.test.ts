@@ -175,27 +175,23 @@ describe('calculateEventPrices', () => {
   })
 
   describe('PerDay pricing', () => {
-    it('given an explicit durationDays, when prices are calculated, then that duration is used', () => {
+    it('given a multi-day event, when prices are calculated, then the daily rate is returned, not the total', () => {
       const schedule = fixedSchedule(
         [fixedSession('2026-06-01')],
         '2026-06-01',
         '2026-06-05'
       )
       expect(calculateEventPrices(schedule, [perDay(50, 3)])).toEqual([
-        { label: undefined, total: 150, unit: 'perDay', currency: EUR },
+        { label: undefined, total: 50, unit: 'perDay', currency: EUR },
       ])
     })
 
-    it('given no durationDays, when prices are calculated, then the days are derived from the start and end dates', () => {
-      // 2026-06-01 to 2026-06-03 = 3 days
-      const schedule = fixedSchedule([], '2026-06-01', '2026-06-03')
-      expect(calculateEventPrices(schedule, [perDay(40)])).toEqual([
-        { label: undefined, total: 120, unit: 'perDay', currency: EUR },
-      ])
-    })
-
-    it('given invalid dates, when prices are calculated, then a single day is assumed', () => {
-      const schedule = fixedSchedule([], 'bad-date', 'bad-date')
+    it('given no durationDays, when prices are calculated, then the daily rate is returned', () => {
+      const schedule = fixedSchedule(
+        [fixedSession('2026-06-01')],
+        '2026-06-01',
+        '2026-06-03'
+      )
       expect(calculateEventPrices(schedule, [perDay(40)])).toEqual([
         { label: undefined, total: 40, unit: 'perDay', currency: EUR },
       ])

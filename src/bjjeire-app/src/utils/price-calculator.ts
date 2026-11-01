@@ -5,7 +5,6 @@ import type {
 } from '@/types/event'
 import { PricingType, ScheduleKind } from '@/types/event'
 import type { BjjEventType } from '@/types/event'
-import { isValid, parseISO, differenceInCalendarDays } from 'date-fns'
 
 export type PriceUnit = 'event' | 'weekly' | 'perDay' | 'perSession' | 'free'
 
@@ -27,24 +26,6 @@ function resolvePricingTypeName(
     return undefined
   }
   return type as PricingTypeName
-}
-
-function getEventDurationDays(
-  startDate?: string | null,
-  endDate?: string | null
-): number {
-  if (!startDate) {
-    return 1
-  }
-  const startDt = parseISO(startDate)
-  if (!isValid(startDt) || !endDate) {
-    return 1
-  }
-  const endDt = parseISO(endDate)
-  if (!isValid(endDt) || endDt < startDt) {
-    return 1
-  }
-  return differenceInCalendarDays(endDt, startDt) + 1
 }
 
 function normaliseType(type: BjjEventType | string): string {
@@ -92,7 +73,7 @@ function calculatePricingOption(
   schedule: BjjEventScheduleDto | undefined,
   pricing: BjjEventPricingModelDto
 ): CalculatedPrice {
-  const { label, amount, durationDays, appliesToTypes } = pricing
+  const { label, amount, appliesToTypes } = pricing
   const currency = pricing.currency ?? DEFAULT_CURRENCY
   const amountValue = amount ?? 0
   const typeName = resolvePricingTypeName(pricing.type)
@@ -118,16 +99,7 @@ function calculatePricingOption(
       const count = countSessionsInScope(schedule, appliesToTypes)
       return { label, total: amountValue * count, unit: 'weekly', currency }
     }
-    const effectiveDays =
-      durationDays !== null && durationDays !== undefined && durationDays > 0
-        ? durationDays
-        : getEventDurationDays(schedule?.startDate, schedule?.endDate)
-    return {
-      label,
-      total: amountValue * effectiveDays,
-      unit: 'perDay',
-      currency,
-    }
+    return { label, total: amountValue, unit: 'perDay', currency }
   }
 
   return { label, total: amountValue, unit: 'event', currency }

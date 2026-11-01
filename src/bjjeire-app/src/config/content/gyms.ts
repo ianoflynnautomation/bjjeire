@@ -1,4 +1,5 @@
 export const gyms = {
+  documentTitle: 'BJJ Gyms in Ireland | BJJ Éire',
   pageTitle: {
     all: 'All BJJ Gyms',
     prefix: 'BJJ Gyms in',

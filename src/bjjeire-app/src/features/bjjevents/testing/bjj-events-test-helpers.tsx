@@ -22,8 +22,11 @@ export const seedEventsByParam = seeds.seedByParam
 export const seedEventsError = seeds.seedError
 export const seedEventsPending = seeds.seedPending
 
-export function renderEventsPage(): ReturnType<typeof renderWithProviders> {
+export function renderEventsPage(
+  initialRoutes?: string[]
+): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(<EventsPage />, {
     featureFlags: { BjjEvents: true, Gyms: true },
+    ...(initialRoutes ? { initialRoutes } : {}),
   })
 }
