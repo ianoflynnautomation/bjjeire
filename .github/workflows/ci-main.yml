@@ -226,7 +226,7 @@ jobs:
           user: ${{ github.actor }}
           err-ignore: contracts/openapi-accepted-breaks.txt
       - name: Publish OpenAPI contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
         with:
           file: ${{ env.OPENAPI_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -239,7 +239,7 @@ jobs:
           password: ${{ github.token }}
           summary-title: Published OpenAPI contract
       - name: Publish Pact contract to GHCR
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/oci-push-artifact@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
         with:
           file: ${{ env.PACT_ARTIFACT_PATH }}
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-web-pacts
