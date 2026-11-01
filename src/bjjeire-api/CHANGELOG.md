@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.25](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.24...api-v0.1.25) (2026-11-01)
+
+
+### Bug Fixes
+
+* feature flag implementation ([b4f71d2](https://github.com/ianoflynnautomation/bjjeire/commit/b4f71d21847f0dbe46577055a4cb5efda25ff24d))
+
 ## [0.1.24](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.23...api-v0.1.24) (2026-10-16)
 
 ### Features
