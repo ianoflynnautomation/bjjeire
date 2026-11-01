@@ -1,5 +1,8 @@
 import { createContext } from 'react'
-import type { FeatureFlagsMap } from '../types'
-import { DEFAULT_FLAGS } from '../types'
+import { createFeatureFlagClient } from '../client'
+import type { FeatureFlagClient } from '../client'
+import { DEFAULT_FLAGS } from '../definitions'
 
-export const FeatureFlagContext = createContext<FeatureFlagsMap>(DEFAULT_FLAGS)
+export const FeatureFlagContext = createContext<FeatureFlagClient>(
+  createFeatureFlagClient(DEFAULT_FLAGS)
+)

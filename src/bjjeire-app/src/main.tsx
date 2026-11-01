@@ -2,9 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { initCloudflareAnalytics } from '@/services/cloudflare-analytics'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MsalProvider } from '@azure/msal-react'
+import { preloadRoute } from '@/config/route-preload'
 import { queryConfig } from '@/lib/react-query'
-import { msalInstance } from '@/lib/msal-config'
 import {
   DEFAULT_FLAGS,
   FeatureFlagProvider,
@@ -34,23 +33,19 @@ const reactRoot = createRoot(root)
 function render(flags: FeatureFlagsMap): void {
   reactRoot.render(
     <StrictMode>
-      <MsalProvider instance={msalInstance}>
-        <QueryClientProvider client={queryClient}>
-          <FeatureFlagProvider flags={flags}>
-            <App />
-          </FeatureFlagProvider>
-        </QueryClientProvider>
-      </MsalProvider>
+      <QueryClientProvider client={queryClient}>
+        <FeatureFlagProvider flags={flags}>
+          <App />
+        </FeatureFlagProvider>
+      </QueryClientProvider>
     </StrictMode>
   )
 }
 
 async function bootstrap(): Promise<void> {
-  try {
-    await msalInstance.initialize()
-  } catch (error) {
-    logger.warn('MSAL init failed; continuing without auth', error)
-  }
+  // Load the route chunk alongside the flags rather than after them, so the first
+  // render already has the page and never commits the Suspense fallback.
+  const routeReady = preloadRoute(globalThis.location.pathname)
 
   let flags: FeatureFlagsMap = DEFAULT_FLAGS
   try {
@@ -59,6 +54,7 @@ async function bootstrap(): Promise<void> {
     logger.error('Unexpected error resolving feature flags', error)
   }
 
+  await routeReady
   render(flags)
 }
 

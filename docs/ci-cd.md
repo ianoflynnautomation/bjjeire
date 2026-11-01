@@ -31,6 +31,29 @@ README. Do not paste these CI sequences into the README.
 | [`issue-to-pr.yml`](../.github/workflows/issue-to-pr.yml) | issue forms | Turn gym/event/store issue forms into PRs |
 | [`cleanup-artifacts.yml`](../.github/workflows/cleanup-artifacts.yml) | schedule | Artifact retention |
 | [`labels.yml`](../.github/workflows/labels.yml) | push | Label sync |
+| [`pr-labels.yml`](../.github/workflows/pr-labels.yml) | pull request open, push, reopen, title edit | Area labels from the diff, type label from the title |
+
+---
+
+## Pull request labels
+
+[`.github/workflows/pr-labels.yml`](../.github/workflows/pr-labels.yml) labels
+the pull request. It is not part of `pr_complete`.
+
+Area labels come from [`.github/labeler.yml`](../.github/labeler.yml). A pull
+request can carry more than one. `sync-labels` removes an area label when its
+files leave the diff, including a hand-added one. `area:data` is the existing
+directory label; on a pull request it now follows `seeder/data`. Type labels
+come from a conventional commit title (`feat` → `type/feature`, `fix` →
+`type/fix`, `chore` / `ci` / `build` / `style` → `type/chore`, a `!` before
+the colon → `breaking`). The body is not read. A title with no known prefix
+loses its type label. Branch names are not used. `run-smoke`, `deploy-preview`,
+`community-submission`, and the contribution labels (`type:gym`, and the rest)
+are left alone.
+
+Fork pull requests are skipped. The workflow uses `pull_request`, so the
+config in the pull request is the one that runs, and a fork token is not
+given write access.
 
 ---
 

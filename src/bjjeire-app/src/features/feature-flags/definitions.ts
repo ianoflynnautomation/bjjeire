@@ -1,10 +1,11 @@
-// Single source of truth for every feature flag.
+// Single source of truth for every feature flag the SPA knows.
 //
-// Add a flag: append an entry here, set defaultValue (fail-closed unless the
-// feature is GA), and write an `addedAt` so future maintainers can audit
-// stale flags. Removing a flag is a one-line delete here — every consumer
-// is typed against `FeatureFlagName`, so TypeScript will surface dangling
-// references at compile time.
+// Add a flag: append an entry here (fail-closed default), set `addedAt`, and
+// add the same wire name to `com.bjjeire.api.web.FeatureFlag`. Removing a flag
+// is a delete in both places. Consumers are typed against `FeatureFlagName`,
+// so a dangling reference fails the build. Retire a flag once the feature is
+// either always on or deleted; do not leave a permanent toggle for a finished
+// rollout.
 
 export interface FeatureFlagDefinition {
   /** Backend flag name as returned by /api/v1/featureflag. */

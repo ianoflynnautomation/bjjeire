@@ -12,19 +12,20 @@ paths:
 - One component per file. Filename matches the component name in kebab-case: `gym-card.tsx`
 - Feature components: `src/features/{feature}/components/{component-name}.tsx`
 - Shared UI primitives: `src/components/ui/{category}/{component-name}.tsx`
-- Page components: `src/pages/{Name}Page.tsx` — default export, no memo needed
+- Page components: `src/pages/{Name}Page.tsx` — default export
 
 ## Component Definition
-Always use the memoised named function pattern:
+Named function. Do not wrap it in `memo`. The React Compiler (`reactCompilerPreset()` in `vite.base.config.ts`) memoizes components and values created during render, in the app and in tests:
 ```tsx
-export const MyComponent = memo(function MyComponent({
+export const MyComponent = function MyComponent({
   prop1,
   prop2,
 }: MyComponentProps): JSX.Element {
   // ...
-})
+}
 ```
-- `memo()` wraps named function — gives automatic `displayName` for React DevTools
+- The function name is the `displayName` React DevTools, react-refresh, and test output use
+- Do not add `memo`, `useMemo`, or `useCallback` in new code. Existing calls can stay. Add one only when the compiler bails out of that function
 - Explicit `): JSX.Element` return type — required by ESLint rules
 - Named export (not default) for feature/shared components
 - Default export for page components only
@@ -43,8 +44,7 @@ interface MyComponentProps {
 - Event handlers typed precisely: `(value: string) => void`, not `Function`
 
 ## Hooks Inside Components
-- `useCallback` on every function passed as a prop or used in a dependency array
-- `useMemo` on every derived array/object — especially `data ?? []` from query results
+- Event handlers are plain functions. Derived values, including `data ?? []` from query results, are plain expressions. The compiler keeps those references stable
 - `useRef` for DOM element access — never query the DOM directly
 - No logic in the render body that could be a hook — extract to custom hook if needed
 

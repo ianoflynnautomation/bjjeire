@@ -21,9 +21,9 @@ const manualChunkGroups = {
     'axios',
     'date-fns',
   ],
-  msal: ['@azure/msal-browser', '@azure/msal-react'],
+  msal: ['@azure/msal-browser'],
   icons: ['@heroicons/react', 'react-icons'],
-  forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+  validation: ['zod'],
 } as const
 
 function serveProcessedImages(): Plugin {

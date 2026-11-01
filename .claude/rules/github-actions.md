@@ -19,6 +19,7 @@ paths:
 | `issue-to-pr.yml` | `issues` labeled `approved:gym` / `approved:event` | Auto-open draft PR from community-submission issue body |
 | `cleanup-artifacts.yml` | scheduled | Clean old artifacts (pure `gh` CLI, no runtime) |
 | `labels.yml` | push to label config | Sync repo labels |
+| `pr-labels.yml` | pull_request open, sync, reopen, edit | Area labels from changed files; type label from the conventional commit title |
 
 Shared jobs (Maven build/test, workflow lint, OpenAPI breaking gate, cached Node setup, docker-build-push) come from the
 `ianoflynnautomation/bjjeire-ci-templates` repository; E2E comes from `ianoflynnautomation/bjjeire-tests`.

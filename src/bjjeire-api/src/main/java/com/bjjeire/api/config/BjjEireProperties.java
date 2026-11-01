@@ -1,8 +1,9 @@
 package com.bjjeire.api.config;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -20,25 +21,9 @@ public record BjjEireProperties(
         donation = donation == null ? new Donation("") : donation;
         rateLimit = rateLimit == null ? new RateLimit(false, 0, 0, 429) : rateLimit;
         readOnlyMode = readOnlyMode == null ? new ReadOnlyMode(true) : readOnlyMode;
-        featureFlags = featureFlags == null ? Map.of() : Map.copyOf(featureFlags);
-    }
-
-    public boolean isFeatureEnabled(String name) {
-        Boolean exactMatch = featureFlags.get(name);
-        if (exactMatch != null) {
-            return exactMatch;
-        }
-
-        String normalizedName = normalizeFeatureFlagName(name);
-        return featureFlags.entrySet().stream()
-                .filter(entry -> normalizeFeatureFlagName(entry.getKey()).equals(normalizedName))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(false);
-    }
-
-    private static String normalizeFeatureFlagName(String name) {
-        return name.replace("-", "").replace("_", "").toLowerCase(Locale.ROOT);
+        // Keep configuration order: Map.copyOf iterates in a per-JVM order, so which of two
+        // relaxed spellings of a flag wins would differ between restarts and pods.
+        featureFlags = featureFlags == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(featureFlags));
     }
 
     public record Auth(String writerScope) {}

@@ -47,9 +47,7 @@ describe('EventSchedule', () => {
           }}
         />
       )
-      expect(
-        screen.getByText('1–3 April 2026')
-      ).toBeInTheDocument()
+      expect(screen.getByText('1–3 April 2026')).toBeInTheDocument()
     })
 
     it('given equal start and end dates, when the schedule renders, then a single date is shown', () => {

@@ -35,15 +35,18 @@ export const ListPageHeader = function ListPageHeader({
         >
           {title}
         </Title>
-        {showTotal && totalLabel && (
-          <p
-            className="mt-3 inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-fg-muted ring-1 ring-hairline"
-            data-testid={testIds.total}
-            aria-live="polite"
-          >
-            {totalLabel}
-          </p>
-        )}
+        {/* Space stays reserved while the count is unknown, so its arrival shifts nothing. */}
+        <div className="mt-3 min-h-6.5">
+          {showTotal && totalLabel && (
+            <p
+              className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-semibold text-fg-muted ring-1 ring-hairline"
+              data-testid={testIds.total}
+              aria-live="polite"
+            >
+              {totalLabel}
+            </p>
+          )}
+        </div>
       </div>
     </header>
   )

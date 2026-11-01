@@ -15,7 +15,7 @@ export default mergeConfig(
     // the in-flight test file fails to import ("Failed to fetch dynamically
     // imported module").
     optimizeDeps: {
-      include: ['@azure/msal-react', 'react-dom/client'],
+      include: ['react-dom/client'],
     },
     test: {
       name: 'browser',

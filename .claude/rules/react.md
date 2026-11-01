@@ -7,22 +7,22 @@ paths:
 # React / Frontend Conventions
 
 ## Component Patterns
-- Use `memo(function ComponentName())` — gives automatic displayName, required for react-refresh
+- Named function, no `memo`: `export const ComponentName = function ComponentName(): JSX.Element`. The name is what React DevTools, react-refresh, and test output use. The React Compiler (`reactCompilerPreset()` in `vite.base.config.ts`, including tests via `sharedPlugins()`) memoizes the component
+- Do not add `memo`, `useMemo`, or `useCallback` in new code. Existing calls can stay. Add one only when the compiler bails out of that function
 - Props interfaces are named `{ComponentName}Props` and defined immediately above the component
 - Never use `React.FC` for new components
 - Default export pages, named export everything else
 
 ## Hooks
 - Custom hooks live in `src/hooks/` (shared) or `src/features/{feature}/hooks/` (feature-scoped)
-- `useCallback` on all event handlers passed as props
-- `useMemo` on derived arrays/objects — especially `data ?? []` defaults from React Query
+- Event handlers are plain functions. Derived arrays and objects, including `data ?? []` from React Query, are plain expressions. The compiler keeps those references stable
 - `useEffect` cleanup functions need explicit return type: `(): (() => void) => { ... }`
 - `useSearchParams` requires a Router context — always wrap tests in `MemoryRouter` from `react-router`
 
 ## Data Fetching
 - `usePaginatedQuery` is the only data fetching hook for paginated list endpoints
 - When search is active, fetch full dataset with `pageSize: 200` via `updateFilters`
-- `filteredItems = useMemo(() => search.filterItems(items), [search, items])`
+- `filteredItems` is `search.filterItems(items)` in the component body. The compiler caches it
 - Never call `useQuery` directly in pages — wrap in a feature-level hook
 
 ## Imports

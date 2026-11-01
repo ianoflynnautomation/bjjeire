@@ -1,22 +1,21 @@
-import { lazy, Suspense, use, type ReactElement } from 'react'
+import { Suspense, type ReactElement } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router'
 import Navigation from '@/components/layout/navigation'
 import Footer from '@/components/layout/footer'
 import { PageSuspenseFallback } from '@/components/layout/page-suspense-fallback'
 import { paths } from '@/config/paths'
-import { features } from '@/config/features'
-import { FeatureFlagContext } from '@/features/feature-flags/context/feature-flag-context'
+import { AboutPage, features } from '@/config/features'
+import { FeatureGate, useFeatureFlagClient } from '@/features/feature-flags'
 import '@/index.css'
 
-const AboutPage = lazy(() => import('@/pages/AboutPage'))
-
 export function AppRoutes(): ReactElement {
-  // Flags are resolved synchronously at boot (see main.tsx → loadFeatureFlags)
-  // so this read is hot from the start. No race condition, no flash redirect.
-  const flags = use(FeatureFlagContext)
+  // Flags are resolved before the first render (main.tsx → loadFeatureFlags).
+  // FeatureGate's first paint is the final one, so a disabled route never mounts.
+  const client = useFeatureFlagClient()
 
   const defaultPath =
-    features.find(f => flags[f.flag])?.path ?? paths.about.path
+    features.find(feature => client.isEnabled(feature.flag))?.path ??
+    paths.about.path
 
   return (
     <Routes>
@@ -29,7 +28,12 @@ export function AppRoutes(): ReactElement {
           key={flag}
           path={path}
           element={
-            flags[flag] ? <Component /> : <Navigate to={defaultPath} replace />
+            <FeatureGate
+              flag={flag}
+              fallback={<Navigate to={defaultPath} replace />}
+            >
+              <Component />
+            </FeatureGate>
           }
         />
       ))}

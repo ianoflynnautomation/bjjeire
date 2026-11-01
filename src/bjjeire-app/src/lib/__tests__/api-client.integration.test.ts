@@ -6,6 +6,7 @@ import { testApiUrl } from '@/testing/seed-helpers'
 
 const { mockMsalInstance } = vi.hoisted(() => ({
   mockMsalInstance: {
+    initialize: vi.fn<() => Promise<void>>(() => Promise.resolve()),
     getAllAccounts: vi.fn<() => object[]>(() => []),
     acquireTokenSilent: vi.fn(),
   },

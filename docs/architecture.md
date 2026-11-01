@@ -161,7 +161,7 @@ src/bjjeire-app/src/
 Conventions the linters do not catch:
 
 - Cross-folder imports use `@/`; same-folder imports stay relative.
-- Components are `memo(function ComponentName())`.
+- Components are named functions (`export const ComponentName = function ComponentName()`). The React Compiler memoizes them; do not add `memo`.
 - **All user-visible strings** live in `config/ui-content.ts`.
 - Data test IDs come from `constants/*DataTestIds.ts` — never inline literals.
 - CVA variants live in `lib/`.

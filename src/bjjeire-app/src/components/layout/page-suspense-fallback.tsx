@@ -4,7 +4,7 @@ import { uiContent } from '@/config/ui-content'
 
 export function PageSuspenseFallback(): JSX.Element {
   return (
-    <div className="flex min-h-[60vh] items-center justify-center p-8">
+    <div className="flex min-h-screen items-center justify-center p-8">
       <LoadingSpinner
         size="lg"
         color="text-primary-500 dark:text-primary-300"

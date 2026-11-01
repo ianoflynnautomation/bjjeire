@@ -11,6 +11,7 @@ vi.mock('@/config/env', () => ({
 
 vi.mock('@/lib/msal-config', () => ({
   msalInstance: {
+    initialize: (): Promise<void> => Promise.resolve(),
     getAllAccounts: (): object[] => [],
     acquireTokenSilent: vi.fn(),
   },

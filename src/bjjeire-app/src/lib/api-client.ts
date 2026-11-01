@@ -2,7 +2,6 @@ import Axios from 'axios'
 import type { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios'
 import { env } from '@/config/env'
 import { API_BASE_PATH } from '@/config/api-routes'
-import { msalInstance, loginRequest } from '@/lib/msal-config'
 import { logger } from '@/lib/logger'
 
 class ApiService {
@@ -24,6 +23,9 @@ class ApiService {
       if (method === 'get') {
         return config
       }
+      // Public reads never need MSAL, so its bundle is loaded only for a write.
+      const { msalInstance, loginRequest } = await import('@/lib/msal-config')
+      await msalInstance.initialize()
       const accounts = msalInstance.getAllAccounts()
       if (accounts.length === 0) {
         return config
