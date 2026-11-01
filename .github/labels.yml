@@ -44,7 +44,7 @@
   description: "Title uses a conventional commit breaking marker"
 - name: "deploy-preview"
   color: "0e8a16"
-  description: "Flux preview environment for this PR"
+  description: "Opt in to a Flux preview environment for this pull request"
 - name: "run-smoke"
   color: "fbca04"
   description: "Force Compose @smoke on the PR even when compose paths did not change"

@@ -15,12 +15,6 @@
         "status",
         "audit-diff"
       ]
-    },
-    "playwright-test": {
-      "type": "local",
-      "command": "bash",
-      "args": ["tools/playwright-test-mcp.sh"],
-      "tools": ["*"]
     }
   }
 }

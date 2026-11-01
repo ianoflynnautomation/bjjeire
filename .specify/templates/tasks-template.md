@@ -12,7 +12,7 @@ description: "Task list template for feature implementation"
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: User story id (US1, US2, …)
-- Include exact file paths
+- Name the feature package or folder. Give an exact file path only when the path is itself a contract, and derive the rest from the code while building
 
 ## Path Conventions
 

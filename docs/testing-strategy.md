@@ -269,7 +269,7 @@ Value-first: each assertion lives in **one** tier. Overlap is allowed only as a 
 | **T3 Frontend unit** | Utils, hooks, presentational components | Vitest `*.unit.test.{ts,tsx}`, jsdom, Testing Library | `price-calculator`, `map-utils`, `GymCard` rendering from a DTO, debounce, focus trap | Network, MSW, router + React Query + page together, CSS screenshots | **Commit** `npm run test`; **PR and main** `frontend_unit` |
 | **T4 Frontend integration** | Pages, feature hooks, API clients | Vitest `*.integration.test.{ts,tsx}`, MSW, `renderWithProviders` | Page loading / error / empty / list; county combobox writes `?county=`; pagination next page; `getGyms` query-string | `vi.mock` of child components; `vi.mock('@/lib/api-client')` (that is a unit seam); visual pixels | **Commit** `npm run test:integration`; **PR and main** `frontend_integration` |
 | **T5 In-repo browser** | Behaviours jsdom cannot model | Vitest `*.browser.test.{ts,tsx}`, `@vitest/browser-playwright`, Chromium | `:focus-visible`, native Tab order, real layout focus | Full user journeys, a11y audits of pages, API contract | **PR** `test_frontend_browser` when `frontend` filter matches. Keep this set tiny. |
-| **T6 Acceptance / E2E** | Critical visitor journeys against running images | Playwright in **`bjjeire-tests`**, axe-core, Zod against live JSON, Compose `@smoke` / AKS acceptance | Auth-adjacent happy paths, gyms/events/competitions/stores browse+filter on **seeded** data, a11y of those journeys, visual snapshots of critical views | Re-testing calculator arithmetic; asserting "item 1 of an unfiltered list"; mocking Mongo | **PR** `compose_smoke` if `compose` filter or `run-smoke` label; **main** AKS acceptance when enabled; staging schedule |
+| **T6 Acceptance / E2E** | Critical visitor journeys against running images | Playwright in **`bjjeire-tests`**, axe-core, Zod against live JSON, Compose `@smoke` / AKS acceptance | Auth-adjacent happy paths, gyms/events/competitions/stores browse+filter on **seeded** data, a11y of those journeys, visual snapshots of critical views | Re-testing calculator arithmetic; asserting "item 1 of an unfiltered list"; mocking Mongo | **PR** `pr-env-validation` when a ready pull request has the `deploy-preview` label and the diff matches `java_api_image`, `frontend`, or `seeder` (three at a time); **PR** `compose_smoke` if `compose` filter or `run-smoke` label; **main** AKS acceptance when enabled; staging schedule |
 | **T7 Flake evidence** | Historical (test, project) stability | `atest` / `aplaytest` (`atest_analyze`) | 90-day flake verdict for humans | Merge gating | **PR + main** after a test job; **never** in `pr_complete` / `main_complete` ([ADR-0005](adr/0005-flake-analysis-is-advisory.md)) |
 
 ### 2.1 Decision table — which tier owns this assertion?
@@ -560,7 +560,7 @@ Two different Playwright uses. Do not collapse them.
 - axe-core and screenshot snapshots live **here**, not in Vitest unit tests (the SPA testing README is explicit).
 - Seeded data is shared with `seeder/data-test/` and `bjjeire-tests/tests/testdata/seeded/`.
 
-**Do not** add Playwright `*.spec.ts` in this repo. Agent **plans** for smoke/regression live in [`specs/playwright/`](../specs/playwright/); the generator writes specs in `bjjeire-tests`. **Do not** grow Vitest browser tests into a second E2E suite.
+**Do not** add Playwright `*.spec.ts` in this repo. Acceptance plans, specs and Playwright agents all live in `bjjeire-tests`. **Do not** grow Vitest browser tests into a second E2E suite.
 
 ---
 

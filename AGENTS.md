@@ -21,7 +21,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
-| Playwright smoke / regression agents | [specs/playwright/](specs/playwright/) — plans here, specs in `bjjeire-tests` |
+| Acceptance tests and Playwright agents | `bjjeire-tests` owns the plans, specs and agents: see its `AGENTS.md` and `docs/agents.md` |
 
 Architecture: [docs/architecture.md](docs/architecture.md).
 Living specs: [specs/](specs/).
@@ -36,7 +36,9 @@ One instruction file, one skill tree. Harness folders are links, not copies.
 - **Copilot / gh-aw.** `.github/skills/agentic-workflows` is a symlink to `../../.agents/skills/agentic-workflows`.
 - **Rules.** Narrow rules stay in `.claude/rules/`. They are not a second copy of this file.
 - **Commands.** Slash commands live once in `.claude/commands/`. Claude Code and Grok both read that directory.
-- **Subagents.** Claude subagents stay in `.claude/agents/`. Grok agent definitions stay in `.grok/agents/` because the file format differs.
+- **Subagents.** Claude subagents stay in `.claude/agents/`. A Grok agent definition, if added, goes in `.grok/agents/` because the file format differs.
+- **Hooks.** `.claude/settings.json` denies reads of `.env` and `secrets/` and blocks pushes to `main` and destructive git commands. `.claude/hooks/guard-edit.mjs` (PreToolUse) denies edits to generated API types, `*.lock.yml`, `.env` and `secrets/`, and denies adding `"isAvailable": null` to seeder JSON. `.claude/hooks/verify-changed.mjs` (Stop) runs targeted checks on changed sources. Hooks bind Claude Code only, including subagents. Bash writes and humans are not blocked by the edit guard.
+- **Feature flow.** `/spec <feature>`, then `/clear`, then `/build-feature <spec path>`. The session building the feature does not judge it: `spec-verifier` is read-only and starts with fresh context. Agent teams stay off in settings, because enabling them makes named subagents launch as teammates.
 - **Symlinks.** Relative links. macOS and Linux checkouts follow them. A Windows checkout needs `core.symlinks=true`.
 
 ## Working Style
@@ -107,6 +109,7 @@ npm run build
 
 ## Config Notes
 
+- Development runs in the dev container. Do not install tools or start the app directly on the Mac. From the host, run checks with `devcontainer exec --workspace-folder . <command>`. A missing JDK or a Vitest startup error on the host is expected.
 - `.env` is required.
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.
@@ -132,6 +135,9 @@ Full detail in [docs/ci-cd.md](docs/ci-cd.md). The parts that bite:
   `check_openapi_breaking` and `check_frontend_api_compat`. Fix the SPA in the
   same pull request.
 - Force the Compose smoke suite on any PR with the **`run-smoke`** label.
+- AKS preview is opt-in. A person adds **`deploy-preview`**. Do not apply it
+  from the type label or from CI. The dev cluster keeps three previews.
+  `pr-env-validation.yml` is not part of `pr_complete`.
 - Never commit secrets. Azure auth is OIDC (`id-token: write`), and
   `VITE_APP_*` values are public build arguments, not secrets.
 
