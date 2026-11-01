@@ -14,7 +14,7 @@ paths:
 | `build-push-ghcr.yml` | `workflow_call`, `workflow_dispatch` | Reusable: build + push Docker images to GHCR, provenance attestation, Trivy scan |
 | `release.yml` | push to `main` (release-please drives tagging) | GitHub Release assets; retag `:main` images to semver + `latest` |
 | `validate-data.yml` | PR touching seeder data/entities | Strict deserialization + Ireland bbox check on gym coordinates |
-| `pr-env-validation.yml` | pull_request (gated on `PR_ENV_ENABLED`) | Flux preview env + Playwright `@smoke\|@acceptance` |
+| `pr-env-validation.yml` | pull_request to `main` (gated on `PR_ENV_ENABLED`) | Opt-in Flux preview + Playwright `@smoke\|@acceptance`. Image builds and acceptance run only after a person adds `deploy-preview`. CI does not add the label |
 | `acceptance-staging.yml` | schedule + dispatch | Playwright `@acceptance` against long-lived staging |
 | `issue-to-pr.yml` | `issues` labeled `approved:gym` / `approved:event` | Auto-open draft PR from community-submission issue body |
 | `cleanup-artifacts.yml` | scheduled | Clean old artifacts (pure `gh` CLI, no runtime) |

@@ -22,7 +22,7 @@
 
 **Project Type**: Modular monolith (API + SPA in this repo; acceptance in `bjjeire-tests`)
 
-**Constraints**: OpenAPI/Pact gates; path-filtered CI; dark theme only; GeoJSON `[lng, lat]`
+**Constraints**: OpenAPI/Pact gates; path-filtered CI; light, dark and competition themes; GeoJSON `[lng, lat]`
 
 **Scale/Scope**: Ireland-wide BJJ directory (gyms, events, competitions, stores)
 
@@ -33,7 +33,7 @@
 - [ ] Package-by-feature respected (ADR-0001)
 - [ ] Wire-shape change has OpenAPI/Pact/spec updates (ADR-0002)
 - [ ] No new CI job left out of the aggregator (ADR-0003), except `atest_analyze`
-- [ ] No light-theme or ad-hoc UI strings (ADR-0007, ADR-0008)
+- [ ] All three themes still work and no ad-hoc UI strings (ADR-0011, ADR-0008)
 - [ ] No new cloud stack (`azd` / Cosmos / Container Apps)
 
 ## Project Structure

@@ -1,16 +1,35 @@
 name: PR Environment Validation
 
-# Per-PR preview environment on AKS, owned by Flux.
+# Opt-in per-PR preview on AKS, owned by Flux.
 #
-# Lifecycle:
-#   opened/synchronize/reopened
-#     1. Build + push pr-<n>-<headsha> images (docker-build-push.yml)
-#     2. Add label deploy-preview — ResourceSetInputProvider picks it up
-#     3. Wait for HelmRelease bjj-eire in namespace pr-<n>
-#     4. Run Playwright against https://pr-N.bjjeire.com with those names
-#        pinned to the in-cluster Istio gateway (skips Cloudflare Bot Fight)
+# deploy-preview is the switch. This workflow does not add it, and a
+# type/feature title does not add it. pr-labels.yml leaves the label alone.
+#
+# A pull request that is not a draft, not a fork, and not dependabot/*:
+#   opened / synchronize / reopened / ready_for_review / labeled deploy-preview
+#     label present and the diff matches java_api_image, frontend, or seeder:
+#       1. Build + push pr-<n>-<sha> images (docker-build-push.yml)
+#       2. Wait for HelmRelease bjj-eire in namespace pr-<n>.
+#          ResourceSetInputProvider bjj-eire-prs lists labeled PRs, limit 3.
+#       3. Run Playwright @smoke|@acceptance against that preview, with the
+#          hostnames pinned to the in-cluster Istio gateway.
+#     label absent and the diff is deployable:
+#       One sticky comment that says how to opt in.
+#     label present and the diff is not deployable:
+#       Sticky comment, no images.
+#   unlabeled deploy-preview
+#     Flux prunes the namespace. The sticky comment says so.
+#     This run does not cancel an in-progress close, so the backup delete
+#     below is not aborted by the label removal it just performed.
 #   closed
-#     Remove deploy-preview (Flux prunes) and delete the namespace as backup
+#     Remove deploy-preview (Flux prunes) and delete the namespace as backup.
+#
+# Drafts do nothing until ready_for_review.
+# Not in pr_complete. A missing preview does not block merge.
+#
+# No paths-ignore: a docs-only pull request can still carry the label, and
+# the explain comment has to be able to run. An idle diff stops after path
+# detection and deletes a stale opt-in comment.
 #
 # Gated on PR_ENV_ENABLED. Fork PRs are skipped (no secrets, no write labels).
 #
@@ -21,18 +40,14 @@ name: PR Environment Validation
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, closed]
     branches: [main]
-    paths-ignore:
-      - "**.md"
-      - "logs/**"
-      - "docs/**"
-      - ".gitattributes"
-      - ".gitignore"
 
 concurrency:
   group: pr-env-${{ github.event.pull_request.number }}
-  cancel-in-progress: ${{ github.event.action != 'closed' }}
+  # unlabeled shares this group with a close run that just removed the label.
+  # Cancelling that run would skip the backup namespace delete.
+  cancel-in-progress: ${{ github.event.action != 'closed' && github.event.action != 'unlabeled' }}
 
 permissions:
   contents: read
@@ -47,12 +62,20 @@ jobs:
     if: >
       vars.PR_ENV_ENABLED == 'true' &&
       github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event.action != 'unlabeled' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (
+        github.event.action != 'labeled' ||
+        github.event.label.name == 'deploy-preview'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       changes: ${{ steps.changes.outputs.changes }}
       preview: ${{ steps.preview.outputs.preview }}
+      mode: ${{ steps.preview.outputs.mode }}
+      dependabot: ${{ steps.preview.outputs.dependabot }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -64,21 +87,41 @@ jobs:
       - id: preview
         env:
           CHANGES: ${{ steps.changes.outputs.changes }}
+          HAS_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'deploy-preview') }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           set -euo pipefail
+          echo "::group::Preview decision"
           preview=false
           if printf '%s' "${CHANGES:-[]}" | jq -e 'index("java_api_image") or index("frontend") or index("seeder")' >/dev/null; then
             preview=true
           fi
-          echo "preview=${preview}" >> "$GITHUB_OUTPUT"
-          echo "::notice title=PR preview::needed=${preview} changes=${CHANGES:-[]}"
+          dependabot=false
+          case "${HEAD_REF}" in
+            dependabot/*) dependabot=true ;;
+          esac
+          mode=idle
+          if [ "${dependabot}" = "true" ]; then
+            if [ "${HAS_LABEL}" = "true" ]; then
+              mode=explain
+            fi
+          elif [ "${HAS_LABEL}" = "true" ] && [ "${preview}" = "true" ]; then
+            mode=deploy
+          elif [ "${HAS_LABEL}" = "true" ]; then
+            mode=explain
+          elif [ "${preview}" = "true" ]; then
+            mode=nudge
+          fi
+          {
+            echo "preview=${preview}"
+            echo "mode=${mode}"
+            echo "dependabot=${dependabot}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice title=PR preview::mode=${mode} needed=${preview} dependabot=${dependabot} changes=${CHANGES:-[]}"
+          echo "::endgroup::"
 
   build_api_image:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.detect_changes.outputs.preview == 'true'
+    if: needs.detect_changes.outputs.mode == 'deploy'
     name: Build API Image
     needs: detect_changes
     permissions:
@@ -103,11 +146,7 @@ jobs:
         org.opencontainers.image.title=bjjeire-api
 
   build_frontend_image:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.detect_changes.outputs.preview == 'true'
+    if: needs.detect_changes.outputs.mode == 'deploy'
     name: Build Frontend Image
     needs: detect_changes
     permissions:
@@ -142,11 +181,7 @@ jobs:
         VITE_APP_GITHUB_URL=${{ secrets.VITE_APP_GITHUB_URL }}
 
   build_seeder_image:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.detect_changes.outputs.preview == 'true'
+    if: needs.detect_changes.outputs.mode == 'deploy'
     name: Build Seeder Image
     needs: detect_changes
     permissions:
@@ -170,55 +205,10 @@ jobs:
       labels: |
         org.opencontainers.image.title=bjjeire-seeder
 
-  label_preview:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    name: Label Deploy Preview
-    needs: [build_api_image, build_frontend_image, build_seeder_image]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      pull-requests: write
-      issues: write
-    steps:
-      - name: Ensure label and apply it
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
-        with:
-          script: |
-            const label = 'deploy-preview'
-            try {
-              await github.rest.issues.getLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                name: label,
-              })
-            } catch (err) {
-              if (err.status !== 404) throw err
-              await github.rest.issues.createLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                name: label,
-                color: '0e8a16',
-                description: 'Flux preview environment for this PR',
-              })
-            }
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: [label],
-            })
-            core.notice(`Labeled #${context.issue.number} ${label}`)
-
   wait_preview_ready:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: needs.detect_changes.outputs.mode == 'deploy'
     name: Wait for Flux Preview
-    needs: [label_preview]
+    needs: [detect_changes, build_api_image, build_frontend_image, build_seeder_image]
     runs-on: gha-runner-scale-set
     timeout-minutes: 20
     permissions:
@@ -256,7 +246,7 @@ jobs:
             sleep 5
           done
           echo "::endgroup::"
-          echo "::error title=Preview not created::HelmRelease bjj-eire did not appear in ${NS} within 5m — check ResourceSetInputProvider bjj-eire-prs and the deploy-preview label"
+          echo "::error title=Preview not created::HelmRelease bjj-eire did not appear in ${NS} within 5m — check that deploy-preview is still on this pull request, that the provider is under its limit of 3, and that ResourceSetInputProvider bjj-eire-prs exported it"
           exit 1
 
       - name: Wait for HelmRelease Ready
@@ -280,10 +270,7 @@ jobs:
           artifact-name: k8s-diagnostics-${{ env.PREVIEW_NS }}
 
   test_acceptance:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: needs.wait_preview_ready.result == 'success'
     name: Acceptance Tests
     needs: [wait_preview_ready]
     permissions:
@@ -338,14 +325,9 @@ jobs:
         PW_TEST_PASSWORD=${{ secrets.PW_TEST_PASSWORD }}
 
   comment_preview:
-    if: >
-      vars.PR_ENV_ENABLED == 'true' &&
-      github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      always() &&
-      needs.wait_preview_ready.result != 'skipped'
+    if: ${{ !cancelled() && needs.detect_changes.result == 'success' }}
     name: Comment Preview Environment
-    needs: [wait_preview_ready, test_acceptance]
+    needs: [detect_changes, build_api_image, build_frontend_image, build_seeder_image, wait_preview_ready, test_acceptance]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -355,43 +337,154 @@ jobs:
         id: comment_body
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
+          MODE: ${{ needs.detect_changes.outputs.mode }}
+          DEPENDABOT: ${{ needs.detect_changes.outputs.dependabot }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NS: ${{ env.PREVIEW_NS }}
           BASE_URL: ${{ needs.wait_preview_ready.outputs.base_url }}
           API_URL: ${{ needs.wait_preview_ready.outputs.api_base_url }}
+          API_RESULT: ${{ needs.build_api_image.result }}
+          FRONTEND_RESULT: ${{ needs.build_frontend_image.result }}
+          SEEDER_RESULT: ${{ needs.build_seeder_image.result }}
           DEPLOY_RESULT: ${{ needs.wait_preview_ready.result }}
           TEST_RESULT: ${{ needs.test_acceptance.result }}
         run: |
           set -euo pipefail
-          DEPLOY="${DEPLOY_RESULT:-unknown}"
-          TESTS="${TEST_RESULT:-unknown}"
-          if [ "$DEPLOY" = "success" ] && [ "$TESTS" = "success" ]; then
-            STATUS=PASS
+          echo "::group::Compose PR env comment"
+          mode="${MODE}"
+          skip=false
+          if ! labels="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels" --jq '.[].name')"; then
+            echo "::warning title=Label check::could not read pull request labels; using the decision from the start of this run"
+            labels=""
+            label_check=failed
           else
-            STATUS=FAIL
+            label_check=ok
           fi
+          if [ "${label_check}" = "ok" ]; then
+            has_label=false
+            if printf '%s\n' "${labels}" | grep -qx 'deploy-preview'; then
+              has_label=true
+            fi
+            case "${mode}" in
+              deploy|explain)
+                if [ "${has_label}" = "false" ]; then
+                  mode=removed
+                fi
+                ;;
+              nudge|idle)
+                # A later run owns the preview. Do not overwrite its comment.
+                if [ "${has_label}" = "true" ]; then
+                  skip=true
+                fi
+                ;;
+            esac
+          fi
+
+          case "${mode}" in
+            idle|nudge|explain|removed|deploy) ;;
+            *)
+              echo "::error title=Unknown preview mode::${mode}"
+              echo "::endgroup::"
+              exit 1
+              ;;
+          esac
+
           DELIM="body_$(date +%s%N)"
           {
+            echo "skip=${skip}"
             echo "body<<${DELIM}"
-            echo "## PR env: ${STATUS}"
-            echo ""
-            echo "| Stage | Result |"
-            echo "|---|---|"
-            echo "| Flux preview | \`${DEPLOY}\` |"
-            echo "| Acceptance | \`${TESTS}\` |"
-            echo ""
-            echo "Frontend: ${BASE_URL:-(not deployed)}"
-            echo "API: ${API_URL:-(not deployed)}"
-            echo ""
-            echo "_Reaped when this PR closes or after the janitor TTL (2h)._"
+            case "${mode}" in
+              idle)
+                ;;
+              nudge)
+                echo "## PR env"
+                echo ""
+                echo "This pull request changes the API image, the frontend, or the seeder."
+                echo ""
+                echo "Add the \`deploy-preview\` label to build images, create namespace \`${NS}\`, and run acceptance. Three previews can exist at once. Remove the label to tear the namespace down."
+                ;;
+              explain)
+                echo "## PR env"
+                echo ""
+                if [ "${DEPENDABOT}" = "true" ]; then
+                  echo "\`deploy-preview\` does not create an environment for a Dependabot pull request. The preview provider skips \`dependabot/\` branches. Remove the label."
+                else
+                  echo "\`deploy-preview\` is set, and this diff does not change the API image, the frontend, or the seeder. This run did not build images."
+                  echo ""
+                  echo "Remove the label to tear down namespace \`${NS}\` if a preview from an earlier push is still up."
+                fi
+                ;;
+              removed)
+                echo "## PR env"
+                echo ""
+                echo "\`deploy-preview\` was removed. Flux will prune namespace \`${NS}\`. The janitor TTL is 2 hours if prune is slow."
+                ;;
+              deploy)
+                deploy="${DEPLOY_RESULT:-unknown}"
+                tests="${TEST_RESULT:-unknown}"
+                api="${API_RESULT:-unknown}"
+                frontend="${FRONTEND_RESULT:-unknown}"
+                seeder="${SEEDER_RESULT:-unknown}"
+                status=PASS
+                for result in "${api}" "${frontend}" "${seeder}" "${deploy}" "${tests}"; do
+                  if [ "${result}" != "success" ]; then
+                    status=FAIL
+                  fi
+                done
+                echo "## PR env: ${status}"
+                echo ""
+                echo "| Stage | Result |"
+                echo "|---|---|"
+                echo "| API image | \`${api}\` |"
+                echo "| Frontend image | \`${frontend}\` |"
+                echo "| Seeder image | \`${seeder}\` |"
+                echo "| Flux preview | \`${deploy}\` |"
+                echo "| Acceptance | \`${tests}\` |"
+                echo ""
+                echo "Frontend: ${BASE_URL:-(not deployed)}"
+                echo "API: ${API_URL:-(not deployed)}"
+                echo ""
+                echo "_Reaped when this pull request closes, when \`deploy-preview\` is removed, or after the janitor TTL (2h)._"
+                ;;
+            esac
             echo "${DELIM}"
           } >> "$GITHUB_OUTPUT"
+          echo "::notice title=PR env comment::mode=${mode} skip=${skip}"
+          echo "::endgroup::"
 
       - name: Post PR env link
+        if: steps.comment_body.outputs.skip != 'true'
         uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
         with:
           marker: "<!-- pr-env-validation -->"
           body: ${{ steps.comment_body.outputs.body }}
           issue-number: ${{ github.event.pull_request.number }}
+          delete-on-empty: "true"
           summary-title: PR environment
+
+  comment_removed:
+    if: >
+      vars.PR_ENV_ENABLED == 'true' &&
+      github.event.action == 'unlabeled' &&
+      github.event.label.name == 'deploy-preview' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    name: Comment Preview Removed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post removal comment
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/sticky-comment@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        with:
+          marker: "<!-- pr-env-validation -->"
+          issue-number: ${{ github.event.pull_request.number }}
+          summary-title: PR environment
+          body: |
+            ## PR env
+
+            `deploy-preview` was removed. Flux will prune namespace `pr-${{ github.event.pull_request.number }}`. The janitor TTL is 2 hours if prune is slow.
 
   unlabel_preview:
     if: >

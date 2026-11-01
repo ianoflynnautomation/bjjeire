@@ -22,17 +22,12 @@ specs/
 │   ├── events.md
 │   ├── competitions.md
 │   └── stores.md
-├── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
-│   ├── README.md
-│   ├── gyms/
-│   ├── events/
-│   ├── competitions/
-│   └── stores/
-└── playwright/                   # Playwright Test Agent plans (tests live in bjjeire-tests)
+└── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
     ├── README.md
-    ├── seed.md
-    ├── smoke.md
-    └── regression.md
+    ├── gyms/
+    ├── events/
+    ├── competitions/
+    └── stores/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).
@@ -54,7 +49,7 @@ capability.
 | Concern | System of record |
 |---|---|
 | Architecture, ADRs, Java, React, Mongo, OpenAPI | this repo |
-| Acceptance tests, Playwright Zod, page objects | `bjjeire-tests` |
+| Acceptance plans and tests, Playwright agents, Zod, page objects | `bjjeire-tests` |
 | Flake/heal evidence engine | `atest` (`@aplaytest/*`) |
 | In-cluster deploy | `bjjeire-gitops` + `bjjeire-deploy` |
 
@@ -65,3 +60,7 @@ capability.
 3. Read or create `specs/stc/<feature>/` (check catalog + traceability). See [docs/testing-strategy.md](../docs/testing-strategy.md).
 4. Follow `.specify/rules/` for the language you are editing.
 5. If the wire shape moves, update the contract **in the same PR**.
+
+To build a feature in Claude Code, run `/spec <feature>` and review the result. Then run
+`/clear` and `/build-feature <spec path>`, which ends with an independent review by the
+read-only `spec-verifier` subagent.

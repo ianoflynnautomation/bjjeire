@@ -23,7 +23,7 @@ README. Do not paste these CI sequences into the README.
 | [`ci-main.yml`](../.github/workflows/ci-main.yml) | `push` → `main` | Publish contracts, build and push images, acceptance, promote |
 | [`build-push-ghcr.yml`](../.github/workflows/build-push-ghcr.yml) | `workflow_call` / dispatch | Multi-arch image build, scan, attest, push |
 | [`release.yml`](../.github/workflows/release.yml) | push / schedule | release-please version tags |
-| [`pr-env-validation.yml`](../.github/workflows/pr-env-validation.yml) | manual / label | Flux preview env on AKS + Playwright |
+| [`pr-env-validation.yml`](../.github/workflows/pr-env-validation.yml) | opt-in `deploy-preview` label | Flux preview env on AKS + Playwright |
 | [`acceptance-staging.yml`](../.github/workflows/acceptance-staging.yml) | manual | Acceptance against staging |
 | [`audit-release.yml`](../.github/workflows/audit-release.yml) | release | Compliance pack + PDF |
 | [`destroy-ephemeral-env.yml`](../.github/workflows/destroy-ephemeral-env.yml) | manual / cleanup | Tear down preview namespaces |
@@ -54,6 +54,26 @@ are left alone.
 Fork pull requests are skipped. The workflow uses `pull_request`, so the
 config in the pull request is the one that runs, and a fork token is not
 given write access.
+
+### Preview environments
+
+`deploy-preview` is opt-in, on the same terms as `run-smoke`.
+[`pr-env-validation.yml`](../.github/workflows/pr-env-validation.yml) does not
+add the label, and a `feat` title does not add it either. A person adds it to
+a pull request that is not a draft.
+
+When the label is present and the diff matches `java_api_image`, `frontend`,
+or `seeder`, the workflow builds those three images and Flux
+`ResourceSetInputProvider/bjj-eire-prs` creates namespace `pr-<n>`. The
+provider keeps at most three of those namespaces. Removing the label lets
+Flux prune the namespace. Closing the pull request removes the label and
+deletes the namespace as a backup.
+
+A labeled pull request with no deployable diff gets a comment and no images.
+`dependabot/` branches are skipped, matching the provider's `excludeBranch`.
+Drafts wait until they are marked ready for review. A ready pull request
+that touches a deployable path and has no label gets one sticky comment
+explaining how to opt in. The workflow is not in `pr_complete`.
 
 ---
 
@@ -441,6 +461,7 @@ PR reports keep 14 days; main reports keep 90.
 | Variable | Used by |
 |---|---|
 | `ACCEPTANCE_AKS_ENABLED` | Feature-flags `acceptance_ephemeral` |
+| `PR_ENV_ENABLED` | Feature-flags opt-in `deploy-preview` environments |
 | `AKS_RESOURCE_GROUP`, `AKS_CLUSTER_NAME`, `AKS_CLUSTER_DOMAIN`, `AKS_ROOT_DOMAIN` | Ephemeral acceptance target |
 | `ATEST_HISTORY_ACCOUNT` | Flake history storage account |
 | `ATEST_VERSION` | Pins the aplaytest image tag; falls back to `main` |
@@ -474,6 +495,7 @@ stale value ships a frontend that talks to the wrong API.
 | `check_openapi_breaking` red | A controller signature or DTO changed incompatibly. Make it additive, or add one line per intended break to `contracts/openapi-accepted-breaks.txt` and delete those lines after the new baseline is published. |
 | `check_frontend_api_compat` red | The API changed and the generated TS types no longer typecheck. Fix the SPA in the same PR. |
 | A job you expected did not run | Path filters. Check `detect_changes` output; add the `run-smoke` label to force compose. |
+| No `pr-<n>` namespace | `deploy-preview` is opt-in. The pull request must be ready for review, not a `dependabot/` branch, and the diff must match `java_api_image`, `frontend`, or `seeder`. The provider keeps three namespaces. |
 | Everything skipped | `paths-ignore` matched — docs/markdown-only change. |
 | `pr_complete` red, all jobs green | A job failed *and* was in `needs`; or `audit_report` failed on `fail-on-test-failure`. |
 | Images built but `:main` unmoved | `promote_images` skipped — usually `acceptance_ephemeral` failed, or `fail-on-flaky` fired. |

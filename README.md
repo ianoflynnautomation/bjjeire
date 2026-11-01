@@ -213,7 +213,7 @@ The job sequences are [CI PR](docs/ci-cd.md#ci-pr-sequence) and
 | **CI PR** | `.github/workflows/ci-pr.yml` | Merge gate: build, test, contract checks, Compose `@smoke`. `pr_complete` is the required check |
 | **CI Main** | `.github/workflows/ci-main.yml` | Publish contracts, build images, ephemeral acceptance, promote digests to `:main` |
 | Build & Push | `.github/workflows/build-push-ghcr.yml` | Multi-arch image build, scan, attest, push |
-| PR Env Validation | `.github/workflows/pr-env-validation.yml` | Flux preview on AKS + Playwright acceptance |
+| PR Env Validation | `.github/workflows/pr-env-validation.yml` | Opt-in `deploy-preview` label: Flux preview on AKS + Playwright acceptance |
 | Release | `.github/workflows/release.yml` | Versioned releases via release-please |
 | Audit Release Report | `.github/workflows/audit-release.yml` | Compliance pack (release ID, SHA-256 catalog, PDF + Step Summary) |
 

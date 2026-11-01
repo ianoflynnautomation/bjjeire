@@ -13,7 +13,8 @@ name: Pull Request Labels
 # Type labels come from a conventional commit title. The body is never read.
 # A title with no known prefix loses its type label. It does not get a guess.
 # Any other label (for example run-smoke, deploy-preview, community-submission,
-# or type:gym) is left alone.
+# or type:gym) is left alone. pr-env-validation.yml reads deploy-preview and
+# does not add it.
 # Branch names are not used. feature/ does not mean type/feature.
 #
 # pull_request, not pull_request_target: the workflow and the label config

@@ -97,8 +97,9 @@ shard — you will not have Firefox/Chromium evidence from that run.
 
 **Meaning:** Flux ResourceSet did not materialise `pr-<n>`. Usual causes:
 
-- PR missing the `deploy-preview` label (job `Label deploy-preview` skipped or
-  failed)
+- The pull request does not have the `deploy-preview` label, or it is still a
+  draft. CI does not add the label. The provider also drops a fourth labeled
+  pull request (`filter.limit: 3`) and every `dependabot/` branch.
 - `ResourceSetInputProvider/bjj-eire-prs` not exporting this PR
 - `flux-preview` ClusterRole missing a verb (was `authorizationpolicies`, later
   `peerauthentications`)

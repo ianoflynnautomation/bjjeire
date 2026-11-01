@@ -110,4 +110,3 @@ CLAUDE.local.md
 !/tools/images/
 /tools/images/*
 !/tools/images/processed/
-!/tools/playwright-test-mcp.sh
