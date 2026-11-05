@@ -1,0 +1,157 @@
+/*
+  Leaflet's stylesheet is unlayered, so it beats Tailwind's layered utilities
+  inside the map. Theme tokens are applied here instead. Tiles stay light in
+  every theme (FR-016), so pins use --ui-map-pin with a pale edge rather than
+  following the page's foreground.
+*/
+.gym-map .leaflet-container {
+  background: var(--ui-muted);
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.gym-map .gym-map-pin {
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+.gym-map .gym-map-pin::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--ui-map-pin);
+  border: 2px solid var(--color-ink-50);
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  transform: rotate(-45deg);
+}
+
+/*
+  The container's own outline paints under Leaflet's panes, so tiles would hide
+  it. The ring is a layer above them, and it ignores the pointer. It has a dark
+  band for light tiles and a pale band for the dark background behind failed
+  or loading tiles. A zoom
+  control's outer ring would sit on light tiles in every theme, so that is drawn
+  inside the control.
+*/
+.gym-map .leaflet-container:focus-visible {
+  outline: none;
+}
+
+.gym-map .leaflet-container:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1001;
+  border: 3px solid var(--ui-map-pin);
+  box-shadow: inset 0 0 0 2px var(--color-ink-50);
+  pointer-events: none;
+}
+
+.gym-map .leaflet-bar a:focus-visible {
+  outline: 2px solid var(--ui-fg);
+  outline-offset: -4px;
+}
+
+/* Leaflet sets z-index inline. A focused pin must not sit under its neighbours. */
+.gym-map .gym-map-pin:focus {
+  z-index: 1000 !important;
+}
+
+.gym-map .gym-map-pin:focus-visible {
+  outline: 3px solid var(--ui-map-pin);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-ink-50);
+}
+
+.gym-map .leaflet-popup-content-wrapper,
+.gym-map .leaflet-popup-tip {
+  background: var(--ui-surface-solid);
+  color: var(--ui-fg);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.4);
+}
+
+.gym-map .leaflet-popup-content-wrapper {
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 0.75rem;
+}
+
+.gym-map .leaflet-popup-content {
+  margin: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.gym-map-popup {
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.gym-map-popup:focus-visible {
+  outline: 2px solid var(--ui-ring-focus);
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+
+.gym-map-popup-name {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.gym-map-popup-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.gym-map .leaflet-container .gym-map-popup-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--ui-fg);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.gym-map-popup-close {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.75rem;
+  color: var(--ui-fg-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.gym-map-popup-close:hover {
+  color: var(--ui-fg);
+}
+
+.gym-map .leaflet-bar a,
+.gym-map .leaflet-bar a.leaflet-disabled {
+  background: var(--ui-surface-solid);
+  color: var(--ui-fg);
+  border-color: var(--ui-border-strong);
+}
+
+.gym-map .leaflet-bar a.leaflet-disabled {
+  color: var(--ui-fg-subtle);
+}
+
+.gym-map .leaflet-bar a:hover,
+.gym-map .leaflet-bar a:focus {
+  background: var(--ui-muted);
+}
+
+.gym-map .gym-map-attribution a {
+  color: var(--ui-fg);
+  text-decoration: underline;
+}

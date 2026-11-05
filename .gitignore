@@ -40,7 +40,6 @@ allure*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
 .idea/*
 !.idea/.gitignore
 !.idea/vcs.xml

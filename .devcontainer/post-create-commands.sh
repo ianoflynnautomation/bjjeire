@@ -8,7 +8,8 @@ for dir in \
   "${HOME}/.npm" \
   "${HOME}/.claude" \
   "${HOME}/.grok" \
-  "${HOME}/.config/gh"
+  "${HOME}/.config/gh" \
+  "/workspaces/bjjeire-tests/node_modules"
 do
   if [ -d "${dir}" ]; then
     sudo chown -R "$(id -u):$(id -g)" "${dir}"
@@ -33,9 +34,11 @@ export PATH="${HOME}/.local/bin:${HOME}/.grok/bin:${PATH}"
 echo "==> Marking the workspace as a safe git directory..."
 workspace="${containerWorkspaceFolder:-$(pwd)}"
 existing="$(git config --global --get-all safe.directory || true)"
-if ! printf '%s\n' "${existing}" | grep -Fxq "${workspace}"; then
-  git config --global --add safe.directory "${workspace}"
-fi
+for repo in "${workspace}" "/workspaces/bjjeire-tests"; do
+  if ! printf '%s\n' "${existing}" | grep -Fxq "${repo}"; then
+    git config --global --add safe.directory "${repo}"
+  fi
+done
 
 echo "==> Ensuring Maven Wrapper is executable..."
 chmod +x ./mvnw

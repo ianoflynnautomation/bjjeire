@@ -27,6 +27,7 @@ describe('loadFeatureFlags', () => {
     server.use(http.get(API, () => HttpResponse.json(null, { status: 500 })))
     const flags = await loadFeatureFlags()
     expect(flags).toEqual(DEFAULT_FLAGS)
+    expect(flags.GymsMap).toBe(false) // AC-GYM-014
   })
 
   it('given a test override global, when flags are loaded, then overrides win over the API and defaults', async () => {

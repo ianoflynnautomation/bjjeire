@@ -138,6 +138,7 @@
     --ui-border-strong: rgb(26 26 24 / 0.16);
     --ui-ring-focus: rgb(39 72 56 / 0.75);
     --ui-overlay: rgb(14 14 14 / 0.5);
+    --ui-map-pin: #274838;
     --ui-shadow-card: 0 1px 2px rgb(26 26 24 / 0.06);
     --ui-weave-opacity: 0.028;
   }
@@ -155,6 +156,7 @@
     --ui-border-strong: rgb(255 255 255 / 0.14);
     --ui-ring-focus: rgb(130 171 144 / 0.85);
     --ui-overlay: rgb(0 0 0 / 0.64);
+    --ui-map-pin: #325a46;
     --ui-shadow-card: 0 1px 2px rgb(0 0 0 / 0.45);
     --ui-weave-opacity: 0.03;
   }
@@ -172,6 +174,7 @@
     --ui-border-strong: rgb(197 165 106 / 0.4);
     --ui-ring-focus: rgb(212 180 131 / 0.85);
     --ui-overlay: rgb(0 0 0 / 0.72);
+    --ui-map-pin: #75582c;
     --ui-shadow-card: 0 1px 2px rgb(0 0 0 / 0.55);
     --ui-weave-opacity: 0.035;
   }

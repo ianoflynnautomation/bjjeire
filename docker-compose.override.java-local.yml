@@ -21,6 +21,7 @@ services:
       FEATURE_GYMS: ${FEATURE_GYMS:-true}
       FEATURE_COMPETITIONS: ${FEATURE_COMPETITIONS:-true}
       FEATURE_STORES: ${FEATURE_STORES:-true}
+      FEATURE_GYMS_MAP: ${FEATURE_GYMS_MAP:-false}
       OTEL_SDK_DISABLED: "true"
     healthcheck:
       interval: 30s

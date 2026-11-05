@@ -18,7 +18,8 @@ import {
   type UseListPageSearchResult,
 } from '@/hooks/useListPageSearch'
 
-const DEFAULT_SEARCH_PAGE_SIZE = 100
+/** The API's maximum page size, used when a view needs every result. */
+export const DEFAULT_SEARCH_PAGE_SIZE = 100
 const NO_URL_FILTERS: readonly never[] = []
 
 interface PageableParams {
@@ -33,6 +34,8 @@ interface UseListPageParams<T, TParams extends PageableParams> {
   matchesSearch: (item: T, term: string) => boolean
   searchPageSize?: number
   urlFilters?: readonly ListUrlFilter<TParams>[]
+  /** Load one maximum-size page and ignore paging, for a view of every result. */
+  loadAll?: boolean
 }
 
 export interface UseListPageResult<T, TParams> {
@@ -59,6 +62,7 @@ export function useListPage<T, TParams extends PageableParams>({
   matchesSearch,
   searchPageSize = DEFAULT_SEARCH_PAGE_SIZE,
   urlFilters = NO_URL_FILTERS,
+  loadAll = false,
 }: UseListPageParams<T, TParams>): UseListPageResult<T, TParams> {
   const search = useListPageSearch<T>(matchesSearch)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -68,8 +72,9 @@ export function useListPage<T, TParams extends PageableParams>({
     () => readUrlFilters(searchParams, urlFilters),
     [searchParams, urlFilters]
   )
-  const page = search.isSearchActive ? 1 : readUrlPage(searchParams)
-  const pageSize = search.isSearchActive ? searchPageSize : env.PAGE_SIZE
+  const wantsAllItems = search.isSearchActive || loadAll
+  const page = wantsAllItems ? 1 : readUrlPage(searchParams)
+  const pageSize = wantsAllItems ? searchPageSize : env.PAGE_SIZE
 
   const {
     data,

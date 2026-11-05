@@ -5,6 +5,7 @@ import { createGym, createPaginatedGyms } from '@/testing/factories/gym.factory'
 import type { GymDto } from '@/types/gyms'
 import GymsPage from '@/pages/GymsPage'
 import { RouterProbe } from '@/testing/router-probe'
+import type { FeatureFlagsMap } from '@/features/feature-flags'
 
 export const GYMS_API = testApiUrl(API_ROUTES.gyms)
 
@@ -25,7 +26,8 @@ export function seedGymsByCounty(
 }
 
 export function renderGymsPage(
-  initialRoutes?: string[]
+  initialRoutes?: string[],
+  featureFlags: Partial<FeatureFlagsMap> = {}
 ): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(
     <>
@@ -33,7 +35,7 @@ export function renderGymsPage(
       <RouterProbe />
     </>,
     {
-      featureFlags: { BjjEvents: true, Gyms: true },
+      featureFlags: { BjjEvents: true, Gyms: true, ...featureFlags },
       ...(initialRoutes ? { initialRoutes } : {}),
     }
   )

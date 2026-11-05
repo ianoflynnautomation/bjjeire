@@ -10,6 +10,28 @@ export const GymsPageTestIds = {
   LIST_EMPTY: 'gyms-list-empty',
 }
 
+export const GymViewSwitchTestIds = {
+  ROOT: 'gyms-view-switch',
+  LIST: 'gyms-view-switch-list',
+  MAP: 'gyms-view-switch-map',
+}
+
+export const GymMapTestIds = {
+  ROOT: 'gym-map',
+  PIN: 'gym-map-pin',
+  ATTRIBUTION: 'gym-map-attribution',
+  NOTICE_TRUNCATED: 'gym-map-notice-truncated',
+  NOTICE_UNMAPPED: 'gym-map-notice-unmapped',
+  NOTICE_TILES_FAILED: 'gym-map-notice-tiles-failed',
+  POPUP: 'gym-map-popup',
+  POPUP_NAME: 'gym-map-popup-name',
+  POPUP_COUNTY: 'gym-map-popup-county',
+  POPUP_ADDRESS: 'gym-map-popup-address',
+  POPUP_WEBSITE_LINK: 'gym-map-popup-website-link',
+  POPUP_DIRECTIONS_LINK: 'gym-map-popup-directions-link',
+  POPUP_CLOSE: 'gym-map-popup-close',
+}
+
 export const GymsHeroBannerTestIds = {
   BANNER: 'gyms-hero-banner',
   IMAGE: 'gyms-hero-banner-image',
