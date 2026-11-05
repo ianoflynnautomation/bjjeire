@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.bjjeire.api.config.BjjEireProperties;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 class FeatureFlagServiceTest {
@@ -83,7 +84,7 @@ class FeatureFlagServiceTest {
         configured.put("gyms", true);
 
         assertThat(service(configured).frontendFlags().keySet())
-                .containsExactly("BjjEvents", "Gyms", "Competitions", "Stores");
+                .containsExactly("BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap");
         assertThat(service(configured).frontendFlags())
                 .containsEntry("BjjEvents", true)
                 .containsEntry("Gyms", true)
@@ -102,6 +103,23 @@ class FeatureFlagServiceTest {
         assertThat(service.isEnabled(FeatureFlag.STORES, subject)).isFalse();
         assertThat(service.frontendFlags()).doesNotContainKey("subjectKey");
         assertThat(service.frontendFlags().toString()).doesNotContain("principal-sub-1");
+    }
+
+    /** AC-GYM-014: the map flag is on the wire and stays off unless an environment enables it. */
+    @Test
+    @Tag("AC-GYM-014")
+    void shouldServeGymsMapAsFalseWhenConfigurationDoesNotEnableIt() {
+        FeatureFlagService service = service(Map.of("Gyms", true));
+
+        assertThat(service.frontendFlags()).containsEntry("GymsMap", false).containsEntry("Gyms", true);
+    }
+
+    /** AC-GYM-014: an environment turns the map on with a relaxed or exact key. */
+    @Test
+    @Tag("AC-GYM-014")
+    void shouldServeGymsMapAsTrueWhenConfigurationEnablesIt() {
+        assertThat(service(Map.of("GymsMap", true)).frontendFlags()).containsEntry("GymsMap", true);
+        assertThat(service(Map.of("gyms-map", true)).frontendFlags()).containsEntry("GymsMap", true);
     }
 
     @Test

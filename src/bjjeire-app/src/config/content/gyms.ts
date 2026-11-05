@@ -20,6 +20,40 @@ export const gyms = {
   list: {
     ariaLabel: 'Brazilian Jiu-Jitsu gyms',
   },
+  viewSwitch: {
+    ariaLabel: 'Choose how to view gyms',
+    list: 'List',
+    map: 'Map',
+  },
+  map: {
+    ariaLabel: 'Map of Brazilian Jiu-Jitsu gyms in Ireland',
+    loadFailed:
+      'The map could not be loaded. Please try again, or use the list.',
+    zoomInLabel: 'Zoom in',
+    zoomOutLabel: 'Zoom out',
+    attribution: {
+      prefix: '©',
+      linkText: 'OpenStreetMap',
+      linkUrl: 'https://www.openstreetmap.org/copyright',
+      suffix: 'contributors',
+    },
+    popup: {
+      closeLabel: 'Close gym details',
+      directionsLink: 'Get Directions',
+      directionsAriaPrefix: 'Get directions to',
+    },
+    notices: {
+      truncated:
+        'Not all gyms are shown on the map. Choose a county or search to narrow the results.',
+      unmappedSingular:
+        'gym is not shown on the map because it has no location.',
+      unmappedPlural:
+        'gyms are not shown on the map because they have no location.',
+      tilesFailed:
+        'The map background could not be loaded. The pins are still available.',
+      tilesFailedListLink: 'View the gym list',
+    },
+  },
   errors: {
     loadFailed: 'Failed to load gyms. Please try again.',
   },

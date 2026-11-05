@@ -53,3 +53,4 @@ bjjeire:
     Gyms: ${FEATURE_GYMS:true}
     Competitions: ${FEATURE_COMPETITIONS:true}
     Stores: ${FEATURE_STORES:true}
+    GymsMap: ${FEATURE_GYMS_MAP:false}

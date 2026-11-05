@@ -14,7 +14,9 @@ public enum FeatureFlag {
     /** Public competitions directory. */
     COMPETITIONS("Competitions"),
     /** Public stores directory. */
-    STORES("Stores");
+    STORES("Stores"),
+    /** Map view on the gym directory. Off unless an environment enables it. */
+    GYMS_MAP("GymsMap");
 
     private final String wireName;
 

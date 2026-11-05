@@ -110,6 +110,7 @@ npm run build
 ## Config Notes
 
 - Development runs in the dev container. Do not install tools or start the app directly on the Mac. From the host, run checks with `devcontainer exec --workspace-folder . <command>`. A missing JDK or a Vitest startup error on the host is expected.
+- `bjjeire-tests` is mounted at `/workspaces/bjjeire-tests` (`BJJ_EIRE_TESTS_ROOT`). Edit its `specs/features/<feature>.md` from here when a feature needs acceptance coverage. Run its tests in its own dev container, which has the browsers and the relay to the app. Its `.env*` and `playwright/.auth` stay unread.
 - `.env` is required.
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.

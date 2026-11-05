@@ -15,7 +15,7 @@ export default mergeConfig(
     // the in-flight test file fails to import ("Failed to fetch dynamically
     // imported module").
     optimizeDeps: {
-      include: ['react-dom/client'],
+      include: ['react-dom/client', 'leaflet', 'react-leaflet'],
     },
     test: {
       name: 'browser',

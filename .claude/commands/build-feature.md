@@ -23,6 +23,13 @@ in this session. Delegate only review and QA, because those need fresh context.
 7. If visitors can see the change, run the `qa-subagent` against the running app. Fix
    what it confirms, or report it to me.
 
-Do not commit, push or merge unless I ask. Finish with: the AC-ID results, the commands
-you ran, anything unverified, and the scenarios to hand to `bjjeire-tests` (planner, then
-generator or api-tester, then reviewer).
+8. If the change needs acceptance coverage, add the scenarios to
+   `/workspaces/bjjeire-tests/specs/features/<feature>.md`, which is what that repo's planner
+   and `/cover-feature` read. Follow that file's wording, and that repo's `AGENTS.md` and
+   `playwright-bdd` skill for titles. Add scenarios only: no tests, and leave existing
+   scenarios alone unless the behaviour changed. If the folder is missing, say so and list the
+   scenarios instead.
+
+Do not commit, push or merge in either repository unless I ask. Finish with: the AC-ID
+results, the commands you ran, anything unverified, and the scenarios added to `bjjeire-tests`.
+To automate them, I run `/cover-feature <feature>` in the `bjjeire-tests` dev container.

@@ -12,6 +12,7 @@ import com.bjjeire.api.config.BjjEireProperties;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -49,6 +50,15 @@ class FeatureFlagControllerTest {
                 .andExpect(jsonPath("$.Gyms").value(true))
                 .andExpect(jsonPath("$.Competitions").value(false))
                 .andExpect(jsonPath("$.Stores").value(true));
+    }
+
+    /** AC-GYM-014: GymsMap is present as a boolean even when no environment sets it. */
+    @Test
+    @Tag("AC-GYM-014")
+    void shouldReturnGymsMapAsBooleanFalseWhenItIsNotConfigured() throws Exception {
+        mockMvc.perform(get(ApiRoutes.FEATURE_FLAG))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.GymsMap").value(false));
     }
 
     @Test

@@ -1,9 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
+    "additionalDirectories": ["/workspaces/bjjeire-tests"],
     "deny": [
       "Read(./.env)",
       "Read(./secrets/**)",
+      "Read(//workspaces/bjjeire-tests/.env*)",
+      "Read(//workspaces/bjjeire-tests/playwright/.auth/**)",
       "Bash(git push * main)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",

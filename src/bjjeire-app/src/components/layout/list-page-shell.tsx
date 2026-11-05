@@ -42,6 +42,8 @@ interface ListPageShellProps<T> {
   hero?: ReactNode
   header: ReactNode
   filterBar?: ReactNode
+  /** For a view that shows every result at once. */
+  hidePagination?: boolean
 }
 
 export function ListPageShell<T>({
@@ -51,6 +53,7 @@ export function ListPageShell<T>({
   hero,
   header,
   filterBar,
+  hidePagination = false,
 }: ListPageShellProps<T>): JSX.Element {
   const {
     filteredItems,
@@ -112,7 +115,8 @@ export function ListPageShell<T>({
           />
         </section>
 
-        {!search.isSearchActive &&
+        {!hidePagination &&
+          !search.isSearchActive &&
           paginationInfo &&
           paginationInfo.totalPages > 1 &&
           !fetchError &&

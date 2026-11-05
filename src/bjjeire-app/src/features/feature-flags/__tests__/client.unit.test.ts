@@ -26,9 +26,13 @@ describe('createFeatureFlagClient', () => {
 })
 
 describe('feature flag catalogue', () => {
-  it('given the route table, when it is compared with the catalogue, then both list the same flags', () => {
+  it('given the route table, when it is compared with the catalogue, then both list the same flags apart from those that switch a view inside a page', () => {
+    const flagsWithoutARoute = ['GymsMap']
+
     expect(features.map(feature => feature.flag).sort()).toEqual(
-      [...FEATURE_FLAG_NAMES].sort()
+      FEATURE_FLAG_NAMES.filter(
+        name => !flagsWithoutARoute.includes(name)
+      ).sort()
     )
   })
 

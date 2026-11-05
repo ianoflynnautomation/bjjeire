@@ -47,6 +47,12 @@ export const FEATURE_FLAGS = {
     description: 'Public stores page (/stores).',
     addedAt: '2025-09-01',
   },
+  GymsMap: {
+    key: 'GymsMap',
+    defaultValue: false,
+    description: 'Map view on the gym directory (/gyms?view=map).',
+    addedAt: '2026-11-01',
+  },
 } as const satisfies Record<string, FeatureFlagDefinition>
 
 export type FeatureFlagName = keyof typeof FEATURE_FLAGS
