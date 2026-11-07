@@ -21,7 +21,10 @@ system. The suite is split across `bjjeire-java`, `bjjeire-tests`, and `atest`.
 
 - Living specs live in `specs/` (architecture, database contracts, features).
 - Spec Kit config lives in `.specify/` (not `.spec-kit/`, which the CLI does
-  not read). Constitution captures rules that are already true.
+  not read). Constitution captures rules that are already true. The tree is
+  initialised with `specify init --here --integration claude`; project
+  templates live in `.specify/templates/overrides/` so a CLI refresh does not
+  overwrite them. See `.specify/README.md`.
 - Agentic workflow **sources** are Markdown with YAML frontmatter. GitHub
   Actions and `gh aw compile` load `.github/workflows/`. `.github/workflows-aw/`
   is the named SDD copy of those sources.

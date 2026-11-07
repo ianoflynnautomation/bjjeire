@@ -2,39 +2,45 @@
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md` or `specs/features/<feature>.md`
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+
+**Note**: This template is filled in by the `/speckit-plan` command; its definition describes the execution workflow.
 
 ## Summary
 
-[Primary requirement + technical approach]
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: Java 25 (API) · TypeScript 5.x / React 19 (SPA)
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
 
-**Primary Dependencies**: Spring Boot 4, Spring Data MongoDB, Vite 7, MSAL
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
 
-**Storage**: MongoDB collections per `specs/database-contracts/`
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
-**Testing**: JUnit + Testcontainers (API) · Vitest (SPA) · Playwright in `bjjeire-tests`
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 
-**Target Platform**: AKS (Flux) · local docker-compose / minikube
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
 
-**Project Type**: Modular monolith (API + SPA in this repo; acceptance in `bjjeire-tests`)
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
 
-**Constraints**: OpenAPI/Pact gates; path-filtered CI; light, dark and competition themes; GeoJSON `[lng, lat]`
+**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
 
-**Scale/Scope**: Ireland-wide BJJ directory (gyms, events, competitions, stores)
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
-*GATE: Must pass before research. Re-check after design.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [ ] Package-by-feature respected (ADR-0001)
-- [ ] Wire-shape change has OpenAPI/Pact/spec updates (ADR-0002)
-- [ ] No new CI job left out of the aggregator (ADR-0003), except `atest_analyze`
-- [ ] All three themes still work and no ad-hoc UI strings (ADR-0011, ADR-0008)
-- [ ] No new cloud stack (`azd` / Cosmos / Container Apps)
+[Gates determined based on constitution file]
 
 ## Project Structure
 
@@ -42,38 +48,66 @@
 
 ```text
 specs/[###-feature]/
-├── spec.md
-├── plan.md
-├── research.md
-├── data-model.md
-├── contracts/
-└── tasks.md
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
-Living (brownfield) features may instead update:
+### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-specs/features/<feature>.md
-specs/database-contracts/<entity>.md
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
+
+tests/
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-### Source Code
-
-```text
-src/bjjeire-api/src/main/java/com/bjjeire/api/<feature>/
-src/bjjeire-app/src/features/<feature>/
-src/bjjeire-app/src/pages/
-seeder/data/<entity>/
-# acceptance (other repo)
-bjjeire-tests/tests/features/<feature>/
-bjjeire-tests/src/ui/pages/<feature>/
-bjjeire-tests/src/api/features/<feature>/
-```
-
-**Structure Decision**: Follow the existing feature slice. Do not invent a new top-level layout.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| | | |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
