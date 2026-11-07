@@ -20,3 +20,34 @@ AC-IDs are defined in [spec.md](spec.md). Narrative SSOT:
 | AC-EVT-005 | T2 IT | `BjjEventMongoRepositoryIT.java` (`shouldBuildAbsoluteNavigationLinksWithOnlyPageAndPageSize`) | `PagedResponses`, `UriService` |
 | AC-EVT-006 | T2 IT | `WriteAuthorizationIT.java` · event write methods in `BjjEventMongoRepositoryIT.java` | `SecurityConfig`, `BjjEventService` |
 | AC-EVT-006 | T4 SPA | `src/bjjeire-app/src/__tests__/app-routes.integration.test.tsx` | `AppRoutes` |
+| AC-EVT-007 | T3 SPA | `src/bjjeire-app/src/features/bjjevents/utils/__tests__/event-view-url.unit.test.ts`, `src/bjjeire-app/src/features/bjjevents/components/__tests__/event-view-switch.unit.test.tsx` | `event-view-url.ts`, `event-view-switch.tsx` |
+| AC-EVT-007 | T4 SPA | `src/bjjeire-app/src/pages/__tests__/events-page.integration.test.tsx` (`AC-EVT-007 switching view`) | `EventsPage`, `useEventsPage` |
+| AC-EVT-007 | T6 | `bjjeire-tests/tests/features/events/` (shared-link journey, to be added) | running images |
+| AC-EVT-008 | T4 SPA | `events-page.integration.test.tsx` (`AC-EVT-008 filters without paging`) | `useListPage` (`loadAll`), `ListPageShell` (`hidePagination`), `EventsPage` (truncation rule), `EventMap` |
+| AC-EVT-008 | T6 | `bjjeire-tests/tests/features/events/` (county and type on the map, to be added) | running images |
+| AC-EVT-009 | T3 SPA | `src/bjjeire-app/src/features/bjjevents/components/event-map/__tests__/event-locations.unit.test.ts` (`toEventLocations`) | `event-locations.ts` |
+| AC-EVT-009 | T4 SPA | `events-page.integration.test.tsx` (`AC-EVT-009 events without usable coordinates`) | `EventMap` |
+| AC-EVT-009 | T5 browser | `src/bjjeire-app/src/features/bjjevents/components/event-map/__tests__/event-map.browser.test.tsx` | `EventMap` |
+| AC-EVT-009 | T6 | `bjjeire-tests/tests/features/events/` (seeded event pin, to be added) | running images |
+| AC-EVT-010 | T3 SPA | `event-locations.unit.test.ts` (`events at one venue`), `src/bjjeire-app/src/features/bjjevents/components/event-map/__tests__/event-map-popup.unit.test.tsx` (shared venue) | `event-locations.ts`, `event-map-popup.tsx` |
+| AC-EVT-010 | T4 SPA | `events-page.integration.test.tsx` (`AC-EVT-010 events at one venue`) | `EventMap` |
+| AC-EVT-010 | T5 browser | `event-map.browser.test.tsx` (shared-venue pin) | `EventMap` |
+| AC-EVT-010 | T6 | `bjjeire-tests/tests/features/events/` (two seeded events at Leinster Grappling HQ, to be added) | running images |
+| AC-EVT-011 | T3 SPA | `event-map-popup.unit.test.tsx`, `src/bjjeire-app/src/utils/__tests__/event-schedule-text.unit.test.ts` | `event-map-popup.tsx`, `event-schedule-text.ts` (shared with `event-schedule.tsx`) |
+| AC-EVT-011 | T5 browser | `event-map.browser.test.tsx` (opening a pin) | `EventMap` |
+| AC-EVT-011 | T6 | `bjjeire-tests/tests/features/events/` (seeded event popup, to be added) | running images |
+| AC-EVT-012 | T3 SPA | `src/bjjeire-app/src/features/bjjevents/components/event-map/__tests__/event-map-bounds.unit.test.ts` | `event-map-bounds.ts` |
+| AC-EVT-012 | T5 browser | `event-map.browser.test.tsx` (AC-EVT-012 cases), `src/bjjeire-app/src/pages/__tests__/events-page-map-viewport.browser.test.tsx` (filters reach the map) | `EventMap` (`MapViewport`), `EventsPage` |
+| AC-EVT-012 | T6 | `bjjeire-tests/tests/features/events/` (map moves on county and search, to be added) | running images |
+| AC-EVT-013 | T4 SPA | `events-page.integration.test.tsx` (`AC-EVT-013 loading, empty and error states`), `src/bjjeire-app/src/pages/__tests__/events-page-map-chunk-failure.integration.test.tsx` (message, retry, filters and List stay) | `EventsPage`, `ListPageShell`, `PageErrorBoundary` |
+| AC-EVT-014 | T5 browser | `event-map.browser.test.tsx` (AC-EVT-014 cases, tile URL blocked) | `EventMap` |
+| AC-EVT-014 | T6 | `bjjeire-tests/tests/features/events/` (tile failure, to be added) | running images |
+| AC-EVT-015 | T1 unit | `src/bjjeire-api/src/test/java/com/bjjeire/api/web/FeatureFlagServiceTest.java`, `FeatureFlagControllerTest.java`, `FeatureFlagDefaultsTest.java` | `FeatureFlag`, `application.yml` |
+| AC-EVT-015 | T0 Pact | `src/bjjeire-app/src/contracts/pact/featureflag.pact.test.ts` | `definitions.ts`, `FeatureFlag` |
+| AC-EVT-015 | T4 SPA | `events-page.integration.test.tsx` (`AC-EVT-015 flag fails safe to the list`), `gyms-page.integration.test.tsx` (events map does not affect gyms), `src/bjjeire-app/src/features/feature-flags/__tests__/feature-flag-resolve.integration.test.ts` | `useEventsPage`, `resolve.ts` |
+| AC-EVT-015 | T6 | `bjjeire-tests/tests/features/events/` (map link with the map off, to be added) | running images |
+| AC-EVT-016 | T3 SPA | `event-view-switch.unit.test.tsx`, `event-map-popup.unit.test.tsx` (focus, Escape) | `event-view-switch.tsx`, `event-map-popup.tsx` |
+| AC-EVT-016 | T5 browser | `event-map.browser.test.tsx` (keyboard, focus indicators measured in pixels over tiles and with tiles failed, pin contrast in each theme, wheel, coarse pointer, phone width), `events-page-map-viewport.browser.test.tsx` (whole page at phone width), `src/bjjeire-app/src/features/bjjevents/components/__tests__/event-view-switch.browser.test.tsx` (focus ring contrast in each theme) | `EventMap`, `event-map.css`, `view-switch-variants.ts` |
+| AC-EVT-016 | T6 | `bjjeire-tests/tests/features/events/` (axe in each theme, to be added; axe does not judge focus indicators or pin contrast on tiles, which T5 owns) | running images |
+| AC-EVT-017 | T5 browser | `src/bjjeire-app/src/pages/__tests__/events-page-map-loading.browser.test.tsx` | `EventsPage` (`lazy`) |
+| AC-EVT-017 | T6 | `bjjeire-tests/tests/features/events/` (no map requests on the list, against a built image, to be added) | running images |

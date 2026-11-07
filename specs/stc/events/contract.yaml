@@ -33,6 +33,11 @@ invariants:
   - listing_excludes: inactive, expired, completed
   - expiresAt: endDate + 2y TTL
   - feature_flag: BjjEvents fail-closed
+  - feature_flag_map: BjjEvents on and EventsMap off or missing → list on /events, no redirect; default false; independent of GymsMap; failed fetch turns all flags off
+  - map_view: ?view=map is URL state; no value or unknown value → list; switching keeps search, county and types and drops page
+  - map_data: reuses GET /api/v1/bjjevent with pageSize max 100 and the county and types filters; no new event route or parameter
+  - map_shared_location: events with identical coordinates at 5 decimal places share one pin; pin named after the earliest event's venue plus the count; popup lists them earliest start first
+  - popup_content: event data displayed as text, never HTML
   - cache_tag: BJJ_EVENTS_TAG invalidated on API writes
 pointers:
   database: specs/database-contracts/bjj-event.md

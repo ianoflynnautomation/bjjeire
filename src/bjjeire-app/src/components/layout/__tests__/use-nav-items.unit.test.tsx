@@ -10,6 +10,7 @@ const ALL_OFF = {
   Competitions: false,
   Stores: false,
   GymsMap: false,
+  EventsMap: false,
 }
 
 function renderNavItems(
@@ -49,6 +50,7 @@ describe('useNavItems', () => {
       Competitions: true,
       Stores: true,
       GymsMap: false,
+      EventsMap: false,
     })
 
     expect(items.map(i => i.id)).toEqual([
@@ -67,6 +69,7 @@ describe('useNavItems', () => {
       Competitions: true,
       Stores: true,
       GymsMap: false,
+      EventsMap: false,
     })
 
     const itemMap = Object.fromEntries(items.map(i => [i.id, i]))

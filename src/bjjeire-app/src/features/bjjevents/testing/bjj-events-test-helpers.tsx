@@ -7,6 +7,8 @@ import {
 } from '@/testing/factories/event.factory'
 import type { BjjEventDto } from '@/types/event'
 import EventsPage from '@/pages/EventsPage'
+import { RouterProbe } from '@/testing/router-probe'
+import type { FeatureFlagsMap } from '@/features/feature-flags'
 
 export const EVENTS_API = testApiUrl(API_ROUTES.bjjEvents)
 
@@ -23,10 +25,17 @@ export const seedEventsError = seeds.seedError
 export const seedEventsPending = seeds.seedPending
 
 export function renderEventsPage(
-  initialRoutes?: string[]
+  initialRoutes?: string[],
+  featureFlags: Partial<FeatureFlagsMap> = {}
 ): ReturnType<typeof renderWithProviders> {
-  return renderWithProviders(<EventsPage />, {
-    featureFlags: { BjjEvents: true, Gyms: true },
-    ...(initialRoutes ? { initialRoutes } : {}),
-  })
+  return renderWithProviders(
+    <>
+      <EventsPage />
+      <RouterProbe />
+    </>,
+    {
+      featureFlags: { BjjEvents: true, Gyms: true, ...featureFlags },
+      ...(initialRoutes ? { initialRoutes } : {}),
+    }
+  )
 }

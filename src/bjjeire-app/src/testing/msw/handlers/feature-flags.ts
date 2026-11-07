@@ -8,6 +8,7 @@ export const defaultFeatureFlags: FeatureFlagsMap = {
   Competitions: true,
   Stores: true,
   GymsMap: false,
+  EventsMap: false,
 }
 
 export const featureFlagsHandlers = [

@@ -22,6 +22,7 @@ describe('Pact - FeatureFlag consumer contract', () => {
           Competitions: boolean(),
           Stores: boolean(),
           GymsMap: boolean(),
+          EventsMap: boolean(),
         })
       })
       .executeTest(async mockServer => {

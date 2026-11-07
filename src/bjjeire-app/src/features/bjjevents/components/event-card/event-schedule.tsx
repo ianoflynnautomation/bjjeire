@@ -1,25 +1,17 @@
 import type { JSX } from 'react'
-import type { BjjEventDto, BjjEventSessionDto } from '@/types/event'
+import type { BjjEventDto } from '@/types/event'
 import {
-  formatDate,
-  formatIrishDateRange,
-  formatTime,
-} from '@/utils/date-utils'
+  formatScheduleDates,
+  formatSessionLine,
+} from '@/utils/event-schedule-text'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/20/solid'
 import { uiContent } from '@/config/ui-content'
 import { EventCardTestIds } from '@/constants/eventDataTestIds'
-import { asArray, readString } from '@/utils/untrusted'
+import { asArray } from '@/utils/untrusted'
 
 const { schedule: scheduleContent } = uiContent.events
 
 const MAX_VISIBLE_SESSIONS = 3
-
-function formatSessionLine(session: BjjEventSessionDto): string {
-  const when = session.date ? formatDate(session.date) : readString(session.day)
-  const times = `${formatTime(readString(session.startTime))}–${formatTime(readString(session.endTime))}`
-  const base = when ? `${when}: ${times}` : times
-  return session.title ? `${base} · ${session.title}` : base
-}
 
 interface EventScheduleProps {
   schedule: BjjEventDto['schedule'] | null | undefined
@@ -34,14 +26,7 @@ export const EventSchedule = function EventSchedule({
     return null
   }
 
-  let dateText = ''
-  if (schedule.startDate) {
-    dateText =
-      formatIrishDateRange(schedule.startDate, schedule.endDate) ??
-      formatDate(schedule.startDate)
-  } else if (schedule.endDate) {
-    dateText = `${scheduleContent.endsPrefix} ${formatDate(schedule.endDate)}`
-  }
+  const dateText = formatScheduleDates(schedule)
 
   const allSessions = asArray(schedule.sessions)
   const sessions = allSessions.slice(0, MAX_VISIBLE_SESSIONS)

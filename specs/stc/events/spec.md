@@ -15,6 +15,8 @@ status: living
 A visitor opens Events and sees upcoming, active events they can scan,
 search, and filter. Search is client-side. County and type are server
 filters. Writes require Entra JWT. The Events feature flag fails closed.
+A visitor can also switch to a map showing the same search, county and type
+results. With `BjjEvents` on, `EventsMap` off or missing leaves the list.
 
 Narrative SSOT: [specs/features/events.md](../../features/events.md).
 
@@ -79,6 +81,134 @@ When a visitor opens `/events`,
 Then they are redirected away from the feature.
 
 **Owns**: T2 `WriteAuthorizationIT` (method-wide) + event write ITs; T4 `AppRoutes`.
+
+### AC-EVT-007 — Switch between list and map (P1)
+
+Given `EventsMap` is on,
+When a visitor opens Events with no `view` value or an unknown one,
+Then the list is shown.
+When they switch to the map,
+Then the URL has `view=map`, the search, county and types are unchanged, and the page is dropped.
+When they reload, share the link, or go Back,
+Then the matching view and filters are shown.
+
+**Owns**: T3 URL state; T4 page integration; T6 one shared-link journey.
+
+### AC-EVT-008 — Filters apply to the map, without paging (P1)
+
+Given events in several counties and types, and more events than one list page,
+When a visitor is on the map,
+Then every event matching the search, county and types has a pin, with no paging controls,
+And the header count matches the number of matching events.
+Given more matching events than the API's maximum page size,
+Then a notice says not all events are shown and suggests filtering.
+
+**Owns**: T4 page integration with MSW; T6 county and type on seeded data.
+**Does not own**: a new API parameter. County and types remain the server filters from AC-EVT-002, and search stays client-side per AC-EVT-003.
+
+### AC-EVT-009 — Pins are in the right place (P1)
+
+Given an event with GeoJSON coordinates `[lng, lat]`,
+When its pin is placed,
+Then the pin's latitude and longitude match the event's, not swapped.
+Given an event without usable coordinates,
+Then it has no pin, it stays in the list, and a notice says how many events are not shown.
+
+**Owns**: T3 coordinate conversion; T5 rendered pins; T6 one seeded event.
+
+### AC-EVT-010 — Events at one venue share a pin (P1)
+
+Given two or more events whose coordinates are identical at five decimal places,
+When the map shows them,
+Then they share one pin, which is one tab stop,
+And its accessible name is the earliest event's venue, followed by the number of events.
+When a visitor opens it,
+Then the venue and address are shown once and each event is listed, earliest start first,
+And an event whose venue or address text differs from the pin's shows its own.
+Given events whose coordinates differ beyond that,
+Then each location has its own pin.
+
+**Owns**: T3 grouping and order; T5 opening a shared pin; T6 two seeded events at one venue.
+
+### AC-EVT-011 — Pin popup (P2)
+
+Given an event's pin,
+When a visitor opens it,
+Then the event's name, types and dates are shown, with dates as they fall in Ireland and summarised as on the event card,
+And the venue and address are shown,
+And the event and directions links match the event card from AC-EVT-004 and open in a new tab.
+Given no event link, that link is left out.
+Given event text containing HTML,
+Then it is displayed as text and does not run.
+
+**Owns**: T3 popup content, including the HTML and missing-link cases; T5 opening a pin; T6 one seeded event.
+
+### AC-EVT-012 — The map follows the results (P2)
+
+Given results change through search, county or types,
+Then the map moves to fit them.
+Given one location,
+Then it zooms there without using maximum zoom.
+Given no filters,
+Then all of Ireland is shown.
+
+**Owns**: T3 bounds; T5 in-repo browser, including the page's filters reaching the map.
+
+### AC-EVT-013 — Loading, empty and error states (P2)
+
+Given the map view is open,
+When events are loading, the API returns none, the search matches nothing, or the request fails,
+Then the same state as the list is shown, including retry after a failure.
+Given the map code cannot load,
+Then an error with retry replaces the map, and the filters and view switch stay.
+
+**Owns**: T4 page integration.
+
+### AC-EVT-014 — Tiles and attribution (P2)
+
+Given the map is showing,
+Then the OpenStreetMap attribution is visible.
+Given tiles fail to load, fully or partly,
+Then a notice links to the list, the pins remain, the view does not change, and the notice does not flicker.
+
+**Owns**: T5 in-repo browser with tile requests blocked; T6 one journey with tiles aborted.
+**Does not own**: live OpenStreetMap. Tests do not depend on it or compare tile images.
+
+### AC-EVT-015 — Map flag fails safe to the list (P1)
+
+Given `BjjEvents` is on and `EventsMap` is off or missing from the flag response,
+When a visitor opens `/events` or `/events?view=map`,
+Then the list is shown on `/events`, the view switch is hidden, and there is no redirect.
+Given `BjjEvents` is off,
+Then AC-EVT-006 still applies.
+Given the flag fetch fails,
+Then every flag is off, so AC-EVT-006 applies.
+Given `EventsMap` and `GymsMap` are set independently,
+Then each changes only its own page.
+Given a client calls `GET /api/v1/featureflag`,
+Then `EventsMap` is present as a boolean and is false unless the environment enables it.
+
+**Owns**: T1 flag configuration; T0 Pact for the flag key; T4 page integration and routing.
+
+### AC-EVT-016 — Themes, keyboard and phone width (P2)
+
+Given each of the light, dark and competition themes,
+When the map is open,
+Then pins, popups, the view switch and controls meet WCAG 2.1 AA while tiles stay light,
+And focus indicators are visible on screen over tiles and over the map background.
+Given keyboard use,
+Then the view switch, pins and popup links work, Space and Enter open a pin, Escape closes a popup, and the current view is announced.
+Given phone width,
+Then the map fits with no horizontal page scroll and the visitor can scroll past it.
+
+**Owns**: T5 for keyboard, layout, focus indicators and pin contrast on tiles, measured in pixels; T6 axe in each theme.
+
+### AC-EVT-017 — List visitors pay nothing for the map (P2)
+
+Given a visitor stays on the event list,
+Then no tile requests are made and no map code is downloaded.
+
+**Owns**: T5 by observing requests; T6 against a built image.
 
 ## Executable contract
 

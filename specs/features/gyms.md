@@ -79,7 +79,7 @@ A visitor can switch the Gyms page between the list and a map of Ireland, to see
 - Remembering the chosen view between visits
 - Dark map tiles, a paid or keyed tile provider, and offline maps
 - Grouping nearby pins into clusters. No two seeded gyms share a location. Add clusters later if the map becomes hard to read
-- Maps for events, competitions or stores
+- Maps for competitions or stores. Events have their own map: [events.md](events.md), User Story 4
 - A server-side search or map-bounds query
 
 ## Requirements

@@ -16,7 +16,9 @@ public enum FeatureFlag {
     /** Public stores directory. */
     STORES("Stores"),
     /** Map view on the gym directory. Off unless an environment enables it. */
-    GYMS_MAP("GymsMap");
+    GYMS_MAP("GymsMap"),
+    /** Map view on the events page. Off unless an environment enables it; independent of {@link #GYMS_MAP}. */
+    EVENTS_MAP("EventsMap");
 
     private final String wireName;
 

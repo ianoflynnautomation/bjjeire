@@ -84,7 +84,7 @@ class FeatureFlagServiceTest {
         configured.put("gyms", true);
 
         assertThat(service(configured).frontendFlags().keySet())
-                .containsExactly("BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap");
+                .containsExactly("BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap", "EventsMap");
         assertThat(service(configured).frontendFlags())
                 .containsEntry("BjjEvents", true)
                 .containsEntry("Gyms", true)
@@ -120,6 +120,28 @@ class FeatureFlagServiceTest {
     void shouldServeGymsMapAsTrueWhenConfigurationEnablesIt() {
         assertThat(service(Map.of("GymsMap", true)).frontendFlags()).containsEntry("GymsMap", true);
         assertThat(service(Map.of("gyms-map", true)).frontendFlags()).containsEntry("GymsMap", true);
+    }
+
+    /** AC-EVT-015: the events map flag is on the wire and stays off unless an environment enables it. */
+    @Test
+    @Tag("AC-EVT-015")
+    void shouldServeEventsMapAsFalseWhenConfigurationDoesNotEnableIt() {
+        FeatureFlagService service = service(Map.of("BjjEvents", true, "GymsMap", true));
+
+        assertThat(service.frontendFlags())
+                .containsEntry("EventsMap", false)
+                .containsEntry("GymsMap", true)
+                .containsEntry("BjjEvents", true);
+    }
+
+    /** AC-EVT-015: EventsMap is enabled independently of GymsMap, by exact or relaxed key. */
+    @Test
+    @Tag("AC-EVT-015")
+    void shouldServeEventsMapIndependentlyOfGymsMap() {
+        assertThat(service(Map.of("EventsMap", true)).frontendFlags())
+                .containsEntry("EventsMap", true)
+                .containsEntry("GymsMap", false);
+        assertThat(service(Map.of("events-map", true)).frontendFlags()).containsEntry("EventsMap", true);
     }
 
     @Test

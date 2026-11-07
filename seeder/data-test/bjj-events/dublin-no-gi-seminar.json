@@ -1,0 +1,50 @@
+[
+  {
+    "id": "acce77e00000000000000007",
+    "name": "Dublin No-Gi Seminar",
+    "description": "Acceptance-test fixture event in Dublin (upcoming). Shares a venue with another upcoming fixture, for the events map.",
+    "types": ["Seminar"],
+    "organiser": {
+      "name": "Dublin No-Gi Collective",
+      "website": "https://dublin-no-gi.example.ie/"
+    },
+    "status": "Upcoming",
+    "statusReason": null,
+    "socialMedia": {
+      "instagram": null,
+      "facebook": null,
+      "x": null,
+      "youTube": null
+    },
+    "county": "Dublin",
+    "location": {
+      "address": "Rear Hall, Mat Lane, Dublin 8, Ireland",
+      "venue": "Leinster Grappling HQ",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [-6.2889, 53.3382],
+        "placeName": "Dublin 8, Co. Dublin",
+        "placeId": null
+      }
+    },
+    "schedule": {
+      "kind": "FixedDates",
+      "startDate": "now+12d",
+      "endDate": "now+12d",
+      "sessions": []
+    },
+    "pricingOptions": [
+      {
+        "type": "Free",
+        "amount": 0,
+        "durationDays": null,
+        "currency": "EUR"
+      }
+    ],
+    "eventUrl": "https://dublin-no-gi.example.ie/seminar",
+    "imageUrl": "/images/events/acce77e00000000000000001/lg.webp",
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]
