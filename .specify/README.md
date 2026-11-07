@@ -31,7 +31,8 @@ Change a project template in `templates/overrides/`, never in the core
 To upgrade, update the CLI and re-run the `init` command above. Then check
 that `git diff` touches only CLI-owned paths.
 
-New numbered features (optional Spec Kit flow):
+The default flow is `/spec` → `/clear` → `/build-feature` (see `AGENTS.md`). Use
+Spec Kit only to design a large new capability that has no living file:
 
 ```
 /speckit-specify …
@@ -39,8 +40,13 @@ New numbered features (optional Spec Kit flow):
 /speckit-plan …
 /speckit-tasks …
 /speckit-analyze        (optional)
-/speckit-implement
+/clear
+/build-feature specs/###-slug/spec.md
 ```
+
+Do not use `/speckit-implement`. `/build-feature` keeps the failing-test-first order,
+AC-ID traceability and the independent `spec-verifier` review. It then writes the
+result back into the living spec.
 
 Do not install the Spec2Cloud `verify`/`deploy` extension until it is
 rewritten for Flux + Mongo. The constitution forbids generating `azure.yaml`
