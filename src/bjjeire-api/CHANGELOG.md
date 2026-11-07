@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.26](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.25...api-v0.1.26) (2026-11-05)
+
+
+### Features
+
+* add gyms map feature ([1a1d358](https://github.com/ianoflynnautomation/bjjeire/commit/1a1d35833ac296d552b2ec5efd39c994611b7447))
+* add gyms map feature ([cf3823c](https://github.com/ianoflynnautomation/bjjeire/commit/cf3823ce7bcc8bc574582e6dbc6814ab883575bd))
+
 ## [0.1.25](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.24...api-v0.1.25) (2026-11-01)
 
 
