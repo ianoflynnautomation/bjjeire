@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.27](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.26...api-v0.1.27) (2026-11-07)
+
+
+### Features
+
+* add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
+
 ## [0.1.26](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.25...api-v0.1.26) (2026-11-05)
 
 

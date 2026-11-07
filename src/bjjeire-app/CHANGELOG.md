@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.38](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.37...frontend-v0.1.38) (2026-11-07)
+
+
+### Features
+
+* add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
+
 ## [0.1.37](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.36...frontend-v0.1.37) (2026-11-05)
 
 
