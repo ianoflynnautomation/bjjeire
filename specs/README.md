@@ -63,4 +63,10 @@ capability.
 
 To build a feature in Claude Code, run `/spec <feature>` and review the result. Then run
 `/clear` and `/build-feature <spec path>`, which ends with an independent review by the
-read-only `spec-verifier` subagent.
+read-only `spec-verifier` subagent. This is the default.
+
+For a large new capability with no living file, design it with Spec Kit
+(`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks`), then
+build it with `/build-feature specs/00N-slug/spec.md`, not `/speckit-implement`. The
+build writes the result back into `features/` and `stc/`, and the numbered directory
+is kept as the design record.

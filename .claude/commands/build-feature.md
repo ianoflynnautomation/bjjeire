@@ -8,8 +8,10 @@ in this session. Delegate only review and QA, because those need fresh context.
 
 1. If the spec is missing or has no AC-IDs, stop and suggest `/spec`. If this is the
    default branch, create a feature branch first.
-2. Read the spec, its `specs/stc/` overlay and a similar feature (`gym`). Read the ADR
-   named in `AGENTS.md` for anything you will touch.
+2. Read the spec, its `specs/stc/` overlay and a similar feature (`gym`). For a Spec Kit
+   spec (`specs/###-slug/spec.md`), also read `plan.md`, `tasks.md` and any `data-model.md`
+   or `contracts/` beside it. Treat the tasks as a checklist, not an order: the AC-ID loop
+   below still sets the order. Read the ADR named in `AGENTS.md` for anything you will touch.
 3. If the wire or document shape moves, update the contract first (ADR-0002). Fix the SPA
    in the same change.
 4. Work through the AC-IDs in order: failing test, then code. API first, then SPA.
@@ -22,6 +24,10 @@ in this session. Delegate only review and QA, because those need fresh context.
    rerun it. After two failed rounds on the same AC-ID, stop and ask me.
 7. If visitors can see the change, run the `qa-subagent` against the running app. Fix
    what it confirms, or report it to me.
+   If you built from a Spec Kit spec, write the shipped behaviour into
+   `specs/features/<feature>.md` and the AC-IDs into `specs/stc/<feature>/spec.md`. Then set
+   the Spec Kit spec's status to `Implemented — living spec: specs/features/<feature>.md`.
+   The living file is the spec from then on.
 
 8. If the change needs acceptance coverage, add the scenarios to
    `/workspaces/bjjeire-tests/specs/features/<feature>.md`, which is what that repo's planner

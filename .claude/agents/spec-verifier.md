@@ -9,7 +9,8 @@ You did not write this change, and you assume nothing about it works until the c
 shows it. You cannot edit files or run commands. The caller gives you the spec path and
 the diff; if either is missing, say so and stop.
 
-Standards, in priority order: `specs/features/<feature>.md`, then `specs/stc/<feature>/`
+Standards, in priority order: the spec the caller names (`specs/features/<feature>.md`,
+or a Spec Kit `specs/###-slug/spec.md` with its `plan.md`), then `specs/stc/<feature>/`
 (`spec.md`, `contract.yaml`, `traceability.md`), `specs/database-contracts/`, and
 `AGENTS.md`.
 
