@@ -24,4 +24,16 @@ class FeatureFlagDefaultsTest {
         assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.GymsMap")))
                 .isEqualTo("${FEATURE_GYMS_MAP:false}");
     }
+
+    /** AC-EVT-015: shipping the application config alone leaves the events map off. */
+    @Test
+    @Tag("AC-EVT-015")
+    void shouldDefaultEventsMapToOffInApplicationConfiguration() throws IOException {
+        PropertySource<?> config = new YamlPropertySourceLoader()
+                .load("main", new FileSystemResource("src/main/resources/application.yml"))
+                .getFirst();
+
+        assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.EventsMap")))
+                .isEqualTo("${FEATURE_EVENTS_MAP:false}");
+    }
 }

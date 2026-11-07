@@ -732,6 +732,14 @@ describe('GymsPage Integration (API + Query + UI)', () => {
         expect(routerSearch()).toBe('?view=map')
       })
 
+      it('given only the events map is on, when the gym page opens, then it offers no map (AC-EVT-015)', async () => {
+        seedGyms([createGym({ name: 'Rebel BJJ' })])
+        renderGymsPage(['/gyms?view=map'], { GymsMap: false, EventsMap: true })
+
+        expect(await screen.findByText('Rebel BJJ')).toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: 'Map' })).toBeNull()
+      })
+
       it('given the flag response has no GymsMap key, when the gym page opens, then it behaves as off', async () => {
         seedGyms([createGym({ name: 'Rebel BJJ' })])
         renderGymsPage()

@@ -61,6 +61,15 @@ class FeatureFlagControllerTest {
                 .andExpect(jsonPath("$.GymsMap").value(false));
     }
 
+    /** AC-EVT-015: EventsMap is present as a boolean even when no environment sets it. */
+    @Test
+    @Tag("AC-EVT-015")
+    void shouldReturnEventsMapAsBooleanFalseWhenItIsNotConfigured() throws Exception {
+        mockMvc.perform(get(ApiRoutes.FEATURE_FLAG))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.EventsMap").value(false));
+    }
+
     @Test
     void shouldMatchRelaxedConfigurationKeysWhenListing() throws Exception {
         BjjEireProperties properties = new BjjEireProperties(

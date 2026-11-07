@@ -1,0 +1,187 @@
+/*
+  Leaflet's stylesheet is unlayered, so it beats Tailwind's layered utilities
+  inside the map. Theme tokens are applied here instead. Tiles stay light in
+  every theme (FR-015), so pins use --ui-map-pin with a pale edge rather than
+  following the page's foreground.
+*/
+.event-map .leaflet-container {
+  background: var(--ui-muted);
+  color: var(--ui-fg);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.event-map .event-map-pin {
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+.event-map .event-map-pin::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--ui-map-pin);
+  border: 2px solid var(--color-ink-50);
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  transform: rotate(-45deg);
+}
+
+/*
+  The container's own outline paints under Leaflet's panes, so tiles would hide
+  it. The ring is a layer above them, and it ignores the pointer. It has a dark
+  band for light tiles and a pale band for the dark background behind failed
+  or loading tiles. A zoom
+  control's outer ring would sit on light tiles in every theme, so that is drawn
+  inside the control.
+*/
+.event-map .leaflet-container:focus-visible {
+  outline: none;
+}
+
+.event-map .leaflet-container:focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1001;
+  border: 3px solid var(--ui-map-pin);
+  box-shadow: inset 0 0 0 2px var(--color-ink-50);
+  pointer-events: none;
+}
+
+.event-map .leaflet-bar a:focus-visible {
+  outline: 2px solid var(--ui-fg);
+  outline-offset: -4px;
+}
+
+/* Leaflet sets z-index inline. A focused pin must not sit under its neighbours. */
+.event-map .event-map-pin:focus {
+  z-index: 1000 !important;
+}
+
+.event-map .event-map-pin:focus-visible {
+  outline: 3px solid var(--ui-map-pin);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-ink-50);
+}
+
+.event-map .leaflet-popup-content-wrapper,
+.event-map .leaflet-popup-tip {
+  background: var(--ui-surface-solid);
+  color: var(--ui-fg);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.4);
+}
+
+.event-map .leaflet-popup-content-wrapper {
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 0.75rem;
+}
+
+.event-map .leaflet-popup-content {
+  margin: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.event-map-popup {
+  overflow-wrap: anywhere;
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.event-map-popup:focus-visible {
+  outline: 2px solid var(--ui-ring-focus);
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+
+.event-map-popup-name {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.event-map-popup-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.event-map .leaflet-container .event-map-popup-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--ui-fg);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.event-map-popup-close {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.75rem;
+  color: var(--ui-fg-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.event-map-popup-close:hover {
+  color: var(--ui-fg);
+}
+
+.event-map .leaflet-bar a,
+.event-map .leaflet-bar a.leaflet-disabled {
+  background: var(--ui-surface-solid);
+  color: var(--ui-fg);
+  border-color: var(--ui-border-strong);
+}
+
+.event-map .leaflet-bar a.leaflet-disabled {
+  color: var(--ui-fg-subtle);
+}
+
+.event-map .leaflet-bar a:hover,
+.event-map .leaflet-bar a:focus {
+  background: var(--ui-muted);
+}
+
+.event-map .event-map-attribution a {
+  color: var(--ui-fg);
+  text-decoration: underline;
+}
+
+/* A shared-venue popup lists several events: one block each, scrolling if long. */
+.event-map-popup-events {
+  max-height: 16rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.event-map-popup-event {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ui-hairline);
+}
+
+.event-map-popup-event + .event-map-popup-event {
+  margin-top: 0.5rem;
+}
+
+.event-map-popup-event-name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.event-map-popup-meta {
+  color: var(--ui-fg-muted);
+}

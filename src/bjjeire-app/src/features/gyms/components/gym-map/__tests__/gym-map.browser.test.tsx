@@ -41,6 +41,15 @@ function Wrapper({ children }: { children: ReactNode }): ReactElement {
   )
 }
 
+/** The element for a selector, or a clear failure. */
+function elementFor(selector: string): Element {
+  const element = document.querySelector(selector)
+  if (!element) {
+    throw new Error(`no element for ${selector}`)
+  }
+  return element
+}
+
 function centre(el: Element): { x: number; y: number } {
   const { left, top, width, height } = el.getBoundingClientRect()
   return { x: left + width / 2, y: top + height / 2 }
@@ -74,6 +83,79 @@ afterEach(async () => {
 })
 
 describe('GymMap (browser)', () => {
+  it('AC-GYM-015: given a popup was closed with Escape, when the pin is opened again by keyboard, then focus moves into the popup again', async () => {
+    await render(
+      <GymMap
+        gyms={[dublin, galway]}
+        hasFilters={false}
+        tileUrl={BLANK_TILE}
+      />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    const pin = page.getByRole('button', { name: 'Dublin BJJ' })
+    await expect.element(pin).toBeVisible()
+    ;(pin.element() as HTMLElement).focus()
+
+    for (const key of ['{Enter}', ' ']) {
+      await userEvent.keyboard(key)
+      const popup = page.getByTestId(GymMapTestIds.POPUP)
+      await expect.element(popup).toBeVisible()
+      await expect.poll(() => document.activeElement).toBe(popup.element())
+      await userEvent.keyboard('{Escape}')
+      await expect.element(popup).not.toBeInTheDocument()
+      expect(document.activeElement).toBe(pin.element())
+    }
+  })
+
+  it('AC-GYM-015: given phone width, when a pin near the controls opens, then the popup clears the zoom control and the attribution', async () => {
+    await page.viewport(375, 667)
+    const west = gymAt('Atlantic BJJ', -9.5145, 53.8008)
+    await render(
+      <GymMap gyms={[west, cork]} hasFilters={false} tileUrl={BLANK_TILE} />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    await userEvent.click(page.getByRole('button', { name: 'Atlantic BJJ' }))
+    await expect.element(page.getByTestId(GymMapTestIds.POPUP)).toBeVisible()
+
+    const popupRect = (): DOMRect =>
+      elementFor('.leaflet-popup-content-wrapper').getBoundingClientRect()
+    const overlaps = (a: DOMRect, b: DOMRect): boolean =>
+      a.left < b.right &&
+      a.right > b.left &&
+      a.top < b.bottom &&
+      a.bottom > b.top
+    const zoom = elementFor('.leaflet-control-zoom').getBoundingClientRect()
+    const attribution = page
+      .getByTestId(GymMapTestIds.ATTRIBUTION)
+      .element()
+      .getBoundingClientRect()
+
+    await expect.poll(() => overlaps(popupRect(), zoom)).toBe(false)
+    expect(overlaps(popupRect(), attribution)).toBe(false)
+  })
+
+  it('AC-GYM-010: given a long unbroken address, when the popup opens, then the text wraps inside it', async () => {
+    const long = gymAt('Long Address BJJ', -6.26, 53.33)
+    long.location = { ...long.location, address: 'Unit'.padEnd(120, 'X') }
+    await render(
+      <GymMap gyms={[long]} hasFilters={false} tileUrl={BLANK_TILE} />,
+      { wrapper: Wrapper }
+    )
+    await userEvent.click(
+      page.getByRole('button', { name: 'Long Address BJJ' })
+    )
+    const popup = page.getByTestId(GymMapTestIds.POPUP)
+    await expect.element(popup).toBeVisible()
+
+    // Overflowing text spills out of its own box, so compare the box with its content.
+    const address = page.getByTestId(GymMapTestIds.POPUP_ADDRESS).element()
+    expect(address.scrollWidth).toBeLessThanOrEqual(address.clientWidth)
+  })
+
   it('AC-GYM-009: given gyms around Ireland, when pins render, then each sits in its real direction', async () => {
     await render(
       <GymMap

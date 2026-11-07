@@ -53,7 +53,7 @@ User stories are prioritized journeys. Each story is independently testable.
 - Route: `/...`
 - Feature flag (fail-closed)
 - Strings file keys / test IDs
-- Dark theme only
+- Light, dark and competition themes (ADR-0011)
 
 ## Success Criteria *(mandatory)*
 

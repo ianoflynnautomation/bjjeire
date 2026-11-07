@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router'
 import type { County } from '@/constants/counties'
 import type { GetBjjEventsPaginationQuery, BjjEventDto } from '@/types/event'
 import { BjjEventType } from '@/types/event'
@@ -10,6 +11,12 @@ import { getCountyDisplayLabel } from '@/utils/county-utils'
 import { countyUrlFilter, type ListUrlFilter } from '@/utils/list-url-state'
 import { textMatchesSearch } from '@/utils/search-text'
 import { readField } from '@/utils/untrusted'
+import { useFeatureFlag } from '@/features/feature-flags'
+import {
+  readEventView,
+  withEventView,
+  type EventView,
+} from '@/features/bjjevents/utils/event-view-url'
 
 export const initialEventFilters: GetBjjEventsPaginationQuery = {
   county: 'all',
@@ -57,15 +64,24 @@ type UseEventsPageResult = UseListPageResult<
     key: EventFilterKey,
     value: County | BjjEventType[] | 'all' | undefined
   ) => void
+  isMapEnabled: boolean
+  view: EventView
+  handleViewChange: (view: EventView) => void
 }
 
 export function useEventsPage(): UseEventsPageResult {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isMapEnabled = useFeatureFlag('EventsMap')
+  // With the flag off a map link is just the list. The URL is left alone.
+  const view = isMapEnabled ? readEventView(searchParams) : 'list'
+
   const listPage = useListPage<BjjEventDto, GetBjjEventsPaginationQuery>({
     queryKeyBase: ['bjjevents'],
     fetchFn: getBjjEvents,
     initialParams: initialEventFilters,
     matchesSearch: eventMatchesSearch,
     urlFilters: EVENT_URL_FILTERS,
+    loadAll: view === 'map',
   })
 
   const { activeFilters, updateFilters } = listPage
@@ -86,9 +102,18 @@ export function useEventsPage(): UseEventsPageResult {
     [updateFilters]
   )
 
+  function handleViewChange(nextView: EventView): void {
+    if (nextView !== view) {
+      setSearchParams(withEventView(searchParams, nextView))
+    }
+  }
+
   return {
     ...listPage,
     countyLabel,
     handleFilterChange,
+    isMapEnabled,
+    view,
+    handleViewChange,
   }
 }

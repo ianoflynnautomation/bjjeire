@@ -85,6 +85,7 @@
 }
 
 .gym-map-popup {
+  overflow-wrap: anywhere;
   position: relative;
   padding-right: 1.5rem;
 }

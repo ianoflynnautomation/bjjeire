@@ -29,7 +29,7 @@ export const MyComponent = memo(function MyComponent({
 
 - User-visible copy → `src/config/ui-content.ts` only.
 - Test IDs → `src/constants/*DataTestIds.ts`, passed as `dataTestId`.
-- Dark theme only. No light `PageLayout` backgrounds (ADR-0007).
+- Light, dark and competition themes, applied by `useTheme` (ADR-0011). `PageLayout` stays transparent, with no background of its own.
 - Tailwind 4 + `cn()`. CVA objects live in `src/lib/`, never next to the
   component (react-refresh).
 

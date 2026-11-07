@@ -43,6 +43,44 @@ const PIN_ICON = L.divIcon({
 })
 
 /**
+ * Room a popup keeps from the map's edges when it opens: clear of the zoom
+ * control at the top left and the attribution at the bottom right, so neither
+ * covers it at phone width.
+ */
+const POPUP_PADDING_TOP_LEFT: [number, number] = [56, 12]
+const POPUP_PADDING_BOTTOM_RIGHT: [number, number] = [12, 36]
+/** The paddings above, plus the popup's tip and frame. */
+const POPUP_FRAME_HEIGHT = 110
+const POPUP_FRAME_WIDTH = 80
+const POPUP_MAX_WIDTH = 300
+const POPUP_MIN_HEIGHT = 120
+const POPUP_MIN_WIDTH = 160
+
+/**
+ * Sizes the popup to the map as it is now, not as it was when the pins were
+ * made: a phone turned to landscape has a much shorter map. Leaflet keeps
+ * popup content mounted, so the content's own mount effect only focuses it the
+ * first time; this moves focus in on every open.
+ */
+function prepareOpenedPopup(event: L.PopupEvent, map: L.Map): void {
+  const { popup } = event
+  const size = map.getSize()
+  popup.options.maxHeight = Math.max(
+    POPUP_MIN_HEIGHT,
+    size.y - POPUP_FRAME_HEIGHT
+  )
+  popup.options.maxWidth = Math.min(
+    POPUP_MAX_WIDTH,
+    Math.max(POPUP_MIN_WIDTH, size.x - POPUP_FRAME_WIDTH)
+  )
+  popup.update()
+  popup
+    .getElement()
+    ?.querySelector<HTMLElement>('[tabindex="-1"]')
+    ?.focus({ preventScroll: true })
+}
+
+/**
  * Phones and tablets, by primary pointer rather than user agent alone. A laptop
  * with a touchscreen has a fine primary pointer and keeps mouse dragging.
  */
@@ -98,6 +136,9 @@ const GymPins = function GymPins({ pins }: { pins: GymPin[] }): JSX.Element {
         }
       })
     },
+    popupopen: event => {
+      prepareOpenedPopup(event, map)
+    },
     popupclose: event => {
       const marker = event.target as L.Marker
       // Return focus only if closing would otherwise lose it, not if the visitor has moved on.
@@ -118,7 +159,11 @@ const GymPins = function GymPins({ pins }: { pins: GymPin[] }): JSX.Element {
           title={readString(pin.gym.name) || gymCard.fallbackName}
           eventHandlers={handlers}
         >
-          <Popup closeButton={false}>
+          <Popup
+            closeButton={false}
+            autoPanPaddingTopLeft={POPUP_PADDING_TOP_LEFT}
+            autoPanPaddingBottomRight={POPUP_PADDING_BOTTOM_RIGHT}
+          >
             <GymMapPopup gym={pin.gym} onClose={() => map.closePopup()} />
           </Popup>
         </Marker>

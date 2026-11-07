@@ -7,6 +7,46 @@ export const events = {
     foundSuffixSingular: 'event.',
     foundSuffixPlural: 'events.',
   },
+  viewSwitch: {
+    ariaLabel: 'Choose how to view events',
+    list: 'List',
+    map: 'Map',
+  },
+  map: {
+    ariaLabel: 'Map of Brazilian Jiu-Jitsu events in Ireland',
+    loadFailed:
+      'The map could not be loaded. Please try again, or use the list.',
+    zoomInLabel: 'Zoom in',
+    zoomOutLabel: 'Zoom out',
+    attribution: {
+      prefix: '©',
+      linkText: 'OpenStreetMap',
+      linkUrl: 'https://www.openstreetmap.org/copyright',
+      suffix: 'contributors',
+    },
+    pin: {
+      fallbackVenue: 'Event venue',
+      eventsSuffix: 'events',
+    },
+    popup: {
+      closeLabel: 'Close event details',
+      directionsLink: 'Get Directions',
+      directionsAriaPrefix: 'Get directions to',
+      eventLink: 'More Information',
+      eventsListLabel: 'Events at this venue',
+    },
+    notices: {
+      truncated:
+        'Not all events are shown on the map. Choose a county or type, or search, to narrow the results.',
+      unmappedSingular:
+        'event is not shown on the map because it has no location.',
+      unmappedPlural:
+        'events are not shown on the map because they have no location.',
+      tilesFailed:
+        'The map background could not be loaded. The pins are still available.',
+      tilesFailedListLink: 'View the event list',
+    },
+  },
   card: {
     fallbackName: 'Unnamed Event',
     typeFallbackLabel: 'Event',

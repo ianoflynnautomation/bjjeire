@@ -63,7 +63,9 @@ stubbing flags in production code.
 
 ### Frontend
 
-- Dark theme only (ADR-0007).
+- Three themes: light, dark and competition, applied by `useTheme` (ADR-0011,
+  which supersedes ADR-0007). Colours come from the semantic tokens in
+  `src/bjjeire-app/src/index.css`. `PageLayout` stays transparent.
 - All user-visible strings live in `src/bjjeire-app/src/config/ui-content.ts`.
 - Data test IDs live in `src/bjjeire-app/src/constants/*DataTestIds.ts`.
 - `VITE_APP_*` values are baked at image build time (ADR-0006).
