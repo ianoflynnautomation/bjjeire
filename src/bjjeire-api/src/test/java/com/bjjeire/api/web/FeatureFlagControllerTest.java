@@ -52,18 +52,18 @@ class FeatureFlagControllerTest {
                 .andExpect(jsonPath("$.Stores").value(true));
     }
 
-    /** AC-GYM-014: GymsMap is present as a boolean even when no environment sets it. */
+    /** #1014: GymsMap is present as a boolean even when no environment sets it. */
     @Test
-    @Tag("AC-GYM-014")
+    @Tag("#1014")
     void shouldReturnGymsMapAsBooleanFalseWhenItIsNotConfigured() throws Exception {
         mockMvc.perform(get(ApiRoutes.FEATURE_FLAG))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.GymsMap").value(false));
     }
 
-    /** AC-EVT-015: EventsMap is present as a boolean even when no environment sets it. */
+    /** #2015: EventsMap is present as a boolean even when no environment sets it. */
     @Test
-    @Tag("AC-EVT-015")
+    @Tag("#2015")
     void shouldReturnEventsMapAsBooleanFalseWhenItIsNotConfigured() throws Exception {
         mockMvc.perform(get(ApiRoutes.FEATURE_FLAG))
                 .andExpect(status().isOk())

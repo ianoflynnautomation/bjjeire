@@ -5,7 +5,7 @@ import { createGym } from '@/testing/factories/gym.factory'
 import { getGoogleMapsUrl } from '@/utils/map-utils'
 import { GymMapPopup } from '../gym-map-popup'
 
-describe('GymMapPopup (AC-GYM-010)', () => {
+describe('GymMapPopup (#1010)', () => {
   it('given a gym, when the popup renders, then name, county, address and matching links are shown', () => {
     const gym = createGym({
       name: 'Elite Fighters Academy',

@@ -4,7 +4,7 @@ import { computeMapBounds, IRELAND_BOUNDS } from '../event-map-bounds'
 const dublin = { latitude: 53.33, longitude: -6.26 }
 const galway = { latitude: 53.27, longitude: -9.05 }
 
-describe('computeMapBounds (AC-EVT-012)', () => {
+describe('computeMapBounds (#2012)', () => {
   it('given Ireland, when the bounds are read, then they contain both ends of the island', () => {
     expect(IRELAND_BOUNDS.south).toBeLessThan(51.45)
     expect(IRELAND_BOUNDS.north).toBeGreaterThan(55.38)

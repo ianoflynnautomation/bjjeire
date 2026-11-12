@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { EventViewSwitch } from '../event-view-switch'
 
-describe('EventViewSwitch (AC-EVT-007, AC-EVT-016)', () => {
+describe('EventViewSwitch (#2007, #2016)', () => {
   it('given the list view, when it renders, then the list is announced as the current view', () => {
     render(<EventViewSwitch view="list" onChange={vi.fn()} />)
 

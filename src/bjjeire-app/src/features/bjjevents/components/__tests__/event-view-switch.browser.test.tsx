@@ -21,7 +21,7 @@ afterEach(() => {
   document.documentElement.className = ''
 })
 
-describe('EventViewSwitch focus indicator (AC-EVT-016)', () => {
+describe('EventViewSwitch focus indicator (#2016)', () => {
   it.each([
     ['light', ''],
     ['dark', 'dark'],

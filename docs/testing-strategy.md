@@ -63,7 +63,7 @@ specs/
     └── <feature>/
         ├── spec.md                  # machine-oriented check catalog
         ├── contract.yaml            # OpenAPI / Pact / MSW / invariants
-        └── traceability.md          # AC-ID → tests → implementation
+        └── traceability.md          # requirement issue → tests → implementation
 ```
 
 Copy the overlay from [`.specify/templates/stc-check.template.md`](../.specify/templates/stc-check.template.md). Worked example: [`specs/stc/gyms/`](../specs/stc/gyms/).
@@ -87,6 +87,8 @@ status: living
 
 # STC: Gyms
 
+**Requirements**: `bjjeire/requirements` · epic `&1`
+
 ## User intent
 
 A visitor opens Gyms and can scan, search, and filter published gyms.
@@ -94,10 +96,11 @@ Writes are authenticated. The gyms flag fails closed to `/about`.
 
 ## Acceptance criteria
 
-Each criterion has a stable ID. Tests MUST name that ID in the method
-Javadoc / `it()` title or a `@Tag("AC-GYM-001")` / comment on the first line.
+Each criterion is a GitLab issue in `bjjeire/requirements`. The epic stays on
+the **Requirements** line. Tests MUST name the issue in the method
+Javadoc / `it()` title or a `@Tag("#1001")` / comment on the first line.
 
-### AC-GYM-001 — List published gyms (P1)
+### `#1001` — List published gyms (P1)
 
 Given published gyms exist,
 When a client calls `GET /api/v1/gym`,
@@ -106,7 +109,7 @@ And only Active gyms are returned.
 
 **Owns**: backend `*IT` (real Mongo). Not a Playwright filter matrix.
 
-### AC-GYM-002 — County filter (P1)
+### `#1002` — County filter (P1)
 
 Given gyms in several counties,
 When `county=Dublin` is supplied,
@@ -117,7 +120,7 @@ Then the API returns 400 ProblemDetail.
 **Owns**: `GymControllerTest` (400 mapping) + `GymMongoRepositoryIT` (query).
 SPA integration covers the combobox → query-string hop once.
 
-### AC-GYM-003 — Client-side name search (P1)
+### `#1003` — Client-side name search (P1)
 
 Given a loaded gyms page,
 When the visitor types a gym name,
@@ -134,7 +137,7 @@ breaking API change (ADR-0002).
 
 ## Traceability
 
-See `traceability.md`. Every AC-ID in this file MUST appear there.
+See `traceability.md`. Every requirement issue in this file MUST appear there.
 ```
 
 ### 1.3 `contract.yaml` template
@@ -189,18 +192,18 @@ This file does **not** replace the served OpenAPI document. It tells agents whic
 ```markdown
 # Traceability: gyms
 
-| AC-ID | Layer | Test path | Implementation path |
+| Issue | Layer | Test path | Implementation path |
 |---|---|---|---|
-| AC-GYM-001 | IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/gym/GymMongoRepositoryIT.java` | `GymService`, `GymRepository` |
-| AC-GYM-002 | Unit + IT | `GymControllerTest.java`, `GymMongoRepositoryIT.java` | `GymController`, `GymService` |
-| AC-GYM-002 | SPA integration | `src/bjjeire-app/src/pages/__tests__/gyms-page.integration.test.tsx` | `GymsPage`, `useGymsPage` |
-| AC-GYM-003 | SPA integration | `gyms-page.integration.test.tsx` | `useListPageSearch` |
-| AC-GYM-004 | SPA unit | `src/bjjeire-app/src/features/gyms/components/__tests__/gym-card.unit.test.tsx` | `gym-card.tsx` |
-| AC-GYM-001 | Pact | `src/bjjeire-app/src/contracts/pact/gym.pact.test.ts` | `get-gyms.ts` |
-| AC-GYM-001 | Acceptance | `bjjeire-tests/tests/features/gyms/` | running images |
+| `#1001` | IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/gym/GymMongoRepositoryIT.java` | `GymService`, `GymRepository` |
+| `#1002` | Unit + IT | `GymControllerTest.java`, `GymMongoRepositoryIT.java` | `GymController`, `GymService` |
+| `#1002` | SPA integration | `src/bjjeire-app/src/pages/__tests__/gyms-page.integration.test.tsx` | `GymsPage`, `useGymsPage` |
+| `#1003` | SPA integration | `gyms-page.integration.test.tsx` | `useListPageSearch` |
+| `#1004` | SPA unit | `src/bjjeire-app/src/features/gyms/components/__tests__/gym-card.unit.test.tsx` | `gym-card.tsx` |
+| `#1001` | Pact | `src/bjjeire-app/src/contracts/pact/gym.pact.test.ts` | `get-gyms.ts` |
+| `#1001` | Acceptance | `bjjeire-tests/tests/features/gyms/` | running images |
 ```
 
-Every new AC-ID is a new row. An AC-ID with no test path is unfinished work. An implementation path with no AC-ID is unspecced behaviour — stop and update the feature spec first.
+Every new requirement issue is a new row. A requirement issue with no test path is unfinished work. An implementation path with no requirement issue is unspecced behaviour — stop and update the feature spec first.
 
 ### 1.5 Autonomous agent loop (Spec → Test → Code → Verify)
 
@@ -212,11 +215,11 @@ Agents (Claude Code, Cursor, Grok, Devin) execute this loop. It is the constitut
                     │ specs/stc/<f>/{spec,contract,│
                     │               traceability}  │
                     └──────────────┬───────────────┘
-                                   │ parse AC-IDs
+                                   │ parse requirement issues
                                    ▼
                     ┌──────────────────────────────┐
                     │ Generate failing tests       │
-                    │ tagged with AC-IDs           │
+                    │ tagged with the issue id     │
                     │ RED: fail for the right      │
                     │ reason (assertion, not       │
                     │ compile)                     │
@@ -247,11 +250,11 @@ Agents (Claude Code, Cursor, Grok, Devin) execute this loop. It is the constitut
 **Loop rules**
 
 1. **Read first.** Constitution, the ADR table in `AGENTS.md`, `specs/features/<feature>.md`, `specs/stc/<feature>/spec.md`, and the database contract. If `specs/stc/<feature>/` does not exist, create it from the template before writing tests.
-2. **Tests before code.** Write the test that encodes the AC-ID. Run it. Confirm RED is an assertion failure, not a missing import.
+2. **Tests before code.** Write the test that encodes the requirement issue. Run it. Confirm RED is an assertion failure, not a missing import.
 3. **One layer owns the behaviour.** See §2. Do not add a Playwright journey that restates a Vitest integration test, and do not mock Mongo in an `*IT`.
 4. **Spec vs bug.** If the test is red after a faithful implementation, stop. Either the code is wrong or the spec is wrong. Do not "fix" the test to match accidental implementation, and do not silently edit the spec to match buggy code. Call out the conflict.
 5. **Verify with the commands the layer actually uses** (see §3 and §4). Do not run `mvn clean verify` for a CSS class change.
-6. **Traceability is part of done.** The PR that adds AC-GYM-00N also adds the row.
+6. **Traceability is part of done.** The PR that adds `#1001` also adds the row.
 
 Worked gyms overlay: [`specs/stc/gyms/`](../specs/stc/gyms/).
 
@@ -263,7 +266,7 @@ Value-first: each assertion lives in **one** tier. Overlap is allowed only as a 
 
 | Tier | Scope | Frameworks | What TO test | What NOT to test | Execution trigger |
 |---|---|---|---|---|---|
-| **T0 Spec / contract** | Feature AC-IDs, OpenAPI, Pact, generated TS types | Spec Markdown, springdoc `/v3/api-docs`, `oasdiff`, `openapi-typescript`, `@pact-foundation/pact` | Wire shape, auth on writes, pagination envelope, ProblemDetail, DTO field names | UI layout, Mongo indexes, React state | **PR** `generate_openapi_contract` → `check_openapi_breaking` + `check_frontend_api_compat`; **PR** `frontend_pact` then `verify_pact_provider`; **main** `generate_pact_contract` → `verify_pact_provider` → `publish_contracts_ghcr` |
+| **T0 Spec / contract** | Feature requirement issues, OpenAPI, Pact, generated TS types | Spec Markdown, springdoc `/v3/api-docs`, `oasdiff`, `openapi-typescript`, `@pact-foundation/pact` | Wire shape, auth on writes, pagination envelope, ProblemDetail, DTO field names | UI layout, Mongo indexes, React state | **PR** `generate_openapi_contract` → `check_openapi_breaking` + `check_frontend_api_compat`; **PR** `frontend_pact` then `verify_pact_provider`; **main** `generate_pact_contract` → `verify_pact_provider` → `publish_contracts_ghcr` |
 | **T1 Backend unit** | Domain, services, validators, mappers, standalone controllers | JUnit 5, Mockito, MockMvc standalone, AssertJ | Business rules, mapping, 400/404 HTTP mapping with a mocked service, GeoJSON derived lat/lng | Spring context, Mongo, network, "does `@Service` exist" | **Commit** `mvn -pl src/bjjeire-api test` (Surefire, `*Test`); **PR** `java_build_test` when `java_api` filter matches |
 | **T2 Backend integration** | Repositories, aggregations, indexes, full HTTP + Mongo, OpenAPI export | Spring Boot `@SpringBootTest`, Testcontainers Mongo `mongo:8.2`, Failsafe `*IT`, `RestTemplate` against `RANDOM_PORT` | Real queries, county filter, pagination links, audit fields on write, JWT writer vs reader, served OpenAPI | Mockito against `MongoTemplate` / repositories; embedded/in-memory Mongo; repeating every service unit case | **PR / main** `java_build_test` (`mvn verify`); Testcontainers required. No Flapdoodle. |
 | **T3 Frontend unit** | Utils, hooks, presentational components | Vitest `*.unit.test.{ts,tsx}`, jsdom, Testing Library | `price-calculator`, `map-utils`, `GymCard` rendering from a DTO, debounce, focus trap | Network, MSW, router + React Query + page together, CSS screenshots | **Commit** `npm run test`; **PR and main** `frontend_unit` |
@@ -392,7 +395,7 @@ class GymServiceTest {
 
 **Do not** start the servlet container in T1. **Do not** assert Mongo index names here. **Do not** use `@MockBean` — that is a Spring test and belongs in T2 if at all.
 
-**ADOPT WHEN — property-based (jqwik)** for edge-heavy pure logic. First candidates: `BjjEventCostCalculator`, `GeoCoordinates` GeoJSON order, `PaginationRequest` clamping. See §6.3. Example-based tests stay; properties add a universal quantifier, they do not replace the named AC-ID examples.
+**ADOPT WHEN — property-based (jqwik)** for edge-heavy pure logic. First candidates: `BjjEventCostCalculator`, `GeoCoordinates` GeoJSON order, `PaginationRequest` clamping. See §6.3. Example-based tests stay; properties add a universal quantifier, they do not replace the named requirement issue examples.
 
 ### 3.2 Integration testing (Spring Boot + Testcontainers + MongoDB)
 
@@ -583,7 +586,7 @@ Do not invent routes, GeoJSON order, or status enums. Dual-case API routes exist
 
 ### Agent Rule 2 — Red → Green → Refactor
 
-1. Derive tests from AC-IDs. Put the ID in the test name or `@Tag("AC-GYM-002")`.
+1. Derive tests from requirement issues. Put the ID in the test name or `@Tag("#1002")`.
 2. Run the **owning** suite. Confirm RED is the assertion you wrote.
 3. Implement the minimum in the feature package (`com.bjjeire.api.gym`, `src/features/gyms/`).
 4. GREEN. Refactor. Update `traceability.md`.
@@ -620,7 +623,7 @@ Never ship implementation for new behaviour without a failing test already in pl
 
 ### Agent Rule 5 — Minimal overlap
 
-Before adding a test, answer: **which AC-ID, which one tier?** If T4 already proves the county combobox writes `?county=Dublin`, T6 may smoke "filter a seeded county" once. It must not enumerate every county.
+Before adding a test, answer: **which requirement issue, which one tier?** If T4 already proves the county combobox writes `?county=Dublin`, T6 may smoke "filter a seeded county" once. It must not enumerate every county.
 
 ### Agent Rule 6 — CI honesty
 
@@ -679,7 +682,7 @@ Java side stays Testcontainers + served spec. Do not add WireMock in front of Mo
 
 ### 6.3 Property-based testing for complex data
 
-**Current.** Example-based only (`BjjEventCostCalculatorTest`, `GeoCoordinatesTest`, SPA `price-calculator.unit.test.ts`). Those named examples stay — they are the AC-ID illustrations.
+**Current.** Example-based only (`BjjEventCostCalculatorTest`, `GeoCoordinatesTest`, SPA `price-calculator.unit.test.ts`). Those named examples stay — they are the requirement issue illustrations.
 
 **Gap.** Pricing × schedule × session types, GeoJSON order, pagination clamp, and county enum parsing are **universally quantified** rules. A handful of examples will miss the case that production hits.
 
@@ -730,7 +733,7 @@ Keep shrinking output in the test report. A property that cannot name the failin
 **Target operating model** (what an agent may do when CI is red):
 
 1. Parse the failing job: Surefire/Failsafe XML, Vitest JUnit, Playwright trace zip, `oasdiff` output.
-2. Map the failure to an AC-ID via `traceability.md`. No row → the test is unspecced or the overlay is stale.
+2. Map the failure to a requirement issue via `traceability.md`. No row → the test is unspecced or the overlay is stale.
 3. Classify:
    - **Code bug** — RED matches the spec. Fix implementation. Keep the test.
    - **Spec revision** — product intent changed. Update `specs/features/` + `specs/stc/` + tests in one PR. Say so in the commit.
@@ -780,7 +783,7 @@ Frontend gate locally: `lint → typecheck → test` (then `test:integration` if
 ### 7.3 Definition of Done for a behaviour change
 
 - [ ] `specs/features/<feature>.md` updated (or a numbered Spec Kit slice that will merge into it)
-- [ ] `specs/stc/<feature>/` exists; new AC-IDs have tests and traceability rows
+- [ ] `specs/stc/<feature>/` exists; new requirement issues have tests and traceability rows
 - [ ] Database contract updated if the document moved
 - [ ] Failing test observed at the owning tier, then green
 - [ ] No new overlap with a higher tier beyond a single smoke
@@ -795,7 +798,7 @@ Frontend gate locally: `lint → typecheck → test` (then `test:integration` if
 | Practice | Current | Target (this strategy) |
 |---|---|---|
 | Behavioural SSOT | `specs/features/` | Unchanged |
-| Machine-readable AC-IDs | Informal Gherkin in feature specs | `specs/stc/<feature>/` overlay |
+| Machine-readable requirement issues | Informal Gherkin in feature specs | `specs/stc/<feature>/` overlay |
 | Java unit / IT split | Surefire `*Test` / Failsafe `*IT` + Testcontainers | Unchanged |
 | SPA unit / integration | Vitest globs + MSW | Unchanged; OpenAPI-validate MSW when DTOs churn |
 | E2E | `bjjeire-tests` Playwright | Unchanged; cap at critical journeys |

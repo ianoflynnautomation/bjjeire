@@ -10,6 +10,8 @@ status: living
 
 # STC: Stores
 
+**Requirements**: `bjjeire/requirements` · epic `&4`
+
 ## User intent
 
 A visitor opens Stores and sees published stores they can scan and search.
@@ -23,7 +25,7 @@ Narrative SSOT: [specs/features/stores.md](../../features/stores.md).
 
 ## Acceptance criteria
 
-### AC-STR-001 — List published stores (P1)
+### `#4001` — List published stores (P1)
 
 Given published stores exist,
 When a client calls `GET /api/v1/store`,
@@ -32,7 +34,7 @@ And inactive stores are excluded.
 
 **Owns**: T2 `StoreMongoRepositoryIT`.
 
-### AC-STR-002 — Client-side name search (P1)
+### `#4002` — Client-side name search (P1)
 
 Given a loaded stores page,
 When the visitor types a name,
@@ -40,7 +42,7 @@ Then only matching cards remain.
 
 **Owns**: T4 `stores-page.integration.test.tsx`.
 
-### AC-STR-003 — Empty, error, pagination (P2)
+### `#4003` — Empty, error, pagination (P2)
 
 Given no stores / 500,
 When the visitor is on Stores,
@@ -51,7 +53,7 @@ Then each page is a distinct slice.
 
 **Owns**: T4 page integration.
 
-### AC-STR-004 — Pagination query validation (P2)
+### `#4004` — Pagination query validation (P2)
 
 When `page` is not a number,
 Then the API returns 400.

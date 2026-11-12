@@ -45,7 +45,7 @@ Spec Kit only to design a large new capability that has no living file:
 ```
 
 Do not use `/speckit-implement`. `/build-feature` keeps the failing-test-first order,
-AC-ID traceability and the independent `spec-verifier` review. It then writes the
+requirement issue traceability and the independent `spec-verifier` review. It then writes the
 result back into the living spec.
 
 Do not install the Spec2Cloud `verify`/`deploy` extension until it is

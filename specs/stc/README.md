@@ -13,10 +13,12 @@ Template: [.specify/templates/stc-check.template.md](../../.specify/templates/st
 
 ```
 specs/stc/<feature>/
-├── spec.md            # AC-IDs, Gherkin, owning test tier
+├── spec.md            # GitLab issue ids, Gherkin, owning test tier
 ├── contract.yaml      # OpenAPI / Pact / MSW / invariants
-└── traceability.md    # AC-ID → test path → implementation path
+└── traceability.md    # issue → test path → implementation path
 ```
+
+Requirement ids are GitLab issues in `bjjeire/requirements`. The numbers in these files are placeholders until the issues exist. Gyms are epic `&1` (`#1001`–`#1016`). Events are `&2` (`#2001`–`#2017`). Competitions are `&3` (`#3001`–`#3005`). Stores are `&4` (`#4001`–`#4004`). CI stays on GitHub. The epic stays in the header. A row cites the issue.
 
 If `spec.md` disagrees with `specs/features/<feature>.md`, the feature spec
 wins and this overlay is updated in the same PR.

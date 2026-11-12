@@ -14,12 +14,13 @@ Write the spec for `$ARGUMENTS`. Write no code.
 3. Update the living spec in `specs/features/<feature>.md`. Use a numbered
    `specs/00N-slug/` directory only for a capability with no living file. Never leave two
    specs for one capability.
-4. Add AC-IDs to `specs/stc/<feature>/spec.md`, using
-   `.specify/templates/stc-check.template.md` if the overlay is missing. Update the
-   database contract if the document shape moves.
+4. Add the GitLab requirement issues to `specs/stc/<feature>/spec.md`, using
+   `.specify/templates/stc-check.template.md` if the overlay is missing. The epic
+   stays on the **Requirements** line. A heading cites the issue (`#1001`). Update
+   the database contract if the document shape moves.
 
 Describe behaviour, scope and high-level design. Leave out classes, methods and task
 lists: the build derives those from the code, and a wrong detail here cascades into it.
 
-Stop after writing. List the open questions and the AC-IDs. To build, I will run
+Stop after writing. List the open questions and the issue ids. To build, I will run
 `/clear`, then `/build-feature <spec path>`.

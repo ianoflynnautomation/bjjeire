@@ -89,7 +89,7 @@ afterEach(async () => {
 })
 
 describe('EventsPage map follows the page filters (browser)', () => {
-  it('AC-EVT-012: given all of Ireland, when a county and then a search narrow the results, then the map moves to them and returns when cleared', async () => {
+  it('#2012: given all of Ireland, when a county and then a search narrow the results, then the map moves to them and returns when cleared', async () => {
     seedApi()
     await render(<EventsPage />, { wrapper: wrapperAt('/events?view=map') })
     await expect
@@ -120,7 +120,7 @@ describe('EventsPage map follows the page filters (browser)', () => {
     await expect.poll(tileZoom).toBe(ireland)
   })
 
-  it('AC-EVT-016: given phone width, when the whole page shows the map, then nothing scrolls sideways and the map leaves room to scroll past', async () => {
+  it('#2016: given phone width, when the whole page shows the map, then nothing scrolls sideways and the map leaves room to scroll past', async () => {
     seedApi()
     await page.viewport(375, 667)
     await render(<EventsPage />, { wrapper: wrapperAt('/events?view=map') })

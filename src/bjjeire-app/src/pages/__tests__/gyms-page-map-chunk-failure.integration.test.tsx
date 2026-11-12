@@ -12,7 +12,7 @@ vi.mock('@/features/gyms/components/gym-map/gym-map', () => {
   throw new Error('Failed to fetch dynamically imported module')
 })
 
-describe('GymsPage when the map code cannot load (AC-GYM-012)', () => {
+describe('GymsPage when the map code cannot load (#1012)', () => {
   it('given the map chunk fails, when the map opens, then the page survives and the list is one click away', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const reload = vi.fn()

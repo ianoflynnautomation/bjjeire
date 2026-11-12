@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { GymViewSwitch } from '../gym-view-switch'
 
-describe('GymViewSwitch (AC-GYM-007, AC-GYM-015)', () => {
+describe('GymViewSwitch (#1007, #1015)', () => {
   it('given the list view, when it renders, then the list is announced as the current view', () => {
     render(<GymViewSwitch view="list" onChange={vi.fn()} />)
 

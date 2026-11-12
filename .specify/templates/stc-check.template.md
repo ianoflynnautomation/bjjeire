@@ -7,6 +7,12 @@ contracts, and the test map.
 Also add `contract.yaml` and `traceability.md` in the same folder.
 See `docs/testing-strategy.md` and `specs/stc/gyms/` for a filled example.
 
+A criterion is a GitLab issue in `bjjeire/requirements`. Put the epic on the
+**Requirements** line (`&1` for gyms). Headings and traceability rows cite the
+issue (`#1001`). Copy the shape from `specs/stc/gyms/`; a new feature takes the
+next epic's range from `specs/stc/README.md`. `bjjeire-tests` `Covers:` is the
+same issue. CI stays on GitHub.
+
 ```markdown
 ---
 feature: [slug]
@@ -20,13 +26,15 @@ status: draft
 
 # STC: [FEATURE NAME]
 
+**Requirements**: `bjjeire/requirements` · epic `&<n>`
+
 ## User intent
 
 [One paragraph. Who, what, fail-closed flags, auth.]
 
 ## Acceptance criteria
 
-### AC-[FEAT]-001 — [title] (P1)
+### `#1001` — [title] (P1)
 
 Given [state],
 When [action],
@@ -35,7 +43,7 @@ Then [outcome].
 **Owns**: [T1 Java unit | T2 Java IT | T3 SPA unit | T4 SPA integration | T6 Playwright]
 **Does not own**: [the layer that must not repeat this matrix]
 
-### AC-[FEAT]-002 — [title] (P1)
+### `#1002` — [title] (P1)
 
 …
 
@@ -45,7 +53,7 @@ See `contract.yaml`.
 
 ## Traceability
 
-See `traceability.md`. Every AC-ID in this file MUST appear there.
+See `traceability.md`. Every requirement issue in this file MUST appear there.
 ```
 
 ## `contract.yaml`
@@ -83,9 +91,9 @@ pointers:
 ```markdown
 # Traceability: [feature]
 
-| AC-ID | Layer | Test path | Implementation path |
+| Issue | Layer | Test path | Implementation path |
 |---|---|---|---|
-| AC-[FEAT]-001 | IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/[pkg]/[Class]IT.java` | `[Class]` |
-| AC-[FEAT]-001 | SPA integration | `src/bjjeire-app/src/pages/__tests__/[page].integration.test.tsx` | `[Page]` |
-| AC-[FEAT]-001 | Acceptance | `bjjeire-tests/tests/features/[folder]/` | running images |
+| `#1001` | IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/[pkg]/[Class]IT.java` | `[Class]` |
+| `#1001` | SPA integration | `src/bjjeire-app/src/pages/__tests__/[page].integration.test.tsx` | `[Page]` |
+| `#1001` | Acceptance | `bjjeire-tests/tests/features/[folder]/` | running images |
 ```

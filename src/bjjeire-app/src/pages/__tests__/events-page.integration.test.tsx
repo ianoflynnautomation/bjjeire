@@ -224,7 +224,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
         eventAtOwnSpot({ name: `Event ${i + 1}` })
       )
 
-    describe('AC-EVT-007 switching view', () => {
+    describe('#2007 switching view', () => {
       it.each(['/events', '/events?view=satellite'])(
         'given %s, when the page opens, then the list is shown and marked current',
         async route => {
@@ -325,7 +325,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-EVT-008 filters without paging', () => {
+    describe('#2008 filters without paging', () => {
       it('given more events than one list page, when the map opens, then all have pins, one maximum-size page is fetched and no paging is shown', async () => {
         const { getLastUrl } = seedEventsPaged({
           1: createPaginatedEvents(manyEvents(25), 1, 1),
@@ -461,7 +461,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-EVT-009 events without usable coordinates', () => {
+    describe('#2009 events without usable coordinates', () => {
       it('given an event with no coordinates, when the map opens, then it has no pin, a notice counts it and the list still shows it', async () => {
         seedEvents([
           eventAtOwnSpot({ name: 'Rebel Camp' }),
@@ -483,7 +483,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-EVT-010 events at one venue', () => {
+    describe('#2010 events at one venue', () => {
       it('given two events at one venue, when the map opens, then they share one pin and the header still counts both', async () => {
         const location = {
           venue: 'Leinster Grappling HQ',
@@ -509,7 +509,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-EVT-013 loading, empty and error states', () => {
+    describe('#2013 loading, empty and error states', () => {
       it('given a pending request, when the map opens, then the loading state is shown', () => {
         seedEventsPending()
         renderEventsPage(['/events?view=map'], MAP_ON)
@@ -550,7 +550,7 @@ describe('EventsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-EVT-015 flag fails safe to the list', () => {
+    describe('#2015 flag fails safe to the list', () => {
       it('given the flag is off, when a map link opens, then the list is shown on /events with no switch and a normal page size', async () => {
         const { getLastUrl } = seedEventsPaged({
           1: createPaginatedEvents(

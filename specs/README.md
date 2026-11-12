@@ -22,7 +22,7 @@ specs/
 │   ├── events.md
 │   ├── competitions.md
 │   └── stores.md
-└── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
+└── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/
     ├── events/

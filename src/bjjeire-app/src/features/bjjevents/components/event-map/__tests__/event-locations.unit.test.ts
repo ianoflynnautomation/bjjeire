@@ -25,7 +25,7 @@ function eventAt(
   })
 }
 
-describe('toEventLocations (AC-EVT-009)', () => {
+describe('toEventLocations (#2009)', () => {
   it('given GeoJSON [lng, lat], when converted, then latitude and longitude are not swapped', () => {
     const { locations } = toEventLocations([
       eventAt('Cork Seminar', [-8.468, 51.8998]),
@@ -59,7 +59,7 @@ describe('toEventLocations (AC-EVT-009)', () => {
   })
 })
 
-describe('events at one venue (AC-EVT-010)', () => {
+describe('events at one venue (#2010)', () => {
   it('given two events at identical coordinates, when grouped, then they share one location, earliest start first', () => {
     const later = eventAt('Winter Solstice Open Mat', [-6.2889, 53.3382], {
       startDate: '2026-12-21',

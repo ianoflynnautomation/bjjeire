@@ -12,7 +12,7 @@ function gymAt(coordinates: unknown): GymDto {
   })
 }
 
-describe('toGymPins (AC-GYM-009)', () => {
+describe('toGymPins (#1009)', () => {
   it('given GeoJSON [lng, lat], when converted, then latitude and longitude are not swapped', () => {
     const { pins, unmappedCount } = toGymPins([gymAt([-8.47, 51.9])])
 

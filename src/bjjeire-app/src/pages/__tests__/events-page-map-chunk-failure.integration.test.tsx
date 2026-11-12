@@ -12,7 +12,7 @@ vi.mock('@/features/bjjevents/components/event-map/event-map', () => {
   throw new Error('Failed to fetch dynamically imported module')
 })
 
-describe('EventsPage when the map code cannot load (AC-EVT-013)', () => {
+describe('EventsPage when the map code cannot load (#2013)', () => {
   it('given the map chunk fails, when the map opens, then the page survives and the list is one click away', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const reload = vi.fn()
