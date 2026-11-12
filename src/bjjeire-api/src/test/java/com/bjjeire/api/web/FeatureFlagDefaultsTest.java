@@ -11,8 +11,8 @@ import org.springframework.core.io.FileSystemResource;
 
 class FeatureFlagDefaultsTest {
     /**
-     * #1014: shipping the application config alone leaves the map off. Reads the main file because the test
-     * classpath has its own application.yml.
+     * #1014: shipping the application config alone leaves the map off. Reads the main file because the test classpath
+     * has its own application.yml.
      */
     @Test
     @Tag("#1014")
