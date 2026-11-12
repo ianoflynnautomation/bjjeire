@@ -75,8 +75,12 @@ pagination:
   page: 1-based
   pageSize: max 100
 filters: {}
+# writes: only when the controller maps them (create / update / delete / idempotency_key)
 invariants:
-  - geojson_coordinates: [longitude, latitude]
+  # API and UI behaviour only: listing rules, feature flags, URL state, cache tag.
+  # Fields, enums, indexes and stored-data rules belong in the database contract below.
+  - feature_flag: [Flag] fail-closed
+  - cache_tag: [FEATURE]_TAG invalidated on writes
 pointers:
   database: specs/database-contracts/[entity].md
   pact: src/bjjeire-app/src/contracts/pact/[feature].pact.test.ts

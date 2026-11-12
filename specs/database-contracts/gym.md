@@ -4,12 +4,7 @@
 **Java**: `com.bjjeire.api.gym.Gym`
 **DTO**: `GymDto`
 **Seeder template**: `seeder/data/gyms/_template.json`
-**API**: `GET/POST /api/v1/gym`, `GET/PUT/DELETE /api/v1/gym/{id}`
-
-Create without an id inserts a new gym. The same id again is 409 and does not
-replay the created response. Update is a full `PUT` and requires the `version`
-from the last read; a missing or stale version is 409. A second delete is 404.
-There is no `Idempotency-Key`.
+**API contract**: [../stc/gyms/contract.yaml](../stc/gyms/contract.yaml) (routes, filters, write rules, cache)
 
 ## Document
 
@@ -52,21 +47,9 @@ Startup fails if either index cannot be built.
 - `ix_gym_status_county_name` on `(status, county, name)` — list filtered by county
 - `ix_gym_status_name` on `(status, name)` — list across counties, ordered by name
 
-## List filters
-
-`GET /api/v1/gym?page&pageSize&county=`
-
-Search-by-name is **not** a server filter; the SPA searches the loaded page.
-
-## Cache
-
-Writes must `apiCache.removeByTag(ApiCache.GYMS_TAG)`.
-
 ## Invariants
 
-- Coordinates `[lng, lat]`. Derived `latitude` / `longitude` are omitted when the pair is absent.
-- Updates require the `version` loaded with the gym. A mismatch is HTTP 409.
-- Creates insert. A repeated id is HTTP 409.
-- `trialOffer.isAvailable` is boolean
+- Coordinates `[lng, lat]`. Derived `latitude` / `longitude` are omitted when the pair is absent (see [shared.md](shared.md)).
+- `trialOffer.isAvailable` is a boolean, never `null`.
 - Deletes / deactivation follow the shared deactivation machinery; expired
   gyms are not TTL'd (no `expiresAt` on this collection)

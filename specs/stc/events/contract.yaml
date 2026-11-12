@@ -27,11 +27,13 @@ filters:
   types: BjjEventType enum or numeric stored value; unknown → 400
   name_search: client-side only
 sort: createdAt ascending
+writes:
+  create: no id inserts a new event; a repeated id → 409 and does not replay the created response
+  update: full PUT with the version from the last read; missing or stale version → 409
+  delete: a second delete → 404
+  idempotency_key: none
 invariants:
-  - geojson_coordinates: [longitude, latitude]
-  - organiser_spelling: organiser (British) on the wire
   - listing_excludes: inactive, expired, completed
-  - expiresAt: endDate + 2y TTL
   - feature_flag: BjjEvents fail-closed
   - feature_flag_map: BjjEvents on and EventsMap off or missing → list on /events, no redirect; default false; independent of GymsMap; failed fetch turns all flags off
   - map_view: ?view=map is URL state; no value or unknown value → list; switching keeps search, county and types and drops page

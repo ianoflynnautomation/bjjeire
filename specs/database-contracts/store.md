@@ -3,7 +3,7 @@
 **Collection**: `Store`
 **Java**: `com.bjjeire.api.store.Store`
 **Seeder template**: `seeder/data/stores/_template.json`
-**API**: `/api/v1/store`
+**API contract**: [../stc/stores/contract.yaml](../stc/stores/contract.yaml) (routes, filters, cache)
 
 ## Document
 
@@ -22,8 +22,3 @@ Stores have no county, location, or status enum.
 ## Indexes
 
 - `ix_store_isActive_name` on `(isActive, name)`
-
-## Invariants
-
-- Cache tag: `ApiCache.STORES_TAG`.
-- List is name-oriented; client-side search in the SPA.

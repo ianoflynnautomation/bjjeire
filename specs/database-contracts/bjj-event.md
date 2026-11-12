@@ -3,12 +3,7 @@
 **Collection**: `BjjEvent`
 **Java**: `com.bjjeire.api.event.BjjEvent`
 **Seeder template**: `seeder/data/bjj-events/_template.json`
-**API**: `GET/POST /api/v1/bjjevent`, `GET/PUT/DELETE /api/v1/bjjevent/{id}`
-
-Create without an id inserts a new event. The same id again is 409 and does not
-replay the created response. Update is a full `PUT` and requires the `version`
-from the last read; a missing or stale version is 409. A second delete is 404.
-There is no `Idempotency-Key`.
+**API contract**: [../stc/events/contract.yaml](../stc/events/contract.yaml) (routes, filters, write rules, cache)
 
 ## Document
 
@@ -56,7 +51,3 @@ Startup fails if any of these cannot be built.
   does not get an `expiresAt`.
 - Coordinates `[lng, lat]`. Derived `latitude` / `longitude` are omitted when the pair is absent (same rule as [shared.md](shared.md)).
 - A write accepts at most 64 `schedule.sessions` and 16 `pricingOptions`.
-- Updates require the `version` loaded with the event. A mismatch is HTTP 409.
-- Creates insert. A repeated id is HTTP 409.
-- List filters: pagination + county; client-side name search in the SPA.
-- Cache tag: `ApiCache.BJJ_EVENTS_TAG`.

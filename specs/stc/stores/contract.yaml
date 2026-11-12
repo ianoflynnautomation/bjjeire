@@ -15,7 +15,6 @@ filters:
 sort: name ascending
 invariants:
   - listing_excludes: isActive != true
-  - no_county_or_location: do not invent them
   - feature_flag: Stores fail-closed
   - cache_tag: STORES_TAG
   - writes: not mapped on StoreController (living spec FR-003 is ahead of the API)

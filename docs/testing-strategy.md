@@ -171,11 +171,14 @@ pagination:
 filters:
   county: County enum; unknown → 400
   name_search: client-side only
+writes:
+  create: no id inserts a new gym; a repeated id → 409 and does not replay the created response
+  update: full PUT with the version from the last read; missing or stale version → 409
+  delete: a second delete → 404
+  idempotency_key: none
 invariants:
-  - geojson_coordinates: [longitude, latitude]
-  - trialOffer.isAvailable: boolean, never null
-  - gym_status_wire: PascalCase GymStatus
   - feature_flag: Gyms fail-closed → /about
+  - cache_tag: GYMS_TAG invalidated on writes
 pointers:
   database: specs/database-contracts/gym.md
   pact: src/bjjeire-app/src/contracts/pact/gym.pact.test.ts
@@ -186,6 +189,8 @@ pointers:
 ```
 
 This file does **not** replace the served OpenAPI document. It tells agents which paths and invariants the feature owns so they do not invent a parallel schema.
+
+Each fact has one home. `contract.yaml` holds API and UI behaviour: routes, auth, filters, sort, write rules, listing rules, feature flags, and the cache tag. `specs/database-contracts/<entity>.md` holds the stored document: fields, enums, indexes, and stored-data rules such as coordinate order. Each file links to the other instead of repeating it.
 
 ### 1.4 Traceability matrix template
 
