@@ -5,6 +5,7 @@
 **API package**: `com.bjjeire.api.gym`
 **SPA**: `src/bjjeire-app/src/features/gyms`, route `/gyms`
 **Acceptance**: `bjjeire-tests/tests/features/gyms/`
+**Requirements**: `bjjeire/requirements` · epic `&1`
 
 ## User Story 1 — Browse the gym directory (P1)
 

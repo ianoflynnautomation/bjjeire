@@ -3,7 +3,7 @@ import { ScheduleKind } from '@/types/event'
 import { formatScheduleDates, formatSessionLine } from '../event-schedule-text'
 
 // Shared by the event card and the map popup, so the two cannot drift (FR-010).
-describe('event schedule text (AC-EVT-011)', () => {
+describe('event schedule text (#2011)', () => {
   it('given a start and end date, when formatted, then the range is shown as in Ireland', () => {
     expect(
       formatScheduleDates({

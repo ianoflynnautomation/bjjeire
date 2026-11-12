@@ -3,7 +3,7 @@
 **Collection**: `Competition`
 **Java**: `com.bjjeire.api.competition.Competition`
 **Seeder template**: `seeder/data/competitions/_template.json`
-**API**: `/api/v1/competition`
+**API contract**: [../stc/competitions/contract.yaml](../stc/competitions/contract.yaml) (routes, filters, cache)
 
 ## Document
 
@@ -41,4 +41,3 @@ Startup fails if any of these cannot be built.
 - Duplicate slugs must fail fast (unique index build failure stops startup).
 - `stampExpiry()` stores a missing `endDate` as the open-ended sentinel and sets
   `expiresAt` from a real `endDate + 2y`. The sentinel does not get an `expiresAt`.
-- Cache tag: `ApiCache.COMPETITIONS_TAG`.

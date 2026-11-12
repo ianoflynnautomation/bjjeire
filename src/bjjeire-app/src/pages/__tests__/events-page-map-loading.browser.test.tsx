@@ -19,7 +19,7 @@ function mapRequests(): string[] {
     .filter(name => MAP_REQUEST.test(name))
 }
 
-describe('EventsPage map loading (AC-EVT-017)', () => {
+describe('EventsPage map loading (#2017)', () => {
   it('given a visitor stays on the list, when the page has loaded, then no map code or tiles were requested', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(
       createPaginatedEvents([createEvent({ name: 'Rebel Open Mat' })], 1, 1)

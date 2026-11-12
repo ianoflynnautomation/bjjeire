@@ -37,7 +37,7 @@ function seminar(overrides: Partial<BjjEventDto> = {}): BjjEventDto {
   })
 }
 
-describe('EventMapPopup (AC-EVT-011)', () => {
+describe('EventMapPopup (#2011)', () => {
   it('given an event, when the popup renders, then name, types, dates, venue, address and matching links are shown', () => {
     const event = seminar()
     render(<EventMapPopup location={locationOf(event)} onClose={vi.fn()} />)
@@ -131,7 +131,7 @@ describe('EventMapPopup (AC-EVT-011)', () => {
   })
 })
 
-describe('EventMapPopup at a shared venue (AC-EVT-010)', () => {
+describe('EventMapPopup at a shared venue (#2010)', () => {
   it('given two events at one venue, when the popup renders, then the venue shows once and both events are listed earliest first', () => {
     const later = seminar({
       name: 'Winter Solstice Open Mat',
@@ -239,7 +239,7 @@ describe('EventMapPopup at a shared venue (AC-EVT-010)', () => {
   })
 })
 
-describe('EventMapPopup keyboard (AC-EVT-016)', () => {
+describe('EventMapPopup keyboard (#2016)', () => {
   it('given an open popup, when it mounts, then focus moves into it so the links are next by keyboard', async () => {
     const user = userEvent.setup()
     render(<EventMapPopup location={locationOf(seminar())} onClose={vi.fn()} />)

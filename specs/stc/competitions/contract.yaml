@@ -15,11 +15,7 @@ filters:
   name_search: client-side only
 sort: startDate ascending, then name
 invariants:
-  - slug: unique (ix_competition_slug_unique)
   - listing_excludes: inactive and endDate < now unless includeInactive
-  - expiresAt: endDate + 2y TTL
-  - country_default: Ireland
-  - no_location_or_county: do not invent them
   - feature_flag: Competitions fail-closed
   - cache_tag: COMPETITIONS_TAG
   - writes: not mapped on CompetitionController (living spec FR-004 is ahead of the API)

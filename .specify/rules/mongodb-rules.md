@@ -27,15 +27,12 @@ Test environments seed from `seeder/data-test/` instead of `seeder/data/`.
 
 ## Indexes (source of truth: `MongoIndexInitializer`)
 
-- `Gym`: `ix_gym_status_county_name` on `(status, county, name)`
-- `BjjEvent`: `ix_event_isActive_endDate`, `ix_event_county_isActive`,
-  `ttl_event_expiresAt`
-- `Competition`: `ix_competition_isActive_endDate`,
-  `ix_competition_slug_unique` (unique, critical), `ttl_competition_expiresAt`
-- `Store`: `ix_store_isActive_name`
+Read `MongoIndexInitializer` for the current list; it is not copied here.
 
-There is currently **no** `2dsphere` index in `MongoIndexInitializer`. Do not
-document or depend on one until it is added with a contract update.
+- `ix_competition_slug_unique` is unique and critical.
+- `ttl_event_expiresAt` and `ttl_competition_expiresAt` are the TTL indexes.
+- There is **no** `2dsphere` and no text index. Do not document or depend on
+  one until it is added with a contract update.
 
 ## Writes
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readEventView, withEventView } from '../event-view-url'
 
-describe('event view URL state (AC-EVT-007)', () => {
+describe('event view URL state (#2007)', () => {
   it('given view=map, when the view is read, then the map is chosen', () => {
     expect(readEventView(new URLSearchParams('view=map'))).toBe('map')
   })

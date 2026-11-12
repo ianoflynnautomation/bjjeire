@@ -5,6 +5,7 @@
 **API**: `/api/v1/store`
 **SPA route**: `/stores`
 **Acceptance**: `bjjeire-tests/tests/features/stores/`
+**Requirements**: `bjjeire/requirements` · epic `&4`
 
 ## User Story 1 — Browse stores (P1)
 

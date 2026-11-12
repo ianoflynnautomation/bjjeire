@@ -25,10 +25,12 @@ pagination:
 filters:
   county: County enum; unknown → 400
   name_search: client-side only
+writes:
+  create: no id inserts a new gym; a repeated id → 409 and does not replay the created response
+  update: full PUT with the version from the last read; missing or stale version → 409
+  delete: a second delete → 404
+  idempotency_key: none
 invariants:
-  - geojson_coordinates: [longitude, latitude]
-  - trialOffer.isAvailable: boolean, never null
-  - gym_status_wire: PascalCase GymStatus
   - feature_flag: Gyms fail-closed → /about
   - feature_flag_map: Gyms on and GymsMap off or missing → list on /gyms, no redirect; default false; failed fetch turns all flags off → /about
   - map_view: ?view=map is URL state; no value or unknown value → list

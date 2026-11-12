@@ -83,7 +83,7 @@ afterEach(async () => {
 })
 
 describe('GymMap (browser)', () => {
-  it('AC-GYM-015: given a popup was closed with Escape, when the pin is opened again by keyboard, then focus moves into the popup again', async () => {
+  it('#1015: given a popup was closed with Escape, when the pin is opened again by keyboard, then focus moves into the popup again', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -109,7 +109,7 @@ describe('GymMap (browser)', () => {
     }
   })
 
-  it('AC-GYM-015: given phone width, when a pin near the controls opens, then the popup clears the zoom control and the attribution', async () => {
+  it('#1015: given phone width, when a pin near the controls opens, then the popup clears the zoom control and the attribution', async () => {
     await page.viewport(375, 667)
     const west = gymAt('Atlantic BJJ', -9.5145, 53.8008)
     await render(
@@ -138,7 +138,7 @@ describe('GymMap (browser)', () => {
     expect(overlaps(popupRect(), attribution)).toBe(false)
   })
 
-  it('AC-GYM-010: given a long unbroken address, when the popup opens, then the text wraps inside it', async () => {
+  it('#1010: given a long unbroken address, when the popup opens, then the text wraps inside it', async () => {
     const long = gymAt('Long Address BJJ', -6.26, 53.33)
     long.location = { ...long.location, address: 'Unit'.padEnd(120, 'X') }
     await render(
@@ -156,7 +156,7 @@ describe('GymMap (browser)', () => {
     expect(address.scrollWidth).toBeLessThanOrEqual(address.clientWidth)
   })
 
-  it('AC-GYM-009: given gyms around Ireland, when pins render, then each sits in its real direction', async () => {
+  it('#1009: given gyms around Ireland, when pins render, then each sits in its real direction', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway, belfast, cork]}
@@ -181,7 +181,7 @@ describe('GymMap (browser)', () => {
     expect(eastWest).toBeGreaterThan(northSouth * 10)
   })
 
-  it('AC-GYM-010: given a pin, when it is clicked, then the popup shows the gym', async () => {
+  it('#1010: given a pin, when it is clicked, then the popup shows the gym', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -209,7 +209,7 @@ describe('GymMap (browser)', () => {
       .toBeVisible()
   })
 
-  it('AC-GYM-015: given keyboard use, when a pin is opened with Enter, then links are reachable and Escape returns to the pin', async () => {
+  it('#1015: given keyboard use, when a pin is opened with Enter, then links are reachable and Escape returns to the pin', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -238,7 +238,7 @@ describe('GymMap (browser)', () => {
     expect(document.activeElement).toBe(pin.element())
   })
 
-  it('AC-GYM-015: given a focused pin, when Space is pressed, then the popup opens and the page does not scroll', async () => {
+  it('#1015: given a focused pin, when Space is pressed, then the popup opens and the page does not scroll', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -262,7 +262,7 @@ describe('GymMap (browser)', () => {
     expect(window.scrollY).toBe(scrollBefore)
   })
 
-  it('AC-GYM-015: given keyboard focus, when a pin and then its popup hold it, then each shows an indicator and the pin rises above its neighbours', async () => {
+  it('#1015: given keyboard focus, when a pin and then its popup hold it, then each shows an indicator and the pin rises above its neighbours', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -293,7 +293,7 @@ describe('GymMap (browser)', () => {
     ['coarse', false],
     ['fine', true],
   ])(
-    'AC-GYM-015: given a %s pointer, when the map opens, then one-finger dragging is %s',
+    '#1015: given a %s pointer, when the map opens, then one-finger dragging is %s',
     async (pointer, canDrag) => {
       const real = window.matchMedia.bind(window)
       vi.spyOn(window, 'matchMedia').mockImplementation(query =>
@@ -319,7 +319,7 @@ describe('GymMap (browser)', () => {
     }
   )
 
-  it('AC-GYM-015: given focus has moved to the search box, when Escape closes the popup, then focus stays in the search box', async () => {
+  it('#1015: given focus has moved to the search box, when Escape closes the popup, then focus stays in the search box', async () => {
     await render(
       <>
         <input aria-label="Search" />
@@ -343,7 +343,7 @@ describe('GymMap (browser)', () => {
     ['light', ''],
     ['dark', 'dark'],
     ['competition', 'dark competition'],
-  ])('AC-GYM-015: in the %s theme', (_theme, className) => {
+  ])('#1015: in the %s theme', (_theme, className) => {
     // OpenStreetMap's land colour. Tiles stay light in every theme.
     const TILE_LAND = parseColour('#f2efe9')
 
@@ -518,7 +518,7 @@ describe('GymMap (browser)', () => {
     })
   })
 
-  it('AC-GYM-011: given no filters, when the map opens, then all of Ireland is in view', async () => {
+  it('#1011: given no filters, when the map opens, then all of Ireland is in view', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway, belfast, cork]}
@@ -542,7 +542,7 @@ describe('GymMap (browser)', () => {
     expect(tileZoom()).toBeLessThan(9)
   })
 
-  it('AC-GYM-011: given results narrow to one gym, when the map updates, then it centres on that gym below maximum zoom', async () => {
+  it('#1011: given results narrow to one gym, when the map updates, then it centres on that gym below maximum zoom', async () => {
     const screen = await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -568,7 +568,7 @@ describe('GymMap (browser)', () => {
       .not.toBeInTheDocument()
   })
 
-  it('AC-GYM-011: given several filtered results, when the map updates, then it fits them more closely than Ireland', async () => {
+  it('#1011: given several filtered results, when the map updates, then it fits them more closely than Ireland', async () => {
     const screen = await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -593,7 +593,7 @@ describe('GymMap (browser)', () => {
     expect(isInsideMap(pinCentre('Galway BJJ'))).toBe(true)
   })
 
-  it('AC-GYM-011: given the visitor moved the map, when an interior gym leaves the results and the outer bounds stay, then the map still refits', async () => {
+  it('#1011: given the visitor moved the map, when an interior gym leaves the results and the outer bounds stay, then the map still refits', async () => {
     const athlone = gymAt('Athlone BJJ', -7.94, 53.3)
     const screen = await render(
       <GymMap
@@ -619,7 +619,7 @@ describe('GymMap (browser)', () => {
     await expect.poll(tileZoom).toBe(fitted)
   })
 
-  it('AC-GYM-011: given the visitor moved the map, when the same results render again, then their view is left alone', async () => {
+  it('#1011: given the visitor moved the map, when the same results render again, then their view is left alone', async () => {
     const screen = await render(
       <GymMap gyms={[dublin, galway]} hasFilters tileUrl={BLANK_TILE} />,
       { wrapper: Wrapper }
@@ -642,7 +642,7 @@ describe('GymMap (browser)', () => {
     expect(tileZoom()).toBe(zoomed)
   })
 
-  it('AC-GYM-013: given tiles failed, when tiles load cleanly again, then the notice clears', async () => {
+  it('#1013: given tiles failed, when tiles load cleanly again, then the notice clears', async () => {
     const screen = await render(
       <GymMap gyms={[dublin]} hasFilters={false} tileUrl={BROKEN_TILE} />,
       {
@@ -661,7 +661,7 @@ describe('GymMap (browser)', () => {
     await expect.element(notice).not.toBeInTheDocument()
   })
 
-  it('AC-GYM-013: given only some tiles fail, when the tiles settle, then the notice appears once and does not flicker', async () => {
+  it('#1013: given only some tiles fail, when the tiles settle, then the notice appears once and does not flicker', async () => {
     const shown: boolean[] = []
     const observer = new MutationObserver(() => {
       const isShown =
@@ -693,7 +693,7 @@ describe('GymMap (browser)', () => {
     expect(shown.filter(isShown => isShown)).toHaveLength(1)
   })
 
-  it('AC-GYM-015: given the wheel over the map, when it turns, then the page keeps the event so it can scroll past', async () => {
+  it('#1015: given the wheel over the map, when it turns, then the page keeps the event so it can scroll past', async () => {
     await render(
       <GymMap gyms={[dublin]} hasFilters={false} tileUrl={BLANK_TILE} />,
       {
@@ -711,7 +711,7 @@ describe('GymMap (browser)', () => {
     expect(notPrevented).toBe(true)
   })
 
-  it('AC-GYM-013: given working tiles, when the map shows, then attribution is visible and no failure notice appears', async () => {
+  it('#1013: given working tiles, when the map shows, then attribution is visible and no failure notice appears', async () => {
     await render(
       <GymMap gyms={[dublin]} hasFilters={false} tileUrl={BLANK_TILE} />,
       {
@@ -735,7 +735,7 @@ describe('GymMap (browser)', () => {
     ).toBeNull()
   })
 
-  it('AC-GYM-013: given tiles are blocked, when the map shows, then a notice links to the list with the filters, the pins stay and the view does not change', async () => {
+  it('#1013: given tiles are blocked, when the map shows, then a notice links to the list with the filters, the pins stay and the view does not change', async () => {
     await render(
       <GymMap
         gyms={[dublin, galway]}
@@ -760,7 +760,7 @@ describe('GymMap (browser)', () => {
     await expect.element(page.getByTestId(GymMapTestIds.ROOT)).toBeVisible()
   })
 
-  it('AC-GYM-015: given phone width, when the map shows, then there is no sideways scroll and page remains above and below it', async () => {
+  it('#1015: given phone width, when the map shows, then there is no sideways scroll and page remains above and below it', async () => {
     await page.viewport(375, 667)
     await render(
       <GymMap

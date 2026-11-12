@@ -10,6 +10,8 @@ status: living
 
 # STC: Events
 
+**Requirements**: `bjjeire/requirements` · epic `&2`
+
 ## User intent
 
 A visitor opens Events and sees upcoming, active events they can scan,
@@ -22,7 +24,7 @@ Narrative SSOT: [specs/features/events.md](../../features/events.md).
 
 ## Acceptance criteria
 
-### AC-EVT-001 — List upcoming events (P1)
+### `#2001` — List upcoming events (P1)
 
 Given published upcoming events exist,
 When a client calls `GET /api/v1/bjjevent`,
@@ -31,7 +33,7 @@ And inactive, expired, and completed events are excluded.
 
 **Owns**: T2 `BjjEventMongoRepositoryIT`.
 
-### AC-EVT-002 — County and type filters (P1)
+### `#2002` — County and type filters (P1)
 
 Given events in several counties and types,
 When `county` and/or `types` are supplied,
@@ -42,7 +44,7 @@ Then the API returns 400.
 
 **Owns**: T2 `BjjEventMongoRepositoryIT` + T4 `events-page.integration.test.tsx` (UI once).
 
-### AC-EVT-003 — Client-side name search (P1)
+### `#2003` — Client-side name search (P1)
 
 Given a loaded events page,
 When the visitor types an event name (full or partial),
@@ -51,7 +53,7 @@ Search is not a server query.
 
 **Owns**: T4 `events-page.integration.test.tsx`.
 
-### AC-EVT-004 — Event card (P2)
+### `#2004` — Event card (P2)
 
 Given an event card,
 When a visitor views it,
@@ -60,7 +62,7 @@ Map query uses **latitude, longitude** derived from GeoJSON `[lng, lat]`.
 
 **Owns**: T3 `event-card.unit.test.tsx` + `map-utils.unit.test.ts`.
 
-### AC-EVT-005 — Empty, error, pagination (P2)
+### `#2005` — Empty, error, pagination (P2)
 
 Given no matching event / empty API / 500,
 When the visitor is on Events,
@@ -71,7 +73,7 @@ Then each page is a distinct slice with absolute navigation links.
 
 **Owns**: T4 page integration; T2 IT for pagination JSON.
 
-### AC-EVT-006 — Writes authenticated (P1)
+### `#2006` — Writes authenticated (P1)
 
 Given no Bearer token (or a reader token),
 When POST/PUT/DELETE `/api/v1/bjjevent`,
@@ -82,7 +84,7 @@ Then they are redirected away from the feature.
 
 **Owns**: T2 `WriteAuthorizationIT` (method-wide) + event write ITs; T4 `AppRoutes`.
 
-### AC-EVT-007 — Switch between list and map (P1)
+### `#2007` — Switch between list and map (P1)
 
 Given `EventsMap` is on,
 When a visitor opens Events with no `view` value or an unknown one,
@@ -94,7 +96,7 @@ Then the matching view and filters are shown.
 
 **Owns**: T3 URL state; T4 page integration; T6 one shared-link journey.
 
-### AC-EVT-008 — Filters apply to the map, without paging (P1)
+### `#2008` — Filters apply to the map, without paging (P1)
 
 Given events in several counties and types, and more events than one list page,
 When a visitor is on the map,
@@ -104,9 +106,9 @@ Given more matching events than the API's maximum page size,
 Then a notice says not all events are shown and suggests filtering.
 
 **Owns**: T4 page integration with MSW; T6 county and type on seeded data.
-**Does not own**: a new API parameter. County and types remain the server filters from AC-EVT-002, and search stays client-side per AC-EVT-003.
+**Does not own**: a new API parameter. County and types remain the server filters from `#2002`, and search stays client-side per `#2003`.
 
-### AC-EVT-009 — Pins are in the right place (P1)
+### `#2009` — Pins are in the right place (P1)
 
 Given an event with GeoJSON coordinates `[lng, lat]`,
 When its pin is placed,
@@ -116,7 +118,7 @@ Then it has no pin, it stays in the list, and a notice says how many events are 
 
 **Owns**: T3 coordinate conversion; T5 rendered pins; T6 one seeded event.
 
-### AC-EVT-010 — Events at one venue share a pin (P1)
+### `#2010` — Events at one venue share a pin (P1)
 
 Given two or more events whose coordinates are identical at five decimal places,
 When the map shows them,
@@ -130,20 +132,20 @@ Then each location has its own pin.
 
 **Owns**: T3 grouping and order; T5 opening a shared pin; T6 two seeded events at one venue.
 
-### AC-EVT-011 — Pin popup (P2)
+### `#2011` — Pin popup (P2)
 
 Given an event's pin,
 When a visitor opens it,
 Then the event's name, types and dates are shown, with dates as they fall in Ireland and summarised as on the event card,
 And the venue and address are shown,
-And the event and directions links match the event card from AC-EVT-004 and open in a new tab.
+And the event and directions links match the event card from `#2004` and open in a new tab.
 Given no event link, that link is left out.
 Given event text containing HTML,
 Then it is displayed as text and does not run.
 
 **Owns**: T3 popup content, including the HTML and missing-link cases; T5 opening a pin; T6 one seeded event.
 
-### AC-EVT-012 — The map follows the results (P2)
+### `#2012` — The map follows the results (P2)
 
 Given results change through search, county or types,
 Then the map moves to fit them.
@@ -154,7 +156,7 @@ Then all of Ireland is shown.
 
 **Owns**: T3 bounds; T5 in-repo browser, including the page's filters reaching the map.
 
-### AC-EVT-013 — Loading, empty and error states (P2)
+### `#2013` — Loading, empty and error states (P2)
 
 Given the map view is open,
 When events are loading, the API returns none, the search matches nothing, or the request fails,
@@ -164,7 +166,7 @@ Then an error with retry replaces the map, and the filters and view switch stay.
 
 **Owns**: T4 page integration.
 
-### AC-EVT-014 — Tiles and attribution (P2)
+### `#2014` — Tiles and attribution (P2)
 
 Given the map is showing,
 Then the OpenStreetMap attribution is visible.
@@ -174,15 +176,15 @@ Then a notice links to the list, the pins remain, the view does not change, and 
 **Owns**: T5 in-repo browser with tile requests blocked; T6 one journey with tiles aborted.
 **Does not own**: live OpenStreetMap. Tests do not depend on it or compare tile images.
 
-### AC-EVT-015 — Map flag fails safe to the list (P1)
+### `#2015` — Map flag fails safe to the list (P1)
 
 Given `BjjEvents` is on and `EventsMap` is off or missing from the flag response,
 When a visitor opens `/events` or `/events?view=map`,
 Then the list is shown on `/events`, the view switch is hidden, and there is no redirect.
 Given `BjjEvents` is off,
-Then AC-EVT-006 still applies.
+Then `#2006` still applies.
 Given the flag fetch fails,
-Then every flag is off, so AC-EVT-006 applies.
+Then every flag is off, so `#2006` applies.
 Given `EventsMap` and `GymsMap` are set independently,
 Then each changes only its own page.
 Given a client calls `GET /api/v1/featureflag`,
@@ -190,7 +192,7 @@ Then `EventsMap` is present as a boolean and is false unless the environment ena
 
 **Owns**: T1 flag configuration; T0 Pact for the flag key; T4 page integration and routing.
 
-### AC-EVT-016 — Themes, keyboard and phone width (P2)
+### `#2016` — Themes, keyboard and phone width (P2)
 
 Given each of the light, dark and competition themes,
 When the map is open,
@@ -203,7 +205,7 @@ Then the map fits with no horizontal page scroll and the visitor can scroll past
 
 **Owns**: T5 for keyboard, layout, focus indicators and pin contrast on tiles, measured in pixels; T6 axe in each theme.
 
-### AC-EVT-017 — List visitors pay nothing for the map (P2)
+### `#2017` — List visitors pay nothing for the map (P2)
 
 Given a visitor stays on the event list,
 Then no tile requests are made and no map code is downloaded.

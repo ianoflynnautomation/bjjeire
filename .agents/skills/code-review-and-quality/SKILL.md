@@ -63,7 +63,7 @@ Does the change fit the system's design?
 
 ### 4. Security
 
-For this repository, security detail lives in `.claude/rules/security-frontend.md` and `.claude/rules/security-mongodb.md`. Does the change introduce vulnerabilities?
+For this repository, security detail lives in `.claude/rules/security-frontend.md` and `.claude/rules/mongodb.md`. Does the change introduce vulnerabilities?
 
 - Is user input validated and sanitized?
 - Are secrets kept out of code, logs, and version control?
@@ -354,7 +354,7 @@ When the change is in this repository, the five axes are not the whole review. A
 
 ## See Also
 
-- Security: `.claude/rules/security-frontend.md` and `.claude/rules/security-mongodb.md`
+- Security: `.claude/rules/security-frontend.md` and `.claude/rules/mongodb.md`
 - Performance checks are the list in this skill. There is no second checklist.
 
 ## Common Rationalizations

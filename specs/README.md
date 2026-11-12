@@ -22,7 +22,7 @@ specs/
 │   ├── events.md
 │   ├── competitions.md
 │   └── stores.md
-└── stc/                          # Spec-To-Check overlay (AC-IDs, contracts, traceability)
+└── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/
     ├── events/
@@ -65,8 +65,10 @@ To build a feature in Claude Code, run `/spec <feature>` and review the result. 
 `/clear` and `/build-feature <spec path>`, which ends with an independent review by the
 read-only `spec-verifier` subagent. This is the default.
 
-For a large new capability with no living file, design it with Spec Kit
-(`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` → `/speckit-tasks`), then
+For a large change, to a new capability or to one that already has a living file,
+design it with Spec Kit (`/speckit-specify` → `/speckit-clarify` → `/speckit-plan` →
+`/speckit-tasks`). That writes `specs/00N-slug/` with separate `spec.md`, `plan.md` and
+`tasks.md`. Then
 build it with `/build-feature specs/00N-slug/spec.md`, not `/speckit-implement`. The
 build writes the result back into `features/` and `stc/`, and the numbered directory
 is kept as the design record.

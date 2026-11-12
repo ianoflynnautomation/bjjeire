@@ -37,7 +37,7 @@ describe('AppRoutes', () => {
     ).toBeInTheDocument()
   })
 
-  it('AC-GYM-014: given the flag fetch fails, when a visitor opens a map link, then every flag is off and Gyms fails closed to About', async () => {
+  it('#1014: given the flag fetch fails, when a visitor opens a map link, then every flag is off and Gyms fails closed to About', async () => {
     server.use(
       http.get(`*${API_ROUTES.featureFlags}`, () =>
         HttpResponse.json(null, { status: 500 })

@@ -105,26 +105,26 @@ class FeatureFlagServiceTest {
         assertThat(service.frontendFlags().toString()).doesNotContain("principal-sub-1");
     }
 
-    /** AC-GYM-014: the map flag is on the wire and stays off unless an environment enables it. */
+    /** #1014: the map flag is on the wire and stays off unless an environment enables it. */
     @Test
-    @Tag("AC-GYM-014")
+    @Tag("#1014")
     void shouldServeGymsMapAsFalseWhenConfigurationDoesNotEnableIt() {
         FeatureFlagService service = service(Map.of("Gyms", true));
 
         assertThat(service.frontendFlags()).containsEntry("GymsMap", false).containsEntry("Gyms", true);
     }
 
-    /** AC-GYM-014: an environment turns the map on with a relaxed or exact key. */
+    /** #1014: an environment turns the map on with a relaxed or exact key. */
     @Test
-    @Tag("AC-GYM-014")
+    @Tag("#1014")
     void shouldServeGymsMapAsTrueWhenConfigurationEnablesIt() {
         assertThat(service(Map.of("GymsMap", true)).frontendFlags()).containsEntry("GymsMap", true);
         assertThat(service(Map.of("gyms-map", true)).frontendFlags()).containsEntry("GymsMap", true);
     }
 
-    /** AC-EVT-015: the events map flag is on the wire and stays off unless an environment enables it. */
+    /** #2015: the events map flag is on the wire and stays off unless an environment enables it. */
     @Test
-    @Tag("AC-EVT-015")
+    @Tag("#2015")
     void shouldServeEventsMapAsFalseWhenConfigurationDoesNotEnableIt() {
         FeatureFlagService service = service(Map.of("BjjEvents", true, "GymsMap", true));
 
@@ -134,9 +134,9 @@ class FeatureFlagServiceTest {
                 .containsEntry("BjjEvents", true);
     }
 
-    /** AC-EVT-015: EventsMap is enabled independently of GymsMap, by exact or relaxed key. */
+    /** #2015: EventsMap is enabled independently of GymsMap, by exact or relaxed key. */
     @Test
-    @Tag("AC-EVT-015")
+    @Tag("#2015")
     void shouldServeEventsMapIndependentlyOfGymsMap() {
         assertThat(service(Map.of("EventsMap", true)).frontendFlags())
                 .containsEntry("EventsMap", true)

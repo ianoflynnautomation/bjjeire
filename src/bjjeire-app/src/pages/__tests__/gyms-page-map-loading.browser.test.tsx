@@ -16,7 +16,7 @@ function mapRequests(): string[] {
     .filter(name => MAP_REQUEST.test(name))
 }
 
-describe('GymsPage map loading (AC-GYM-016)', () => {
+describe('GymsPage map loading (#1016)', () => {
   it('given a visitor stays on the list, when the page has loaded, then no map code or tiles were requested', async () => {
     vi.spyOn(api, 'get').mockResolvedValue(
       createPaginatedGyms([createGym({ name: 'Rebel BJJ' })], 1, 1)

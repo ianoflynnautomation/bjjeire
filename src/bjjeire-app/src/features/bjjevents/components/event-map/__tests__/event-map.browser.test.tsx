@@ -96,7 +96,7 @@ describe('EventMap (browser)', () => {
     },
   }
 
-  it('AC-EVT-010: given filters change the events at a venue, when the map updates, then the pin name follows', async () => {
+  it('#2010: given filters change the events at a venue, when the map updates, then the pin name follows', async () => {
     const openMat = createEvent({
       name: 'Leinster Community Open Mat',
       location: leinster,
@@ -142,7 +142,7 @@ describe('EventMap (browser)', () => {
       .toBeVisible()
   })
 
-  it('AC-EVT-016: given a popup was closed with Escape, when the pin is opened again by keyboard, then focus moves into the popup again', async () => {
+  it('#2016: given a popup was closed with Escape, when the pin is opened again by keyboard, then focus moves into the popup again', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -168,7 +168,7 @@ describe('EventMap (browser)', () => {
     }
   })
 
-  it('AC-EVT-016: given a short map, when a shared-venue popup opens, then it fits inside the map and its last link can be scrolled to', async () => {
+  it('#2016: given a short map, when a shared-venue popup opens, then it fits inside the map and its last link can be scrolled to', async () => {
     await page.viewport(667, 375)
     const events = ['Morning Open Mat', 'Evening Seminar', 'Weekend Camp'].map(
       name => createEvent({ name, description: '', location: leinster })
@@ -208,7 +208,7 @@ describe('EventMap (browser)', () => {
     expect(linkRect.bottom).toBeLessThanOrEqual(contentRect.bottom + 1)
   })
 
-  it('AC-EVT-016: given the map was opened tall and then made short, when a shared-venue popup opens, then it still fits inside the map', async () => {
+  it('#2016: given the map was opened tall and then made short, when a shared-venue popup opens, then it still fits inside the map', async () => {
     await page.viewport(375, 900)
     const events = ['Morning Open Mat', 'Evening Seminar', 'Weekend Camp'].map(
       name => createEvent({ name, description: '', location: leinster })
@@ -241,7 +241,7 @@ describe('EventMap (browser)', () => {
     )
   })
 
-  it('AC-EVT-016: given phone width, when a pin near the controls opens, then the popup clears the zoom control and the attribution', async () => {
+  it('#2016: given phone width, when a pin near the controls opens, then the popup clears the zoom control and the attribution', async () => {
     await page.viewport(375, 667)
     const west = eventAt('Atlantic Coast Grappling Hall', -9.5145, 53.8008)
     await render(
@@ -276,7 +276,7 @@ describe('EventMap (browser)', () => {
     expect(overlaps(popupRect(), attribution)).toBe(false)
   })
 
-  it('AC-EVT-011: given a long unbroken address, when the popup opens, then the text wraps inside it', async () => {
+  it('#2011: given a long unbroken address, when the popup opens, then the text wraps inside it', async () => {
     const long = createEvent({
       name: 'Long Address Seminar',
       location: { ...leinster, address: 'Unit'.padEnd(120, 'X') },
@@ -296,7 +296,7 @@ describe('EventMap (browser)', () => {
     expect(address.scrollWidth).toBeLessThanOrEqual(address.clientWidth)
   })
 
-  it('AC-EVT-010: given two events at one venue, when the map shows them, then one pin opens a popup listing both', async () => {
+  it('#2010: given two events at one venue, when the map shows them, then one pin opens a popup listing both', async () => {
     const venue = {
       address: '1 Leinster St',
       venue: 'Leinster Grappling HQ',
@@ -342,7 +342,7 @@ describe('EventMap (browser)', () => {
       .toBeVisible()
   })
 
-  it('AC-EVT-009: given events around Ireland, when pins render, then each sits in its real direction', async () => {
+  it('#2009: given events around Ireland, when pins render, then each sits in its real direction', async () => {
     await render(
       <EventMap
         events={[dublin, galway, belfast, cork]}
@@ -367,7 +367,7 @@ describe('EventMap (browser)', () => {
     expect(eastWest).toBeGreaterThan(northSouth * 10)
   })
 
-  it('AC-EVT-011: given a pin, when it is clicked, then the popup shows the event', async () => {
+  it('#2011: given a pin, when it is clicked, then the popup shows the event', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -395,7 +395,7 @@ describe('EventMap (browser)', () => {
       .toBeVisible()
   })
 
-  it('AC-EVT-016: given keyboard use, when a pin is opened with Enter, then links are reachable and Escape returns to the pin', async () => {
+  it('#2016: given keyboard use, when a pin is opened with Enter, then links are reachable and Escape returns to the pin', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -424,7 +424,7 @@ describe('EventMap (browser)', () => {
     expect(document.activeElement).toBe(pin.element())
   })
 
-  it('AC-EVT-016: given a focused pin, when Space is pressed, then the popup opens and the page does not scroll', async () => {
+  it('#2016: given a focused pin, when Space is pressed, then the popup opens and the page does not scroll', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -448,7 +448,7 @@ describe('EventMap (browser)', () => {
     expect(window.scrollY).toBe(scrollBefore)
   })
 
-  it('AC-EVT-016: given keyboard focus, when a pin and then its popup hold it, then each shows an indicator and the pin rises above its neighbours', async () => {
+  it('#2016: given keyboard focus, when a pin and then its popup hold it, then each shows an indicator and the pin rises above its neighbours', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -479,7 +479,7 @@ describe('EventMap (browser)', () => {
     ['coarse', false],
     ['fine', true],
   ])(
-    'AC-EVT-016: given a %s pointer, when the map opens, then one-finger dragging is %s',
+    '#2016: given a %s pointer, when the map opens, then one-finger dragging is %s',
     async (pointer, canDrag) => {
       const real = window.matchMedia.bind(window)
       vi.spyOn(window, 'matchMedia').mockImplementation(query =>
@@ -505,7 +505,7 @@ describe('EventMap (browser)', () => {
     }
   )
 
-  it('AC-EVT-016: given focus has moved to the search box, when Escape closes the popup, then focus stays in the search box', async () => {
+  it('#2016: given focus has moved to the search box, when Escape closes the popup, then focus stays in the search box', async () => {
     await render(
       <>
         <input aria-label="Search" />
@@ -529,7 +529,7 @@ describe('EventMap (browser)', () => {
     ['light', ''],
     ['dark', 'dark'],
     ['competition', 'dark competition'],
-  ])('AC-EVT-016: in the %s theme', (_theme, className) => {
+  ])('#2016: in the %s theme', (_theme, className) => {
     // OpenStreetMap's land colour. Tiles stay light in every theme.
     const TILE_LAND = parseColour('#f2efe9')
 
@@ -712,7 +712,7 @@ describe('EventMap (browser)', () => {
     })
   })
 
-  it('AC-EVT-012: given no filters, when the map opens, then all of Ireland is in view', async () => {
+  it('#2012: given no filters, when the map opens, then all of Ireland is in view', async () => {
     await render(
       <EventMap
         events={[dublin, galway, belfast, cork]}
@@ -736,7 +736,7 @@ describe('EventMap (browser)', () => {
     expect(tileZoom()).toBeLessThan(9)
   })
 
-  it('AC-EVT-012: given results narrow to one location, when the map updates, then it centres on that location below maximum zoom', async () => {
+  it('#2012: given results narrow to one location, when the map updates, then it centres on that location below maximum zoom', async () => {
     const screen = await render(
       <EventMap
         events={[dublin, galway]}
@@ -762,7 +762,7 @@ describe('EventMap (browser)', () => {
       .not.toBeInTheDocument()
   })
 
-  it('AC-EVT-012: given several filtered results, when the map updates, then it fits them more closely than Ireland', async () => {
+  it('#2012: given several filtered results, when the map updates, then it fits them more closely than Ireland', async () => {
     const screen = await render(
       <EventMap
         events={[dublin, galway]}
@@ -787,7 +787,7 @@ describe('EventMap (browser)', () => {
     expect(isInsideMap(pinCentre('Galway BJJ'))).toBe(true)
   })
 
-  it('AC-EVT-012: given the visitor moved the map, when an interior event leaves the results and the outer bounds stay, then the map still refits', async () => {
+  it('#2012: given the visitor moved the map, when an interior event leaves the results and the outer bounds stay, then the map still refits', async () => {
     const athlone = eventAt('Athlone BJJ', -7.94, 53.3)
     const screen = await render(
       <EventMap
@@ -813,7 +813,7 @@ describe('EventMap (browser)', () => {
     await expect.poll(tileZoom).toBe(fitted)
   })
 
-  it('AC-EVT-012: given the visitor moved the map, when the same results render again, then their view is left alone', async () => {
+  it('#2012: given the visitor moved the map, when the same results render again, then their view is left alone', async () => {
     const screen = await render(
       <EventMap events={[dublin, galway]} hasFilters tileUrl={BLANK_TILE} />,
       { wrapper: Wrapper }
@@ -836,7 +836,7 @@ describe('EventMap (browser)', () => {
     expect(tileZoom()).toBe(zoomed)
   })
 
-  it('AC-EVT-014: given tiles failed, when tiles load cleanly again, then the notice clears', async () => {
+  it('#2014: given tiles failed, when tiles load cleanly again, then the notice clears', async () => {
     const screen = await render(
       <EventMap events={[dublin]} hasFilters={false} tileUrl={BROKEN_TILE} />,
       {
@@ -855,7 +855,7 @@ describe('EventMap (browser)', () => {
     await expect.element(notice).not.toBeInTheDocument()
   })
 
-  it('AC-EVT-014: given only some tiles fail, when the tiles settle, then the notice appears once and does not flicker', async () => {
+  it('#2014: given only some tiles fail, when the tiles settle, then the notice appears once and does not flicker', async () => {
     const shown: boolean[] = []
     const observer = new MutationObserver(() => {
       const isShown =
@@ -887,7 +887,7 @@ describe('EventMap (browser)', () => {
     expect(shown.filter(isShown => isShown)).toHaveLength(1)
   })
 
-  it('AC-EVT-016: given the wheel over the map, when it turns, then the page keeps the event so it can scroll past', async () => {
+  it('#2016: given the wheel over the map, when it turns, then the page keeps the event so it can scroll past', async () => {
     await render(
       <EventMap events={[dublin]} hasFilters={false} tileUrl={BLANK_TILE} />,
       {
@@ -905,7 +905,7 @@ describe('EventMap (browser)', () => {
     expect(notPrevented).toBe(true)
   })
 
-  it('AC-EVT-014: given working tiles, when the map shows, then attribution is visible and no failure notice appears', async () => {
+  it('#2014: given working tiles, when the map shows, then attribution is visible and no failure notice appears', async () => {
     await render(
       <EventMap events={[dublin]} hasFilters={false} tileUrl={BLANK_TILE} />,
       {
@@ -929,7 +929,7 @@ describe('EventMap (browser)', () => {
     ).toBeNull()
   })
 
-  it('AC-EVT-014: given tiles are blocked, when the map shows, then a notice links to the list with the filters, the pins stay and the view does not change', async () => {
+  it('#2014: given tiles are blocked, when the map shows, then a notice links to the list with the filters, the pins stay and the view does not change', async () => {
     await render(
       <EventMap
         events={[dublin, galway]}
@@ -954,7 +954,7 @@ describe('EventMap (browser)', () => {
     await expect.element(page.getByTestId(EventMapTestIds.ROOT)).toBeVisible()
   })
 
-  it('AC-EVT-016: given phone width, when the map shows, then there is no sideways scroll and page remains above and below it', async () => {
+  it('#2016: given phone width, when the map shows, then there is no sideways scroll and page remains above and below it', async () => {
     await page.viewport(375, 667)
     await render(
       <EventMap

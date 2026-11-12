@@ -5,6 +5,7 @@
 **API**: `/api/v1/competition`
 **SPA route**: `/competitions`
 **Acceptance**: `bjjeire-tests/tests/features/competitions/`
+**Requirements**: `bjjeire/requirements` · epic `&3`
 
 ## User Story 1 — Browse competitions (P1)
 

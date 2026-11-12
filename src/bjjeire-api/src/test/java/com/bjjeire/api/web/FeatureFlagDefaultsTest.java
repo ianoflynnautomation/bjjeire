@@ -11,11 +11,11 @@ import org.springframework.core.io.FileSystemResource;
 
 class FeatureFlagDefaultsTest {
     /**
-     * AC-GYM-014: shipping the application config alone leaves the map off. Reads the main file because the test
-     * classpath has its own application.yml.
+     * #1014: shipping the application config alone leaves the map off. Reads the main file because the test classpath
+     * has its own application.yml.
      */
     @Test
-    @Tag("AC-GYM-014")
+    @Tag("#1014")
     void shouldDefaultGymsMapToOffInApplicationConfiguration() throws IOException {
         PropertySource<?> config = new YamlPropertySourceLoader()
                 .load("main", new FileSystemResource("src/main/resources/application.yml"))
@@ -25,9 +25,9 @@ class FeatureFlagDefaultsTest {
                 .isEqualTo("${FEATURE_GYMS_MAP:false}");
     }
 
-    /** AC-EVT-015: shipping the application config alone leaves the events map off. */
+    /** #2015: shipping the application config alone leaves the events map off. */
     @Test
-    @Tag("AC-EVT-015")
+    @Tag("#2015")
     void shouldDefaultEventsMapToOffInApplicationConfiguration() throws IOException {
         PropertySource<?> config = new YamlPropertySourceLoader()
                 .load("main", new FileSystemResource("src/main/resources/application.yml"))

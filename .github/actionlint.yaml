@@ -1,3 +1,13 @@
 self-hosted-runner:
   labels:
     - gha-runner-scale-set
+
+# gh-aw generates the *.lock.yml files; do not hand-edit them. gh-aw v1.2.2 emits
+# syntax that actionlint 1.7.12 (bundled in reviewdog/action-actionlint v1.73.2)
+# does not know yet. Drop each entry once actionlint accepts the construct.
+paths:
+  .github/workflows/*.lock.yml:
+    ignore:
+      - 'property "workflow_(ref|sha)" is not defined in object type'
+      - 'unexpected key "cache-mode" for "job" section'
+      - 'unexpected key "queue" for "concurrency" section'

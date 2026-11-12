@@ -5,6 +5,7 @@
 **API**: `/api/v1/bjjevent`
 **SPA route**: `/events`
 **Acceptance**: `bjjeire-tests/tests/features/events/`
+**Requirements**: `bjjeire/requirements` · epic `&2`
 
 ## User Story 1 — Browse upcoming events (P1)
 

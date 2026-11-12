@@ -1,5 +1,5 @@
 ---
-description: Docker Compose setup and local development environment
+description: Docker Compose stack, images, and Caddy
 paths:
   - docker-compose*.yml
   - src/bjjeire-api/Dockerfile
@@ -8,49 +8,47 @@ paths:
   - Caddyfile
 ---
 
-# Docker & Local Dev
+# Docker & Compose
 
-## Compose Profiles
+Day-to-day checks run in the dev container (see `AGENTS.md`). The Compose stack is for running the whole application.
+
+## Files
+- `docker-compose.yml`: base. Every service is in the `app` profile
+- `docker-compose.override.java-local.yml`: builds from source, turns read-only mode and rate limiting off, and adds the `seeder` service (`seed` profile)
+- `docker-compose.override.ghcr.yml`: pulls published images from GHCR
+- `docker-compose.override.ci.yml`: `linux/amd64`, faster healthchecks, loopback-only ports
+
+The base file gives `api` and `frontend` no image and no build. Always pair it with an override. Commands are in `README.md`:
 ```bash
-docker compose --profile app up -d       # API + web frontend
-docker compose --profile mongo up -d     # MongoDB only
-docker compose --profile app --profile mongo up -d  # everything
+docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml up --build --wait
+docker compose --profile seed -f docker-compose.yml -f docker-compose.override.java-local.yml run --rm --build seeder
 ```
 
-## Override Files
-- `docker-compose.yml` — base config (production-like, no volumes for local)
-- `docker-compose.override.local.yml` — local dev overrides (bind mounts, local env vars)
-- `docker-compose.override.ghcr.yml` — pulls images from GitHub Container Registry
+## Services
+| Service | Container | Host port | Notes |
+|---|---|---|---|
+| `api` | `api` | 5003 → 8080 | Spring Boot. Healthcheck `GET /health` |
+| `frontend` | `web` | 3000 → 80 | SPA served by Caddy, which proxies `/api/*` to the API |
+| `mongodb` | `mongodb` | 127.0.0.1:27017 | `mongo:8.2`, auth on |
 
-Apply local overrides:
-```bash
-docker compose -f docker-compose.yml -f docker-compose.override.local.yml up -d
-```
+- Keep the MongoDB port bound to `127.0.0.1`. Do not publish it on all interfaces
+- Keep the MongoDB image on a version tag, never `latest`
 
-## Key Services
-| Service    | Port       | Notes                          |
-|------------|------------|--------------------------------|
-| api        | 5003 → 8080 | Spring Boot API |
-| web        | 3000       | React SPA via Caddy (HTTP only; TLS at Cloudflare) |
-| mongodb    | 27017      | MongoDB with auth              |
-
-## Environment Variables
-- Sensitive values in `.env` at project root (gitignored)
-- `secrets/` directory for cert files (gitignored)
-- `certs/` for HTTPS dev certs
+## Configuration
+- `.env` at the repository root is required and gitignored
+- `secrets/mongodb_password.txt` is mounted as the `mongodb_password` Docker secret
+- Do not write a credential as a literal in a Compose file. Use `${VAR}` or a secret
+- `SEED_DATASET` picks the seed data. The local override defaults to `test` (`seeder/data-test/`)
 
 ## Platform
-- Local compose defaults to `linux/arm64` (Apple Silicon). CI override (`docker-compose.override.ci.yml`) uses `linux/amd64`.
-- GHCR images on `main` are multi-arch (`linux/amd64,linux/arm64`). PR preview images are `linux/amd64` only.
+- The base file sets `linux/arm64` for Apple Silicon. The CI override sets `linux/amd64`
+- Published images are multi-arch on `main`. Pull request preview images are `linux/amd64` only
 
-## API / seeder images
-- Multi-stage: `dependency:go-offline` then `package` so source-only changes reuse the Maven cache layer
-- Runtime user is UID 10001 (non-root). API healthchecks still use `curl` in the image
+## Images
+- API and seeder builds are multi-stage: `dependency:go-offline`, then `package`, so a source-only change reuses the Maven layer
+- The runtime user is UID 10001. The API image keeps `curl` for the healthcheck
+- `VITE_APP_*` values are build arguments of the frontend image (ADR-0006). Changing one means rebuilding the image
 
-## Resource Limits
-- Default: 0.50 CPU / 512MB RAM per service
-- Adjust in `docker-compose.yml` under `deploy.resources`
-
-## Healthchecks
-- All services have healthchecks with `interval: 30s`, `timeout: 10s`, `retries: 3`
-- API healthcheck: `GET /health`
+## Defaults shared by services
+- Resource limits come from the `x-defaults` anchor (0.50 CPU, 512 MB). Change them there
+- `api` and `frontend` use the `x-healthcheck-curl` anchor. `mongodb` has its own `mongosh` healthcheck

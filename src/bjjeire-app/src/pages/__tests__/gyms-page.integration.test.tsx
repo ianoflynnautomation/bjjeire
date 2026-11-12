@@ -389,7 +389,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
     const pins = (): Promise<HTMLElement[]> =>
       screen.findAllByTestId(GymMapTestIds.PIN)
 
-    describe('AC-GYM-007 switching view', () => {
+    describe('#1007 switching view', () => {
       it.each(['/gyms', '/gyms?view=satellite'])(
         'given %s, when the page opens, then the list is shown and marked current',
         async route => {
@@ -475,7 +475,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-GYM-008 filters without paging', () => {
+    describe('#1008 filters without paging', () => {
       const manyGyms = (count: number): GymDto[] =>
         Array.from({ length: count }, (_, i) =>
           createGym({ name: `Gym ${i + 1}` })
@@ -652,7 +652,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-GYM-009 gyms without usable coordinates', () => {
+    describe('#1009 gyms without usable coordinates', () => {
       it('given a gym with no coordinates, when the map opens, then it has no pin, a notice counts it and the list still shows it', async () => {
         seedGyms([
           createGym({ name: 'Rebel BJJ' }),
@@ -674,7 +674,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-GYM-012 loading, empty and error states', () => {
+    describe('#1012 loading, empty and error states', () => {
       it('given a pending request, when the map opens, then the loading state is shown', () => {
         seedGymsPending()
         renderGymsPage(['/gyms?view=map'], MAP_ON)
@@ -715,7 +715,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
       })
     })
 
-    describe('AC-GYM-014 flag fails safe to the list', () => {
+    describe('#1014 flag fails safe to the list', () => {
       it('given the flag is off, when a map link opens, then the list is shown on /gyms with no switch and a normal page size', async () => {
         const { getLastUrl } = seedGymsPaged({
           1: createPaginatedGyms([createGym({ name: 'Rebel BJJ' })], 1, 1),
@@ -732,7 +732,7 @@ describe('GymsPage Integration (API + Query + UI)', () => {
         expect(routerSearch()).toBe('?view=map')
       })
 
-      it('given only the events map is on, when the gym page opens, then it offers no map (AC-EVT-015)', async () => {
+      it('given only the events map is on, when the gym page opens, then it offers no map (#2015)', async () => {
         seedGyms([createGym({ name: 'Rebel BJJ' })])
         renderGymsPage(['/gyms?view=map'], { GymsMap: false, EventsMap: true })
 

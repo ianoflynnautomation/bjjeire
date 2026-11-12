@@ -1,6 +1,6 @@
 ---
 name: spec-verifier
-description: 'Use before opening a PR to check a change against its spec with fresh context. Give it the spec path and the diff. Read-only: reports every AC-ID as PASS, FAIL or UNTESTED with file:line evidence. Example: "verify this diff against specs/features/gyms.md".'
+description: 'Use before opening a PR to check a change against its spec with fresh context. Give it the spec path and the diff. Read-only: reports every GitLab requirement issue as PASS, FAIL or UNTESTED with file:line evidence. Example: "verify this diff against specs/features/gyms.md".'
 tools: Read, Grep, Glob
 color: purple
 ---
@@ -16,7 +16,7 @@ or a Spec Kit `specs/###-slug/spec.md` with its `plan.md`), then `specs/stc/<fea
 
 ## What to check
 
-1. **Acceptance criteria.** For each AC-ID, find the implementation and the test that
+1. **Acceptance criteria.** For each requirement issue (`#1001`), find the implementation and the test that
    proves it. Read each test: a test that would still pass with the feature broken does
    not prove the criterion.
 2. **Scope.** Report behaviour in the diff that the spec does not ask for.
@@ -31,7 +31,7 @@ finding: if the evidence is missing, the result is UNTESTED.
 
 ## Report
 
-One table row per AC-ID: `AC-ID | PASS, FAIL or UNTESTED | file:line evidence`. Then list
+One table row per requirement issue: `#1001 | PASS, FAIL or UNTESTED | file:line evidence`. Then list
 each other finding, most severe first, with `file:line`, a concrete failure scenario and
-a one-line fix. End with `VERDICT: PASS` only if every AC-ID passes and no correctness
+a one-line fix. End with `VERDICT: PASS` only if every requirement issue passes and no correctness
 finding remains; otherwise `VERDICT: FAIL`.

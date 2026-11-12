@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readGymView, withGymView } from '../gym-view-url'
 
-describe('gym view URL state (AC-GYM-007)', () => {
+describe('gym view URL state (#1007)', () => {
   it('given view=map, when the view is read, then the map is chosen', () => {
     expect(readGymView(new URLSearchParams('view=map'))).toBe('map')
   })

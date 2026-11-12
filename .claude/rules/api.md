@@ -27,10 +27,10 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - One public version, `/api/v1`. Extend a resource with optional fields. Do not publish a second copy of it
 - Queries return DTOs (never domain entities directly); writes accept command records that wrap the read DTO
 - Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`
-- `[FromQuery]`-style pagination/filter params bind via `PaginationRequest`
+- Pagination query params bind to `common.PaginationRequest`. Path ids take `@ValidObjectId`
 
 ## Pagination
-- All list endpoints accept `page` (1-based) and `pageSize` (1–100, default 20)
+- All list endpoints accept `page` (1-based) and `pageSize` (1–100, default 20). A `pageSize` outside that range is not an error: it falls back to 20
 - Response envelope: `PagedResponse<T>` built via `PagedResponses`
 - `pagination` fields: `totalItems`, `currentPage`, `pageSize`, `totalPages`, `hasNextPage`, `hasPreviousPage`, `nextPageUrl`, `previousPageUrl`
 
@@ -41,6 +41,15 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 
 ## Auth
 - Public read endpoints require no auth; write operations require `Authorization: Bearer {token}` (see `SecurityConfig`)
+
+## Cross-cutting filters (`config/`)
+- `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping
+- `RateLimitFilter` is on by default (600 requests per 60 seconds, 429 on rejection). `/health` is exempt
+- `SecurityHeadersFilter` sets the response security headers, including the Content-Security-Policy. Change headers there, not in a controller
+
+## Feature flags
+- The catalogue is the `web.FeatureFlag` enum. The wire name (`Gyms`, `EventsMap`) is the JSON key of `GET /api/v1/featureflag`, so renaming one is a breaking change
+- Adding or removing a flag is one change in three places: the enum, the `feature-flags` block in `application.yml` (`FEATURE_*` variables), and `src/bjjeire-app/src/features/feature-flags/definitions.ts`
 
 ## Errors
 - `web.ApiExceptionHandler` returns `ProblemDetail` with an `errors[]` array for validation failures, a `traceId` extension, and an `errorId` on unexpected 500s. Do not add per-controller exception handling
@@ -55,3 +64,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 ## Configuration
 - `application.yml` defaults; environment variables override
 - Typed config via `@ConfigurationProperties` records in `config/` (`BjjEireProperties`, etc.), registered by `@ConfigurationPropertiesScan`
+
+## Build gate
+- `mvn verify` fails on Spotless (palantir-java-format), Checkstyle, Error Prone, and Maven Enforcer. Spotless checks in the `validate` phase, so an unformatted file fails before any test runs. Fix formatting with `mvn -pl src/bjjeire-api spotless:apply`
+- Run Maven through the dev container: `devcontainer exec --workspace-folder . mvn -pl src/bjjeire-api test`

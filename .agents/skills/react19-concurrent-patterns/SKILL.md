@@ -6,7 +6,7 @@ description: 'Reference for React 19 concurrent APIs in bjjeire-app - useTransit
 # React 19 Concurrent Patterns
 
 Concurrent APIs available in `src/bjjeire-app` (React 19.2.7). Follow
-`.claude/rules/react.md` and `.claude/rules/react-components.md` for component
+`.claude/rules/react.md` for component
 structure — this skill covers only the concurrent surface.
 
 ## Non-Blocking Updates — `useTransition`

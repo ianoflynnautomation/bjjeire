@@ -21,7 +21,7 @@ afterEach(() => {
   document.documentElement.className = ''
 })
 
-describe('GymViewSwitch focus indicator (AC-GYM-015)', () => {
+describe('GymViewSwitch focus indicator (#1015)', () => {
   it.each([
     ['light', ''],
     ['dark', 'dark'],
