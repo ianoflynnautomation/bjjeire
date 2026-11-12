@@ -32,7 +32,8 @@ To upgrade, update the CLI and re-run the `init` command above. Then check
 that `git diff` touches only CLI-owned paths.
 
 The default flow is `/spec` → `/clear` → `/build-feature` (see `AGENTS.md`). Use
-Spec Kit only to design a large new capability that has no living file:
+Spec Kit only to design a large change, to a new capability or to one that
+already has a living file. Each change gets its own `specs/###-slug/` directory:
 
 ```
 /speckit-specify …

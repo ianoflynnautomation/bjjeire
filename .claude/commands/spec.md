@@ -11,9 +11,12 @@ Write the spec for `$ARGUMENTS`. Write no code.
 2. Interview me until you could write the spec. Ask about what the code cannot tell you:
    who it is for, what is out of scope, edge cases, and what "done" looks like. Do not
    ask what you can find by reading the repo.
-3. Update the living spec in `specs/features/<feature>.md`. Use a numbered
-   `specs/00N-slug/` directory only for a capability with no living file. Never leave two
-   specs for one capability.
+3. Update the living spec in `specs/features/<feature>.md`. If the change is large enough
+   to need a plan and a task list, stop and suggest the Spec Kit flow instead
+   (`/speckit-specify`), which writes a numbered `specs/00N-slug/` directory with separate
+   `spec.md`, `plan.md` and `tasks.md`. That applies to an existing capability too.
+   `/build-feature` folds a numbered spec back into the living file, so two specs never
+   describe one capability once the change ships.
 4. Add the GitLab requirement issues to `specs/stc/<feature>/spec.md`, using
    `.specify/templates/stc-check.template.md` if the overlay is missing. The epic
    stays on the **Requirements** line. A heading cites the issue (`#1001`). Update
