@@ -11,10 +11,13 @@ ADR-0001, ADR-0002.
 
 ## HTTP
 
-- Dual-case routes exist historically; new mappings use `ApiRoutes` constants
-  (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`).
-- List endpoints take `page` (1-based) and `pageSize` (max 100) and return
-  `PagedResponse<T>` via `PagedResponses`.
+- Routes are the singular lowercase `ApiRoutes` constants (`/api/v1/gym`,
+  `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`). Do not add a
+  PascalCase alias.
+- List endpoints take `page` (1-based) and `pageSize` (max 100, otherwise the
+  default 20) and return `PagedResponse<T>` via `PagedResponses`.
+- A write answered with 405 is `ReadOnlyModeFilter` (on by default), not a
+  missing mapping.
 - Reads return DTOs, never domain entities. Writes accept `*Command` records.
 - Public GET; writes require Entra Bearer. Do not add per-controller
   exception handling — `web.ApiExceptionHandler` returns `ProblemDetail`.

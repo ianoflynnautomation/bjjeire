@@ -6,187 +6,79 @@ paths:
 
 # GitHub Actions CI/CD
 
-## Workflow Files
-| File | Trigger | Purpose |
-|------|---------|---------|
-| `ci-pr.yml` | pull_request to `main` | Fast PR gate: workflow lint, security scans, Java verify, OpenAPI (parallel with Java), frontend lint/test/build, optional Compose `@smoke` |
-| `ci-main.yml` | push to `main` | Delivery: Java verify, contract publish, image build (parallel with contracts), AKS acceptance (gated), digest promote to `:main` |
-| `build-push-ghcr.yml` | `workflow_call`, `workflow_dispatch` | Reusable: build + push Docker images to GHCR, provenance attestation, Trivy scan |
-| `release.yml` | push to `main` (release-please drives tagging) | GitHub Release assets; retag `:main` images to semver + `latest` |
-| `validate-data.yml` | PR touching seeder data/entities | Strict deserialization + Ireland bbox check on gym coordinates |
-| `pr-env-validation.yml` | pull_request to `main` (gated on `PR_ENV_ENABLED`) | Opt-in Flux preview + Playwright `@smoke\|@acceptance`. Image builds and acceptance run only after a person adds `deploy-preview`. CI does not add the label |
-| `acceptance-staging.yml` | schedule + dispatch | Playwright `@acceptance` against long-lived staging |
-| `issue-to-pr.yml` | `issues` labeled `approved:gym` / `approved:event` | Auto-open draft PR from community-submission issue body |
-| `cleanup-artifacts.yml` | scheduled | Clean old artifacts (pure `gh` CLI, no runtime) |
-| `labels.yml` | push to label config | Sync repo labels |
-| `pr-labels.yml` | pull_request open, sync, reopen, edit | Area labels from changed files; type label from the conventional commit title |
+What each workflow and job does, the job graphs, image publishing, and the secrets list are in
+[docs/ci-cd.md](../../docs/ci-cd.md). Read the workflow file itself for current detail. This file holds the
+conventions a change must follow.
 
-Shared jobs (Maven build/test, workflow lint, OpenAPI breaking gate, cached Node setup, docker-build-push) come from the
-`ianoflynnautomation/bjjeire-ci-templates` repository; E2E comes from `ianoflynnautomation/bjjeire-tests`.
+## Gating
+- `pr_complete` (in `ci-pr.yml`) and `main_complete` (in `ci-main.yml`) are the only required statuses. A new job gates nothing until it is in that job's `needs`. Skipped jobs count as a pass
+- `atest_analyze` stays out of both (ADR-0005). `pr-env-validation.yml` is not part of `pr_complete`
+- `.github/path-filters.yml` decides which jobs run. A new module or source path needs an entry there, or its changes go untested
+- `java_api_image` is deliberately narrower than `java_api`: a test-only change runs tests without rebuilding an image
+- Compose `@smoke` runs when the `compose` filter matches or the pull request has the `run-smoke` label
+- Never publish `latest` from `ci-main`. `release.yml` retags the promoted `:main` digest (ADR-0004)
 
-## Path Filters (`.github/path-filters.yml`)
-Single source of truth for change detection (dorny/paths-filter via the `detect-changes` composite in `bjjeire-ci-templates`):
-```yaml
-frontend:       src/bjjeire-app/**, Caddyfile, tools/images/**
-java_api:       src/bjjeire-api/**
-java_api_image: src/bjjeire-api/src/main/**, pom.xml, Dockerfile
-seeder:         seeder.Dockerfile, seeder package, seeder/data/**
-compose:        docker-compose*, smoke-pre-up.sh, Dockerfiles, Caddyfile
-```
-Always add new source paths to `.github/path-filters.yml` when adding new modules.
+## Agentic workflows (gh-aw)
+- `spec-review.md` and `schema-drift.md` are the sources. `*.lock.yml` is compiled from them with `gh aw compile`. Never edit a lock file; the edit hook rejects it
+- Each source has a twin in `.github/workflows-aw/`. Edit one, copy it to the other, then compile (see that folder's `README.md`)
+- Commit the `.md` and its `.lock.yml` together. `.github/aw/actions-lock.json` records the pinned actions and container digests
+- Repository instructions for these workflows are in `.github/aw/instructions.md`. Use the `agentic-workflows` skill to create, debug, or upgrade one
 
-Compose `@smoke` runs only when the `compose` filter matches, or when the PR has the `run-smoke` label.
+## Reuse
+- Shared jobs and composites come from `ianoflynnautomation/bjjeire-ci-templates` (`detect-changes`, `maven-build-test`, `node-build-test`, `docker-build-push`, `check-required-jobs`, `maven-openapi-export`, …). Do not recreate them under `.github/actions/`
+- Extract a local composite only with two or more callers or logic worth hiding
+- E2E comes from `ianoflynnautomation/bjjeire-tests`
 
-## CI Job Order — PR vs main split
-PRs run fast feedback only; `main` runs contract publishing, image delivery, and (when enabled) AKS acceptance. This trusts the PR gate
-(branch protection / merge queue) so cheap checks don't re-run on push.
-
-### Pull request (`ci-pr.yml`)
-```
-lint_workflows, security_scan   (always)
-detect_changes
-  ├── java_build_test (maven-build-test.yml, goals: verify)
-  ├── generate_openapi_contract (parallel with Java; single IT) → breaking gate
-  │                                                            → frontend API compat
-  ├── frontend_build_test (tsc + eslint + prettier + unit/integration coverage + pact + vite)
-  ├── test_frontend_browser (parallel with frontend_build_test)
-  └── compose_smoke (path/label only; @smoke)
-pr_complete  (single required status for branch protection; skipped jobs count as pass)
-```
-
-### Push to main (`ci-main.yml`)
-```
-detect_changes
-  ├── java_build_test
-  ├── generate_openapi_contract ┐
-  └── generate_pact_contract    ┴→ publish_contracts_ghcr
-  └── build_push (parallel with contracts; skipped Java is OK) → Trivy
-        └── acceptance_ephemeral (gated on ACCEPTANCE_AKS_ENABLED)
-              └── promote_images (SHA digest → :main)
-main_complete
-```
-
-## Quality Gate in CI
-`mvn verify` (run by the `maven-build-test.yml` template) enforces the full Java quality gate:
-Maven Enforcer, Spotless (palantir-java-format), Checkstyle, and Error Prone run as part of the build —
-a formatting or lint violation fails the PR. `frontend_build_test` runs `tsc --noEmit`, `eslint --max-warnings 0`,
-Prettier check, unit+integration coverage, Pact, and `vite build` in one `npm ci`. Lint-staged runs Prettier locally.
+## Pinning
+- Pin every third-party action and every `bjjeire-ci-templates` reference to a full commit SHA with a trailing version comment. Never `@main` or a bare tag
+- Dependabot bumps the SHAs weekly. Bump a template pin deliberately; the pins currently in use are listed in `AGENTS.md`
 
 ## Job naming
-- Job IDs: `snake_case` only (`{area}_{action}`). Never kebab-case. Examples: `java_build_test`, `frontend_build_test`, `detect_changes`, `test_acceptance`.
-- `name:` (Checks UI) and reusable `job-name:` must match, Title Case, describing the gate (`Frontend Build & Test`), not an optimization (`fast`, `lite`, `quick`).
-- Artifact names follow the job ID with hyphens (`frontend-build-test`).
-- Do not reuse a generic ID (`tests`, `guard`, `sync`, `cleanup`). Spell the gate.
+- Job IDs are `snake_case`, `{area}_{action}`: `java_build_test`, `frontend_build_test`, `detect_changes`. Never kebab-case
+- `name:` and a reusable workflow's `job-name:` match, in Title Case, and describe the gate (`Frontend Build & Test`), not an optimization (`fast`, `lite`, `quick`)
+- Artifact names are the job ID with hyphens (`frontend-build-test`)
+- No generic IDs (`tests`, `guard`, `sync`, `cleanup`)
 
-## Reusable Actions
-Extract a composite action **only when there's real reuse** (2+ callers) or non-trivial logic worth hiding.
-Composites and reusable workflows live in `ianoflynnautomation/bjjeire-ci-templates` (`detect-changes`, `maven-build-test`, `node-build-test`, `docker-build-push`, `check-required-jobs`, `maven-openapi-export`, …). Do not recreate them under `.github/actions/`.
+## Runners and containers
+- Node jobs run in `node:26-bookworm-slim`. Java jobs use `actions/setup-java` (Temurin 25). Docker build and push jobs stay on `ubuntu-latest` because they need the host daemon. AKS and Flux jobs run on `gha-runner-scale-set`
+- Browser tests run in `mcr.microsoft.com/playwright:v1.63.0-noble`. Change that tag whenever `@playwright/test` or `@vitest/browser-playwright` changes version
+- In a container job, `${{ github.workspace }}` expands to the host path, which is not mounted. Use a relative path or `$GITHUB_WORKSPACE`:
+  ```yaml
+  # BAD: works on a host runner, breaks silently in a container
+  run: mvn verify -Dreports="${{ github.workspace }}/TestResults"
+  # GOOD
+  run: mvn verify -Dreports="TestResults"
+  ```
 
-## Container Jobs
-Node jobs run in `node:26-bookworm-slim` containers; Java jobs use `actions/setup-java` (Temurin 25) with
-Maven caching via the template. Docker build/push jobs stay on `ubuntu-latest` (need the host daemon).
-AKS / Flux jobs run on `gha-runner-scale-set`.
+## Secrets and permissions
+- Never put `${{ secrets.X }}` in a script body or a `--set key=` argument. It lands in the script on disk and in any trace. Pass it through `env:`:
+  ```yaml
+  - env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    run: printf '%s' "$GH_TOKEN" | helm registry login "$REGISTRY" --password-stdin
+  ```
+- No `set -x` in a step that handles a secret
+- GHCR login uses `GITHUB_TOKEN`. No PAT
+- Grant permissions per job: `packages: write` to push images, `id-token: write` for OIDC and attestation, `attestations: write` for provenance, `security-events: write` for SARIF upload
+- Azure auth is OIDC. `VITE_APP_*` values are public build arguments, not secrets
 
-### Container gotcha: never use `${{ github.workspace }}` for paths
-Inside a container job, `${{ github.workspace }}` expands to the **host** path, which is not mounted in the
-container (it sees `/__w/<repo>/<repo>`). Always use relative paths (or the `$GITHUB_WORKSPACE` env var) for
-anything that crosses steps:
-```yaml
-# BAD — works on host runner, silently breaks in container
-run: mvn verify -Dreports="${{ github.workspace }}/TestResults"
-# GOOD — works everywhere
-run: mvn verify -Dreports="TestResults"
-```
+## Logging
+- `::notice title=…::` for milestones, `::warning title=…::` for soft failures, `::error title=…::` directly before `exit 1`. Always give a `title=`, and `file=` plus `line=` when the finding maps to source
+- Wrap a multi-line `run:` block in `::group::Title` / `::endgroup::`, one group per phase
+- `::set-output` and `::set-env` are banned. Write to `$GITHUB_OUTPUT` / `$GITHUB_ENV`
+- Step summaries beyond a two-row table use `actions/github-script` with `core.summary`
+- Pull request comments use `actions/github-script` with the sticky-comment marker pattern in the `comment_preview` job of `pr-env-validation.yml`. Do not call `gh pr comment` or curl the API
+- `lint_workflows` in `ci-pr.yml` runs `actionlint` and `zizmor` and enforces the banned commands
 
-## Browser Tests
-- Run in `mcr.microsoft.com/playwright:v1.63.0-noble` container (Chromium pre-installed)
-- Update the Playwright container version when upgrading `@playwright/test` or `@vitest/browser-playwright`
-- Test files: `**/*.browser.test.{ts,tsx}`
-- Screenshots on failure saved to `__screenshots__/` (uploaded as CI artifact)
-
-## Docker Image Publishing (`build-push-ghcr.yml`)
-- Registry: `ghcr.io`
-- Images: `ghcr.io/{owner}/bjjeire-api`, `ghcr.io/{owner}/bjjeire-frontend`, `ghcr.io/{owner}/bjjeire-seeder`
-- Candidate tags on `main`: `sha-{short}` and full `${{ github.sha }}`. After acceptance (or skip), `promote_images` tags the digest as `:main`.
-- Semver + `latest` are applied by `release.yml` retagging `:main` — never publish `latest` from `ci-main`.
-- Platforms: `linux/amd64,linux/arm64` on main/release; `linux/amd64` only for PR preview images
-- Build cache: `type=gha` with shared scopes (`bjjeire-api`, `bjjeire-frontend`, `bjjeire-seeder`) so PR and main reuse layers
-- SBOM + provenance attestation enabled (published to registry via `actions/attest-build-provenance@v2`)
-- Trivy vulnerability scan runs after push, SARIF uploaded to GitHub code scanning
-
-## Secrets & Permissions
-- `GITHUB_TOKEN` used for GHCR login — no PAT needed
-- `permissions.packages: write` required on build-push jobs
-- `permissions.id-token: write` for OIDC / attestation; `permissions.attestations: write` for provenance
-- `permissions.security-events: write` for Trivy SARIF upload
-- Never hardcode secrets — use `${{ secrets.SECRET_NAME }}`
-
-### Secrets in shell steps — env-only rule
-**Never** interpolate `${{ secrets.X }}` directly into a shell command body. The template expands into the
-script text on disk and into any `set -x` trace. Funnel through `env:` instead:
-
-```yaml
-# BAD — secret appears in the script body
-- run: |
-    echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io ...
-
-# GOOD — secret lives in env, script reads via $VAR
-- env:
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  run: |
-    printf '%s' "$GH_TOKEN" | helm registry login "$REGISTRY" --password-stdin
-```
-
-The same rule applies to `--set key=${{ secrets.X }}` patterns — pass the secret via `env:` and reference `$VAR`.
-
-## Logging conventions
-
-Workflow output is read in two places: live logs and the PR Files annotations panel. Use the official commands so both work.
-
-### Levels
-| Command | Use for |
-|---------|---------|
-| `::debug::` | Diagnostic detail (only printed when `ACTIONS_STEP_DEBUG=true`) |
-| `::notice title=…::` | Milestone events (artifact published, image pushed, scan clean) |
-| `::warning title=…[,file=…,line=…]::` | Soft failures, drift, deprecation hints |
-| `::error title=…[,file=…,line=…]::` | Hard failures — always immediately precede `exit 1` |
-
-Always include a `title=`. For warning/error, include `file=` + `line=` whenever the finding maps to a source location.
-
-### Grouping
-Wrap any multi-line `run:` block in `::group::Title` / `::endgroup::`. One group per logical phase. Never leave a group unclosed.
-
-### Step summaries
-Hand-rolled `echo ... >> $GITHUB_STEP_SUMMARY` is acceptable for trivial cases. For anything richer than a
-2-row table, use `actions/github-script` + `core.summary`.
-
-### PR comments
-Use `actions/github-script` + a marker-based sticky-comment pattern (see `pr-env-validation.yml` `comment_preview`
-job for the canonical implementation). Never call `gh pr comment` or curl the GitHub API from a workflow.
-
-### Banned patterns
-- `::set-output` / `::set-env` — deprecated since 2022. Use `$GITHUB_OUTPUT` / `$GITHUB_ENV` heredocs.
-- `set -x` in any step that handles secrets.
-- Raw `${{ secrets.* }}` in script bodies — see "Secrets in shell steps" above.
-
-The `lint_workflows` job in `ci-pr.yml` enforces the deprecated-command rule and runs `actionlint` / `zizmor`.
-
-## Concurrency
-```yaml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
-```
-PRs cancel previous runs; `main` never cancels in-progress runs.
-
-## Action Version Pinning
-All third-party actions **and** `bjjeire-ci-templates` reusable workflows/actions pinned to full commit SHA with a `# v{major}` trailing comment. Dependabot's
-`github-actions` ecosystem auto-bumps SHAs weekly. Never use `@main` or unpinned tags (`@v1.3.0`) for templates or third-party actions.
-
-## Adding a New Workflow
-1. Put it in `.github/workflows/{name}.yml`
-2. Inline multi-step logic directly — only extract to `.github/actions/{name}/action.yml` with 2+ callers or genuinely complex logic
-3. Use the `detect-changes` composite if the workflow should only run on specific path changes
-4. Set `timeout-minutes` on every job
-5. Set `concurrency` with `cancel-in-progress: true` for PR-triggered workflows
-6. Pin action versions to full commit SHA with `# v{major}` trailing comment
+## Every new workflow
+1. `.github/workflows/{name}.yml`
+2. `timeout-minutes` on every job
+3. Concurrency, cancelling superseded pull request runs but never `main`:
+   ```yaml
+   concurrency:
+     group: ${{ github.workflow }}-${{ github.ref }}
+     cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+   ```
+4. The `detect-changes` composite when it should run only for some paths
+5. SHA-pinned actions
+6. An entry in the aggregator's `needs` if it must gate a merge

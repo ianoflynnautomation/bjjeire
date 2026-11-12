@@ -1,54 +1,32 @@
 ---
-description: Frontend security best practices for the bjjeire-app React SPA
+description: Security rules specific to the bjjeire-app React SPA
 paths:
   - src/bjjeire-app/
 ---
 
 # Frontend Security
 
-## Authentication (MSAL / Azure AD)
-- Tokens are acquired via `msalInstance.acquireTokenSilent()` in the Axios request interceptor — never store tokens in `localStorage` or `sessionStorage`
-- MSAL stores tokens in memory by default — do not change the cache location to `localStorage` (XSS risk)
-- Never log or expose access tokens in console output, error messages, or analytics
-- If silent token acquisition fails, fail gracefully — do not fall back to sending unauthenticated requests to protected endpoints
-- `loginRequest` scopes must be the minimum required — do not request `/.default` or broad permissions
+## Tokens (MSAL / Entra)
+- `msal-config.ts` keeps tokens in `memoryStorage`. Do not move the cache to `localStorage` or `sessionStorage`
+- `api-client.ts` loads MSAL only for a write and attaches the Bearer token in the request interceptor. Public reads carry no token
+- When silent token acquisition fails, the interceptor throws. Do not change it to send the write unauthenticated
+- The only scope requested is `env.MSAL_API_SCOPE`. Do not add `/.default` or wider scopes
+- Never log a token. `logger.error` calls log status, URL, and message only; keep it that way
 
-## XSS Prevention
-- Never use `dangerouslySetInnerHTML` — if unavoidable, sanitise input with DOMPurify first
-- Never construct HTML strings and inject them into the DOM
-- All user-supplied data rendered via React JSX is auto-escaped — keep it that way
-- Do not use `eval()`, `new Function()`, or dynamic `import()` with user-supplied strings
-- External URLs (e.g. gym websites from the API) must be opened with `target="_blank" rel="noopener noreferrer"` to prevent tab-napping
+## Requests
+- Call the BjjEire API through `api` from `@/lib/api-client`. `fetchJson` from `@/lib/fetch-client` is for public third-party endpoints (the GitHub repo lookup) and attaches no token
+- The base URL is `env.API_URL`. Do not build an API URL from user input
+- The `?q=` search parameter filters in the browser and is never sent to the API. Keep it that way
 
-## API Communication
-- The `api-client.ts` Axios instance sets `Content-Type: application/json` and attaches Bearer tokens — always use it, never raw `fetch` with manual headers
-- API base URL comes from `env.API_URL` (validated at startup via Zod) — never construct API URLs from user input
-- Never include secrets, API keys, or internal config in the Vite bundle — use `VITE_` prefixed env vars for public config only
-- Do not log full Axios error responses to the console in production — `logger.error` should redact sensitive fields
+## Rendering
+- Do not use `dangerouslySetInnerHTML`. There is no sanitizer in the dependencies; adding raw HTML rendering means adding one and getting it reviewed
+- Links to URLs that come from the API (gym websites, social media) open with `target="_blank" rel="noopener noreferrer"`
+- Navigate with React Router, not `window.location.href = value`
 
-## Content Security Policy
-- The app is served via Nginx — CSP headers are set there, not in React
-- Do not add `<script>` tags or inline event handlers that would require `unsafe-inline` in the CSP
-- External scripts (e.g. Cloudflare Analytics) must be allowlisted in the Nginx CSP config, not added ad-hoc
+## Scripts and headers
+- Caddy serves the SPA (`Caddyfile`). It sets `X-Frame-Options` and `X-Content-Type-Options` and no Content-Security-Policy. The API sets its own CSP in `SecurityHeadersFilter`
+- The other edge headers (HSTS, Referrer-Policy, Permissions-Policy) are a Cloudflare transform rule documented in `bjjeire-gitops/.github/cloudflare.md`, not Istio. That runbook leaves CSP out, so the SPA document has none. Code must not rely on one
+- Third-party script loading lives in `src/services/` (`cloudflare-analytics.ts`). Do not add a `<script>` tag or an inline handler elsewhere
 
-## Dependency Security
-- Run `npm audit` before merging PRs that add or update dependencies
-- `npm audit fix` for dev-only vulnerabilities is safe; production dependency fixes need review
-- Do not install packages with `--ignore-scripts` override disabled — check `postinstall` scripts in new deps
-- Dependabot alerts in GitHub should be resolved within 7 days for High/Critical severity
-
-## Sensitive Data Handling
-- Do not store personally identifiable information (PII) in React state beyond what's needed to render the current view
-- Route params and search params (`?q=`) are user-controlled — never pass them unsanitised to `eval`, `innerHTML`, or API endpoints as-is without server-side validation
-- The `?q=` search param is used for client-side filtering only — it never reaches the API, so it is low risk; keep it that way
-
-## Third-Party Integrations
-- Cloudflare Analytics: script loaded from Cloudflare CDN — verify the src URL is unchanged when updating
-- Azure MSAL: pin the `@azure/msal-browser` version — do not use `latest` range
-- Google Places: API calls are proxied through the backend API — the API key is never exposed to the frontend
-
-## What NOT to Do
-- Never commit `.env` files or any file containing real API keys/secrets
-- Never disable `eslint-disable` rules related to security without team review
-- Never set `crossOrigin="use-credentials"` on image or script tags unless strictly required
-- Never use `window.location.href = userSuppliedValue` — use React Router `navigate()` instead
+## Bundle
+- Everything under `VITE_APP_*` ships to the browser. No secrets or API keys in the bundle or in `src/config/env.ts` defaults

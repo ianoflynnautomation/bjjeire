@@ -21,7 +21,7 @@ Build production-quality user interfaces that are accessible, performant, and vi
 
 The examples below teach the technique. They lose when they disagree with this codebase. Do not restate those sources here.
 
-- Structure, copy, test IDs, and where CVA objects live: `.claude/rules/react.md`, `.claude/rules/react-components.md`, and [ADR-0008](../../../docs/adr/0008-ui-strings-and-test-ids-are-centralised.md).
+- Structure, copy, test IDs, and where CVA objects live: `.claude/rules/react.md` and [ADR-0008](../../../docs/adr/0008-ui-strings-and-test-ids-are-centralised.md).
 - Colour, type, radius, and elevation: `src/bjjeire-app/src/index.css`. Use its semantic utilities. Do not invent `text-muted`, `border-default`, slate glass, or a second palette.
 - Themes: [ADR-0011](../../../docs/adr/0011-light-dark-competition-themes.md). `useTheme` applies light (bright), dark, and competition. Do not remove one, and do not put a background on `PageLayout`.
 - Client state stops at local state, URL search params, and TanStack Query. Do not add Zustand, Redux, or SWR.
@@ -335,7 +335,6 @@ function useToggleTask() {
 ## See Also
 
 - `.claude/rules/react.md`
-- `.claude/rules/react-components.md`
 - [ADR-0008](../../../docs/adr/0008-ui-strings-and-test-ids-are-centralised.md)
 - `src/bjjeire-app/src/index.css`
 
