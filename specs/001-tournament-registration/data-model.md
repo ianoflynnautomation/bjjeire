@@ -20,7 +20,7 @@ EUR. On implementation each section becomes a living contract under
 | Field | Type | Notes |
 |---|---|---|
 | `id` | ObjectId string | |
-| `slug` | string | **unique**; used in the public URL |
+| `slug` | string | **unique**; used in the public URL; lowercase letters, digits and hyphens; `admin` is reserved |
 | `name` | string | required, ≤ 120. First tournament: "BjjEire" |
 | `description` | string | ≤ 4000 |
 | `date` | LocalDate | the competition day, interpreted in `Europe/Dublin` |
@@ -134,6 +134,7 @@ One competitor's entry in one division.
 | `payment` | `Payment` \| null | |
 | `refund` | `Refund` \| null | |
 | `cancelledAt` / `cancelledBy` | Instant / string | `COMPETITOR` or `ADMIN` |
+| `financialRecordsExpireAt` | Instant \| null | set to account deletion + 6 years; after it, `payment` and `refund` are removed by a sweep (FR-013) |
 | audit | | |
 
 `Payment`: `checkoutSessionId`, `paymentIntentId`, `amountCents`, `currency`, `status` (`PENDING`, `PAID`, `FAILED`), `paidAt`.
@@ -152,6 +153,7 @@ AWAITING_PAYMENT ──payment webhook──▶ CONFIRMED ──cancel──▶ 
 ```
 
 - Entering `AWAITING_PAYMENT` takes a place; leaving the active states gives it back.
+- A competitor may have at most two `AWAITING_PAYMENT` registrations in one tournament; a third is refused (FR-041).
 - `CONFIRMED` is reached only from the verified webhook (FR-018).
 - Cancel by the competitor: refund in full if now < `registrationClosesAt`, otherwise none (FR-027). Refused if a result names the registration (FR-026).
 - Cancel by the admin: refund is the admin's choice (FR-007). Tournament cancellation always refunds (FR-029).
@@ -164,6 +166,7 @@ AWAITING_PAYMENT ──payment webhook──▶ CONFIRMED ──cancel──▶ 
 - `ix_registration_tournament_division_status` on `(tournamentId, divisionId, status)` — competitor lists, admin list, division removal check
 - `ix_registration_competitor` on `(competitorId, createdAt)` — "my sign-ups" and medal history
 - `ix_registration_status_holdExpiresAt` on `(status, holdExpiresAt)` — expiry sweep
+- `ix_registration_financialRecordsExpireAt` on `financialRecordsExpireAt`, sparse — retention sweep
 - `ix_registration_checkoutSessionId` on `payment.checkoutSessionId` — webhook lookup
 
 ## StripeEvent

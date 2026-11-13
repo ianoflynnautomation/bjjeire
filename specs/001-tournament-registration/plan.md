@@ -1,6 +1,6 @@
 # Implementation Plan: In-House Tournament Registration
 
-**Branch**: `001-tournament-registration` (not yet created) | **Date**: 2026-11-13 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-tournament-registration` | **Date**: 2026-11-13 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/001-tournament-registration/spec.md`
 
@@ -38,9 +38,9 @@ their reasons are in [research.md](research.md).
 
 **Constraints**: OpenAPI/Pact gates (all changes additive); path-filtered CI; light, dark and competition themes; GeoJSON `[lng, lat]`; no card data stored; private profile fields never in a public response; `VITE_APP_*` baked at build
 
-**Scale/Scope**: a few tournaments a year, 50–100 divisions and about 500 competitors each; 27 API routes; 8 SPA routes; 41 requirement issues (`#5001`–`#5041`)
+**Scale/Scope**: a few tournaments a year, 50–100 divisions and about 500 competitors each; 27 API routes; 8 SPA routes; 42 requirement issues (`#5001`–`#5042`)
 
-**External dependencies outside this repo**: external Entra tenant, its app registrations and sign-up flow (`bjjeire-terraform-azurerm-aks`, `main.app-registrations.tf`); Stripe account and keys, SMTP relay credentials, new environment values (`bjjeire-gitops` / `bjjeire-deploy`); requirement issues and epic (`bjjeire/requirements`); acceptance spec and tests (`bjjeire-tests`)
+**External dependencies outside this repo**: external Entra tenant, its app registrations and sign-up flow (`bjjeire-terraform-azurerm-aks`, `main.app-registrations.tf`); Stripe account and keys, SMTP relay credentials, new environment values (`bjjeire-gitops` / `bjjeire-deploy`); requirement issues and epic (`bjjeire/requirements`); acceptance spec and tests (`bjjeire-tests`); mesh egress `ServiceEntry` resources for Stripe, the external tenant's sign-in host, Microsoft Graph and the SMTP relay (`bjjeire-gitops`, deny-by-default egress); the API chart reading the Stripe values from a Kubernetes secret by reference (`bjjeire-deploy`). Ordering in [research.md](research.md) R15
 
 ## Constitution Check
 
@@ -145,7 +145,7 @@ production until slice 5 is accepted). `/speckit-tasks` breaks these down.
 | 0 | Governance and plumbing: ADR-0012, ADR-0013, constitution 1.1.0, `Tournaments` flag, two-issuer security, read-only exemption | US6 | `#5036`–`#5038` |
 | 1 | Tournament set-up and public pages; admin screens for create, divisions, publish | US1 | `#5001`–`#5005` |
 | 2 | Competitor sign-in and private profile; account deletion | US2 | `#5006`–`#5012`, `#5039` (empty history) |
-| 3 | Sign-up, eligibility, Stripe checkout and webhook, confirmation mail, public competitor list, my sign-ups | US3 | `#5013`–`#5021` |
+| 3 | Sign-up, eligibility, Stripe checkout and webhook, confirmation mail, public competitor list, my sign-ups | US3 | `#5013`–`#5021`, `#5042` |
 | 4 | Cancel, refund, change division, tournament cancellation, admin sign-up tools | US4 | `#5022`–`#5027` |
 | 5 | Results, leaderboard, both rankings, finish and winners, medal history | US5 | `#5028`–`#5035`, `#5039`–`#5041` |
 
@@ -164,6 +164,9 @@ is created from this repository.
 | Private profile data leaks into a public response | Separate public DTOs built from registration snapshots; an integration test asserts the public JSON contains none of the private field names |
 | Competitor token used against the directory | Catch-all writer rule kept; integration test per directory route (`#5037`) |
 | Graph permission for account deletion is refused | Fallback in research R11; decide before slice 2 starts |
+| The gitops change reaches an environment before terraform created the Key Vault secrets, leaving the `bjj-eire` kustomization unhealthy (`wait: true`) | Fixed order in research R15 and the cluster-wiring task: terraform, then chart, then gitops |
+| Outbound calls fail in the cluster because egress is deny-by-default | `ServiceEntry` per new host in the cluster-wiring task; verified in a preview before the flag is turned on |
+| One account holds many places without paying | At most two unpaid sign-ups per competitor per tournament (FR-041) |
 | Vendor facts assumed here are wrong (Stripe session expiry floor, Entra issuer format) | Marked **Verify** in research; checked in the first task that uses each |
 | Turning the feature on opens directory writes | Read-only mode and the flag are separate switches; integration test with read-only on and the flag on |
 

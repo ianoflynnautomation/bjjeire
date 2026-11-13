@@ -30,14 +30,13 @@ description: "Task list for In-House Tournament Registration"
 **Purpose**: Amend the rules the feature changes before any code, and line up what cannot be created from this repository.
 
 - [ ] T001 External prerequisites. (a) Competitor app registrations are added in the terraform repo `bjjeire-terraform-azurerm-aks`, file `main.app-registrations.tf` (owner's instruction, 2026-11-13): an API registration exposing scope `access_as_competitor` and a SPA registration with the site's redirect URIs, both in the external tenant, which needs its own provider configuration there; plus the sign-up user flow and two test users. That repo is mounted at `/workspaces/bjjeire-terraform-azurerm-aks` and `bjjeire-gitops` at `/workspaces/bjjeire-gitops` after a container rebuild; edit them from here, the owner applies. Its outputs (issuer URI, API audience, SPA client id, authority) are brought back as variable names. (b) The owner supplies the Stripe test secret key. (c) SMTP relay details for non-local environments. Record only variable names, never values, in `docs/` or `.env.example`
-- [ ] T002 Create the requirement issues `#5001`–`#5041` and a new epic in `bjjeire/requirements` (or ask the owner to), then replace the provisional ids in `specs/001-tournament-registration/spec.md` if the real numbers differ
+- [ ] T002 Create the requirement issues `#5001`–`#5042` and a new epic in `bjjeire/requirements` (or ask the owner to), then replace the provisional ids in `specs/001-tournament-registration/spec.md` if the real numbers differ
 - [ ] T003 [P] Write `docs/adr/0012-competitor-identity-second-issuer.md` from research R1, R2, R11 using `docs/adr/0000-template.md`; add it to `docs/adr/README.md` and the table in `AGENTS.md`
 - [ ] T004 [P] Write `docs/adr/0013-stripe-hosted-checkout-and-webhooks.md` from research R3, R4, R5, R10; add it to `docs/adr/README.md` and the table in `AGENTS.md`
 - [ ] T005 Amend `.specify/memory/constitution.md` to 1.1.0: principle V reworded per research R9; principle II lists `tournament`, `competitor`, `registration`; add a migration note. Depends on T003, T004
 - [ ] T006 [P] Create `specs/features/tournaments.md` as the living feature file (status "In progress", link to this directory) and add the row to `specs/README.md`
-- [ ] T007 [P] Create `specs/stc/tournaments/{spec.md,contract.yaml,traceability.md}` from `contracts/contract.yaml` and the spec's acceptance scenarios; add the row and the `&5` / `#5001`–`#5041` range to `specs/stc/README.md`
+- [ ] T007 [P] Create `specs/stc/tournaments/{spec.md,contract.yaml,traceability.md}` from `contracts/contract.yaml` and the spec's acceptance scenarios; add the row and the `&5` / `#5001`–`#5042` range to `specs/stc/README.md`
 - [ ] T008 [P] Update `specs/system-architecture.md` (topology: external tenant, Stripe, SMTP; API shape table: three routes and four collections), `.specify/rules/java-rules.md`, `.specify/rules/mongodb-rules.md` and the package list in `AGENTS.md`
-- [ ] T107 Cluster wiring, in this order (research R15): (1) apply `bjjeire-terraform-azurerm-aks` so the four `bjj-api-competitor-*` / `bjj-api-stripe-*` Key Vault secrets exist in the environment (placeholders are already in `variables.tournament.tf` and `main.key-vault.tf`); (2) in `bjjeire-deploy`, let the API chart take the Stripe values from a Kubernetes secret by reference and the mail settings from values; (3) only then, in `bjjeire-gitops`, add an `ExternalSecret` for those four names in `kubernetes/apps/base/bjj-eire/app/externalsecrets.yaml` (and the preview copies), the Helm release mapping, and `ServiceEntry` resources in `kubernetes/apps/base/istio-egress/config/service-entries.yaml` for Stripe, the external tenant's sign-in host, Microsoft Graph and the SMTP relay
 - [ ] T009 Verify the three vendor facts marked **Verify** in `research.md` against current vendor documentation (Stripe Checkout Session minimum expiry; external-tenant issuer/authority format and verified-email claim; least-privileged Graph permission to delete an external-tenant user). Correct `research.md`, and `spec.md` FR-019 if the hold time changes
 
 ---
@@ -59,13 +58,11 @@ description: "Task list for In-House Tournament Registration"
 - [ ] T013 Add `TOURNAMENT = "/api/v1/tournament"`, `COMPETITOR = "/api/v1/competitor"`, `REGISTRATION = "/api/v1/registration"` to `common/ApiRoutes.java` and `TOURNAMENTS_TAG` to `common/ApiCache.java`
 - [ ] T014 Add the `Tournaments` flag (default off, `FEATURE_TOURNAMENTS`) to `web/FeatureFlag*.java` and `src/bjjeire-api/src/main/resources/application.yml`; extend `config/BjjEireProperties.java` with `competitorAuth(issuerUri, audience, scope)`, `stripe(secretKey, webhookSecret, successUrlBase)`, `mail(from)` and `registration(holdMinutes=30)`, each with safe defaults for tests. Placeholder `competitor-auth` and `stripe` keys (all-zero tenant, `sk_test_REPLACE_ME`, `whsec_REPLACE_ME`) are already in `application.yml` and `docker-compose.yml`; bind them here and replace the values through the environment once the owner supplies the real tenant and Stripe test keys
 - [ ] T015 Rework `config/SecurityConfig.java` to an issuer-based authentication manager resolver trusting exactly the workforce issuer and the external issuer (research R2). Keep the existing catch-all "POST/PUT/PATCH/DELETE require the writer authority" as the last write rule. Makes T010 pass
-- [ ] T016 Add matchers in `config/SecurityConfig.java` above the catch-all, exactly as `contracts/contract.yaml` lists auth per route: public `GET` under `/api/v1/tournament` except `/admin` and `/{id}/registration`; `ROLE_COMPETITOR` for `/api/v1/competitor/**`, `/api/v1/registration/**` and `GET /api/v1/tournament/{id}/eligible-division`; `permitAll` for `POST /api/v1/registration/stripe-webhook` only
-- [ ] T017 Make `config/ReadOnlyModeFilter.java` skip the three new route prefixes (research R10). Makes T011 pass
-- [ ] T018 Add a server-side flag gate (filter or interceptor in `web/`) that answers 404 ProblemDetail for the three route prefixes when `Tournaments` is off
-- [ ] T019 [P] SPA: add `Tournaments` to `src/bjjeire-app/src/features/feature-flags/definitions.ts` and `src/bjjeire-app/src/config/features.ts` (default off, fail closed), the three routes to `src/bjjeire-app/src/config/api-routes.ts`, and an empty `src/bjjeire-app/src/constants/tournamentDataTestIds.ts`
-- [ ] T020 SPA: add a second MSAL configuration for the external tenant in `src/bjjeire-app/src/lib/msal-config.ts` (`VITE_APP_COMPETITOR_CLIENT_ID`, `VITE_APP_COMPETITOR_AUTHORITY`, `VITE_APP_COMPETITOR_SCOPE`, baked at build per ADR-0006) and make `src/bjjeire-app/src/lib/api-client.ts` attach the competitor token to competitor and registration routes and the admin token to admin routes, with failing integration tests first beside the existing `api-client` tests
-- [ ] T021 [P] Add a mail catcher service (Mailpit) to `docker-compose.yml`, the new variables to the compose `api` service and build args, and the same names to `Dockerfile`s / `build-react.sh` where `VITE_APP_*` values are passed
-- [ ] T022 Add `com.stripe:stripe-java` and `spring-boot-starter-mail` to `src/bjjeire-api/pom.xml` with pinned versions as properties
+- [ ] T016 Make `config/ReadOnlyModeFilter.java` skip the three new route prefixes (research R10). Makes T011 pass
+- [ ] T017 [P] SPA: add `Tournaments` to `src/bjjeire-app/src/features/feature-flags/definitions.ts` and `src/bjjeire-app/src/config/features.ts` (default off, fail closed), the three routes to `src/bjjeire-app/src/config/api-routes.ts`, and an empty `src/bjjeire-app/src/constants/tournamentDataTestIds.ts`
+- [ ] T018 SPA: add a second MSAL configuration for the external tenant in `src/bjjeire-app/src/lib/msal-config.ts` (`VITE_APP_COMPETITOR_CLIENT_ID`, `VITE_APP_COMPETITOR_AUTHORITY`, `VITE_APP_COMPETITOR_SCOPE`, baked at build per ADR-0006) and make `src/bjjeire-app/src/lib/api-client.ts` attach the competitor token to competitor and registration routes and the admin token to admin routes, with failing integration tests first beside the existing `api-client` tests
+- [ ] T019 [P] Add a mail catcher service (Mailpit) to `docker-compose.yml`, the new variables to the compose `api` service and build args, and the same names to `Dockerfile`s / `build-react.sh` where `VITE_APP_*` values are passed
+- [ ] T020 Add `com.stripe:stripe-java` and `spring-boot-starter-mail` to `src/bjjeire-api/pom.xml` with pinned versions as properties
 
 **Checkpoint**: `mvn -pl src/bjjeire-api test` and `npm run lint && npm run typecheck && npm test` pass; flag off means no behaviour change.
 
@@ -79,13 +76,15 @@ description: "Task list for In-House Tournament Registration"
 
 ### Tests first
 
-- [ ] T023 [P] [US6] Extend `src/bjjeire-api/src/test/java/com/bjjeire/api/config/WriteAuthorizationIT.java`: a competitor token gets 403 on `POST`, `PUT` and `DELETE` for each of `/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store` (`#5037`); anonymous `GET` on each still returns 200 with the flag on and off (`#5036`)
-- [ ] T024 [P] [US6] IT in the same package: with `Tournaments` off, every route in `contracts/contract.yaml` answers 404; with it on and read-only mode on, a directory write with an admin token still answers 405 (`#5038`)
-- [ ] T025 [P] [US6] Vitest integration test in `src/bjjeire-app/src/__tests__/` or beside the router: with the flag off there is no Tournaments navigation entry and no account entry point; `/tournaments` redirects as other gated routes do (`#5038`)
+- [ ] T021 [P] [US6] Extend `src/bjjeire-api/src/test/java/com/bjjeire/api/config/WriteAuthorizationIT.java`: a competitor token gets 403 on `POST`, `PUT` and `DELETE` for each of `/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store` (`#5037`); anonymous `GET` on each still returns 200 with the flag on and off (`#5036`)
+- [ ] T022 [P] [US6] IT in the same package: with `Tournaments` off, every route in `contracts/contract.yaml` answers 404; with it on and read-only mode on, a directory write with an admin token still answers 405 (`#5038`)
+- [ ] T023 [P] [US6] Vitest integration test in `src/bjjeire-app/src/__tests__/` or beside the router: with the flag off there is no Tournaments navigation entry and no account entry point; `/tournaments` redirects as other gated routes do (`#5038`)
 
 ### Implementation
 
-- [ ] T026 [US6] Fix whatever T023–T025 expose in `config/SecurityConfig.java`, the flag gate and `src/bjjeire-app/src/App.tsx`; add the gated navigation entry and strings in `src/bjjeire-app/src/config/ui-content.ts`
+- [ ] T024 [US6] Add matchers in `config/SecurityConfig.java` above the catch-all, exactly as `contracts/contract.yaml` lists auth per route: public `GET` under `/api/v1/tournament` except `/admin` and `/{id}/registration`; `ROLE_COMPETITOR` for `/api/v1/competitor/**`, `/api/v1/registration/**` and `GET /api/v1/tournament/{id}/eligible-division`; `permitAll` for `POST /api/v1/registration/stripe-webhook` only
+- [ ] T025 [US6] Add a server-side flag gate (filter or interceptor in `web/`) that answers 404 ProblemDetail for the three route prefixes when `Tournaments` is off
+- [ ] T026 [US6] Fix whatever T021–T023 still expose in `src/bjjeire-app/src/App.tsx`; add the gated navigation entry and strings in `src/bjjeire-app/src/config/ui-content.ts`
 - [ ] T027 [US6] Confirm the existing acceptance suite needs no change; list `#5036` and `#5038` in `bjjeire-tests/specs/features/tournaments.md` (created here, implemented in that repository)
 
 **Checkpoint**: Slice 0 is mergeable. Existing behaviour proven unchanged.
@@ -101,7 +100,7 @@ description: "Task list for In-House Tournament Registration"
 ### Tests first
 
 - [ ] T028 [P] [US1] Unit tests in `tournament/` for the domain rules: publish requires at least one division and `registrationClosesAt` after `registrationOpensAt` and not after the end of `date`; the division tuple (`discipline`, `gender`, `ageCategory`, `belt`, `weightClass`) is unique within a tournament; state transitions follow `DRAFT → PUBLISHED → FINISHED`, `DRAFT|PUBLISHED → CANCELLED` and nothing else; `registrationState` computes `NOT_OPEN | OPEN | CLOSED | FULL` (`#5003`)
-- [ ] T029 [P] [US1] Standalone MockMvc controller test in `tournament/`: validation 400s for `name` "required, ≤ 120", `description` "≤ 4000", `entryFeeCents` "≥ 0", missing window; unknown id 404
+- [ ] T029 [P] [US1] Standalone MockMvc controller test in `tournament/`: validation 400s for `name` "required, ≤ 120", `description` "≤ 4000", `entryFeeCents` "≥ 0", missing window; `slug` "lowercase letters, digits and hyphens" with `admin` reserved and rejected; unknown id 404
 - [ ] T030 [P] [US1] `TournamentRepositoryIT` in `tournament/`: `ix_tournament_slug_unique` rejects a duplicate slug; public listing returns only `PUBLISHED`, `FINISHED`, `CANCELLED` ordered by date; a draft is absent (`#5001`, `#5002`)
 - [ ] T031 [P] [US1] `TournamentAdminIT` in `tournament/`: create returns 201 with status `DRAFT` (`#5001`); anonymous and competitor tokens get 401/403 on create, update and publish (`#5004`); publish makes it visible by slug to an anonymous client (`#5002`); a draft fetched by slug anonymously is 404
 - [ ] T032 [P] [US1] Vitest tests in `src/bjjeire-app/src/features/tournaments/`: list renders tournaments from MSW; details page shows fee formatted from cents as euro, registration window in `Europe/Dublin`, divisions grouped, and the "opens on" / "closed" message with no sign-up button when not open (`#5003`)
@@ -146,7 +145,7 @@ description: "Task list for In-House Tournament Registration"
 - [ ] T052 [US2] `competitor/` account deletion: `DELETE /api/v1/competitor/me`; `IdentityDirectory` interface with a Microsoft Graph implementation using client credentials for the external tenant (research R11) and configuration in `BjjEireProperties`; the "has active registration" conflict is wired in Phase 7
 - [ ] T053 [US2] SPA `features/competitor/`: sign-in / sign-out with the external MSAL instance and return-to-path; `/account/profile` page with profile form, medal totals, history list and delete-account confirmation; header account menu shown only when the flag is on
 - [ ] T054 [P] [US2] Write `specs/database-contracts/competitor.md`; add Pact interactions for `GET` / `PUT /api/v1/competitor/me`; regenerate API types
-- [ ] T055 [US2] List `#5006`, `#5007`, `#5008` in `bjjeire-tests/specs/features/tournaments.md`, noting the two test users from T001
+- [ ] T055 [US2] List `#5006`, `#5007`, `#5008`, `#5010`, `#5011` in `bjjeire-tests/specs/features/tournaments.md`, noting the two test users from T001 and that register, duplicate-account and password-reset are the identity provider's hosted pages, observable only end to end; add the same three as a manual check to `quickstart.md` scenario 3
 
 **Checkpoint**: Quickstart scenario 3 passes.
 
@@ -162,28 +161,32 @@ description: "Task list for In-House Tournament Registration"
 
 - [ ] T056 [P] [US3] Unit tests in `competitor/` for the eligibility rule (research R13): gender and belt must equal the division's; age on the tournament `date` in `Europe/Dublin` must be at least the category minimum; a 40-year-old is offered `ADULT`, `MASTER_1`, `MASTER_2` and not `MASTER_3`; anyone under 18 on the day is refused for every division, including the day before an 18th birthday (`#5014`, `#5019`)
 - [ ] T057 [P] [US3] Unit tests in `registration/` for the sign-up state machine in data-model.md: only the transitions drawn there are allowed; `active` is `true` exactly in `AWAITING_PAYMENT` and `CONFIRMED` and absent otherwise; `holdExpiresAt` is now + 30 minutes
-- [ ] T058 [P] [US3] `RegistrationIT` in `registration/` with a fake Stripe gateway: `POST /api/v1/registration` returns 201 with `checkoutUrl` and takes a place; each conflict in `contracts/contract.yaml` returns 409 with its own problem type and creates no checkout (`registration-not-open`, `not-eligible`, `under-18`, `already-registered` `#5017`, `tournament-full` `#5020`, `profile-incomplete`); missing consent flags are 400; the amount sent to Stripe is the tournament's `entryFeeCents`, never a client value; gi and no-gi divisions give two registrations with two payments (`#5018`)
+- [ ] T058 [P] [US3] `RegistrationIT` in `registration/` with a fake Stripe gateway: `POST /api/v1/registration` returns 201 with `checkoutUrl` and takes a place; each conflict in `contracts/contract.yaml` returns 409 with its own problem type and creates no checkout (`registration-not-open`, `not-eligible`, `under-18`, `already-registered` `#5017`, `tournament-full` `#5020`, `profile-incomplete`, `too-many-unpaid` when the caller already has two `AWAITING_PAYMENT` sign-ups in the tournament `#5042`); missing consent flags are 400; the amount sent to Stripe is the tournament's `entryFeeCents`, never a client value; gi and no-gi divisions give two registrations with two payments (`#5018`); after the admin changes `entryFeeCents`, an existing sign-up keeps its `payment.amountCents` and a new one pays the new fee
 - [ ] T059 [P] [US3] `RegistrationConcurrencyIT` in `registration/`: with `competitorLimit` 1, two simultaneous sign-ups by different competitors yield exactly one `AWAITING_PAYMENT` and one `tournament-full`; two simultaneous sign-ups by the same competitor for the same division yield exactly one registration (`ux_registration_active_competitor_division`)
-- [ ] T060 [P] [US3] `StripeWebhookIT` in `registration/` posting payloads signed with a test secret: bad or missing signature is 400 and changes nothing; "session completed" moves `AWAITING_PAYMENT` to `CONFIRMED`, sets payment `PAID`, sends one confirmation mail (`#5015`); the same event delivered twice changes nothing the second time; "session expired" moves to `EXPIRED` and gives the place back (`#5016`); a completed event after the hold lapsed with no free place refunds in full and ends `CANCELLED`; unknown event types are 200
+- [ ] T060 [P] [US3] `StripeWebhookIT` in `registration/` posting payloads signed with a test secret: bad or missing signature is 400 and changes nothing; "session completed" moves `AWAITING_PAYMENT` to `CONFIRMED`, sets payment `PAID`, sends one confirmation mail (`#5015`); the same event delivered twice changes nothing the second time; "session expired" moves to `EXPIRED` and gives the place back (`#5016`); a completed event for a checkout started while registration was open is confirmed even when it arrives after `registrationClosesAt`; a completed event after the hold lapsed with no free place refunds in full and ends `CANCELLED`; unknown event types are 200
 - [ ] T061 [P] [US3] `RegistrationOwnershipIT` in `registration/`: `GET /api/v1/registration/me` returns only the caller's sign-ups with tournament, division, `amountCents` and status (`#5021`); another competitor's id on any `/{id}` route is 403
 - [ ] T062 [P] [US3] `PublicCompetitorListIT` in `tournament/` or `registration/`: `GET /api/v1/tournament/{id}/competitor` lists only `CONFIRMED` sign-ups grouped by division with `displayName`, academy name and affiliation, and the JSON contains none of `email`, `dateOfBirth`, `phone`, `address`, `nationality`, `competitorId` (`#5015`, FR-011)
 - [ ] T063 [P] [US3] Vitest tests in `src/bjjeire-app/src/features/registrations/`: sign-up page lists only eligible divisions; both consent boxes are required before continuing (FR-012); the fee is shown before leaving for checkout; the return page polls until `CONFIRMED` and shows the abandoned / failed state with a retry (`#5016`); "tournament full" and "under 18" messages; my sign-ups table (`#5021`)
+- [ ] T064 [P] [US3] `HoldSweepIT` in `registration/`: a sign-up whose `holdExpiresAt` has passed becomes `EXPIRED` and its place is released exactly once when the sweep runs twice or on two instances at once; a `CONFIRMED` sign-up and an unexpired hold are untouched (FR-019)
+- [ ] T065 [P] [US3] Unit test in `registration/` for the mail sender with a failing fake transport: three attempts then give up, the failure counter increments, and the state change that triggered the mail is not rolled back; nothing is sent before the state is saved (FR-024)
+- [ ] T066 [P] [US3] `ProfilePropagationIT` in `competitor/`: saving a changed name, academy or affiliation updates the snapshot and `academyKey` / `affiliationKey` on the caller's active sign-ups in tournaments that are not finished or cancelled, and leaves finished ones alone; changing belt or gender keeps the division and sets `profileMismatch` (spec edge case)
 
 ### Implementation
 
-- [ ] T064 [US3] `registration/` domain: `TournamentRegistration` (`@Document("TournamentRegistration")`) with every field in data-model.md, embedded `Payment` (`status` `PENDING | PAID | FAILED`) and `Refund` (`status` `PENDING | REFUNDED | FAILED`), `StripeEvent` with the Stripe event id as `_id` and a 30-day TTL; repositories; the five registration indexes and `ttl_stripeEvent_expiresAt` in `config/MongoIndexInitializer.java`, with `ux_registration_active_competitor_division` unique and partial on `active == true`
-- [ ] T065 [US3] `tournament/` atomic place counter: `takePlace` (`findAndModify` where `status == PUBLISHED` and `competitorLimit` is null or `placesTaken < competitorLimit`, `$inc placesTaken 1`) and `releasePlace` (guarded `$inc -1`), exposed through the tournament service for `registration/` to call
-- [ ] T066 [US3] `competitor/` eligibility rule as a pure function and `GET /api/v1/tournament/{id}/eligible-division` (competitor auth). Makes T056 pass
-- [ ] T067 [US3] `registration/` `PaymentGateway` interface and Stripe implementation per `contracts/stripe-webhook.md` § "Outbound: create Checkout Session": hosted payment mode, one EUR line item, `client_reference_id` = registration id, metadata, `customer_email`, expiry = `holdExpiresAt`, idempotency key `checkout-<registrationId>-<attempt>`
-- [ ] T068 [US3] `registration/` sign-up service and `POST /api/v1/registration`: check window, profile completeness, age, eligibility; take a place; insert the registration with the name / academy / affiliation snapshot and `academyKey` / `affiliationKey` (research R8); create the session; give the place back if any later step fails. `POST /api/v1/registration/{id}/checkout` returns a fresh URL while the hold is valid
-- [ ] T069 [US3] `registration/` webhook controller `POST /api/v1/registration/stripe-webhook`: read the raw body, verify `Stripe-Signature`, insert the event id into `StripeEvent` first, dispatch "completed" and "expired" as the table in `contracts/stripe-webhook.md` says, return 5xx on failure
-- [ ] T070 [US3] `registration/` hold sweep: a scheduled job that expires `AWAITING_PAYMENT` sign-ups whose `holdExpiresAt` has passed and releases their places, safe to run on several pods
-- [ ] T071 [US3] `registration/` mail sender: `Mailer` interface, SMTP implementation with `spring-boot-starter-mail`, sent asynchronously after the state is saved, three attempts and a failure counter metric; "sign-up confirmed" template
-- [ ] T072 [US3] `registration/` reads: `GET /api/v1/registration/me`; public `GET /api/v1/tournament/{id}/competitor` built only from registration snapshots; replace the Phase 4 stub so removing a division with active sign-ups is refused (`#5005`); evict `TOURNAMENTS_TAG` on every registration write
-- [ ] T073 [US3] `competitor/` propagate a profile change of name, academy or affiliation to the caller's active registrations in tournaments that are not finished or cancelled, and set `profileMismatch` when belt or gender no longer fits a held division (research R8, spec edge case)
-- [ ] T074 [US3] SPA `features/registrations/`: `/tournaments/:slug/signup` (redirect to sign-in or profile completion first, `#5013`), `/tournaments/:slug/signup/complete`, `/account/signups`; competitor list on the tournament page; strings, ids, MSW handlers
-- [ ] T075 [P] [US3] Write `specs/database-contracts/tournament-registration.md` (incl. `StripeEvent`); add Pact interactions for the registration routes the SPA calls (not the webhook); regenerate API types; add Stripe CLI and test-card notes to `docs/`
-- [ ] T076 [US3] List `#5013`–`#5016`, `#5019`, `#5021` in `bjjeire-tests/specs/features/tournaments.md` with the Stripe test-mode precondition
+- [ ] T067 [US3] `registration/` domain: `TournamentRegistration` (`@Document("TournamentRegistration")`) with every field in data-model.md, embedded `Payment` (`status` `PENDING | PAID | FAILED`) and `Refund` (`status` `PENDING | REFUNDED | FAILED`), `StripeEvent` with the Stripe event id as `_id` and a 30-day TTL; repositories; the five registration indexes and `ttl_stripeEvent_expiresAt` in `config/MongoIndexInitializer.java`, with `ux_registration_active_competitor_division` unique and partial on `active == true`
+- [ ] T068 [US3] `tournament/` atomic place counter: `takePlace` (`findAndModify` where `status == PUBLISHED` and `competitorLimit` is null or `placesTaken < competitorLimit`, `$inc placesTaken 1`) and `releasePlace` (guarded `$inc -1`), exposed through the tournament service for `registration/` to call
+- [ ] T069 [US3] `competitor/` eligibility rule as a pure function and `GET /api/v1/tournament/{id}/eligible-division` (competitor auth). Makes T056 pass
+- [ ] T070 [US3] `registration/` `PaymentGateway` interface and Stripe implementation per `contracts/stripe-webhook.md` § "Outbound: create Checkout Session": hosted payment mode, one EUR line item, `client_reference_id` = registration id, metadata, `customer_email`, expiry = `holdExpiresAt`, idempotency key `checkout-<registrationId>-<attempt>`
+- [ ] T071 [US3] `registration/` sign-up service and `POST /api/v1/registration`: check window, profile completeness, age, eligibility and the limit of two unpaid sign-ups per tournament (FR-041); take a place; insert the registration with the name / academy / affiliation snapshot and `academyKey` / `affiliationKey` (research R8); create the session; give the place back if any later step fails. `POST /api/v1/registration/{id}/checkout` returns a fresh URL while the hold is valid
+- [ ] T072 [US3] `registration/` webhook controller `POST /api/v1/registration/stripe-webhook`: read the raw body, verify `Stripe-Signature`, insert the event id into `StripeEvent` first, dispatch "completed" and "expired" as the table in `contracts/stripe-webhook.md` says, return 5xx on failure
+- [ ] T073 [US3] `registration/` hold sweep: a scheduled job that expires `AWAITING_PAYMENT` sign-ups whose `holdExpiresAt` has passed and releases their places, safe to run on several pods
+- [ ] T074 [US3] `registration/` mail sender: `Mailer` interface, SMTP implementation with `spring-boot-starter-mail`, sent asynchronously after the state is saved, three attempts and a failure counter metric; "sign-up confirmed" template
+- [ ] T075 [US3] `registration/` reads: `GET /api/v1/registration/me`; public `GET /api/v1/tournament/{id}/competitor` built only from registration snapshots; replace the Phase 4 stub so removing a division with active sign-ups is refused (`#5005`); evict `TOURNAMENTS_TAG` on every registration write
+- [ ] T076 [US3] `competitor/` propagate a profile change of name, academy or affiliation to the caller's active registrations in tournaments that are not finished or cancelled, and set `profileMismatch` when belt or gender no longer fits a held division (research R8, spec edge case)
+- [ ] T077 [US3] SPA `features/registrations/`: `/tournaments/:slug/signup` (redirect to sign-in or profile completion first, `#5013`), `/tournaments/:slug/signup/complete`, `/account/signups`; competitor list on the tournament page; strings, ids, MSW handlers
+- [ ] T078 [P] [US3] Write `specs/database-contracts/tournament-registration.md` (incl. `StripeEvent`); add Pact interactions for the registration routes the SPA calls (not the webhook); regenerate API types; add Stripe CLI and test-card notes to `docs/`
+- [ ] T079 [US3] Acceptance test data: add `seeder/data-test/tournament-registrations/` with confirmed sign-ups (snapshot only, no competitor link, no payment ids) on the seeded test tournament so results and leaderboard scenarios have medallists, and document in `bjjeire-tests/specs/features/tournaments.md` how a test creates its own paid sign-up with a test competitor account and a Stripe test card for the sign-up and cancellation scenarios
+- [ ] T080 [US3] List `#5013`–`#5016`, `#5019`, `#5021` in `bjjeire-tests/specs/features/tournaments.md` with the Stripe test-mode precondition
 
 **Checkpoint**: Quickstart scenario 4 passes. With Phases 3–6 the owner can take paid entries.
 
@@ -197,21 +200,23 @@ description: "Task list for In-House Tournament Registration"
 
 ### Tests first
 
-- [ ] T077 [P] [US4] `CancellationIT` in `registration/` with the fake gateway: cancel before `registrationClosesAt` creates one refund for the full `payment.amountCents` with key `refund-<registrationId>`, sets status `CANCELLED` and refund `PENDING`, releases the place, removes the competitor from the public list (`#5022`); cancel after close creates no refund (`#5023`); the response says whether a refund was issued and for how much; one mail per cancellation stating the refund outcome (`#5027`); cancelling twice is a no-op
-- [ ] T078 [P] [US4] `RefundWebhookIT` in `registration/`: "refund succeeded" moves refund to `REFUNDED` and sends the refund mail; "refund failed" moves it to `FAILED`, raises the admin alert metric / log, and `RegistrationDto` reports "refund pending"
-- [ ] T079 [P] [US4] `ChangeDivisionIT` in `registration/`: change to an eligible division while open moves the sign-up with no payment call and unchanged `placesTaken` (`#5024`); after close it is 409 `registration-closed` (`#5025`); an ineligible or already-held target is 409
-- [ ] T080 [P] [US4] `TournamentCancellationIT` in `tournament/` or `registration/`: cancelling a published tournament refunds every `CONFIRMED` sign-up in full and mails each competitor; a failure part-way can be re-run without double refunds (`#5026`)
-- [ ] T081 [P] [US4] `AdminRegistrationIT` in `registration/`: paged admin list with division, status, payment and refund; `?format=csv` returns every row as `text/csv` (FR-006); admin move works after close; admin cancel honours the `refund` flag; team merge rewrites academy or affiliation and keys on every matching registration of that tournament only (FR-007); all four are refused for competitor and anonymous callers
-- [ ] T082 [P] [US4] Vitest tests in `features/registrations/` and `features/tournament-admin/`: cancel dialog shows the refund amount before close and the "no refund" warning after (`#5023`); change-division control hidden after close with the "contact the organiser" message (`#5025`); admin sign-up table, export link, move, cancel and merge dialogs
+- [ ] T081 [P] [US4] `CancellationIT` in `registration/` with the fake gateway: cancel before `registrationClosesAt` creates one refund for the full `payment.amountCents` with key `refund-<registrationId>`, sets status `CANCELLED` and refund `PENDING`, releases the place, removes the competitor from the public list (`#5022`); cancel after close creates no refund (`#5023`); the response says whether a refund was issued and for how much; one mail per cancellation stating the refund outcome (`#5027`); cancelling twice is a no-op
+- [ ] T082 [P] [US4] `RefundWebhookIT` in `registration/`: "refund succeeded" moves refund to `REFUNDED` and sends the refund mail; "refund failed" moves it to `FAILED`, raises the admin alert metric / log, and `RegistrationDto` reports "refund pending"
+- [ ] T083 [P] [US4] `ChangeDivisionIT` in `registration/`: change to an eligible division while open moves the sign-up with no payment call and unchanged `placesTaken` (`#5024`); after close it is 409 `registration-closed` (`#5025`); an ineligible or already-held target is 409
+- [ ] T084 [P] [US4] `TournamentCancellationIT` in `tournament/` or `registration/`: cancelling a published tournament refunds every `CONFIRMED` sign-up in full and mails each competitor; a failure part-way can be re-run without double refunds (`#5026`)
+- [ ] T085 [P] [US4] `AdminRegistrationIT` in `registration/`: paged admin list whose rows carry exactly the `fields` listed for that route in `contracts/contract.yaml` (name, email, phone, date of birth, gender, belt, academy, affiliation, division, status, amount, payment and refund status, `profileMismatch`); `?format=csv` returns every row as `text/csv` with the same columns (FR-006); admin move works after close; admin cancel honours the `refund` flag; team merge rewrites academy or affiliation and keys on every matching registration of that tournament only (FR-007); all four are refused for competitor and anonymous callers
+- [ ] T086 [P] [US4] Vitest tests in `features/registrations/` and `features/tournament-admin/`: cancel dialog shows the refund amount before close and the "no refund" warning after (`#5023`); change-division control hidden after close with the "contact the organiser" message (`#5025`); admin sign-up table, export link, move, cancel and merge dialogs
+- [ ] T087 [P] [US4] `FinancialRetentionIT` in `registration/`: deleting an account sets `financialRecordsExpireAt` to deletion + 6 years on that competitor's sign-ups; the retention sweep removes `payment` and `refund` only from sign-ups past that instant and leaves the anonymised snapshot, the division and any medal in place (FR-013)
 
 ### Implementation
 
-- [ ] T083 [US4] `registration/` refund path: `PaymentGateway.refund` per `contracts/stripe-webhook.md` § "Outbound: create refund"; competitor `POST /api/v1/registration/{id}/cancel` returning `CancellationDto`; `RegistrationDto.refundableUntil`; webhook handling for refund succeeded / failed; "cancelled" and "refunded" mail templates
-- [ ] T084 [US4] `registration/` `PUT /api/v1/registration/{id}/division` for the owner, reusing the eligibility rule and the unique index for conflicts
-- [ ] T085 [US4] `tournament/` `POST /api/v1/tournament/{id}/cancel` driving a resumable refund-all in `registration/`, with the "tournament cancelled" mail template
-- [ ] T086 [US4] `registration/` admin routes from `contracts/contract.yaml`: list and CSV export, admin move, admin cancel, `POST /api/v1/tournament/{id}/team-merge`; wire the "has active registration" conflict into `DELETE /api/v1/competitor/me` and anonymise snapshots on deletion (research R11)
-- [ ] T087 [US4] SPA: cancel and change-division on `/account/signups`; admin sign-ups tab on `/admin/tournaments/:id` with export, move, cancel, merge and a "paid but not confirmed" reconciliation indicator; tournament cancel action
-- [ ] T088 [US4] Update Pact, generated types and `specs/database-contracts/tournament-registration.md`; list `#5022`–`#5024` in `bjjeire-tests/specs/features/tournaments.md`
+- [ ] T088 [US4] `registration/` refund path: `PaymentGateway.refund` per `contracts/stripe-webhook.md` § "Outbound: create refund"; competitor `POST /api/v1/registration/{id}/cancel` returning `CancellationDto`; `RegistrationDto.refundableUntil`; webhook handling for refund succeeded / failed; "cancelled" and "refunded" mail templates
+- [ ] T089 [US4] `registration/` `PUT /api/v1/registration/{id}/division` for the owner, reusing the eligibility rule and the unique index for conflicts
+- [ ] T090 [US4] `tournament/` `POST /api/v1/tournament/{id}/cancel` driving a resumable refund-all in `registration/`, with the "tournament cancelled" mail template
+- [ ] T091 [US4] `registration/` admin routes from `contracts/contract.yaml`: list and CSV export, admin move, admin cancel, `POST /api/v1/tournament/{id}/team-merge`; wire the "has active registration" conflict into `DELETE /api/v1/competitor/me` and anonymise snapshots on deletion (research R11)
+- [ ] T092 [US4] `registration/` retention: set `financialRecordsExpireAt` during account deletion, add the sparse index `ix_registration_financialRecordsExpireAt` in `config/MongoIndexInitializer.java`, and a scheduled sweep that unsets `payment` and `refund` after it
+- [ ] T093 [US4] SPA: cancel and change-division on `/account/signups`; admin sign-ups tab on `/admin/tournaments/:id` with export, move, cancel, merge and a "paid but not confirmed" reconciliation indicator; tournament cancel action
+- [ ] T094 [US4] Update Pact, generated types and `specs/database-contracts/tournament-registration.md`; list `#5022`–`#5024` in `bjjeire-tests/specs/features/tournaments.md`
 
 **Checkpoint**: Quickstart scenarios 5 and 7 pass.
 
@@ -225,19 +230,19 @@ description: "Task list for In-House Tournament Registration"
 
 ### Tests first
 
-- [ ] T089 [P] [US5] Unit tests in `tournament/` for the points calculation as a pure function: 9 per gold, 3 per silver, 1 per bronze, added per academy key and per affiliation key across divisions (`#5029`, `#5040`); order by points, then golds, silvers, bronzes (`#5030`); a medallist with no academy adds nothing to the academy ranking and likewise for affiliation (`#5031`); a division with one confirmed competitor adds no points (`#5032`); entries level on every tie-break are joint winners; winners are present only when status is `FINISHED` (`#5041`)
-- [ ] T090 [P] [US5] `DivisionResultIT` in `tournament/`: recording gold, silver and up to two bronzes succeeds only when every id is a `CONFIRMED` registration in that division (409 `not-in-division`), no id repeats (409 `duplicate-medallist`) and there are at most two bronzes (`#5028`); correcting a result replaces it (`#5033`); competitor and anonymous callers are refused (`#5035`); a competitor named in a result cannot cancel (409 `result-recorded`, FR-026)
-- [ ] T091 [P] [US5] `LeaderboardIT` in `tournament/`: no results gives empty podiums and rankings (`#5034`); after a result write, a merge, a move or a cancellation the next read reflects it (cache eviction, SC-006); the JSON contains none of the private field names; a medallist whose account was deleted keeps the medal and points with the placeholder name
-- [ ] T092 [P] [US5] `CompetitorHistoryIT` in `competitor/`: totals and per-tournament medals match the recorded results for the caller only (`#5039`)
-- [ ] T093 [P] [US5] Vitest tests in `features/tournaments/` and `features/tournament-admin/`: leaderboard empty state (`#5034`), podium cards, two ranking tables, winners banner when finished, joint winners; results entry form limits choices to that division's confirmed competitors and blocks duplicates
+- [ ] T095 [P] [US5] Unit tests in `tournament/` for the points calculation as a pure function: 9 per gold, 3 per silver, 1 per bronze, added per academy key and per affiliation key across divisions (`#5029`, `#5040`); order by points, then golds, silvers, bronzes (`#5030`); a medallist with no academy adds nothing to the academy ranking and likewise for affiliation (`#5031`); a division with one confirmed competitor adds no points (`#5032`); entries level on every tie-break are joint winners; winners are present only when status is `FINISHED` (`#5041`)
+- [ ] T096 [P] [US5] `DivisionResultIT` in `tournament/`: recording gold, silver and up to two bronzes succeeds only when every id is a `CONFIRMED` registration in that division (409 `not-in-division`), no id repeats (409 `duplicate-medallist`) and there are at most two bronzes (`#5028`); correcting a result replaces it (`#5033`); competitor and anonymous callers are refused (`#5035`); a competitor named in a result cannot cancel (409 `result-recorded`, FR-026)
+- [ ] T097 [P] [US5] `LeaderboardIT` in `tournament/`: no results gives empty podiums and rankings (`#5034`); after a result write, a merge, a move or a cancellation the next read reflects it (cache eviction, SC-006); the JSON contains none of the private field names; a medallist whose account was deleted keeps the medal and points with the placeholder name
+- [ ] T098 [P] [US5] `CompetitorHistoryIT` in `competitor/`: totals and per-tournament medals match the recorded results for the caller only (`#5039`)
+- [ ] T099 [P] [US5] Vitest tests in `features/tournaments/` and `features/tournament-admin/`: leaderboard empty state (`#5034`), podium cards, two ranking tables, winners banner when finished, joint winners; results entry form limits choices to that division's confirmed competitors and blocks duplicates
 
 ### Implementation
 
-- [ ] T094 [US5] `tournament/` `DivisionResult` embedded in `Division` with `goldRegistrationId` (required), `silverRegistrationId`, `bronzeRegistrationIds` (0–2), `recordedAt`, `recordedBy`; `RecordResultCommand`; `PUT` and `DELETE /api/v1/tournament/{id}/division/{divisionId}/result`; `POST /api/v1/tournament/{id}/finish`
-- [ ] T095 [US5] `tournament/` points calculation and `GET /api/v1/tournament/{id}/leaderboard` returning `LeaderboardDto` (`podiums[]`, `academyRanking[]`, `affiliationRanking[]`, `winners`), cached under `TOURNAMENTS_TAG` and evicted by every result, merge, move and cancellation write
-- [ ] T096 [US5] `registration/` refuse cancel and division change when a result names the registration; `competitor/` fill `GET /api/v1/competitor/me/history` from registrations joined to results
-- [ ] T097 [US5] SPA: leaderboard section on `/tournaments/:slug`; results tab and finish action on `/admin/tournaments/:id`; medal history on `/account/profile`
-- [ ] T098 [US5] Update Pact, generated types and `specs/database-contracts/tournament.md`; list `#5028`, `#5029`, `#5034`, `#5039`, `#5040`, `#5041` in `bjjeire-tests/specs/features/tournaments.md`
+- [ ] T100 [US5] `tournament/` `DivisionResult` embedded in `Division` with `goldRegistrationId` (required), `silverRegistrationId`, `bronzeRegistrationIds` (0–2), `recordedAt`, `recordedBy`; `RecordResultCommand`; `PUT` and `DELETE /api/v1/tournament/{id}/division/{divisionId}/result`; `POST /api/v1/tournament/{id}/finish`
+- [ ] T101 [US5] `tournament/` points calculation and `GET /api/v1/tournament/{id}/leaderboard` returning `LeaderboardDto` (`podiums[]`, `academyRanking[]`, `affiliationRanking[]`, `winners`), cached under `TOURNAMENTS_TAG` and evicted by every result, merge, move and cancellation write
+- [ ] T102 [US5] `registration/` refuse cancel and division change when a result names the registration; `competitor/` fill `GET /api/v1/competitor/me/history` from registrations joined to results
+- [ ] T103 [US5] SPA: leaderboard section on `/tournaments/:slug`; results tab and finish action on `/admin/tournaments/:id`; medal history on `/account/profile`
+- [ ] T104 [US5] Update Pact, generated types and `specs/database-contracts/tournament.md`; list `#5028`, `#5029`, `#5034`, `#5039`, `#5040`, `#5041` in `bjjeire-tests/specs/features/tournaments.md`
 
 **Checkpoint**: Quickstart scenario 6 passes. All stories complete.
 
@@ -245,14 +250,15 @@ description: "Task list for In-House Tournament Registration"
 
 ## Phase 9: Polish and verification
 
-- [ ] T099 [P] Complete `specs/stc/tournaments/traceability.md`: every issue `#5001`–`#5041` maps to a test path and an implementation path; resolve any left `UNTESTED`
-- [ ] T100 [P] Mark `specs/features/tournaments.md` as Living and make it the single behavioural source; note in `specs/README.md` that `specs/001-tournament-registration/` is the design record
-- [ ] T101 [P] Add structured logs and metrics for sign-up started / confirmed / expired, refund requested / succeeded / failed, webhook rejected, mail failed; document the alert for refund failures and for "paid but not confirmed" in `docs/`
-- [ ] T102 [P] Check `.github/path-filters.yml` covers `seeder/data-test/tournaments/` and the new packages, and that no job was added outside `pr_complete.needs` (ADR-0003)
-- [ ] T103 Load check for SC-009: seed 500 confirmed sign-ups over 60 divisions with results, then 200 concurrent readers on the tournament page data and leaderboard; record the numbers in `specs/001-tournament-registration/quickstart.md`
-- [ ] T104 `mvn clean verify`; `npm run lint && npm run typecheck && npm test && npm run test:integration && npm run test:pact` in `src/bjjeire-app`; confirm `check_openapi_breaking` and `check_frontend_api_compat` report additions only
-- [ ] T105 Run all seven manual scenarios in `quickstart.md` in a preview with the flag on, Stripe test mode and the test competitor accounts; run `spec-verifier` against the spec and the final diff
-- [ ] T106 Hand the owner the production checklist: external tenant and app registrations, Stripe live keys and webhook endpoint, SMTP relay, new values in `bjjeire-gitops`, privacy notice and terms of entry text, then `FEATURE_TOURNAMENTS=true`
+- [ ] T105 [P] Complete `specs/stc/tournaments/traceability.md`: every issue `#5001`–`#5042` maps to a test path and an implementation path; resolve any left `UNTESTED`
+- [ ] T106 [P] Mark `specs/features/tournaments.md` as Living and make it the single behavioural source; note in `specs/README.md` that `specs/001-tournament-registration/` is the design record
+- [ ] T107 [P] Add structured logs and metrics for sign-up started / confirmed / expired, refund requested / succeeded / failed, webhook rejected, mail failed; document the alert for refund failures and for "paid but not confirmed" in `docs/`
+- [ ] T108 [P] Check `.github/path-filters.yml` covers `seeder/data-test/tournaments/` and the new packages, and that no job was added outside `pr_complete.needs` (ADR-0003)
+- [ ] T109 Cluster wiring, needed before the flag is turned on in any cluster and before acceptance tests run in a preview, in this order (research R15): (1) apply `bjjeire-terraform-azurerm-aks` so the four `bjj-api-competitor-*` / `bjj-api-stripe-*` Key Vault secrets exist in the environment (placeholders are already in `variables.tournament.tf` and `main.key-vault.tf`); (2) in `bjjeire-deploy`, let the API chart take the Stripe values from a Kubernetes secret by reference and the mail settings from values; (3) only then, in `bjjeire-gitops`, add an `ExternalSecret` for those four names in `kubernetes/apps/base/bjj-eire/app/externalsecrets.yaml` (and the preview copies), the Helm release mapping, and `ServiceEntry` resources in `kubernetes/apps/base/istio-egress/config/service-entries.yaml` for Stripe, the external tenant's sign-in host, Microsoft Graph and the SMTP relay
+- [ ] T110 Load check for SC-009: seed 500 confirmed sign-ups over 60 divisions with results, then 200 concurrent readers on the tournament page data and leaderboard; record the numbers in `specs/001-tournament-registration/quickstart.md`
+- [ ] T111 `mvn clean verify`; `npm run lint && npm run typecheck && npm test && npm run test:integration && npm run test:pact` in `src/bjjeire-app`; confirm `check_openapi_breaking` and `check_frontend_api_compat` report additions only
+- [ ] T112 Run all seven manual scenarios in `quickstart.md` in a preview with the flag on, Stripe test mode and the test competitor accounts; time two checks while doing so: publishing a tournament with 50 divisions takes under 30 minutes (SC-008) and the cancellation mail arrives within 5 minutes (SC-005); run `spec-verifier` against the spec and the final diff
+- [ ] T113 Hand the owner the production checklist: external tenant and app registrations, Stripe live keys and webhook endpoint, SMTP relay, new values in `bjjeire-gitops`, privacy notice and terms of entry text, then `FEATURE_TOURNAMENTS=true`
 
 ---
 
@@ -265,12 +271,13 @@ Phase 1 Setup ─▶ Phase 2 Foundational ─▶ Phase 3 US6 ─▶ Phase 4 US1 
                                                       └▶ Phase 5 US2 ─┘                └▶ Phase 8 US5 ─┴▶ Phase 9
 ```
 
-- **Setup**: T003, T004 before T005. T001 is needed by T015, T020 (tenant values) and T067 (Stripe key); T009 before T014's `holdMinutes` and T052.
-- **Foundational** blocks everything. T013, T014 before T015–T018.
-- **US6** only needs Foundational.
+- **Constitution gate**: T003, T004 then T005. No pull request from Phase 2 onward merges until ADR-0012, ADR-0013 and constitution 1.1.0 are on `main`; until then the design conflicts with principle V as ratified.
+- **Setup**: T001 is needed by T018 (tenant values, to try sign-in by hand) and T070 (Stripe key); T009 before T014's `holdMinutes` and T052. API work up to Phase 4 runs on the placeholders.
+- **Foundational** blocks everything. T013, T014 before T015 and T016.
+- **US6** only needs Foundational. Its route rules and flag gate (T024, T025) come after their tests (T021, T022).
 - **US1** and **US2** are independent of each other and can run in parallel after US6.
 - **US3** needs US1 (a published tournament with divisions) and US2 (a complete profile).
-- **US4** and **US5** both need US3 and are independent of each other, except T096's cancel guard, which touches the cancel service from T083. If US5 lands first, T096 guards the route once it exists.
+- **US4** and **US5** both need US3 and are independent of each other, except T102's cancel guard, which touches the cancel service from T088. If US5 lands first, T102 guards the route once it exists.
 
 ### Within each story
 
@@ -279,7 +286,7 @@ Tests first and failing → domain → repository and indexes → service → co
 ### Parallel opportunities
 
 - Phase 1: T003, T004, T006, T007, T008 together.
-- Phase 2: T010–T012 together; T019 and T021 alongside the API work.
+- Phase 2: T010–T012 together; T017 and T019 alongside the API work.
 - Every story: all of its "Tests first" tasks are `[P]`.
 - US1 and US2 as two parallel streams; US4 and US5 as two parallel streams.
 - Within a story, the SPA task and the API tasks can proceed together against the MSW handlers once the contract is agreed.
@@ -296,9 +303,12 @@ T060 StripeWebhookIT                        (registration/)
 T061 RegistrationOwnershipIT                (registration/)
 T062 PublicCompetitorListIT                 (tournament/ or registration/)
 T063 SPA sign-up flow tests                 (features/registrations/)
+T064 HoldSweepIT                             (registration/)
+T065 mail sender unit test                   (registration/)
+T066 ProfilePropagationIT                    (competitor/)
 
-# Then, in order: T064 → T065 → T066 → T067 → T068 → T069 → T070 → T071 → T072 → T073
-# SPA T074 can start from the MSW handlers as soon as T063 exists.
+# Then, in order: T067 → T068 → T069 → T070 → T071 → T072 → T073 → T074 → T075 → T076
+# SPA T077 can start from the MSW handlers as soon as T063 exists.
 ```
 
 ## Implementation strategy
@@ -328,6 +338,6 @@ by `spec-verifier` with fresh context. Acceptance tests follow in
 
 ## Notes
 
-- 107 tasks (T107 was added to Setup after numbering, so it sits out of sequence): Setup 10 · Foundational 13 · US6 5 · US1 16 · US2 12 · US3 21 · US4 12 · US5 10 · Polish 8.
-- Issue coverage per task is in the task text; the full map lands in `specs/stc/tournaments/traceability.md` (T099).
-- Requirements with no dedicated issue (FR-006, FR-007, FR-019, FR-023, FR-030) are covered by T081, T057 / T070, T064 and T077; consider adding issues for them in T002.
+- 113 tasks: Setup 9 · Foundational 11 · US6 7 · US1 16 · US2 12 · US3 25 · US4 14 · US5 10 · Polish 9.
+- Issue coverage per task is in the task text; the full map lands in `specs/stc/tournaments/traceability.md` (T105).
+- Requirements with no dedicated issue (FR-006, FR-007, FR-013 retention, FR-019, FR-023, FR-030) are covered by T085, T087, T057 / T064, T067 and T081; consider adding issues for them in T002.

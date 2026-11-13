@@ -1,6 +1,6 @@
 # Feature Specification: In-House Tournament Registration
 
-**Feature Branch**: `001-tournament-registration` (not yet created)
+**Feature Branch**: `001-tournament-registration`
 
 **Created**: 2026-11-13
 
@@ -17,6 +17,7 @@
 - **Team**: either of the above when talking about points. Points are ranked separately per academy and per affiliation.
 - **Organiser**: the BjjEire admin, who is the site owner. The only person who can create and run a tournament.
 - **Competitor**: a member of the public with an account who signs up to compete.
+- **Sign-up**: one competitor's entry in one division. The plan, the data model and the routes call it a **registration**; they also call the organiser the **admin**. These are the same things.
 
 ## Clarifications
 
@@ -31,6 +32,8 @@
 - Q: Are tournament points added up for the academy or the affiliation? → A: Both. The leaderboard shows an academy ranking and a separate affiliation ranking.
 - Q: Who can see a competitor's profile page? → A: Only the competitor (and organisers). There is no public profile page; visitors see just name, academy and division in competitor lists and podiums.
 - Q: Which payment provider takes the entry fees? → A: Stripe (owner's statement).
+- Q: How many unpaid sign-ups may one competitor hold at once in a tournament? → A: Two. A third is refused until one is paid, cancelled or expires.
+- Q: How long are payment and refund records kept after a competitor deletes their account? → A: Six years, then removed automatically.
 - Q: Who can create a tournament? → A: Only the admin, who is the site owner. Users (competitors) can never create one; they can only sign up to compete (owner's statement).
 
 ## User Scenarios & Testing *(mandatory)*
@@ -87,7 +90,7 @@ A signed-in competitor opens a tournament with open registration, chooses their 
 **Acceptance Scenarios**:
 
 1. **`#5013`**: **Given** a visitor who is not signed in, **When** they choose to sign up for a tournament, **Then** they are asked to sign in or register and are returned to the sign-up afterwards
-2. **`#5014`**: **Given** a competitor with a complete profile, **When** they start a sign-up, **Then** they are offered only the divisions that match their gender, belt and age on the tournament day
+2. **`#5014`**: **Given** a competitor with a complete profile, **When** they start a sign-up, **Then** they are offered only the divisions for their gender and belt whose minimum age they meet on the tournament day
 3. **`#5015`**: **Given** a competitor has chosen a division, **When** their payment succeeds, **Then** the sign-up is confirmed, a confirmation email is sent, and they appear in that division's public competitor list with their name and academy
 4. **`#5016`**: **Given** a competitor has chosen a division, **When** the payment fails or is abandoned, **Then** no sign-up is confirmed, no money is taken, and they can try again
 5. **`#5017`**: **Given** a competitor already holds a confirmed sign-up in a division, **When** they try to sign up for the same division again, **Then** they are refused and not charged
@@ -95,6 +98,7 @@ A signed-in competitor opens a tournament with open registration, chooses their 
 7. **`#5019`**: **Given** a competitor who will be under 18 on the tournament day, **When** they try to sign up, **Then** they are refused with an explanation
 8. **`#5020`**: **Given** a tournament that has reached its competitor limit, **When** another competitor tries to sign up, **Then** they are told it is full and are not charged
 9. **`#5021`**: **Given** a signed-in competitor, **When** they open "my sign-ups", **Then** they see each sign-up with its tournament, division, amount paid and status
+10. **`#5042`**: **Given** a competitor already has two unpaid sign-ups in a tournament, **When** they start a third, **Then** they are refused and told to finish or cancel one first
 
 ---
 
@@ -164,7 +168,7 @@ Visitors who only want to browse gyms, events, competitions and stores continue 
 - A refund cannot be completed by the payment provider: the sign-up shows "refund pending", and the organiser is alerted so they can resolve it by hand.
 - A competitor changes their belt or gender in their profile after signing up: existing sign-ups keep their division; the organiser sees a flag that the profile no longer matches.
 - The organiser changes the entry fee after some people have paid: existing sign-ups keep the price they paid; only new sign-ups pay the new fee.
-- A competitor who has a confirmed sign-up asks to delete their account: they are told to cancel the sign-up first, or it is cancelled under the normal refund rule as part of deletion.
+- A competitor who has a confirmed or unpaid sign-up asks to delete their account: they are told to cancel the sign-up first; deletion does not cancel it for them.
 - A competitor who has already won a medal deletes their account: the result stands and the academy and affiliation keep their points, but the name is no longer shown.
 - Several competitors type the same academy or affiliation name differently ("Team X", "team x BJJ"): the organiser can merge them into one before or after results so points are not split.
 - Competitors from the same academy name different affiliations: each medal counts for the affiliation its own medallist named; the organiser can correct them with the merge tool.
@@ -183,7 +187,7 @@ Visitors who only want to browse gyms, events, competitions and stores continue 
 - **FR-003**: A tournament MUST be a draft, hidden from the public, until an organiser publishes it.
 - **FR-004**: Published tournaments, their divisions, competitor lists and leaderboards MUST be viewable by anyone without an account.
 - **FR-005**: Only the organiser (the admin) MUST be able to create, edit, publish or cancel tournaments, and to record results. Competitor accounts MUST have no way to create a tournament or to become an organiser through the app.
-- **FR-006**: Organisers MUST be able to see every sign-up for a tournament with its division, payment status and amount, and export that list.
+- **FR-006**: Organisers MUST be able to see every sign-up for a tournament and export that list. Each row shows the competitor's name, email, phone, date of birth, gender, belt, academy and affiliation, the division, the sign-up's status, the amount paid, the payment and refund status, and whether the profile no longer matches the division.
 - **FR-007**: Organisers MUST be able to move a competitor to another division, cancel a sign-up with or without a refund, and merge duplicate academy or affiliation names.
 
 **Accounts and profiles**
@@ -192,21 +196,22 @@ Visitors who only want to browse gyms, events, competitions and stores continue 
 - **FR-009**: Each account MUST have one competitor profile holding first name, optional middle name, last name, nationality, date of birth, gender, belt, academy and optional affiliation. Phone number and postal address (street, postcode, city, county or state, country of residence) are optional.
 - **FR-010**: A competitor's academy MUST be chosen from the BjjEire gym directory, entered as a name when not listed, or left as "no academy". An affiliation MAY be named separately.
 - **FR-011**: A competitor's profile MUST be visible only to the account holder and organisers. There is no public profile page. Only name, academy, affiliation and division are shown publicly, in competitor lists, podiums and rankings.
-- **FR-012**: Competitors MUST be told at sign-up that their name, academy, affiliation and division will be listed publicly, and MUST agree before paying.
-- **FR-013**: Competitors MUST be able to delete their account; their personal details are then removed, while financial records are kept only as long as the law requires.
+- **FR-012**: Competitors MUST be told at sign-up that their name, academy, affiliation and division will be listed publicly, and MUST agree before paying. They MUST also accept the terms of entry, including the liability waiver, before paying; the time of each acceptance is recorded.
+- **FR-013**: Competitors MUST be able to delete their account; their personal details are then removed, while the payment and refund records of their sign-ups are kept for six years after the deletion and then removed automatically.
 - **FR-039**: A competitor's own profile MUST show their total gold, silver and bronze medals and the tournaments they have entered with the medals won at each. Win counts, win methods and match videos are not shown.
 - **FR-014**: Competitor accounts MUST NOT grant any ability to change gyms, events, competitions or stores.
 
 **Sign-up and payment**
 
 - **FR-015**: A signed-in competitor with a complete profile MUST be able to sign up for a division of a published tournament while its registration is open.
-- **FR-016**: The system MUST offer a competitor only the divisions that match their gender, belt and age on the tournament day. Weight class is the competitor's own choice.
+- **FR-016**: The system MUST offer a competitor only the divisions for their gender and belt whose minimum age they meet on the tournament day. An older competitor may enter a younger age category; a younger one may not enter an older category. Weight class is the competitor's own choice.
 - **FR-017**: The system MUST refuse sign-up to anyone who will be under 18 on the tournament day.
 - **FR-018**: A sign-up MUST be confirmed only after the entry fee has been paid successfully online. The competitor is shown the full amount before paying.
 - **FR-019**: A place MUST be held for a competitor for a limited time while they pay (30 minutes, the shortest the payment provider's checkout allows) and released if payment is not completed.
 - **FR-020**: The system MUST prevent more than one active sign-up by the same competitor in the same division, and MUST never charge twice for one sign-up.
 - **FR-021**: A competitor MUST be able to hold sign-ups in more than one division of a tournament, each paid for separately.
 - **FR-022**: The system MUST NOT confirm sign-ups beyond the tournament's competitor limit.
+- **FR-041**: A competitor MUST NOT hold more than two unpaid sign-ups in the same tournament at once. A further sign-up is refused, with no charge, until one is paid, cancelled or expires.
 - **FR-023**: The system MUST NOT store payment card details.
 - **FR-024**: The system MUST email the competitor on confirmation, cancellation, refund and tournament cancellation.
 - **FR-025**: Competitors MUST be able to see all their sign-ups with tournament, division, amount paid and status.
@@ -267,17 +272,17 @@ Its `playwright-test-planner` reads this section and turns the listed requiremen
 scenarios. Those issues are GitLab issues in `bjjeire/requirements`. CI stays on GitHub.
 
 - **Acceptance spec**: `bjjeire-tests/specs/features/tournaments.md`
-- **T6 (bjjeire-tests)**: `#5002`, `#5003`, `#5006`, `#5007`, `#5008`, `#5013`, `#5014`, `#5015`, `#5016`, `#5019`, `#5021`, `#5022`, `#5023`, `#5024`, `#5028`, `#5029`, `#5034`, `#5036`, `#5038`, `#5039`, `#5040`, `#5041`. Payment scenarios run against Stripe's test mode.
+- **T6 (bjjeire-tests)**: `#5002`, `#5003`, `#5006`, `#5007`, `#5008`, `#5010`, `#5011`, `#5013`, `#5014`, `#5015`, `#5016`, `#5019`, `#5021`, `#5022`, `#5023`, `#5024`, `#5028`, `#5029`, `#5034`, `#5036`, `#5038`, `#5039`, `#5040`, `#5041`. Payment scenarios run against Stripe's test mode. `#5006`, `#5010` and `#5011` (register, no duplicate account, password reset) are carried out by the identity provider's hosted pages, so they can only be observed end to end, against the non-production competitor tenant.
 - **Lower tiers only**:
   - `#5001`, `#5004`, `#5005`, `#5035`, `#5037`: organiser-only and refusal rules, owned by API integration tests.
-  - `#5009`, `#5010`, `#5011`, `#5012`: account privacy, duplicate, reset and deletion rules, owned by API integration tests (email delivery is not observable end to end).
-  - `#5017`, `#5018`, `#5020`, `#5025`: duplicate, multi-division, capacity and closed-window rules, owned by service and integration tests.
+  - `#5009`, `#5012`: profile privacy and account deletion rules, owned by API integration tests.
+  - `#5017`, `#5018`, `#5020`, `#5025`, `#5042`: duplicate, multi-division, capacity, closed-window and unpaid-hold rules, owned by service and integration tests.
   - `#5026`, `#5027`: bulk refund and notification emails, owned by integration tests with the payment provider and mail stubbed.
   - `#5030`, `#5031`, `#5032`, `#5033`: ranking, tie-break and points rules, owned by unit tests of the points calculation.
 
 ## Assumptions
 
-- Requirement issue ids `#5001` to `#5041` are provisional. They follow the existing per-feature ranges (1xxx gyms, 2xxx events, 3xxx competitions, 4xxx stores) and must be created in `bjjeire/requirements` under a new epic before `/build-feature`.
+- Requirement issue ids `#5001` to `#5042` are provisional. They follow the existing per-feature ranges (1xxx gyms, 2xxx events, 3xxx competitions, 4xxx stores) and must be created in `bjjeire/requirements` under a new epic before `/build-feature`.
 - Tournaments are a new capability beside the existing Competitions listing, which keeps listing other organisers' events and is not changed by this feature.
 - There is one organiser: the admin, who is the site owner. Users and third parties cannot create tournaments. The admin keeps the existing administrator sign-in; competitor accounts are a new, separate kind of user with no administrative rights. Where the spec says "organisers", it means that admin role.
 - Introducing public accounts extends constitution principle V ("public reads, authenticated writes"), which today knows only administrator writes. The plan must record this in an ADR and amend the constitution.

@@ -33,6 +33,6 @@
 
 - Validated in one pass on 2026-11-13. Three clarifications (results scope, minors, refunds) were answered by the owner before drafting and are recorded in the spec's Clarifications section.
 - The Acceptance Coverage and Assumptions sections name repository paths, test tiers and the deploy stack. The project's spec template requires these; they are not counted as implementation leakage.
-- Requirement issue ids `#5001`–`#5038` are provisional and must be created in `bjjeire/requirements` before `/build-feature`.
+- Requirement issue ids `#5001`–`#5042` are provisional and must be created in `bjjeire/requirements` before `/build-feature`.
 - Not every FR has its own numbered scenario: FR-006, FR-007, FR-019, FR-023 and FR-030 are covered by edge cases and organiser tooling rather than a dedicated issue. Consider adding issues for them during `/speckit-clarify` or `/speckit-plan`.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

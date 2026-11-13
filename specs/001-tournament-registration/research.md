@@ -36,6 +36,7 @@ current documentation in the first task that touches it.
 - **Rationale**: Stripe does not allow a Checkout Session to expire sooner than 30 minutes after creation. Matching the hold to the session means a competitor can never pay for a place that was already given away.
 - **Spec impact**: FR-019's default hold changes from 15 to 30 minutes. The spec has been updated.
 - **Alternatives considered**: Keep 15 minutes and call the "expire session" API from a timer: one more moving part, and a race between the timer and a payment in flight.
+- **Hold limit**: a competitor may have at most two unpaid sign-ups in one tournament (FR-041, owner's decision 2026-11-13), so one account cannot hold a tournament's places without paying. Checked with a count before the place is taken; the small race this leaves can let through a third hold at most, which the expiry clears.
 - **Verify**: the 30-minute minimum for `expires_at`.
 
 ## R5. Capacity and duplicate sign-ups under concurrency
@@ -79,7 +80,7 @@ current documentation in the first task that touches it.
 
 ## R11. Account deletion
 
-- **Decision**: `DELETE /api/v1/competitor/me` removes the profile document, anonymises the competitor's registration snapshots (name replaced by a fixed placeholder, competitor link removed), and deletes the user from the external tenant through Microsoft Graph using an application credential. Payment and refund records stay on the registration for the legal retention period (FR-013).
+- **Decision**: `DELETE /api/v1/competitor/me` removes the profile document, anonymises the competitor's registration snapshots (name replaced by a fixed placeholder, competitor link removed), and deletes the user from the external tenant through Microsoft Graph using an application credential. Payment and refund records stay on the registration for six years after the deletion (owner's decision 2026-11-13) and are then removed by a scheduled sweep; the registration itself, its anonymised snapshot and any medal remain (FR-013).
 - **Rationale**: `#5012` requires that the person can no longer sign in, which only removing the identity achieves.
 - **Risk**: this is the only place the API needs a credential with write access to the identity tenant. The permission is scoped to that external tenant. If it cannot be granted, the fallback is to record the subject as deleted and refuse it at the API, and to remove the identity by hand; the spec would then need `#5012` reworded.
 - **Verify**: the least-privileged Graph permission that allows deleting a user in an external tenant.
@@ -95,6 +96,11 @@ current documentation in the first task that touches it.
 - **Decision**: A division is offered when the competitor's gender and belt equal the division's and their age on the tournament date (in `Europe/Dublin`) is at least the division's minimum age. Age categories are a fixed list with minimum ages (Adult 18, Master 1 30, Master 2 36, Master 3 41, Master 4 46, Master 5 51). A competitor may enter any category whose minimum they meet. Anyone under 18 on the day is refused regardless of division (FR-017).
 - **Rationale**: Matches common BJJ practice, where older competitors may drop to a younger category, and keeps the rule a pure function for unit tests.
 
+## R14. Acceptance testing with real identity and payments
+
+- **Decision**: API integration tests use `spring-security-test` JWTs with the right issuer and a stubbed Stripe gateway and mail sender behind interfaces in the `registration` package. `bjjeire-tests` uses dedicated test users in a non-production external tenant, Stripe test mode with test cards, and reads mail from the catcher. Seeded test tournaments live in `seeder/data-test/tournaments/`.
+- **Rationale**: Keeps the "never mock Mongo" rule, keeps vendors out of CI's critical path, and still proves the real redirect-pay-return journey at T6.
+
 ## R15. Cluster wiring (terraform and gitops)
 
 - **Decision**: Values reach the API the way the admin tenant's do today: terraform writes Key Vault secrets, an `ExternalSecret` in `bjjeire-gitops` turns them into a Kubernetes secret, and the Helm release maps that into the API's environment.
@@ -103,8 +109,3 @@ current documentation in the first task that touches it.
 - **Ordering constraint**: the `bjj-eire` Flux kustomization runs with `wait: true`. An `ExternalSecret` that names a Key Vault secret which does not exist yet never becomes ready and holds the whole kustomization unhealthy. So terraform must be applied in an environment before the gitops change reaches that environment.
 - **Egress**: the mesh is `REGISTRY_ONLY` (gitops ADR-0004). The API needs a `ServiceEntry` for each new outbound host: Stripe's API, the external tenant's sign-in host (token key discovery), Microsoft Graph (account deletion) and the SMTP relay. Without them every call fails with no route.
 - **Stripe key in the pod**: the existing Helm wiring passes values as plain environment entries. That is acceptable for an issuer URI, not for a payment key. The chart in `bjjeire-deploy` should read the Stripe values from the Kubernetes secret by reference.
-
-## R14. Acceptance testing with real identity and payments
-
-- **Decision**: API integration tests use `spring-security-test` JWTs with the right issuer and a stubbed Stripe gateway and mail sender behind interfaces in the `registration` package. `bjjeire-tests` uses dedicated test users in a non-production external tenant, Stripe test mode with test cards, and reads mail from the catcher. Seeded test tournaments live in `seeder/data-test/tournaments/`.
-- **Rationale**: Keeps the "never mock Mongo" rule, keeps vendors out of CI's critical path, and still proves the real redirect-pay-return journey at T6.

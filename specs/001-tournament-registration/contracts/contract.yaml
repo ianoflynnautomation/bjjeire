@@ -32,6 +32,7 @@ routes:
     path: /api/v1/tournament/{slug}
     auth: public
     response: TournamentDto   # details, fee, window, registrationState, divisions
+    slug_rule: lowercase letters, digits and hyphens; the word admin is reserved and rejected on create and update
     notes: registrationState is NOT_OPEN | OPEN | CLOSED | FULL, computed by the API
     covers: ["#5002", "#5003"]
   - method: GET
@@ -88,8 +89,9 @@ routes:
   - method: GET
     path: /api/v1/tournament/{id}/registration
     auth: admin
-    response: PagedResponse<AdminRegistrationDto>   # division, status, payment, refund, profileMismatch
-    notes: "?format=csv returns the full list as text/csv (FR-006)"
+    response: PagedResponse<AdminRegistrationDto>
+    fields: [registrationId, displayName, email, phone, dateOfBirth, gender, belt, academy, affiliation, division, status, amountCents, paymentStatus, refundStatus, profileMismatch, createdAt]
+    notes: "?format=csv returns the full list as text/csv with the same fields as columns (FR-006). Admin only: these fields never appear in a public response"
   - method: PUT
     path: /api/v1/tournament/{id}/registration/{registrationId}/division
     auth: admin
@@ -138,8 +140,9 @@ routes:
     auth: competitor
     request: CreateRegistrationCommand   # tournamentId, divisionId, acceptPublicListing, acceptTerms
     response: 201 RegistrationCheckoutDto   # registrationId, checkoutUrl, holdExpiresAt
-    conflicts: [registration-not-open, not-eligible, under-18, already-registered, tournament-full, profile-incomplete]
-    covers: ["#5015", "#5017", "#5018", "#5019", "#5020"]
+    conflicts: [registration-not-open, not-eligible, under-18, already-registered, tournament-full, profile-incomplete, too-many-unpaid]
+    notes: too-many-unpaid when the caller already has two AWAITING_PAYMENT registrations in this tournament
+    covers: ["#5015", "#5017", "#5018", "#5019", "#5020", "#5042"]
   - method: POST
     path: /api/v1/registration/{id}/checkout
     auth: competitor (owner)
