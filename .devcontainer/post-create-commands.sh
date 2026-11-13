@@ -34,7 +34,8 @@ export PATH="${HOME}/.local/bin:${HOME}/.grok/bin:${PATH}"
 echo "==> Marking the workspace as a safe git directory..."
 workspace="${containerWorkspaceFolder:-$(pwd)}"
 existing="$(git config --global --get-all safe.directory || true)"
-for repo in "${workspace}" "/workspaces/bjjeire-tests"; do
+for repo in "${workspace}" "/workspaces/bjjeire-tests" \
+  "/workspaces/bjjeire-terraform-azurerm-aks" "/workspaces/bjjeire-gitops"; do
   if ! printf '%s\n' "${existing}" | grep -Fxq "${repo}"; then
     git config --global --add safe.directory "${repo}"
   fi

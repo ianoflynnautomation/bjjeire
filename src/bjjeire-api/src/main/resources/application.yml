@@ -35,6 +35,15 @@ management:
 bjjeire:
   auth:
     writer-scope: ${BJJ_EIRE_WRITER_SCOPE:access_as_writer}
+  # Tournament registration (specs/001-tournament-registration). Placeholders only: nothing reads
+  # these until the feature is built. The all-zero tenant and the REPLACE_ME keys are not real.
+  competitor-auth:
+    issuer-uri: ${COMPETITOR_ISSUER_URI:https://00000000-0000-0000-0000-000000000000.ciamlogin.com/00000000-0000-0000-0000-000000000000/v2.0}
+    audience: ${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}
+    scope: ${COMPETITOR_SCOPE:access_as_competitor}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}
   cors:
     allowed-origins:
       - ${CORS_ALLOWED_ORIGIN:https://bjjeire.com}

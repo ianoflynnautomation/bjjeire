@@ -112,6 +112,7 @@ npm run build
 
 - Development runs in the dev container. Do not install tools or start the app directly on the Mac. From the host, run checks with `devcontainer exec --workspace-folder . <command>`. A missing JDK or a Vitest startup error on the host is expected.
 - `bjjeire-tests` is mounted at `/workspaces/bjjeire-tests` (`BJJ_EIRE_TESTS_ROOT`). Edit its `specs/features/<feature>.md` from here when a feature needs acceptance coverage. Run its tests in its own dev container, which has the browsers and the relay to the app. Its `.env*` and `playwright/.auth` stay unread.
+- `bjjeire-terraform-azurerm-aks` is mounted at `/workspaces/bjjeire-terraform-azurerm-aks` (`BJJ_EIRE_TERRAFORM_ROOT`) and `bjjeire-gitops` at `/workspaces/bjjeire-gitops` (`BJJ_EIRE_GITOPS_ROOT`). Entra app registrations are in the terraform repo's `main.app-registrations.tf`; cluster values and secrets references are in gitops. Edit them from here; do not run `terraform apply` or push to either from this container. Their `.env*`, `*.tfvars`, `*.tfstate*` and `.terraform/` stay unread.
 - `.env` is required.
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.
