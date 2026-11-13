@@ -19,6 +19,8 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Colours, themes, `PageLayout` | [ADR-0011](docs/adr/0011-light-dark-competition-themes.md) — light, dark, and competition; `PageLayout` stays transparent |
 | User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
+| Authentication, `SecurityConfig`, anything a competitor can call | [ADR-0012](docs/adr/0012-competitor-identity-second-issuer.md) — two issuers; competitor tokens never get scope authorities |
+| Payments, the Stripe webhook, read-only mode, the `Tournaments` flag | [ADR-0013](docs/adr/0013-stripe-hosted-checkout-and-webhooks.md) — the webhook is the only confirmer |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
 | Acceptance tests and Playwright agents | `bjjeire-tests` owns the plans, specs and agents: see its `AGENTS.md` and `docs/agents.md` |
@@ -85,7 +87,7 @@ npm run build
 
 ## Architecture Guardrails
 
-- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
+- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`, and for tournaments `tournament`, `competitor`, `registration`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
 - Controllers stay thin and delegate use cases to services.
 - Put new backend code in its feature package, not in a shared/layered package.
 - GeoJSON coordinates are `[longitude, latitude]`.

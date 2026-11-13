@@ -21,7 +21,8 @@ specs/
 │   ├── gyms.md
 │   ├── events.md
 │   ├── competitions.md
-│   └── stores.md
+│   ├── stores.md
+│   └── tournaments.md            # in progress; design record in 001-tournament-registration/
 └── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/

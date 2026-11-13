@@ -14,6 +14,9 @@ Contracts: `specs/database-contracts/`.
 | `Store` | `store.Store` | `seeder/data/stores/` |
 | `AuditLog` | `audit.AuditLogEntry` | (runtime) |
 
+In-house tournaments will add `Tournament`, `Competitor`, `TournamentRegistration` and `StripeEvent`
+(`specs/001-tournament-registration/data-model.md`). None exists yet; add each row here with the slice that creates it.
+
 Test environments seed from `seeder/data-test/` instead of `seeder/data/`.
 
 ## Invariants

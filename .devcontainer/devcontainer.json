@@ -33,13 +33,8 @@
     "source=bjjeire-claude-${devcontainerId},target=/home/vscode/.claude,type=volume",
     "source=bjjeire-grok-${devcontainerId},target=/home/vscode/.grok,type=volume",
     "source=bjjeire-gh-${devcontainerId},target=/home/vscode/.config/gh,type=volume",
-    // The acceptance suite, so its specs/ can be updated with the feature. Only this folder: the
-    // rest of ~/Sources stays out. Same path as the bjjeire-tests dev container uses for this repo.
     "source=${localEnv:HOME}/Sources/bjjeire-tests,target=/workspaces/bjjeire-tests,type=bind",
-    // Linux modules, shared with the bjjeire-tests dev container. The host folder holds Mac ones.
     "source=bjjeire-tests-node-modules,target=/workspaces/bjjeire-tests/node_modules,type=volume",
-    // Infrastructure repos, so a feature that needs an app registration or a cluster value can
-    // change them alongside the code. Entra app registrations: main.app-registrations.tf.
     "source=${localEnv:HOME}/Sources/bjjeire-terraform-azurerm-aks,target=/workspaces/bjjeire-terraform-azurerm-aks,type=bind",
     "source=${localEnv:HOME}/Sources/bjjeire-gitops,target=/workspaces/bjjeire-gitops,type=bind"
   ],

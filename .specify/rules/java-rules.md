@@ -5,7 +5,7 @@ ADR-0001, ADR-0002.
 
 ## Placement
 
-- New types go in the feature package: `com.bjjeire.api.{gym,event,competition,store}`.
+- New types go in the feature package: `com.bjjeire.api.{gym,event,competition,store}`, or for in-house tournaments `{tournament,competitor,registration}`.
 - `common/` only when two or more features need the type.
 - Controllers inject the feature service only — no repositories in controllers.
 
@@ -19,6 +19,7 @@ ADR-0001, ADR-0002.
 - A write answered with 405 is `ReadOnlyModeFilter` (on by default), not a
   missing mapping.
 - Reads return DTOs, never domain entities. Writes accept `*Command` records.
+- Tournament routes (`/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`) are gated by the `Tournaments` flag and skip `ReadOnlyModeFilter`. Competitor routes need `ROLE_COMPETITOR`; never map a competitor-tenant scope to an authority (ADR-0012, ADR-0013).
 - Public GET; writes require Entra Bearer. Do not add per-controller
   exception handling — `web.ApiExceptionHandler` returns `ProblemDetail`.
 

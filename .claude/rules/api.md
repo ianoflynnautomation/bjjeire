@@ -23,7 +23,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 ## Controller Pattern
 - Thin controllers: inject the feature service interface only, no repositories
 - The use-case contract is an interface in the feature package (`GymService`). The Spring bean is `GymServiceImpl` in that same package. Do not add a `service/` package or a ports layer. `UriService` and `SeederService` follow the same split
-- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`). Do not add a second PascalCase alias
+- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, and for tournaments `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`). Do not add a second PascalCase alias
 - One public version, `/api/v1`. Extend a resource with optional fields. Do not publish a second copy of it
 - Queries return DTOs (never domain entities directly); writes accept command records that wrap the read DTO
 - Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`
@@ -41,9 +41,13 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 
 ## Auth
 - Public read endpoints require no auth; write operations require `Authorization: Bearer {token}` (see `SecurityConfig`)
+- Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, tournament admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
+- `anyRequest()` means a workforce account, not any valid token. A competitor token does not satisfy it
+- `POST /api/v1/registration/stripe-webhook` is the only write with no bearer token (ADR-0013). Its controller must verify the Stripe signature
 
 ## Cross-cutting filters (`config/`)
 - `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping
+- Tournament routes (`/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`) skip `ReadOnlyModeFilter` and are governed by the `Tournaments` flag instead: with it off, `web.TournamentFeatureGateFilter` answers 404 ahead of authentication. Both use `ApiRoutes.isTournamentFeaturePath`, which matches the percent-decoded path
 - `RateLimitFilter` is on by default (600 requests per 60 seconds, 429 on rejection). `/health` is exempt
 - `SecurityHeadersFilter` sets the response security headers, including the Content-Security-Policy. Change headers there, not in a controller
 

@@ -59,6 +59,13 @@ export const FEATURE_FLAGS = {
     description: 'Map view on the events page (/events?view=map).',
     addedAt: '2026-11-05',
   },
+  Tournaments: {
+    key: 'Tournaments',
+    defaultValue: false,
+    description:
+      'In-house tournaments: public pages, competitor accounts and sign-ups (ADR-0013).',
+    addedAt: '2026-11-13',
+  },
 } as const satisfies Record<string, FeatureFlagDefinition>
 
 export type FeatureFlagName = keyof typeof FEATURE_FLAGS

@@ -48,6 +48,24 @@ public abstract class MongoIntegrationTest {
     protected static final String AUTHENTICATED_USER = "integration-test";
     protected static final String WRITER_SCOPE = "access_as_writer";
 
+    /** A bearer value the stub decoder turns into a signed-in competitor (ADR-0012). */
+    protected static final String COMPETITOR_TOKEN = "competitor-token";
+
+    /** A competitor-tenant token that lacks the competitor scope. */
+    protected static final String COMPETITOR_TOKEN_WITHOUT_SCOPE = "competitor-noscope-token";
+
+    /** A workforce token without the writer scope. */
+    protected static final String READER_TOKEN = "reader-token-without-writer-scope";
+
+    /** A workforce token whose roles claim contains an app role named COMPETITOR. */
+    protected static final String WORKFORCE_TOKEN_WITH_COMPETITOR_APP_ROLE = "reader-token-with-approle";
+
+    protected static final String COMPETITOR_SUBJECT = "competitor-integration-test";
+    protected static final String COMPETITOR_SCOPE = "access_as_competitor";
+    // Must match bjjeire.competitor-auth.issuer-uri in src/test/resources/application.yml.
+    protected static final String COMPETITOR_ISSUER =
+            "https://00000000-0000-0000-0000-000000000000.ciamlogin.com/" + "00000000-0000-0000-0000-000000000000/v2.0";
+
     @Autowired
     protected MongoTemplate mongoTemplate;
 
@@ -115,12 +133,26 @@ public abstract class MongoIntegrationTest {
 
         // Stub decoder: every token authenticates as the same user and, unless the token value
         // contains "reader", carries the writer scope so existing write ITs keep passing. A
-        // "reader" token lets negative security tests assert 403 on writes.
+        // "reader" token lets negative security tests assert 403 on writes. A "competitor" token is
+        // issued by the competitor tenant; it carries a scope claim naming the writer scope as well,
+        // which must never become an authority.
         @Bean
         JwtDecoder jwtDecoder() {
             return token -> {
+                if (token.contains("competitor")) {
+                    String scope = token.contains("noscope") ? WRITER_SCOPE : WRITER_SCOPE + " " + COMPETITOR_SCOPE;
+                    return Jwt.withTokenValue(token)
+                            .header("alg", "none")
+                            .claim("sub", COMPETITOR_SUBJECT)
+                            .claim("iss", COMPETITOR_ISSUER)
+                            .claim("scope", scope)
+                            .build();
+                }
                 Jwt.Builder builder =
                         Jwt.withTokenValue(token).header("alg", "none").claim("sub", AUTHENTICATED_USER);
+                if (token.contains("approle")) {
+                    builder.claim("roles", List.of("COMPETITOR"));
+                }
                 if (!token.contains("reader")) {
                     builder.claim("scope", WRITER_SCOPE);
                 }

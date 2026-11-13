@@ -35,11 +35,14 @@ management:
 bjjeire:
   auth:
     writer-scope: ${BJJ_EIRE_WRITER_SCOPE:access_as_writer}
-  # Tournament registration (specs/001-tournament-registration). Placeholders only: nothing reads
-  # these until the feature is built. The all-zero tenant and the REPLACE_ME keys are not real.
+  # Tournament registration (specs/001-tournament-registration, ADR-0012, ADR-0013). The all-zero
+  # tenant and the REPLACE_ME keys are placeholders. competitor-auth is read by SecurityConfig;
+  # stripe is not read until sign-up is built.
   competitor-auth:
     issuer-uri: ${COMPETITOR_ISSUER_URI:https://00000000-0000-0000-0000-000000000000.ciamlogin.com/00000000-0000-0000-0000-000000000000/v2.0}
-    audience: ${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}
+    audiences:
+      - ${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}
+      - ${COMPETITOR_AUDIENCE_URI:${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}}
     scope: ${COMPETITOR_SCOPE:access_as_competitor}
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
@@ -62,5 +65,6 @@ bjjeire:
     Gyms: ${FEATURE_GYMS:true}
     Competitions: ${FEATURE_COMPETITIONS:true}
     Stores: ${FEATURE_STORES:true}
+    Tournaments: ${FEATURE_TOURNAMENTS:false}
     GymsMap: ${FEATURE_GYMS_MAP:false}
     EventsMap: ${FEATURE_EVENTS_MAP:false}

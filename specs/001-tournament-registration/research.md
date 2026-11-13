@@ -37,7 +37,7 @@ current documentation in the first task that touches it.
 - **Spec impact**: FR-019's default hold changes from 15 to 30 minutes. The spec has been updated.
 - **Alternatives considered**: Keep 15 minutes and call the "expire session" API from a timer: one more moving part, and a race between the timer and a payment in flight.
 - **Hold limit**: a competitor may have at most two unpaid sign-ups in one tournament (FR-041, owner's decision 2026-11-13), so one account cannot hold a tournament's places without paying. Checked with a count before the place is taken; the small race this leaves can let through a third hold at most, which the expiry clears.
-- **Verify**: the 30-minute minimum for `expires_at`.
+- **Verified 2026-11-13** against Stripe's API reference for creating a Checkout Session: `expires_at` "can be anywhere from 30 minutes to 24 hours after Checkout Session creation" and defaults to 24 hours; the expiry event is `checkout.session.expired`.
 
 ## R5. Capacity and duplicate sign-ups under concurrency
 

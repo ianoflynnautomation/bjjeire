@@ -11,6 +11,7 @@ const ALL_OFF = {
   Stores: false,
   GymsMap: false,
   EventsMap: false,
+  Tournaments: false,
 }
 
 function renderNavItems(
@@ -27,6 +28,24 @@ describe('useNavItems', () => {
     const items = renderNavItems({})
 
     expect(items.map(i => i.id)).toEqual(['about'])
+  })
+
+  // #5038
+  it('given the tournaments flag is disabled and every directory flag is enabled, when the nav items are built, then there is no tournament or account entry', () => {
+    const items = renderNavItems({
+      BjjEvents: true,
+      Gyms: true,
+      Competitions: true,
+      Stores: true,
+    })
+
+    expect(items.map(i => i.id)).toEqual([
+      'events',
+      'gyms',
+      'competitions',
+      'stores',
+      'about',
+    ])
   })
 
   it.each([

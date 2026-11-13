@@ -18,7 +18,9 @@ public enum FeatureFlag {
     /** Map view on the gym directory. Off unless an environment enables it. */
     GYMS_MAP("GymsMap"),
     /** Map view on the events page. Off unless an environment enables it; independent of {@link #GYMS_MAP}. */
-    EVENTS_MAP("EventsMap");
+    EVENTS_MAP("EventsMap"),
+    /** In-house tournaments, competitor accounts and sign-ups. Off unless an environment enables it (ADR-0013). */
+    TOURNAMENTS("Tournaments");
 
     private final String wireName;
 
