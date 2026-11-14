@@ -33,7 +33,7 @@ public class OpenApiConfig {
     @Bean
     OperationCustomizer bearerAuthOperationCustomizer() {
         return (operation, handlerMethod) -> {
-            if (requiresBearerAuth(handlerMethod)) {
+            if (operation.getSecurity() == null && requiresBearerAuth(handlerMethod)) {
                 operation.addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH));
             }
 

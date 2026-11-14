@@ -17,10 +17,12 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.method.ParameterValidationResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -86,6 +88,34 @@ public class ApiExceptionHandler {
         detail.setTitle("Bad Request");
         attachTraceId(detail, request);
         return ResponseEntity.badRequest().body(detail);
+    }
+
+    /** A body that is not JSON, or holds a value its field cannot take, such as an unknown enum name. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleUnreadableBody(
+            HttpMessageNotReadableException exception, HttpServletRequest request) {
+        // The parser's message can quote the request; it stays in the log.
+        log.debug("Unreadable request body", exception);
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "The request body is missing, is not valid JSON, or holds a value of the wrong type.");
+        detail.setType(ProblemTypes.BAD_REQUEST);
+        detail.setTitle("Bad Request");
+        attachTraceId(detail, request);
+        return ResponseEntity.badRequest().body(detail);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ProblemDetail> handleMethodNotAllowed(
+            HttpRequestMethodNotSupportedException exception, HttpServletRequest request) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.METHOD_NOT_ALLOWED, "This route does not support " + exception.getMethod() + ".");
+        detail.setType(ProblemTypes.METHOD_NOT_ALLOWED);
+        detail.setTitle("Method Not Allowed");
+        attachTraceId(detail, request);
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .headers(exception.getHeaders())
+                .body(detail);
     }
 
     @ExceptionHandler({NoSuchElementException.class, NoHandlerFoundException.class, NoResourceFoundException.class})

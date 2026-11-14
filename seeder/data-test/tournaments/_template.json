@@ -1,0 +1,44 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "version": 0,
+    "slug": "example-tournament",
+    "name": "Example Tournament",
+    "description": "Test dataset only. There is no production seed: the organiser creates real tournaments through the API.",
+    "date": "2035-06-02",
+    "venue": {
+      "address": "Snugborough Road, Blanchardstown, Dublin 15",
+      "venue": "National Indoor Arena",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3729,
+          53.3973
+        ],
+        "placeName": "Dublin",
+        "placeId": "acceptance-seed"
+      }
+    },
+    "entryFeeCents": 2500,
+    "currency": "EUR",
+    "registrationOpensAt": "now-7d",
+    "registrationClosesAt": "now+30d",
+    "competitorLimit": 200,
+    "placesTaken": 0,
+    "status": "PUBLISHED",
+    "divisions": [
+      {
+        "id": "000000000000000000000001",
+        "discipline": "GI",
+        "gender": "MALE",
+        "ageCategory": "ADULT",
+        "belt": "WHITE",
+        "weightClass": "-76 kg"
+      }
+    ],
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-11-13T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

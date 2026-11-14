@@ -19,6 +19,9 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Colours, themes, `PageLayout` | [ADR-0011](docs/adr/0011-light-dark-competition-themes.md) — light, dark, and competition; `PageLayout` stays transparent |
 | User-visible copy or test IDs | [ADR-0008](docs/adr/0008-ui-strings-and-test-ids-are-centralised.md) |
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
+| Authentication, `SecurityConfig`, anything a competitor can call | [ADR-0012](docs/adr/0012-competitor-identity-second-issuer.md) — two issuers; competitor tokens never get scope authorities |
+| Payments, the Stripe webhook, read-only mode, the `Tournaments` flag | [ADR-0013](docs/adr/0013-stripe-hosted-checkout-and-webhooks.md) — the webhook is the only confirmer |
+| Local organiser sign-in, `LOCAL_SIGN_IN_*`, `VITE_APP_LOCAL_SIGN_IN`, `lib/admin-auth.ts` | [ADR-0014](docs/adr/0014-local-organiser-sign-in.md) — local profile only; the API refuses to start otherwise |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
 | Acceptance tests and Playwright agents | `bjjeire-tests` owns the plans, specs and agents: see its `AGENTS.md` and `docs/agents.md` |
@@ -85,7 +88,7 @@ npm run build
 
 ## Architecture Guardrails
 
-- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
+- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`, and for tournaments `tournament`, `competitor`, `registration`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
 - Controllers stay thin and delegate use cases to services.
 - Put new backend code in its feature package, not in a shared/layered package.
 - GeoJSON coordinates are `[longitude, latitude]`.
@@ -112,6 +115,7 @@ npm run build
 
 - Development runs in the dev container. Do not install tools or start the app directly on the Mac. From the host, run checks with `devcontainer exec --workspace-folder . <command>`. A missing JDK or a Vitest startup error on the host is expected.
 - `bjjeire-tests` is mounted at `/workspaces/bjjeire-tests` (`BJJ_EIRE_TESTS_ROOT`). Edit its `specs/features/<feature>.md` from here when a feature needs acceptance coverage. Run its tests in its own dev container, which has the browsers and the relay to the app. Its `.env*` and `playwright/.auth` stay unread.
+- `bjjeire-terraform-azurerm-aks` is mounted at `/workspaces/bjjeire-terraform-azurerm-aks` (`BJJ_EIRE_TERRAFORM_ROOT`) and `bjjeire-gitops` at `/workspaces/bjjeire-gitops` (`BJJ_EIRE_GITOPS_ROOT`). Entra app registrations are in the terraform repo's `main.app-registrations.tf`; cluster values and secrets references are in gitops. Edit them from here; do not run `terraform apply` or push to either from this container. Their `.env*`, `*.tfvars`, `*.tfstate*` and `.terraform/` stay unread.
 - `.env` is required.
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.

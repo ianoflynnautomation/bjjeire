@@ -1,0 +1,73 @@
+[
+  {
+    "id": "acce88000000000000000002",
+    "version": 0,
+    "slug": "acceptance-opens-later",
+    "name": "Acceptance Opens Later",
+    "description": "Seeded tournament whose registration has not opened yet.",
+    "date": "2035-06-02",
+    "venue": {
+      "address": "Snugborough Road, Blanchardstown, Dublin 15",
+      "venue": "National Indoor Arena",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -6.3729,
+          53.3973
+        ],
+        "placeName": "Dublin",
+        "placeId": "acceptance-seed"
+      }
+    },
+    "entryFeeCents": 2500,
+    "currency": "EUR",
+    "registrationOpensAt": "now+7d",
+    "registrationClosesAt": "now+30d",
+    "competitorLimit": null,
+    "placesTaken": 0,
+    "status": "PUBLISHED",
+    "divisions": [
+      {
+        "id": "acce99000000000000000201",
+        "discipline": "GI",
+        "gender": "MALE",
+        "ageCategory": "ADULT",
+        "belt": "WHITE",
+        "weightClass": "-76 kg"
+      },
+      {
+        "id": "acce99000000000000000202",
+        "discipline": "GI",
+        "gender": "MALE",
+        "ageCategory": "ADULT",
+        "belt": "BLUE",
+        "weightClass": "-82.3 kg"
+      },
+      {
+        "id": "acce99000000000000000203",
+        "discipline": "GI",
+        "gender": "FEMALE",
+        "ageCategory": "ADULT",
+        "belt": "WHITE",
+        "weightClass": "-64 kg"
+      },
+      {
+        "id": "acce99000000000000000204",
+        "discipline": "NO_GI",
+        "gender": "MALE",
+        "ageCategory": "MASTER_1",
+        "belt": "PURPLE",
+        "weightClass": "-85.5 kg"
+      },
+      {
+        "id": "acce99000000000000000205",
+        "discipline": "NO_GI",
+        "gender": "FEMALE",
+        "ageCategory": "ADULT",
+        "belt": "BLUE",
+        "weightClass": "-66.5 kg"
+      }
+    ],
+    "createdBy": "acceptance-seed"
+  }
+]

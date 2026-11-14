@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { describe, it, expect, vi } from 'vitest'
 import { prefetchRouteData } from '../route-prefetch'
+import { initialTournamentFilters } from '@/features/tournaments/hooks/useTournamentsPage'
 import { initialGymFilters } from '@/features/gyms/hooks/useGymsPage'
 
 describe('prefetchRouteData', () => {
@@ -14,6 +15,17 @@ describe('prefetchRouteData', () => {
     // Must match usePaginatedQuery's key: [...queryKeyBase, { ...params, page }].
     expect(spy.mock.calls[0][0]).toMatchObject({
       queryKey: ['gyms', { ...initialGymFilters, page: 1 }],
+    })
+  })
+
+  it('given the tournaments route, then it primes the key the tournament list page uses', () => {
+    const queryClient = new QueryClient()
+    const spy = vi.spyOn(queryClient, 'query').mockResolvedValue(undefined)
+
+    prefetchRouteData(queryClient, 'tournaments')
+
+    expect(spy.mock.calls[0][0]).toMatchObject({
+      queryKey: ['tournaments', { ...initialTournamentFilters, page: 1 }],
     })
   })
 

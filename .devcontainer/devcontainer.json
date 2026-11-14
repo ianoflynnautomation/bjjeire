@@ -33,14 +33,13 @@
     "source=bjjeire-claude-${devcontainerId},target=/home/vscode/.claude,type=volume",
     "source=bjjeire-grok-${devcontainerId},target=/home/vscode/.grok,type=volume",
     "source=bjjeire-gh-${devcontainerId},target=/home/vscode/.config/gh,type=volume",
-    // The acceptance suite, so its specs/ can be updated with the feature. Only this folder: the
-    // rest of ~/Sources stays out. Same path as the bjjeire-tests dev container uses for this repo.
     "source=${localEnv:HOME}/Sources/bjjeire-tests,target=/workspaces/bjjeire-tests,type=bind",
-    // Linux modules, shared with the bjjeire-tests dev container. The host folder holds Mac ones.
-    "source=bjjeire-tests-node-modules,target=/workspaces/bjjeire-tests/node_modules,type=volume"
+    "source=bjjeire-tests-node-modules,target=/workspaces/bjjeire-tests/node_modules,type=volume",
+    "source=${localEnv:HOME}/Sources/bjjeire-terraform-azurerm-aks,target=/workspaces/bjjeire-terraform-azurerm-aks,type=bind",
+    "source=${localEnv:HOME}/Sources/bjjeire-gitops,target=/workspaces/bjjeire-gitops,type=bind"
   ],
-  // Runs on the host before the container starts: the bind mount below fails if the folder is missing.
-  "initializeCommand": "test -d \"$HOME/Sources/bjjeire-tests\" || git clone https://github.com/ianoflynnautomation/bjjeire-tests.git \"$HOME/Sources/bjjeire-tests\"",
+  // Runs on the host before the container starts: a bind mount above fails if its folder is missing.
+  "initializeCommand": "for repo in bjjeire-tests bjjeire-terraform-azurerm-aks bjjeire-gitops; do test -d \"$HOME/Sources/$repo\" || git clone \"https://github.com/ianoflynnautomation/$repo.git\" \"$HOME/Sources/$repo\" || exit 1; done",
   // Create and rebuild. Post-create does not run again when the image is rebuilt.
   "updateContentCommand": "bash .devcontainer/post-create-commands.sh",
   "containerEnv": {
@@ -50,6 +49,8 @@
     "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
     "GROK_HOME": "/home/vscode/.grok",
     "BJJ_EIRE_TESTS_ROOT": "/workspaces/bjjeire-tests",
+    "BJJ_EIRE_TERRAFORM_ROOT": "/workspaces/bjjeire-terraform-azurerm-aks",
+    "BJJ_EIRE_GITOPS_ROOT": "/workspaces/bjjeire-gitops",
     "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
     "XAI_API_KEY": "${localEnv:XAI_API_KEY}"

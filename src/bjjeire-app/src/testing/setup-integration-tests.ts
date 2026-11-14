@@ -3,6 +3,7 @@ import { server } from './msw/server'
 import { resetGymIdCounter } from './factories/gym.factory'
 import { resetEventIdCounter } from './factories/event.factory'
 import { resetCompetitionIdCounter } from './factories/competition.factory'
+import { resetTournamentIdCounter } from './factories/tournament.factory'
 import './setup-tests'
 
 vi.mock('@/config/env', () => ({
@@ -26,4 +27,5 @@ afterEach(() => {
   resetGymIdCounter()
   resetEventIdCounter()
   resetCompetitionIdCounter()
+  resetTournamentIdCounter()
 })

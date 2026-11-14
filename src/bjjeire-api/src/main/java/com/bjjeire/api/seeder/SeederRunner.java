@@ -124,11 +124,15 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
     }
 
     private List<SeederCollection> resolveCollections(String filter) {
+        // A collection with no production seed does not exist for a production run, prune included.
+        List<SeederCollection> available = SeederCollection.ALL.stream()
+                .filter(collection -> !collection.testDatasetOnly() || properties.useTestDataset())
+                .toList();
         if (filter == null) {
-            return SeederCollection.ALL;
+            return available;
         }
 
-        List<SeederCollection> matched = SeederCollection.ALL.stream()
+        List<SeederCollection> matched = available.stream()
                 .filter(collection -> collection.name().equals(filter))
                 .toList();
         if (matched.isEmpty()) {
@@ -136,10 +140,7 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
                     "ERROR: Unknown collection '%s'. Valid values: %s%n",
                     filter,
                     String.join(
-                            ", ",
-                            SeederCollection.ALL.stream()
-                                    .map(SeederCollection::name)
-                                    .toList()));
+                            ", ", available.stream().map(SeederCollection::name).toList()));
             return null;
         }
         return matched;

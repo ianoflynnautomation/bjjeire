@@ -44,13 +44,15 @@ Package-by-feature under `com.bjjeire.api.{gym,event,competition,store}`.
 | Events | `/api/v1/bjjevent` | `BjjEvent` |
 | Competitions | `/api/v1/competition` | `Competition` |
 | Stores | `/api/v1/store` | `Store` |
+| Tournaments (flag `Tournaments`, default off; set-up and public pages live, sign-up pending) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`; `Competitor`, `TournamentRegistration`, `StripeEvent` (planned) |
 | Feature flags | `/api/v1/featureflag` | (config) |
 | Donate | `/api/v1/donate` | (static) |
 
 List endpoints: `page` (1-based), `pageSize` (1–100), optional `county`.
 Envelope: `PagedResponse<T>`. Errors: `ProblemDetail` (`urn:bjjeire`).
 
-Public GET; POST/PUT/DELETE require Bearer token.
+Public GET; POST/PUT/DELETE require the admin's Bearer token. Tournament routes add a second
+token issuer for competitors and one signature-authenticated webhook (ADR-0012, ADR-0013).
 
 ## Frontend
 
