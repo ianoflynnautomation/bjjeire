@@ -102,6 +102,10 @@ class TournamentFeatureOffIT extends MongoIntegrationTest {
 
     private static void assertFeatureAbsent(ResponseEntity<String> response) {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).contains("The tournament feature is not available.");
+        assertThat(response.getBody())
+                .contains("The tournament feature is not available.")
+                // Top level, as every other problem document has it, not nested under "properties".
+                .containsPattern("^\\{.*\"traceId\":\"[^\"]+\"")
+                .doesNotContain("\"properties\"");
     }
 }

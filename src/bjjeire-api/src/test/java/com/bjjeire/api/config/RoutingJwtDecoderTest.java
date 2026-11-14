@@ -20,6 +20,21 @@ class RoutingJwtDecoderTest {
     private final JwtDecoder competitor = token -> decoded(token, "competitor");
     private final RoutingJwtDecoder decoder = new RoutingJwtDecoder(workforce, competitor, COMPETITOR_ISSUER);
 
+    /** ADR-0014: the local sign-in issuer is trusted only where local sign-in is switched on. */
+    @Test
+    void shouldSendLocalSignInTokensToTheLocalDecoderOnlyWhenLocalSignInIsConfigured() {
+        JwtDecoder local = token -> decoded(token, "local");
+        RoutingJwtDecoder withLocal = new RoutingJwtDecoder(workforce, competitor, COMPETITOR_ISSUER, local);
+
+        assertThat(withLocal.decode(tokenIssuedBy(LocalSignInTokens.ISSUER)).getSubject())
+                .isEqualTo("local");
+        assertThat(withLocal.decode(tokenIssuedBy(COMPETITOR_ISSUER)).getSubject())
+                .isEqualTo("competitor");
+        // Without a local decoder the issuer means nothing: the workforce decoder sees it and rejects it.
+        assertThat(decoder.decode(tokenIssuedBy(LocalSignInTokens.ISSUER)).getSubject())
+                .isEqualTo("workforce");
+    }
+
     @Test
     void shouldSendCompetitorIssuerTokensToTheCompetitorDecoder() {
         assertThat(decoder.decode(tokenIssuedBy(COMPETITOR_ISSUER)).getSubject())

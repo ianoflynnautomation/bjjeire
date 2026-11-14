@@ -16,11 +16,13 @@ public record BjjEireProperties(
         RateLimit rateLimit,
         ReadOnlyMode readOnlyMode,
         Map<String, Boolean> featureFlags,
-        CompetitorAuth competitorAuth) {
+        CompetitorAuth competitorAuth,
+        LocalSignIn localSignIn) {
     // Two constructors: tell Spring Boot which one binds configuration.
     @ConstructorBinding
     public BjjEireProperties {
         competitorAuth = competitorAuth == null ? new CompetitorAuth("", List.of(), "") : competitorAuth;
+        localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -39,7 +41,20 @@ public record BjjEireProperties(
             RateLimit rateLimit,
             ReadOnlyMode readOnlyMode,
             Map<String, Boolean> featureFlags) {
-        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null);
+        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null);
+    }
+
+    /**
+     * Organiser sign-in for local development without an Entra tenant (ADR-0014). Off by default; the API refuses to
+     * start with it on unless the {@code local} profile is active.
+     *
+     * @param enabled whether the API issues and trusts local organiser tokens
+     * @param secret HS256 signing secret, at least 32 bytes when enabled
+     */
+    public record LocalSignIn(boolean enabled, String secret) {
+        public LocalSignIn {
+            secret = secret == null ? "" : secret;
+        }
     }
 
     public record Auth(String writerScope) {}

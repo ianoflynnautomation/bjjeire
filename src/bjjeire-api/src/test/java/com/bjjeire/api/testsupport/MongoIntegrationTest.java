@@ -7,6 +7,7 @@ import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
+import com.bjjeire.api.tournament.Tournament;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -94,12 +95,19 @@ public abstract class MongoIntegrationTest {
                 BjjEvent.class,
                 Competition.class,
                 Store.class,
+                Tournament.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
             mongoTemplate.remove(new Query(), entityType);
         }
-        for (String tag :
-                List.of(ApiCache.GYMS_TAG, ApiCache.BJJ_EVENTS_TAG, ApiCache.COMPETITIONS_TAG, ApiCache.STORES_TAG)) {
+        // Sign-ups have no Java type yet; tournament tests write them by collection name.
+        mongoTemplate.remove(new Query(), "TournamentRegistration");
+        for (String tag : List.of(
+                ApiCache.GYMS_TAG,
+                ApiCache.BJJ_EVENTS_TAG,
+                ApiCache.COMPETITIONS_TAG,
+                ApiCache.STORES_TAG,
+                ApiCache.TOURNAMENTS_TAG)) {
             apiCache.removeByTag(tag);
         }
     }

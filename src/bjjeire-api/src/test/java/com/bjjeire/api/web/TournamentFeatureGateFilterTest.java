@@ -12,7 +12,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.ProblemDetailJacksonMixin;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +45,10 @@ class TournamentFeatureGateFilterTest {
                 .perform(get(URI.create(path)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"))
-                .andExpect(jsonPath("$.detail").value("The tournament feature is not available."));
+                .andExpect(jsonPath("$.detail").value("The tournament feature is not available."))
+                // Every other problem document carries one. A mock request has no id, so the value is empty here;
+                // TournamentFeatureOffIT proves a real one (bjjeire-tests finding, 2026-11-13).
+                .andExpect(jsonPath("$.traceId").exists());
     }
 
     @ParameterizedTest
@@ -53,7 +58,8 @@ class TournamentFeatureGateFilterTest {
         gated(false)
                 .perform(post(path))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"));
+                .andExpect(jsonPath("$.type").value("urn:bjjeire:not-found"))
+                .andExpect(jsonPath("$.traceId").exists());
     }
 
     @ParameterizedTest
@@ -69,11 +75,18 @@ class TournamentFeatureGateFilterTest {
         gated(true).perform(post("/api/v1/registration")).andExpect(status().isOk());
     }
 
+    /** As the application's mapper writes a problem: extensions at top level, not under "properties". */
+    private static JsonMapper problemMapper() {
+        return JsonMapper.builder()
+                .addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class)
+                .build();
+    }
+
     private static MockMvc gated(boolean enabled) {
         FeatureFlagService flags = new FeatureFlagServiceImpl(
                 new BjjEireProperties(null, null, null, null, null, Map.of("Tournaments", enabled)));
         return MockMvcBuilders.standaloneSetup(new TestController())
-                .addFilters(new TournamentFeatureGateFilter(flags, new JsonMapper()))
+                .addFilters(new TournamentFeatureGateFilter(flags, problemMapper()))
                 .build();
     }
 

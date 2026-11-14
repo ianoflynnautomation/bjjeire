@@ -27,6 +27,8 @@ import com.bjjeire.api.store.Store;
 import com.bjjeire.api.store.StoreRepository;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import com.bjjeire.api.testsupport.OpenApiResponseValidator;
+import com.bjjeire.api.tournament.Tournament;
+import com.bjjeire.api.tournament.TournamentStatus;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,6 +89,56 @@ class OpenApiContractIT extends MongoIntegrationTest {
         assertThat(hasBearerSecurity(gymPost)).isTrue();
         assertThat(hasBearerSecurity(eventPut)).isTrue();
         assertThat(hasBearerSecurity(eventDelete)).isTrue();
+    }
+
+    @Test
+    void shouldPublishTournamentRoutesWithBearerAuthOnEveryAdminOperation() throws Exception {
+        JsonNode document = objectMapper.readTree(openApiDocument().getBody());
+
+        assertThat(document.at("/paths").propertyNames())
+                .contains(
+                        ApiRoutes.TOURNAMENT,
+                        ApiRoutes.TOURNAMENT + "/{slug}",
+                        ApiRoutes.TOURNAMENT + "/admin",
+                        ApiRoutes.TOURNAMENT + "/admin/{id}",
+                        ApiRoutes.TOURNAMENT + "/{id}",
+                        ApiRoutes.TOURNAMENT + "/{id}/publish");
+        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT, "get")).has("security"))
+                .isFalse();
+        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/{slug}", "get"))
+                        .has("security"))
+                .isFalse();
+        // Admin reads are GETs, which the method-based rule alone would leave unmarked.
+        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/admin", "get"))))
+                .isTrue();
+        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/admin/{id}", "get"))))
+                .isTrue();
+        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT, "post"))))
+                .isTrue();
+        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT, "post") + "/security"))
+                .hasSize(1);
+    }
+
+    @Test
+    void shouldReturnAPublicTournamentListingThatMatchesTheServedSchema() throws Exception {
+        mongoTemplate.insert(Tournament.builder()
+                .slug("bjjeire")
+                .name("BjjEire")
+                .date(java.time.LocalDate.parse("2026-06-27"))
+                .venue(new Location(
+                        "1 Main Street",
+                        "National Arena",
+                        new GeoCoordinates("Point", List.of(-6.26, 53.35), null, null)))
+                .entryFeeCents(2500)
+                .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
+                .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
+                .status(TournamentStatus.PUBLISHED)
+                .build());
+
+        OpenApiResponseValidator validator = new OpenApiResponseValidator(
+                objectMapper.readTree(openApiDocument().getBody()));
+
+        assertListingMatches(validator, ApiRoutes.TOURNAMENT);
     }
 
     @Test

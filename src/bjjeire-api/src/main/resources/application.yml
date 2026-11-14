@@ -47,6 +47,11 @@ bjjeire:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}
+  # ADR-0014: organiser sign-in without Entra, for local development only. The API refuses to start with
+  # this on unless the 'local' profile is active. docker-compose.override.java-local.yml turns it on.
+  local-sign-in:
+    enabled: ${LOCAL_SIGN_IN_ENABLED:false}
+    secret: ${LOCAL_SIGN_IN_SECRET:}
   cors:
     allowed-origins:
       - ${CORS_ALLOWED_ORIGIN:https://bjjeire.com}

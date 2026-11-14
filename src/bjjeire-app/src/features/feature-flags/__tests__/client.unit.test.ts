@@ -27,8 +27,7 @@ describe('createFeatureFlagClient', () => {
 
 describe('feature flag catalogue', () => {
   it('given the route table, when it is compared with the catalogue, then both list the same flags apart from those that switch a view inside a page', () => {
-    // Tournaments gets its route with the public tournament pages (specs/001-tournament-registration, US1).
-    const flagsWithoutARoute = ['GymsMap', 'EventsMap', 'Tournaments']
+    const flagsWithoutARoute = ['GymsMap', 'EventsMap']
 
     expect(features.map(feature => feature.flag).sort()).toEqual(
       FEATURE_FLAG_NAMES.filter(

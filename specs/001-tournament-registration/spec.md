@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-13
 
-**Status**: Draft
+**Status**: In progress — slices 0 and 1 implemented (`#5001`–`#5005`, `#5036`–`#5038`); living spec: specs/features/tournaments.md. Set to "Implemented" when the last slice ships.
 
 **Input**: User description: "i want to add a new feature to my bjj app. i want to organise a tournament to allow users to sign up and compete in the tournament. similar to how smoothcomp setup events but i want to do it in house. currently i do not have a login and my app is readonly. i want to keep the existing features read only but also add a new feature for my new competition. this will allow users to sign up for the event. they should have a user profile. for the competition they will need to be able to select their bracket and weight class. this would also allow users to cancel event signup and they will need to pay a small fee to sign up so need to integrate payment feature. the competition should also display leaderboard and the team/affiliate points"
 

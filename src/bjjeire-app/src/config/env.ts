@@ -20,6 +20,14 @@ const EnvSchema = z.object({
   MSAL_CLIENT_ID: z._default(z.string(), ''),
   MSAL_AUTHORITY: optionalUrl,
   MSAL_API_SCOPE: z._default(z.string(), ''),
+  // ADR-0014: organiser sign-in through the local API, for local development only.
+  LOCAL_SIGN_IN: z._default(
+    z.pipe(
+      z.enum(['true', 'false']),
+      z.transform(val => val === 'true')
+    ),
+    false
+  ),
   CONTACT_EMAIL: z._default(z.email(), 'info@bjj-eire.com'),
   SOCIAL_INSTAGRAM_URL: optionalUrl,
   SOCIAL_FACEBOOK_URL: optionalUrl,

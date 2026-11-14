@@ -23,6 +23,7 @@ and flipping the old one's status — not editing it.
 | [0011](0011-light-dark-competition-themes.md) | The SPA has light, dark, and competition themes | Accepted |
 | [0012](0012-competitor-identity-second-issuer.md) | Competitor identity is a second token issuer | Accepted |
 | [0013](0013-stripe-hosted-checkout-and-webhooks.md) | Entry fees use Stripe hosted checkout, confirmed by signed webhook | Accepted |
+| [0014](0014-local-organiser-sign-in.md) | Local development signs the organiser in without Entra | Accepted |
 
 ## Adding one
 

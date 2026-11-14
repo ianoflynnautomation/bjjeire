@@ -1,6 +1,7 @@
 # Routes, auth and invariants for tournaments. Copied from the design record
 # (specs/001-tournament-registration/contracts/contract.yaml) and kept here from now on.
-# status: the auth rules and the feature flag gate are live; no route has a controller yet.
+# status: the auth rules and the feature flag gate are live. Live routes: GET /api/v1/tournament, GET /{slug},
+# GET /admin, GET /admin/{id}, POST /, PUT /{id}, POST /{id}/publish (slice 1). Every other route has no controller yet.
 feature: tournaments
 feature_flag: Tournaments   # default off; API answers 404 and SPA hides routes when off
 openapi:
@@ -48,24 +49,33 @@ routes:
   - method: GET
     path: /api/v1/tournament/admin
     auth: admin
-    response: PagedResponse<TournamentSummaryDto>   # includes DRAFT
+    response: PagedResponse<TournamentSummaryDto>   # includes DRAFT; latest day first
+    covers: ["#5001", "#5004"]
+  - method: GET
+    path: /api/v1/tournament/admin/{id}
+    auth: admin
+    response: TournamentDto   # any status; 404 unknown id
+    notes: added in slice 1 so the organiser can open a draft, which the public slug route never serves
+    covers: ["#5001", "#5004"]
   - method: POST
     path: /api/v1/tournament
     auth: admin
     request: CreateTournamentCommand
-    response: 201 TournamentDto (status DRAFT)
+    response: 201 TournamentDto (status DRAFT); Location /api/v1/tournament/admin/{id}
+    conflicts: [conflict]   # slug taken
     covers: ["#5001", "#5004"]
   - method: PUT
     path: /api/v1/tournament/{id}
     auth: admin
     request: UpdateTournamentCommand   # details, fee, window, limit, full division list
-    conflicts: [division-has-signups]
-    covers: ["#5005"]
+    conflicts: [division-has-signups, conflict]   # conflict: stale version, finished or cancelled, or slug taken; no-divisions / invalid-window when already published
+    notes: version (required) is the one the edit started from, a stale one is 409 and a missing one 400; an existing division is sent with its id and keeps it; a division without an id is new; an unknown id is 400 UNKNOWN_DIVISION; a repeated division is 400 DUPLICATE_DIVISION
+    covers: ["#5004", "#5005"]
   - method: POST
     path: /api/v1/tournament/{id}/publish
     auth: admin
-    conflicts: [no-divisions, invalid-window]
-    covers: ["#5002"]
+    conflicts: [no-divisions, invalid-window, conflict]   # conflict: not a draft, or changed by another save while publishing
+    covers: ["#5002", "#5004"]
   - method: POST
     path: /api/v1/tournament/{id}/cancel
     auth: admin
@@ -176,7 +186,7 @@ invariants:
   - ownership: a competitor route addressed by id returns 403 unless the registration belongs to the caller
   - money: integer cents, EUR; amounts are never taken from the client
   - confirmation: only the verified webhook moves a registration to CONFIRMED
-  - cache_tag: (planned) TOURNAMENTS_TAG, evicted by every tournament, result, registration and merge write
+  - cache_tag: TOURNAMENTS_TAG, evicted by every tournament write (live); result, registration and merge writes evict it when they exist
   - audit: admin and competitor writes are recorded through audit.AuditRecorder
 
 ui_routes:   # SPA, all behind the Tournaments feature gate
@@ -192,12 +202,12 @@ ui_routes:   # SPA, all behind the Tournaments feature gate
 pointers:
   feature_spec: specs/features/tournaments.md
   design: specs/001-tournament-registration/spec.md
-  database: specs/001-tournament-registration/data-model.md
+  database: specs/database-contracts/tournament.md   # later collections: specs/001-tournament-registration/data-model.md
+  ui_strings_file: src/bjjeire-app/src/config/content/tournaments.ts
+  test_seed: seeder/data-test/tournaments/
   generated_types: src/bjjeire-app/src/types/generated/api.ts
   ui_strings: src/bjjeire-app/src/config/ui-content.ts
   api_routes_spa: src/bjjeire-app/src/config/api-routes.ts
-planned:   # named by the design; none of these exists yet
-  cache_tag: TOURNAMENTS_TAG in common/ApiCache.java
   pact: src/bjjeire-app/src/contracts/pact/tournament.pact.test.ts
   msw: src/bjjeire-app/src/testing/msw/handlers/tournaments.ts
   test_ids: src/bjjeire-app/src/constants/tournamentDataTestIds.ts

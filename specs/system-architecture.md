@@ -44,7 +44,7 @@ Package-by-feature under `com.bjjeire.api.{gym,event,competition,store}`.
 | Events | `/api/v1/bjjevent` | `BjjEvent` |
 | Competitions | `/api/v1/competition` | `Competition` |
 | Stores | `/api/v1/store` | `Store` |
-| Tournaments (flag `Tournaments`, default off; rules live, controllers pending) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`, `Competitor`, `TournamentRegistration`, `StripeEvent` (planned) |
+| Tournaments (flag `Tournaments`, default off; set-up and public pages live, sign-up pending) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`; `Competitor`, `TournamentRegistration`, `StripeEvent` (planned) |
 | Feature flags | `/api/v1/featureflag` | (config) |
 | Donate | `/api/v1/donate` | (static) |
 

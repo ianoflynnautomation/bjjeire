@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -56,15 +57,23 @@ public class SecurityConfig {
             JwtDecoder workforceJwtDecoder,
             FeatureFlagService featureFlags,
             ObjectMapper objectMapper,
-            Clock clock)
+            Clock clock,
+            Environment environment)
             throws Exception {
+        BjjEireProperties.LocalSignIn localSignIn = properties.localSignIn();
+        // Fail startup rather than issue organiser tokens outside local development (ADR-0014).
+        LocalSignInTokens.requireSafe(localSignIn, environment);
         String writerAuthority = "SCOPE_" + properties.auth().writerScope();
         // Two issuers, one filter chain (ADR-0012). The JwtDecoder bean stays the workforce decoder, so
         // Spring Boot's configuration and the integration-test stub both keep working.
         BjjEireProperties.CompetitorAuth competitorAuth = properties.competitorAuth();
         boolean tournamentsEnabled = featureFlags.isEnabled(FeatureFlag.TOURNAMENTS, FeatureFlagContext.anonymous());
         JwtDecoder routingDecoder = routingDecoder(
-                workforceJwtDecoder, competitorJwtDecoder(competitorAuth, clock), competitorAuth, tournamentsEnabled);
+                workforceJwtDecoder,
+                competitorJwtDecoder(competitorAuth, clock),
+                competitorAuth,
+                tournamentsEnabled,
+                localSignIn.enabled() ? LocalSignInTokens.decoder(localSignIn.secret(), clock) : null);
         // "Authenticated" has always meant a workforce account. A self-registered competitor does not inherit it.
         AuthorizationManager<RequestAuthorizationContext> workforceAccount = (authentication, context) -> {
             Authentication current = authentication.get();
@@ -93,51 +102,58 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(handling ->
                         handling.authenticationEntryPoint(problemHandlers).accessDeniedHandler(problemHandlers))
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
-                                ApiRoutes.FEATURE_FLAG + "/**",
-                                "/health",
-                                "/metrics",
-                                "/actuator/health/**",
-                                "/actuator/info",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**")
-                        .permitAll()
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                ApiRoutes.BJJ_EVENT + "/**",
-                                ApiRoutes.COMPETITION + "/**",
-                                ApiRoutes.DONATE + "/**",
-                                ApiRoutes.GYM + "/**",
-                                ApiRoutes.STORE + "/**")
-                        .permitAll()
-                        // Tournament feature (ADR-0012, ADR-0013). Order matters: the first match wins, and
-                        // everything not named here falls through to the writer-only rules below.
-                        .requestMatchers(HttpMethod.POST, ApiRoutes.STRIPE_WEBHOOK)
-                        .permitAll()
-                        .requestMatchers(ApiRoutes.COMPETITOR + "/**", ApiRoutes.REGISTRATION + "/**")
-                        .access(competitorAccount)
-                        // No method restriction on these: Spring MVC serves HEAD through the GET handler.
-                        .requestMatchers(ApiRoutes.TOURNAMENT + "/*/eligible-division")
-                        .access(competitorAccount)
-                        .requestMatchers(
-                                ApiRoutes.TOURNAMENT + "/admin",
-                                ApiRoutes.TOURNAMENT + "/admin/**",
-                                ApiRoutes.TOURNAMENT + "/*/registration",
-                                ApiRoutes.TOURNAMENT + "/*/registration/**")
-                        .hasAuthority(writerAuthority)
-                        .requestMatchers(HttpMethod.GET, ApiRoutes.TOURNAMENT, ApiRoutes.TOURNAMENT + "/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/**")
-                        .hasAuthority(writerAuthority)
-                        .requestMatchers(HttpMethod.PUT, "/**")
-                        .hasAuthority(writerAuthority)
-                        .requestMatchers(HttpMethod.PATCH, "/**")
-                        .hasAuthority(writerAuthority)
-                        .requestMatchers(HttpMethod.DELETE, "/**")
-                        .hasAuthority(writerAuthority)
-                        .anyRequest()
-                        .access(workforceAccount))
+                .authorizeHttpRequests(authorize -> {
+                    if (localSignIn.enabled()) {
+                        authorize
+                                .requestMatchers(HttpMethod.POST, ApiRoutes.LOCAL_SIGN_IN)
+                                .permitAll();
+                    }
+                    authorize
+                            .requestMatchers(
+                                    ApiRoutes.FEATURE_FLAG + "/**",
+                                    "/health",
+                                    "/metrics",
+                                    "/actuator/health/**",
+                                    "/actuator/info",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**")
+                            .permitAll()
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    ApiRoutes.BJJ_EVENT + "/**",
+                                    ApiRoutes.COMPETITION + "/**",
+                                    ApiRoutes.DONATE + "/**",
+                                    ApiRoutes.GYM + "/**",
+                                    ApiRoutes.STORE + "/**")
+                            .permitAll()
+                            // Tournament feature (ADR-0012, ADR-0013). Order matters: the first match wins, and
+                            // everything not named here falls through to the writer-only rules below.
+                            .requestMatchers(HttpMethod.POST, ApiRoutes.STRIPE_WEBHOOK)
+                            .permitAll()
+                            .requestMatchers(ApiRoutes.COMPETITOR + "/**", ApiRoutes.REGISTRATION + "/**")
+                            .access(competitorAccount)
+                            // No method restriction on these: Spring MVC serves HEAD through the GET handler.
+                            .requestMatchers(ApiRoutes.TOURNAMENT + "/*/eligible-division")
+                            .access(competitorAccount)
+                            .requestMatchers(
+                                    ApiRoutes.TOURNAMENT + "/admin",
+                                    ApiRoutes.TOURNAMENT + "/admin/**",
+                                    ApiRoutes.TOURNAMENT + "/*/registration",
+                                    ApiRoutes.TOURNAMENT + "/*/registration/**")
+                            .hasAuthority(writerAuthority)
+                            .requestMatchers(HttpMethod.GET, ApiRoutes.TOURNAMENT, ApiRoutes.TOURNAMENT + "/**")
+                            .permitAll()
+                            .requestMatchers(HttpMethod.POST, "/**")
+                            .hasAuthority(writerAuthority)
+                            .requestMatchers(HttpMethod.PUT, "/**")
+                            .hasAuthority(writerAuthority)
+                            .requestMatchers(HttpMethod.PATCH, "/**")
+                            .hasAuthority(writerAuthority)
+                            .requestMatchers(HttpMethod.DELETE, "/**")
+                            .hasAuthority(writerAuthority)
+                            .anyRequest()
+                            .access(workforceAccount);
+                })
                 .oauth2ResourceServer(oauth2 -> oauth2.authenticationEntryPoint(problemHandlers)
                         .accessDeniedHandler(problemHandlers)
                         .jwt(jwt -> jwt.decoder(routingDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter)))
@@ -162,7 +178,18 @@ public class SecurityConfig {
             JwtDecoder competitor,
             BjjEireProperties.CompetitorAuth competitorAuth,
             boolean tournamentsEnabled) {
-        return new RoutingJwtDecoder(workforce, competitor, tournamentsEnabled ? competitorAuth.issuerUri() : "");
+        return routingDecoder(workforce, competitor, competitorAuth, tournamentsEnabled, null);
+    }
+
+    /** As above, plus the local sign-in decoder where local sign-in is on, or null (ADR-0014). */
+    static JwtDecoder routingDecoder(
+            JwtDecoder workforce,
+            JwtDecoder competitor,
+            BjjEireProperties.CompetitorAuth competitorAuth,
+            boolean tournamentsEnabled,
+            JwtDecoder local) {
+        return new RoutingJwtDecoder(
+                workforce, competitor, tournamentsEnabled ? competitorAuth.issuerUri() : "", local);
     }
 
     /**

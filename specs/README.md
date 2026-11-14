@@ -16,7 +16,8 @@ specs/
 │   ├── gym.md
 │   ├── bjj-event.md
 │   ├── competition.md
-│   └── store.md
+│   ├── store.md
+│   └── tournament.md             # Tournament (slice 1); competitor and registration follow
 ├── features/                     # visitor-facing feature specs
 │   ├── gyms.md
 │   ├── events.md
@@ -28,7 +29,8 @@ specs/
     ├── gyms/
     ├── events/
     ├── competitions/
-    └── stores/
+    ├── stores/
+    └── tournaments/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).

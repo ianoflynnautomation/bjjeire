@@ -1,6 +1,8 @@
 package com.bjjeire.api.web;
 
 import com.bjjeire.api.common.ApiRoutes;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,6 +46,9 @@ public final class TournamentFeatureGateFilter extends OncePerRequestFilter {
         problem.setTitle("Not Found");
         problem.setType(ProblemTypes.NOT_FOUND);
         problem.setInstance(URI.create(request.getRequestURI()));
+        // Same rule as ApiExceptionHandler and SecurityProblemHandlers: every problem names its trace.
+        SpanContext spanContext = Span.current().getSpanContext();
+        problem.setProperty("traceId", spanContext.isValid() ? spanContext.getTraceId() : request.getRequestId());
 
         response.setStatus(HttpStatus.NOT_FOUND.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);

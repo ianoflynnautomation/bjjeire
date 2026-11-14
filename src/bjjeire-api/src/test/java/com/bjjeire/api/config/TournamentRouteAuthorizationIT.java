@@ -140,6 +140,16 @@ class TournamentRouteAuthorizationIT extends MongoIntegrationTest {
         assertAllowed(status(HttpMethod.POST, ApiRoutes.STRIPE_WEBHOOK, null));
     }
 
+    /** ADR-0014: outside local development there is no local sign-in, so nobody can obtain a token from the API. */
+    @Test
+    void shouldOfferNoLocalSignInOutsideLocalDevelopment() {
+        var response =
+                restTemplate.exchange(ApiRoutes.LOCAL_SIGN_IN, HttpMethod.POST, jsonEntity("", null), String.class);
+
+        assertThat(response.getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).doesNotContain("accessToken");
+    }
+
     private HttpStatusCode status(HttpMethod method, String path, String bearerToken) {
         return restTemplate
                 .exchange(path, method, jsonEntity("{}", bearerToken), String.class)

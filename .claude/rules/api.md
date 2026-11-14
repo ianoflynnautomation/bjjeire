@@ -26,7 +26,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, and for tournaments `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`). Do not add a second PascalCase alias
 - One public version, `/api/v1`. Extend a resource with optional fields. Do not publish a second copy of it
 - Queries return DTOs (never domain entities directly); writes accept command records that wrap the read DTO
-- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`
+- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`. Exception: the tournament feature (`tournament`, `competitor`, `registration`) uses the `UPPER_SNAKE` values its contract fixes (`DRAFT`, `NO_GI`, `NOT_OPEN`, `MASTER_1`; `specs/stc/tournaments/contract.yaml`). They are published; changing either family is a breaking change
 - Pagination query params bind to `common.PaginationRequest`. Path ids take `@ValidObjectId`
 
 ## Pagination
@@ -35,7 +35,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - `pagination` fields: `totalItems`, `currentPage`, `pageSize`, `totalPages`, `hasNextPage`, `hasPreviousPage`, `nextPageUrl`, `previousPageUrl`
 
 ## Writes
-- Gym and event updates are `PUT` of the full resource plus `version`. A missing or stale version is 409. Do not replace that with `PATCH`
+- Gym, event and tournament updates are `PUT` of the full resource plus `version`. A stale version is 409 (a missing one is 409 for gyms and events, 400 for tournaments). Do not replace that with `PATCH`
 - There is no `Idempotency-Key`. Create without an id inserts again. The same id again is 409 and does not replay 201. A second delete is 404. Say so on the operation description
 - `GeoCoordinates.latitude` and `longitude` are derived and omitted when the pair is absent. SPA handwritten types must not require a field the served schema omits. `src/types/generated` is the CI check; feature clients keep their handwritten types
 
@@ -44,6 +44,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, tournament admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
 - `anyRequest()` means a workforce account, not any valid token. A competitor token does not satisfy it
 - `POST /api/v1/registration/stripe-webhook` is the only write with no bearer token (ADR-0013). Its controller must verify the Stripe signature
+- Local development only: `POST /api/v1/local-sign-in` issues an organiser token when `bjjeire.local-sign-in.enabled` is true (ADR-0014). The API refuses to start that way without the `local` profile. Never enable it in a cluster, and never map its issuer to anything but the workforce rules
 
 ## Cross-cutting filters (`config/`)
 - `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping
@@ -56,7 +57,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Adding or removing a flag is one change in three places: the enum, the `feature-flags` block in `application.yml` (`FEATURE_*` variables), and `src/bjjeire-app/src/features/feature-flags/definitions.ts`
 
 ## Errors
-- `web.ApiExceptionHandler` returns `ProblemDetail` with an `errors[]` array for validation failures, a `traceId` extension, and an `errorId` on unexpected 500s. Do not add per-controller exception handling
+- `web.ApiExceptionHandler` returns `ProblemDetail` with an `errors[]` array for validation failures, a `traceId` extension, and an `errorId` on unexpected 500s. A body that is not JSON or holds an unreadable value is 400 `urn:bjjeire:bad-request`, and a method a route lacks is 405 `urn:bjjeire:method-not-allowed`, for every route. Do not add per-controller exception handling
 - Every error `type` is a `urn:bjjeire:*` URI from `web.ProblemTypes`. Do not emit an RFC document URL
 - `errors[].field` stays PascalCase (`Location.Address`). That casing is part of the contract
 - Authentication and authorization failures are problem documents, not an empty body. `SecurityProblemHandlers` writes them. The resource-server defaults set a status and `WWW-Authenticate` and write no body. A 401 includes `WWW-Authenticate: Bearer`

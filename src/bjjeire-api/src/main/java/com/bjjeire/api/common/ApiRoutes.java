@@ -17,6 +17,9 @@ public final class ApiRoutes {
     public static final String COMPETITOR = "/api/v1/competitor";
     /** A competitor's sign-ups, and the payment webhook. */
     public static final String REGISTRATION = "/api/v1/registration";
+    /** Local development only: issues an organiser token (ADR-0014). Absent everywhere else. */
+    public static final String LOCAL_SIGN_IN = "/api/v1/local-sign-in";
+
     /** The one write with no bearer token; authenticated by Stripe's signature (ADR-0013). */
     public static final String STRIPE_WEBHOOK = REGISTRATION + "/stripe-webhook";
 

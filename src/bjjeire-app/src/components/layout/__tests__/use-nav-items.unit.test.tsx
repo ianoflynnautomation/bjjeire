@@ -48,6 +48,15 @@ describe('useNavItems', () => {
     ])
   })
 
+  // #5038 (the other half): the entry appears only when the flag is on.
+  it('given the tournaments flag is enabled, when the nav items are built, then Tournaments appears before About and links to the list', () => {
+    const items = renderNavItems({ Gyms: true, Tournaments: true })
+
+    expect(items.map(i => i.id)).toEqual(['gyms', 'tournaments', 'about'])
+    expect(items[1].to).toBe(paths.tournaments.getHref())
+    expect(items[1].label).toBe(paths.tournaments.label)
+  })
+
   it.each([
     { flag: 'BjjEvents', expected: ['events', 'about'] },
     { flag: 'Gyms', expected: ['gyms', 'about'] },

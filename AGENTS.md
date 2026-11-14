@@ -21,6 +21,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Test reporting jobs | [ADR-0009](docs/adr/0009-audit-report-on-every-pipeline.md) |
 | Authentication, `SecurityConfig`, anything a competitor can call | [ADR-0012](docs/adr/0012-competitor-identity-second-issuer.md) — two issuers; competitor tokens never get scope authorities |
 | Payments, the Stripe webhook, read-only mode, the `Tournaments` flag | [ADR-0013](docs/adr/0013-stripe-hosted-checkout-and-webhooks.md) — the webhook is the only confirmer |
+| Local organiser sign-in, `LOCAL_SIGN_IN_*`, `VITE_APP_LOCAL_SIGN_IN`, `lib/admin-auth.ts` | [ADR-0014](docs/adr/0014-local-organiser-sign-in.md) — local profile only; the API refuses to start otherwise |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
 | Acceptance tests and Playwright agents | `bjjeire-tests` owns the plans, specs and agents: see its `AGENTS.md` and `docs/agents.md` |

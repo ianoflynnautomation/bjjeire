@@ -152,6 +152,54 @@ describe('request interceptor — auth', () => {
     expect(authHeader).toBe('Bearer test-token')
   })
 
+  it.each(['tournament/admin', '/tournament/admin/0123456789abcdef01234567'])(
+    'given a signed-in organiser, when the admin read %s is sent, then the Bearer token is attached',
+    async path => {
+      mockMsalInstance.getAllAccounts.mockReturnValue([
+        { username: 'user@test.com' },
+      ])
+      mockMsalInstance.acquireTokenSilent.mockResolvedValue({
+        accessToken: 'test-token',
+      })
+
+      let authHeader: string | null = null
+      server.use(
+        http.get(`${BASE}/tournament/admin*`, ({ request }) => {
+          authHeader = request.headers.get('Authorization')
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
+      await api.get(path)
+      expect(authHeader).toBe('Bearer test-token')
+    }
+  )
+
+  it.each([
+    'tournament',
+    'tournament/administrators-cup',
+    'tournament/bjjeire',
+  ])(
+    'given a signed-in organiser, when the public read %s is sent, then no token is attached',
+    async path => {
+      mockMsalInstance.getAllAccounts.mockReturnValue([
+        { username: 'user@test.com' },
+      ])
+
+      let authHeader: string | null = 'unset'
+      server.use(
+        http.get(`${BASE}/${path}`, ({ request }) => {
+          authHeader = request.headers.get('Authorization')
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
+      await api.get(path)
+      expect(authHeader).toBeNull()
+      expect(mockMsalInstance.acquireTokenSilent).not.toHaveBeenCalled()
+    }
+  )
+
   it('given no MSAL account, when a request is sent, then no Authorization header is attached', async () => {
     mockMsalInstance.getAllAccounts.mockReturnValue([])
 
