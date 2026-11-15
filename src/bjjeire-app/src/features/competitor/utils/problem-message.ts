@@ -43,8 +43,7 @@ export function competitorProblemMessage(error: unknown): string {
     return errors.signedOut
   }
   const data = error.response?.data as
-    | { detail?: unknown; errors?: unknown }
-    | undefined
+    { detail?: unknown; errors?: unknown } | undefined
   // A validation problem names what is wrong per field; its detail is generic.
   if (Array.isArray(data?.errors)) {
     const messages = data.errors

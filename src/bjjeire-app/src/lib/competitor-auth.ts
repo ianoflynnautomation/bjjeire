@@ -58,7 +58,10 @@ async function signInLocally(email: string): Promise<boolean> {
     if (!isLocalSession(session)) {
       return false
     }
-    sessionStorage.setItem(LOCAL_COMPETITOR_SESSION_KEY, JSON.stringify(session))
+    sessionStorage.setItem(
+      LOCAL_COMPETITOR_SESSION_KEY,
+      JSON.stringify(session)
+    )
     return true
   } catch (error) {
     logger.warn('Local competitor sign-in failed', error)
@@ -77,7 +80,8 @@ export async function hasCompetitorSession(): Promise<boolean> {
     return readLocalSession() !== null
   }
   // Loaded on demand: public pages never fetch MSAL.
-  const { competitorMsalInstance } = await import('@/lib/competitor-msal-config')
+  const { competitorMsalInstance } =
+    await import('@/lib/competitor-msal-config')
   await competitorMsalInstance.initialize()
   return competitorMsalInstance.getAllAccounts().length > 0
 }
@@ -93,9 +97,8 @@ export async function signInCompetitor(localEmail = ''): Promise<boolean> {
   if (usesLocalCompetitorSignIn()) {
     return signInLocally(localEmail)
   }
-  const { competitorMsalInstance, competitorLoginRequest } = await import(
-    '@/lib/competitor-msal-config'
-  )
+  const { competitorMsalInstance, competitorLoginRequest } =
+    await import('@/lib/competitor-msal-config')
   await competitorMsalInstance.initialize()
   await competitorMsalInstance.loginPopup(competitorLoginRequest)
   return competitorMsalInstance.getAllAccounts().length > 0
@@ -107,7 +110,8 @@ export async function signOutCompetitor(): Promise<void> {
     sessionStorage.removeItem(LOCAL_COMPETITOR_SESSION_KEY)
     return
   }
-  const { competitorMsalInstance } = await import('@/lib/competitor-msal-config')
+  const { competitorMsalInstance } =
+    await import('@/lib/competitor-msal-config')
   await competitorMsalInstance.initialize()
   const accounts = competitorMsalInstance.getAllAccounts()
   if (accounts.length === 0) {
@@ -129,7 +133,8 @@ export async function forgetCompetitor(): Promise<void> {
     sessionStorage.removeItem(LOCAL_COMPETITOR_SESSION_KEY)
     return
   }
-  const { competitorMsalInstance } = await import('@/lib/competitor-msal-config')
+  const { competitorMsalInstance } =
+    await import('@/lib/competitor-msal-config')
   await competitorMsalInstance.initialize()
   const accounts = competitorMsalInstance.getAllAccounts()
   if (accounts.length === 0) {
@@ -147,9 +152,8 @@ export async function getCompetitorToken(): Promise<string | null> {
   if (usesLocalCompetitorSignIn()) {
     return readLocalSession()?.accessToken ?? null
   }
-  const { competitorMsalInstance, competitorLoginRequest } = await import(
-    '@/lib/competitor-msal-config'
-  )
+  const { competitorMsalInstance, competitorLoginRequest } =
+    await import('@/lib/competitor-msal-config')
   await competitorMsalInstance.initialize()
   const accounts = competitorMsalInstance.getAllAccounts()
   if (accounts.length === 0) {

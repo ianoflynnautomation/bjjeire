@@ -97,9 +97,7 @@ describe('ProfilePage', () => {
       signedIn()
       return Promise.resolve({})
     })
-    await user.click(
-      await screen.findByRole('button', { name: signIn.button })
-    )
+    await user.click(await screen.findByRole('button', { name: signIn.button }))
 
     expect(
       await screen.findByRole('heading', { name: profile.heading })
@@ -172,9 +170,7 @@ describe('ProfilePage', () => {
       await screen.findByRole('button', { name: profile.submit })
     )
 
-    expect(
-      screen.getByText(validation.firstNameRequired)
-    ).toBeInTheDocument()
+    expect(screen.getByText(validation.firstNameRequired)).toBeInTheDocument()
     expect(screen.getByText(validation.beltRequired)).toBeInTheDocument()
     expect(save.calls).toHaveLength(0)
   })
@@ -224,7 +220,11 @@ describe('ProfilePage', () => {
   it('given a profile without nationality, gender or belt, when it opens, then the competitor is told it is not complete enough to sign up', async () => {
     signedIn()
     seedOwnProfile(
-      createCompetitor({ nationality: null, belt: null, profileComplete: false })
+      createCompetitor({
+        nationality: null,
+        belt: null,
+        profileComplete: false,
+      })
     )
     renderProfilePage()
 
@@ -299,7 +299,9 @@ describe('ProfilePage', () => {
       await screen.findByRole('button', { name: account.delete })
     )
     expect(remove.calls).toHaveLength(0)
-    await user.click(screen.getByRole('button', { name: account.deleteConfirm }))
+    await user.click(
+      screen.getByRole('button', { name: account.deleteConfirm })
+    )
 
     await waitFor(() => expect(remove.calls).toHaveLength(1))
     expect(remove.authorization).toEqual(['Bearer competitor-token'])
@@ -323,7 +325,9 @@ describe('ProfilePage', () => {
     await user.click(
       await screen.findByRole('button', { name: account.delete })
     )
-    await user.click(screen.getByRole('button', { name: account.deleteConfirm }))
+    await user.click(
+      screen.getByRole('button', { name: account.deleteConfirm })
+    )
 
     expect(
       await screen.findByTestId(CompetitorProfileTestIds.DELETE_ERROR)

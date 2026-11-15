@@ -7,7 +7,9 @@ export interface CompetitorSession {
   forget: () => Promise<void>
 }
 
-export const CompetitorSessionContext = createContext<CompetitorSession | null>(null)
+export const CompetitorSessionContext = createContext<CompetitorSession | null>(
+  null
+)
 
 /** The session of the competitor the gate let through. */
 export function useCompetitorSession(): CompetitorSession {

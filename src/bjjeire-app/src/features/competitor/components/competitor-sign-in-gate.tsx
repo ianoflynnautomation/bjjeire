@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-  type JSX,
-  type ReactNode,
-} from 'react'
+import { useEffect, useState, type JSX, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button/button'
 import { FormField } from '@/components/ui/form/form-field'
@@ -91,7 +86,7 @@ export const CompetitorSignInGate = function CompetitorSignInGate({
       await end()
     } finally {
       queryClient.removeQueries({ queryKey: COMPETITOR_KEY })
-      setState(await hasCompetitorSession() ? 'signedIn' : 'signedOut')
+      setState((await hasCompetitorSession()) ? 'signedIn' : 'signedOut')
     }
   }
 
@@ -105,7 +100,9 @@ export const CompetitorSignInGate = function CompetitorSignInGate({
   }
   if (state === 'signedIn') {
     return (
-      <CompetitorSessionContext value={session}>{children}</CompetitorSessionContext>
+      <CompetitorSessionContext value={session}>
+        {children}
+      </CompetitorSessionContext>
     )
   }
   return (
@@ -121,7 +118,10 @@ export const CompetitorSignInGate = function CompetitorSignInGate({
         {local ? signIn.localMessage : signIn.message}
       </p>
       {local && (
-        <div className="mt-4 text-left" data-testid={CompetitorSignInTestIds.EMAIL}>
+        <div
+          className="mt-4 text-left"
+          data-testid={CompetitorSignInTestIds.EMAIL}
+        >
           <FormField
             id="competitor-local-email"
             label={signIn.localEmailLabel}

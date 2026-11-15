@@ -2,29 +2,26 @@
 
 ## [0.1.38](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.37...frontend-v0.1.38) (2026-11-07)
 
-
 ### Features
 
-* add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
+- add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
 
 ## [0.1.37](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.36...frontend-v0.1.37) (2026-11-05)
 
-
 ### Features
 
-* add gyms map feature ([1a1d358](https://github.com/ianoflynnautomation/bjjeire/commit/1a1d35833ac296d552b2ec5efd39c994611b7447))
-* add gyms map feature ([cf3823c](https://github.com/ianoflynnautomation/bjjeire/commit/cf3823ce7bcc8bc574582e6dbc6814ab883575bd))
+- add gyms map feature ([1a1d358](https://github.com/ianoflynnautomation/bjjeire/commit/1a1d35833ac296d552b2ec5efd39c994611b7447))
+- add gyms map feature ([cf3823c](https://github.com/ianoflynnautomation/bjjeire/commit/cf3823ce7bcc8bc574582e6dbc6814ab883575bd))
 
 ## [0.1.36](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.35...frontend-v0.1.36) (2026-11-01)
 
-
 ### Bug Fixes
 
-* competition bugs from agentic explore testing ([aa4c736](https://github.com/ianoflynnautomation/bjjeire/commit/aa4c73606d20df680c0bb17d886238d2fdaab2e1))
-* event bugs from agentic explore testing ([9ff26c3](https://github.com/ianoflynnautomation/bjjeire/commit/9ff26c31d01aafd418e4afb9c504f75ae79a3f90))
-* feature flag implementation ([b4f71d2](https://github.com/ianoflynnautomation/bjjeire/commit/b4f71d21847f0dbe46577055a4cb5efda25ff24d))
-* gym bugs from agentic explore testing ([42ef46b](https://github.com/ianoflynnautomation/bjjeire/commit/42ef46b7bcce97655cbdd28a17ec476fa90dc86e))
-* store bugs from agentic explore testing ([cc0acc8](https://github.com/ianoflynnautomation/bjjeire/commit/cc0acc8051408f635feb600b4c28deae57b205fd))
+- competition bugs from agentic explore testing ([aa4c736](https://github.com/ianoflynnautomation/bjjeire/commit/aa4c73606d20df680c0bb17d886238d2fdaab2e1))
+- event bugs from agentic explore testing ([9ff26c3](https://github.com/ianoflynnautomation/bjjeire/commit/9ff26c31d01aafd418e4afb9c504f75ae79a3f90))
+- feature flag implementation ([b4f71d2](https://github.com/ianoflynnautomation/bjjeire/commit/b4f71d21847f0dbe46577055a4cb5efda25ff24d))
+- gym bugs from agentic explore testing ([42ef46b](https://github.com/ianoflynnautomation/bjjeire/commit/42ef46b7bcce97655cbdd28a17ec476fa90dc86e))
+- store bugs from agentic explore testing ([cc0acc8](https://github.com/ianoflynnautomation/bjjeire/commit/cc0acc8051408f635feb600b4c28deae57b205fd))
 
 ## [0.1.35](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.34...frontend-v0.1.35) (2026-10-16)
 

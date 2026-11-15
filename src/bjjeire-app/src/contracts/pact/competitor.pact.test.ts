@@ -7,10 +7,7 @@ const { like, boolean, string, regex } = MatchersV3
 
 // The provider verification's stub decoder turns this bearer value into a
 // signed-in competitor (PactProviderVerificationIT, MongoIntegrationTest).
-const COMPETITOR_AUTHORIZATION = regex(
-  '^Bearer .+$',
-  'Bearer competitor-token'
-)
+const COMPETITOR_AUTHORIZATION = regex('^Bearer .+$', 'Bearer competitor-token')
 const DAY = regex(String.raw`^\d{4}-\d{2}-\d{2}$`, '1990-04-12')
 const GENDER = regex('MALE|FEMALE', 'FEMALE')
 const BELT = regex('WHITE|BLUE|PURPLE|BROWN|BLACK', 'BLUE')
@@ -32,7 +29,7 @@ const PROFILE_BODY = {
 }
 
 describe('Pact - Competitor profile consumer contract', () => {
-  it('GET /api/v1/competitor/me returns the signed-in competitor\'s own profile', async () => {
+  it("GET /api/v1/competitor/me returns the signed-in competitor's own profile", async () => {
     const pact = createPact()
 
     await pact

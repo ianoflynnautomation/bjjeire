@@ -76,9 +76,9 @@ describe('profile form', () => {
     expect(
       validateProfileForm(filled({ academyMode: 'directory' }), TODAY)
     ).toEqual({ academyGymId: validation.academyGymRequired })
-    expect(
-      validateProfileForm(filled({ academyName: '  ' }), TODAY)
-    ).toEqual({ academyName: validation.academyNameRequired })
+    expect(validateProfileForm(filled({ academyName: '  ' }), TODAY)).toEqual({
+      academyName: validation.academyNameRequired,
+    })
     expect(
       validateProfileForm(
         filled({ academyMode: 'none', academyName: '' }),
@@ -138,8 +138,9 @@ describe('profile form', () => {
       academyName: 'Directory Gym',
       affiliation: 'Alliance',
     })
-    expect(profileFormFrom(createCompetitor({ academy: null }))).toMatchObject(
-      { academyMode: 'none', academyName: '' }
-    )
+    expect(profileFormFrom(createCompetitor({ academy: null }))).toMatchObject({
+      academyMode: 'none',
+      academyName: '',
+    })
   })
 })

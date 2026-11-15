@@ -78,9 +78,7 @@ describe('competitor auth with local sign-in (ADR-0014)', () => {
   })
 
   it('given the API refuses, when the competitor signs in, then they stay signed out', async () => {
-    server.use(
-      http.post(SIGN_IN, () => HttpResponse.json({}, { status: 404 }))
-    )
+    server.use(http.post(SIGN_IN, () => HttpResponse.json({}, { status: 404 })))
 
     expect(await signInCompetitor('aoife@example.test')).toBe(false)
     expect(await hasCompetitorSession()).toBe(false)

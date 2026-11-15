@@ -2,25 +2,22 @@
 
 ## [0.1.27](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.26...api-v0.1.27) (2026-11-07)
 
-
 ### Features
 
-* add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
+- add events map feature ([aec543b](https://github.com/ianoflynnautomation/bjjeire/commit/aec543b571076b6459ee034e9dfd86b680525b63))
 
 ## [0.1.26](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.25...api-v0.1.26) (2026-11-05)
 
-
 ### Features
 
-* add gyms map feature ([1a1d358](https://github.com/ianoflynnautomation/bjjeire/commit/1a1d35833ac296d552b2ec5efd39c994611b7447))
-* add gyms map feature ([cf3823c](https://github.com/ianoflynnautomation/bjjeire/commit/cf3823ce7bcc8bc574582e6dbc6814ab883575bd))
+- add gyms map feature ([1a1d358](https://github.com/ianoflynnautomation/bjjeire/commit/1a1d35833ac296d552b2ec5efd39c994611b7447))
+- add gyms map feature ([cf3823c](https://github.com/ianoflynnautomation/bjjeire/commit/cf3823ce7bcc8bc574582e6dbc6814ab883575bd))
 
 ## [0.1.25](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.24...api-v0.1.25) (2026-11-01)
 
-
 ### Bug Fixes
 
-* feature flag implementation ([b4f71d2](https://github.com/ianoflynnautomation/bjjeire/commit/b4f71d21847f0dbe46577055a4cb5efda25ff24d))
+- feature flag implementation ([b4f71d2](https://github.com/ianoflynnautomation/bjjeire/commit/b4f71d21847f0dbe46577055a4cb5efda25ff24d))
 
 ## [0.1.24](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.23...api-v0.1.24) (2026-10-16)
 

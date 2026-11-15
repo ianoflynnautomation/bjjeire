@@ -60,9 +60,7 @@ export function seedSaveProfile(
   return captured
 }
 
-export function seedDeleteAccount(
-  status: 204 | 409 = 204
-): Captured<null> {
+export function seedDeleteAccount(status: 204 | 409 = 204): Captured<null> {
   const captured: Captured<null> = { calls: [], authorization: [] }
   server.use(
     http.delete(COMPETITOR_ME_API, ({ request }) => {
@@ -86,9 +84,7 @@ export function seedDeleteAccount(
 
 export function seedDirectoryGyms(gyms: GymDto[]): void {
   server.use(
-    http.get(GYMS_API, () =>
-      HttpResponse.json(createPaginatedGyms(gyms, 1, 1))
-    )
+    http.get(GYMS_API, () => HttpResponse.json(createPaginatedGyms(gyms, 1, 1)))
   )
 }
 

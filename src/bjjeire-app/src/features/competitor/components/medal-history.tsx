@@ -13,9 +13,21 @@ const { history } = uiContent.competitor
 export const MedalHistory = function MedalHistory(): JSX.Element {
   const query = useQuery({ queryKey: OWN_HISTORY_KEY, queryFn: getOwnHistory })
   const totals = [
-    { label: history.gold, value: query.data?.gold, id: CompetitorProfileTestIds.HISTORY_GOLD },
-    { label: history.silver, value: query.data?.silver, id: CompetitorProfileTestIds.HISTORY_SILVER },
-    { label: history.bronze, value: query.data?.bronze, id: CompetitorProfileTestIds.HISTORY_BRONZE },
+    {
+      label: history.gold,
+      value: query.data?.gold,
+      id: CompetitorProfileTestIds.HISTORY_GOLD,
+    },
+    {
+      label: history.silver,
+      value: query.data?.silver,
+      id: CompetitorProfileTestIds.HISTORY_SILVER,
+    },
+    {
+      label: history.bronze,
+      value: query.data?.bronze,
+      id: CompetitorProfileTestIds.HISTORY_BRONZE,
+    },
   ]
   const tournaments = query.data?.tournaments ?? []
 
@@ -42,7 +54,10 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
                 className="rounded-lg bg-surface-solid p-3 text-center shadow-card ring-1 ring-hairline"
               >
                 <dt className="text-sm text-fg-subtle">{total.label}</dt>
-                <dd className="text-2xl font-bold text-fg" data-testid={total.id}>
+                <dd
+                  className="text-2xl font-bold text-fg"
+                  data-testid={total.id}
+                >
                   {total.value}
                 </dd>
               </div>
@@ -57,18 +72,31 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
             </p>
           ) : (
             <table className="w-full text-left text-sm">
-              <caption className="sr-only">{history.tournamentsHeading}</caption>
+              <caption className="sr-only">
+                {history.tournamentsHeading}
+              </caption>
               <thead className="text-fg-subtle">
                 <tr>
-                  <th scope="col" className="py-2">{history.tournamentsHeading}</th>
-                  <th scope="col" className="py-2 text-right">{history.gold}</th>
-                  <th scope="col" className="py-2 text-right">{history.silver}</th>
-                  <th scope="col" className="py-2 text-right">{history.bronze}</th>
+                  <th scope="col" className="py-2">
+                    {history.tournamentsHeading}
+                  </th>
+                  <th scope="col" className="py-2 text-right">
+                    {history.gold}
+                  </th>
+                  <th scope="col" className="py-2 text-right">
+                    {history.silver}
+                  </th>
+                  <th scope="col" className="py-2 text-right">
+                    {history.bronze}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline text-fg">
                 {tournaments.map(entry => (
-                  <tr key={entry.tournamentId} data-testid={CompetitorProfileTestIds.HISTORY_ROW}>
+                  <tr
+                    key={entry.tournamentId}
+                    data-testid={CompetitorProfileTestIds.HISTORY_ROW}
+                  >
                     <td className="py-2">
                       <Link
                         to={paths.tournament.getHref(entry.slug)}

@@ -44,8 +44,10 @@ export const competitor = {
     academyNone: 'No academy',
     academySearch: 'Search the gym directory',
     academySearchPlaceholder: 'Start typing a gym name',
-    academySearchEmpty: 'No gym matches. Choose "My academy is not listed" to type its name.',
-    academyLoadFailed: 'The gym directory could not be loaded. Type your academy name instead.',
+    academySearchEmpty:
+      'No gym matches. Choose "My academy is not listed" to type its name.',
+    academyLoadFailed:
+      'The gym directory could not be loaded. Type your academy name instead.',
     academySelected: 'Selected',
     academyChange: 'Change',
     academyName: 'Academy name',
@@ -73,7 +75,8 @@ export const competitor = {
     academyGymRequired: 'Choose your gym from the directory.',
     academyNameRequired: 'Type your academy name.',
     teamTooLong: 'Academy and affiliation names can be at most 80 characters.',
-    phoneInvalid: 'Enter a phone number using digits, spaces, brackets or hyphens.',
+    phoneInvalid:
+      'Enter a phone number using digits, spaces, brackets or hyphens.',
     addressTooLong: 'This address line is too long.',
   },
   history: {
@@ -82,7 +85,8 @@ export const competitor = {
     silver: 'Silver',
     bronze: 'Bronze',
     tournamentsHeading: 'Tournaments entered',
-    empty: 'You have not entered a tournament yet. Your medals will appear here.',
+    empty:
+      'You have not entered a tournament yet. Your medals will appear here.',
     loadFailed: 'Failed to load your medals.',
   },
   account: {

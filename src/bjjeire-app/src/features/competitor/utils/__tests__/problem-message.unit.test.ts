@@ -48,9 +48,9 @@ describe('competitorProblemMessage', () => {
   })
 
   it('given a conflict, when it is shown, then the API detail is used', () => {
-    expect(competitorProblemMessage(refused(409, { detail: 'Cancel first.' }))).toBe(
-      'Cancel first.'
-    )
+    expect(
+      competitorProblemMessage(refused(409, { detail: 'Cancel first.' }))
+    ).toBe('Cancel first.')
   })
 
   it('given a 401, when it is shown, then the competitor is told their sign-in is no longer accepted', () => {

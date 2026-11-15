@@ -65,7 +65,11 @@ export const ProfileForm = function ProfileForm({
   const text = (
     field: keyof ProfileFormValues,
     label: string,
-    extra: { type?: 'text' | 'date' | 'tel'; className?: string; hint?: string } = {}
+    extra: {
+      type?: 'text' | 'date' | 'tel'
+      className?: string
+      hint?: string
+    } = {}
   ): JSX.Element => (
     <FormField
       id={`competitor-${field}`}
