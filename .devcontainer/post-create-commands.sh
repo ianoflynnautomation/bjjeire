@@ -57,6 +57,7 @@ fi
 echo "==> Toolchain versions:"
 java -version
 ./mvnw -version
+mvn -version
 node --version
 claude --version
 grok --version

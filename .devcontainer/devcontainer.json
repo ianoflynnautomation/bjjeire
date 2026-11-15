@@ -10,6 +10,12 @@
       "configureZshAsDefaultShell": false,
       "upgradePackages": false
     },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true",
+      "mavenVersion": "3.9.16",
+      "installGradle": "false"
+    },
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/node:1": {
@@ -42,6 +48,11 @@
   "initializeCommand": "for repo in bjjeire-tests bjjeire-terraform-azurerm-aks bjjeire-gitops; do test -d \"$HOME/Sources/$repo\" || git clone \"https://github.com/ianoflynnautomation/$repo.git\" \"$HOME/Sources/$repo\" || exit 1; done",
   // Create and rebuild. Post-create does not run again when the image is rebuilt.
   "updateContentCommand": "bash .devcontainer/post-create-commands.sh",
+  // ${containerEnv:PATH} keeps the image's PATH (JDK, Maven, Node). The terminal setting's ${env:PATH} resolved to the
+  // host's PATH, which dropped java and mvn from every terminal.
+  "remoteEnv": {
+    "PATH": "/home/vscode/.local/bin:/home/vscode/.grok/bin:${containerEnv:PATH}"
+  },
   "containerEnv": {
     "JAVA_HOME": "/usr/lib/jvm/msopenjdk-current",
     "MAVEN_OPTS": "-XX:+UseParallelGC -Dmaven.artifact.threads=8",
@@ -80,9 +91,6 @@
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
-        "terminal.integrated.env.linux": {
-          "PATH": "/home/vscode/.local/bin:/home/vscode/.grok/bin:${env:PATH}"
-        },
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.codeActionsOnSave": {
