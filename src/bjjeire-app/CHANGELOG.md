@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.39](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.38...frontend-v0.1.39) (2026-11-15)
+
+
+### Features
+
+* add admin tournament and tournament features phase 1 ([#217](https://github.com/ianoflynnautomation/bjjeire/issues/217)) ([4fdceb6](https://github.com/ianoflynnautomation/bjjeire/commit/4fdceb695c74d6947bfab7c3f623a623ace1d79d))
+
 ## [0.1.38](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.37...frontend-v0.1.38) (2026-11-07)
 
 
