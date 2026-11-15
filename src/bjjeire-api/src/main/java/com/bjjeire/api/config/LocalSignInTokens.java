@@ -57,16 +57,18 @@ public final class LocalSignInTokens {
      *
      * @param settings the configured local sign-in
      * @param environment the running profiles
-     * @throws IllegalStateException when it is on without the {@code local} profile, or with a short secret
+     * @throws IllegalStateException when it is on with any profile set but {@code local} alone, or with a short secret
      */
     public static void requireSafe(BjjEireProperties.LocalSignIn settings, Environment environment) {
         if (!settings.enabled()) {
             return;
         }
-        if (!Arrays.asList(environment.getActiveProfiles()).contains(REQUIRED_PROFILE)) {
-            throw new IllegalStateException("bjjeire.local-sign-in.enabled is true, but the '" + REQUIRED_PROFILE
-                    + "' profile is not active. Local sign-in issues organiser tokens to anyone and must never run"
-                    + " outside local development.");
+        // 'local' must be the only active profile: next to a deployed one it would take two mistakes, not one.
+        if (!Arrays.equals(environment.getActiveProfiles(), new String[] {REQUIRED_PROFILE})) {
+            throw new IllegalStateException("bjjeire.local-sign-in.enabled is true, but the active profiles are "
+                    + Arrays.toString(environment.getActiveProfiles()) + ". It needs '" + REQUIRED_PROFILE
+                    + "' as the only active profile. Local sign-in issues organiser tokens to anyone and must never"
+                    + " run outside local development.");
         }
         if (settings.secret().getBytes(StandardCharsets.UTF_8).length < MIN_SECRET_BYTES) {
             throw new IllegalStateException(

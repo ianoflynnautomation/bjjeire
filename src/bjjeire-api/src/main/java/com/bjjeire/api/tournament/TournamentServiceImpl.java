@@ -196,7 +196,6 @@ public class TournamentServiceImpl implements TournamentService {
         return Optional.of(TournamentMapper.toDto(saved, clock.instant()));
     }
 
-    /** Applies an update only while the tournament is still in one of the expected statuses. */
     /**
      * Applies an organiser write only to the copy it was made from: same version, an expected status, and with
      * {@code requireDivision} at least one division. Counts the write in {@code version}.

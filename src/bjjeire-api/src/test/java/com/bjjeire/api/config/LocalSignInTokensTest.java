@@ -63,6 +63,11 @@ class LocalSignInTokensTest {
         assertThatThrownBy(() -> LocalSignInTokens.requireSafe(
                         new BjjEireProperties.LocalSignIn(true, SECRET), profiles("prod")))
                 .isInstanceOf(IllegalStateException.class);
+        // A deployed profile next to 'local' takes two mistakes; the guard still refuses it.
+        assertThatThrownBy(() -> LocalSignInTokens.requireSafe(
+                        new BjjEireProperties.LocalSignIn(true, SECRET), profiles("production", "local")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("only");
         assertThatThrownBy(() -> LocalSignInTokens.requireSafe(
                         new BjjEireProperties.LocalSignIn(true, "too-short"), profiles("local")))
                 .isInstanceOf(IllegalStateException.class)

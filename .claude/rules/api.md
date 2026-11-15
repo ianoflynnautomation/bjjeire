@@ -44,7 +44,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, tournament admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
 - `anyRequest()` means a workforce account, not any valid token. A competitor token does not satisfy it
 - `POST /api/v1/registration/stripe-webhook` is the only write with no bearer token (ADR-0013). Its controller must verify the Stripe signature
-- Local development only: `POST /api/v1/local-sign-in` issues an organiser token when `bjjeire.local-sign-in.enabled` is true (ADR-0014). The API refuses to start that way without the `local` profile. Never enable it in a cluster, and never map its issuer to anything but the workforce rules
+- Local development only: `POST /api/v1/local-sign-in` issues an organiser token when `bjjeire.local-sign-in.enabled` is true (ADR-0014). The API refuses to start that way unless `local` is the only active profile, and the local stack publishes the API on `127.0.0.1` only. Never enable it in a cluster, and never map its issuer to anything but the workforce rules
 
 ## Cross-cutting filters (`config/`)
 - `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping

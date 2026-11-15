@@ -24,8 +24,8 @@ local development.
   The token then goes through the normal workforce mapping and every rule in
   `SecurityConfig`: it is an organiser, never a competitor.
 - **Guard.** `SecurityConfig` calls `LocalSignInTokens.requireSafe`: the API
-  refuses to start with local sign-in on unless the `local` Spring profile is
-  active and the secret is at least 32 bytes. The controller also needs that
+  refuses to start with local sign-in on unless `local` is the only active
+  Spring profile and the secret is at least 32 bytes. The controller also needs that
   profile and is `@Hidden` from the published OpenAPI document.
 - **SPA.** `lib/admin-auth.ts` is the only place that obtains the organiser
   token. With `VITE_APP_LOCAL_SIGN_IN=true`, baked in at build time
@@ -41,7 +41,10 @@ local development.
 
 - Anyone who can reach a local API with it on can act as the organiser. That
   is the point locally and would be a full compromise anywhere else, which is
-  why the guard fails startup instead of logging a warning.
+  why the guard fails startup instead of logging a warning. The guard needs
+  `local` to be the only active profile, and the local override publishes the
+  API port on `127.0.0.1` only, so other machines on the developer's network
+  cannot reach it.
 - An SPA built with the flag by mistake gets nothing from a real API: the
   endpoint does not exist there, so sign-in fails and the screens stay locked.
 - The local token cannot reach competitor routes (`LocalSignInIT`), so it does
