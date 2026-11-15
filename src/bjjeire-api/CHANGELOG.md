@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.28](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.27...api-v0.1.28) (2026-11-15)
+
+
+### Features
+
+* add admin tournament and tournament features phase 1 ([#217](https://github.com/ianoflynnautomation/bjjeire/issues/217)) ([4fdceb6](https://github.com/ianoflynnautomation/bjjeire/commit/4fdceb695c74d6947bfab7c3f623a623ace1d79d))
+
 ## [0.1.27](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.26...api-v0.1.27) (2026-11-07)
 
 
