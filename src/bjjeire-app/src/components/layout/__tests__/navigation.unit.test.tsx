@@ -2,6 +2,8 @@ import { screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import Navigation from '../navigation'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
+import { CompetitorNavTestIds } from '@/constants/competitorDataTestIds'
+import { paths } from '@/config/paths'
 import { uiContent } from '@/config/ui-content'
 import { renderWithProviders } from '@/testing/render-utils'
 
@@ -16,6 +18,27 @@ vi.stubGlobal('localStorage', {
 const featureFlags = { BjjEvents: true, Gyms: true }
 
 describe('Navigation', () => {
+  describe('Competitor account entry point', () => {
+    // #5038: no account entry point while the feature is off.
+    it('given the tournaments flag is off, when the nav renders, then there is no account link', () => {
+      renderWithProviders(<Navigation />, { featureFlags })
+
+      expect(
+        screen.queryByTestId(CompetitorNavTestIds.ACCOUNT_LINK)
+      ).not.toBeInTheDocument()
+    })
+
+    it('given the tournaments flag is on, when the nav renders, then the account link leads to the profile page', () => {
+      renderWithProviders(<Navigation />, {
+        featureFlags: { ...featureFlags, Tournaments: true },
+      })
+
+      const link = screen.getByTestId(CompetitorNavTestIds.ACCOUNT_LINK)
+      expect(link).toHaveAttribute('href', paths.accountProfile.getHref())
+      expect(link).toHaveAccessibleName(uiContent.competitor.accountLink)
+    })
+  })
+
   describe('Mobile menu toggle', () => {
     it('given a closed menu, when the nav renders, then the toggle is collapsed and no panel is in the DOM', () => {
       renderWithProviders(<Navigation />, { featureFlags })

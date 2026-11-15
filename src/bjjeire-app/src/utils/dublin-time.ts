@@ -110,3 +110,14 @@ export function endOfDublinDayIso(day: string): string | null {
   )
   return dublinLocalToIso(`${next.toISOString().slice(0, 10)}T00:00`)
 }
+
+/** Today's date in Ireland as `YYYY-MM-DD`, whatever the visitor's time zone. */
+export function dublinToday(now: Date = new Date()): string {
+  // en-CA formats dates as YYYY-MM-DD.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Dublin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+}

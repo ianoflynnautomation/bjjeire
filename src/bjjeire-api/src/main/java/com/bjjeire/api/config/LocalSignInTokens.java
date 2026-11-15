@@ -11,10 +11,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -33,7 +34,20 @@ public final class LocalSignInTokens {
      */
     public static final String ISSUER = "https://local-sign-in.bjjeire.invalid";
 
+    /**
+     * Issuer of local competitor tokens (ADR-0014, slice 2). Mapped like the competitor tenant: the competitor role and
+     * nothing else.
+     */
+    public static final String COMPETITOR_ISSUER = "https://local-competitor-sign-in.bjjeire.invalid";
+
     public static final String SUBJECT = "local-organiser";
+
+    /**
+     * Prefix of a local competitor's subject. The rest is the SHA-256 of their lower-cased email: the same email is the
+     * same person, and no email is stored in the deleted-account record or the audit log.
+     */
+    public static final String COMPETITOR_SUBJECT_PREFIX = "local-competitor:";
+
     public static final Duration LIFETIME = Duration.ofHours(8);
     public static final String REQUIRED_PROFILE = "local";
 
@@ -94,12 +108,51 @@ public final class LocalSignInTokens {
                 .expiresAt(expiresAt)
                 .claim("scope", writerScope)
                 .build();
-        String token = NimbusJwtEncoder.withSecretKey(key(secret))
+        return new Issued(sign(secret, claims), expiresAt);
+    }
+
+    private static String sha256Hex(String value) {
+        try {
+            return java.util.HexFormat.of()
+                    .formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required by every JDK", impossible);
+        }
+    }
+
+    private static String sign(String secret, JwtClaimsSet claims) {
+        return NimbusJwtEncoder.withSecretKey(key(secret))
                 .build()
                 .encode(JwtEncoderParameters.from(
                         JwsHeader.with(MacAlgorithm.HS256).build(), claims))
                 .getTokenValue();
-        return new Issued(token, expiresAt);
+    }
+
+    /**
+     * Issues a competitor token for the person who typed {@code email}.
+     *
+     * @param secret the shared signing secret
+     * @param competitorScope the scope the competitor mapping requires
+     * @param email identifies the local competitor; compared without case or outer spaces
+     * @param clock source of the issue time
+     * @return the signed token
+     */
+    public static Issued issueCompetitor(String secret, String competitorScope, String email, Clock clock) {
+        Instant now = clock.instant();
+        Instant expiresAt = now.plus(LIFETIME);
+        String normalised = email.trim().toLowerCase(java.util.Locale.ROOT);
+        String subject = COMPETITOR_SUBJECT_PREFIX + sha256Hex(normalised);
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer(COMPETITOR_ISSUER)
+                .subject(subject)
+                .issuedAt(now)
+                .expiresAt(expiresAt)
+                .claim("scope", competitorScope)
+                .claim("email", normalised)
+                .claim("oid", subject)
+                .build();
+        return new Issued(sign(secret, claims), expiresAt);
     }
 
     /**
@@ -115,7 +168,12 @@ public final class LocalSignInTokens {
                 .build();
         JwtTimestampValidator timestamps = new JwtTimestampValidator(CLOCK_SKEW);
         timestamps.setClock(clock);
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(timestamps, new JwtIssuerValidator(ISSUER)));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                timestamps,
+                new JwtClaimValidator<Object>(
+                        JwtClaimNames.ISS,
+                        issuer -> issuer != null
+                                && (ISSUER.equals(issuer.toString()) || COMPETITOR_ISSUER.equals(issuer.toString())))));
         return decoder;
     }
 

@@ -12,7 +12,7 @@ export const badgeVariants = cva(
         amber:
           'bg-warning-50 text-warning-800 ring-warning-700/20 dark:bg-warning-950/50 dark:text-warning-400 dark:ring-warning-500/25',
         red: 'bg-danger-50 text-danger-700 ring-danger-600/20 dark:bg-danger-950/50 dark:text-danger-400 dark:ring-danger-500/25',
-        blue: 'bg-info-500/10 text-info-600 ring-info-500/25 dark:bg-info-600/20 dark:text-info-400',
+        blue: 'bg-info-500/10 text-info-600 ring-info-500/25 dark:bg-info-600/20 dark:text-info-300',
         neutral:
           'bg-ink-100 text-ink-700 ring-ink-400/30 dark:bg-ink-800 dark:text-ink-200 dark:ring-ink-500/30',
         beltWhite:

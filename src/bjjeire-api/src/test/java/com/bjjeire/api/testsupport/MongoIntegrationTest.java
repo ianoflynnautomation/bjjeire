@@ -3,6 +3,8 @@ package com.bjjeire.api.testsupport;
 import com.bjjeire.api.audit.AuditLogEntry;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competition.Competition;
+import com.bjjeire.api.competitor.Competitor;
+import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
@@ -62,6 +64,13 @@ public abstract class MongoIntegrationTest {
     protected static final String WORKFORCE_TOKEN_WITH_COMPETITOR_APP_ROLE = "reader-token-with-approle";
 
     protected static final String COMPETITOR_SUBJECT = "competitor-integration-test";
+
+    /**
+     * Prefix of a bearer value naming its own competitor: {@code competitorToken("b")} is a competitor whose subject is
+     * {@code b}, so a test can sign in as two different people.
+     */
+    protected static final String COMPETITOR_TOKEN_AS = "competitor-token-as-";
+
     protected static final String COMPETITOR_SCOPE = "access_as_competitor";
     // Must match bjjeire.competitor-auth.issuer-uri in src/test/resources/application.yml.
     protected static final String COMPETITOR_ISSUER =
@@ -72,6 +81,9 @@ public abstract class MongoIntegrationTest {
 
     @Autowired
     protected ApiCache apiCache;
+
+    @Autowired
+    protected RecordingIdentityDirectory identityDirectory;
 
     @LocalServerPort
     private int port;
@@ -96,6 +108,8 @@ public abstract class MongoIntegrationTest {
                 Competition.class,
                 Store.class,
                 Tournament.class,
+                Competitor.class,
+                DeletedCompetitor.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
             mongoTemplate.remove(new Query(), entityType);
@@ -110,6 +124,29 @@ public abstract class MongoIntegrationTest {
                 ApiCache.TOURNAMENTS_TAG)) {
             apiCache.removeByTag(tag);
         }
+        identityDirectory.reset();
+    }
+
+    /** A competitor token for the competitor whose subject is {@code subject}. It carries no {@code iat}. */
+    protected static String competitorToken(String subject) {
+        return COMPETITOR_TOKEN_AS + subject;
+    }
+
+    /** A competitor token for {@code subject} issued at {@code issuedAt}: a later sign-in of the same person. */
+    protected static String competitorToken(String subject, Instant issuedAt) {
+        return COMPETITOR_TOKEN_AS + subject + ISSUED_AT_MARKER + issuedAt.getEpochSecond();
+    }
+
+    private static final String ISSUED_AT_MARKER = "~iat~";
+
+    /** The email the stub decoder puts in a competitor token. */
+    protected static String competitorEmail(String subject) {
+        return subject + "@example.test";
+    }
+
+    /** The directory object id the stub decoder puts in a competitor token. */
+    protected static String competitorObjectId(String subject) {
+        return "oid-" + subject;
     }
 
     protected static HttpEntity<String> jsonEntity(String body) {
@@ -145,13 +182,40 @@ public abstract class MongoIntegrationTest {
         // issued by the competitor tenant; it carries a scope claim naming the writer scope as well,
         // which must never become an authority.
         @Bean
+        @Primary
+        RecordingIdentityDirectory recordingIdentityDirectory() {
+            return new RecordingIdentityDirectory();
+        }
+
+        @Bean
         JwtDecoder jwtDecoder() {
             return token -> {
                 if (token.contains("competitor")) {
                     String scope = token.contains("noscope") ? WRITER_SCOPE : WRITER_SCOPE + " " + COMPETITOR_SCOPE;
+                    String subject;
+                    Instant issuedAt = null;
+                    if (token.startsWith(COMPETITOR_TOKEN_AS)) {
+                        subject = token.substring(COMPETITOR_TOKEN_AS.length());
+                        int marker = subject.indexOf(ISSUED_AT_MARKER);
+                        if (marker >= 0) {
+                            issuedAt = Instant.ofEpochSecond(
+                                    Long.parseLong(subject.substring(marker + ISSUED_AT_MARKER.length())));
+                            subject = subject.substring(0, marker);
+                        }
+                    } else {
+                        subject = token.contains("noscope") ? COMPETITOR_SUBJECT + "-noscope" : COMPETITOR_SUBJECT;
+                    }
+                    Instant tokenIssuedAt = issuedAt;
                     return Jwt.withTokenValue(token)
                             .header("alg", "none")
-                            .claim("sub", COMPETITOR_SUBJECT)
+                            .claim("sub", subject)
+                            .claim("email", competitorEmail(subject))
+                            .claims(claims -> {
+                                if (tokenIssuedAt != null) {
+                                    claims.put("iat", tokenIssuedAt);
+                                }
+                            })
+                            .claim("oid", competitorObjectId(subject))
                             .claim("iss", COMPETITOR_ISSUER)
                             .claim("scope", scope)
                             .build();

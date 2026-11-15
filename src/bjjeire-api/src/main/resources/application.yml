@@ -44,6 +44,17 @@ bjjeire:
       - ${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}
       - ${COMPETITOR_AUDIENCE_URI:${COMPETITOR_AUDIENCE:api://00000000-0000-0000-0000-000000000000}}
     scope: ${COMPETITOR_SCOPE:access_as_competitor}
+  # Research R11: Microsoft Graph credentials in the competitor tenant, used only to delete a competitor's
+  # sign-in when they delete their account. Blank means not configured: the API then refuses that account's
+  # tokens and logs that the identity must be removed from the tenant by hand.
+  competitor-directory:
+    tenant-id: ${COMPETITOR_DIRECTORY_TENANT_ID:}
+    client-id: ${COMPETITOR_DIRECTORY_CLIENT_ID:}
+    client-secret: ${COMPETITOR_DIRECTORY_CLIENT_SECRET:}
+    # AKS workload identity: used when no client secret is set.
+    federated-token-file: ${COMPETITOR_DIRECTORY_FEDERATED_TOKEN_FILE:}
+    authority-host: ${COMPETITOR_DIRECTORY_AUTHORITY_HOST:https://login.microsoftonline.com/}
+    graph-base-url: ${COMPETITOR_DIRECTORY_GRAPH_BASE_URL:https://graph.microsoft.com/v1.0}
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}

@@ -117,14 +117,16 @@ routes:
   - method: GET
     path: /api/v1/competitor/me
     auth: competitor
-    response: CompetitorDto | 404 when no profile yet
+    response: CompetitorDto   # always 200; before the first save saved=false, email from the token, other fields null
     covers: ["#5007", "#5009"]
   - method: PUT
     path: /api/v1/competitor/me
     auth: competitor
     request: SaveCompetitorCommand
-    response: CompetitorDto   # includes profileComplete
-    covers: ["#5007", "#5008"]
+    response: CompetitorDto   # includes profileComplete and email (from the token); no id, issuer or subject
+    errors: [400 UNKNOWN_GYM when academy.gymId is not in Gym]
+    notes: upsert keyed by (iss, sub); safe to retry; email is never read from the body
+    covers: ["#5007", "#5008", "#5010"]
   - method: GET
     path: /api/v1/competitor/me/history
     auth: competitor
@@ -133,7 +135,9 @@ routes:
   - method: DELETE
     path: /api/v1/competitor/me
     auth: competitor
+    response: 204
     conflicts: [has-active-registration]
+    notes: removes the profile and deletes the tenant user by the oid claim; tokens of that (iss, sub) issued before the deletion are 401 (DeletedCompetitor.deletedAt), a later sign-in starts a new empty account
     covers: ["#5012"]
 
   # ---- Registration (sign-up) ---------------------------------------------

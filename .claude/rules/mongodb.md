@@ -13,7 +13,7 @@ paths:
 - The URI holds credentials. Do not hardcode it, commit it in a fixture, or log it
 
 ## Documents
-- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `Tournament`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
+- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `Tournament`, `Competitor`, `DeletedCompetitor`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
 - IDs are 24-char hex ObjectId strings
 - GeoJSON coordinates are `[longitude, latitude]`: `{ "type": "Point", "coordinates": [lng, lat] }`. Dublin is `[-6.26, 53.35]`
 - Events and competitions stamp `expiresAt` for the TTL indexes

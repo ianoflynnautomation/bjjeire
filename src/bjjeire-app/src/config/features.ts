@@ -59,6 +59,11 @@ export const featureSubRoutes = [
     path: paths.adminTournament.path,
     Component: lazyWithPreload(() => import('@/pages/AdminTournamentPage')),
   },
+  {
+    flag: 'Tournaments',
+    path: paths.accountProfile.path,
+    Component: lazyWithPreload(() => import('@/pages/ProfilePage')),
+  },
 ] as const satisfies readonly FeatureConfig[]
 
 export const AboutPage = lazyWithPreload(() => import('@/pages/AboutPage'))

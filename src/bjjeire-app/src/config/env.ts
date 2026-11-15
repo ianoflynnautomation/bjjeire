@@ -20,6 +20,10 @@ const EnvSchema = z.object({
   MSAL_CLIENT_ID: z._default(z.string(), ''),
   MSAL_AUTHORITY: optionalUrl,
   MSAL_API_SCOPE: z._default(z.string(), ''),
+  // ADR-0012: competitor accounts live in the external tenant, with their own app registration.
+  COMPETITOR_CLIENT_ID: z._default(z.string(), ''),
+  COMPETITOR_AUTHORITY: optionalUrl,
+  COMPETITOR_SCOPE: z._default(z.string(), ''),
   // ADR-0014: organiser sign-in through the local API, for local development only.
   LOCAL_SIGN_IN: z._default(
     z.pipe(

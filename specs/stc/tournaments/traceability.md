@@ -7,6 +7,45 @@ listed here are not built yet.
 Paths below are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/`
 (API) or `src/bjjeire-app/src/` (SPA) unless they start with a repository name.
 
+## Slice 2 — User Story 2, competitor account and profile
+
+| Issue | Layer | Test path | Implementation path |
+|---|---|---|---|
+| `#5006` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (signed out: sign-in offered, no profile request; sign-in through the competitor popup loads the profile on the same page) | `features/competitor/components/competitor-sign-in-gate.tsx`, `lib/competitor-auth.ts` |
+| `#5006` | T4 SPA | `lib/__tests__/api-client-competitor.integration.test.ts` (`competitor auth with the competitor tenant`) | `lib/competitor-auth.ts`, `lib/competitor-msal-config.ts` |
+| `#5006` | T6 | `bjjeire-tests` (planned; hosted pages, needs the competitor tenant, T001) | competitor tenant |
+| `#5007` | T1 unit | `competitor/SaveCompetitorCommandTest.java` (`shouldAcceptAFullProfile`, `shouldRequireFirstNameLastNameAndDateOfBirth`, `shouldLimitNamesToSixtyCharactersAndTeamsToEighty`, `shouldRequireAnIsoAlpha2Nationality`, `shouldRequireADateOfBirthInThePast`, `shouldCallAProfileCompleteOnlyWithNamesNationalityDateOfBirthGenderAndBelt`) | `SaveCompetitorCommand`, `IsoCountry`, `Competitor.isProfileComplete` |
+| `#5007` | T2 IT | `competitor/CompetitorIT.java` (`shouldShowAnEmptyUnsavedProfileBeforeTheFirstSave`, `shouldShowASavedProfileBackToTheCompetitor`, `shouldKeepTheProfileKeyedByIssuerAndSubjectAndAuditEachSave`, `shouldReportAnIncompleteProfileThatCannotSignUpYet`) | `CompetitorController`, `CompetitorServiceImpl.saveOwn`, `getOwn` |
+| `#5007` | T2 IT | `web/OpenApiContractIT.java` (`shouldPublishTheCompetitorProfileRoutesWithTheirRealResponses`) | `CompetitorController` (`@ApiResponse`) |
+| `#5007` | T0 Pact | `contracts/pact/competitor.pact.test.ts`; provider states in `web/PactProviderVerificationIT.java` | `features/competitor/api/competitor-api.ts` |
+| `#5007` | T3 SPA | `features/competitor/utils/__tests__/problem-message.unit.test.ts` (validation messages named by field) | `features/competitor/utils/problem-message.ts` |
+| `#5007` | T3 SPA | `features/competitor/utils/__tests__/profile-form.unit.test.ts` | `features/competitor/utils/profile-form.ts` |
+| `#5007` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (create and save; empty form errors; incomplete-profile notice) | `pages/ProfilePage`, `features/competitor/components/profile-form.tsx` |
+| `#5008` | T1 unit | `competitor/SaveCompetitorCommandTest.java` (`shouldAcceptNoAcademyAndNoAffiliation`, `shouldNeedAnAcademyNameOrADirectoryGym`) | `SaveCompetitorCommand.AcademyChoice`, `NameOrGym` |
+| `#5008` | T2 IT | `competitor/CompetitorIT.java` (`shouldTakeTheAcademyNameFromTheDirectoryGym`, `shouldRefuseAGymThatIsNotInTheDirectory`, `shouldAcceptATypedAcademyNameOrNoAcademyAndAnOptionalAffiliation`, `shouldRefuseAGymThatIsNotPublicInTheDirectory`, `shouldKeepAChosenGymThatHasSinceLeftTheDirectory`) | `CompetitorServiceImpl.resolveAcademy` (active gyms only; a kept gym stays) |
+| `#5008` | T3 SPA | `features/competitor/utils/__tests__/profile-form.unit.test.ts` (academy modes) | `features/competitor/utils/profile-form.ts` |
+| `#5008` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (search and pick a directory gym; no academy and empty affiliation) | `features/competitor/components/academy-picker.tsx` |
+| `#5009` | T2 IT | `competitor/CompetitorPrivacyIT.java` (`shouldNeverShowOneCompetitorAnotherCompetitorsProfile`, `shouldNeverLetOneCompetitorChangeOrDeleteAnotherCompetitorsProfile`, `shouldRefuseVisitorsAndTheOrganiser`, `shouldOfferNoRouteThatNamesACompetitor`) | `CompetitorController` (caller from the token only), `config/SecurityConfig` |
+| `#5009` | T2 IT | `config/TournamentRouteAuthorizationIT.java` (`shouldReserveCompetitorRoutesForSignedInCompetitors`) | `config/SecurityConfig` |
+| `#5010` | T2 IT | `competitor/CompetitorIT.java` (`shouldNeverCreateTwoProfilesForOneIdentity`) | `ix_competitor_issuer_subject_unique`, `CompetitorServiceImpl.saveOwn` (upsert, one retry) |
+| `#5010` | T6 | `bjjeire-tests` (planned; hosted pages, needs T001) | competitor tenant |
+| `#5011` | T6 | `bjjeire-tests` (planned; hosted pages, needs T001) | competitor tenant |
+| `#5012` | T2 IT | `competitor/CompetitorDeletionIT.java` (`shouldRemoveThePersonalDetailsAndTheSignInIdentity`, `shouldRefuseTheDeletedIdentityFromThenOn`, `shouldStillDeleteTheAccountWhenTheDirectoryCannotBeReached`, `shouldDeleteTheIdentityOfSomeoneWhoNeverSavedAProfile`, `shouldRefuseWhileTheCompetitorHasAnActiveSignUp`, `shouldRefuseWhenTheActiveSignUpStoresTheCompetitorAsAnObjectId`, `shouldAllowDeletionWhenEverySignUpHasEnded`, `shouldLetThePersonSignUpAgainWithTheSameEmailAfterDeleting`, `shouldDeleteTheNewAccountTooWhenThePersonDeletesAgain`) | `CompetitorServiceImpl.deleteOwn`, `DeletedCompetitor`, `MongoRevokedCompetitors` |
+| `#5012` | T1 unit | `competitor/CompetitorServiceTest.java` (`shouldRemoveAProfileSavedWhileTheAccountWasBeingDeleted`, `shouldRefuseRatherThanFailWhenTheProfileVanishedAfterTheSave`, `shouldRemoveByIdentityAfterRevokingSoARacingFirstSaveIsNotLeftBehind`) | `CompetitorServiceImpl.saveOwn` (revoked check after the upsert), `deleteOwn` (remove by identity after revoking) |
+| `#5012` | T1 unit | `config/RevocationCheckingJwtDecoderTest.java` (incl. `shouldAcceptATokenIssuedAfterTheDeletion`), `competitor/GraphIdentityDirectoryTest.java` | `config/RevocationCheckingJwtDecoder`, `GraphIdentityDirectory` |
+| `#5012` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (confirm then delete and sign out; active sign-up message) | `features/competitor/components/account-actions.tsx` |
+| `#5039` | T2 IT | `competitor/CompetitorDeletionIT.java` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`) | `CompetitorServiceImpl.getOwnHistory` (empty until slice 5) |
+| `#5039` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (totals and rows; empty state) | `features/competitor/components/medal-history.tsx` |
+
+Supporting tests with no requirement issue: `config/LocalSignInTokensTest` (`shouldIssueACompetitorTokenThatTheLocalDecoderAccepts`, `shouldGiveTheSameEmailTheSameLocalCompetitor`), `config/RoutingJwtDecoderTest` (`shouldSendLocalCompetitorTokensToTheLocalDecoderOnlyWhenLocalSignInIsConfigured`), `config/IssuerAwareAuthoritiesConverterTest` (`shouldTreatEveryConfiguredCompetitorIssuerTheSameWay`), `config/LocalSignInIT` (`shouldLetALocalCompetitorKeepAProfile`, `shouldNeverTreatALocalCompetitorAsAnOrganiser`, `shouldRefuseALocalCompetitorSignInWithoutAValidEmail`, `shouldLetALocalCompetitorSignUpAgainWithTheSameEmailAfterDeleting`), `config/TournamentRouteAuthorizationIT.shouldOfferNoLocalSignInOutsideLocalDevelopment` (both local routes) — ADR-0014 amendment; `lib/__tests__/competitor-auth-local.integration.test.ts`; `lib/__tests__/api-client-competitor.integration.test.ts` (competitor token only on competitor routes, organiser token never there); `components/layout/__tests__/navigation.unit.test.tsx` (account link only with the flag, `#5038`); `__tests__/app-routes.integration.test.tsx` (`/account/profile` redirects when off, `#5038`); `utils/__tests__/dublin-time.unit.test.ts` (`dublinToday`).
+
+### Known limits (slice 2)
+
+- `#5006`, `#5010` (no second account) and `#5011` happen on the competitor tenant's hosted pages. No automated test here can reach them; they wait for the tenant (T001) and `bjjeire-tests`.
+- The Graph deletion is proven against a mock server only. The least Graph permission for deleting an external-tenant user (T009) and the claims an External ID access token carries (`email`, `oid`) are not verified against a real tenant. Without `oid`, or without Graph credentials, the identity stays in the tenant and only the API refuses it; the failure is logged and counted.
+- Account deletion does not yet anonymise earlier sign-ups or stamp `financialRecordsExpireAt`: no sign-ups exist before slice 3, and those steps are slice 4 (T091, T092). Active sign-ups already block the delete.
+- `GET /me/history` is always empty until results exist (slice 5, T102).
+
 ## Slice 1 — User Story 1, organiser publishes a tournament
 
 | Issue | Layer | Test path | Implementation path |

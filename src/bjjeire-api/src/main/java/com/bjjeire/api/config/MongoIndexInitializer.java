@@ -2,6 +2,8 @@ package com.bjjeire.api.config;
 
 import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
+import com.bjjeire.api.competitor.Competitor;
+import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
@@ -134,6 +136,25 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .named("ix_store_isActive_name"));
 
         ensureTournamentIndexes();
+        ensureCompetitorIndexes();
+    }
+
+    private void ensureCompetitorIndexes() {
+        ensure(
+                Competitor.ENTITY_NAME,
+                new Index()
+                        .on("issuer", Sort.Direction.ASC)
+                        .on("subject", Sort.Direction.ASC)
+                        .named("ix_competitor_issuer_subject_unique")
+                        .unique());
+
+        ensure(
+                DeletedCompetitor.ENTITY_NAME,
+                new Index()
+                        .on("issuer", Sort.Direction.ASC)
+                        .on("subject", Sort.Direction.ASC)
+                        .named("ix_deletedCompetitor_issuer_subject_unique")
+                        .unique());
     }
 
     private void ensureTournamentIndexes() {

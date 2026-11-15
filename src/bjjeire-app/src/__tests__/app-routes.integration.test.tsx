@@ -46,12 +46,17 @@ describe('AppRoutes: tournaments', () => {
     paths.tournament.getHref('bjjeire'),
     paths.adminTournaments.path,
     paths.adminTournament.getHref('0123456789abcdef01234567'),
+    paths.accountProfile.path,
   ])(
     'given the Tournaments flag is off, when a visitor opens %s, then they are redirected to About and no tournament request is made',
     async route => {
       const requested = vi.fn()
       server.use(
         http.get(`*${API_ROUTES.tournaments}*`, () => {
+          requested()
+          return HttpResponse.json(null, { status: 404 })
+        }),
+        http.get(`*${API_ROUTES.competitor}*`, () => {
           requested()
           return HttpResponse.json(null, { status: 404 })
         })

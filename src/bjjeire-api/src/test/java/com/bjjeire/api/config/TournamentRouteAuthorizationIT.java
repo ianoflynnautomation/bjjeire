@@ -81,7 +81,8 @@ class TournamentRouteAuthorizationIT extends MongoIntegrationTest {
             assertThat(status(call.method(), call.path(), COMPETITOR_TOKEN_WITHOUT_SCOPE))
                     .as("competitor tenant without scope %s %s", call.method(), call.path())
                     .isEqualTo(HttpStatus.FORBIDDEN);
-            assertAllowed(status(call.method(), call.path(), COMPETITOR_TOKEN));
+            // A fresh competitor per call: DELETE /competitor/me really deletes the account it is sent with.
+            assertAllowed(status(call.method(), call.path(), competitorToken("route-" + call.method() + call.path())));
         }
     }
 
@@ -143,11 +144,13 @@ class TournamentRouteAuthorizationIT extends MongoIntegrationTest {
     /** ADR-0014: outside local development there is no local sign-in, so nobody can obtain a token from the API. */
     @Test
     void shouldOfferNoLocalSignInOutsideLocalDevelopment() {
-        var response =
-                restTemplate.exchange(ApiRoutes.LOCAL_SIGN_IN, HttpMethod.POST, jsonEntity("", null), String.class);
+        for (String path : new String[] {ApiRoutes.LOCAL_SIGN_IN, ApiRoutes.LOCAL_SIGN_IN + "/competitor"}) {
+            var response = restTemplate.exchange(
+                    path, HttpMethod.POST, jsonEntity("{ \"email\": \"a@example.test\" }", null), String.class);
 
-        assertThat(response.getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).doesNotContain("accessToken");
+            assertThat(response.getStatusCode()).as(path).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.NOT_FOUND);
+            assertThat(response.getBody()).doesNotContain("accessToken");
+        }
     }
 
     private HttpStatusCode status(HttpMethod method, String path, String bearerToken) {

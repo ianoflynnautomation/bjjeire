@@ -27,8 +27,8 @@ public final class RoutingJwtDecoder implements JwtDecoder {
     /**
      * Adds the local sign-in issuer (ADR-0014).
      *
-     * @param local decoder for {@link LocalSignInTokens#ISSUER}, or null where local sign-in is off; then that issuer
-     *     goes to the workforce decoder like any other unknown issuer
+     * @param local decoder for {@link LocalSignInTokens#ISSUER} and {@link LocalSignInTokens#COMPETITOR_ISSUER}, or
+     *     null where local sign-in is off; then that issuer goes to the workforce decoder like any other unknown issuer
      */
     public RoutingJwtDecoder(JwtDecoder workforce, JwtDecoder competitor, String competitorIssuer, JwtDecoder local) {
         this.workforce = workforce;
@@ -40,7 +40,8 @@ public final class RoutingJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String token) throws JwtException {
         String issuer = unverifiedIssuer(token);
-        if (local != null && LocalSignInTokens.ISSUER.equals(issuer)) {
+        if (local != null
+                && (LocalSignInTokens.ISSUER.equals(issuer) || LocalSignInTokens.COMPETITOR_ISSUER.equals(issuer))) {
             return local.decode(token);
         }
         if (competitorIssuer.isEmpty() || !competitorIssuer.equals(issuer)) {

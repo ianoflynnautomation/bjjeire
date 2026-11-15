@@ -12,6 +12,8 @@ import com.bjjeire.api.common.Location;
 import com.bjjeire.api.common.SocialMedia;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.competition.CompetitionRepository;
+import com.bjjeire.api.competitor.Academy;
+import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.event.BjjEventRepository;
 import com.bjjeire.api.event.BjjEventSchedule;
@@ -160,6 +162,28 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                         .belt(Belt.WHITE)
                         .weightClass("-76 kg")
                         .build()))
+                .build());
+    }
+
+    @State("a competitor is signed in")
+    void aCompetitorIsSignedIn() {
+        // The stub decoder turns the interaction's bearer value into a competitor; no profile yet.
+    }
+
+    @State("a competitor with a profile is signed in")
+    void aCompetitorWithAProfileIsSignedIn() {
+        mongoTemplate.insert(Competitor.builder()
+                .issuer(COMPETITOR_ISSUER)
+                .subject(COMPETITOR_SUBJECT)
+                .email("pact@example.test")
+                .firstName("Aoife")
+                .lastName("Byrne")
+                .nationality("IE")
+                .dateOfBirth(LocalDate.parse("1990-04-12"))
+                .gender(Gender.FEMALE)
+                .belt(Belt.BLUE)
+                .academy(new Academy(null, "Team X"))
+                .affiliation("Alliance")
                 .build());
     }
 

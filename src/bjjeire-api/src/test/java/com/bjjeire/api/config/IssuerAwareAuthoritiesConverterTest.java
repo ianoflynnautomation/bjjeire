@@ -44,6 +44,24 @@ class IssuerAwareAuthoritiesConverterTest {
                 .containsExactly("ROLE_COMPETITOR");
     }
 
+    /** ADR-0014: where local sign-in is on, its competitor issuer is a competitor tenant like the real one. */
+    @Test
+    void shouldTreatEveryConfiguredCompetitorIssuerTheSameWay() {
+        IssuerAwareAuthoritiesConverter withLocal = new IssuerAwareAuthoritiesConverter(
+                java.util.Set.of(COMPETITOR_ISSUER, LocalSignInTokens.COMPETITOR_ISSUER), COMPETITOR_SCOPE);
+
+        assertThat(withLocal
+                        .convert(jwt(LocalSignInTokens.COMPETITOR_ISSUER)
+                                .claim("scope", "access_as_writer " + COMPETITOR_SCOPE)
+                                .build())
+                        .stream()
+                        .map(GrantedAuthority::getAuthority))
+                .containsExactly("ROLE_COMPETITOR");
+        // Without local sign-in its issuer is no competitor tenant.
+        assertThat(authorities(jwt(LocalSignInTokens.COMPETITOR_ISSUER).claim("scope", COMPETITOR_SCOPE)))
+                .containsExactly("SCOPE_" + COMPETITOR_SCOPE);
+    }
+
     @Test
     void shouldGrantNothingWhenCompetitorTokenLacksCompetitorScope() {
         assertThat(authorities(jwt(COMPETITOR_ISSUER).claim("scp", "openid profile")))

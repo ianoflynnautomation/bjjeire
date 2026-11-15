@@ -36,6 +36,20 @@ class RoutingJwtDecoderTest {
     }
 
     @Test
+    void shouldSendLocalCompetitorTokensToTheLocalDecoderOnlyWhenLocalSignInIsConfigured() {
+        JwtDecoder local = token -> decoded(token, "local");
+        RoutingJwtDecoder withLocal = new RoutingJwtDecoder(workforce, competitor, COMPETITOR_ISSUER, local);
+
+        assertThat(withLocal
+                        .decode(tokenIssuedBy(LocalSignInTokens.COMPETITOR_ISSUER))
+                        .getSubject())
+                .isEqualTo("local");
+        assertThat(decoder.decode(tokenIssuedBy(LocalSignInTokens.COMPETITOR_ISSUER))
+                        .getSubject())
+                .isEqualTo("workforce");
+    }
+
+    @Test
     void shouldSendCompetitorIssuerTokensToTheCompetitorDecoder() {
         assertThat(decoder.decode(tokenIssuedBy(COMPETITOR_ISSUER)).getSubject())
                 .isEqualTo("competitor");

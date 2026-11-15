@@ -1,0 +1,110 @@
+export const competitor = {
+  documentTitle: 'My Competitor Profile | BJJ Éire',
+  accountLink: 'My account',
+  signIn: {
+    heading: 'Competitor sign-in',
+    message:
+      'Sign in to keep your competitor profile and sign up for BJJ Éire tournaments. New here? You can create an account in the same window.',
+    localMessage:
+      'Local development: sign in as a competitor by typing any email address. No Microsoft account is used.',
+    localEmailLabel: 'Email (local sign-in)',
+    localEmailInvalid: 'Enter an email address.',
+    button: 'Sign in or create an account',
+    checking: 'Checking your sign-in...',
+    failed: 'Sign-in did not complete. Please try again.',
+  },
+  profile: {
+    heading: 'My competitor profile',
+    createHeading: 'Create your competitor profile',
+    intro:
+      'Only you and the organiser can see this profile. Your name, academy and affiliation are shown publicly only when you enter a tournament.',
+    loadFailed: 'Failed to load your profile. Please try again.',
+    incomplete:
+      'Your profile is missing details a tournament sign-up needs: nationality, gender and belt.',
+    submit: 'Save profile',
+    saving: 'Saving...',
+    saved: 'Profile saved.',
+    emailLabel: 'Signed in as',
+  },
+  form: {
+    detailsHeading: 'Your details',
+    firstName: 'First name',
+    middleName: 'Middle name (optional)',
+    lastName: 'Last name',
+    nationality: 'Nationality',
+    nationalityPlaceholder: 'Choose a country',
+    dateOfBirth: 'Date of birth',
+    gender: 'Gender',
+    belt: 'Belt',
+    choose: 'Choose...',
+    teamHeading: 'Academy and affiliation',
+    academy: 'Academy',
+    academyDirectory: 'My academy is in the BJJ Éire gym directory',
+    academyTyped: 'My academy is not listed',
+    academyNone: 'No academy',
+    academySearch: 'Search the gym directory',
+    academySearchPlaceholder: 'Start typing a gym name',
+    academySearchEmpty:
+      'No gym matches. Choose "My academy is not listed" to type its name.',
+    academyLoadFailed:
+      'The gym directory could not be loaded. Type your academy name instead.',
+    academySelected: 'Selected',
+    academyChange: 'Change',
+    academyName: 'Academy name',
+    affiliation: 'Affiliation (optional)',
+    affiliationHint:
+      'The wider team your academy belongs to, if any. Points are also ranked per affiliation.',
+    contactHeading: 'Contact details (optional)',
+    contactHint: 'Used only by the organiser to reach you.',
+    phone: 'Phone',
+    street: 'Street',
+    postcode: 'Postcode',
+    city: 'City',
+    region: 'County or state',
+    country: 'Country of residence',
+  },
+  validation: {
+    firstNameRequired: 'Enter your first name.',
+    lastNameRequired: 'Enter your last name.',
+    nameTooLong: 'Names can be at most 60 characters.',
+    nationalityRequired: 'Choose your nationality.',
+    dateOfBirthRequired: 'Enter your date of birth.',
+    dateOfBirthPast: 'Your date of birth must be in the past.',
+    genderRequired: 'Choose your gender.',
+    beltRequired: 'Choose your belt.',
+    academyGymRequired: 'Choose your gym from the directory.',
+    academyNameRequired: 'Type your academy name.',
+    teamTooLong: 'Academy and affiliation names can be at most 80 characters.',
+    phoneInvalid:
+      'Enter a phone number using digits, spaces, brackets or hyphens.',
+    addressTooLong: 'This address line is too long.',
+  },
+  history: {
+    heading: 'My medals',
+    gold: 'Gold',
+    silver: 'Silver',
+    bronze: 'Bronze',
+    tournamentsHeading: 'Tournaments entered',
+    empty:
+      'You have not entered a tournament yet. Your medals will appear here.',
+    loadFailed: 'Failed to load your medals.',
+  },
+  account: {
+    heading: 'Account',
+    signOut: 'Sign out',
+    delete: 'Delete my account',
+    deleteWarning:
+      'This removes your profile and your sign-in. It cannot be undone. Results you have won stay on past podiums without your name.',
+    deleteConfirm: 'Yes, delete my account',
+    deleteCancel: 'Keep my account',
+    deleting: 'Deleting...',
+    deleteFailed: 'Your account could not be deleted. Please try again.',
+    hasActiveRegistration:
+      'You have a sign-up that is awaiting payment or confirmed. Cancel it before deleting your account.',
+  },
+  errors: {
+    generic: 'Something went wrong. Please try again.',
+    signedOut:
+      'Your sign-in is no longer accepted. Sign out and sign in again. If you deleted your account, it cannot be used again.',
+  },
+} as const

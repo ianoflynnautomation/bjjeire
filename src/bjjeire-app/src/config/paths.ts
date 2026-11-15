@@ -44,6 +44,11 @@ export const paths = {
     label: 'Manage tournament',
     getHref: (id: string) => `/admin/tournaments/${encodeURIComponent(id)}`,
   },
+  accountProfile: {
+    path: '/account/profile',
+    label: 'My profile',
+    getHref: () => '/account/profile',
+  },
   about: {
     path: '/about',
     label: 'About',

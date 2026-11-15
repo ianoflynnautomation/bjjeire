@@ -7,6 +7,7 @@ import { brand, navigation, footer } from './layout'
 import { about } from './about'
 import { supportModal } from './support'
 import { tournaments, tournamentAdmin } from './tournaments'
+import { competitor } from './competitor'
 
 export const uiContent = {
   shared,
@@ -21,4 +22,5 @@ export const uiContent = {
   supportModal,
   tournaments,
   tournamentAdmin,
+  competitor,
 } as const
