@@ -25,6 +25,7 @@ interface MockMsal {
   >
   loginPopup: ReturnType<typeof vi.fn<() => Promise<object>>>
   logoutPopup: ReturnType<typeof vi.fn<(request?: object) => Promise<void>>>
+  clearCache: ReturnType<typeof vi.fn<(request?: object) => Promise<void>>>
 }
 
 const { competitorMsal, adminMsal } = vi.hoisted(() => {
@@ -36,6 +37,9 @@ const { competitorMsal, adminMsal } = vi.hoisted(() => {
     ),
     loginPopup: vi.fn<() => Promise<object>>(() => Promise.resolve({})),
     logoutPopup: vi.fn<(request?: object) => Promise<void>>(() =>
+      Promise.resolve()
+    ),
+    clearCache: vi.fn<(request?: object) => Promise<void>>(() =>
       Promise.resolve()
     ),
   })
@@ -280,8 +284,13 @@ describe('ProfilePage', () => {
   })
 
   // #5012
-  it('given a signed-in competitor, when they confirm account deletion, then the account is deleted and they are signed out', async () => {
+  it('given a signed-in competitor, when they confirm account deletion, then the account is deleted and this site forgets them without a popup', async () => {
     signedIn()
+    // The popup would open after an await, not from the click, so a browser may block it.
+    competitorMsal.clearCache.mockImplementation(() => {
+      competitorMsal.getAllAccounts.mockReturnValue([])
+      return Promise.resolve()
+    })
     seedOwnProfile(createCompetitor())
     const remove = seedDeleteAccount()
     const { user } = renderProfilePage()
@@ -295,8 +304,14 @@ describe('ProfilePage', () => {
     await waitFor(() => expect(remove.calls).toHaveLength(1))
     expect(remove.authorization).toEqual(['Bearer competitor-token'])
     await waitFor(() =>
-      expect(competitorMsal.logoutPopup).toHaveBeenCalledTimes(1)
+      expect(competitorMsal.clearCache).toHaveBeenCalledWith({
+        account: { username: 'aoife' },
+      })
     )
+    expect(competitorMsal.logoutPopup).not.toHaveBeenCalled()
+    expect(
+      await screen.findByRole('heading', { name: signIn.heading })
+    ).toBeInTheDocument()
   })
 
   it('given an active sign-up, when the competitor tries to delete their account, then they are told to cancel it first and stay signed in', async () => {

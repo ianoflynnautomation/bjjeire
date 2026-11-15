@@ -14,12 +14,12 @@ const { account } = uiContent.competitor
 
 /** Sign out, and delete the account after a confirmation (#5012). */
 export const AccountActions = function AccountActions(): JSX.Element {
-  const { signOut } = useCompetitorSession()
+  const { signOut, forget } = useCompetitorSession()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const remove = useMutation({
     mutationFn: deleteOwnAccount,
-    onSuccess: () => signOut(),
+    onSuccess: () => forget(),
     onError: failure =>
       setError(
         isActiveRegistrationConflict(failure)

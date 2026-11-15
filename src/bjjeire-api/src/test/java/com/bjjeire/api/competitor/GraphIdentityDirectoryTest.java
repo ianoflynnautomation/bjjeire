@@ -1,89 +1,127 @@
 package com.bjjeire.api.competitor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import com.bjjeire.api.config.BjjEireProperties;
+import com.azure.core.credential.AccessToken;
+import com.azure.core.credential.TokenCredential;
+import com.azure.core.credential.TokenRequestContext;
+import com.azure.core.exception.ClientAuthenticationException;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestClient;
+import reactor.core.publisher.Mono;
 
-/** Research R11: deleting the competitor from the external tenant through Microsoft Graph, app-only. */
+/**
+ * Research R11: deleting the competitor from the external tenant through the Microsoft Graph SDK, app-only. A local
+ * HTTP server stands in for Graph, so the SDK client is built exactly as in production.
+ */
 class GraphIdentityDirectoryTest {
-    private static final String TOKEN_URI = "https://login.microsoftonline.com/tenant/oauth2/v2.0/token";
-    private static final String GRAPH = "https://graph.microsoft.com/v1.0";
+    private record Seen(String method, String path, String authorization) {}
 
-    private MockRestServiceServer server;
-    private GraphIdentityDirectory directory;
+    private final List<Seen> requests = new CopyOnWriteArrayList<>();
+    private final List<TokenRequestContext> tokenRequests = new CopyOnWriteArrayList<>();
+    private final TokenCredential credential = context -> {
+        tokenRequests.add(context);
+        return Mono.just(new AccessToken("graph-token", OffsetDateTime.now().plusHours(1)));
+    };
+
+    private HttpServer graph;
+    private int status = 204;
 
     @BeforeEach
-    void setUp() {
-        RestClient.Builder builder = RestClient.builder();
-        server = MockRestServiceServer.bindTo(builder).build();
-        directory = new GraphIdentityDirectory(
-                new BjjEireProperties.CompetitorDirectory(TOKEN_URI, "client-id", "client-secret", GRAPH), builder);
+    void startGraph() throws IOException {
+        graph = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
+        graph.createContext("/", exchange -> {
+            requests.add(new Seen(
+                    exchange.getRequestMethod(),
+                    exchange.getRequestURI().getPath(),
+                    exchange.getRequestHeaders().getFirst("Authorization")));
+            byte[] body = status == 204
+                    ? new byte[0]
+                    : "{\"error\":{\"code\":\"Refused\",\"message\":\"refused\"}}".getBytes();
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(status, body.length == 0 ? -1 : body.length);
+            if (body.length > 0) {
+                exchange.getResponseBody().write(body);
+            }
+            exchange.close();
+        });
+        graph.start();
+    }
+
+    @AfterEach
+    void stopGraph() {
+        graph.stop(0);
+    }
+
+    private GraphIdentityDirectory directory(TokenCredential tokens) {
+        String baseUrl = "http://localhost:" + graph.getAddress().getPort() + "/v1.0";
+        return new GraphIdentityDirectory(GraphIdentityDirectory.graphClient(tokens, baseUrl));
     }
 
     @Test
     @Tag("#5012")
-    void shouldDeleteTheUserWithAnAppOnlyToken() {
-        expectToken();
-        server.expect(requestTo(GRAPH + "/users/0b8e5d4c-oid"))
-                .andExpect(method(HttpMethod.DELETE))
-                .andExpect(header("Authorization", "Bearer graph-token"))
-                .andRespond(withStatus(HttpStatus.NO_CONTENT));
+    void shouldDeleteTheUserWithAnAppOnlyGraphToken() {
+        directory(credential).deleteUser("0b8e5d4c-oid");
 
-        directory.deleteUser("0b8e5d4c-oid");
-
-        server.verify();
+        assertThat(requests).containsExactly(new Seen("DELETE", "/v1.0/users/0b8e5d4c-oid", "Bearer graph-token"));
+        assertThat(tokenRequests)
+                .isNotEmpty()
+                .allSatisfy(context ->
+                        assertThat(context.getScopes()).containsExactly("https://graph.microsoft.com/.default"));
     }
 
     @Test
     void shouldTreatAUserThatIsAlreadyGoneAsDeleted() {
-        expectToken();
-        server.expect(requestTo(GRAPH + "/users/gone")).andRespond(withStatus(HttpStatus.NOT_FOUND));
+        status = 404;
 
-        assertThatCode(() -> directory.deleteUser("gone")).doesNotThrowAnyException();
+        assertThatCode(() -> directory(credential).deleteUser("gone")).doesNotThrowAnyException();
     }
 
     @Test
-    void shouldReportAFailureWithoutTheSecret() {
-        expectToken();
-        server.expect(requestTo(GRAPH + "/users/x")).andRespond(withStatus(HttpStatus.FORBIDDEN));
+    void shouldReportARefusalByGraph() {
+        status = 403;
 
-        assertThatThrownBy(() -> directory.deleteUser("x"))
+        assertThatThrownBy(() -> directory(credential).deleteUser("x"))
                 .isInstanceOf(IdentityDirectory.IdentityDirectoryException.class)
-                .hasMessageNotContaining("client-secret");
+                .hasMessageContaining("403");
+    }
+
+    @Test
+    void shouldReportATokenFailureWithoutItsDetailsAndCallNothing() {
+        TokenCredential refusing =
+                context -> Mono.error(new ClientAuthenticationException("AADSTS7000215: invalid secret s3cr3t", null));
+
+        assertThatThrownBy(() -> directory(refusing).deleteUser("x"))
+                .isInstanceOf(IdentityDirectory.IdentityDirectoryException.class)
+                .hasMessageNotContaining("s3cr3t")
+                .hasNoCause();
+        assertThat(requests).isEmpty();
+    }
+
+    @Test
+    void shouldReportAnUnreachableGraph() {
+        graph.stop(0);
+
+        assertThatThrownBy(() -> directory(credential).deleteUser("x"))
+                .isInstanceOf(IdentityDirectory.IdentityDirectoryException.class)
+                .hasMessageContaining("could not be reached");
     }
 
     @Test
     void shouldRefuseAnObjectIdThatIsNotAPathSegment() {
-        assertThatThrownBy(() -> directory.deleteUser("../me"))
+        assertThatThrownBy(() -> directory(credential).deleteUser("../me"))
                 .isInstanceOf(IdentityDirectory.IdentityDirectoryException.class);
-    }
-
-    private void expectToken() {
-        server.expect(requestTo(TOKEN_URI))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content()
-                        .formDataContains(java.util.Map.of(
-                                "grant_type", "client_credentials",
-                                "client_id", "client-id",
-                                "client_secret", "client-secret",
-                                "scope", "https://graph.microsoft.com/.default")))
-                .andRespond(withSuccess(
-                        "{\"access_token\":\"graph-token\",\"token_type\":\"Bearer\",\"expires_in\":3599}",
-                        MediaType.APPLICATION_JSON));
+        assertThat(requests).isEmpty();
+        assertThat(tokenRequests).isEmpty();
     }
 }

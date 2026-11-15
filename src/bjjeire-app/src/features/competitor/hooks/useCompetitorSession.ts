@@ -3,6 +3,8 @@ import { createContext, use } from 'react'
 export interface CompetitorSession {
   /** Signs out of the competitor tenant and shows the sign-in again. */
   signOut: () => Promise<void>
+  /** Forgets the competitor on this site only, with no popup; used after account deletion. */
+  forget: () => Promise<void>
 }
 
 export const CompetitorSessionContext = createContext<CompetitorSession | null>(null)

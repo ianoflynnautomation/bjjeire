@@ -44,7 +44,7 @@ services:
       - COMPETITOR_AUDIENCE=${COMPETITOR_AUDIENCE:-api://00000000-0000-0000-0000-000000000000}
       # Research R11: Graph credentials that delete a competitor's sign-in. Blank: the API refuses the
       # deleted account's tokens and the identity is removed from the tenant by hand.
-      - COMPETITOR_DIRECTORY_TOKEN_URI=${COMPETITOR_DIRECTORY_TOKEN_URI:-}
+      - COMPETITOR_DIRECTORY_TENANT_ID=${COMPETITOR_DIRECTORY_TENANT_ID:-}
       - COMPETITOR_DIRECTORY_CLIENT_ID=${COMPETITOR_DIRECTORY_CLIENT_ID:-}
       - COMPETITOR_DIRECTORY_CLIENT_SECRET=${COMPETITOR_DIRECTORY_CLIENT_SECRET:-}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_REPLACE_ME}

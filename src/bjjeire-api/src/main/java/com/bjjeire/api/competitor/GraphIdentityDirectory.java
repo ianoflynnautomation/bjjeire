@@ -1,18 +1,20 @@
 package com.bjjeire.api.competitor;
 
-import com.bjjeire.api.config.BjjEireProperties;
+import com.azure.core.credential.TokenCredential;
+import com.azure.core.exception.ClientAuthenticationException;
+import com.microsoft.graph.core.requests.GraphClientFactory;
+import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.kiota.ApiException;
+import com.microsoft.kiota.authentication.AzureIdentityAuthenticationProvider;
+import java.net.URI;
+import java.time.Duration;
 import java.util.regex.Pattern;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestClientResponseException;
 
 /**
- * Deletes competitors from the external tenant through Microsoft Graph, with an app-only token from the client
- * credentials grant (research R11). Deletions are rare, so a token is fetched for each one and never cached.
+ * Deletes competitors from the external tenant through the Microsoft Graph SDK with an app-only token (research R11).
+ * The token comes from an Azure Identity {@link TokenCredential}, which caches and refreshes it; see
+ * {@link IdentityDirectoryConfig#credential} for which one.
  *
  * <p>The application needs the least Graph permission that allows deleting users in that tenant; that permission is
  * still to be confirmed (tasks.md T009).
@@ -20,15 +22,33 @@ import org.springframework.web.client.RestClientResponseException;
 public class GraphIdentityDirectory implements IdentityDirectory {
     static final String GRAPH_SCOPE = "https://graph.microsoft.com/.default";
 
+    /** A hung directory must not hold the delete request open, retries included; the identity is already refused. */
+    private static final Duration CALL_TIMEOUT = Duration.ofSeconds(10);
+
     /** Entra object ids are GUIDs; anything that is a single safe path segment is accepted. */
     private static final Pattern OBJECT_ID = Pattern.compile("^[A-Za-z0-9-]{1,64}$");
 
-    private final BjjEireProperties.CompetitorDirectory settings;
-    private final RestClient restClient;
+    private final GraphServiceClient graph;
 
-    public GraphIdentityDirectory(BjjEireProperties.CompetitorDirectory settings, RestClient.Builder builder) {
-        this.settings = settings;
-        this.restClient = builder.build();
+    public GraphIdentityDirectory(GraphServiceClient graph) {
+        this.graph = graph;
+    }
+
+    /**
+     * The Graph client with the SDK's own middleware (retry, redirect, telemetry). The token is sent only to the host
+     * of {@code graphBaseUrl}.
+     *
+     * @param credential the app-only credential
+     * @param graphBaseUrl Graph's base address, for example {@code https://graph.microsoft.com/v1.0}
+     */
+    static GraphServiceClient graphClient(TokenCredential credential, String graphBaseUrl) {
+        String host = URI.create(graphBaseUrl).getHost();
+        AzureIdentityAuthenticationProvider tokens =
+                new AzureIdentityAuthenticationProvider(credential, new String[] {host}, GRAPH_SCOPE);
+        GraphServiceClient client = new GraphServiceClient(
+                tokens, GraphClientFactory.create().callTimeout(CALL_TIMEOUT).build());
+        client.getRequestAdapter().setBaseUrl(graphBaseUrl);
+        return client;
     }
 
     @Override
@@ -36,57 +56,29 @@ public class GraphIdentityDirectory implements IdentityDirectory {
         if (objectId == null || !OBJECT_ID.matcher(objectId).matches()) {
             throw new IdentityDirectoryException("The token carried no usable directory object id.");
         }
-        String token = appToken();
         try {
-            restClient
-                    .delete()
-                    .uri(settings.graphBaseUrl() + "/users/{id}", objectId)
-                    .headers(headers -> headers.setBearerAuth(token))
-                    .retrieve()
-                    .toBodilessEntity();
-        } catch (RestClientResponseException refused) {
-            if (refused.getStatusCode().value() == HttpStatus.NOT_FOUND.value()) {
+            graph.users().byUserId(objectId).delete();
+        } catch (ApiException refused) {
+            if (refused.getResponseStatusCode() == HttpStatus.NOT_FOUND.value()) {
                 return;
             }
             throw new IdentityDirectoryException(
-                    "Graph refused to delete the user: HTTP "
-                            + refused.getStatusCode().value(),
-                    refused);
-        } catch (RestClientException unreachable) {
-            throw new IdentityDirectoryException("Graph could not be reached.", unreachable);
+                    "Graph refused to delete the user: HTTP " + refused.getResponseStatusCode(), null);
+        } catch (RuntimeException failed) {
+            if (causedByTokenFailure(failed)) {
+                // The identity library's message can echo request details; report the kind of failure only.
+                throw new IdentityDirectoryException("No app-only Graph token could be had.", null);
+            }
+            throw new IdentityDirectoryException("Graph could not be reached.", failed);
         }
     }
 
-    private String appToken() {
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.add("grant_type", "client_credentials");
-        form.add("client_id", settings.clientId());
-        form.add("client_secret", settings.clientSecret());
-        form.add("scope", GRAPH_SCOPE);
-        TokenResponse response;
-        try {
-            response = restClient
-                    .post()
-                    .uri(settings.tokenUri())
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(form)
-                    .retrieve()
-                    .body(TokenResponse.class);
-        } catch (RestClientResponseException refused) {
-            // The response body can echo request details; report the status only.
-            throw new IdentityDirectoryException(
-                    "The token endpoint refused the client credentials: HTTP "
-                            + refused.getStatusCode().value(),
-                    null);
-        } catch (RestClientException unreachable) {
-            throw new IdentityDirectoryException("The token endpoint could not be reached.", unreachable);
+    private static boolean causedByTokenFailure(Throwable failure) {
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof ClientAuthenticationException) {
+                return true;
+            }
         }
-        if (response == null || response.access_token() == null) {
-            throw new IdentityDirectoryException("The token endpoint returned no access token.");
-        }
-        return response.access_token();
+        return false;
     }
-
-    @SuppressWarnings("checkstyle:RecordComponentName")
-    record TokenResponse(String access_token) {}
 }

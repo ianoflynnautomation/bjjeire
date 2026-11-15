@@ -25,7 +25,7 @@ public record BjjEireProperties(
         competitorAuth = competitorAuth == null ? new CompetitorAuth("", List.of(), "") : competitorAuth;
         localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
         competitorDirectory =
-                competitorDirectory == null ? new CompetitorDirectory("", "", "", "") : competitorDirectory;
+                competitorDirectory == null ? new CompetitorDirectory("", "", "", "", "", "") : competitorDirectory;
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -64,34 +64,54 @@ public record BjjEireProperties(
 
     /**
      * Application credentials for Microsoft Graph in the competitor tenant, used only to delete a competitor's sign-in
-     * identity (research R11). All blank means not configured: deletion then stops the identity at the API only.
+     * identity (research R11). Without a tenant, a client and one credential, deletion stops the identity at the API
+     * only.
      *
-     * @param tokenUri the tenant's OAuth 2.0 token endpoint
+     * @param tenantId the competitor tenant's id
      * @param clientId the application allowed to delete users
-     * @param clientSecret its secret; never logged
+     * @param clientSecret its secret; never logged. Used in preference to {@code federatedTokenFile}
+     * @param federatedTokenFile the projected service-account token for AKS workload identity, used when no secret is
+     *     set
+     * @param authorityHost the sign-in host, default {@code https://login.microsoftonline.com/}
      * @param graphBaseUrl Graph's base address, default {@code https://graph.microsoft.com/v1.0}
      */
-    public record CompetitorDirectory(String tokenUri, String clientId, String clientSecret, String graphBaseUrl) {
+    public record CompetitorDirectory(
+            String tenantId,
+            String clientId,
+            String clientSecret,
+            String federatedTokenFile,
+            String authorityHost,
+            String graphBaseUrl) {
+        public static final String DEFAULT_AUTHORITY_HOST = "https://login.microsoftonline.com/";
         public static final String DEFAULT_GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0";
 
         public CompetitorDirectory {
-            tokenUri = tokenUri == null ? "" : tokenUri.trim();
+            tenantId = tenantId == null ? "" : tenantId.trim();
             clientId = clientId == null ? "" : clientId.trim();
             clientSecret = clientSecret == null ? "" : clientSecret;
+            federatedTokenFile = federatedTokenFile == null ? "" : federatedTokenFile.trim();
+            authorityHost =
+                    authorityHost == null || authorityHost.isBlank() ? DEFAULT_AUTHORITY_HOST : authorityHost.trim();
             graphBaseUrl = graphBaseUrl == null || graphBaseUrl.isBlank()
                     ? DEFAULT_GRAPH_BASE_URL
                     : graphBaseUrl.trim().replaceAll("/+$", "");
         }
 
-        /** Whether every credential is present. */
+        /** Whether a client secret is set; otherwise the federated token file is the credential. */
+        public boolean usesClientSecret() {
+            return !clientSecret.isBlank();
+        }
+
+        /** Whether the tenant, the client and one credential are present. */
         public boolean configured() {
-            return !tokenUri.isEmpty() && !clientId.isEmpty() && !clientSecret.isBlank();
+            return !tenantId.isEmpty() && !clientId.isEmpty() && (usesClientSecret() || !federatedTokenFile.isEmpty());
         }
 
         @Override
         public String toString() {
-            return "CompetitorDirectory[tokenUri=" + tokenUri + ", clientId=" + clientId + ", graphBaseUrl="
-                    + graphBaseUrl + ", clientSecret=" + (clientSecret.isEmpty() ? "" : "***") + "]";
+            return "CompetitorDirectory[tenantId=" + tenantId + ", clientId=" + clientId + ", federatedTokenFile="
+                    + federatedTokenFile + ", authorityHost=" + authorityHost + ", graphBaseUrl=" + graphBaseUrl
+                    + ", clientSecret=" + (clientSecret.isEmpty() ? "" : "***") + "]";
         }
     }
 

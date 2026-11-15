@@ -120,6 +120,25 @@ export async function signOutCompetitor(): Promise<void> {
 }
 
 /**
+ * Makes this site forget the signed-in competitor without opening a popup.
+ * Used after the account is deleted: the identity is already gone, and a
+ * popup opened after an await, not from a click, may be blocked (#5012).
+ */
+export async function forgetCompetitor(): Promise<void> {
+  if (usesLocalCompetitorSignIn()) {
+    sessionStorage.removeItem(LOCAL_COMPETITOR_SESSION_KEY)
+    return
+  }
+  const { competitorMsalInstance } = await import('@/lib/competitor-msal-config')
+  await competitorMsalInstance.initialize()
+  const accounts = competitorMsalInstance.getAllAccounts()
+  if (accounts.length === 0) {
+    return
+  }
+  await competitorMsalInstance.clearCache({ account: accounts[0] })
+}
+
+/**
  * The competitor's bearer token, or null when nobody is signed in. Rejects
  * when an account exists but no token can be had, so a competitor request is
  * never sent unauthenticated by mistake.

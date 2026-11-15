@@ -13,6 +13,7 @@ import { CompetitorSignInTestIds } from '@/constants/competitorDataTestIds'
 import {
   hasCompetitorSession,
   signInCompetitor,
+  forgetCompetitor,
   signOutCompetitor,
   usesLocalCompetitorSignIn,
 } from '@/lib/competitor-auth'
@@ -85,15 +86,18 @@ export const CompetitorSignInGate = function CompetitorSignInGate({
     }
   }
 
+  const endSession = async (end: () => Promise<void>): Promise<void> => {
+    try {
+      await end()
+    } finally {
+      queryClient.removeQueries({ queryKey: COMPETITOR_KEY })
+      setState(await hasCompetitorSession() ? 'signedIn' : 'signedOut')
+    }
+  }
+
   const session: CompetitorSession = {
-    signOut: async () => {
-      try {
-        await signOutCompetitor()
-      } finally {
-        queryClient.removeQueries({ queryKey: COMPETITOR_KEY })
-        setState(await hasCompetitorSession() ? 'signedIn' : 'signedOut')
-      }
-    },
+    signOut: () => endSession(signOutCompetitor),
+    forget: () => endSession(forgetCompetitor),
   }
 
   if (state === 'checking') {
