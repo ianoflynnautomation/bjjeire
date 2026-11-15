@@ -18,6 +18,22 @@ function isAdminRead(url: string | undefined): boolean {
   )
 }
 
+/**
+ * Routes that act for the signed-in competitor and carry the competitor
+ * token, whatever the method (ADR-0012). The organiser token is never sent
+ * on them, and the competitor token is never sent anywhere else.
+ */
+function isCompetitorRoute(url: string | undefined): boolean {
+  const path = `/${(url ?? '').replace(/^\/+/u, '')}`.split('?')[0]
+  const { competitor, registration, tournaments } = API_RESOURCE_ROUTES
+  return (
+    [competitor, registration].some(
+      prefix => path === prefix || path.startsWith(`${prefix}/`)
+    ) ||
+    (path.startsWith(`${tournaments}/`) && path.endsWith('/eligible-division'))
+  )
+}
+
 class ApiService {
   private readonly instance: AxiosInstance
 
@@ -34,6 +50,14 @@ class ApiService {
     this.instance.interceptors.request.use(async config => {
       const method = (config.method ?? 'get').toLowerCase()
 
+      if (isCompetitorRoute(config.url)) {
+        const { getCompetitorToken } = await import('@/lib/competitor-auth')
+        const token = await getCompetitorToken()
+        if (token !== null) {
+          config.headers.set('Authorization', `Bearer ${token}`)
+        }
+        return config
+      }
       if (method === 'get' && !isAdminRead(config.url)) {
         return config
       }

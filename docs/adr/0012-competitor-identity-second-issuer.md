@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-13
-- **Applies to:** `src/bjjeire-api/src/main/java/com/bjjeire/api/config/SecurityConfig.java`, `config/RoutingJwtDecoder.java`, `config/BackoffJwtDecoder.java`, `config/IssuerAwareAuthoritiesConverter.java`, `common/ApiRoutes.java`, the `competitor` and `registration` packages, `src/bjjeire-app/src/lib/msal-config.ts`
+- **Applies to:** `src/bjjeire-api/src/main/java/com/bjjeire/api/config/SecurityConfig.java`, `config/RevocationCheckingJwtDecoder.java`, `config/RoutingJwtDecoder.java`, `config/BackoffJwtDecoder.java`, `config/IssuerAwareAuthoritiesConverter.java`, `common/ApiRoutes.java`, the `competitor` and `registration` packages, `src/bjjeire-app/src/lib/msal-config.ts`
 - **Amends:** constitution principle V (1.0.0 → 1.1.0)
 
 ## Context
@@ -56,6 +56,13 @@ Competitor routes require a principal from the competitor issuer that holds
 
 A competitor is identified by the pair (`iss`, `sub`). Competitor routes act
 only on the caller's own profile and sign-ups.
+
+A deleted account's identity stays refused (slice 2, research R11):
+`RevocationCheckingJwtDecoder` wraps the routing decoder and, after the token
+has been validated, answers 401 for any competitor-issuer token whose
+(`iss`, `sub`) is in the `DeletedCompetitor` collection. It never looks up a
+workforce token. Deleting the user from the tenant goes through Graph by the
+`oid` claim, because Entra issues a different `sub` to each application.
 
 ## Consequences
 

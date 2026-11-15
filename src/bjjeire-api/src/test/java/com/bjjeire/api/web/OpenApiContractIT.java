@@ -119,6 +119,26 @@ class OpenApiContractIT extends MongoIntegrationTest {
                 .hasSize(1);
     }
 
+    /** ADR-0002: the served document must describe what the competitor routes really answer. */
+    @Test
+    void shouldPublishTheCompetitorProfileRoutesWithTheirRealResponses() throws Exception {
+        JsonNode document = objectMapper.readTree(openApiDocument().getBody());
+        String me = ApiRoutes.COMPETITOR + "/me";
+
+        for (String method : new String[] {"get", "put", "delete"}) {
+            assertThat(hasBearerSecurity(document.at(operationPointer(me, method))))
+                    .as(method)
+                    .isTrue();
+        }
+        assertThat(document.at(operationPointer(me, "get") + "/responses").propertyNames())
+                .contains("200", "404");
+        assertThat(document.at(operationPointer(me, "put") + "/responses").propertyNames())
+                .contains("200", "400");
+        assertThat(document.at(operationPointer(me, "delete") + "/responses").propertyNames())
+                .contains("204", "409")
+                .doesNotContain("200");
+    }
+
     @Test
     void shouldReturnAPublicTournamentListingThatMatchesTheServedSchema() throws Exception {
         mongoTemplate.insert(Tournament.builder()

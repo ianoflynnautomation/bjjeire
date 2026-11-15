@@ -49,6 +49,34 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/competitor/me': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get your profile
+     * @description 404 until you have saved one.
+     */
+    get: operations['getOwnProfile']
+    /**
+     * Create or replace your profile
+     * @description Safe to retry: one profile per account. The email is taken from your sign-in, not the body. An academy is a directory gym by gymId (400 UNKNOWN_GYM when it is not listed) or a typed name; null means no academy.
+     */
+    put: operations['saveOwnProfile']
+    post?: never
+    /**
+     * Delete your account
+     * @description Removes your profile and your sign-in. Returns 409 has-active-registration while a sign-up is awaiting payment or confirmed. Afterwards this account's sign-in is refused.
+     */
+    delete: operations['deleteOwnAccount']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/bjjevent/{id}': {
     parameters: {
       query?: never
@@ -299,6 +327,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/competitor/me/history': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get your medal totals and the tournaments you entered */
+    get: operations['getOwnHistory']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/competition': {
     parameters: {
       query?: never
@@ -496,6 +541,55 @@ export interface components {
     }
     UpdateGymResponse: {
       data?: components['schemas']['GymDto']
+    }
+    AcademyChoice: {
+      gymId?: string
+      name?: string
+    }
+    PostalAddress: {
+      street?: string
+      postcode?: string
+      city?: string
+      region?: string
+      country?: string
+    }
+    SaveCompetitorCommand: {
+      firstName: string
+      middleName?: string
+      lastName: string
+      nationality?: string
+      /** Format: date */
+      dateOfBirth: string
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE'
+      /** @enum {string} */
+      belt?: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
+      academy?: components['schemas']['AcademyChoice']
+      affiliation?: string
+      phone?: string
+      address?: components['schemas']['PostalAddress']
+    }
+    Academy: {
+      gymId?: string
+      name?: string
+    }
+    CompetitorDto: {
+      email?: string
+      firstName?: string
+      middleName?: string
+      lastName?: string
+      nationality?: string
+      /** Format: date */
+      dateOfBirth?: string
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE'
+      /** @enum {string} */
+      belt?: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
+      academy?: components['schemas']['Academy']
+      affiliation?: string
+      phone?: string
+      address?: components['schemas']['PostalAddress']
+      profileComplete?: boolean
     }
     BjjEventDto: {
       id?: string
@@ -722,6 +816,28 @@ export interface components {
       data?: components['schemas']['GymDto'][]
       pagination?: components['schemas']['PaginationMetadata']
     }
+    CompetitorHistoryDto: {
+      /** Format: int32 */
+      gold?: number
+      /** Format: int32 */
+      silver?: number
+      /** Format: int32 */
+      bronze?: number
+      tournaments?: components['schemas']['TournamentMedalsDto'][]
+    }
+    TournamentMedalsDto: {
+      tournamentId?: string
+      slug?: string
+      name?: string
+      /** Format: date */
+      date?: string
+      /** Format: int32 */
+      gold?: number
+      /** Format: int32 */
+      silver?: number
+      /** Format: int32 */
+      bronze?: number
+    }
     CompetitionDto: {
       id?: string
       slug?: string
@@ -847,6 +963,104 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+    }
+  }
+  getOwnProfile: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Your profile */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CompetitorDto']
+        }
+      }
+      /** @description No profile saved yet */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  saveOwnProfile: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SaveCompetitorCommand']
+      }
+    }
+    responses: {
+      /** @description The saved profile */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CompetitorDto']
+        }
+      }
+      /** @description Validation failed, or UNKNOWN_GYM */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description Not signed in, or the account was deleted while this save was in flight */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  deleteOwnAccount: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The account is deleted */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description has-active-registration: cancel your sign-ups first */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
       }
     }
   }
@@ -1322,6 +1536,26 @@ export interface operations {
         }
         content: {
           'image/svg+xml': string
+        }
+      }
+    }
+  }
+  getOwnHistory: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CompetitorHistoryDto']
         }
       }
     }

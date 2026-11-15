@@ -3,6 +3,7 @@ package com.bjjeire.api.config;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,11 +27,23 @@ public final class IssuerAwareAuthoritiesConverter implements Converter<Jwt, Col
     public static final String COMPETITOR_AUTHORITY = "ROLE_" + COMPETITOR_ROLE;
 
     private final JwtGrantedAuthoritiesConverter scopes = new JwtGrantedAuthoritiesConverter();
-    private final String competitorIssuer;
+    private final Set<String> competitorIssuers;
     private final String competitorScopeAuthority;
 
     public IssuerAwareAuthoritiesConverter(String competitorIssuer, String competitorScope) {
-        this.competitorIssuer = competitorIssuer == null ? "" : competitorIssuer.trim();
+        this(competitorIssuer == null ? Set.of() : Set.of(competitorIssuer), competitorScope);
+    }
+
+    /**
+     * @param competitorIssuers every issuer whose tokens are competitors: the competitor tenant, and where local
+     *     sign-in is on, {@link LocalSignInTokens#COMPETITOR_ISSUER} (ADR-0014)
+     * @param competitorScope scope a competitor token must carry
+     */
+    public IssuerAwareAuthoritiesConverter(Set<String> competitorIssuers, String competitorScope) {
+        this.competitorIssuers = competitorIssuers.stream()
+                .map(String::trim)
+                .filter(issuer -> !issuer.isEmpty())
+                .collect(java.util.stream.Collectors.toUnmodifiableSet());
         this.competitorScopeAuthority = "SCOPE_" + competitorScope;
     }
 
@@ -47,7 +60,8 @@ public final class IssuerAwareAuthoritiesConverter implements Converter<Jwt, Col
     }
 
     private boolean isCompetitorToken(Jwt jwt) {
-        return !competitorIssuer.isEmpty() && competitorIssuer.equals(jwt.getClaimAsString(JwtClaimNames.ISS));
+        String issuer = jwt.getClaimAsString(JwtClaimNames.ISS);
+        return issuer != null && competitorIssuers.contains(issuer);
     }
 
     @SuppressWarnings("unchecked")

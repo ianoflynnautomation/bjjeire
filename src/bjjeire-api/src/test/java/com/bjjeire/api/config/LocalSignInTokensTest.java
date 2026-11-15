@@ -31,6 +31,35 @@ class LocalSignInTokensTest {
         assertThat(issued.expiresAt()).isEqualTo(NOW.plus(LocalSignInTokens.LIFETIME));
     }
 
+    /** ADR-0014, slice 2: a local competitor, named by the email they type, for the competitor screens. */
+    @Test
+    void shouldIssueACompetitorTokenThatTheLocalDecoderAccepts() {
+        LocalSignInTokens.Issued issued =
+                LocalSignInTokens.issueCompetitor(SECRET, "access_as_competitor", " Aoife@Example.test ", CLOCK);
+
+        Jwt jwt = LocalSignInTokens.decoder(SECRET, CLOCK).decode(issued.accessToken());
+
+        assertThat(jwt.getIssuer()).hasToString(LocalSignInTokens.COMPETITOR_ISSUER);
+        // A hash of the email, so the deleted-account record and the audit log hold no email address.
+        assertThat(jwt.getSubject()).matches("^local-competitor:[0-9a-f]{64}$").doesNotContain("aoife");
+        assertThat(jwt.getClaimAsString("email")).isEqualTo("aoife@example.test");
+        assertThat(jwt.getClaimAsString("oid")).isEqualTo(jwt.getSubject());
+        assertThat(jwt.getClaimAsString("scope")).isEqualTo("access_as_competitor");
+        assertThat(issued.expiresAt()).isEqualTo(NOW.plus(LocalSignInTokens.LIFETIME));
+    }
+
+    @Test
+    void shouldGiveTheSameEmailTheSameLocalCompetitor() {
+        String first = LocalSignInTokens.issueCompetitor(SECRET, "access_as_competitor", "a@example.test", CLOCK)
+                .accessToken();
+        String second = LocalSignInTokens.issueCompetitor(SECRET, "access_as_competitor", "A@EXAMPLE.TEST", CLOCK)
+                .accessToken();
+
+        assertThat(LocalSignInTokens.decoder(SECRET, CLOCK).decode(first).getSubject())
+                .isEqualTo(
+                        LocalSignInTokens.decoder(SECRET, CLOCK).decode(second).getSubject());
+    }
+
     @Test
     void shouldRejectATokenSignedWithAnotherSecret() {
         String forged = LocalSignInTokens.issue("someone-elses-secret-0123456789abcdef", "access_as_writer", CLOCK)

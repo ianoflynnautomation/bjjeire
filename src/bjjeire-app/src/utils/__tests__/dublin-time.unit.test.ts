@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   dublinLocalToIso,
+  dublinToday,
   endOfDublinDayIso,
   formatDublinDateTime,
   isoToDublinLocal,
@@ -58,5 +59,15 @@ describe('dublin-time', () => {
     expect(endOfDublinDayIso('2026-06-27')).toBe('2026-06-27T23:00:00.000Z')
     expect(endOfDublinDayIso('2026-12-05')).toBe('2026-12-06T00:00:00.000Z')
     expect(endOfDublinDayIso('')).toBeNull()
+  })
+})
+
+describe('dublinToday', () => {
+  it('given an instant just after midnight in Ireland in summer, when today is asked, then it is the Irish date, not the UTC one', () => {
+    expect(dublinToday(new Date('2026-06-26T23:30:00Z'))).toBe('2026-06-27')
+  })
+
+  it('given an instant in winter, when today is asked, then Irish time equals UTC', () => {
+    expect(dublinToday(new Date('2026-11-15T23:30:00Z'))).toBe('2026-11-15')
   })
 })

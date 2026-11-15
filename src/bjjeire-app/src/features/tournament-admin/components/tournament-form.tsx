@@ -16,7 +16,7 @@ import {
 } from '../utils/tournament-form'
 import { DivisionGenerator } from './division-generator'
 import { DivisionTable } from './division-table'
-import { FormField } from './form-field'
+import { FormField } from '@/components/ui/form/form-field'
 
 const { form, divisions: divisionCopy } = uiContent.tournamentAdmin
 

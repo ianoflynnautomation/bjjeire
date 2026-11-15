@@ -8,7 +8,9 @@ import com.bjjeire.api.web.TournamentFeatureGateFilter;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -58,29 +60,23 @@ public class SecurityConfig {
             FeatureFlagService featureFlags,
             ObjectMapper objectMapper,
             Clock clock,
-            Environment environment)
+            Environment environment,
+            RevokedCompetitors revokedCompetitors)
             throws Exception {
         BjjEireProperties.LocalSignIn localSignIn = properties.localSignIn();
         // Fail startup rather than issue organiser tokens outside local development (ADR-0014).
         LocalSignInTokens.requireSafe(localSignIn, environment);
         String writerAuthority = "SCOPE_" + properties.auth().writerScope();
-        // Two issuers, one filter chain (ADR-0012). The JwtDecoder bean stays the workforce decoder, so
-        // Spring Boot's configuration and the integration-test stub both keep working.
-        BjjEireProperties.CompetitorAuth competitorAuth = properties.competitorAuth();
-        boolean tournamentsEnabled = featureFlags.isEnabled(FeatureFlag.TOURNAMENTS, FeatureFlagContext.anonymous());
-        JwtDecoder routingDecoder = routingDecoder(
-                workforceJwtDecoder,
-                competitorJwtDecoder(competitorAuth, clock),
-                competitorAuth,
-                tournamentsEnabled,
-                localSignIn.enabled() ? LocalSignInTokens.decoder(localSignIn.secret(), clock) : null);
+        Set<String> competitorIssuers = competitorIssuers(properties);
+        JwtDecoder routingDecoder =
+                bearerDecoder(properties, workforceJwtDecoder, featureFlags, clock, revokedCompetitors);
         // "Authenticated" has always meant a workforce account. A self-registered competitor does not inherit it.
         AuthorizationManager<RequestAuthorizationContext> workforceAccount = (authentication, context) -> {
             Authentication current = authentication.get();
             boolean workforce = current != null
                     && current.isAuthenticated()
                     && !(current instanceof AnonymousAuthenticationToken)
-                    && !isCompetitorPrincipal(current, competitorAuth.issuerUri());
+                    && !isCompetitorPrincipal(current, competitorIssuers);
             return new AuthorizationDecision(workforce);
         };
         // A competitor is a principal from the competitor tenant holding the competitor role. A workforce
@@ -88,7 +84,7 @@ public class SecurityConfig {
         AuthorizationManager<RequestAuthorizationContext> competitorAccount = (authentication, context) -> {
             Authentication current = authentication.get();
             boolean competitor = current != null
-                    && isCompetitorPrincipal(current, competitorAuth.issuerUri())
+                    && isCompetitorPrincipal(current, competitorIssuers)
                     && current.getAuthorities().stream()
                             .anyMatch(authority -> IssuerAwareAuthoritiesConverter.COMPETITOR_AUTHORITY.equals(
                                     authority.getAuthority()));
@@ -105,7 +101,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> {
                     if (localSignIn.enabled()) {
                         authorize
-                                .requestMatchers(HttpMethod.POST, ApiRoutes.LOCAL_SIGN_IN)
+                                .requestMatchers(
+                                        HttpMethod.POST, ApiRoutes.LOCAL_SIGN_IN, ApiRoutes.LOCAL_COMPETITOR_SIGN_IN)
                                 .permitAll();
                     }
                     authorize
@@ -160,13 +157,53 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * Two issuers, one filter chain (ADR-0012). The JwtDecoder bean stays the workforce decoder, so Spring Boot's
+     * configuration and the integration-test stub both keep working. A deleted account's tokens are refused before any
+     * rule sees them (research R11).
+     */
+    private static JwtDecoder bearerDecoder(
+            BjjEireProperties properties,
+            JwtDecoder workforceJwtDecoder,
+            FeatureFlagService featureFlags,
+            Clock clock,
+            RevokedCompetitors revokedCompetitors) {
+        BjjEireProperties.CompetitorAuth competitorAuth = properties.competitorAuth();
+        BjjEireProperties.LocalSignIn localSignIn = properties.localSignIn();
+        boolean tournamentsEnabled = featureFlags.isEnabled(FeatureFlag.TOURNAMENTS, FeatureFlagContext.anonymous());
+        return new RevocationCheckingJwtDecoder(
+                routingDecoder(
+                        workforceJwtDecoder,
+                        competitorJwtDecoder(competitorAuth, clock),
+                        competitorAuth,
+                        tournamentsEnabled,
+                        localSignIn.enabled() ? LocalSignInTokens.decoder(localSignIn.secret(), clock) : null),
+                competitorIssuers(properties),
+                revokedCompetitors);
+    }
+
     @Bean
     Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter(BjjEireProperties properties) {
         BjjEireProperties.CompetitorAuth competitorAuth = properties.competitorAuth();
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(
-                new IssuerAwareAuthoritiesConverter(competitorAuth.issuerUri(), competitorAuth.scope()));
+                new IssuerAwareAuthoritiesConverter(competitorIssuers(properties), competitorAuth.scope()));
         return converter;
+    }
+
+    /**
+     * Issuers whose tokens are competitors: the competitor tenant, plus the local competitor issuer where local sign-in
+     * is on (ADR-0014). Every other issuer keeps the workforce mapping.
+     */
+    static Set<String> competitorIssuers(BjjEireProperties properties) {
+        Set<String> issuers = new HashSet<>();
+        if (!properties.competitorAuth().issuerUri().isEmpty()) {
+            issuers.add(properties.competitorAuth().issuerUri());
+        }
+        if (properties.localSignIn().enabled()) {
+            issuers.add(LocalSignInTokens.COMPETITOR_ISSUER);
+        }
+        return Set.copyOf(issuers);
     }
 
     /**
@@ -220,10 +257,10 @@ public class SecurityConfig {
                 JwtValidators.createDefaultWithIssuer(competitorAuth.issuerUri()), audience);
     }
 
-    private static boolean isCompetitorPrincipal(Authentication authentication, String competitorIssuer) {
-        return !competitorIssuer.isEmpty()
-                && authentication.getPrincipal() instanceof Jwt jwt
-                && competitorIssuer.equals(jwt.getClaimAsString(JwtClaimNames.ISS));
+    private static boolean isCompetitorPrincipal(Authentication authentication, Set<String> competitorIssuers) {
+        return authentication.getPrincipal() instanceof Jwt jwt
+                && jwt.getClaimAsString(JwtClaimNames.ISS) != null
+                && competitorIssuers.contains(jwt.getClaimAsString(JwtClaimNames.ISS));
     }
 
     @Bean

@@ -21,5 +21,8 @@ public final class ProblemTypes {
     /** Removing a division that still has active sign-ups. */
     public static final URI DIVISION_HAS_SIGNUPS = URI.create("urn:bjjeire:division-has-signups");
 
+    /** Deleting an account that still has a sign-up awaiting payment or confirmed. */
+    public static final URI HAS_ACTIVE_REGISTRATION = URI.create("urn:bjjeire:has-active-registration");
+
     private ProblemTypes() {}
 }

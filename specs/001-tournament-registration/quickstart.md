@@ -60,6 +60,10 @@ Each maps to a user story in [spec.md](spec.md). Run in order; later ones reuse 
 1. Signed out, choose "Sign up" on the tournament. **Expect**: sent to the hosted register page, then returned to the sign-up.
 2. Complete the profile; pick an academy from the gym directory and type an affiliation. **Expect**: saved and shown back; medals 0 / 0 / 0; no past tournaments.
 3. As the second test user, request the first user's profile through the API. **Expect**: no route returns it.
+4. Manual check of the hosted pages (T055; needs the competitor tenant, T001): register a new email and confirm it (`#5006`); register the same email again (**Expect**: refused by the tenant, `#5010`); use "Forgot password" (**Expect**: reset by email, `#5011`).
+5. Delete the account from `/account/profile`. **Expect**: signed out; signing in again with the same token is refused by the API (401), and the user is gone from the tenant when Graph credentials are configured.
+
+Locally, without the tenant: open `/account/profile`, type any email in the local sign-in and repeat steps 2 and 5 (ADR-0014 amendment). Sign-up from a tournament page comes with slice 3.
 
 ### 4. Sign up and pay (US3)
 

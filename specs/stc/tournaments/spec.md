@@ -1,9 +1,9 @@
 ---
 feature: tournaments
 ssot: specs/features/tournaments.md
-database: specs/database-contracts/tournament.md (later collections: specs/001-tournament-registration/data-model.md)
+database: specs/database-contracts/tournament.md, specs/database-contracts/competitor.md (later collections: specs/001-tournament-registration/data-model.md)
 api_package: com.bjjeire.api.tournament, com.bjjeire.api.competitor, com.bjjeire.api.registration
-spa: src/bjjeire-app/src/features/tournaments, src/bjjeire-app/src/features/tournament-admin
+spa: src/bjjeire-app/src/features/tournaments, src/bjjeire-app/src/features/tournament-admin, src/bjjeire-app/src/features/competitor
 acceptance: bjjeire-tests/tests/features/tournaments/
 status: draft
 ---
@@ -97,7 +97,85 @@ And the division stays.
 
 **Owns**: T2 `TournamentAdminIT`; T4 `admin-tournament-page.integration.test.tsx`.
 
-### `#5006`–`#5035`, `#5039`–`#5042` — not built
+### `#5006` — A visitor can register and then sign in (P1)
+
+Given a visitor with no account,
+When they choose to sign in or register on a competitor page,
+Then the competitor tenant's hosted pages register them and confirm their email,
+And they return signed in to the page they were on.
+
+Registration and email confirmation are the identity provider's hosted pages (research R1), observable only end to end against the non-production competitor tenant. This repository proves the SPA side: the competitor tenant's popup is used, never the organiser's, and the page loads the profile after it.
+
+**Owns**: T4 `profile-page.integration.test.tsx`, `api-client-competitor.integration.test.ts`; T6 planned (needs T001).
+
+### `#5007` — A competitor's saved profile is shown back to them (P1)
+
+Given a signed-in competitor,
+When they save first and last name, nationality, date of birth, gender, belt and academy,
+Then `GET /api/v1/competitor/me` returns it with `profileComplete: true` and the email from their token,
+And before the first save it answers 404.
+
+**Owns**: T1 `SaveCompetitorCommandTest`; T2 `CompetitorIT`; T0 `competitor.pact.test.ts`; T3 `profile-form.unit.test.ts`; T4 `profile-page.integration.test.tsx`; T6 planned.
+
+### `#5008` — Academy from the directory, typed, or none; affiliation separate (P1)
+
+Given a competitor choosing an academy,
+When they search the gym directory and pick a gym, or type a name, or choose "no academy",
+Then a picked gym is stored by id with the directory's name, a typed name is stored trimmed, and no academy is stored as none,
+And an unknown gym id is 400 `UNKNOWN_GYM`,
+And an affiliation can be named or left empty.
+
+**Owns**: T1 `SaveCompetitorCommandTest`; T2 `CompetitorIT`; T3 `profile-form.unit.test.ts`; T4 `profile-page.integration.test.tsx`; T6 planned.
+
+### `#5009` — A profile is private to its owner (P1)
+
+Given a competitor's profile,
+When another competitor, a visitor or the organiser tries to read, change or delete it,
+Then another competitor only ever reaches their own profile, a visitor gets 401 and the organiser 403,
+And no route takes a competitor id.
+
+**Owns**: T2 `CompetitorPrivacyIT`, `TournamentRouteAuthorizationIT`.
+
+### `#5010` — One account per email; one profile per identity (P1)
+
+Given a registered email,
+When someone registers again with it,
+Then the competitor tenant creates no second account (hosted pages, observable end to end only),
+And the API keeps one profile per (`issuer`, `subject`) however many saves race (`ix_competitor_issuer_subject_unique`).
+
+**Owns**: T2 `CompetitorIT` (concurrent saves); T6 planned (needs T001).
+
+### `#5011` — A forgotten password can be reset (P1)
+
+Given a competitor who forgot their password,
+When they ask to reset it on the competitor tenant's sign-in page,
+Then they regain access through their email.
+
+Entirely the identity provider's hosted pages; nothing in this repository. Observable end to end only.
+
+**Owns**: T6 planned (needs T001).
+
+### `#5012` — A competitor can delete their account (P1)
+
+Given a signed-in competitor with no active sign-up,
+When they confirm deleting their account,
+Then their profile is removed, their identity is deleted from the competitor tenant by its `oid`,
+And every later token of that identity is refused with 401, even if the tenant could not be reached.
+Given an active sign-up (awaiting payment or confirmed), the delete is refused with 409 `urn:bjjeire:has-active-registration`.
+
+**Owns**: T1 `RevocationCheckingJwtDecoderTest`, `GraphIdentityDirectoryTest`; T2 `CompetitorDeletionIT`; T4 `profile-page.integration.test.tsx`.
+
+### `#5039` — A competitor sees their medal totals and tournaments (P1)
+
+Given a competitor who has entered tournaments and won medals,
+When they open their own profile,
+Then they see their gold, silver and bronze totals and each tournament entered with its medals.
+
+This slice serves `GET /api/v1/competitor/me/history` with zero totals and no tournaments, because results are recorded from slice 5; the SPA already renders totals, rows and the empty state.
+
+**Owns**: T2 `CompetitorDeletionIT` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`); T4 `profile-page.integration.test.tsx`; T2 `CompetitorHistoryIT` with slice 5.
+
+### `#5013`–`#5035`, `#5040`–`#5042` — not built
 
 Defined in the Spec Kit spec. Each moves here with the slice that builds it.
 

@@ -17,12 +17,15 @@ public record BjjEireProperties(
         ReadOnlyMode readOnlyMode,
         Map<String, Boolean> featureFlags,
         CompetitorAuth competitorAuth,
-        LocalSignIn localSignIn) {
+        LocalSignIn localSignIn,
+        CompetitorDirectory competitorDirectory) {
     // Two constructors: tell Spring Boot which one binds configuration.
     @ConstructorBinding
     public BjjEireProperties {
         competitorAuth = competitorAuth == null ? new CompetitorAuth("", List.of(), "") : competitorAuth;
         localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
+        competitorDirectory =
+                competitorDirectory == null ? new CompetitorDirectory("", "", "", "") : competitorDirectory;
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -41,7 +44,7 @@ public record BjjEireProperties(
             RateLimit rateLimit,
             ReadOnlyMode readOnlyMode,
             Map<String, Boolean> featureFlags) {
-        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null);
+        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null, null);
     }
 
     /**
@@ -58,6 +61,39 @@ public record BjjEireProperties(
     }
 
     public record Auth(String writerScope) {}
+
+    /**
+     * Application credentials for Microsoft Graph in the competitor tenant, used only to delete a competitor's sign-in
+     * identity (research R11). All blank means not configured: deletion then stops the identity at the API only.
+     *
+     * @param tokenUri the tenant's OAuth 2.0 token endpoint
+     * @param clientId the application allowed to delete users
+     * @param clientSecret its secret; never logged
+     * @param graphBaseUrl Graph's base address, default {@code https://graph.microsoft.com/v1.0}
+     */
+    public record CompetitorDirectory(String tokenUri, String clientId, String clientSecret, String graphBaseUrl) {
+        public static final String DEFAULT_GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0";
+
+        public CompetitorDirectory {
+            tokenUri = tokenUri == null ? "" : tokenUri.trim();
+            clientId = clientId == null ? "" : clientId.trim();
+            clientSecret = clientSecret == null ? "" : clientSecret;
+            graphBaseUrl = graphBaseUrl == null || graphBaseUrl.isBlank()
+                    ? DEFAULT_GRAPH_BASE_URL
+                    : graphBaseUrl.trim().replaceAll("/+$", "");
+        }
+
+        /** Whether every credential is present. */
+        public boolean configured() {
+            return !tokenUri.isEmpty() && !clientId.isEmpty() && !clientSecret.isBlank();
+        }
+
+        @Override
+        public String toString() {
+            return "CompetitorDirectory[tokenUri=" + tokenUri + ", clientId=" + clientId + ", graphBaseUrl="
+                    + graphBaseUrl + ", clientSecret=" + (clientSecret.isEmpty() ? "" : "***") + "]";
+        }
+    }
 
     /**
      * The second token issuer: the external tenant that holds competitor accounts (ADR-0012).

@@ -13,9 +13,11 @@ Contracts: `specs/database-contracts/`.
 | `Competition` | `competition.Competition` | `seeder/data/competitions/` |
 | `Store` | `store.Store` | `seeder/data/stores/` |
 | `Tournament` | `tournament.Tournament` | `seeder/data-test/tournaments/` only |
+| `Competitor` | `competitor.Competitor` | (runtime; no seed) |
+| `DeletedCompetitor` | `competitor.DeletedCompetitor` | (runtime; no seed) |
 | `AuditLog` | `audit.AuditLogEntry` | (runtime) |
 
-In-house tournaments will also add `Competitor`, `TournamentRegistration` and `StripeEvent`
+In-house tournaments will also add `TournamentRegistration` and `StripeEvent`
 (`specs/001-tournament-registration/data-model.md`); add each row here with the slice that creates it.
 
 Test environments seed from `seeder/data-test/` as well as `seeder/data/`. `Tournament` has no

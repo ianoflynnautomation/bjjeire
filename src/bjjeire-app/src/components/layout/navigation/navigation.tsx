@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { JSX } from 'react'
 import { Link } from 'react-router'
 import {
+  UserCircleIcon,
   Bars3Icon,
   SunIcon,
   MoonIcon,
@@ -12,6 +13,8 @@ import { BitcoinIcon } from '@/components/ui/icons/bitcoin-icon'
 import { GitHubIcon } from '@/components/ui/icons/github-icon'
 import { paths } from '@/config/paths'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
+import { CompetitorNavTestIds } from '@/constants/competitorDataTestIds'
+import { useFeatureFlagClient } from '@/features/feature-flags'
 import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 import { env } from '@/config/env'
@@ -32,6 +35,8 @@ const Navigation = function Navigation(): JSX.Element {
     closeMobileMenu,
   } = useNavigationState()
   const { theme, cycleTheme } = useTheme()
+  // #5038: no account entry point while tournaments are switched off.
+  const showAccount = useFeatureFlagClient().isEnabled('Tournaments')
 
   useEffect(() => {
     if (!isMobileMenuOpen || isSupportModalOpen) {
@@ -85,6 +90,16 @@ const Navigation = function Navigation(): JSX.Element {
               <DesktopNavLinks />
             </div>
             <div className="flex items-center gap-2">
+              {showAccount && (
+                <Link
+                  to={paths.accountProfile.getHref()}
+                  className={navIconButtonClass}
+                  aria-label={uiContent.competitor.accountLink}
+                  data-testid={CompetitorNavTestIds.ACCOUNT_LINK}
+                >
+                  <UserCircleIcon className="h-5 w-5" aria-hidden="true" />
+                </Link>
+              )}
               <NavIconButton
                 onClick={cycleTheme}
                 aria-label={themeCycle.nextLabel}

@@ -123,8 +123,10 @@ routes:
     path: /api/v1/competitor/me
     auth: competitor
     request: SaveCompetitorCommand
-    response: CompetitorDto   # includes profileComplete
-    covers: ["#5007", "#5008"]
+    response: CompetitorDto   # includes profileComplete and email (from the token); no id, issuer or subject
+    errors: [400 UNKNOWN_GYM when academy.gymId is not in Gym]
+    notes: upsert keyed by (iss, sub); safe to retry; email is never read from the body
+    covers: ["#5007", "#5008", "#5010"]
   - method: GET
     path: /api/v1/competitor/me/history
     auth: competitor
@@ -133,7 +135,9 @@ routes:
   - method: DELETE
     path: /api/v1/competitor/me
     auth: competitor
+    response: 204
     conflicts: [has-active-registration]
+    notes: removes the profile, deletes the tenant user by the oid claim, and from then on every token of that (iss, sub) is 401 (DeletedCompetitor)
     covers: ["#5012"]
 
   # ---- Registration (sign-up) ---------------------------------------------
