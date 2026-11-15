@@ -16,18 +16,21 @@ specs/
 │   ├── gym.md
 │   ├── bjj-event.md
 │   ├── competition.md
-│   └── store.md
+│   ├── store.md
+│   └── tournament.md             # Tournament (slice 1); competitor and registration follow
 ├── features/                     # visitor-facing feature specs
 │   ├── gyms.md
 │   ├── events.md
 │   ├── competitions.md
-│   └── stores.md
+│   ├── stores.md
+│   └── tournaments.md            # in progress; design record in 001-tournament-registration/
 └── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/
     ├── events/
     ├── competitions/
-    └── stores/
+    ├── stores/
+    └── tournaments/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).

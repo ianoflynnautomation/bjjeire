@@ -14,5 +14,12 @@ public final class ProblemTypes {
     public static final URI RATE_LIMIT = URI.create("urn:bjjeire:rate-limit-exceeded");
     public static final URI INTERNAL = URI.create("urn:bjjeire:internal-error");
 
+    /** Publishing a tournament that has no division. */
+    public static final URI NO_DIVISIONS = URI.create("urn:bjjeire:no-divisions");
+    /** A registration window that closes before it opens or after the tournament day. */
+    public static final URI INVALID_WINDOW = URI.create("urn:bjjeire:invalid-window");
+    /** Removing a division that still has active sign-ups. */
+    public static final URI DIVISION_HAS_SIGNUPS = URI.create("urn:bjjeire:division-has-signups");
+
     private ProblemTypes() {}
 }

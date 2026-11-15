@@ -13,7 +13,7 @@ paths:
 - The URI holds credentials. Do not hardcode it, commit it in a fixture, or log it
 
 ## Documents
-- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
+- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `Tournament`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
 - IDs are 24-char hex ObjectId strings
 - GeoJSON coordinates are `[longitude, latitude]`: `{ "type": "Point", "coordinates": [lng, lat] }`. Dublin is `[-6.26, 53.35]`
 - Events and competitions stamp `expiresAt` for the TTL indexes
@@ -27,10 +27,10 @@ paths:
 - Use Spring Data repositories per feature (`GymRepository`, `BjjEventRepository`, …) with derived queries or typed `Query` / `Criteria`
 - Never build a query from concatenated user input, never pass user input as a field name, and never use `$where`
 - Partial updates use typed `Update().set(field, value)`. Use `findAndModify` with `returnNew(true)` when the updated document is returned
-- After every write, call `apiCache.removeByTag(...)` with the feature's tag (`ApiCache.GYMS_TAG`, `BJJ_EVENTS_TAG`, `COMPETITIONS_TAG`, `STORES_TAG`). The deactivators do this too
+- After every write, call `apiCache.removeByTag(...)` with the feature's tag (`ApiCache.GYMS_TAG`, `BJJ_EVENTS_TAG`, `COMPETITIONS_TAG`, `STORES_TAG`, `TOURNAMENTS_TAG`). The deactivators do this too
 
 ## Seeder (`seeder/` data + `com.bjjeire.api.seeder`)
-- One JSON file per entity under `seeder/data/{gyms,bjj-events,competitions,stores}/`. `_template.json` in each directory documents the schema
+- One JSON file per entity under `seeder/data/{gyms,bjj-events,competitions,stores}/`. Tournaments have a test seed only (`seeder/data-test/tournaments/`): the `Tournament` collection is skipped, never pruned, outside `SEED_DATASET=test`. `_template.json` in each directory documents the schema
 - `seeder/data-test/` is the test dataset. `SEED_DATASET=test` selects it, and the local compose override defaults to it
 - Run it with the compose `seed` profile (command in `README.md`), or `java -jar target/bjjeire-api-*.jar --spring.profiles.active=seeder`. Add `--validate` for a dry run
 - `TrialOffer.isAvailable` is `true` or `false`, never `null`. The edit hook rejects `null`

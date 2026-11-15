@@ -1,5 +1,6 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.web.ProblemTypes;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +29,10 @@ public class ReadOnlyModeFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (!properties.readOnlyMode().enabled() || ALLOWED_METHODS.contains(request.getMethod())) {
+        // Tournament routes are governed by the Tournaments flag, not by read-only mode (ADR-0013).
+        if (!properties.readOnlyMode().enabled()
+                || ALLOWED_METHODS.contains(request.getMethod())
+                || ApiRoutes.isTournamentFeaturePath(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }

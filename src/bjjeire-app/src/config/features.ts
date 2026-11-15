@@ -32,6 +32,33 @@ export const features = [
     path: paths.stores.path,
     Component: lazyWithPreload(() => import('@/pages/StoresPage')),
   },
+  {
+    flag: 'Tournaments',
+    path: paths.tournaments.path,
+    Component: lazyWithPreload(() => import('@/pages/TournamentsPage')),
+  },
+] as const satisfies readonly FeatureConfig[]
+
+/**
+ * Pages reached from a feature's landing page. They sit behind the same flag
+ * but are never a navigation entry or the default landing path.
+ */
+export const featureSubRoutes = [
+  {
+    flag: 'Tournaments',
+    path: paths.tournament.path,
+    Component: lazyWithPreload(() => import('@/pages/TournamentPage')),
+  },
+  {
+    flag: 'Tournaments',
+    path: paths.adminTournaments.path,
+    Component: lazyWithPreload(() => import('@/pages/AdminTournamentsPage')),
+  },
+  {
+    flag: 'Tournaments',
+    path: paths.adminTournament.path,
+    Component: lazyWithPreload(() => import('@/pages/AdminTournamentPage')),
+  },
 ] as const satisfies readonly FeatureConfig[]
 
 export const AboutPage = lazyWithPreload(() => import('@/pages/AboutPage'))

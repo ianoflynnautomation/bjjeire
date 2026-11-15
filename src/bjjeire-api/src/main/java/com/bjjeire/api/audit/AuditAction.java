@@ -4,5 +4,8 @@ public enum AuditAction {
     Delete,
     DeleteMany,
     Clear,
-    UpdateMany
+    UpdateMany,
+    Create,
+    Update,
+    Publish
 }

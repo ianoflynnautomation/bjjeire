@@ -39,6 +39,29 @@ class CrossCuttingFilterTest {
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:method-not-allowed"));
     }
 
+    /** ADR-0013: read-only mode protects the directory; tournament routes obey the Tournaments flag instead. */
+    @Test
+    void readOnlyModeLetsTournamentFeatureWritesThroughAndStillBlocksTheDirectory() throws Exception {
+        BjjEireProperties properties =
+                properties(new BjjEireProperties.RateLimit(false, 0, 0, 429), new BjjEireProperties.ReadOnlyMode(true));
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new TestController())
+                .addFilters(new ReadOnlyModeFilter(properties, objectMapper))
+                .build();
+
+        for (String path : new String[] {
+            "/api/v1/tournament", "/api/v1/tournament/abc/publish", "/api/v1/competitor/me", "/api/v1/registration"
+        }) {
+            mockMvc.perform(post(path)).andExpect(status().isOk());
+        }
+        // The router matches the decoded path, so the exemption does too.
+        mockMvc.perform(post(java.net.URI.create("/api/v1/%74ournament"))).andExpect(status().isOk());
+        for (String path :
+                new String[] {"/api/v1/gym", "/api/v1/competition", "/api/v1/competitors", "/api/v1/tournaments"}) {
+            mockMvc.perform(post(path)).andExpect(status().isMethodNotAllowed());
+        }
+    }
+
     @Test
     void rateLimitRejectsRequestsAfterPermitLimit() throws Exception {
         BjjEireProperties properties = properties(
@@ -163,7 +186,17 @@ class CrossCuttingFilterTest {
             return ResponseEntity.ok("ok");
         }
 
-        @PostMapping("/test")
+        @PostMapping({
+            "/test",
+            "/api/v1/tournament",
+            "/api/v1/tournament/abc/publish",
+            "/api/v1/competitor/me",
+            "/api/v1/registration",
+            "/api/v1/gym",
+            "/api/v1/competition",
+            "/api/v1/competitors",
+            "/api/v1/tournaments"
+        })
         ResponseEntity<String> post() {
             return ResponseEntity.ok("ok");
         }

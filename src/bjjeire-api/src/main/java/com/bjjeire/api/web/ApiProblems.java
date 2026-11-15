@@ -30,6 +30,38 @@ public final class ApiProblems {
         return exception;
     }
 
+    /**
+     * A 409 for a business rule. The type tells clients which rule refused the request.
+     *
+     * @param type a {@link ProblemTypes} URI
+     * @param detail what the caller should do about it
+     * @return the exception to throw
+     */
+    public static ResponseStatusException conflict(URI type, String detail) {
+        return problem(HttpStatus.CONFLICT, type, "Conflict", detail);
+    }
+
+    /**
+     * A 400 for a rule that bean validation cannot express.
+     *
+     * @param field PascalCase field path, as in every other validation error
+     * @param message what is wrong
+     * @param errorCode stable code for clients
+     * @return the exception to throw
+     */
+    public static ResponseStatusException validation(String field, String message, String errorCode) {
+        ResponseStatusException exception = problem(
+                HttpStatus.BAD_REQUEST,
+                VALIDATION,
+                "Validation Failed",
+                "One or more validation errors occurred. Please see the 'errors' property for details.");
+        exception
+                .getBody()
+                .setProperty(
+                        "errors", List.of(new ApiExceptionHandler.ValidationErrorDetail(field, message, errorCode)));
+        return exception;
+    }
+
     private static ResponseStatusException problem(HttpStatus status, URI type, String title, String detail) {
         ResponseStatusException exception = new ResponseStatusException(status, detail);
         exception.setType(type);

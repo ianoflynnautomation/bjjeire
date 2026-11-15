@@ -15,6 +15,7 @@ seeder:
   - "src/bjjeire-api/seeder.Dockerfile"
   - "src/bjjeire-api/src/main/java/com/bjjeire/api/seeder/**"
   - "seeder/data/**"
+  - "seeder/data-test/**"
 compose:
   - "docker-compose.yml"
   - "docker-compose.override*.yml"

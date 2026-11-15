@@ -16,3 +16,14 @@ bjjeire:
     enabled: false
   rate-limit:
     enabled: false
+  # This file replaces src/main/resources/application.yml on the test classpath, so the competitor
+  # tenant has to be named here too. MongoIntegrationTest.COMPETITOR_ISSUER must match.
+  competitor-auth:
+    issuer-uri: https://00000000-0000-0000-0000-000000000000.ciamlogin.com/00000000-0000-0000-0000-000000000000/v2.0
+    audiences:
+      - api://00000000-0000-0000-0000-000000000000
+    scope: access_as_competitor
+  # On so the tournament routes exist for every IT. The off state is covered by
+  # TournamentFeatureOffIT (its own context) and TournamentFeatureGateFilterTest.
+  feature-flags:
+    Tournaments: true

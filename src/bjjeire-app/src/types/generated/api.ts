@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+  '/api/v1/tournament/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Update a tournament
+     * @description Replaces the details and the full division list. Send each existing division with its id; a division left out is removed, and removing one with active sign-ups returns 409 division-has-signups. A finished or cancelled tournament returns 409. Send the version from the last read; a missing version is 400, and a stale one is 409: reload and retry.
+     */
+    put: operations['updateTournament']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym/{id}': {
     parameters: {
       query?: never
@@ -13,10 +33,16 @@ export interface paths {
     }
     /** Get gym by ID */
     get: operations['getById']
-    /** Update gym */
+    /**
+     * Update gym
+     * @description Replaces the gym. Send the full resource and the version from the last read. A missing or stale version returns 409. Retry only after reloading.
+     */
     put: operations['update']
     post?: never
-    /** Delete gym */
+    /**
+     * Delete gym
+     * @description Deletes the gym. A second delete of the same id returns 404.
+     */
     delete: operations['delete']
     options?: never
     head?: never
@@ -32,11 +58,61 @@ export interface paths {
     }
     /** Get BJJ event by ID */
     get: operations['getById_1']
-    /** Update BJJ event */
+    /**
+     * Update BJJ event
+     * @description Replaces the event. Send the full resource and the version from the last read. A missing or stale version returns 409. Retry only after reloading.
+     */
     put: operations['update_1']
     post?: never
-    /** Delete BJJ event */
+    /**
+     * Delete BJJ event
+     * @description Deletes the event. A second delete of the same id returns 404.
+     */
     delete: operations['delete_1']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List tournaments open to the public
+     * @description Published, finished and cancelled tournaments, earliest day first. Drafts are never listed.
+     */
+    get: operations['listTournaments']
+    put?: never
+    /**
+     * Create a tournament as a draft
+     * @description Not safe to retry: the slug is unique, so the same request again returns 409.
+     */
+    post: operations['createTournament']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{id}/publish': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Publish a draft tournament
+     * @description Returns 409 no-divisions or invalid-window when the draft is not ready, and 409 when the tournament is not a draft or was changed by another save while it was being published.
+     */
+    post: operations['publishTournament']
+    delete?: never
     options?: never
     head?: never
     patch?: never
@@ -52,7 +128,10 @@ export interface paths {
     /** List gyms with pagination and filters */
     get: operations['getAll']
     put?: never
-    /** Create new gym */
+    /**
+     * Create new gym
+     * @description Not safe to retry without an id. A missing or blank id inserts a new document. The same id again returns 409 and does not replay the created response.
+     */
     post: operations['create']
     delete?: never
     options?: never
@@ -67,10 +146,18 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /** List BJJ events */
+    /**
+     * List BJJ events
+     * @description Excludes events with status Completed always.
+     *     When includeInactive is false (default), also requires isActive=true and a non-expired schedule.endDate (null endDate is treated as non-expired).
+     *     Canceled, Postponed, and other non-Completed statuses still appear when active and not expired.
+     */
     get: operations['getAll_1']
     put?: never
-    /** Create new BJJ event */
+    /**
+     * Create new BJJ event
+     * @description Not safe to retry without an id. A missing or blank id inserts a new document. The same id again returns 409 and does not replay the created response.
+     */
     post: operations['create_1']
     delete?: never
     options?: never
@@ -102,6 +189,60 @@ export interface paths {
       cookie?: never
     }
     get: operations['health']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{slug}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get a tournament by slug
+     * @description Details, fee, registration window and divisions. A draft answers 404. registrationState is worked out by the API at the time of the request.
+     */
+    get: operations['getTournamentBySlug']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/admin': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List every tournament, drafts included */
+    get: operations['listTournamentsForAdmin']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/admin/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get a tournament in any status by id */
+    get: operations['getTournamentForAdmin']
     put?: never
     post?: never
     delete?: never
@@ -179,9 +320,18 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    Affiliation: {
-      name?: string
-      website?: string
+    DivisionDto: {
+      id?: string
+      /** @enum {string} */
+      discipline: 'GI' | 'NO_GI'
+      /** @enum {string} */
+      gender: 'MALE' | 'FEMALE'
+      /** @enum {string} */
+      ageCategory:
+        'ADULT' | 'MASTER_1' | 'MASTER_2' | 'MASTER_3' | 'MASTER_4' | 'MASTER_5'
+      /** @enum {string} */
+      belt: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
+      weightClass: string
     }
     GeoCoordinates: {
       type?: string
@@ -192,6 +342,61 @@ export interface components {
       readonly longitude?: number
       /** Format: double */
       readonly latitude?: number
+    }
+    Location: {
+      address?: string
+      venue?: string
+      coordinates?: components['schemas']['GeoCoordinates']
+    }
+    UpdateTournamentCommand: {
+      slug: string
+      name: string
+      description?: string
+      /** Format: date */
+      date: string
+      venue: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents: number
+      /** Format: date-time */
+      registrationOpensAt: string
+      /** Format: date-time */
+      registrationClosesAt: string
+      /** Format: int32 */
+      competitorLimit?: number
+      divisions?: components['schemas']['DivisionDto'][]
+      /** Format: int64 */
+      version: number
+    }
+    TournamentDto: {
+      id?: string
+      slug?: string
+      name?: string
+      description?: string
+      /** Format: date */
+      date?: string
+      venue?: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents?: number
+      currency?: string
+      /** Format: date-time */
+      registrationOpensAt?: string
+      /** Format: date-time */
+      registrationClosesAt?: string
+      /** Format: int32 */
+      competitorLimit?: number
+      /** Format: int32 */
+      placesTaken?: number
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
+      /** @enum {string} */
+      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
+      divisions?: components['schemas']['DivisionDto'][]
+      /** Format: int64 */
+      version?: number
+    }
+    Affiliation: {
+      name?: string
+      website?: string
     }
     GymDto: {
       id?: string
@@ -269,11 +474,8 @@ export interface components {
       timetableUrl?: string
       imageUrl?: string
       thumbnailUrl?: string
-    }
-    Location: {
-      address?: string
-      venue?: string
-      coordinates?: components['schemas']['GeoCoordinates']
+      /** Format: int64 */
+      version?: number
     }
     SocialMedia: {
       instagram?: string
@@ -353,6 +555,8 @@ export interface components {
       eventUrl?: string
       imageUrl?: string
       isActive?: boolean
+      /** Format: int64 */
+      version?: number
       readonly calculatedCosts?: components['schemas']['CalculatedCost'][]
     }
     BjjEventSchedule: {
@@ -410,6 +614,23 @@ export interface components {
     UpdateBjjEventResponse: {
       data?: components['schemas']['BjjEventDto']
     }
+    CreateTournamentCommand: {
+      slug: string
+      name: string
+      description?: string
+      /** Format: date */
+      date: string
+      venue: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents: number
+      /** Format: date-time */
+      registrationOpensAt: string
+      /** Format: date-time */
+      registrationClosesAt: string
+      /** Format: int32 */
+      competitorLimit?: number
+      divisions?: components['schemas']['DivisionDto'][]
+    }
     CreateGymCommand: {
       data: components['schemas']['GymDto']
     }
@@ -442,8 +663,8 @@ export interface components {
     SystemHealthDescriptor: components['schemas']['CompositeHealthDescriptor'] & {
       groups?: string[]
     }
-    PagedResponseStoreDto: {
-      data?: components['schemas']['StoreDto'][]
+    PagedResponseTournamentSummaryDto: {
+      data?: components['schemas']['TournamentSummaryDto'][]
       pagination?: components['schemas']['PaginationMetadata']
     }
     PaginationMetadata: {
@@ -457,9 +678,37 @@ export interface components {
       totalPages?: number
       hasNextPage?: boolean
       hasPreviousPage?: boolean
-      /** Absent links are JSON null. */
       nextPageUrl?: string | null
       previousPageUrl?: string | null
+    }
+    TournamentSummaryDto: {
+      id?: string
+      slug?: string
+      name?: string
+      /** Format: date */
+      date?: string
+      venue?: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents?: number
+      currency?: string
+      /** Format: date-time */
+      registrationOpensAt?: string
+      /** Format: date-time */
+      registrationClosesAt?: string
+      /** Format: int32 */
+      competitorLimit?: number
+      /** Format: int32 */
+      placesTaken?: number
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
+      /** @enum {string} */
+      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
+      /** Format: int32 */
+      divisionCount?: number
+    }
+    PagedResponseStoreDto: {
+      data?: components['schemas']['StoreDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
     }
     StoreDto: {
       id?: string
@@ -507,6 +756,32 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  updateTournament: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateTournamentCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
   getById: {
     parameters: {
       query?: never
@@ -640,6 +915,75 @@ export interface operations {
           [name: string]: unknown
         }
         content?: never
+      }
+    }
+  }
+  listTournaments: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseTournamentSummaryDto']
+        }
+      }
+    }
+  }
+  createTournament: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTournamentCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
+  publishTournament: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
+        }
       }
     }
   }
@@ -846,6 +1190,73 @@ export interface operations {
             | components['schemas']['CompositeHealthDescriptor']
             | components['schemas']['IndicatedHealthDescriptor']
             | components['schemas']['SystemHealthDescriptor']
+        }
+      }
+    }
+  }
+  getTournamentBySlug: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
+  listTournamentsForAdmin: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseTournamentSummaryDto']
+        }
+      }
+    }
+  }
+  getTournamentForAdmin: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
         }
       }
     }

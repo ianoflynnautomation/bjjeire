@@ -4,7 +4,7 @@ import Navigation from '@/components/layout/navigation'
 import Footer from '@/components/layout/footer'
 import { PageSuspenseFallback } from '@/components/layout/page-suspense-fallback'
 import { paths } from '@/config/paths'
-import { AboutPage, features } from '@/config/features'
+import { AboutPage, features, featureSubRoutes } from '@/config/features'
 import { FeatureGate, useFeatureFlagClient } from '@/features/feature-flags'
 import '@/index.css'
 
@@ -23,9 +23,9 @@ export function AppRoutes(): ReactElement {
         path={paths.home.path}
         element={<Navigate to={defaultPath} replace />}
       />
-      {features.map(({ flag, path, Component }) => (
+      {[...features, ...featureSubRoutes].map(({ flag, path, Component }) => (
         <Route
-          key={flag}
+          key={path}
           path={path}
           element={
             <FeatureGate

@@ -30,8 +30,16 @@ import com.bjjeire.api.gym.TrialOffer;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.store.StoreRepository;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
+import com.bjjeire.api.tournament.AgeCategory;
+import com.bjjeire.api.tournament.Belt;
+import com.bjjeire.api.tournament.Discipline;
+import com.bjjeire.api.tournament.Division;
+import com.bjjeire.api.tournament.Gender;
+import com.bjjeire.api.tournament.Tournament;
+import com.bjjeire.api.tournament.TournamentStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,6 +138,28 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .name("Pact Store")
                 .websiteUrl("https://example.com/store")
                 .isActive(true)
+                .build());
+    }
+
+    @State("a published tournament exists")
+    void aPublishedTournamentExists() {
+        mongoTemplate.insert(Tournament.builder()
+                .slug("pact-tournament")
+                .name("Pact Tournament")
+                .date(LocalDate.parse("2026-06-27"))
+                .venue(location())
+                .entryFeeCents(2500)
+                .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
+                .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
+                .status(TournamentStatus.PUBLISHED)
+                .divisions(List.of(Division.builder()
+                        .id("0123456789abcdef01234567")
+                        .discipline(Discipline.GI)
+                        .gender(Gender.MALE)
+                        .ageCategory(AgeCategory.ADULT)
+                        .belt(Belt.WHITE)
+                        .weightClass("-76 kg")
+                        .build()))
                 .build());
     }
 

@@ -4,6 +4,7 @@ import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
+import com.bjjeire.api.tournament.Tournament;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -34,7 +35,22 @@ public final class SeederJson {
         for (Class<?> entityType : List.of(Gym.class, BjjEvent.class, Competition.class, Store.class)) {
             mapper.addMixIn(entityType, EntityJsonMixin.class);
         }
+        mapper.addMixIn(Tournament.class, AuditJsonMixin.class);
         return mapper;
+    }
+
+    private interface AuditJsonMixin {
+        @JsonProperty("createdAt")
+        Instant getCreatedOnUtc();
+
+        @JsonProperty("createdAt")
+        void setCreatedOnUtc(Instant value);
+
+        @JsonProperty("updatedAt")
+        Instant getUpdatedOnUtc();
+
+        @JsonProperty("updatedAt")
+        void setUpdatedOnUtc(Instant value);
     }
 
     private interface EntityJsonMixin {

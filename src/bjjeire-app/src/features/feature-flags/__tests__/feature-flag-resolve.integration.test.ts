@@ -29,6 +29,7 @@ describe('loadFeatureFlags', () => {
     expect(flags).toEqual(DEFAULT_FLAGS)
     expect(flags.GymsMap).toBe(false) // #1014
     expect(flags.EventsMap).toBe(false) // #2015
+    expect(flags.Tournaments).toBe(false) // #5038
   })
 
   it('given a test override global, when flags are loaded, then overrides win over the API and defaults', async () => {

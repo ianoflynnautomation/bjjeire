@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import type { Plugin } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
-import { sharedPlugins } from './vite.base.config'
+import { ASSET_BASE, sharedPlugins } from './vite.base.config'
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string
@@ -83,7 +83,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    base: './',
+    base: ASSET_BASE,
     define: {
       __APP_VERSION__: JSON.stringify(version),
     },

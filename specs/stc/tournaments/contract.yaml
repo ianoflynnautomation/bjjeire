@@ -1,0 +1,213 @@
+# Routes, auth and invariants for tournaments. Copied from the design record
+# (specs/001-tournament-registration/contracts/contract.yaml) and kept here from now on.
+# status: the auth rules and the feature flag gate are live. Live routes: GET /api/v1/tournament, GET /{slug},
+# GET /admin, GET /admin/{id}, POST /, PUT /{id}, POST /{id}/publish (slice 1). Every other route has no controller yet.
+feature: tournaments
+feature_flag: Tournaments   # default off; API answers 404 and SPA hides routes when off
+openapi:
+  served: /v3/api-docs
+  artifact: ghcr.io/<owner>/bjjeire-openapi-contract
+
+auth:
+  public: no token
+  admin: workforce-tenant token with scope access_as_writer (unchanged)
+  competitor: external-tenant token with scope access_as_competitor; identity = (iss, sub)
+  stripe: Stripe-Signature header verified against the webhook secret
+
+errors: ProblemDetail (urn:bjjeire), via web.ApiExceptionHandler
+  # 400 validation · 401 no token, invalid token or wrong audience · 403 wrong kind of account or not the owner
+  # 404 unknown id, draft tournament seen by non-admin, or flag off
+  # 409 business conflict; `type` distinguishes the cases listed per route
+
+routes:
+  # ---- Tournament: public reads -------------------------------------------
+  - method: GET
+    path: /api/v1/tournament
+    auth: public
+    response: PagedResponse<TournamentSummaryDto>
+    notes: PUBLISHED, FINISHED and CANCELLED only; ordered by date
+    covers: ["#5002"]
+  - method: GET
+    path: /api/v1/tournament/{slug}
+    auth: public
+    response: TournamentDto   # details, fee, window, registrationState, divisions
+    slug_rule: lowercase letters, digits and hyphens; the word admin is reserved and rejected on create and update
+    notes: registrationState is NOT_OPEN | OPEN | CLOSED | FULL, computed by the API
+    covers: ["#5002", "#5003"]
+  - method: GET
+    path: /api/v1/tournament/{id}/competitor
+    auth: public
+    response: DivisionCompetitorsDto[]   # per division: displayName, academy, affiliation
+    covers: ["#5015"]
+  - method: GET
+    path: /api/v1/tournament/{id}/leaderboard
+    auth: public
+    response: LeaderboardDto   # podiums[], academyRanking[], affiliationRanking[], winners?
+    covers: ["#5028", "#5029", "#5030", "#5031", "#5032", "#5034", "#5040", "#5041"]
+
+  # ---- Tournament: admin ---------------------------------------------------
+  - method: GET
+    path: /api/v1/tournament/admin
+    auth: admin
+    response: PagedResponse<TournamentSummaryDto>   # includes DRAFT; latest day first
+    covers: ["#5001", "#5004"]
+  - method: GET
+    path: /api/v1/tournament/admin/{id}
+    auth: admin
+    response: TournamentDto   # any status; 404 unknown id
+    notes: added in slice 1 so the organiser can open a draft, which the public slug route never serves
+    covers: ["#5001", "#5004"]
+  - method: POST
+    path: /api/v1/tournament
+    auth: admin
+    request: CreateTournamentCommand
+    response: 201 TournamentDto (status DRAFT); Location /api/v1/tournament/admin/{id}
+    conflicts: [conflict]   # slug taken
+    covers: ["#5001", "#5004"]
+  - method: PUT
+    path: /api/v1/tournament/{id}
+    auth: admin
+    request: UpdateTournamentCommand   # details, fee, window, limit, full division list
+    conflicts: [division-has-signups, conflict]   # conflict: stale version, finished or cancelled, or slug taken; no-divisions / invalid-window when already published
+    notes: version (required) is the one the edit started from, a stale one is 409 and a missing one 400; an existing division is sent with its id and keeps it; a division without an id is new; an unknown id is 400 UNKNOWN_DIVISION; a repeated division is 400 DUPLICATE_DIVISION
+    covers: ["#5004", "#5005"]
+  - method: POST
+    path: /api/v1/tournament/{id}/publish
+    auth: admin
+    conflicts: [no-divisions, invalid-window, conflict]   # conflict: not a draft, or changed by another save while publishing
+    covers: ["#5002", "#5004"]
+  - method: POST
+    path: /api/v1/tournament/{id}/cancel
+    auth: admin
+    notes: refunds every CONFIRMED registration and emails each competitor
+    covers: ["#5026"]
+  - method: POST
+    path: /api/v1/tournament/{id}/finish
+    auth: admin
+    covers: ["#5041"]
+  - method: PUT
+    path: /api/v1/tournament/{id}/division/{divisionId}/result
+    auth: admin
+    request: RecordResultCommand   # goldRegistrationId, silverRegistrationId?, bronzeRegistrationIds[0..2]
+    conflicts: [not-in-division, duplicate-medallist]
+    covers: ["#5028", "#5033", "#5035"]
+  - method: DELETE
+    path: /api/v1/tournament/{id}/division/{divisionId}/result
+    auth: admin
+  - method: GET
+    path: /api/v1/tournament/{id}/registration
+    auth: admin
+    response: PagedResponse<AdminRegistrationDto>
+    fields: [registrationId, displayName, email, phone, dateOfBirth, gender, belt, academy, affiliation, division, status, amountCents, paymentStatus, refundStatus, profileMismatch, createdAt]
+    notes: "?format=csv returns the full list as text/csv with the same fields as columns (FR-006). Admin only: these fields never appear in a public response"
+  - method: PUT
+    path: /api/v1/tournament/{id}/registration/{registrationId}/division
+    auth: admin
+    request: ChangeDivisionCommand
+  - method: POST
+    path: /api/v1/tournament/{id}/registration/{registrationId}/cancel
+    auth: admin
+    request: AdminCancelCommand   # refund: boolean
+  - method: POST
+    path: /api/v1/tournament/{id}/team-merge
+    auth: admin
+    request: MergeTeamsCommand   # kind: ACADEMY | AFFILIATION, fromKeys[], target
+
+  # ---- Competitor profile --------------------------------------------------
+  - method: GET
+    path: /api/v1/competitor/me
+    auth: competitor
+    response: CompetitorDto | 404 when no profile yet
+    covers: ["#5007", "#5009"]
+  - method: PUT
+    path: /api/v1/competitor/me
+    auth: competitor
+    request: SaveCompetitorCommand
+    response: CompetitorDto   # includes profileComplete
+    covers: ["#5007", "#5008"]
+  - method: GET
+    path: /api/v1/competitor/me/history
+    auth: competitor
+    response: CompetitorHistoryDto   # gold, silver, bronze totals; tournaments[] with medals
+    covers: ["#5039"]
+  - method: DELETE
+    path: /api/v1/competitor/me
+    auth: competitor
+    conflicts: [has-active-registration]
+    covers: ["#5012"]
+
+  # ---- Registration (sign-up) ---------------------------------------------
+  - method: GET
+    path: /api/v1/tournament/{id}/eligible-division
+    auth: competitor
+    response: DivisionDto[]
+    conflicts: [profile-incomplete, under-18]
+    covers: ["#5014", "#5019"]
+  - method: POST
+    path: /api/v1/registration
+    auth: competitor
+    request: CreateRegistrationCommand   # tournamentId, divisionId, acceptPublicListing, acceptTerms
+    response: 201 RegistrationCheckoutDto   # registrationId, checkoutUrl, holdExpiresAt
+    conflicts: [registration-not-open, not-eligible, under-18, already-registered, tournament-full, profile-incomplete, too-many-unpaid]
+    notes: too-many-unpaid when the caller already has two AWAITING_PAYMENT registrations in this tournament
+    covers: ["#5015", "#5017", "#5018", "#5019", "#5020", "#5042"]
+  - method: POST
+    path: /api/v1/registration/{id}/checkout
+    auth: competitor (owner)
+    response: RegistrationCheckoutDto   # fresh checkout URL while the hold is valid
+    covers: ["#5016"]
+  - method: GET
+    path: /api/v1/registration/me
+    auth: competitor
+    response: RegistrationDto[]   # tournament, division, amountCents, status, refund status
+    covers: ["#5021"]
+  - method: PUT
+    path: /api/v1/registration/{id}/division
+    auth: competitor (owner)
+    request: ChangeDivisionCommand
+    conflicts: [registration-closed, not-eligible, already-registered]
+    covers: ["#5024", "#5025"]
+  - method: POST
+    path: /api/v1/registration/{id}/cancel
+    auth: competitor (owner)
+    response: CancellationDto   # refunded: boolean, refundAmountCents
+    conflicts: [result-recorded]
+    notes: "GET .../cancel-preview is not provided; RegistrationDto carries refundableUntil so the SPA can warn before the call"
+    covers: ["#5022", "#5023", "#5027"]
+  - method: POST
+    path: /api/v1/registration/stripe-webhook
+    auth: stripe
+    notes: see stripe-webhook.md; excluded from the published SPA Pact
+
+invariants:
+  - existing_directory: no change to /api/v1/{gym,bjjevent,competition,store}; competitor tokens are refused on their writes ("#5036", "#5037")
+  - read_only_mode: ReadOnlyModeFilter still blocks directory writes; tournament, competitor and registration routes skip it and obey the Tournaments flag ("#5038")
+  - privacy: no public response carries email, dateOfBirth, phone, address, nationality or competitorId
+  - ownership: a competitor route addressed by id returns 403 unless the registration belongs to the caller
+  - money: integer cents, EUR; amounts are never taken from the client
+  - confirmation: only the verified webhook moves a registration to CONFIRMED
+  - cache_tag: TOURNAMENTS_TAG, evicted by every tournament write (live); result, registration and merge writes evict it when they exist
+  - audit: admin and competitor writes are recorded through audit.AuditRecorder
+
+ui_routes:   # SPA, all behind the Tournaments feature gate
+  - /tournaments                         # public list
+  - /tournaments/:slug                   # public details, divisions, competitor list, leaderboard
+  - /tournaments/:slug/signup            # competitor: choose division, consent, go to checkout
+  - /tournaments/:slug/signup/complete   # return from checkout; polls registration until CONFIRMED
+  - /account/profile                     # competitor: profile, medals, history, delete account
+  - /account/signups                     # competitor: my sign-ups, cancel, change division
+  - /admin/tournaments                   # admin: list, create
+  - /admin/tournaments/:id               # admin: edit, divisions, publish, sign-ups, merge, results, finish
+
+pointers:
+  feature_spec: specs/features/tournaments.md
+  design: specs/001-tournament-registration/spec.md
+  database: specs/database-contracts/tournament.md   # later collections: specs/001-tournament-registration/data-model.md
+  ui_strings_file: src/bjjeire-app/src/config/content/tournaments.ts
+  test_seed: seeder/data-test/tournaments/
+  generated_types: src/bjjeire-app/src/types/generated/api.ts
+  ui_strings: src/bjjeire-app/src/config/ui-content.ts
+  api_routes_spa: src/bjjeire-app/src/config/api-routes.ts
+  pact: src/bjjeire-app/src/contracts/pact/tournament.pact.test.ts
+  msw: src/bjjeire-app/src/testing/msw/handlers/tournaments.ts
+  test_ids: src/bjjeire-app/src/constants/tournamentDataTestIds.ts

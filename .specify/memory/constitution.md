@@ -19,7 +19,8 @@ does not use.
 ### II. Package-by-feature (NON-NEGOTIABLE)
 
 The Java API is one flat package per feature (`event`, `gym`, `competition`,
-`store`) holding controller, service, DTOs, domain, mapper, validator, and
+`store`, and for in-house tournaments `tournament`, `competitor`,
+`registration`) holding controller, service, DTOs, domain, mapper, validator, and
 repository together. Shared code lives only in `common`, `audit`,
 `deactivation`, `web`, `config`, and `seeder`. New backend types go in their
 feature package. See ADR-0001.
@@ -46,10 +47,26 @@ without a failing test already in place.
 
 ### V. Public reads, authenticated writes, fail-closed flags
 
-List/get endpoints are public. Create/update/delete require Entra JWT
-(`Authorization: Bearer`). Feature flags fail closed: a failed flag fetch
-redirects feature routes to `/about`. Agents must not "fix" that by
-stubbing flags in production code.
+List/get endpoints of the directory are public. Directory
+create/update/delete require the admin's Entra JWT
+(`Authorization: Bearer`, scope `access_as_writer`). That rule is the
+catch-all: any write not named below needs the admin authority.
+
+Two additions serve in-house tournaments and nothing else:
+
+- **Competitor routes** (`/api/v1/competitor`, `/api/v1/registration`)
+  require a token from the competitor issuer. A competitor may read and
+  change only their own profile and sign-ups, and has no authority over the
+  directory or over tournaments. See ADR-0012.
+- **The Stripe webhook** is the one write with no bearer token. It is
+  authenticated by Stripe's signature. See ADR-0013.
+
+Tournament, competitor and registration routes are governed by the
+`Tournaments` flag, not by read-only mode. Read-only mode keeps protecting
+the directory.
+
+Feature flags fail closed: a failed flag fetch redirects feature routes to
+`/about`. Agents must not "fix" that by stubbing flags in production code.
 
 ## Additional Constraints
 
@@ -102,4 +119,12 @@ This constitution supersedes local convenience. PRs and agentic reviews
 (`spec-review`, `schema-drift`) must check it. Amendments require an ADR,
 a constitution version bump, and a migration note for in-flight specs.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-09-18
+### Amendment 1.1.0 (2026-11-13)
+
+Principle V gained competitor routes and the Stripe webhook; principle II
+gained three feature packages (ADR-0012, ADR-0013). Migration for in-flight
+specs: none needed. A spec that adds a write must say which of the three
+kinds it is (admin, competitor, signed webhook); anything else is still an
+admin write.
+
+**Version**: 1.1.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-11-13

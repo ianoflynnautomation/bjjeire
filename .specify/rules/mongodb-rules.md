@@ -12,9 +12,14 @@ Contracts: `specs/database-contracts/`.
 | `BjjEvent` | `event.BjjEvent` | `seeder/data/bjj-events/` |
 | `Competition` | `competition.Competition` | `seeder/data/competitions/` |
 | `Store` | `store.Store` | `seeder/data/stores/` |
+| `Tournament` | `tournament.Tournament` | `seeder/data-test/tournaments/` only |
 | `AuditLog` | `audit.AuditLogEntry` | (runtime) |
 
-Test environments seed from `seeder/data-test/` instead of `seeder/data/`.
+In-house tournaments will also add `Competitor`, `TournamentRegistration` and `StripeEvent`
+(`specs/001-tournament-registration/data-model.md`); add each row here with the slice that creates it.
+
+Test environments seed from `seeder/data-test/` as well as `seeder/data/`. `Tournament` has no
+production seed, so a production seeder run skips it entirely, prune included.
 
 ## Invariants
 

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 @ConfigurationProperties(prefix = "bjjeire")
 public record BjjEireProperties(
@@ -14,8 +15,14 @@ public record BjjEireProperties(
         Donation donation,
         RateLimit rateLimit,
         ReadOnlyMode readOnlyMode,
-        Map<String, Boolean> featureFlags) {
+        Map<String, Boolean> featureFlags,
+        CompetitorAuth competitorAuth,
+        LocalSignIn localSignIn) {
+    // Two constructors: tell Spring Boot which one binds configuration.
+    @ConstructorBinding
     public BjjEireProperties {
+        competitorAuth = competitorAuth == null ? new CompetitorAuth("", List.of(), "") : competitorAuth;
+        localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -26,7 +33,53 @@ public record BjjEireProperties(
         featureFlags = featureFlags == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(featureFlags));
     }
 
+    /** Convenience for callers that do not configure competitor sign-in. */
+    public BjjEireProperties(
+            Auth auth,
+            Cors cors,
+            Donation donation,
+            RateLimit rateLimit,
+            ReadOnlyMode readOnlyMode,
+            Map<String, Boolean> featureFlags) {
+        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null);
+    }
+
+    /**
+     * Organiser sign-in for local development without an Entra tenant (ADR-0014). Off by default; the API refuses to
+     * start with it on unless the {@code local} profile is active.
+     *
+     * @param enabled whether the API issues and trusts local organiser tokens
+     * @param secret HS256 signing secret, at least 32 bytes when enabled
+     */
+    public record LocalSignIn(boolean enabled, String secret) {
+        public LocalSignIn {
+            secret = secret == null ? "" : secret;
+        }
+    }
+
     public record Auth(String writerScope) {}
+
+    /**
+     * The second token issuer: the external tenant that holds competitor accounts (ADR-0012).
+     *
+     * @param issuerUri issuer of competitor tokens; blank means no competitor tenant is trusted
+     * @param audiences accepted {@code aud} values of the competitor-facing API registration
+     * @param scope scope a competitor token must carry
+     */
+    public record CompetitorAuth(String issuerUri, List<String> audiences, String scope) {
+        public static final String DEFAULT_SCOPE = "access_as_competitor";
+
+        public CompetitorAuth {
+            issuerUri = issuerUri == null ? "" : issuerUri.trim();
+            audiences = audiences == null
+                    ? List.of()
+                    : audiences.stream()
+                            .filter(value -> value != null && !value.isBlank())
+                            .distinct()
+                            .toList();
+            scope = scope == null || scope.isBlank() ? DEFAULT_SCOPE : scope.trim();
+        }
+    }
 
     public record Cors(List<String> allowedOrigins) {
         public Cors {

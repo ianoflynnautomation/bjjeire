@@ -5,6 +5,7 @@ import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
+import com.bjjeire.api.tournament.Tournament;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +132,24 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .on("isActive", Sort.Direction.ASC)
                         .on("name", Sort.Direction.ASC)
                         .named("ix_store_isActive_name"));
+
+        ensureTournamentIndexes();
+    }
+
+    private void ensureTournamentIndexes() {
+        ensure(
+                Tournament.ENTITY_NAME,
+                new Index()
+                        .on("slug", Sort.Direction.ASC)
+                        .named("ix_tournament_slug_unique")
+                        .unique());
+
+        ensure(
+                Tournament.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("date", Sort.Direction.ASC)
+                        .named("ix_tournament_status_date"));
     }
 
     public void migrate() {
@@ -151,12 +170,15 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 .getModifiedCount();
         long gyms = initializeVersion(Gym.ENTITY_NAME);
         long versionedEvents = initializeVersion(BjjEvent.ENTITY_NAME);
+        long versionedTournaments = initializeVersion(Tournament.ENTITY_NAME);
         log.info(
-                "Stored-document migration updated {} open-ended events, {} open-ended competitions, {} gym versions, {} event versions",
+                "Stored-document migration updated {} open-ended events, {} open-ended competitions, {} gym versions, {} event"
+                        + " versions, {} tournament versions",
                 events,
                 competitions,
                 gyms,
-                versionedEvents);
+                versionedEvents,
+                versionedTournaments);
     }
 
     private long initializeVersion(String collection) {

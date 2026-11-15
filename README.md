@@ -61,6 +61,10 @@ docker compose --profile app -f docker-compose.yml -f docker-compose.override.ja
 docker compose --profile seed -f docker-compose.yml -f docker-compose.override.java-local.yml run --rm --build seeder
 ```
 
+Tournaments are off by default. Put `FEATURE_TOURNAMENTS=true` in front of the `up` command to turn them on,
+then seed and restart the API (it caches lists). The local stack signs the organiser in without Entra
+([ADR-0014](docs/adr/0014-local-organiser-sign-in.md)): open `/admin/tournaments` and choose **Sign in**.
+
 ```bash
 docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml down
 ```

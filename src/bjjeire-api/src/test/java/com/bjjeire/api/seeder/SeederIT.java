@@ -9,6 +9,8 @@ import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
+import com.bjjeire.api.tournament.Tournament;
+import com.bjjeire.api.tournament.TournamentStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +35,10 @@ class SeederIT extends MongoIntegrationTest {
     @BeforeEach
     void createRunner() {
         runner = new SeederRunner(mongoTemplate, new SeederProperties(DATA_ROOT.toString(), ""), clock);
+    }
+
+    private SeederRunner testDatasetRunner() {
+        return new SeederRunner(mongoTemplate, new SeederProperties(DATA_ROOT.toString(), "test"), clock);
     }
 
     @Test
@@ -99,6 +105,50 @@ class SeederIT extends MongoIntegrationTest {
         assertThat(mongoTemplate.findById("202607180000000000000001", Gym.class))
                 .isNull();
         assertThat(mongoTemplate.count(new Query(), Gym.class)).isPositive();
+    }
+
+    @Test
+    void shouldSeedTournamentsOnlyFromTheTestDataset() {
+        runner.run("--force");
+        assertThat(mongoTemplate.count(new Query(), Tournament.class)).isZero();
+
+        SeederRunner testRunner = testDatasetRunner();
+        testRunner.run("--force");
+
+        assertThat(testRunner.getExitCode()).isZero();
+        List<Tournament> seeded = mongoTemplate.findAll(Tournament.class);
+        assertThat(seeded).isNotEmpty().allSatisfy(tournament -> {
+            assertThat(tournament.getStatus()).isEqualTo(TournamentStatus.PUBLISHED);
+            assertThat(tournament.getDivisions()).isNotEmpty();
+            assertThat(tournament.getCurrency()).isEqualTo(Tournament.CURRENCY);
+            assertThat(tournament.getRegistrationClosesAt()).isAfter(tournament.getRegistrationOpensAt());
+        });
+    }
+
+    @Test
+    void shouldValidateTestTournamentFilesStrictlyAgainstTheJavaDomain() {
+        SeederRunner testRunner = testDatasetRunner();
+
+        testRunner.run("--validate", "--collection", "Tournament");
+
+        assertThat(testRunner.getExitCode()).isZero();
+    }
+
+    /** Production has no tournament seed: a prune there must not delete the organiser's tournaments. */
+    @Test
+    void shouldLeaveTournamentsAloneWhenPruningOutsideTheTestDataset() {
+        Tournament real = Tournament.builder()
+                .id("202611130000000000000001")
+                .slug("bjjeire")
+                .name("BjjEire")
+                .build();
+        mongoTemplate.save(real);
+
+        runner.run("--force", "--prune");
+
+        assertThat(runner.getExitCode()).isZero();
+        assertThat(mongoTemplate.findById("202611130000000000000001", Tournament.class))
+                .isNotNull();
     }
 
     @Test
