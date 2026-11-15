@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.29](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.28...api-v0.1.29) (2026-11-15)
+
+
+### Features
+
+* add competitor profile ([#221](https://github.com/ianoflynnautomation/bjjeire/issues/221)) ([89ec6b0](https://github.com/ianoflynnautomation/bjjeire/commit/89ec6b083f2b86fddc622eca7fa69f552bcf038e))
+
 ## [0.1.28](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.27...api-v0.1.28) (2026-11-15)
 
 

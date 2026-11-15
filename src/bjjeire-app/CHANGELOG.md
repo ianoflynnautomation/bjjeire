@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.40](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.39...frontend-v0.1.40) (2026-11-15)
+
+
+### Features
+
+* add competitor profile ([#221](https://github.com/ianoflynnautomation/bjjeire/issues/221)) ([89ec6b0](https://github.com/ianoflynnautomation/bjjeire/commit/89ec6b083f2b86fddc622eca7fa69f552bcf038e))
+
 ## [0.1.39](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.38...frontend-v0.1.39) (2026-11-15)
 
 
