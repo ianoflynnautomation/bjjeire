@@ -57,10 +57,13 @@ Competitor routes require a principal from the competitor issuer that holds
 A competitor is identified by the pair (`iss`, `sub`). Competitor routes act
 only on the caller's own profile and sign-ups.
 
-A deleted account's identity stays refused (slice 2, research R11):
+A deleted account's sessions end (slice 2, research R11):
 `RevocationCheckingJwtDecoder` wraps the routing decoder and, after the token
 has been validated, answers 401 for any competitor-issuer token whose
-(`iss`, `sub`) is in the `DeletedCompetitor` collection. It never looks up a
+(`iss`, `sub`) is in the `DeletedCompetitor` collection with a `deletedAt`
+later than the token's `iat` (no `iat`: refused). A token issued after the
+deletion is the person signing up again and starts a new, empty account, so
+deleting an account never bans the email (owner's defect report, 2026-11-15). It never looks up a
 workforce token. Deleting the user from the tenant goes through Graph by the
 `oid` claim, because Entra issues a different `sub` to each application.
 

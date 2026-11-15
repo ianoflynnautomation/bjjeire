@@ -11,7 +11,6 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DuplicateKeyException;
@@ -56,8 +55,9 @@ public class CompetitorServiceImpl implements CompetitorService {
     }
 
     @Override
-    public Optional<CompetitorDto> getOwn(CompetitorIdentity caller) {
-        return Optional.ofNullable(find(caller)).map(CompetitorMapper::toDto);
+    public CompetitorDto getOwn(CompetitorIdentity caller) {
+        Competitor competitor = find(caller);
+        return competitor == null ? CompetitorDto.unsaved(caller.email()) : CompetitorMapper.toDto(competitor);
     }
 
     @Override

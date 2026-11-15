@@ -66,7 +66,8 @@ local identity provider.
   `POST /api/v1/local-sign-in/competitor` with `{ "email": "…" }` issues an
   8-hour HS256 token: subject `local-competitor:` plus the SHA-256 of the
   lower-cased email (the same email is always the same competitor, and no
-  email lands in `DeletedCompetitor` or the audit log), claims `email`, `oid`
+  email lands in `DeletedCompetitor` or the audit log; after deleting the
+  account, signing in again with the email starts a new, empty account), claims `email`, `oid`
   (the subject) and the competitor scope. The local decoder accepts both local
   issuers; `RoutingJwtDecoder` sends both to it.
 - **Mapping.** Where local sign-in is on, `SecurityConfig.competitorIssuers`

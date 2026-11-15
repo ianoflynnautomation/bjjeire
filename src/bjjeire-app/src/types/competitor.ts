@@ -15,17 +15,20 @@ export interface PostalAddressDto {
   country?: string | null
 }
 
-/** The signed-in competitor's own profile. Never shown to anyone else. */
+/**
+ * The signed-in competitor's own profile. Never shown to anyone else. Before
+ * the first save `saved` is false and only `email` is set.
+ */
 export interface CompetitorDto {
   /** From the sign-in; not editable here. */
   email?: string | null
-  firstName: string
+  firstName?: string | null
   middleName?: string | null
-  lastName: string
+  lastName?: string | null
   /** ISO 3166-1 alpha-2. */
   nationality?: string | null
   /** `YYYY-MM-DD`. */
-  dateOfBirth: string
+  dateOfBirth?: string | null
   gender?: Gender | null
   belt?: Belt | null
   /** Absent means "no academy". */
@@ -35,6 +38,8 @@ export interface CompetitorDto {
   address?: PostalAddressDto | null
   /** Whether the profile holds everything a sign-up needs. */
   profileComplete: boolean
+  /** False until the competitor's first save. */
+  saved: boolean
 }
 
 export interface AcademyChoice {

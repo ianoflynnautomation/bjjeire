@@ -5,6 +5,7 @@ import { server } from '@/testing/msw/server'
 import { renderWithProviders } from '@/testing/render-utils'
 import { testApiUrl } from '@/testing/seed-helpers'
 import { createPaginatedGyms } from '@/testing/factories/gym.factory'
+import { createUnsavedCompetitor } from '@/testing/factories/competitor.factory'
 import type { GymDto } from '@/types/gyms'
 import type {
   CompetitorDto,
@@ -27,9 +28,9 @@ export function seedOwnProfile(profile: CompetitorDto | null): Captured<null> {
     http.get(COMPETITOR_ME_API, ({ request }) => {
       captured.calls.push(null)
       captured.authorization.push(request.headers.get('Authorization'))
-      return profile === null
-        ? HttpResponse.json({ type: 'urn:bjjeire:not-found' }, { status: 404 })
-        : HttpResponse.json(profile)
+      return HttpResponse.json(
+        profile ?? createUnsavedCompetitor('new@example.test')
+      )
     })
   )
   return captured

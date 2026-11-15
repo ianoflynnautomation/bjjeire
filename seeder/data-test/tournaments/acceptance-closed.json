@@ -5,21 +5,21 @@
     "slug": "acceptance-closed",
     "name": "Acceptance Closed",
     "description": "Seeded tournament whose registration has closed.",
-    "date": "2035-06-02",
+    "date": "2035-07-14",
     "venue": {
-      "address": "Snugborough Road, Blanchardstown, Dublin 15",
-      "venue": "National Indoor Arena",
+      "address": "University of Limerick, Castletroy, Limerick",
+      "venue": "UL Sport Arena",
       "coordinates": {
         "type": "Point",
         "coordinates": [
-          -6.3729,
-          53.3973
+          -8.5706,
+          52.6738
         ],
-        "placeName": "Dublin",
+        "placeName": "Limerick",
         "placeId": "acceptance-seed"
       }
     },
-    "entryFeeCents": 2500,
+    "entryFeeCents": 3000,
     "currency": "EUR",
     "registrationOpensAt": "now-30d",
     "registrationClosesAt": "now-1d",

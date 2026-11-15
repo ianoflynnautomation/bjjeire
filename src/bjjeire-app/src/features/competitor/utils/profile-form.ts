@@ -75,11 +75,11 @@ export function profileFormFrom(profile: CompetitorDto): ProfileFormValues {
     academyMode = academy.gymId ? 'directory' : 'typed'
   }
   return {
-    firstName: profile.firstName,
+    firstName: profile.firstName ?? '',
     middleName: profile.middleName ?? '',
-    lastName: profile.lastName,
+    lastName: profile.lastName ?? '',
     nationality: profile.nationality ?? '',
-    dateOfBirth: profile.dateOfBirth,
+    dateOfBirth: profile.dateOfBirth ?? '',
     gender: profile.gender ?? '',
     belt: profile.belt ?? '',
     academyMode,

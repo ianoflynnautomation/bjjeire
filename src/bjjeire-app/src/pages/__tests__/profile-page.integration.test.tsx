@@ -122,6 +122,13 @@ describe('ProfilePage', () => {
     expect(
       await screen.findByRole('heading', { name: profile.createHeading })
     ).toBeInTheDocument()
+    // The API answers 200 with an unsaved profile, never 404, and already knows the sign-in email.
+    expect(
+      screen.getByTestId(CompetitorProfileTestIds.EMAIL)
+    ).toHaveTextContent('new@example.test')
+    expect(
+      screen.queryByTestId(CompetitorProfileTestIds.INCOMPLETE)
+    ).not.toBeInTheDocument()
     await user.type(screen.getByLabelText(form.firstName), 'Aoife')
     await user.type(screen.getByLabelText(form.lastName), 'Byrne')
     await user.selectOptions(screen.getByLabelText(form.nationality), 'IE')

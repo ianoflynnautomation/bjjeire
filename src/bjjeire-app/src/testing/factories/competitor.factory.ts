@@ -21,7 +21,20 @@ export function createCompetitor(
     phone: null,
     address: null,
     profileComplete: true,
+    saved: true,
     ...overrides,
+  }
+}
+
+/** What the API returns before the competitor's first save. */
+export function createUnsavedCompetitor(email: string): CompetitorDto {
+  return {
+    email,
+    firstName: null,
+    lastName: null,
+    dateOfBirth: null,
+    profileComplete: false,
+    saved: false,
   }
 }
 

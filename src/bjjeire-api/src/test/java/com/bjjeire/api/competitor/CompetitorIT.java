@@ -34,8 +34,17 @@ class CompetitorIT extends MongoIntegrationTest {
 
     @Test
     @Tag("#5007")
-    void shouldAnswerNotFoundBeforeTheCompetitorHasSavedAProfile() {
-        assertThat(get(COMPETITOR_TOKEN).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    void shouldShowAnEmptyUnsavedProfileBeforeTheFirstSave() throws Exception {
+        ResponseEntity<String> response = get(COMPETITOR_TOKEN);
+
+        // Owner's decision 2026-11-15: no 404 on a first visit. The email from the sign-in is already known.
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        JsonNode body = objectMapper.readTree(response.getBody());
+        assertThat(body.at("/saved").asBoolean()).isFalse();
+        assertThat(body.at("/profileComplete").asBoolean()).isFalse();
+        assertThat(body.at("/email").asString()).isEqualTo(competitorEmail(COMPETITOR_SUBJECT));
+        assertThat(absent(body.at("/firstName"))).isTrue();
+        assertThat(mongoTemplate.count(new Query(), Competitor.class)).isZero();
     }
 
     @Test
@@ -57,6 +66,7 @@ class CompetitorIT extends MongoIntegrationTest {
         assertThat(body.at("/phone").asString()).isEqualTo("+353 87 123 4567");
         assertThat(body.at("/address/city").asString()).isEqualTo("Dublin");
         assertThat(body.at("/profileComplete").asBoolean()).isTrue();
+        assertThat(body.at("/saved").asBoolean()).isTrue();
         // The email comes from the token, never from the body.
         assertThat(body.at("/email").asString()).isEqualTo(competitorEmail(COMPETITOR_SUBJECT));
         assertThat(body.has("id")).isFalse();

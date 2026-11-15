@@ -28,6 +28,7 @@ const PROFILE_BODY = {
   academy: like({ name: string('Team X') }),
   affiliation: string('Alliance'),
   profileComplete: boolean(true),
+  saved: boolean(true),
 }
 
 describe('Pact - Competitor profile consumer contract', () => {

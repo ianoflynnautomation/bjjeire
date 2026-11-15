@@ -1,7 +1,6 @@
 package com.bjjeire.api.competitor;
 
 import com.bjjeire.api.common.ApiRoutes;
-import com.bjjeire.api.web.ApiProblems;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,14 +34,13 @@ public class CompetitorController {
     private final CompetitorService competitorService;
 
     @GetMapping
-    @Operation(summary = "Get your profile", description = "404 until you have saved one.")
-    @ApiResponse(responseCode = "200", description = "Your profile")
-    @ApiResponse(responseCode = "404", description = "No profile saved yet", content = @Content(mediaType = PROBLEM))
+    @Operation(
+            summary = "Get your profile",
+            description = "Before your first save the profile is returned with saved false, your sign-in email and"
+                    + " every other field null.")
+    @ApiResponse(responseCode = "200", description = "Your profile, saved or not yet")
     public ResponseEntity<CompetitorDto> getOwnProfile(@Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt) {
-        return competitorService
-                .getOwn(CompetitorIdentity.from(jwt))
-                .map(ResponseEntity::ok)
-                .orElseThrow(ApiProblems::notFound);
+        return ResponseEntity.ok(competitorService.getOwn(CompetitorIdentity.from(jwt)));
     }
 
     @PutMapping

@@ -58,7 +58,7 @@ export interface paths {
     }
     /**
      * Get your profile
-     * @description 404 until you have saved one.
+     * @description Before your first save the profile is returned with saved false, your sign-in email and every other field null.
      */
     get: operations['getOwnProfile']
     /**
@@ -590,6 +590,7 @@ export interface components {
       phone?: string
       address?: components['schemas']['PostalAddress']
       profileComplete?: boolean
+      saved?: boolean
     }
     BjjEventDto: {
       id?: string
@@ -975,22 +976,13 @@ export interface operations {
     }
     requestBody?: never
     responses: {
-      /** @description Your profile */
+      /** @description Your profile, saved or not yet */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
           '*/*': components['schemas']['CompetitorDto']
-        }
-      }
-      /** @description No profile saved yet */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
         }
       }
     }

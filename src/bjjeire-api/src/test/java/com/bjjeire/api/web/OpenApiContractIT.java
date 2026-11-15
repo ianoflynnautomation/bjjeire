@@ -130,8 +130,10 @@ class OpenApiContractIT extends MongoIntegrationTest {
                     .as(method)
                     .isTrue();
         }
+        // No 404 before the first save: an unsaved profile is a 200 with saved false.
         assertThat(document.at(operationPointer(me, "get") + "/responses").propertyNames())
-                .contains("200", "404");
+                .contains("200")
+                .doesNotContain("404");
         assertThat(document.at(operationPointer(me, "put") + "/responses").propertyNames())
                 .contains("200", "400");
         assertThat(document.at(operationPointer(me, "delete") + "/responses").propertyNames())

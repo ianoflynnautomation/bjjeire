@@ -60,7 +60,7 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         assertThat(identityDirectory.deleted()).hasSize(1);
         // Another competitor is unaffected.
         assertThat(exchange(HttpMethod.GET, competitorToken("brian")).getStatusCode())
-                .isEqualTo(HttpStatus.NOT_FOUND);
+                .isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -102,7 +102,10 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         String after = competitorToken("aoife", FIXED_NOW.plusSeconds(1));
 
         assertThat(exchange(HttpMethod.GET, before).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(exchange(HttpMethod.GET, after).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        // A new, empty account: nothing of the deleted one comes back.
+        JsonNode fresh = objectMapper.readTree(exchange(HttpMethod.GET, after).getBody());
+        assertThat(fresh.at("/saved").asBoolean()).isFalse();
+        assertThat(fresh.at("/firstName").isMissingNode()).isTrue();
         put(profileJson("Aoibhinn"), after);
         JsonNode body = objectMapper.readTree(exchange(HttpMethod.GET, after).getBody());
         assertThat(body.at("/firstName").asString()).isEqualTo("Aoibhinn");

@@ -18,6 +18,7 @@ final class CompetitorMapper {
                 competitor.getAffiliation(),
                 competitor.getPhone(),
                 competitor.getAddress(),
-                competitor.isProfileComplete());
+                competitor.isProfileComplete(),
+                true);
     }
 }

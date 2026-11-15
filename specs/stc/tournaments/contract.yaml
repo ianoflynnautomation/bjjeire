@@ -117,7 +117,7 @@ routes:
   - method: GET
     path: /api/v1/competitor/me
     auth: competitor
-    response: CompetitorDto | 404 when no profile yet
+    response: CompetitorDto   # always 200; before the first save saved=false, email from the token, other fields null
     covers: ["#5007", "#5009"]
   - method: PUT
     path: /api/v1/competitor/me
@@ -137,7 +137,7 @@ routes:
     auth: competitor
     response: 204
     conflicts: [has-active-registration]
-    notes: removes the profile, deletes the tenant user by the oid claim, and from then on every token of that (iss, sub) is 401 (DeletedCompetitor)
+    notes: removes the profile and deletes the tenant user by the oid claim; tokens of that (iss, sub) issued before the deletion are 401 (DeletedCompetitor.deletedAt), a later sign-in starts a new empty account
     covers: ["#5012"]
 
   # ---- Registration (sign-up) ---------------------------------------------

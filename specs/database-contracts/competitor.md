@@ -58,16 +58,20 @@ SPA asks for all six.
 ## DeletedCompetitor
 
 A sign-in identity whose account was deleted (`#5012`, research R11). The API
-refuses every token of that identity with 401 from then on, even while the
-external tenant still holds it (Graph unreachable or not configured).
+refuses with 401 every token of that identity **issued before** `deletedAt`
+(by its `iat`; a token without `iat` is refused), even while the external
+tenant still holds it (Graph unreachable or not configured). A sign-in after
+the deletion is the person signing up again: it starts a new, empty account
+(owner's defect report, 2026-11-15). Locally that is always the case, because
+the email is the identity.
 
 | Field | Mongo | Type | Notes |
 |---|---|---|---|
 | `id` | `_id` | ObjectId string | |
 | `issuer` | `issuer` | string | |
 | `subject` | `subject` | string | (`issuer`, `subject`) is **unique**. A pseudonymous id: the tenant never reuses it for another person, and a new account for the same email gets a new one |
-| `deletedAt` | `deletedAt` | Instant | |
-| `directoryDeleted` | `directoryDeleted` | boolean | true once Graph confirmed the user was removed. False means the identity must be removed from the tenant by hand (the API also logs it and counts `competitor.identity.deletion.failures`) |
+| `deletedAt` | `deletedAt` | Instant | the latest deletion: set again each time the identity deletes an account |
+| `directoryDeleted` | `directoryDeleted` | boolean | reset to false on each deletion; true once Graph confirmed the user was removed. False means the identity must be removed from the tenant by hand (the API also logs it and counts `competitor.identity.deletion.failures`) |
 
 No name, email or other personal detail is kept. Records are not expired.
 

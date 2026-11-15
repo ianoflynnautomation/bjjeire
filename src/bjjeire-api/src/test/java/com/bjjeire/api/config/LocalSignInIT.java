@@ -82,8 +82,9 @@ class LocalSignInIT extends MongoIntegrationTest {
 
         assertThat(restTemplate
                         .exchange(ApiRoutes.COMPETITOR + "/me", HttpMethod.GET, jsonEntity(null, again), String.class)
-                        .getStatusCode())
-                .isEqualTo(HttpStatus.NOT_FOUND);
+                        .getBody())
+                .contains("\"saved\":false")
+                .doesNotContain("Aoife");
     }
 
     /** A local competitor is a competitor and nothing more: no tournament set-up, no directory write. */

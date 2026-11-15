@@ -28,8 +28,12 @@ class CompetitorPrivacyIT extends MongoIntegrationTest {
     void shouldNeverShowOneCompetitorAnotherCompetitorsProfile() {
         put(profileJson("Aoife"), AOIFE);
 
-        assertThat(exchange(HttpMethod.GET, null, BRIAN).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(exchange(HttpMethod.GET, null, BRIAN).getBody()).doesNotContain("Aoife");
+        // Brian sees his own, still unsaved profile, never Aoife's.
+        assertThat(exchange(HttpMethod.GET, null, BRIAN).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(exchange(HttpMethod.GET, null, BRIAN).getBody())
+                .contains("\"saved\":false")
+                .doesNotContain("Aoife")
+                .doesNotContain(competitorEmail("aoife"));
     }
 
     @Test

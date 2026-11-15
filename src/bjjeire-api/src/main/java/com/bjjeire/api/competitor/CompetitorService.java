@@ -1,16 +1,14 @@
 package com.bjjeire.api.competitor;
 
-import java.util.Optional;
-
 /** The signed-in competitor's own profile. Every method acts on the caller only; none takes a competitor id. */
 public interface CompetitorService {
     /**
      * Returns the caller's profile.
      *
      * @param caller the identity from the token
-     * @return the profile, or empty before the first save
+     * @return the profile; before the first save an unsaved one ({@code saved} false) holding only the email
      */
-    Optional<CompetitorDto> getOwn(CompetitorIdentity caller);
+    CompetitorDto getOwn(CompetitorIdentity caller);
 
     /**
      * Creates or replaces the caller's profile. One profile per identity, however many saves race.

@@ -49,7 +49,8 @@ const Profile = function Profile(): JSX.Element {
     )
   }
 
-  const existing = own.data
+  const { email } = own.data
+  const existing = own.data.saved ? own.data : null
   return (
     <div className="space-y-10" data-testid={CompetitorProfileTestIds.ROOT}>
       <header className="space-y-2">
@@ -57,9 +58,12 @@ const Profile = function Profile(): JSX.Element {
           {existing ? profile.heading : profile.createHeading}
         </h1>
         <p className="text-sm text-fg-subtle">{profile.intro}</p>
-        {existing?.email && (
-          <p className="text-sm text-fg-muted" data-testid={CompetitorProfileTestIds.EMAIL}>
-            {profile.emailLabel} {existing.email}
+        {email && (
+          <p
+            className="text-sm text-fg-muted"
+            data-testid={CompetitorProfileTestIds.EMAIL}
+          >
+            {profile.emailLabel} {email}
           </p>
         )}
         {existing && !existing.profileComplete && (
@@ -74,7 +78,9 @@ const Profile = function Profile(): JSX.Element {
       <ProfileForm
         // A fresh form after each save, so it shows what the API stored (trimmed, gym name).
         key={existing ? `saved-${savedCount}` : 'new'}
-        initialValues={existing ? profileFormFrom(existing) : emptyProfileForm()}
+        initialValues={
+          existing ? profileFormFrom(existing) : emptyProfileForm()
+        }
         isSaving={save.isPending}
         error={error}
         notice={notice}

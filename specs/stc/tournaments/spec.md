@@ -112,8 +112,8 @@ Registration and email confirmation are the identity provider's hosted pages (re
 
 Given a signed-in competitor,
 When they save first and last name, nationality, date of birth, gender, belt and academy,
-Then `GET /api/v1/competitor/me` returns it with `profileComplete: true` and the email from their token,
-And before the first save it answers 404.
+Then `GET /api/v1/competitor/me` returns it with `profileComplete: true`, `saved: true` and the email from their token,
+And before the first save it answers 200 with `saved: false`, the email from the token and every other field null (owner's decision 2026-11-15: no 404 on a first visit).
 
 **Owns**: T1 `SaveCompetitorCommandTest`; T2 `CompetitorIT`; T0 `competitor.pact.test.ts`; T3 `profile-form.unit.test.ts`; T4 `profile-page.integration.test.tsx`; T6 planned.
 
@@ -160,7 +160,8 @@ Entirely the identity provider's hosted pages; nothing in this repository. Obser
 Given a signed-in competitor with no active sign-up,
 When they confirm deleting their account,
 Then their profile is removed, their identity is deleted from the competitor tenant by its `oid`,
-And every later token of that identity is refused with 401, even if the tenant could not be reached.
+And every token of that identity issued before the deletion is refused with 401, even if the tenant could not be reached,
+And signing up or in again afterwards with the same email starts a new, empty account (owner's defect report 2026-11-15).
 Given an active sign-up (awaiting payment or confirmed), the delete is refused with 409 `urn:bjjeire:has-active-registration`.
 
 **Owns**: T1 `RevocationCheckingJwtDecoderTest`, `GraphIdentityDirectoryTest`; T2 `CompetitorDeletionIT`; T4 `profile-page.integration.test.tsx`.

@@ -9,6 +9,7 @@ import java.time.LocalDate;
  *
  * @param email from the sign-in token
  * @param profileComplete whether the profile holds everything a sign-up needs
+ * @param saved false before the first save: then only {@code email} is set and every other field is null
  */
 public record CompetitorDto(
         String email,
@@ -23,4 +24,10 @@ public record CompetitorDto(
         String affiliation,
         String phone,
         PostalAddress address,
-        boolean profileComplete) {}
+        boolean profileComplete,
+        boolean saved) {
+    /** The profile of a signed-in competitor who has not saved one yet. */
+    static CompetitorDto unsaved(String email) {
+        return new CompetitorDto(email, null, null, null, null, null, null, null, null, null, null, null, false, false);
+    }
+}
