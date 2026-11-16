@@ -129,7 +129,10 @@ describe('AdminTournamentPage: sign-ups (FR-006, FR-007)', () => {
     seedAdminTournament(published())
     const list = seedAdminRegistrations(ID, [createAdminRegistration()])
     const createObjectURL = vi.fn(() => 'blob:sign-ups')
-    vi.stubGlobal('URL', Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() }))
+    vi.stubGlobal(
+      'URL',
+      Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() })
+    )
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => undefined)
@@ -184,14 +187,20 @@ describe('AdminTournamentPage: sign-ups (FR-006, FR-007)', () => {
     const cancel = seedAdminCancel(
       ID,
       row.registrationId,
-      createCancellation({ refunded: false, refundAmountCents: 0, refundStatus: null })
+      createCancellation({
+        refunded: false,
+        refundAmountCents: 0,
+        refundStatus: null,
+      })
     )
     const { user } = renderAdminTournamentPage(ID)
 
     await user.click(
       await screen.findByTestId(TournamentAdminSignUpsTestIds.ROW_CANCEL)
     )
-    const refund = screen.getByTestId(TournamentAdminSignUpsTestIds.CANCEL_REFUND)
+    const refund = screen.getByTestId(
+      TournamentAdminSignUpsTestIds.CANCEL_REFUND
+    )
     expect(refund).toBeChecked()
     await user.click(refund)
     await user.click(
@@ -224,11 +233,10 @@ describe('AdminTournamentPage: sign-ups (FR-006, FR-007)', () => {
     )
     await user.click(within(root).getByRole('checkbox', { name: 'Team X' }))
     await user.click(within(root).getByRole('checkbox', { name: 'team x BJJ' }))
-    await user.type(
-      within(root).getByLabelText(merge.targetLabel),
-      'Team X'
+    await user.type(within(root).getByLabelText(merge.targetLabel), 'Team X')
+    await user.click(
+      within(root).getByTestId(TournamentAdminMergeTestIds.SUBMIT)
     )
-    await user.click(within(root).getByTestId(TournamentAdminMergeTestIds.SUBMIT))
 
     await waitFor(() =>
       expect(merged.calls).toEqual([
@@ -279,7 +287,10 @@ describe('AdminTournamentPage: cancel the tournament (#5026)', () => {
     seedAdminRegistrations(ID, [
       createAdminRegistration({ status: 'CANCELLED', refundStatus: 'FAILED' }),
     ])
-    const cancelled = seedCancelTournament(ID, published({ status: 'CANCELLED' }))
+    const cancelled = seedCancelTournament(
+      ID,
+      published({ status: 'CANCELLED' })
+    )
     const { user } = renderAdminTournamentPage(ID)
 
     await user.click(

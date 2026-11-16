@@ -20,7 +20,10 @@ const MySignUps = function MySignUps(): JSX.Element {
   }
   if (own.isError) {
     return (
-      <ErrorState message={mine.loadFailed} onRetry={() => void own.refetch()} />
+      <ErrorState
+        message={mine.loadFailed}
+        onRetry={() => void own.refetch()}
+      />
     )
   }
   if (own.data.length === 0) {

@@ -54,7 +54,12 @@ describe('SignUpCompletePage', () => {
   // #5015
   it('given the webhook has not arrived yet, when the competitor returns, then the page waits and shows the confirmation once it does', async () => {
     seedOwnRegistrations(
-      [createRegistration({ id: 'registration-1', status: 'AWAITING_PAYMENT' })],
+      [
+        createRegistration({
+          id: 'registration-1',
+          status: 'AWAITING_PAYMENT',
+        }),
+      ],
       [createRegistration({ id: 'registration-1', status: 'CONFIRMED' })]
     )
     renderSignUpCompletePage('bjjeire', 'registration-1')

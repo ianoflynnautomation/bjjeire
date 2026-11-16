@@ -46,7 +46,8 @@ const registrationPath = (registrationId: string): string =>
 /** Competitor token: cancel your own confirmed sign-up (#5022, #5023). */
 export const cancelRegistration = (
   registrationId: string
-): Promise<CancellationDto> => api.post(`${registrationPath(registrationId)}/cancel`)
+): Promise<CancellationDto> =>
+  api.post(`${registrationPath(registrationId)}/cancel`)
 
 /** Competitor token: move your confirmed sign-up while registration is open (#5024). */
 export const changeRegistrationDivision = (

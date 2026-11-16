@@ -87,4 +87,5 @@ export const cancelTournamentRegistration = (
 export const mergeTournamentTeams = (
   id: string,
   command: MergeTeamsCommand
-): Promise<TeamMergeDto> => api.post(`${tournamentPath(id)}/team-merge`, command)
+): Promise<TeamMergeDto> =>
+  api.post(`${tournamentPath(id)}/team-merge`, command)

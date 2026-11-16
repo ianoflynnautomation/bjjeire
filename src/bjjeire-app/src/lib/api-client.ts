@@ -19,9 +19,7 @@ function isAdminRead(url: string | undefined): boolean {
     path.startsWith(`${admin}/`) ||
     path.startsWith(`${admin}?`) ||
     (route.startsWith(`${tournaments}/`) &&
-      /^\/[^/]+\/registration(?:\/|$)/u.test(
-        route.slice(tournaments.length)
-      ))
+      /^\/[^/]+\/registration(?:\/|$)/u.test(route.slice(tournaments.length)))
   )
 }
 

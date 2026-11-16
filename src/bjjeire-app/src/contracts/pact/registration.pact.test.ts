@@ -144,7 +144,10 @@ describe('Pact - Tournament sign-up consumer contract', () => {
             tournamentId: string(TOURNAMENT_ID),
             tournamentSlug: string('pact-sign-up'),
             tournamentName: string('Pact Sign-Up Tournament'),
-            tournamentDate: regex(String.raw`^\d{4}-\d{2}-\d{2}$`, '2026-06-27'),
+            tournamentDate: regex(
+              String.raw`^\d{4}-\d{2}-\d{2}$`,
+              '2026-06-27'
+            ),
             division: DIVISION_BODY,
             status: STATUS,
             amountCents: integer(2500),
@@ -226,7 +229,9 @@ describe('Pact - Tournament sign-up consumer contract', () => {
     await pact
       .addInteraction()
       .given('a competitor with a confirmed sign-up and another division open')
-      .uponReceiving('a request to move a confirmed sign-up to another division')
+      .uponReceiving(
+        'a request to move a confirmed sign-up to another division'
+      )
       .withRequest('PUT', path, builder => {
         builder.headers({
           Authorization: COMPETITOR_AUTHORIZATION,

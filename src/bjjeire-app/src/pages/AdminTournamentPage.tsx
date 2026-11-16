@@ -165,7 +165,9 @@ const TournamentEditor = function TournamentEditor({
         }}
         actions={publishAction}
       />
-      {tournament.status !== 'DRAFT' && <AdminSignUps tournament={tournament} />}
+      {tournament.status !== 'DRAFT' && (
+        <AdminSignUps tournament={tournament} />
+      )}
     </div>
   )
 }

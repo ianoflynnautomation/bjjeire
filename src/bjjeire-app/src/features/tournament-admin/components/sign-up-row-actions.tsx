@@ -49,12 +49,14 @@ export const SignUpRowActions = function SignUpRowActions({
   }
 
   const move = useMutation({
-    mutationFn: () => moveTournamentRegistration(tournamentId, id, { divisionId }),
+    mutationFn: () =>
+      moveTournamentRegistration(tournamentId, id, { divisionId }),
     onSuccess: () => done(copy.moved),
     onError: failure => onError(problemMessage(failure)),
   })
   const cancel = useMutation({
-    mutationFn: () => cancelTournamentRegistration(tournamentId, id, { refund }),
+    mutationFn: () =>
+      cancelTournamentRegistration(tournamentId, id, { refund }),
     onSuccess: outcome =>
       done(outcome.refunded ? copy.cancelledRefunded : copy.cancelledNoRefund),
     onError: failure => onError(problemMessage(failure)),

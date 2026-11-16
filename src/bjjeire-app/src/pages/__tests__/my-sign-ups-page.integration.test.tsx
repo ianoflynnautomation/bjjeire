@@ -54,7 +54,10 @@ describe('MySignUpsPage', () => {
     seedOwnRegistrations([
       createRegistration({
         tournamentName: 'BjjEire',
-        division: createDivision({ discipline: 'NO_GI', weightClass: '-82 kg' }),
+        division: createDivision({
+          discipline: 'NO_GI',
+          weightClass: '-82 kg',
+        }),
         amountCents: 2500,
         status: 'CONFIRMED',
         paymentStatus: 'PAID',
@@ -94,9 +97,9 @@ describe('MySignUpsPage', () => {
     seedOwnRegistrations([])
     renderMySignUpsPage()
 
-    expect(
-      await screen.findByTestId(MySignUpsTestIds.EMPTY)
-    ).toHaveTextContent(mine.empty)
+    expect(await screen.findByTestId(MySignUpsTestIds.EMPTY)).toHaveTextContent(
+      mine.empty
+    )
   })
 
   // #5016
@@ -144,8 +147,7 @@ describe('MySignUpsPage', () => {
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const stillOpen = (): string => new Date(Date.now() + 7 * DAY_MS).toISOString()
-const alreadyClosed = (): string =>
-  new Date(Date.now() - DAY_MS).toISOString()
+const alreadyClosed = (): string => new Date(Date.now() - DAY_MS).toISOString()
 
 describe('MySignUpsPage: cancel and change division', () => {
   // #5022
@@ -160,7 +162,10 @@ describe('MySignUpsPage: cancel and change division', () => {
       [confirmed],
       [{ ...confirmed, status: 'CANCELLED', refundStatus: 'PENDING' }]
     )
-    const cancelCall = seedCancelRegistration(confirmed.id, createCancellation())
+    const cancelCall = seedCancelRegistration(
+      confirmed.id,
+      createCancellation()
+    )
     const { user } = renderMySignUpsPage()
 
     await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
@@ -169,9 +174,9 @@ describe('MySignUpsPage: cancel and change division', () => {
     expect(warning).toHaveTextContent('€25.00')
     await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_CONFIRM))
 
-    expect(await screen.findByTestId(MySignUpsTestIds.NOTICE)).toHaveTextContent(
-      `${mine.cancelledRefundPrefix} €25.00`
-    )
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(`${mine.cancelledRefundPrefix} €25.00`)
     expect(cancelCall.calls).toHaveLength(1)
     expect(cancelCall.authorization[0]).toBe('Bearer competitor-token')
     await waitFor(() =>
@@ -192,20 +197,24 @@ describe('MySignUpsPage: cancel and change division', () => {
     seedOwnRegistrations([confirmed])
     const cancelCall = seedCancelRegistration(
       confirmed.id,
-      createCancellation({ refunded: false, refundAmountCents: 0, refundStatus: null })
+      createCancellation({
+        refunded: false,
+        refundAmountCents: 0,
+        refundStatus: null,
+      })
     )
     const { user } = renderMySignUpsPage()
 
     await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
-    expect(screen.getByTestId(MySignUpsTestIds.CANCEL_WARNING)).toHaveTextContent(
-      mine.noRefundWarning
-    )
+    expect(
+      screen.getByTestId(MySignUpsTestIds.CANCEL_WARNING)
+    ).toHaveTextContent(mine.noRefundWarning)
     expect(cancelCall.calls).toHaveLength(0)
     await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_CONFIRM))
 
-    expect(await screen.findByTestId(MySignUpsTestIds.NOTICE)).toHaveTextContent(
-      mine.cancelledNoRefund
-    )
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(mine.cancelledNoRefund)
   })
 
   // #5023
@@ -215,7 +224,10 @@ describe('MySignUpsPage: cancel and change division', () => {
       refundableUntil: stillOpen(),
     })
     seedOwnRegistrations([confirmed])
-    const cancelCall = seedCancelRegistration(confirmed.id, createCancellation())
+    const cancelCall = seedCancelRegistration(
+      confirmed.id,
+      createCancellation()
+    )
     const { user } = renderMySignUpsPage()
 
     await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
@@ -248,14 +260,16 @@ describe('MySignUpsPage: cancel and change division', () => {
     await user.selectOptions(select, String(heavier.id))
     await user.click(screen.getByTestId(MySignUpsTestIds.CHANGE_SAVE))
 
-    await waitFor(() => expect(move.calls).toEqual([{ divisionId: heavier.id }]))
-    expect(await screen.findByTestId(MySignUpsTestIds.NOTICE)).toHaveTextContent(
-      mine.changed
-    )
     await waitFor(() =>
-      expect(screen.getByTestId(MySignUpsTestIds.ROW_DIVISION)).toHaveTextContent(
-        '-82 kg'
-      )
+      expect(move.calls).toEqual([{ divisionId: heavier.id }])
+    )
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(mine.changed)
+    await waitFor(() =>
+      expect(
+        screen.getByTestId(MySignUpsTestIds.ROW_DIVISION)
+      ).toHaveTextContent('-82 kg')
     )
   })
 

@@ -38,7 +38,8 @@ export const AdminSignUps = function AdminSignUps({
   const [error, setError] = useState<string | null>(null)
   const exportCsv = useMutation({
     mutationFn: () => exportTournamentRegistrations(tournament.id),
-    onSuccess: csv => downloadCsv(csv, `${tournament.slug}-${copy.exportFileName}`),
+    onSuccess: csv =>
+      downloadCsv(csv, `${tournament.slug}-${copy.exportFileName}`),
     onError: failure =>
       setError(`${copy.exportFailed} ${problemMessage(failure)}`),
   })
@@ -49,7 +50,10 @@ export const AdminSignUps = function AdminSignUps({
     body = <LoadingState />
   } else if (list.error) {
     body = (
-      <ErrorState message={copy.loadFailed} onRetry={() => void list.refetch()} />
+      <ErrorState
+        message={copy.loadFailed}
+        onRetry={() => void list.refetch()}
+      />
     )
   } else if (rows.length === 0) {
     body = (
@@ -63,7 +67,10 @@ export const AdminSignUps = function AdminSignUps({
   } else {
     body = (
       <div className="overflow-x-auto rounded-xl bg-surface-solid ring-1 ring-hairline">
-        <table className="w-full" data-testid={TournamentAdminSignUpsTestIds.TABLE}>
+        <table
+          className="w-full"
+          data-testid={TournamentAdminSignUpsTestIds.TABLE}
+        >
           <thead className="border-b border-hairline">
             <tr>
               <th scope="col" className={headClass}>
@@ -148,7 +155,8 @@ export const AdminSignUps = function AdminSignUps({
                   <span className="font-semibold">{statuses[row.status]}</span>
                   <span className="block text-fg-subtle">
                     {formatEntryFee(row.amountCents, 'EUR')}
-                    {row.paymentStatus && ` · ${copy.payments[row.paymentStatus]}`}
+                    {row.paymentStatus &&
+                      ` · ${copy.payments[row.paymentStatus]}`}
                   </span>
                   {row.refundStatus && (
                     <span className="block text-fg-subtle">
@@ -158,7 +166,9 @@ export const AdminSignUps = function AdminSignUps({
                   {row.paymentUnconfirmed && (
                     <span
                       className="block font-semibold text-danger-600 dark:text-danger-400"
-                      data-testid={TournamentAdminSignUpsTestIds.ROW_UNCONFIRMED}
+                      data-testid={
+                        TournamentAdminSignUpsTestIds.ROW_UNCONFIRMED
+                      }
                     >
                       {copy.paymentUnconfirmed}
                     </span>

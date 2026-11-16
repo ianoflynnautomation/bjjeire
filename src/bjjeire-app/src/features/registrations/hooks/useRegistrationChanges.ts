@@ -3,10 +3,7 @@ import {
   useQueryClient,
   type UseMutationResult,
 } from '@tanstack/react-query'
-import type {
-  CancellationDto,
-  RegistrationDto,
-} from '@/types/registrations'
+import type { CancellationDto, RegistrationDto } from '@/types/registrations'
 import {
   cancelRegistration,
   changeRegistrationDivision,
