@@ -11,8 +11,8 @@ public final class ApiRoutes {
     public static final String GYM = "/api/v1/gym";
     public static final String STORE = "/api/v1/store";
 
-    /** In-house tournaments: set-up, public pages, results. */
-    public static final String TOURNAMENT = "/api/v1/tournament";
+    /** In-house competitions: set-up, public pages, results. */
+    public static final String BJJEIRE_COMPETITION = "/api/v1/bjjeire-competition";
     /** The signed-in competitor's own profile. */
     public static final String COMPETITOR = "/api/v1/competitor";
     /** A competitor's sign-ups, and the payment webhook. */
@@ -25,23 +25,26 @@ public final class ApiRoutes {
     /** The one write with no bearer token; authenticated by Stripe's signature (ADR-0013). */
     public static final String STRIPE_WEBHOOK = REGISTRATION + "/stripe-webhook";
 
-    private static final String[] TOURNAMENT_FEATURE_PREFIXES = {TOURNAMENT, COMPETITOR, REGISTRATION};
+    private static final String[] BJJEIRE_COMPETITION_FEATURE_PREFIXES = {BJJEIRE_COMPETITION, COMPETITOR, REGISTRATION
+    };
 
     private ApiRoutes() {}
 
     /**
-     * Tells whether a request path belongs to the tournament feature.
+     * Tells whether a request path belongs to the BJJ Éire competitions feature.
      *
-     * <p>These paths are governed by the {@code Tournaments} flag and are exempt from read-only mode (ADR-0013). Adding
-     * a prefix here exempts it from read-only mode; removing one makes its writes answer 405 in production.
+     * <p>These paths are governed by the {@code BjjEireCompetitions} flag and are exempt from read-only mode
+     * (ADR-0013). Adding a prefix here exempts it from read-only mode; removing one makes its writes answer 405 in
+     * production.
      *
      * <p>The path is percent-decoded first, because Spring Security and Spring MVC match the decoded path: without that
-     * {@code /api/v1/%74ournament} would slip past a check that the router then treats as {@code /api/v1/tournament}.
+     * {@code /api/v1/%62jjeire-competition} would slip past a check that the router then treats as
+     * {@code /api/v1/bjjeire-competition}.
      *
      * @param requestUri the raw request URI, as {@code HttpServletRequest.getRequestURI()} returns it
-     * @return true for a tournament, competitor or registration route
+     * @return true for a BJJ Éire competition, competitor or registration route
      */
-    public static boolean isTournamentFeaturePath(String requestUri) {
+    public static boolean isBjjEireCompetitionFeaturePath(String requestUri) {
         if (requestUri == null) {
             return false;
         }
@@ -52,7 +55,7 @@ public final class ApiRoutes {
             // The container rejects it before any handler runs. Treat it as ours so no rule is skipped.
             return true;
         }
-        for (String prefix : TOURNAMENT_FEATURE_PREFIXES) {
+        for (String prefix : BJJEIRE_COMPETITION_FEATURE_PREFIXES) {
             if (path.equals(prefix) || path.startsWith(prefix + "/")) {
                 return true;
             }

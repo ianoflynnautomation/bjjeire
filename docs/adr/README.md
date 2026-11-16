@@ -24,6 +24,7 @@ and flipping the old one's status — not editing it.
 | [0012](0012-competitor-identity-second-issuer.md) | Competitor identity is a second token issuer | Accepted |
 | [0013](0013-stripe-hosted-checkout-and-webhooks.md) | Entry fees use Stripe hosted checkout, confirmed by signed webhook | Accepted |
 | [0014](0014-local-organiser-sign-in.md) | Local development signs the organiser in without Entra (amended: and competitors) | Accepted |
+| [0015](0015-bjjeire-competitions-inside-competitions.md) | In-house competitions are BJJ Éire competitions inside Competitions | Accepted |
 
 ## Adding one
 

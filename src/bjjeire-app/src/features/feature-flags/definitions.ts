@@ -59,11 +59,11 @@ export const FEATURE_FLAGS = {
     description: 'Map view on the events page (/events?view=map).',
     addedAt: '2026-11-05',
   },
-  Tournaments: {
-    key: 'Tournaments',
+  BjjEireCompetitions: {
+    key: 'BjjEireCompetitions',
     defaultValue: false,
     description:
-      'In-house tournaments: public pages, competitor accounts and sign-ups (ADR-0013).',
+      'BJJ Éire competitions: featured section on /competitions, /competitions/:slug pages, competitor accounts and sign-ups (ADR-0013, ADR-0015).',
     addedAt: '2026-11-13',
   },
 } as const satisfies Record<string, FeatureFlagDefinition>

@@ -21,7 +21,7 @@ public class ApiCache {
     public static final String GYMS_TAG = "gyms";
     public static final String COMPETITIONS_TAG = "competitions";
     public static final String STORES_TAG = "stores";
-    public static final String TOURNAMENTS_TAG = "tournaments";
+    public static final String BJJEIRE_COMPETITIONS_TAG = "bjjeire-competitions";
 
     private static final Duration EXPIRATION = Duration.ofMinutes(5);
     private static final int MAX_ENTRIES_PER_REGION = 10_000;
@@ -39,7 +39,7 @@ public class ApiCache {
                 GYMS_TAG, region(GYMS_TAG, meterRegistry),
                 COMPETITIONS_TAG, region(COMPETITIONS_TAG, meterRegistry),
                 STORES_TAG, region(STORES_TAG, meterRegistry),
-                TOURNAMENTS_TAG, region(TOURNAMENTS_TAG, meterRegistry));
+                BJJEIRE_COMPETITIONS_TAG, region(BJJEIRE_COMPETITIONS_TAG, meterRegistry));
     }
 
     @SuppressWarnings("unchecked")

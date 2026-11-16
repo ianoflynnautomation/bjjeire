@@ -7,7 +7,7 @@ import type {
   RegistrationCheckoutDto,
   RegistrationDto,
 } from '@/types/registrations'
-import { createDivision } from './tournament.factory'
+import { createDivision } from './bjjeire-competition.factory'
 
 let _registrationId = 0
 
@@ -21,10 +21,10 @@ export function createRegistration(
   const id = ++_registrationId
   return {
     id: `registration-id-${id}`,
-    tournamentId: 'tournament-id-1',
-    tournamentSlug: 'test-tournament-1',
-    tournamentName: 'Test Tournament 1',
-    tournamentDate: '2026-06-27',
+    competitionId: 'bjjeire-competition-id-1',
+    competitionSlug: 'test-bjjeire-competition-1',
+    competitionName: 'Test Competition 1',
+    competitionDate: '2026-06-27',
     division: createDivision(),
     status: 'AWAITING_PAYMENT',
     amountCents: 2500,

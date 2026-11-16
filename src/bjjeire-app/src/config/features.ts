@@ -32,50 +32,50 @@ export const features = [
     path: paths.stores.path,
     Component: lazyWithPreload(() => import('@/pages/StoresPage')),
   },
-  {
-    flag: 'Tournaments',
-    path: paths.tournaments.path,
-    Component: lazyWithPreload(() => import('@/pages/TournamentsPage')),
-  },
 ] as const satisfies readonly FeatureConfig[]
 
 /**
- * Pages reached from a feature's landing page. They sit behind the same flag
- * but are never a navigation entry or the default landing path.
+ * Pages reached from a feature's landing page. They are never a navigation
+ * entry or the default landing path. BJJ Éire competition pages sit under
+ * /competitions but follow BjjEireCompetitions, not Competitions (#3015).
  */
 export const featureSubRoutes = [
   {
-    flag: 'Tournaments',
-    path: paths.tournament.path,
-    Component: lazyWithPreload(() => import('@/pages/TournamentPage')),
+    flag: 'BjjEireCompetitions',
+    path: paths.bjjEireCompetition.path,
+    Component: lazyWithPreload(() => import('@/pages/BjjEireCompetitionPage')),
   },
   {
-    flag: 'Tournaments',
-    path: paths.tournamentSignUp.path,
+    flag: 'BjjEireCompetitions',
+    path: paths.bjjEireCompetitionSignUp.path,
     Component: lazyWithPreload(() => import('@/pages/SignUpPage')),
   },
   {
-    flag: 'Tournaments',
-    path: paths.tournamentSignUpComplete.path,
+    flag: 'BjjEireCompetitions',
+    path: paths.bjjEireCompetitionSignUpComplete.path,
     Component: lazyWithPreload(() => import('@/pages/SignUpCompletePage')),
   },
   {
-    flag: 'Tournaments',
-    path: paths.adminTournaments.path,
-    Component: lazyWithPreload(() => import('@/pages/AdminTournamentsPage')),
+    flag: 'BjjEireCompetitions',
+    path: paths.adminBjjEireCompetitions.path,
+    Component: lazyWithPreload(
+      () => import('@/pages/AdminBjjEireCompetitionsPage')
+    ),
   },
   {
-    flag: 'Tournaments',
-    path: paths.adminTournament.path,
-    Component: lazyWithPreload(() => import('@/pages/AdminTournamentPage')),
+    flag: 'BjjEireCompetitions',
+    path: paths.adminBjjEireCompetition.path,
+    Component: lazyWithPreload(
+      () => import('@/pages/AdminBjjEireCompetitionPage')
+    ),
   },
   {
-    flag: 'Tournaments',
+    flag: 'BjjEireCompetitions',
     path: paths.accountProfile.path,
     Component: lazyWithPreload(() => import('@/pages/ProfilePage')),
   },
   {
-    flag: 'Tournaments',
+    flag: 'BjjEireCompetitions',
     path: paths.accountSignUps.path,
     Component: lazyWithPreload(() => import('@/pages/MySignUpsPage')),
   },

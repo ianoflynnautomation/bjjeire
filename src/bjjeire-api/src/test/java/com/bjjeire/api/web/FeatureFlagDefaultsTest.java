@@ -37,15 +37,15 @@ class FeatureFlagDefaultsTest {
                 .isEqualTo("${FEATURE_EVENTS_MAP:false}");
     }
 
-    /** #5038: shipping the application config alone leaves in-house tournaments off. */
+    /** #5038: shipping the application config alone leaves in-house competitions off. */
     @Test
     @Tag("#5038")
-    void shouldDefaultTournamentsToOffInApplicationConfiguration() throws IOException {
+    void shouldDefaultBjjEireCompetitionsToOffInApplicationConfiguration() throws IOException {
         PropertySource<?> config = new YamlPropertySourceLoader()
                 .load("main", new FileSystemResource("src/main/resources/application.yml"))
                 .getFirst();
 
-        assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.Tournaments")))
-                .isEqualTo("${FEATURE_TOURNAMENTS:false}");
+        assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.BjjEireCompetitions")))
+                .isEqualTo("${FEATURE_BJJEIRE_COMPETITIONS:false}");
     }
 }

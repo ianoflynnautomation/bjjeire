@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-/** The sign-up state machine in data-model.md § TournamentRegistration. */
+/** The sign-up state machine in data-model.md § BjjEireCompetitionRegistration. */
 class RegistrationStatusTest {
     @Test
     void shouldAllowOnlyTheTransitionsTheDataModelDraws() {

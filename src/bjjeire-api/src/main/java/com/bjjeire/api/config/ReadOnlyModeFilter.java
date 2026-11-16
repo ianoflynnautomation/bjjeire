@@ -29,10 +29,10 @@ public class ReadOnlyModeFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // Tournament routes are governed by the Tournaments flag, not by read-only mode (ADR-0013).
+        // BJJ Éire competition routes are governed by the BjjEireCompetitions flag, not by read-only mode (ADR-0013).
         if (!properties.readOnlyMode().enabled()
                 || ALLOWED_METHODS.contains(request.getMethod())
-                || ApiRoutes.isTournamentFeaturePath(request.getRequestURI())) {
+                || ApiRoutes.isBjjEireCompetitionFeaturePath(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -7,8 +7,6 @@ import { initialGymFilters } from '@/features/gyms/hooks/useGymsPage'
 import { initialEventFilters } from '@/features/bjjevents/hooks/useEventsPage'
 import { initialCompetitionFilters } from '@/features/competitions/hooks/useCompetitionsPage'
 import { initialStoreFilters } from '@/features/stores/hooks/useStoresPage'
-import { getTournaments } from '@/features/tournaments/api/get-tournaments'
-import { initialTournamentFilters } from '@/features/tournaments/hooks/useTournamentsPage'
 
 const PREFETCH_STALE_TIME = 30_000
 
@@ -54,14 +52,6 @@ const registry: Partial<
       .query({
         queryKey: ['stores', withPage(initialStoreFilters)],
         queryFn: () => getStores(withPage(initialStoreFilters)),
-        staleTime: PREFETCH_STALE_TIME,
-      })
-      .then(noop, noop),
-  tournaments: queryClient =>
-    queryClient
-      .query({
-        queryKey: ['tournaments', withPage(initialTournamentFilters)],
-        queryFn: () => getTournaments(withPage(initialTournamentFilters)),
         staleTime: PREFETCH_STALE_TIME,
       })
       .then(noop, noop),

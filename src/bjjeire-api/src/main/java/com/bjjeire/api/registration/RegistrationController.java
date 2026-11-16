@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /** The signed-in competitor's sign-ups (User Story 3). Every route needs a competitor-tenant token. */
-@Tag(name = "Tournament sign-up")
+@Tag(name = "BJJ Éire competition sign-up")
 @SecurityRequirement(name = "BearerAuth")
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class RegistrationController {
     @PostMapping
     @Operation(
             summary = "Start a sign-up",
-            description = "Takes a place for 30 minutes and returns a Stripe Checkout page for the tournament's fee."
+            description = "Takes a place for 30 minutes and returns a Stripe Checkout page for the competition's fee."
                     + " The sign-up is confirmed only when Stripe reports the payment. Both consents must be true."
                     + " Not idempotent: a second call for the same division while the first is active is 409"
                     + " already-registered.")
@@ -50,11 +50,11 @@ public class RegistrationController {
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "404",
-            description = "No published tournament with this id, or no such division in it",
+            description = "No published competition with this id, or no such division in it",
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "409",
-            description = "registration-not-open, profile-incomplete, under-18, not-eligible, tournament-full,"
+            description = "registration-not-open, profile-incomplete, under-18, not-eligible, competition-full,"
                     + " already-registered or too-many-unpaid. Nothing was charged",
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
@@ -91,7 +91,7 @@ public class RegistrationController {
     @GetMapping("/me")
     @Operation(
             summary = "List your sign-ups",
-            description = "Newest first, with tournament, division, amount and status.")
+            description = "Newest first, with competition, division, amount and status.")
     @ApiResponse(responseCode = "200", description = "Your sign-ups, possibly none")
     public ResponseEntity<List<RegistrationDto>> getOwnRegistrations(
             @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt) {
@@ -133,7 +133,7 @@ public class RegistrationController {
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "404",
-            description = "No such sign-up, or no such division in its tournament",
+            description = "No such sign-up, or no such division in its competition",
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "409",

@@ -1,4 +1,4 @@
-import type { Belt, Gender } from './tournaments'
+import type { Belt, Gender } from './bjjeire-competitions'
 
 /** A directory gym (`gymId`) or a name the competitor typed (`gymId` absent). */
 export interface AcademyDto {
@@ -62,8 +62,8 @@ export interface SaveCompetitorCommand {
   address?: PostalAddressDto | null
 }
 
-export interface TournamentMedalsDto {
-  tournamentId: string
+export interface CompetitionMedalsDto {
+  competitionId: string
   slug: string
   name: string
   date: string
@@ -76,5 +76,5 @@ export interface CompetitorHistoryDto {
   gold: number
   silver: number
   bronze: number
-  tournaments: TournamentMedalsDto[]
+  competitions: CompetitionMedalsDto[]
 }

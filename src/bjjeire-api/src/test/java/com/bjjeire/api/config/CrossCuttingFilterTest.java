@@ -39,9 +39,11 @@ class CrossCuttingFilterTest {
                 .andExpect(jsonPath("$.type").value("urn:bjjeire:method-not-allowed"));
     }
 
-    /** ADR-0013: read-only mode protects the directory; tournament routes obey the Tournaments flag instead. */
+    /**
+     * ADR-0013: read-only mode protects the directory; competition routes obey the BjjEireCompetitions flag instead.
+     */
     @Test
-    void readOnlyModeLetsTournamentFeatureWritesThroughAndStillBlocksTheDirectory() throws Exception {
+    void readOnlyModeLetsBjjEireCompetitionFeatureWritesThroughAndStillBlocksTheDirectory() throws Exception {
         BjjEireProperties properties =
                 properties(new BjjEireProperties.RateLimit(false, 0, 0, 429), new BjjEireProperties.ReadOnlyMode(true));
 
@@ -50,14 +52,19 @@ class CrossCuttingFilterTest {
                 .build();
 
         for (String path : new String[] {
-            "/api/v1/tournament", "/api/v1/tournament/abc/publish", "/api/v1/competitor/me", "/api/v1/registration"
+            "/api/v1/bjjeire-competition",
+            "/api/v1/bjjeire-competition/abc/publish",
+            "/api/v1/competitor/me",
+            "/api/v1/registration"
         }) {
             mockMvc.perform(post(path)).andExpect(status().isOk());
         }
         // The router matches the decoded path, so the exemption does too.
-        mockMvc.perform(post(java.net.URI.create("/api/v1/%74ournament"))).andExpect(status().isOk());
-        for (String path :
-                new String[] {"/api/v1/gym", "/api/v1/competition", "/api/v1/competitors", "/api/v1/tournaments"}) {
+        mockMvc.perform(post(java.net.URI.create("/api/v1/%62jjeire-competition")))
+                .andExpect(status().isOk());
+        for (String path : new String[] {
+            "/api/v1/gym", "/api/v1/competition", "/api/v1/competitors", "/api/v1/bjjeire-competitions"
+        }) {
             mockMvc.perform(post(path)).andExpect(status().isMethodNotAllowed());
         }
     }
@@ -188,14 +195,14 @@ class CrossCuttingFilterTest {
 
         @PostMapping({
             "/test",
-            "/api/v1/tournament",
-            "/api/v1/tournament/abc/publish",
+            "/api/v1/bjjeire-competition",
+            "/api/v1/bjjeire-competition/abc/publish",
             "/api/v1/competitor/me",
             "/api/v1/registration",
             "/api/v1/gym",
             "/api/v1/competition",
             "/api/v1/competitors",
-            "/api/v1/tournaments"
+            "/api/v1/bjjeire-competitions"
         })
         ResponseEntity<String> post() {
             return ResponseEntity.ok("ok");

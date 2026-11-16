@@ -2,6 +2,8 @@
 description: "Task list for In-House Tournament Registration"
 ---
 
+> Slice 5 re-pointed to BJJ Éire competition names by specs/002-merge-tournaments-competitions; slices 0–4 below are historical.
+
 # Tasks: In-House Tournament Registration
 
 **Input**: Design documents from `specs/001-tournament-registration/`
@@ -234,25 +236,25 @@ description: "Task list for In-House Tournament Registration"
 
 ## Phase 8: User Story 5 — Results, leaderboard and team points (Priority: P2)
 
-**Goal**: The admin records podiums; the public sees podiums, an academy ranking, an affiliation ranking, and the winners when the tournament is finished.
+**Goal**: The admin records podiums; the public sees podiums, an academy ranking, an affiliation ranking, and the winners when the competition is finished.
 
 **Independent Test**: With confirmed sign-ups in a division, the admin records the podium and a signed-out visitor sees it and both updated rankings.
 
 ### Tests first
 
-- [ ] T095 [P] [US5] Unit tests in `tournament/` for the points calculation as a pure function: 9 per gold, 3 per silver, 1 per bronze, added per academy key and per affiliation key across divisions (`#5029`, `#5040`); order by points, then golds, silvers, bronzes (`#5030`); a medallist with no academy adds nothing to the academy ranking and likewise for affiliation (`#5031`); a division with one confirmed competitor adds no points (`#5032`); entries level on every tie-break are joint winners; winners are present only when status is `FINISHED` (`#5041`)
-- [ ] T096 [P] [US5] `DivisionResultIT` in `tournament/`: recording gold, silver and up to two bronzes succeeds only when every id is a `CONFIRMED` registration in that division (409 `not-in-division`), no id repeats (409 `duplicate-medallist`) and there are at most two bronzes (`#5028`); correcting a result replaces it (`#5033`); competitor and anonymous callers are refused (`#5035`); a competitor named in a result cannot cancel (409 `result-recorded`, FR-026)
-- [ ] T097 [P] [US5] `LeaderboardIT` in `tournament/`: no results gives empty podiums and rankings (`#5034`); after a result write, a merge, a move or a cancellation the next read reflects it (cache eviction, SC-006); the JSON contains none of the private field names; a medallist whose account was deleted keeps the medal and points with the placeholder name
-- [ ] T098 [P] [US5] `CompetitorHistoryIT` in `competitor/`: totals and per-tournament medals match the recorded results for the caller only (`#5039`)
-- [ ] T099 [P] [US5] Vitest tests in `features/tournaments/` and `features/tournament-admin/`: leaderboard empty state (`#5034`), podium cards, two ranking tables, winners banner when finished, joint winners; results entry form limits choices to that division's confirmed competitors and blocks duplicates
+- [ ] T095 [P] [US5] Unit tests in `bjjeirecompetition/` for the points calculation as a pure function: 9 per gold, 3 per silver, 1 per bronze, added per academy key and per affiliation key across divisions (`#5029`, `#5040`); order by points, then golds, silvers, bronzes (`#5030`); a medallist with no academy adds nothing to the academy ranking and likewise for affiliation (`#5031`); a division with one confirmed competitor adds no points (`#5032`); entries level on every tie-break are joint winners; winners are present only when status is `FINISHED` (`#5041`)
+- [ ] T096 [P] [US5] `DivisionResultIT` in `bjjeirecompetition/`: recording gold, silver and up to two bronzes succeeds only when every id is a `CONFIRMED` registration in that division (409 `not-in-division`), no id repeats (409 `duplicate-medallist`) and there are at most two bronzes (`#5028`); correcting a result replaces it (`#5033`); competitor and anonymous callers are refused (`#5035`); a competitor named in a result cannot cancel (409 `result-recorded`, FR-026)
+- [ ] T097 [P] [US5] `LeaderboardIT` in `bjjeirecompetition/`: no results gives empty podiums and rankings (`#5034`); after a result write, a merge, a move or a cancellation the next read reflects it (cache eviction, SC-006); the JSON contains none of the private field names; a medallist whose account was deleted keeps the medal and points with the placeholder name
+- [ ] T098 [P] [US5] `CompetitorHistoryIT` in `competitor/`: totals and per-competition medals match the recorded results for the caller only (`#5039`)
+- [ ] T099 [P] [US5] Vitest tests in `features/bjjeire-competitions/` and `features/bjjeire-competition-admin/`: leaderboard empty state (`#5034`), podium cards, two ranking tables, winners banner when finished, joint winners; results entry form limits choices to that division's confirmed competitors and blocks duplicates
 
 ### Implementation
 
-- [ ] T100 [US5] `tournament/` `DivisionResult` embedded in `Division` with `goldRegistrationId` (required), `silverRegistrationId`, `bronzeRegistrationIds` (0–2), `recordedAt`, `recordedBy`; `RecordResultCommand`; `PUT` and `DELETE /api/v1/tournament/{id}/division/{divisionId}/result`; `POST /api/v1/tournament/{id}/finish`
-- [ ] T101 [US5] `tournament/` points calculation and `GET /api/v1/tournament/{id}/leaderboard` returning `LeaderboardDto` (`podiums[]`, `academyRanking[]`, `affiliationRanking[]`, `winners`), cached under `TOURNAMENTS_TAG` and evicted by every result, merge, move and cancellation write
+- [ ] T100 [US5] `bjjeirecompetition/` `DivisionResult` embedded in `Division` with `goldRegistrationId` (required), `silverRegistrationId`, `bronzeRegistrationIds` (0–2), `recordedAt`, `recordedBy`; `RecordResultCommand`; `PUT` and `DELETE /api/v1/bjjeire-competition/{id}/division/{divisionId}/result`; `POST /api/v1/bjjeire-competition/{id}/finish`
+- [ ] T101 [US5] `bjjeirecompetition/` points calculation and `GET /api/v1/bjjeire-competition/{id}/leaderboard` returning `LeaderboardDto` (`podiums[]`, `academyRanking[]`, `affiliationRanking[]`, `winners`), cached under `BJJEIRE_COMPETITIONS_TAG` and evicted by every result, merge, move and cancellation write
 - [ ] T102 [US5] `registration/` refuse cancel and division change when a result names the registration; `competitor/` fill `GET /api/v1/competitor/me/history` from registrations joined to results
-- [ ] T103 [US5] SPA: leaderboard section on `/tournaments/:slug`; results tab and finish action on `/admin/tournaments/:id`; medal history on `/account/profile`
-- [ ] T104 [US5] Update Pact, generated types and `specs/database-contracts/tournament.md`; list `#5028`, `#5029`, `#5034`, `#5039`, `#5040`, `#5041` in `bjjeire-tests/specs/features/tournaments.md`
+- [ ] T103 [US5] SPA: leaderboard section on `/competitions/:slug`; results tab and finish action on `/admin/competitions/:id`; medal history on `/account/profile`
+- [ ] T104 [US5] Update Pact, generated types and `specs/database-contracts/bjjeire-competition.md`; list `#5028`, `#5029`, `#5034`, `#5039`, `#5040`, `#5041` in `bjjeire-tests/specs/features/competitions.md`
 
 **Checkpoint**: Quickstart scenario 6 passes. All stories complete.
 

@@ -2,6 +2,8 @@ package com.bjjeire.api.seeder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.config.SeederProperties;
@@ -9,8 +11,6 @@ import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
@@ -108,36 +109,40 @@ class SeederIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldSeedTournamentsOnlyFromTheTestDataset() {
+    @Tag("#3017")
+    void shouldSeedBjjEireCompetitionsOnlyFromTheTestDataset() {
         runner.run("--force");
-        assertThat(mongoTemplate.count(new Query(), Tournament.class)).isZero();
+        assertThat(mongoTemplate.count(new Query(), BjjEireCompetition.class)).isZero();
 
         SeederRunner testRunner = testDatasetRunner();
         testRunner.run("--force");
 
         assertThat(testRunner.getExitCode()).isZero();
-        List<Tournament> seeded = mongoTemplate.findAll(Tournament.class);
-        assertThat(seeded).isNotEmpty().allSatisfy(tournament -> {
-            assertThat(tournament.getStatus()).isEqualTo(TournamentStatus.PUBLISHED);
-            assertThat(tournament.getDivisions()).isNotEmpty();
-            assertThat(tournament.getCurrency()).isEqualTo(Tournament.CURRENCY);
-            assertThat(tournament.getRegistrationClosesAt()).isAfter(tournament.getRegistrationOpensAt());
+        List<BjjEireCompetition> seeded = mongoTemplate.findAll(BjjEireCompetition.class);
+        assertThat(seeded)
+                .extracting(BjjEireCompetition::getSlug)
+                .containsExactlyInAnyOrder("acceptance-open", "acceptance-opens-later", "acceptance-closed");
+        assertThat(seeded).isNotEmpty().allSatisfy(competition -> {
+            assertThat(competition.getStatus()).isEqualTo(BjjEireCompetitionStatus.PUBLISHED);
+            assertThat(competition.getDivisions()).isNotEmpty();
+            assertThat(competition.getCurrency()).isEqualTo(BjjEireCompetition.CURRENCY);
+            assertThat(competition.getRegistrationClosesAt()).isAfter(competition.getRegistrationOpensAt());
         });
     }
 
     @Test
-    void shouldValidateTestTournamentFilesStrictlyAgainstTheJavaDomain() {
+    void shouldValidateTestBjjEireCompetitionFilesStrictlyAgainstTheJavaDomain() {
         SeederRunner testRunner = testDatasetRunner();
 
-        testRunner.run("--validate", "--collection", "Tournament");
+        testRunner.run("--validate", "--collection", "BjjEireCompetition");
 
         assertThat(testRunner.getExitCode()).isZero();
     }
 
-    /** Production has no tournament seed: a prune there must not delete the organiser's tournaments. */
+    /** Production has no competition seed: a prune there must not delete the organiser's competitions. */
     @Test
-    void shouldLeaveTournamentsAloneWhenPruningOutsideTheTestDataset() {
-        Tournament real = Tournament.builder()
+    void shouldLeaveBjjEireCompetitionsAloneWhenPruningOutsideTheTestDataset() {
+        BjjEireCompetition real = BjjEireCompetition.builder()
                 .id("202611130000000000000001")
                 .slug("bjjeire")
                 .name("BjjEire")
@@ -147,7 +152,7 @@ class SeederIT extends MongoIntegrationTest {
         runner.run("--force", "--prune");
 
         assertThat(runner.getExitCode()).isZero();
-        assertThat(mongoTemplate.findById("202611130000000000000001", Tournament.class))
+        assertThat(mongoTemplate.findById("202611130000000000000001", BjjEireCompetition.class))
                 .isNotNull();
     }
 

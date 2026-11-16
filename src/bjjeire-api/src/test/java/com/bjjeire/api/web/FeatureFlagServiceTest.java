@@ -84,7 +84,8 @@ class FeatureFlagServiceTest {
         configured.put("gyms", true);
 
         assertThat(service(configured).frontendFlags().keySet())
-                .containsExactly("BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap", "EventsMap", "Tournaments");
+                .containsExactly(
+                        "BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap", "EventsMap", "BjjEireCompetitions");
         assertThat(service(configured).frontendFlags())
                 .containsEntry("BjjEvents", true)
                 .containsEntry("Gyms", true)

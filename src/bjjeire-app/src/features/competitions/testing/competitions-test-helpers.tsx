@@ -1,4 +1,6 @@
 import { API_ROUTES } from '@/config/api-routes'
+import { paths } from '@/config/paths'
+import type { FeatureFlagsMap } from '@/features/feature-flags'
 import { renderWithProviders } from '@/testing/render-utils'
 import { createListSeeds, testApiUrl } from '@/testing/seed-helpers'
 import {
@@ -20,14 +22,16 @@ export const seedCompetitions = seeds.seed
 export const seedCompetitionsError = seeds.seedError
 export const seedCompetitionsPending = seeds.seedPending
 
-export function renderCompetitionsPage(): ReturnType<
-  typeof renderWithProviders
-> {
+export function renderCompetitionsPage(
+  featureFlags: Partial<FeatureFlagsMap> = {}
+): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(<CompetitionsPage />, {
+    initialRoutes: [paths.competitions.path],
     featureFlags: {
       BjjEvents: true,
       Gyms: true,
       Competitions: true,
+      ...featureFlags,
     },
   })
 }

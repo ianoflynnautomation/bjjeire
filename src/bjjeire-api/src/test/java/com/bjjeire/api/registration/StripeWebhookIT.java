@@ -1,12 +1,13 @@
 package com.bjjeire.api.registration;
 
+import static com.bjjeire.api.testsupport.RetiredNames.OLD_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -24,7 +25,7 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldRefuseAMissingOrBadSignatureAndChangeNothing() {
-        TournamentRegistration registration = startSignUp("bad-signature", null);
+        BjjEireCompetitionRegistration registration = startSignUp("bad-signature", null);
         String payload = checkoutEvent("evt_1", "checkout.session.completed", registration);
 
         ResponseEntity<String> unsigned = postWebhook(payload, null);
@@ -44,13 +45,13 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldConfirmTheSignUpAndSendOneMailWhenThePaymentSucceeds() {
-        TournamentRegistration registration = startSignUp("paid", null);
+        BjjEireCompetitionRegistration registration = startSignUp("paid", null);
 
         ResponseEntity<String> response =
                 postSignedWebhook(checkoutEvent("evt_paid", "checkout.session.completed", registration));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration confirmed = onlyRegistration();
+        BjjEireCompetitionRegistration confirmed = onlyRegistration();
         assertThat(confirmed.getStatus()).isEqualTo(RegistrationStatus.CONFIRMED);
         assertThat(confirmed.getActive()).isTrue();
         assertThat(confirmed.getHoldExpiresAt()).isNull();
@@ -60,18 +61,19 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
         List<MailMessage> sent = mailer.awaitSent(1);
         assertThat(sent).hasSize(1);
         assertThat(sent.getFirst().to()).isEqualTo(competitorEmail("aoife"));
-        assertThat(sent.getFirst().subject()).contains("confirmed");
+        assertThat(sent.getFirst().subject()).contains("confirmed").doesNotContainIgnoringCase(OLD_NAME);
+        assertThat(sent.getFirst().body()).doesNotContainIgnoringCase(OLD_NAME);
         assertThat(sent.getFirst().body())
                 .contains("BjjEire paid")
                 .contains("-76 kg")
                 .contains("€25.00");
-        assertThat(placesTaken(registration.getTournamentId())).isEqualTo(1);
+        assertThat(placesTaken(registration.getCompetitionId())).isEqualTo(1);
     }
 
     @Test
     @Tag("#5015")
     void shouldChangeNothingWhenTheSameEventArrivesTwice() {
-        TournamentRegistration registration = startSignUp("twice", null);
+        BjjEireCompetitionRegistration registration = startSignUp("twice", null);
         String payload = checkoutEvent("evt_twice", "checkout.session.completed", registration);
 
         postSignedWebhook(payload);
@@ -89,35 +91,35 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldNotConfirmTwiceWhenStripeSendsADifferentEventForTheSamePayment() {
-        TournamentRegistration registration = startSignUp("two-events", null);
+        BjjEireCompetitionRegistration registration = startSignUp("two-events", null);
 
         postSignedWebhook(checkoutEvent("evt_a", "checkout.session.completed", registration));
         postSignedWebhook(checkoutEvent("evt_b", "checkout.session.completed", registration));
 
         mailer.awaitSent(2);
         assertThat(mailer.sent()).hasSize(1);
-        assertThat(placesTaken(registration.getTournamentId())).isEqualTo(1);
+        assertThat(placesTaken(registration.getCompetitionId())).isEqualTo(1);
     }
 
     @Test
     @Tag("#5016")
     void shouldExpireTheSignUpAndGiveThePlaceBackWhenTheCheckoutExpires() {
-        TournamentRegistration registration = startSignUp("expired", 1);
+        BjjEireCompetitionRegistration registration = startSignUp("expired", 1);
 
         ResponseEntity<String> response =
                 postSignedWebhook(checkoutEvent("evt_expired", "checkout.session.expired", registration));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration expired = onlyRegistration();
+        BjjEireCompetitionRegistration expired = onlyRegistration();
         assertThat(expired.getStatus()).isEqualTo(RegistrationStatus.EXPIRED);
         assertThat(expired.getActive()).isNull();
         assertThat(expired.getPayment().getStatus()).isEqualTo(PaymentStatus.FAILED);
-        assertThat(placesTaken(registration.getTournamentId())).isZero();
+        assertThat(placesTaken(registration.getCompetitionId())).isZero();
         assertThat(paymentGateway.refunds()).isEmpty();
         assertThat(mailer.sent()).isEmpty();
 
         // The competitor can try again.
-        assertThat(signUp(AOIFE, registration.getTournamentId(), registration.getDivisionId())
+        assertThat(signUp(AOIFE, registration.getCompetitionId(), registration.getDivisionId())
                         .getStatusCode())
                 .isEqualTo(HttpStatus.CREATED);
     }
@@ -125,11 +127,11 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldConfirmAPaymentStartedWhileRegistrationWasOpenEvenAfterItCloses() {
-        TournamentRegistration registration = startSignUp("late-close", null);
+        BjjEireCompetitionRegistration registration = startSignUp("late-close", null);
         mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(registration.getTournamentId())),
+                Query.query(Criteria.where("_id").is(registration.getCompetitionId())),
                 Update.update("registrationClosesAt", FIXED_NOW.minusSeconds(60)),
-                Tournament.class);
+                BjjEireCompetition.class);
 
         postSignedWebhook(checkoutEvent("evt_after_close", "checkout.session.completed", registration));
 
@@ -139,25 +141,25 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldConfirmALatePaymentWhenAPlaceIsStillFree() {
-        TournamentRegistration registration = startSignUp("late-free", 2);
+        BjjEireCompetitionRegistration registration = startSignUp("late-free", 2);
         expireByHand(registration);
 
         postSignedWebhook(checkoutEvent("evt_late_free", "checkout.session.completed", registration));
 
-        TournamentRegistration confirmed = onlyRegistration();
+        BjjEireCompetitionRegistration confirmed = onlyRegistration();
         assertThat(confirmed.getStatus()).isEqualTo(RegistrationStatus.CONFIRMED);
         assertThat(confirmed.getActive()).isTrue();
-        assertThat(placesTaken(registration.getTournamentId())).isEqualTo(1);
+        assertThat(placesTaken(registration.getCompetitionId())).isEqualTo(1);
         assertThat(paymentGateway.refunds()).isEmpty();
     }
 
     @Test
     @Tag("#5020")
     void shouldRefundALatePaymentInFullWhenNoPlaceIsLeft() {
-        TournamentRegistration registration = startSignUp("late-full", 1);
+        BjjEireCompetitionRegistration registration = startSignUp("late-full", 1);
         expireByHand(registration);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        assertThat(signUp(CIARAN, registration.getTournamentId(), registration.getDivisionId())
+        assertThat(signUp(CIARAN, registration.getCompetitionId(), registration.getDivisionId())
                         .getStatusCode())
                 .isEqualTo(HttpStatus.CREATED);
 
@@ -165,7 +167,8 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
                 postSignedWebhook(checkoutEvent("evt_late_full", "checkout.session.completed", registration));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration refunded = mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+        BjjEireCompetitionRegistration refunded =
+                mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
         assertThat(refunded.getStatus()).isEqualTo(RegistrationStatus.CANCELLED);
         assertThat(refunded.getActive()).isNull();
         assertThat(refunded.getPayment().getStatus()).isEqualTo(PaymentStatus.PAID);
@@ -177,7 +180,7 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
             assertThat(refund.paymentIntentId()).isEqualTo("pi_test_" + registration.getId());
             assertThat(refund.idempotencyKey()).isEqualTo("refund-" + registration.getId());
         });
-        assertThat(placesTaken(registration.getTournamentId())).isEqualTo(1);
+        assertThat(placesTaken(registration.getCompetitionId())).isEqualTo(1);
         List<MailMessage> sent = mailer.awaitSent(1);
         assertThat(sent)
                 .singleElement()
@@ -186,7 +189,7 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldAcknowledgeEventTypesItDoesNotHandle() {
-        TournamentRegistration registration = startSignUp("unknown-type", null);
+        BjjEireCompetitionRegistration registration = startSignUp("unknown-type", null);
 
         ResponseEntity<String> response =
                 postSignedWebhook(checkoutEvent("evt_other", "customer.created", registration));
@@ -197,8 +200,8 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldAcknowledgeAPaymentForASignUpItDoesNotKnow() {
-        TournamentRegistration registration = startSignUp("unknown-registration", null);
-        mongoTemplate.remove(new Query(), TournamentRegistration.class);
+        BjjEireCompetitionRegistration registration = startSignUp("unknown-registration", null);
+        mongoTemplate.remove(new Query(), BjjEireCompetitionRegistration.class);
 
         ResponseEntity<String> response =
                 postSignedWebhook(checkoutEvent("evt_unknown", "checkout.session.completed", registration));
@@ -207,17 +210,17 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     }
 
     @Test
-    void shouldLeaveACancelledTournamentsSignUpForTheOrganiserWhenAPlaceCannotBeRetaken() {
-        TournamentRegistration registration = startSignUp("late-cancelled", null);
+    void shouldLeaveACancelledBjjEireCompetitionsSignUpForTheOrganiserWhenAPlaceCannotBeRetaken() {
+        BjjEireCompetitionRegistration registration = startSignUp("late-cancelled", null);
         expireByHand(registration);
         mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(registration.getTournamentId())),
-                Update.update("status", TournamentStatus.CANCELLED),
-                Tournament.class);
+                Query.query(Criteria.where("_id").is(registration.getCompetitionId())),
+                Update.update("status", BjjEireCompetitionStatus.CANCELLED),
+                BjjEireCompetition.class);
 
         postSignedWebhook(checkoutEvent("evt_late_cancelled", "checkout.session.completed", registration));
 
-        TournamentRegistration refunded = onlyRegistration();
+        BjjEireCompetitionRegistration refunded = onlyRegistration();
         assertThat(refunded.getStatus()).isEqualTo(RegistrationStatus.CANCELLED);
         assertThat(paymentGateway.refunds()).hasSize(1);
     }
@@ -225,17 +228,18 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldApplyStripesRetryWhenTheFirstDeliveryFailed() {
-        TournamentRegistration registration = startSignUp("retry", 1);
+        BjjEireCompetitionRegistration registration = startSignUp("retry", 1);
         expireByHand(registration);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(CIARAN, registration.getTournamentId(), registration.getDivisionId());
+        signUp(CIARAN, registration.getCompetitionId(), registration.getDivisionId());
         paymentGateway.failNextRefunds(true);
         String payload = checkoutEvent("evt_retry", "checkout.session.completed", registration);
 
         ResponseEntity<String> failed = postSignedWebhook(payload);
 
         assertThat(failed.getStatusCode().is5xxServerError()).isTrue();
-        TournamentRegistration recorded = mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+        BjjEireCompetitionRegistration recorded =
+                mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
         // The money is held: the payment is recorded and the refund marked failed for the organiser to see.
         assertThat(recorded.getPayment().getStatus()).isEqualTo(PaymentStatus.PAID);
         assertThat(recorded.getRefund().getStatus()).isEqualTo(RefundStatus.FAILED);
@@ -244,7 +248,8 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
         ResponseEntity<String> retried = postSignedWebhook(payload);
 
         assertThat(retried.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration refunded = mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+        BjjEireCompetitionRegistration refunded =
+                mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
         assertThat(refunded.getStatus()).isEqualTo(RegistrationStatus.CANCELLED);
         assertThat(refunded.getRefund().getStatus()).isEqualTo(RefundStatus.REFUNDED);
         assertThat(paymentGateway.refunds()).hasSize(1);
@@ -253,10 +258,10 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5020")
     void shouldStayOnTheRefundOnceARefundWasTriedEvenIfAPlaceComesFree() {
-        TournamentRegistration registration = startSignUp("refund-then-free", 1);
+        BjjEireCompetitionRegistration registration = startSignUp("refund-then-free", 1);
         expireByHand(registration);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(CIARAN, registration.getTournamentId(), registration.getDivisionId());
+        signUp(CIARAN, registration.getCompetitionId(), registration.getDivisionId());
         paymentGateway.failNextRefunds(true);
         String payload = checkoutEvent("evt_refund_then_free", "checkout.session.completed", registration);
         postSignedWebhook(payload);
@@ -272,26 +277,27 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
                         .unset("active")
                         .unset("unpaidSlot")
                         .unset("holdExpiresAt"),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(registration.getTournamentId())),
+                Query.query(Criteria.where("_id").is(registration.getCompetitionId())),
                 new Update().inc("placesTaken", -1),
-                Tournament.class);
+                BjjEireCompetition.class);
         paymentGateway.failNextRefunds(false);
 
         ResponseEntity<String> retried = postSignedWebhook(payload);
 
         assertThat(retried.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration refunded = mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+        BjjEireCompetitionRegistration refunded =
+                mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
         assertThat(refunded.getStatus()).isEqualTo(RegistrationStatus.CANCELLED);
         assertThat(refunded.getRefund().getStatus()).isEqualTo(RefundStatus.REFUNDED);
-        assertThat(placesTaken(registration.getTournamentId())).isZero();
+        assertThat(placesTaken(registration.getCompetitionId())).isZero();
     }
 
     @Test
     @Tag("#5015")
     void shouldApplyAnEventWhoseEarlierDeliveryWasRecordedButNeverFinished() {
-        TournamentRegistration registration = startSignUp("crashed", null);
+        BjjEireCompetitionRegistration registration = startSignUp("crashed", null);
         // What a pod that died between recording the event and applying it leaves behind.
         mongoTemplate.insert(StripeEvent.builder()
                 .id("evt_crashed")
@@ -313,7 +319,7 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5015")
     void shouldConfirmWhenADelayedPaymentSucceedsAndNotBefore() {
-        TournamentRegistration registration = startSignUp("async", null);
+        BjjEireCompetitionRegistration registration = startSignUp("async", null);
         String completedUnpaid = checkoutEvent("evt_async_completed", "checkout.session.completed", registration)
                 .replace("\"payment_status\": \"paid\"", "\"payment_status\": \"unpaid\"");
 
@@ -327,12 +333,12 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5016")
     void shouldExpireTheSignUpWhenADelayedPaymentFails() {
-        TournamentRegistration registration = startSignUp("async-failed", null);
+        BjjEireCompetitionRegistration registration = startSignUp("async-failed", null);
 
         postSignedWebhook(checkoutEvent("evt_async_failed", "checkout.session.async_payment_failed", registration));
 
         assertThat(onlyRegistration().getStatus()).isEqualTo(RegistrationStatus.EXPIRED);
-        assertThat(placesTaken(registration.getTournamentId())).isZero();
+        assertThat(placesTaken(registration.getCompetitionId())).isZero();
     }
 
     @Test
@@ -346,17 +352,17 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    private TournamentRegistration startSignUp(String slug, Integer limit) {
+    private BjjEireCompetitionRegistration startSignUp(String slug, Integer limit) {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament(slug, limit, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition(slug, limit, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        assertThat(signUp(AOIFE, tournament.getId(), division.getId()).getStatusCode())
+        assertThat(signUp(AOIFE, competition.getId(), division.getId()).getStatusCode())
                 .isEqualTo(HttpStatus.CREATED);
         return onlyRegistration();
     }
 
     /** What the hold sweep does when the expiry webhook never came. */
-    private void expireByHand(TournamentRegistration registration) {
+    private void expireByHand(BjjEireCompetitionRegistration registration) {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id").is(registration.getId())),
                 new Update()
@@ -364,10 +370,10 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
                         .unset("active")
                         .unset("unpaidSlot")
                         .unset("holdExpiresAt"),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(registration.getTournamentId())),
+                Query.query(Criteria.where("_id").is(registration.getCompetitionId())),
                 new Update().inc("placesTaken", -1),
-                Tournament.class);
+                BjjEireCompetition.class);
     }
 }

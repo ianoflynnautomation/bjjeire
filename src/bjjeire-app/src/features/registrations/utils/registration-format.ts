@@ -1,5 +1,5 @@
 import { uiContent } from '@/config/ui-content'
-import type { DivisionDto } from '@/types/tournaments'
+import type { DivisionDto } from '@/types/bjjeire-competitions'
 
 const { disciplines, genders, ageCategories, belts } = uiContent.registrations
 

@@ -11,7 +11,7 @@ const FULL_COMPETITION = createCompetition({
   id: 'test-1',
   name: 'Dublin International Open IBJJF',
   organisation: 'IBJJF',
-  description: 'Premier IBJJF tournament in Dublin.',
+  description: 'Premier IBJJF competition in Dublin.',
   websiteUrl: 'https://ibjjf.com/dublin',
   registrationUrl: 'https://ibjjf.com/dublin/register',
   tags: ['ibjjf', 'gi', 'open'],
@@ -53,7 +53,7 @@ describe('CompetitionCard', () => {
     ).toHaveTextContent('16–17 May 2026')
     expect(
       within(card).getByTestId(CompetitionCardTestIds.DESCRIPTION)
-    ).toHaveTextContent('Premier IBJJF tournament in Dublin.')
+    ).toHaveTextContent('Premier IBJJF competition in Dublin.')
 
     const tagItems = within(card).getAllByTestId(
       CompetitionCardTestIds.TAG_ITEM

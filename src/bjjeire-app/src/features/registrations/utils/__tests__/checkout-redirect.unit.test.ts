@@ -13,7 +13,7 @@ describe('isStripeCheckoutUrl', () => {
     'https://checkout.stripe.com.evil.test/c/pay',
     'https://evil.test/?next=https://checkout.stripe.com',
     'javascript:alert(1)',
-    '/tournaments',
+    '/competitions',
     '',
   ])('given %s, when checked, then it is refused', url => {
     expect(isStripeCheckoutUrl(url)).toBe(false)

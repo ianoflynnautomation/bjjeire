@@ -9,7 +9,7 @@ import { OWN_HISTORY_KEY } from '../api/query-keys'
 
 const { history } = uiContent.competitor
 
-/** The competitor's medal totals and the tournaments they entered (#5039). */
+/** The competitor's medal totals and the competitions they entered (#5039). */
 export const MedalHistory = function MedalHistory(): JSX.Element {
   const query = useQuery({ queryKey: OWN_HISTORY_KEY, queryFn: getOwnHistory })
   const totals = [
@@ -29,7 +29,7 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
       id: CompetitorProfileTestIds.HISTORY_BRONZE,
     },
   ]
-  const tournaments = query.data?.tournaments ?? []
+  const bjjEireCompetitions = query.data?.competitions ?? []
 
   return (
     <section
@@ -63,7 +63,7 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
               </div>
             ))}
           </dl>
-          {tournaments.length === 0 ? (
+          {bjjEireCompetitions.length === 0 ? (
             <p
               className="text-sm text-fg-subtle"
               data-testid={CompetitorProfileTestIds.HISTORY_EMPTY}
@@ -73,12 +73,12 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">
-                {history.tournamentsHeading}
+                {history.competitionsHeading}
               </caption>
               <thead className="text-fg-subtle">
                 <tr>
                   <th scope="col" className="py-2">
-                    {history.tournamentsHeading}
+                    {history.competitionsHeading}
                   </th>
                   <th scope="col" className="py-2 text-right">
                     {history.gold}
@@ -92,14 +92,14 @@ export const MedalHistory = function MedalHistory(): JSX.Element {
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline text-fg">
-                {tournaments.map(entry => (
+                {bjjEireCompetitions.map(entry => (
                   <tr
-                    key={entry.tournamentId}
+                    key={entry.competitionId}
                     data-testid={CompetitorProfileTestIds.HISTORY_ROW}
                   >
                     <td className="py-2">
                       <Link
-                        to={paths.tournament.getHref(entry.slug)}
+                        to={paths.bjjEireCompetition.getHref(entry.slug)}
                         className="font-semibold text-primary-700 hover:underline dark:text-primary-300"
                       >
                         {entry.name}

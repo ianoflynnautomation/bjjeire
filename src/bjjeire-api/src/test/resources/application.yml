@@ -23,10 +23,10 @@ bjjeire:
     audiences:
       - api://00000000-0000-0000-0000-000000000000
     scope: access_as_competitor
-  # On so the tournament routes exist for every IT. The off state is covered by
-  # TournamentFeatureOffIT (its own context) and TournamentFeatureGateFilterTest.
+  # On so the competition routes exist for every IT. The off state is covered by
+  # BjjEireCompetitionFeatureOffIT (its own context) and BjjEireCompetitionFeatureGateFilterTest.
   feature-flags:
-    Tournaments: true
+    BjjEireCompetitions: true
   # Sign-up (slice 3). RegistrationIntegrationTest.WEBHOOK_SECRET must match. Stripe and mail are recording
   # fakes in MongoIntegrationTest; the hold sweep is called directly, never on a timer.
   stripe:

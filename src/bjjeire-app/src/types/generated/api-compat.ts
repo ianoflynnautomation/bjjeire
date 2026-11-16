@@ -5,21 +5,24 @@ import type { CompetitionDto } from '@/types/competitions'
 import type { StoreDto } from '@/types/stores'
 import type {
   DivisionDto,
-  TournamentCommand,
-  TournamentDto,
-  TournamentSummaryDto,
-  UpdateTournamentCommand,
-} from '@/types/tournaments'
+  BjjEireCompetitionCommand,
+  BjjEireCompetitionDto,
+  BjjEireCompetitionSummaryDto,
+  UpdateBjjEireCompetitionCommand,
+} from '@/types/bjjeire-competitions'
 
 type ApiGymDto = components['schemas']['GymDto']
 type ApiBjjEventDto = components['schemas']['BjjEventDto']
 type ApiCompetitionDto = components['schemas']['CompetitionDto']
 type ApiStoreDto = components['schemas']['StoreDto']
-type ApiTournamentDto = components['schemas']['TournamentDto']
-type ApiTournamentSummaryDto = components['schemas']['TournamentSummaryDto']
+type ApiBjjEireCompetitionDto = components['schemas']['BjjEireCompetitionDto']
+type ApiBjjEireCompetitionSummaryDto =
+  components['schemas']['BjjEireCompetitionSummaryDto']
 type ApiDivisionDto = components['schemas']['DivisionDto']
-type ApiCreateTournament = components['schemas']['CreateTournamentCommand']
-type ApiUpdateTournament = components['schemas']['UpdateTournamentCommand']
+type ApiCreateBjjEireCompetition =
+  components['schemas']['CreateBjjEireCompetitionCommand']
+type ApiUpdateBjjEireCompetition =
+  components['schemas']['UpdateBjjEireCompetitionCommand']
 
 // A property typed `never` is assignable to `true`, so a mapped `true | never`
 // check stays green when the SPA invents a field. Exclude is the check that fails.
@@ -30,29 +33,34 @@ type _GymKeyCheck = KeysArePublished<GymDto, ApiGymDto>
 type _EventKeyCheck = KeysArePublished<BjjEventDto, ApiBjjEventDto>
 type _CompetitionKeyCheck = KeysArePublished<CompetitionDto, ApiCompetitionDto>
 type _StoreKeyCheck = KeysArePublished<StoreDto, ApiStoreDto>
-type _TournamentKeyCheck = KeysArePublished<TournamentDto, ApiTournamentDto>
-type _TournamentSummaryKeyCheck = KeysArePublished<
-  TournamentSummaryDto,
-  ApiTournamentSummaryDto
+type _BjjEireCompetitionKeyCheck = KeysArePublished<
+  BjjEireCompetitionDto,
+  ApiBjjEireCompetitionDto
+>
+type _BjjEireCompetitionSummaryKeyCheck = KeysArePublished<
+  BjjEireCompetitionSummaryDto,
+  ApiBjjEireCompetitionSummaryDto
 >
 type _DivisionKeyCheck = KeysArePublished<DivisionDto, ApiDivisionDto>
-type _CreateTournamentKeyCheck = KeysArePublished<
-  TournamentCommand,
-  ApiCreateTournament
+type _CreateBjjEireCompetitionKeyCheck = KeysArePublished<
+  BjjEireCompetitionCommand,
+  ApiCreateBjjEireCompetition
 >
-type _UpdateTournamentKeyCheck = KeysArePublished<
-  UpdateTournamentCommand,
-  ApiUpdateTournament
+type _UpdateBjjEireCompetitionKeyCheck = KeysArePublished<
+  UpdateBjjEireCompetitionCommand,
+  ApiUpdateBjjEireCompetition
 >
 // The enum wire values the SPA switches on must be the ones the API serves.
 type _RegistrationStateMatches =
-  TournamentDto['registrationState'] extends NonNullable<
-    ApiTournamentDto['registrationState']
+  BjjEireCompetitionDto['registrationState'] extends NonNullable<
+    ApiBjjEireCompetitionDto['registrationState']
   >
     ? true
     : never
-type _TournamentStatusMatches =
-  TournamentDto['status'] extends NonNullable<ApiTournamentDto['status']>
+type _BjjEireCompetitionStatusMatches =
+  BjjEireCompetitionDto['status'] extends NonNullable<
+    ApiBjjEireCompetitionDto['status']
+  >
     ? true
     : never
 type _DivisionValuesMatch = [
@@ -79,13 +87,13 @@ const _gymOk: _GymKeyCheck = true
 const _eventOk: _EventKeyCheck = true
 const _competitionOk: _CompetitionKeyCheck = true
 const _storeOk: _StoreKeyCheck = true
-const _tournamentOk: _TournamentKeyCheck = true
-const _tournamentSummaryOk: _TournamentSummaryKeyCheck = true
+const _bjjEireCompetitionOk: _BjjEireCompetitionKeyCheck = true
+const _bjjEireCompetitionSummaryOk: _BjjEireCompetitionSummaryKeyCheck = true
 const _divisionOk: _DivisionKeyCheck = true
-const _createTournamentOk: _CreateTournamentKeyCheck = true
-const _updateTournamentOk: _UpdateTournamentKeyCheck = true
+const _createBjjEireCompetitionOk: _CreateBjjEireCompetitionKeyCheck = true
+const _updateBjjEireCompetitionOk: _UpdateBjjEireCompetitionKeyCheck = true
 const _registrationStateOk: _RegistrationStateMatches = true
-const _tournamentStatusOk: _TournamentStatusMatches = true
+const _bjjEireCompetitionStatusOk: _BjjEireCompetitionStatusMatches = true
 const _divisionValuesOk: _DivisionValuesMatch = true
 const _pageUrlsOk: _PageUrlAllowsNull = true
 
@@ -94,13 +102,13 @@ export {
   _eventOk,
   _competitionOk,
   _storeOk,
-  _tournamentOk,
-  _tournamentSummaryOk,
+  _bjjEireCompetitionOk,
+  _bjjEireCompetitionSummaryOk,
   _divisionOk,
-  _createTournamentOk,
-  _updateTournamentOk,
+  _createBjjEireCompetitionOk,
+  _updateBjjEireCompetitionOk,
   _registrationStateOk,
-  _tournamentStatusOk,
+  _bjjEireCompetitionStatusOk,
   _divisionValuesOk,
   _pageUrlsOk,
 }

@@ -1,10 +1,10 @@
 package com.bjjeire.api.config;
 
 import com.bjjeire.api.common.ApiRoutes;
+import com.bjjeire.api.web.BjjEireCompetitionFeatureGateFilter;
 import com.bjjeire.api.web.FeatureFlag;
 import com.bjjeire.api.web.FeatureFlagContext;
 import com.bjjeire.api.web.FeatureFlagService;
-import com.bjjeire.api.web.TournamentFeatureGateFilter;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Collection;
@@ -93,7 +93,7 @@ public class SecurityConfig {
         return http.cors(cors -> {})
                 // Ahead of authentication: a switched-off feature answers 404, not 401 (ADR-0013).
                 .addFilterBefore(
-                        new TournamentFeatureGateFilter(featureFlags, objectMapper),
+                        new BjjEireCompetitionFeatureGateFilter(featureFlags, objectMapper),
                         BearerTokenAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(handling ->
@@ -123,7 +123,8 @@ public class SecurityConfig {
                                     ApiRoutes.GYM + "/**",
                                     ApiRoutes.STORE + "/**")
                             .permitAll()
-                            // Tournament feature (ADR-0012, ADR-0013). Order matters: the first match wins, and
+                            // BJJ Éire competition feature (ADR-0012, ADR-0013). Order matters: the first match wins,
+                            // and
                             // everything not named here falls through to the writer-only rules below.
                             // Every method, so a method the route lacks answers 405, not 401. Only POST is mapped,
                             // and its controller verifies the Stripe signature.
@@ -132,15 +133,18 @@ public class SecurityConfig {
                             .requestMatchers(ApiRoutes.COMPETITOR + "/**", ApiRoutes.REGISTRATION + "/**")
                             .access(competitorAccount)
                             // No method restriction on these: Spring MVC serves HEAD through the GET handler.
-                            .requestMatchers(ApiRoutes.TOURNAMENT + "/*/eligible-division")
+                            .requestMatchers(ApiRoutes.BJJEIRE_COMPETITION + "/*/eligible-division")
                             .access(competitorAccount)
                             .requestMatchers(
-                                    ApiRoutes.TOURNAMENT + "/admin",
-                                    ApiRoutes.TOURNAMENT + "/admin/**",
-                                    ApiRoutes.TOURNAMENT + "/*/registration",
-                                    ApiRoutes.TOURNAMENT + "/*/registration/**")
+                                    ApiRoutes.BJJEIRE_COMPETITION + "/admin",
+                                    ApiRoutes.BJJEIRE_COMPETITION + "/admin/**",
+                                    ApiRoutes.BJJEIRE_COMPETITION + "/*/registration",
+                                    ApiRoutes.BJJEIRE_COMPETITION + "/*/registration/**")
                             .hasAuthority(writerAuthority)
-                            .requestMatchers(HttpMethod.GET, ApiRoutes.TOURNAMENT, ApiRoutes.TOURNAMENT + "/**")
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    ApiRoutes.BJJEIRE_COMPETITION,
+                                    ApiRoutes.BJJEIRE_COMPETITION + "/**")
                             .permitAll()
                             .requestMatchers(HttpMethod.POST, "/**")
                             .hasAuthority(writerAuthority)
@@ -172,13 +176,14 @@ public class SecurityConfig {
             RevokedCompetitors revokedCompetitors) {
         BjjEireProperties.CompetitorAuth competitorAuth = properties.competitorAuth();
         BjjEireProperties.LocalSignIn localSignIn = properties.localSignIn();
-        boolean tournamentsEnabled = featureFlags.isEnabled(FeatureFlag.TOURNAMENTS, FeatureFlagContext.anonymous());
+        boolean bjjEireCompetitionsEnabled =
+                featureFlags.isEnabled(FeatureFlag.BJJEIRE_COMPETITIONS, FeatureFlagContext.anonymous());
         return new RevocationCheckingJwtDecoder(
                 routingDecoder(
                         workforceJwtDecoder,
                         competitorJwtDecoder(competitorAuth, clock),
                         competitorAuth,
-                        tournamentsEnabled,
+                        bjjEireCompetitionsEnabled,
                         localSignIn.enabled() ? LocalSignInTokens.decoder(localSignIn.secret(), clock) : null),
                 competitorIssuers(properties),
                 revokedCompetitors);
@@ -216,8 +221,8 @@ public class SecurityConfig {
             JwtDecoder workforce,
             JwtDecoder competitor,
             BjjEireProperties.CompetitorAuth competitorAuth,
-            boolean tournamentsEnabled) {
-        return routingDecoder(workforce, competitor, competitorAuth, tournamentsEnabled, null);
+            boolean bjjEireCompetitionsEnabled) {
+        return routingDecoder(workforce, competitor, competitorAuth, bjjEireCompetitionsEnabled, null);
     }
 
     /** As above, plus the local sign-in decoder where local sign-in is on, or null (ADR-0014). */
@@ -225,10 +230,10 @@ public class SecurityConfig {
             JwtDecoder workforce,
             JwtDecoder competitor,
             BjjEireProperties.CompetitorAuth competitorAuth,
-            boolean tournamentsEnabled,
+            boolean bjjEireCompetitionsEnabled,
             JwtDecoder local) {
         return new RoutingJwtDecoder(
-                workforce, competitor, tournamentsEnabled ? competitorAuth.issuerUri() : "", local);
+                workforce, competitor, bjjEireCompetitionsEnabled ? competitorAuth.issuerUri() : "", local);
     }
 
     /**

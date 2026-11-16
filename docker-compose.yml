@@ -56,7 +56,7 @@ services:
       - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME:-}
       - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD:-}
       - MAIL_FROM=${MAIL_FROM:-no-reply@bjjeire.com}
-      - FEATURE_TOURNAMENTS=${FEATURE_TOURNAMENTS:-false}
+      - FEATURE_BJJEIRE_COMPETITIONS=${FEATURE_BJJEIRE_COMPETITIONS:-false}
       - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-bjjeire-api}
       - OTEL_RESOURCE_ATTRIBUTES=service.name=${OTEL_SERVICE_NAME:-bjjeire-api},deployment.environment=${SPRING_PROFILES_ACTIVE:-production}
     volumes:

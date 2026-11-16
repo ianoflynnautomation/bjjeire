@@ -5,21 +5,23 @@ import { API_BASE_PATH, API_RESOURCE_ROUTES } from '@/config/api-routes'
 import { logger } from '@/lib/logger'
 
 /**
- * Reads are public and carry no token, except the organiser's tournament
+ * Reads are public and carry no token, except the organiser's competition
  * reads, which list drafts or private sign-up details and answer 401 without
- * one: `/tournament/admin…` and `/tournament/{id}/registration`.
+ * one: `/bjjeire-competition/admin…` and `/bjjeire-competition/{id}/registration`.
  */
 function isAdminRead(url: string | undefined): boolean {
   const path = `/${(url ?? '').replace(/^\/+/u, '')}`
-  const admin = API_RESOURCE_ROUTES.tournamentsAdmin
+  const admin = API_RESOURCE_ROUTES.bjjEireCompetitionsAdmin
   const route = path.split('?')[0]
-  const { tournaments } = API_RESOURCE_ROUTES
+  const { bjjEireCompetitions } = API_RESOURCE_ROUTES
   return (
     path === admin ||
     path.startsWith(`${admin}/`) ||
     path.startsWith(`${admin}?`) ||
-    (route.startsWith(`${tournaments}/`) &&
-      /^\/[^/]+\/registration(?:\/|$)/u.test(route.slice(tournaments.length)))
+    (route.startsWith(`${bjjEireCompetitions}/`) &&
+      /^\/[^/]+\/registration(?:\/|$)/u.test(
+        route.slice(bjjEireCompetitions.length)
+      ))
   )
 }
 
@@ -30,12 +32,13 @@ function isAdminRead(url: string | undefined): boolean {
  */
 function isCompetitorRoute(url: string | undefined): boolean {
   const path = `/${(url ?? '').replace(/^\/+/u, '')}`.split('?')[0]
-  const { competitor, registration, tournaments } = API_RESOURCE_ROUTES
+  const { competitor, registration, bjjEireCompetitions } = API_RESOURCE_ROUTES
   return (
     [competitor, registration].some(
       prefix => path === prefix || path.startsWith(`${prefix}/`)
     ) ||
-    (path.startsWith(`${tournaments}/`) && path.endsWith('/eligible-division'))
+    (path.startsWith(`${bjjEireCompetitions}/`) &&
+      path.endsWith('/eligible-division'))
   )
 }
 

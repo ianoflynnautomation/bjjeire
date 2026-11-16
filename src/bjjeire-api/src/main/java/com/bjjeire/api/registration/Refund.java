@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** What was returned for a sign-up. Embedded in {@link TournamentRegistration}. */
+/** What was returned for a sign-up. Embedded in {@link BjjEireCompetitionRegistration}. */
 @Getter
 @Setter
 @Builder

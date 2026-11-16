@@ -4,7 +4,7 @@ export const competitor = {
   signIn: {
     heading: 'Competitor sign-in',
     message:
-      'Sign in to keep your competitor profile and sign up for BJJ Éire tournaments. New here? You can create an account in the same window.',
+      'Sign in to keep your competitor profile and sign up for BJJ Éire competitions. New here? You can create an account in the same window.',
     localMessage:
       'Local development: sign in as a competitor by typing any email address. No Microsoft account is used.',
     localEmailLabel: 'Email (local sign-in)',
@@ -17,10 +17,10 @@ export const competitor = {
     heading: 'My competitor profile',
     createHeading: 'Create your competitor profile',
     intro:
-      'Only you and the organiser can see this profile. Your name, academy and affiliation are shown publicly only when you enter a tournament.',
+      'Only you and the organiser can see this profile. Your name, academy and affiliation are shown publicly only when you enter a competition.',
     loadFailed: 'Failed to load your profile. Please try again.',
     incomplete:
-      'Your profile is missing details a tournament sign-up needs: nationality, gender and belt.',
+      'Your profile is missing details a competition sign-up needs: nationality, gender and belt.',
     submit: 'Save profile',
     saving: 'Saving...',
     saved: 'Profile saved.',
@@ -84,9 +84,9 @@ export const competitor = {
     gold: 'Gold',
     silver: 'Silver',
     bronze: 'Bronze',
-    tournamentsHeading: 'Tournaments entered',
+    competitionsHeading: 'Competitions entered',
     empty:
-      'You have not entered a tournament yet. Your medals will appear here.',
+      'You have not entered a competition yet. Your medals will appear here.',
     loadFailed: 'Failed to load your medals.',
   },
   account: {

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 /**
- * Merges differently typed academy or affiliation names in one tournament, so points are not split (FR-007).
+ * Merges differently typed academy or affiliation names in one competition, so points are not split (FR-007).
  *
  * @param fromKeys the grouping keys to rewrite, as {@code TeamKeys} builds them ({@code name:team x}, {@code gym:<id>},
  *     or an affiliation's normalised name)

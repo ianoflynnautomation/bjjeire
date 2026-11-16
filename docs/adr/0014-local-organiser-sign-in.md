@@ -1,6 +1,7 @@
 # ADR-0014: Local development signs the organiser in without Entra
 
 - **Status:** Accepted
+- **Note (2026-11-16):** renamed by [ADR-0015](0015-bjjeire-competitions-inside-competitions.md). The decision stands; the feature, package, routes, flag and collections it names now use the BJJ Éire competition names.
 - **Date:** 2026-11-14
 - **Amended:** 2026-11-15 — local competitor sign-in (slice 2, owner's decision)
 - **Applies to:** `config/LocalSignInTokens.java`, `config/RoutingJwtDecoder.java`, `config/SecurityConfig.java`, `web/LocalSignInController.java`, `bjjeire.local-sign-in.*`, `config/IssuerAwareAuthoritiesConverter.java`, `src/bjjeire-app/src/lib/admin-auth.ts`, `src/bjjeire-app/src/lib/competitor-auth.ts`, `VITE_APP_LOCAL_SIGN_IN`, `docker-compose.override.java-local.yml`, `src/bjjeire-app/Dockerfile`

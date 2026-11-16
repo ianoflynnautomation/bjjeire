@@ -5,7 +5,12 @@ import { SelectField } from '@/components/ui/form/select-field'
 import { uiContent } from '@/config/ui-content'
 import { CompetitorProfileTestIds } from '@/constants/competitorDataTestIds'
 import { ISO_COUNTRY_CODES } from '@/constants/countries'
-import { BELTS, GENDERS, type Belt, type Gender } from '@/types/tournaments'
+import {
+  BELTS,
+  GENDERS,
+  type Belt,
+  type Gender,
+} from '@/types/bjjeire-competitions'
 import type { SaveCompetitorCommand } from '@/types/competitor'
 import { dublinToday } from '@/utils/dublin-time'
 import {
@@ -17,7 +22,7 @@ import {
 import { AcademyPicker } from './academy-picker'
 
 const { form, profile } = uiContent.competitor
-const { genders, belts } = uiContent.tournaments
+const { genders, belts } = uiContent.bjjEireCompetitions
 
 const regionNames = new Intl.DisplayNames(['en'], { type: 'region' })
 const COUNTRY_OPTIONS = ISO_COUNTRY_CODES.map(code => ({

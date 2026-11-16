@@ -41,6 +41,8 @@ interface ListPageShellProps<T> {
   renderList: (items: T[]) => ReactNode
   hero?: ReactNode
   header: ReactNode
+  /** Shown between the header and the filter bar; search and paging never touch it. */
+  featured?: ReactNode
   filterBar?: ReactNode
   /** For a view that shows every result at once. */
   hidePagination?: boolean
@@ -52,6 +54,7 @@ export function ListPageShell<T>({
   renderList,
   hero,
   header,
+  featured,
   filterBar,
   hidePagination = false,
 }: ListPageShellProps<T>): JSX.Element {
@@ -75,6 +78,8 @@ export function ListPageShell<T>({
         {hero}
 
         {header}
+
+        {featured}
 
         {filterBar && (
           <div className="mb-6 border-b border-hairline pb-6">{filterBar}</div>

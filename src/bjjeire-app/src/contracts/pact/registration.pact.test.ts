@@ -6,7 +6,7 @@ import { createPact } from './pact-setup'
 const { boolean, eachLike, integer, string, regex } = MatchersV3
 
 // Ids fixed by the provider states in PactProviderVerificationIT.
-const TOURNAMENT_ID = '0123456789abcdef0123aaaa'
+const BJJEIRE_COMPETITION_ID = '0123456789abcdef0123aaaa'
 const DIVISION_ID = '0123456789abcdef0123cccc'
 const REGISTRATION_ID = '0123456789abcdef0123bbbb'
 const OTHER_DIVISION_ID = '0123456789abcdef0123eeee'
@@ -37,14 +37,14 @@ const CHECKOUT_BODY = {
   holdExpiresAt: INSTANT,
 }
 
-describe('Pact - Tournament sign-up consumer contract', () => {
-  it('GET /api/v1/tournament/{id}/eligible-division returns the divisions the competitor may enter', async () => {
+describe('Pact - BJJ Éire competition sign-up consumer contract', () => {
+  it('GET /api/v1/bjjeire-competition/{id}/eligible-division returns the divisions the competitor may enter', async () => {
     const pact = createPact()
-    const path = `${API_ROUTES.tournaments}/${TOURNAMENT_ID}/eligible-division`
+    const path = `${API_ROUTES.bjjEireCompetitions}/${BJJEIRE_COMPETITION_ID}/eligible-division`
 
     await pact
       .addInteraction()
-      .given('a competitor with a profile and a tournament open for sign-up')
+      .given('a competitor with a profile and a competition open for sign-up')
       .uponReceiving('a request for the divisions the competitor may enter')
       .withRequest('GET', path, builder => {
         builder.headers({ Authorization: COMPETITOR_AUTHORIZATION })
@@ -64,7 +64,7 @@ describe('Pact - Tournament sign-up consumer contract', () => {
   it('POST /api/v1/registration starts a sign-up and returns the Checkout page', async () => {
     const pact = createPact()
     const command = {
-      tournamentId: TOURNAMENT_ID,
+      competitionId: BJJEIRE_COMPETITION_ID,
       divisionId: DIVISION_ID,
       acceptPublicListing: true,
       acceptTerms: true,
@@ -72,7 +72,7 @@ describe('Pact - Tournament sign-up consumer contract', () => {
 
     await pact
       .addInteraction()
-      .given('a competitor with a profile and a tournament open for sign-up')
+      .given('a competitor with a profile and a competition open for sign-up')
       .uponReceiving('a sign-up for one division')
       .withRequest('POST', API_ROUTES.registration, builder => {
         builder.headers({
@@ -141,10 +141,10 @@ describe('Pact - Tournament sign-up consumer contract', () => {
         builder.jsonBody(
           eachLike({
             id: ID,
-            tournamentId: string(TOURNAMENT_ID),
-            tournamentSlug: string('pact-sign-up'),
-            tournamentName: string('Pact Sign-Up Tournament'),
-            tournamentDate: regex(
+            competitionId: string(BJJEIRE_COMPETITION_ID),
+            competitionSlug: string('pact-sign-up'),
+            competitionName: string('Pact Sign-Up Competition'),
+            competitionDate: regex(
               String.raw`^\d{4}-\d{2}-\d{2}$`,
               '2026-06-27'
             ),
@@ -166,13 +166,13 @@ describe('Pact - Tournament sign-up consumer contract', () => {
       })
   })
 
-  it('GET /api/v1/tournament/{id}/competitor lists confirmed competitors by division', async () => {
+  it('GET /api/v1/bjjeire-competition/{id}/competitor lists confirmed competitors by division', async () => {
     const pact = createPact()
-    const path = `${API_ROUTES.tournaments}/${TOURNAMENT_ID}/competitor`
+    const path = `${API_ROUTES.bjjEireCompetitions}/${BJJEIRE_COMPETITION_ID}/competitor`
 
     await pact
       .addInteraction()
-      .given('a tournament with a confirmed competitor')
+      .given('a competition with a confirmed competitor')
       .uponReceiving('a request for the public competitor list')
       .withRequest('GET', path)
       .willRespondWith(200, builder => {
@@ -243,7 +243,7 @@ describe('Pact - Tournament sign-up consumer contract', () => {
         builder.headers({ 'content-type': 'application/json' })
         builder.jsonBody({
           id: ID,
-          tournamentId: string(TOURNAMENT_ID),
+          competitionId: string(BJJEIRE_COMPETITION_ID),
           division: { ...DIVISION_BODY, id: string(OTHER_DIVISION_ID) },
           status: regex('CONFIRMED', 'CONFIRMED'),
           amountCents: integer(2500),

@@ -144,12 +144,12 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         String competitorId = mongoTemplate.findAll(Competitor.class).getFirst().getId();
         // The sign-up slice owns this collection; written by its documented fields (data-model.md).
         mongoTemplate.insert(
-                new Document("tournamentId", "665624c1ad01ce465c6cf456")
+                new Document("competitionId", "665624c1ad01ce465c6cf456")
                         .append("divisionId", "665624c1ad01ce465c6cf457")
                         .append("competitorId", competitorId)
                         .append("status", "CONFIRMED")
                         .append("active", true),
-                "TournamentRegistration");
+                "BjjEireCompetitionRegistration");
 
         ResponseEntity<String> refused = exchange(HttpMethod.DELETE, AOIFE);
 
@@ -169,7 +169,7 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         String competitorId = mongoTemplate.findAll(Competitor.class).getFirst().getId();
         mongoTemplate.insert(
                 new Document("competitorId", new org.bson.types.ObjectId(competitorId)).append("active", true),
-                "TournamentRegistration");
+                "BjjEireCompetitionRegistration");
 
         assertThat(exchange(HttpMethod.DELETE, AOIFE).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(mongoTemplate.count(new Query(), Competitor.class)).isOne();
@@ -181,11 +181,11 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         put(profileJson("Aoife"), AOIFE);
         String competitorId = mongoTemplate.findAll(Competitor.class).getFirst().getId();
         mongoTemplate.insert(
-                new Document("tournamentId", "665624c1ad01ce465c6cf456")
+                new Document("competitionId", "665624c1ad01ce465c6cf456")
                         .append("divisionId", "665624c1ad01ce465c6cf457")
                         .append("competitorId", competitorId)
                         .append("status", "CANCELLED"),
-                "TournamentRegistration");
+                "BjjEireCompetitionRegistration");
 
         assertThat(exchange(HttpMethod.DELETE, AOIFE).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
@@ -202,8 +202,8 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         assertThat(body.at("/gold").asInt()).isZero();
         assertThat(body.at("/silver").asInt()).isZero();
         assertThat(body.at("/bronze").asInt()).isZero();
-        assertThat(body.at("/tournaments").isArray()).isTrue();
-        assertThat(body.at("/tournaments").size()).isZero();
+        assertThat(body.at("/competitions").isArray()).isTrue();
+        assertThat(body.at("/competitions").size()).isZero();
     }
 
     private void put(String body, String token) {

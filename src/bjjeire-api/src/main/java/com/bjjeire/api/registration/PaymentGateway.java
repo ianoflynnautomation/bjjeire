@@ -66,14 +66,14 @@ public interface PaymentGateway {
 
     /**
      * @param registrationId sent as {@code client_reference_id} and in the metadata
-     * @param description the line item, "«tournament» — «division»"
-     * @param amountCents the tournament's fee, never a client value
+     * @param description the line item, "«competition» — «division»"
+     * @param amountCents the competition's fee, never a client value
      * @param expiresAt the hold's end
      * @param idempotencyKey {@code checkout-<registrationId>-<attempt>}
      */
     record CheckoutRequest(
             String registrationId,
-            String tournamentId,
+            String competitionId,
             String divisionId,
             String description,
             int amountCents,

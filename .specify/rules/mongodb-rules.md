@@ -12,17 +12,17 @@ Contracts: `specs/database-contracts/`.
 | `BjjEvent` | `event.BjjEvent` | `seeder/data/bjj-events/` |
 | `Competition` | `competition.Competition` | `seeder/data/competitions/` |
 | `Store` | `store.Store` | `seeder/data/stores/` |
-| `Tournament` | `tournament.Tournament` | `seeder/data-test/tournaments/` only |
+| `BjjEireCompetition` | `bjjeirecompetition.BjjEireCompetition` | `seeder/data-test/bjjeire-competitions/` only |
 | `Competitor` | `competitor.Competitor` | (runtime; no seed) |
 | `DeletedCompetitor` | `competitor.DeletedCompetitor` | (runtime; no seed) |
-| `TournamentRegistration` | `registration.TournamentRegistration` | (runtime; no seed yet) |
+| `BjjEireCompetitionRegistration` | `registration.BjjEireCompetitionRegistration` | (runtime; no seed yet) |
 | `StripeEvent` | `registration.StripeEvent` | (runtime; 30-day TTL) |
 | `AuditLog` | `audit.AuditLogEntry` | (runtime) |
 
-The tournament collections are described in `specs/database-contracts/`
-(`tournament.md`, `competitor.md`, `tournament-registration.md`).
+The BJJ Éire competition collections are described in `specs/database-contracts/`
+(`bjjeire-competition.md`, `competitor.md`, `bjjeire-competition-registration.md`).
 
-Test environments seed from `seeder/data-test/` as well as `seeder/data/`. `Tournament` has no
+Test environments seed from `seeder/data-test/` as well as `seeder/data/`. `BjjEireCompetition` has no
 production seed, so a production seeder run skips it entirely, prune included.
 
 ## Invariants

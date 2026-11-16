@@ -1,6 +1,7 @@
 # ADR-0013: Entry fees use Stripe hosted checkout, confirmed by signed webhook
 
 - **Status:** Accepted
+- **Note (2026-11-16):** renamed by [ADR-0015](0015-bjjeire-competitions-inside-competitions.md). The decision stands; the feature, package, routes, flag and collections it names now use the BJJ Éire competition names.
 - **Date:** 2026-11-13
 - **Applies to:** the `registration` package, `config/SecurityConfig.java`, `config/ReadOnlyModeFilter.java`, `web/TournamentFeatureGateFilter.java`, `bjjeire.stripe.*` configuration
 - **Amends:** constitution principle V (1.0.0 → 1.1.0)

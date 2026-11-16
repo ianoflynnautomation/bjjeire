@@ -5,7 +5,7 @@ import { paths } from '@/config/paths'
 import { server } from '@/testing/msw/server'
 import { renderWithProviders } from '@/testing/render-utils'
 import { testApiUrl } from '@/testing/seed-helpers'
-import type { DivisionDto } from '@/types/tournaments'
+import type { DivisionDto } from '@/types/bjjeire-competitions'
 import type {
   CancellationDto,
   ChangeDivisionCommand,
@@ -18,7 +18,9 @@ import SignUpPage from '@/pages/SignUpPage'
 import SignUpCompletePage from '@/pages/SignUpCompletePage'
 import MySignUpsPage from '@/pages/MySignUpsPage'
 
-export const TOURNAMENTS_API = testApiUrl(API_ROUTES.tournaments)
+export const BJJEIRE_COMPETITIONS_API = testApiUrl(
+  API_ROUTES.bjjEireCompetitions
+)
 export const REGISTRATION_API = testApiUrl(API_ROUTES.registration)
 
 export interface Captured<T> {
@@ -38,13 +40,13 @@ function problem(type: string, status = 409): Response {
 }
 
 export function seedEligibleDivisions(
-  tournamentId: string,
+  competitionId: string,
   divisions: DivisionDto[]
 ): Captured<null> {
   const seen = captured<null>()
   server.use(
     http.get(
-      `${TOURNAMENTS_API}/${tournamentId}/eligible-division`,
+      `${BJJEIRE_COMPETITIONS_API}/${competitionId}/eligible-division`,
       ({ request }) => {
         seen.calls.push(null)
         seen.authorization.push(request.headers.get('Authorization'))
@@ -56,12 +58,13 @@ export function seedEligibleDivisions(
 }
 
 export function seedEligibleDivisionsProblem(
-  tournamentId: string,
+  competitionId: string,
   type: string
 ): void {
   server.use(
-    http.get(`${TOURNAMENTS_API}/${tournamentId}/eligible-division`, () =>
-      problem(type)
+    http.get(
+      `${BJJEIRE_COMPETITIONS_API}/${competitionId}/eligible-division`,
+      () => problem(type)
     )
   )
 }
@@ -151,18 +154,18 @@ export function seedChangeDivision(
   return seen
 }
 
-export function seedTournamentCompetitors(
-  tournamentId: string,
+export function seedBjjEireCompetitionCompetitors(
+  competitionId: string,
   lists: DivisionCompetitorsDto[]
 ): void {
   server.use(
-    http.get(`${TOURNAMENTS_API}/${tournamentId}/competitor`, () =>
+    http.get(`${BJJEIRE_COMPETITIONS_API}/${competitionId}/competitor`, () =>
       HttpResponse.json(lists)
     )
   )
 }
 
-const FLAGS = { Tournaments: true }
+const FLAGS = { BjjEireCompetitions: true }
 
 export function renderSignUpPage(
   slug: string,
@@ -170,10 +173,15 @@ export function renderSignUpPage(
 ): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(
     <Routes>
-      <Route path={paths.tournamentSignUp.path} element={<SignUpPage />} />
+      <Route
+        path={paths.bjjEireCompetitionSignUp.path}
+        element={<SignUpPage />}
+      />
     </Routes>,
     {
-      initialRoutes: [paths.tournamentSignUp.getHref(slug, registrationId)],
+      initialRoutes: [
+        paths.bjjEireCompetitionSignUp.getHref(slug, registrationId),
+      ],
       featureFlags: FLAGS,
     }
   )
@@ -186,13 +194,13 @@ export function renderSignUpCompletePage(
   return renderWithProviders(
     <Routes>
       <Route
-        path={paths.tournamentSignUpComplete.path}
+        path={paths.bjjEireCompetitionSignUpComplete.path}
         element={<SignUpCompletePage />}
       />
     </Routes>,
     {
       initialRoutes: [
-        paths.tournamentSignUpComplete.getHref(slug, registrationId),
+        paths.bjjEireCompetitionSignUpComplete.getHref(slug, registrationId),
       ],
       featureFlags: FLAGS,
     }

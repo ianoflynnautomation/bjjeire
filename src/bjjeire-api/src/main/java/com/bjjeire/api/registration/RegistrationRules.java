@@ -14,8 +14,8 @@ final class RegistrationRules {
      */
     static final Duration CHECKOUT_EXPIRY_MARGIN = Duration.ofMinutes(2);
 
-    /** A competitor may hold at most this many unpaid sign-ups in one tournament (FR-041). */
-    static final int MAX_UNPAID_PER_TOURNAMENT = 2;
+    /** A competitor may hold at most this many unpaid sign-ups in one competition (FR-041). */
+    static final int MAX_UNPAID_PER_COMPETITION = 2;
 
     private RegistrationRules() {}
 

@@ -1,12 +1,12 @@
 package com.bjjeire.api.registration;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorProfileSaved;
 import com.bjjeire.api.competitor.SignUpProfile;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
-import com.bjjeire.api.tournament.TournamentStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +21,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 /**
- * Copies a competitor's new name, academy and affiliation to their active sign-ups in tournaments still running, and
+ * Copies a competitor's new name, academy and affiliation to their active sign-ups in competitions still running, and
  * flags a sign-up whose division no longer fits their belt or gender (research R8, spec edge case). The division is
  * never changed for them.
  */
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class RegistrationProfileListener {
     private final MongoTemplate mongoTemplate;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApiCache cache;
 
     @EventListener
@@ -45,27 +45,27 @@ class RegistrationProfileListener {
     }
 
     private void propagate(SignUpProfile profile) {
-        List<TournamentRegistration> active = mongoTemplate.find(
+        List<BjjEireCompetitionRegistration> active = mongoTemplate.find(
                 Query.query(Criteria.where("competitorId")
                         .is(profile.competitorId())
                         .and("active")
                         .is(true)),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         if (active.isEmpty()) {
             return;
         }
-        Map<String, Optional<TournamentDto>> tournaments = active.stream()
-                .map(TournamentRegistration::getTournamentId)
+        Map<String, Optional<BjjEireCompetitionDto>> competitions = active.stream()
+                .map(BjjEireCompetitionRegistration::getCompetitionId)
                 .distinct()
-                .collect(Collectors.toMap(id -> id, tournamentService::getForAdmin));
-        for (TournamentRegistration registration : active) {
-            Optional<TournamentDto> tournament = tournaments.get(registration.getTournamentId());
-            if (tournament.isEmpty()
-                    || tournament.get().status() == TournamentStatus.FINISHED
-                    || tournament.get().status() == TournamentStatus.CANCELLED) {
+                .collect(Collectors.toMap(id -> id, bjjEireCompetitionService::getForAdmin));
+        for (BjjEireCompetitionRegistration registration : active) {
+            Optional<BjjEireCompetitionDto> competition = competitions.get(registration.getCompetitionId());
+            if (competition.isEmpty()
+                    || competition.get().status() == BjjEireCompetitionStatus.FINISHED
+                    || competition.get().status() == BjjEireCompetitionStatus.CANCELLED) {
                 continue;
             }
-            boolean mismatch = tournament.get().divisions().stream()
+            boolean mismatch = competition.get().divisions().stream()
                     .filter(division -> division.id().equals(registration.getDivisionId()))
                     .findFirst()
                     .map(division -> !fits(division, profile))
@@ -82,9 +82,9 @@ class RegistrationProfileListener {
                             .set("academyKey", TeamKeys.academyKey(profile.academy()))
                             .set("affiliationKey", TeamKeys.affiliationKey(profile.affiliation()))
                             .set("profileMismatch", mismatch),
-                    TournamentRegistration.class);
+                    BjjEireCompetitionRegistration.class);
         }
-        cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+        cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
     }
 
     private static boolean fits(DivisionDto division, SignUpProfile profile) {

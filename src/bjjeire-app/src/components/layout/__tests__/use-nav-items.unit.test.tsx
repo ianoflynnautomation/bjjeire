@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { useNavItems } from '../navigation/use-nav-items'
 import { makeFeatureFlagWrapper } from '@/testing/render-utils'
 import { paths } from '@/config/paths'
+import { RETIRED_NAME_PATTERN } from '@/testing/retired-name'
 
 const ALL_OFF = {
   BjjEvents: false,
@@ -11,7 +12,7 @@ const ALL_OFF = {
   Stores: false,
   GymsMap: false,
   EventsMap: false,
-  Tournaments: false,
+  BjjEireCompetitions: false,
 }
 
 function renderNavItems(
@@ -30,32 +31,28 @@ describe('useNavItems', () => {
     expect(items.map(i => i.id)).toEqual(['about'])
   })
 
-  // #5038
-  it('given the tournaments flag is disabled and every directory flag is enabled, when the nav items are built, then there is no tournament or account entry', () => {
-    const items = renderNavItems({
-      BjjEvents: true,
-      Gyms: true,
-      Competitions: true,
-      Stores: true,
-    })
+  // #5038, #3015: BJJ Éire competitions have no header entry of their own, whichever switches are on.
+  it.each([
+    { BjjEireCompetitions: false, Competitions: false },
+    { BjjEireCompetitions: true, Competitions: false },
+    { BjjEireCompetitions: false, Competitions: true },
+    { BjjEireCompetitions: true, Competitions: true },
+  ])(
+    'given BjjEireCompetitions $BjjEireCompetitions and Competitions $Competitions, when the nav items are built, then no item carries the retired name and only the directory entry leads to /competitions',
+    flags => {
+      const items = renderNavItems({ ...flags, Gyms: true })
 
-    expect(items.map(i => i.id)).toEqual([
-      'events',
-      'gyms',
-      'competitions',
-      'stores',
-      'about',
-    ])
-  })
-
-  // #5038 (the other half): the entry appears only when the flag is on.
-  it('given the tournaments flag is enabled, when the nav items are built, then Tournaments appears before About and links to the list', () => {
-    const items = renderNavItems({ Gyms: true, Tournaments: true })
-
-    expect(items.map(i => i.id)).toEqual(['gyms', 'tournaments', 'about'])
-    expect(items[1].to).toBe(paths.tournaments.getHref())
-    expect(items[1].label).toBe(paths.tournaments.label)
-  })
+      for (const item of items) {
+        expect(item.label).not.toMatch(RETIRED_NAME_PATTERN)
+        expect(item.to).not.toMatch(RETIRED_NAME_PATTERN)
+      }
+      expect(items.map(i => i.id)).toEqual(
+        flags.Competitions
+          ? ['gyms', 'competitions', 'about']
+          : ['gyms', 'about']
+      )
+    }
+  )
 
   it.each([
     { flag: 'BjjEvents', expected: ['events', 'about'] },

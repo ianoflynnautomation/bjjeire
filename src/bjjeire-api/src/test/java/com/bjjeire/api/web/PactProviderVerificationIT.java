@@ -6,6 +6,13 @@ import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
 import au.com.dius.pact.provider.spring.junit5.PactVerificationSpringProvider;
+import com.bjjeire.api.bjjeirecompetition.AgeCategory;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.Discipline;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.GeoCoordinates;
 import com.bjjeire.api.common.Location;
@@ -29,20 +36,13 @@ import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymRepository;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.gym.TrialOffer;
+import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.Payment;
 import com.bjjeire.api.registration.PaymentStatus;
 import com.bjjeire.api.registration.RegistrationStatus;
-import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.store.StoreRepository;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.bjjeire.api.tournament.AgeCategory;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Discipline;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -62,7 +62,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 @PactFolder("pacts")
 class PactProviderVerificationIT extends MongoIntegrationTest {
 
-    private static final String SIGN_UP_TOURNAMENT_ID = "0123456789abcdef0123aaaa";
+    private static final String SIGN_UP_COMPETITION_ID = "0123456789abcdef0123aaaa";
     private static final String SIGN_UP_DIVISION_ID = "0123456789abcdef0123cccc";
     private static final String SIGN_UP_OTHER_DIVISION_ID = "0123456789abcdef0123eeee";
     private static final String SIGN_UP_REGISTRATION_ID = "0123456789abcdef0123bbbb";
@@ -152,17 +152,17 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .build());
     }
 
-    @State("a published tournament exists")
-    void aPublishedTournamentExists() {
-        mongoTemplate.insert(Tournament.builder()
-                .slug("pact-tournament")
-                .name("Pact Tournament")
+    @State("a published competition exists")
+    void aPublishedBjjEireCompetitionExists() {
+        mongoTemplate.insert(BjjEireCompetition.builder()
+                .slug("pact-competition")
+                .name("Pact Competition")
                 .date(LocalDate.parse("2026-06-27"))
                 .venue(location())
                 .entryFeeCents(2500)
                 .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
                 .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
-                .status(TournamentStatus.PUBLISHED)
+                .status(BjjEireCompetitionStatus.PUBLISHED)
                 .divisions(List.of(Division.builder()
                         .id("0123456789abcdef01234567")
                         .discipline(Discipline.GI)
@@ -196,16 +196,16 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .build());
     }
 
-    @State("a competitor with a profile and a tournament open for sign-up")
-    void aCompetitorWithAProfileAndATournamentOpenForSignUp() {
+    @State("a competitor with a profile and a competition open for sign-up")
+    void aCompetitorWithAProfileAndABjjEireCompetitionOpenForSignUp() {
         aCompetitorWithAProfileIsSignedIn();
-        insertSignUpTournament();
+        insertSignUpBjjEireCompetition();
     }
 
     @State("a competitor with an unpaid sign-up")
     void aCompetitorWithAnUnpaidSignUp() {
         aCompetitorWithAProfileIsSignedIn();
-        insertSignUpTournament();
+        insertSignUpBjjEireCompetition();
         Competitor competitor =
                 mongoTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(), Competitor.class);
         insertRegistration(competitor.getId(), RegistrationStatus.AWAITING_PAYMENT);
@@ -214,11 +214,11 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
     @State("a competitor with a confirmed sign-up and another division open")
     void aCompetitorWithAConfirmedSignUpAndAnotherDivisionOpen() {
         aCompetitorWithAProfileIsSignedIn();
-        insertSignUpTournament();
+        insertSignUpBjjEireCompetition();
         mongoTemplate.updateFirst(
                 org.springframework.data.mongodb.core.query.Query.query(
                         org.springframework.data.mongodb.core.query.Criteria.where("_id")
-                                .is(SIGN_UP_TOURNAMENT_ID)),
+                                .is(SIGN_UP_COMPETITION_ID)),
                 new org.springframework.data.mongodb.core.query.Update()
                         .push(
                                 "divisions",
@@ -230,29 +230,29 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                                         .belt(Belt.BLUE)
                                         .weightClass("-70 kg")
                                         .build()),
-                Tournament.class);
+                BjjEireCompetition.class);
         Competitor competitor =
                 mongoTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(), Competitor.class);
         insertRegistration(competitor.getId(), RegistrationStatus.CONFIRMED);
     }
 
-    @State("a tournament with a confirmed competitor")
-    void aTournamentWithAConfirmedCompetitor() {
-        insertSignUpTournament();
+    @State("a competition with a confirmed competitor")
+    void aBjjEireCompetitionWithAConfirmedCompetitor() {
+        insertSignUpBjjEireCompetition();
         insertRegistration("0123456789abcdef0123dddd", RegistrationStatus.CONFIRMED);
     }
 
-    private void insertSignUpTournament() {
-        mongoTemplate.insert(Tournament.builder()
-                .id(SIGN_UP_TOURNAMENT_ID)
+    private void insertSignUpBjjEireCompetition() {
+        mongoTemplate.insert(BjjEireCompetition.builder()
+                .id(SIGN_UP_COMPETITION_ID)
                 .slug("pact-sign-up")
-                .name("Pact Sign-Up Tournament")
+                .name("Pact Sign-Up Competition")
                 .date(LocalDate.parse("2026-06-27"))
                 .venue(location())
                 .entryFeeCents(2500)
                 .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
                 .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
-                .status(TournamentStatus.PUBLISHED)
+                .status(BjjEireCompetitionStatus.PUBLISHED)
                 .version(0L)
                 .divisions(List.of(Division.builder()
                         .id(SIGN_UP_DIVISION_ID)
@@ -266,9 +266,9 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
     }
 
     private void insertRegistration(String competitorId, RegistrationStatus status) {
-        mongoTemplate.insert(TournamentRegistration.builder()
+        mongoTemplate.insert(BjjEireCompetitionRegistration.builder()
                 .id(SIGN_UP_REGISTRATION_ID)
-                .tournamentId(SIGN_UP_TOURNAMENT_ID)
+                .competitionId(SIGN_UP_COMPETITION_ID)
                 .divisionId(SIGN_UP_DIVISION_ID)
                 .competitorId(competitorId)
                 .status(status)

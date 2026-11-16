@@ -4,46 +4,6 @@
  */
 
 export interface paths {
-  '/api/v1/tournament/{id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    /**
-     * Update a tournament
-     * @description Replaces the details and the full division list. Send each existing division with its id; a division left out is removed, and removing one with active sign-ups returns 409 division-has-signups. A finished or cancelled tournament returns 409. Send the version from the last read; a missing version is 400, and a stale one is 409: reload and retry.
-     */
-    put: operations['updateTournament']
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/registration/{registrationId}/division': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    /**
-     * Move a confirmed sign-up to another division
-     * @description Any division of the tournament, also after registration closes, with no eligibility check. No charge; the place is unchanged.
-     */
-    put: operations['moveTournamentRegistration']
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/api/v1/registration/{id}/division': {
     parameters: {
       query?: never
@@ -142,31 +102,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/api/v1/tournament': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * List tournaments open to the public
-     * @description Published, finished and cancelled tournaments, earliest day first. Drafts are never listed.
-     */
-    get: operations['listTournaments']
-    put?: never
-    /**
-     * Create a tournament as a draft
-     * @description Not safe to retry: the slug is unique, so the same request again returns 409.
-     */
-    post: operations['createTournament']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/team-merge': {
+  '/api/v1/bjjeire-competition/{id}': {
     parameters: {
       query?: never
       header?: never
@@ -174,19 +110,19 @@ export interface paths {
       cookie?: never
     }
     get?: never
-    put?: never
     /**
-     * Merge differently typed academy or affiliation names
-     * @description Rewrites every sign-up of this tournament whose key is in fromKeys, so points are not split. Other tournaments are untouched.
+     * Update a competition
+     * @description Replaces the details and the full division list. Send each existing division with its id; a division left out is removed, and removing one with active sign-ups returns 409 division-has-signups. A finished or cancelled competition returns 409. Send the version from the last read; a missing version is 400, and a stale one is 409: reload and retry.
      */
-    post: operations['mergeTournamentTeams']
+    put: operations['updateBjjEireCompetition']
+    post?: never
     delete?: never
     options?: never
     head?: never
     patch?: never
     trace?: never
   }
-  '/api/v1/tournament/{id}/registration/{registrationId}/cancel': {
+  '/api/v1/bjjeire-competition/{id}/registration/{registrationId}/division': {
     parameters: {
       query?: never
       header?: never
@@ -194,52 +130,12 @@ export interface paths {
       cookie?: never
     }
     get?: never
-    put?: never
     /**
-     * Cancel a confirmed sign-up, with or without a refund
-     * @description The refund is the organiser's choice, whatever the registration window. Safe to retry.
+     * Move a confirmed sign-up to another division
+     * @description Any division of the competition, also after registration closes, with no eligibility check. No charge; the place is unchanged.
      */
-    post: operations['cancelTournamentRegistration']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/publish': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Publish a draft tournament
-     * @description Returns 409 no-divisions or invalid-window when the draft is not ready, and 409 when the tournament is not a draft or was changed by another save while it was being published.
-     */
-    post: operations['publishTournament']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/cancel': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /**
-     * Cancel a tournament and refund every confirmed sign-up
-     * @description Ends unpaid holds, refunds every confirmed sign-up in full and mails each competitor. Safe to repeat on a cancelled tournament: only refunds that failed or never reached Stripe are retried, never one already issued.
-     */
-    post: operations['cancelTournament']
+    put: operations['moveBjjEireCompetitionRegistration']
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -257,7 +153,7 @@ export interface paths {
     put?: never
     /**
      * Start a sign-up
-     * @description Takes a place for 30 minutes and returns a Stripe Checkout page for the tournament's fee. The sign-up is confirmed only when Stripe reports the payment. Both consents must be true. Not idempotent: a second call for the same division while the first is active is 409 already-registered.
+     * @description Takes a place for 30 minutes and returns a Stripe Checkout page for the competition's fee. The sign-up is confirmed only when Stripe reports the payment. Both consents must be true. Not idempotent: a second call for the same division while the first is active is 409 already-registered.
      */
     post: operations['createRegistration']
     delete?: never
@@ -353,6 +249,110 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/bjjeire-competition': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List upcoming BJJ Éire competitions
+     * @description Published competitions whose day has not passed in Ireland (Europe/Dublin), earliest day then name. Drafts, finished and cancelled competitions are never listed; their pages stay reachable by slug.
+     */
+    get: operations['listBjjEireCompetitions']
+    put?: never
+    /**
+     * Create a competition as a draft
+     * @description Not safe to retry: the slug is unique, so the same request again returns 409.
+     */
+    post: operations['createBjjEireCompetition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/team-merge': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Merge differently typed academy or affiliation names
+     * @description Rewrites every sign-up of this competition whose key is in fromKeys, so points are not split. Other competitions are untouched.
+     */
+    post: operations['mergeBjjEireCompetitionTeams']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/registration/{registrationId}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Cancel a confirmed sign-up, with or without a refund
+     * @description The refund is the organiser's choice, whatever the registration window. Safe to retry.
+     */
+    post: operations['cancelBjjEireCompetitionRegistration']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/publish': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Publish a draft competition
+     * @description Returns 409 no-divisions or invalid-window when the draft is not ready, and 409 when the competition is not a draft or was changed by another save while it was being published.
+     */
+    post: operations['publishBjjEireCompetition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Cancel a competition and refund every confirmed sign-up
+     * @description Ends unpaid holds, refunds every confirmed sign-up in full and mails each competitor. Safe to repeat on a cancelled competition: only refunds that failed or never reached Stripe are retried, never one already issued.
+     */
+    post: operations['cancelBjjEireCompetition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/metrics': {
     parameters: {
       query?: never
@@ -377,120 +377,6 @@ export interface paths {
       cookie?: never
     }
     get: operations['health']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{slug}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Get a tournament by slug
-     * @description Details, fee, registration window and divisions. A draft answers 404. registrationState is worked out by the API at the time of the request.
-     */
-    get: operations['getTournamentBySlug']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/registration': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Export a tournament's sign-ups as CSV
-     * @description Every row; page and pageSize are ignored.
-     */
-    get: operations['listTournamentRegistrations']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/eligible-division': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * List the divisions you may enter
-     * @description Only divisions for your gender and belt whose minimum age you reach on the tournament day.
-     */
-    get: operations['getEligibleDivisions']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/{id}/competitor': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * List a tournament's confirmed competitors by division
-     * @description Name, academy and affiliation only. One entry per division, in the tournament's order.
-     */
-    get: operations['getTournamentCompetitors']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/admin': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** List every tournament, drafts included */
-    get: operations['listTournamentsForAdmin']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/v1/tournament/admin/{id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** Get a tournament in any status by id */
-    get: operations['getTournamentForAdmin']
     put?: never
     post?: never
     delete?: never
@@ -524,7 +410,7 @@ export interface paths {
     }
     /**
      * List your sign-ups
-     * @description Newest first, with tournament, division, amount and status.
+     * @description Newest first, with competition, division, amount and status.
      */
     get: operations['getOwnRegistrations']
     put?: never
@@ -574,7 +460,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /** Get your medal totals and the tournaments you entered */
+    /** Get your medal totals and the competitions you entered */
     get: operations['getOwnHistory']
     put?: never
     post?: never
@@ -601,10 +487,127 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/bjjeire-competition/{slug}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get a competition by slug
+     * @description Details, fee, registration window and divisions. A draft answers 404. registrationState is worked out by the API at the time of the request.
+     */
+    get: operations['getBjjEireCompetitionBySlug']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/registration': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Export a competition's sign-ups as CSV
+     * @description Every row; page and pageSize are ignored.
+     */
+    get: operations['listBjjEireCompetitionRegistrations']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/eligible-division': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List the divisions you may enter
+     * @description Only divisions for your gender and belt whose minimum age you reach on the competition day.
+     */
+    get: operations['getEligibleDivisions']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/competitor': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List a competition's confirmed competitors by division
+     * @description Name, academy and affiliation only. One entry per division, in the competition's order.
+     */
+    get: operations['getBjjEireCompetitionCompetitors']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/admin': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List every competition, drafts included */
+    get: operations['listBjjEireCompetitionsForAdmin']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/admin/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get a competition in any status by id */
+    get: operations['getBjjEireCompetitionForAdmin']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
 }
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
+    ChangeDivisionCommand: {
+      divisionId: string
+    }
     DivisionDto: {
       id?: string
       /** @enum {string} */
@@ -618,106 +621,13 @@ export interface components {
       belt: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
       weightClass: string
     }
-    GeoCoordinates: {
-      type?: string
-      coordinates?: number[]
-      placeName?: string
-      placeId?: string
-      /** Format: double */
-      readonly longitude?: number
-      /** Format: double */
-      readonly latitude?: number
-    }
-    Location: {
-      address?: string
-      venue?: string
-      coordinates?: components['schemas']['GeoCoordinates']
-    }
-    UpdateTournamentCommand: {
-      slug: string
-      name: string
-      description?: string
-      /** Format: date */
-      date: string
-      venue: components['schemas']['Location']
-      /** Format: int32 */
-      entryFeeCents: number
-      /** Format: date-time */
-      registrationOpensAt: string
-      /** Format: date-time */
-      registrationClosesAt: string
-      /** Format: int32 */
-      competitorLimit?: number
-      divisions?: components['schemas']['DivisionDto'][]
-      /** Format: int64 */
-      version: number
-    }
-    TournamentDto: {
-      id?: string
-      slug?: string
-      name?: string
-      description?: string
-      /** Format: date */
-      date?: string
-      venue?: components['schemas']['Location']
-      /** Format: int32 */
-      entryFeeCents?: number
-      currency?: string
-      /** Format: date-time */
-      registrationOpensAt?: string
-      /** Format: date-time */
-      registrationClosesAt?: string
-      /** Format: int32 */
-      competitorLimit?: number
-      /** Format: int32 */
-      placesTaken?: number
-      /** @enum {string} */
-      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
-      /** @enum {string} */
-      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
-      divisions?: components['schemas']['DivisionDto'][]
-      /** Format: int64 */
-      version?: number
-    }
-    ChangeDivisionCommand: {
-      divisionId: string
-    }
-    AdminRegistrationDto: {
-      registrationId?: string
-      displayName?: string
-      email?: string
-      phone?: string
-      /** Format: date */
-      dateOfBirth?: string
-      /** @enum {string} */
-      gender?: 'MALE' | 'FEMALE'
-      /** @enum {string} */
-      belt?: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
-      academy?: string
-      affiliation?: string
-      academyKey?: string
-      affiliationKey?: string
-      division?: components['schemas']['DivisionDto']
-      /** @enum {string} */
-      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
-      /** Format: int32 */
-      amountCents?: number
-      /** @enum {string} */
-      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
-      /** @enum {string} */
-      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
-      paymentUnconfirmed?: boolean
-      profileMismatch?: boolean
-      /** Format: date-time */
-      createdAt?: string
-    }
     RegistrationDto: {
       id?: string
-      tournamentId?: string
-      tournamentSlug?: string
-      tournamentName?: string
+      competitionId?: string
+      competitionSlug?: string
+      competitionName?: string
       /** Format: date */
-      tournamentDate?: string
+      competitionDate?: string
       division?: components['schemas']['DivisionDto']
       /** @enum {string} */
       status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
@@ -738,6 +648,16 @@ export interface components {
     Affiliation: {
       name?: string
       website?: string
+    }
+    GeoCoordinates: {
+      type?: string
+      coordinates?: number[]
+      placeName?: string
+      placeId?: string
+      /** Format: double */
+      readonly longitude?: number
+      /** Format: double */
+      readonly latitude?: number
     }
     GymDto: {
       id?: string
@@ -817,6 +737,11 @@ export interface components {
       thumbnailUrl?: string
       /** Format: int64 */
       version?: number
+    }
+    Location: {
+      address?: string
+      venue?: string
+      coordinates?: components['schemas']['GeoCoordinates']
     }
     SocialMedia: {
       instagram?: string
@@ -1005,7 +930,113 @@ export interface components {
     UpdateBjjEventResponse: {
       data?: components['schemas']['BjjEventDto']
     }
-    CreateTournamentCommand: {
+    UpdateBjjEireCompetitionCommand: {
+      slug: string
+      name: string
+      description?: string
+      /** Format: date */
+      date: string
+      venue: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents: number
+      /** Format: date-time */
+      registrationOpensAt: string
+      /** Format: date-time */
+      registrationClosesAt: string
+      /** Format: int32 */
+      competitorLimit?: number
+      divisions?: components['schemas']['DivisionDto'][]
+      /** Format: int64 */
+      version: number
+    }
+    BjjEireCompetitionDto: {
+      id?: string
+      slug?: string
+      name?: string
+      description?: string
+      /** Format: date */
+      date?: string
+      venue?: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents?: number
+      currency?: string
+      /** Format: date-time */
+      registrationOpensAt?: string
+      /** Format: date-time */
+      registrationClosesAt?: string
+      /** Format: int32 */
+      competitorLimit?: number
+      /** Format: int32 */
+      placesTaken?: number
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
+      /** @enum {string} */
+      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
+      divisions?: components['schemas']['DivisionDto'][]
+      /** Format: int64 */
+      version?: number
+    }
+    AdminRegistrationDto: {
+      registrationId?: string
+      displayName?: string
+      email?: string
+      phone?: string
+      /** Format: date */
+      dateOfBirth?: string
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE'
+      /** @enum {string} */
+      belt?: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
+      academy?: string
+      affiliation?: string
+      academyKey?: string
+      affiliationKey?: string
+      division?: components['schemas']['DivisionDto']
+      /** @enum {string} */
+      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
+      /** Format: int32 */
+      amountCents?: number
+      /** @enum {string} */
+      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+      paymentUnconfirmed?: boolean
+      profileMismatch?: boolean
+      /** Format: date-time */
+      createdAt?: string
+    }
+    CreateRegistrationCommand: {
+      competitionId: string
+      divisionId: string
+      acceptPublicListing: boolean
+      acceptTerms: boolean
+    }
+    RegistrationCheckoutDto: {
+      registrationId?: string
+      checkoutUrl?: string
+      /** Format: date-time */
+      holdExpiresAt?: string
+    }
+    CancellationDto: {
+      refunded?: boolean
+      /** Format: int32 */
+      refundAmountCents?: number
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+    }
+    CreateGymCommand: {
+      data: components['schemas']['GymDto']
+    }
+    CreateGymResponse: {
+      data?: components['schemas']['GymDto']
+    }
+    CreateBjjEventCommand: {
+      data: components['schemas']['BjjEventDto']
+    }
+    CreateBjjEventResponse: {
+      data?: components['schemas']['BjjEventDto']
+    }
+    CreateBjjEireCompetitionCommand: {
       slug: string
       name: string
       description?: string
@@ -1036,37 +1067,6 @@ export interface components {
     AdminCancelCommand: {
       refund: boolean
     }
-    CancellationDto: {
-      refunded?: boolean
-      /** Format: int32 */
-      refundAmountCents?: number
-      /** @enum {string} */
-      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
-    }
-    CreateRegistrationCommand: {
-      tournamentId: string
-      divisionId: string
-      acceptPublicListing: boolean
-      acceptTerms: boolean
-    }
-    RegistrationCheckoutDto: {
-      registrationId?: string
-      checkoutUrl?: string
-      /** Format: date-time */
-      holdExpiresAt?: string
-    }
-    CreateGymCommand: {
-      data: components['schemas']['GymDto']
-    }
-    CreateGymResponse: {
-      data?: components['schemas']['GymDto']
-    }
-    CreateBjjEventCommand: {
-      data: components['schemas']['BjjEventDto']
-    }
-    CreateBjjEventResponse: {
-      data?: components['schemas']['BjjEventDto']
-    }
     CompositeHealthDescriptor: components['schemas']['HealthDescriptor'] & {
       components?: {
         [key: string]: components['schemas']['HealthDescriptor']
@@ -1087,8 +1087,8 @@ export interface components {
     SystemHealthDescriptor: components['schemas']['CompositeHealthDescriptor'] & {
       groups?: string[]
     }
-    PagedResponseTournamentSummaryDto: {
-      data?: components['schemas']['TournamentSummaryDto'][]
+    PagedResponseStoreDto: {
+      data?: components['schemas']['StoreDto'][]
       pagination?: components['schemas']['PaginationMetadata']
     }
     PaginationMetadata: {
@@ -1105,48 +1105,6 @@ export interface components {
       nextPageUrl?: string | null
       previousPageUrl?: string | null
     }
-    TournamentSummaryDto: {
-      id?: string
-      slug?: string
-      name?: string
-      /** Format: date */
-      date?: string
-      venue?: components['schemas']['Location']
-      /** Format: int32 */
-      entryFeeCents?: number
-      currency?: string
-      /** Format: date-time */
-      registrationOpensAt?: string
-      /** Format: date-time */
-      registrationClosesAt?: string
-      /** Format: int32 */
-      competitorLimit?: number
-      /** Format: int32 */
-      placesTaken?: number
-      /** @enum {string} */
-      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
-      /** @enum {string} */
-      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
-      /** Format: int32 */
-      divisionCount?: number
-    }
-    PagedResponseAdminRegistrationDto: {
-      data?: components['schemas']['AdminRegistrationDto'][]
-      pagination?: components['schemas']['PaginationMetadata']
-    }
-    DivisionCompetitorsDto: {
-      divisionId?: string
-      competitors?: components['schemas']['ListedCompetitorDto'][]
-    }
-    ListedCompetitorDto: {
-      displayName?: string
-      academy?: string
-      affiliation?: string
-    }
-    PagedResponseStoreDto: {
-      data?: components['schemas']['StoreDto'][]
-      pagination?: components['schemas']['PaginationMetadata']
-    }
     StoreDto: {
       id?: string
       name?: string
@@ -1159,17 +1117,8 @@ export interface components {
       data?: components['schemas']['GymDto'][]
       pagination?: components['schemas']['PaginationMetadata']
     }
-    CompetitorHistoryDto: {
-      /** Format: int32 */
-      gold?: number
-      /** Format: int32 */
-      silver?: number
-      /** Format: int32 */
-      bronze?: number
-      tournaments?: components['schemas']['TournamentMedalsDto'][]
-    }
-    TournamentMedalsDto: {
-      tournamentId?: string
+    CompetitionMedalsDto: {
+      competitionId?: string
       slug?: string
       name?: string
       /** Format: date */
@@ -1180,6 +1129,15 @@ export interface components {
       silver?: number
       /** Format: int32 */
       bronze?: number
+    }
+    CompetitorHistoryDto: {
+      /** Format: int32 */
+      gold?: number
+      /** Format: int32 */
+      silver?: number
+      /** Format: int32 */
+      bronze?: number
+      competitions?: components['schemas']['CompetitionMedalsDto'][]
     }
     CompetitionDto: {
       id?: string
@@ -1206,6 +1164,48 @@ export interface components {
       data?: components['schemas']['BjjEventDto'][]
       pagination?: components['schemas']['PaginationMetadata']
     }
+    BjjEireCompetitionSummaryDto: {
+      id?: string
+      slug?: string
+      name?: string
+      /** Format: date */
+      date?: string
+      venue?: components['schemas']['Location']
+      /** Format: int32 */
+      entryFeeCents?: number
+      currency?: string
+      /** Format: date-time */
+      registrationOpensAt?: string
+      /** Format: date-time */
+      registrationClosesAt?: string
+      /** Format: int32 */
+      competitorLimit?: number
+      /** Format: int32 */
+      placesTaken?: number
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'FINISHED'
+      /** @enum {string} */
+      registrationState?: 'NOT_OPEN' | 'OPEN' | 'CLOSED' | 'FULL'
+      /** Format: int32 */
+      divisionCount?: number
+    }
+    PagedResponseBjjEireCompetitionSummaryDto: {
+      data?: components['schemas']['BjjEireCompetitionSummaryDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    PagedResponseAdminRegistrationDto: {
+      data?: components['schemas']['AdminRegistrationDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    DivisionCompetitorsDto: {
+      divisionId?: string
+      competitors?: components['schemas']['ListedCompetitorDto'][]
+    }
+    ListedCompetitorDto: {
+      displayName?: string
+      academy?: string
+      affiliation?: string
+    }
   }
   responses: never
   parameters: never
@@ -1215,77 +1215,6 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
-  updateTournament: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateTournamentCommand']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
-        }
-      }
-    }
-  }
-  moveTournamentRegistration: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-        registrationId: string
-      }
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ChangeDivisionCommand']
-      }
-    }
-    responses: {
-      /** @description The sign-up in its new division */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['AdminRegistrationDto']
-        }
-      }
-      /** @description The sign-up or division is not in this tournament */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-      /** @description already-registered, or conflict when the sign-up is not confirmed */
-      409: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-    }
-  }
   changeRegistrationDivision: {
     parameters: {
       query?: never
@@ -1328,7 +1257,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description No such sign-up, or no such division in its tournament */
+      /** @description No such sign-up, or no such division in its competition */
       404: {
         headers: {
           [name: string]: unknown
@@ -1573,54 +1502,7 @@ export interface operations {
       }
     }
   }
-  listTournaments: {
-    parameters: {
-      query?: {
-        page?: number
-        pageSize?: number
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['PagedResponseTournamentSummaryDto']
-        }
-      }
-    }
-  }
-  createTournament: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateTournamentCommand']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
-        }
-      }
-    }
-  }
-  mergeTournamentTeams: {
+  updateBjjEireCompetition: {
     parameters: {
       query?: never
       header?: never
@@ -1631,40 +1513,22 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['MergeTeamsCommand']
+        'application/json': components['schemas']['UpdateBjjEireCompetitionCommand']
       }
     }
     responses: {
-      /** @description How many sign-ups were rewritten */
+      /** @description OK */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['TeamMergeDto']
-        }
-      }
-      /** @description Validation failed */
-      400: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-      /** @description No such tournament */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
+          '*/*': components['schemas']['BjjEireCompetitionDto']
         }
       }
     }
   }
-  cancelTournamentRegistration: {
+  moveBjjEireCompetitionRegistration: {
     parameters: {
       query?: never
       header?: never
@@ -1676,20 +1540,20 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['AdminCancelCommand']
+        'application/json': components['schemas']['ChangeDivisionCommand']
       }
     }
     responses: {
-      /** @description Cancelled; whether and how much was refunded */
+      /** @description The sign-up in its new division */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['CancellationDto']
+          '*/*': components['schemas']['AdminRegistrationDto']
         }
       }
-      /** @description The sign-up is not in this tournament */
+      /** @description The sign-up or division is not in this competition */
       404: {
         headers: {
           [name: string]: unknown
@@ -1698,69 +1562,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description conflict: the sign-up is not confirmed */
-      409: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-    }
-  }
-  publishTournament: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
-        }
-      }
-    }
-  }
-  cancelTournament: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description The cancelled tournament */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
-        }
-      }
-      /** @description No such tournament */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-      /** @description conflict: the tournament is finished */
+      /** @description already-registered, or conflict when the sign-up is not confirmed */
       409: {
         headers: {
           [name: string]: unknown
@@ -1802,7 +1604,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description No published tournament with this id, or no such division in it */
+      /** @description No published competition with this id, or no such division in it */
       404: {
         headers: {
           [name: string]: unknown
@@ -1811,7 +1613,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description registration-not-open, profile-incomplete, under-18, not-eligible, tournament-full, already-registered or too-many-unpaid. Nothing was charged */
+      /** @description registration-not-open, profile-incomplete, under-18, not-eligible, competition-full, already-registered or too-many-unpaid. Nothing was charged */
       409: {
         headers: {
           [name: string]: unknown
@@ -2093,6 +1895,204 @@ export interface operations {
       }
     }
   }
+  listBjjEireCompetitions: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseBjjEireCompetitionSummaryDto']
+        }
+      }
+    }
+  }
+  createBjjEireCompetition: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateBjjEireCompetitionCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+    }
+  }
+  mergeBjjEireCompetitionTeams: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MergeTeamsCommand']
+      }
+    }
+    responses: {
+      /** @description How many sign-ups were rewritten */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TeamMergeDto']
+        }
+      }
+      /** @description Validation failed */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No such competition */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  cancelBjjEireCompetitionRegistration: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+        registrationId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminCancelCommand']
+      }
+    }
+    responses: {
+      /** @description Cancelled; whether and how much was refunded */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CancellationDto']
+        }
+      }
+      /** @description The sign-up is not in this competition */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description conflict: the sign-up is not confirmed */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  publishBjjEireCompetition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+    }
+  }
+  cancelBjjEireCompetition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The cancelled competition */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+      /** @description No such competition */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description conflict: the competition is finished */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
   metrics: {
     parameters: {
       query?: never
@@ -2132,178 +2132,6 @@ export interface operations {
             | components['schemas']['CompositeHealthDescriptor']
             | components['schemas']['IndicatedHealthDescriptor']
             | components['schemas']['SystemHealthDescriptor']
-        }
-      }
-    }
-  }
-  getTournamentBySlug: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        slug: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
-        }
-      }
-    }
-  }
-  listTournamentRegistrations: {
-    parameters: {
-      query?: {
-        page?: number
-        pageSize?: number
-      }
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description The CSV file */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['PagedResponseAdminRegistrationDto']
-        }
-      }
-      /** @description No such tournament */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-    }
-  }
-  getEligibleDivisions: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description The eligible divisions, possibly none */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['DivisionDto'][]
-        }
-      }
-      /** @description No published tournament with this id */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-      /** @description registration-not-open, profile-incomplete, or under-18 on the tournament day */
-      409: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-    }
-  }
-  getTournamentCompetitors: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description The competitor lists */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['DivisionCompetitorsDto'][]
-        }
-      }
-      /** @description No published tournament with this id */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/problem+json': unknown
-        }
-      }
-    }
-  }
-  listTournamentsForAdmin: {
-    parameters: {
-      query?: {
-        page?: number
-        pageSize?: number
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['PagedResponseTournamentSummaryDto']
-        }
-      }
-    }
-  }
-  getTournamentForAdmin: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['TournamentDto']
         }
       }
     }
@@ -2433,6 +2261,178 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['PagedResponseCompetitionDto']
+        }
+      }
+    }
+  }
+  getBjjEireCompetitionBySlug: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+    }
+  }
+  listBjjEireCompetitionRegistrations: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The CSV file */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseAdminRegistrationDto']
+        }
+      }
+      /** @description No such competition */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  getEligibleDivisions: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The eligible divisions, possibly none */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['DivisionDto'][]
+        }
+      }
+      /** @description No published competition with this id */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description registration-not-open, profile-incomplete, or under-18 on the competition day */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  getBjjEireCompetitionCompetitors: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The competitor lists */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['DivisionCompetitorsDto'][]
+        }
+      }
+      /** @description No published competition with this id */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  listBjjEireCompetitionsForAdmin: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseBjjEireCompetitionSummaryDto']
+        }
+      }
+    }
+  }
+  getBjjEireCompetitionForAdmin: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
         }
       }
     }

@@ -1,4 +1,4 @@
-// Tournament days and registration windows are stated in Irish time, wherever
+// Competition days and registration windows are stated in Irish time, wherever
 // the visitor or the organiser is. The API speaks UTC instants.
 
 const TIME_ZONE = 'Europe/Dublin'

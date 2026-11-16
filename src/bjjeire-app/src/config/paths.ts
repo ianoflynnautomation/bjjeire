@@ -24,37 +24,32 @@ export const paths = {
     label: 'Stores',
     getHref: () => '/stores',
   },
-  tournaments: {
-    path: '/tournaments',
-    label: 'Tournaments',
-    getHref: () => '/tournaments',
+  bjjEireCompetition: {
+    path: '/competitions/:slug',
+    label: 'Competition',
+    getHref: (slug: string) => `/competitions/${encodeURIComponent(slug)}`,
   },
-  tournament: {
-    path: '/tournaments/:slug',
-    label: 'Tournament',
-    getHref: (slug: string) => `/tournaments/${encodeURIComponent(slug)}`,
-  },
-  tournamentSignUp: {
-    path: '/tournaments/:slug/signup',
+  bjjEireCompetitionSignUp: {
+    path: '/competitions/:slug/signup',
     label: 'Sign up',
     getHref: (slug: string, registrationId?: string) =>
-      `/tournaments/${encodeURIComponent(slug)}/signup${registrationId ? `?registration=${encodeURIComponent(registrationId)}` : ''}`,
+      `/competitions/${encodeURIComponent(slug)}/signup${registrationId ? `?registration=${encodeURIComponent(registrationId)}` : ''}`,
   },
-  tournamentSignUpComplete: {
-    path: '/tournaments/:slug/signup/complete',
+  bjjEireCompetitionSignUpComplete: {
+    path: '/competitions/:slug/signup/complete',
     label: 'Sign-up payment',
     getHref: (slug: string, registrationId: string) =>
-      `/tournaments/${encodeURIComponent(slug)}/signup/complete?registration=${encodeURIComponent(registrationId)}`,
+      `/competitions/${encodeURIComponent(slug)}/signup/complete?registration=${encodeURIComponent(registrationId)}`,
   },
-  adminTournaments: {
-    path: '/admin/tournaments',
-    label: 'Manage tournaments',
-    getHref: () => '/admin/tournaments',
+  adminBjjEireCompetitions: {
+    path: '/admin/competitions',
+    label: 'Manage competitions',
+    getHref: () => '/admin/competitions',
   },
-  adminTournament: {
-    path: '/admin/tournaments/:id',
-    label: 'Manage tournament',
-    getHref: (id: string) => `/admin/tournaments/${encodeURIComponent(id)}`,
+  adminBjjEireCompetition: {
+    path: '/admin/competitions/:id',
+    label: 'Manage competition',
+    getHref: (id: string) => `/admin/competitions/${encodeURIComponent(id)}`,
   },
   accountProfile: {
     path: '/account/profile',

@@ -1,10 +1,10 @@
 package com.bjjeire.api.seeder;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.store.Store;
-import com.bjjeire.api.tournament.Tournament;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,10 +38,10 @@ public record SeederCollection(
                     entity -> ((Competition) entity).stampExpiry()),
             directory("Store", "stores", Store.class, entity -> ((Store) entity).getId(), entity -> {}),
             new SeederCollection(
-                    Tournament.ENTITY_NAME,
-                    "tournaments",
-                    Tournament.class,
-                    entity -> ((Tournament) entity).getId(),
+                    BjjEireCompetition.ENTITY_NAME,
+                    "bjjeire-competitions",
+                    BjjEireCompetition.class,
+                    entity -> ((BjjEireCompetition) entity).getId(),
                     entity -> {},
                     true));
 

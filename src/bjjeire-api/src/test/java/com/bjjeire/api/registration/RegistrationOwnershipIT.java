@@ -2,11 +2,11 @@ package com.bjjeire.api.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -32,21 +32,21 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
 
     @Test
     @Tag("#5021")
-    void shouldListOnlyTheCallersSignUpsWithTournamentDivisionAmountAndStatus() throws Exception {
+    void shouldListOnlyTheCallersSignUpsWithBjjEireCompetitionDivisionAmountAndStatus() throws Exception {
         Division lightweight = maleWhiteAdult("-70 kg");
         Division middleweight = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("mine", null, lightweight, middleweight);
+        BjjEireCompetition competition = publishedBjjEireCompetition("mine", null, lightweight, middleweight);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(AOIFE, tournament.getId(), lightweight.getId());
-        signUp(CIARAN, tournament.getId(), middleweight.getId());
+        signUp(AOIFE, competition.getId(), lightweight.getId());
+        signUp(CIARAN, competition.getId(), middleweight.getId());
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("divisionId").is(lightweight.getId())),
                 new Update()
                         .set("status", RegistrationStatus.CONFIRMED)
                         .set("payment.status", PaymentStatus.PAID)
                         .unset("unpaidSlot"),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
 
         ResponseEntity<String> response = get(ME, AOIFE);
 
@@ -54,10 +54,10 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
         JsonNode body = objectMapper.readTree(response.getBody());
         assertThat(body.size()).isEqualTo(1);
         JsonNode mine = body.get(0);
-        assertThat(mine.at("/tournamentId").asString()).isEqualTo(tournament.getId());
-        assertThat(mine.at("/tournamentSlug").asString()).isEqualTo("mine");
-        assertThat(mine.at("/tournamentName").asString()).isEqualTo("BjjEire mine");
-        assertThat(mine.at("/tournamentDate").asString()).isEqualTo("2026-06-27");
+        assertThat(mine.at("/competitionId").asString()).isEqualTo(competition.getId());
+        assertThat(mine.at("/competitionSlug").asString()).isEqualTo("mine");
+        assertThat(mine.at("/competitionName").asString()).isEqualTo("BjjEire mine");
+        assertThat(mine.at("/competitionDate").asString()).isEqualTo("2026-06-27");
         assertThat(mine.at("/division/id").asString()).isEqualTo(lightweight.getId());
         assertThat(mine.at("/division/weightClass").asString()).isEqualTo("-70 kg");
         assertThat(mine.at("/amountCents").asInt()).isEqualTo(2500);
@@ -80,13 +80,13 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
     @Tag("#5016")
     void shouldGiveTheOwnerTheOpenCheckoutAgainWhileTheHoldLasts() throws Exception {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("resume", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("resume", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         String firstUrl = objectMapper
-                .readTree(signUp(AOIFE, tournament.getId(), division.getId()).getBody())
+                .readTree(signUp(AOIFE, competition.getId(), division.getId()).getBody())
                 .at("/checkoutUrl")
                 .asString();
-        TournamentRegistration registration = onlyRegistration();
+        BjjEireCompetitionRegistration registration = onlyRegistration();
 
         ResponseEntity<String> resumed = checkout(registration.getId(), AOIFE);
 
@@ -101,14 +101,14 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
     @Tag("#5016")
     void shouldRefuseToResumeACheckoutWhoseHoldHasEnded() throws Exception {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("resume-late", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("resume-late", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(AOIFE, tournament.getId(), division.getId());
-        TournamentRegistration registration = onlyRegistration();
+        signUp(AOIFE, competition.getId(), division.getId());
+        BjjEireCompetitionRegistration registration = onlyRegistration();
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id").is(registration.getId())),
                 Update.update("holdExpiresAt", FIXED_NOW.minus(Duration.ofMinutes(1))),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
 
         ResponseEntity<String> resumed = checkout(registration.getId(), AOIFE);
 
@@ -120,7 +120,7 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5016")
     void shouldTellACompetitorWhoHasAlreadyPaidThatThePaymentIsBeingConfirmedNotSendThemBack() throws Exception {
-        TournamentRegistration registration = startUnpaid("resume-paid");
+        BjjEireCompetitionRegistration registration = startUnpaid("resume-paid");
         for (PaymentGateway.CheckoutStatus received :
                 List.of(PaymentGateway.CheckoutStatus.PAID, PaymentGateway.CheckoutStatus.PROCESSING)) {
             paymentGateway.setCheckoutStatus(registration.getPayment().getCheckoutSessionId(), received);
@@ -139,7 +139,7 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id").is(registration.getId())),
                 Update.update("holdExpiresAt", FIXED_NOW.minus(Duration.ofHours(1))),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         paymentGateway.setCheckoutStatus(
                 registration.getPayment().getCheckoutSessionId(), PaymentGateway.CheckoutStatus.PAID);
         assertThat(objectMapper
@@ -152,7 +152,7 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
     @Test
     @Tag("#5016")
     void shouldStillReturnTheOpenCheckoutWhenStripeCannotSayWhetherItWasPaid() throws Exception {
-        TournamentRegistration registration = startUnpaid("resume-unknown");
+        BjjEireCompetitionRegistration registration = startUnpaid("resume-unknown");
         paymentGateway.failStatusLookups(true);
 
         ResponseEntity<String> resumed = checkout(registration.getId(), AOIFE);
@@ -162,22 +162,22 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
                 .isEqualTo(registration.getPayment().getCheckoutUrl());
     }
 
-    private TournamentRegistration startUnpaid(String slug) {
+    private BjjEireCompetitionRegistration startUnpaid(String slug) {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament(slug, null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition(slug, null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(AOIFE, tournament.getId(), division.getId());
+        signUp(AOIFE, competition.getId(), division.getId());
         return onlyRegistration();
     }
 
     @Test
     void shouldRefuseAnotherCompetitorsSignUpOnEveryRouteThatTakesAnId() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("not-yours", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("not-yours", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(AOIFE, tournament.getId(), division.getId());
-        TournamentRegistration aoifes = onlyRegistration();
+        signUp(AOIFE, competition.getId(), division.getId());
+        BjjEireCompetitionRegistration aoifes = onlyRegistration();
 
         assertThat(checkout(aoifes.getId(), CIARAN).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(checkout(aoifes.getId(), competitorToken("no-profile")).getStatusCode())

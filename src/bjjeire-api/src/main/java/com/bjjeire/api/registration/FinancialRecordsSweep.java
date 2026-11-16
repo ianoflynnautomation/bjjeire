@@ -40,7 +40,7 @@ public class FinancialRecordsSweep {
                                             Criteria.where("payment").exists(true),
                                             Criteria.where("refund").exists(true))),
                             new Update().unset("payment").unset("refund"),
-                            TournamentRegistration.class)
+                            BjjEireCompetitionRegistration.class)
                     .getModifiedCount();
             if (removed > 0) {
                 log.info("Retention sweep removed the payment records of {} sign-up(s)", removed);

@@ -2,6 +2,9 @@ package com.bjjeire.api.registration;
 
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditRecorder;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PagedResponses;
@@ -10,9 +13,6 @@ import com.bjjeire.api.competitor.Academy;
 import com.bjjeire.api.competitor.CompetitorContact;
 import com.bjjeire.api.competitor.CompetitorService;
 import com.bjjeire.api.gym.Gym;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import java.util.List;
@@ -37,39 +37,42 @@ public class RegistrationAdminServiceImpl implements RegistrationAdminService {
     private static final Sort OLDEST_FIRST = Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("_id"));
 
     private final MongoTemplate mongoTemplate;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final CompetitorService competitorService;
     private final RegistrationSupport support;
     private final AuditRecorder auditRecorder;
     private final ApiCache cache;
 
     @Override
-    public PagedResponse<AdminRegistrationDto> list(String tournamentId, PaginationRequest paginationRequest) {
-        TournamentDto tournament = tournament(tournamentId);
-        Query query = byTournament(tournamentId);
-        long total = mongoTemplate.count(query, TournamentRegistration.class);
+    public PagedResponse<AdminRegistrationDto> list(String competitionId, PaginationRequest paginationRequest) {
+        BjjEireCompetitionDto competition = competition(competitionId);
+        Query query = byBjjEireCompetition(competitionId);
+        long total = mongoTemplate.count(query, BjjEireCompetitionRegistration.class);
         query.with(PageRequest.of(paginationRequest.page() - 1, paginationRequest.pageSize(), OLDEST_FIRST));
         return PagedResponses.of(
-                rows(tournament, mongoTemplate.find(query, TournamentRegistration.class)), paginationRequest, total);
+                rows(competition, mongoTemplate.find(query, BjjEireCompetitionRegistration.class)),
+                paginationRequest,
+                total);
     }
 
     @Override
-    public String exportCsv(String tournamentId) {
-        TournamentDto tournament = tournament(tournamentId);
-        List<TournamentRegistration> all =
-                mongoTemplate.find(byTournament(tournamentId).with(OLDEST_FIRST), TournamentRegistration.class);
-        return RegistrationCsv.write(rows(tournament, all));
+    public String exportCsv(String competitionId) {
+        BjjEireCompetitionDto competition = competition(competitionId);
+        List<BjjEireCompetitionRegistration> all = mongoTemplate.find(
+                byBjjEireCompetition(competitionId).with(OLDEST_FIRST), BjjEireCompetitionRegistration.class);
+        return RegistrationCsv.write(rows(competition, all));
     }
 
     @Override
-    public AdminRegistrationDto move(String tournamentId, String registrationId, ChangeDivisionCommand command) {
-        TournamentDto tournament = tournament(tournamentId);
-        TournamentRegistration registration = mongoTemplate.findById(registrationId, TournamentRegistration.class);
-        if (registration == null || !tournamentId.equals(registration.getTournamentId())) {
+    public AdminRegistrationDto move(String competitionId, String registrationId, ChangeDivisionCommand command) {
+        BjjEireCompetitionDto competition = competition(competitionId);
+        BjjEireCompetitionRegistration registration =
+                mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
+        if (registration == null || !competitionId.equals(registration.getCompetitionId())) {
             throw ApiProblems.notFound();
         }
         DivisionDto target =
-                RegistrationSupport.division(tournament, command.divisionId()).orElseThrow(ApiProblems::notFound);
+                RegistrationSupport.division(competition, command.divisionId()).orElseThrow(ApiProblems::notFound);
         if (registration.getStatus() != RegistrationStatus.CONFIRMED) {
             throw ApiProblems.conflict(ProblemTypes.CONFLICT, "Only a confirmed sign-up can be moved.");
         }
@@ -79,17 +82,17 @@ public class RegistrationAdminServiceImpl implements RegistrationAdminService {
                         .findContacts(List.of(registration.getCompetitorId()))
                         .get(registration.getCompetitorId());
         boolean mismatch = contact != null && (contact.gender() != target.gender() || contact.belt() != target.belt());
-        TournamentRegistration moved = target.id().equals(registration.getDivisionId())
+        BjjEireCompetitionRegistration moved = target.id().equals(registration.getDivisionId())
                 ? registration
                 : support.move(registration, target.id(), mismatch);
         log.info("Sign-up {} moved by the organiser to division {}", registrationId, target.id());
-        return rows(tournament, List.of(moved)).getFirst();
+        return rows(competition, List.of(moved)).getFirst();
     }
 
     @Override
-    public TeamMergeDto mergeTeams(String tournamentId, MergeTeamsCommand command) {
-        tournament(tournamentId);
-        Criteria matching = Criteria.where("tournamentId").is(tournamentId);
+    public TeamMergeDto mergeTeams(String competitionId, MergeTeamsCommand command) {
+        competition(competitionId);
+        Criteria matching = Criteria.where("competitionId").is(competitionId);
         Update update = support.audited(new Update());
         if (command.kind() == TeamKind.ACADEMY) {
             if (command.targetGymId() != null && mongoTemplate.findById(command.targetGymId(), Gym.class) == null) {
@@ -110,40 +113,42 @@ public class RegistrationAdminServiceImpl implements RegistrationAdminService {
             update.set("affiliation", affiliation).set("affiliationKey", TeamKeys.affiliationKey(affiliation));
         }
         long updated = mongoTemplate
-                .updateMulti(Query.query(matching), update, TournamentRegistration.class)
+                .updateMulti(Query.query(matching), update, BjjEireCompetitionRegistration.class)
                 .getMatchedCount();
-        auditRecorder.record(AuditAction.UpdateMany, TournamentRegistration.ENTITY_NAME, tournamentId, updated);
-        cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+        auditRecorder.record(
+                AuditAction.UpdateMany, BjjEireCompetitionRegistration.ENTITY_NAME, competitionId, updated);
+        cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
         log.info(
-                "{} names {} merged into \"{}\" on {} sign-up(s) of tournament {}",
+                "{} names {} merged into \"{}\" on {} sign-up(s) of competition {}",
                 command.kind(),
                 command.fromKeys(),
                 command.target(),
                 updated,
-                tournamentId);
+                competitionId);
         return new TeamMergeDto((int) updated);
     }
 
-    private TournamentDto tournament(String tournamentId) {
-        return tournamentService.getForAdmin(tournamentId).orElseThrow(ApiProblems::notFound);
+    private BjjEireCompetitionDto competition(String competitionId) {
+        return bjjEireCompetitionService.getForAdmin(competitionId).orElseThrow(ApiProblems::notFound);
     }
 
-    private static Query byTournament(String tournamentId) {
-        return Query.query(Criteria.where("tournamentId").is(tournamentId));
+    private static Query byBjjEireCompetition(String competitionId) {
+        return Query.query(Criteria.where("competitionId").is(competitionId));
     }
 
-    private List<AdminRegistrationDto> rows(TournamentDto tournament, List<TournamentRegistration> registrations) {
+    private List<AdminRegistrationDto> rows(
+            BjjEireCompetitionDto competition, List<BjjEireCompetitionRegistration> registrations) {
         Map<String, CompetitorContact> contacts = competitorService.findContacts(registrations.stream()
-                .map(TournamentRegistration::getCompetitorId)
+                .map(BjjEireCompetitionRegistration::getCompetitorId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet()));
         return registrations.stream()
-                .map(registration -> row(tournament, registration, contacts.get(registration.getCompetitorId())))
+                .map(registration -> row(competition, registration, contacts.get(registration.getCompetitorId())))
                 .toList();
     }
 
     private static AdminRegistrationDto row(
-            TournamentDto tournament, TournamentRegistration registration, CompetitorContact contact) {
+            BjjEireCompetitionDto competition, BjjEireCompetitionRegistration registration, CompetitorContact contact) {
         Payment payment = registration.getPayment();
         return new AdminRegistrationDto(
                 registration.getId(),
@@ -159,7 +164,7 @@ public class RegistrationAdminServiceImpl implements RegistrationAdminService {
                 registration.getAffiliation(),
                 registration.getAcademyKey(),
                 registration.getAffiliationKey(),
-                RegistrationSupport.division(tournament, registration.getDivisionId())
+                RegistrationSupport.division(competition, registration.getDivisionId())
                         .orElse(null),
                 registration.getStatus(),
                 payment == null ? 0 : payment.getAmountCents(),

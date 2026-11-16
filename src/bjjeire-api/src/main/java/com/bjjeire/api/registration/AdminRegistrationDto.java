@@ -1,8 +1,8 @@
 package com.bjjeire.api.registration;
 
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.Gender;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import java.time.Instant;
 import java.time.LocalDate;
 

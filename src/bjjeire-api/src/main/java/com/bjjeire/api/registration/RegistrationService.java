@@ -6,14 +6,14 @@ import java.util.List;
 /** Use cases for signing up, paying and the lists built from sign-ups (User Story 3). */
 public interface RegistrationService {
     /**
-     * Starts a sign-up: checks it, takes a place, and opens a Checkout page for the tournament's fee.
+     * Starts a sign-up: checks it, takes a place, and opens a Checkout page for the competition's fee.
      *
      * @param caller the signed-in competitor
-     * @param command the tournament, the division and both consents
+     * @param command the competition, the division and both consents
      * @return where to pay
-     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft tournament or a
+     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft competition or a
      *     division it lacks; 409 {@code registration-not-open}, {@code profile-incomplete}, {@code under-18},
-     *     {@code not-eligible}, {@code tournament-full}, {@code already-registered} or {@code too-many-unpaid}; 502
+     *     {@code not-eligible}, {@code competition-full}, {@code already-registered} or {@code too-many-unpaid}; 502
      *     {@code payment-unavailable}, with the place given back
      */
     RegistrationCheckoutDto create(CompetitorIdentity caller, CreateRegistrationCommand command);
@@ -38,13 +38,13 @@ public interface RegistrationService {
     List<RegistrationDto> getOwn(CompetitorIdentity caller);
 
     /**
-     * Lists the confirmed competitors of a public tournament by division.
+     * Lists the confirmed competitors of a public competition by division.
      *
-     * @param tournamentId tournament id
-     * @return one entry per division in the tournament's order
-     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft tournament
+     * @param competitionId competition id
+     * @return one entry per division in the competition's order
+     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft competition
      */
-    List<DivisionCompetitorsDto> getListedCompetitors(String tournamentId);
+    List<DivisionCompetitorsDto> getListedCompetitors(String competitionId);
 
     /**
      * Stripe reports a Checkout Session paid. Confirms the sign-up, or, when its hold had lapsed and no place is left,
@@ -72,13 +72,14 @@ public interface RegistrationService {
     int expireLapsedHolds();
 
     /**
-     * Ends every unpaid hold of a tournament now and gives its places back, for a tournament being cancelled. A payment
-     * that still arrives is then a late payment, refunded because the tournament has no place to give (research R5).
+     * Ends every unpaid hold of a competition now and gives its places back, for a competition being cancelled. A
+     * payment that still arrives is then a late payment, refunded because the competition has no place to give
+     * (research R5).
      *
-     * @param tournamentId the tournament
+     * @param competitionId the competition
      * @return how many holds were ended
      */
-    int endHolds(String tournamentId);
+    int endHolds(String competitionId);
 
     /**
      * The competitor moves their confirmed sign-up to another division they are eligible for, at no charge, while

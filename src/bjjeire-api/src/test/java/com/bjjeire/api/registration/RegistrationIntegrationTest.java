@@ -1,16 +1,16 @@
 package com.bjjeire.api.registration;
 
+import com.bjjeire.api.bjjeirecompetition.AgeCategory;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.Discipline;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.GeoCoordinates;
 import com.bjjeire.api.common.Location;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
-import com.bjjeire.api.tournament.AgeCategory;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Discipline;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,14 +32,14 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
     /** Must match bjjeire.stripe.webhook-secret in src/test/resources/application.yml. */
     static final String WEBHOOK_SECRET = "whsec_integration_test_secret";
 
-    static final LocalDate TOURNAMENT_DAY = LocalDate.of(2026, 6, 27);
+    static final LocalDate COMPETITION_DAY = LocalDate.of(2026, 6, 27);
     static final Instant OPENS_AT = Instant.parse("2026-05-01T09:00:00Z");
     static final Instant CLOSES_AT = Instant.parse("2026-06-20T20:00:00Z");
 
-    /** Born 1990: 36 on the tournament day. */
+    /** Born 1990: 36 on the competition day. */
     static final String ADULT_BIRTH_DATE = "1990-04-12";
 
-    /** Seventeen on the tournament day, eighteen the day after. */
+    /** Seventeen on the competition day, eighteen the day after. */
     static final String EIGHTEEN_THE_DAY_AFTER = "2008-06-28";
 
     static Division division(Discipline discipline, Gender gender, AgeCategory category, Belt belt, String weight) {
@@ -57,22 +57,23 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
         return division(Discipline.GI, Gender.MALE, AgeCategory.ADULT, Belt.WHITE, weight);
     }
 
-    Tournament publishedTournament(String slug, Integer competitorLimit, Division... divisions) {
-        return insertTournament(slug, TournamentStatus.PUBLISHED, OPENS_AT, CLOSES_AT, competitorLimit, divisions);
+    BjjEireCompetition publishedBjjEireCompetition(String slug, Integer competitorLimit, Division... divisions) {
+        return insertBjjEireCompetition(
+                slug, BjjEireCompetitionStatus.PUBLISHED, OPENS_AT, CLOSES_AT, competitorLimit, divisions);
     }
 
-    Tournament insertTournament(
+    BjjEireCompetition insertBjjEireCompetition(
             String slug,
-            TournamentStatus status,
+            BjjEireCompetitionStatus status,
             Instant opensAt,
             Instant closesAt,
             Integer competitorLimit,
             Division... divisions) {
-        Tournament tournament = Tournament.builder()
+        BjjEireCompetition competition = BjjEireCompetition.builder()
                 .slug(slug)
                 .name("BjjEire " + slug)
-                .description("An in-house tournament.")
-                .date(TOURNAMENT_DAY)
+                .description("An in-house competition.")
+                .date(COMPETITION_DAY)
                 .venue(new Location(
                         "1 Main Street",
                         "National Arena",
@@ -85,7 +86,7 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
                 .version(0L)
                 .divisions(List.of(divisions))
                 .build();
-        return mongoTemplate.insert(tournament);
+        return mongoTemplate.insert(competition);
     }
 
     /** Saves a complete profile for the competitor behind {@code token}. */
@@ -121,33 +122,33 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
         }
     }
 
-    ResponseEntity<String> signUp(String token, String tournamentId, String divisionId) {
-        return signUp(token, tournamentId, divisionId, true, true);
+    ResponseEntity<String> signUp(String token, String competitionId, String divisionId) {
+        return signUp(token, competitionId, divisionId, true, true);
     }
 
     ResponseEntity<String> signUp(
-            String token, String tournamentId, String divisionId, boolean acceptListing, boolean acceptTerms) {
+            String token, String competitionId, String divisionId, boolean acceptListing, boolean acceptTerms) {
         String body = """
-            { "tournamentId": "%s", "divisionId": "%s", "acceptPublicListing": %s, "acceptTerms": %s }
-            """.formatted(tournamentId, divisionId, acceptListing, acceptTerms);
+            { "competitionId": "%s", "divisionId": "%s", "acceptPublicListing": %s, "acceptTerms": %s }
+            """.formatted(competitionId, divisionId, acceptListing, acceptTerms);
         return restTemplate.exchange(ApiRoutes.REGISTRATION, HttpMethod.POST, jsonEntity(body, token), String.class);
     }
 
-    TournamentRegistration onlyRegistration() {
-        List<TournamentRegistration> all = mongoTemplate.findAll(TournamentRegistration.class);
+    BjjEireCompetitionRegistration onlyRegistration() {
+        List<BjjEireCompetitionRegistration> all = mongoTemplate.findAll(BjjEireCompetitionRegistration.class);
         if (all.size() != 1) {
             throw new IllegalStateException("Expected one registration, found " + all.size());
         }
         return all.getFirst();
     }
 
-    int placesTaken(String tournamentId) {
-        return mongoTemplate.findById(tournamentId, Tournament.class).getPlacesTaken();
+    int placesTaken(String competitionId) {
+        return mongoTemplate.findById(competitionId, BjjEireCompetition.class).getPlacesTaken();
     }
 
     /** Signs {@code token} up for the division and has Stripe report the payment, so the sign-up is confirmed. */
-    TournamentRegistration confirmedSignUp(String token, Tournament tournament, Division division) {
-        ResponseEntity<String> started = signUp(token, tournament.getId(), division.getId());
+    BjjEireCompetitionRegistration confirmedSignUp(String token, BjjEireCompetition competition, Division division) {
+        ResponseEntity<String> started = signUp(token, competition.getId(), division.getId());
         if (started.getStatusCode().value() != 201) {
             throw new IllegalStateException("Sign-up failed: " + started.getBody());
         }
@@ -156,7 +157,8 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
         if (!id.find()) {
             throw new IllegalStateException("No registrationId in " + started.getBody());
         }
-        TournamentRegistration registration = mongoTemplate.findById(id.group(1), TournamentRegistration.class);
+        BjjEireCompetitionRegistration registration =
+                mongoTemplate.findById(id.group(1), BjjEireCompetitionRegistration.class);
         int mailsBefore = mailer.sent().size();
         ResponseEntity<String> paid = postSignedWebhook(
                 checkoutEvent("evt_paid_" + registration.getId(), "checkout.session.completed", registration));
@@ -166,23 +168,23 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
         // The confirmation mail is queued on its own thread; wait for it so a test that resets the mailer sees only
         // what follows.
         mailer.awaitSent(mailsBefore + 1);
-        return mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+        return mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
     }
 
-    /** Moves the tournament's registration window so that it has closed by {@code FIXED_NOW}. */
-    void closeRegistration(String tournamentId) {
+    /** Moves the competition's registration window so that it has closed by {@code FIXED_NOW}. */
+    void closeRegistration(String competitionId) {
         mongoTemplate.updateFirst(
                 org.springframework.data.mongodb.core.query.Query.query(
                         org.springframework.data.mongodb.core.query.Criteria.where("_id")
-                                .is(tournamentId)),
+                                .is(competitionId)),
                 new org.springframework.data.mongodb.core.query.Update()
                         .set("registrationClosesAt", FIXED_NOW.minusSeconds(60)),
-                Tournament.class);
-        apiCache.removeByTag(com.bjjeire.api.common.ApiCache.TOURNAMENTS_TAG);
+                BjjEireCompetition.class);
+        apiCache.removeByTag(com.bjjeire.api.common.ApiCache.BJJEIRE_COMPETITIONS_TAG);
     }
 
-    TournamentRegistration reload(TournamentRegistration registration) {
-        return mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+    BjjEireCompetitionRegistration reload(BjjEireCompetitionRegistration registration) {
+        return mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
     }
 
     ResponseEntity<String> cancel(String token, String registrationId) {
@@ -202,7 +204,7 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
     }
 
     /** A Stripe refund event for the sign-up's refund. */
-    static String refundEvent(String eventId, String type, String status, TournamentRegistration registration) {
+    static String refundEvent(String eventId, String type, String status, BjjEireCompetitionRegistration registration) {
         return """
             {
               "id": "%s",
@@ -231,7 +233,7 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
 
     // ---- Stripe webhook ---------------------------------------------------------------------------------------
 
-    static String checkoutEvent(String eventId, String type, TournamentRegistration registration) {
+    static String checkoutEvent(String eventId, String type, BjjEireCompetitionRegistration registration) {
         return """
             {
               "id": "%s",

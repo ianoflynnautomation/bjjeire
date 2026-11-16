@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 
 import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Gender;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -55,7 +55,7 @@ class CompetitorServiceTest {
                 auditRecorder,
                 identityDirectory,
                 new SimpleMeterRegistry(),
-                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {});
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
         given(mongoTemplate.exists(any(Query.class), eq(DeletedCompetitor.class)))
@@ -89,7 +89,7 @@ class CompetitorServiceTest {
                 auditRecorder,
                 identityDirectory,
                 new SimpleMeterRegistry(),
-                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {});
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
 
@@ -114,7 +114,7 @@ class CompetitorServiceTest {
                 auditRecorder,
                 identityDirectory,
                 new SimpleMeterRegistry(),
-                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {});
         given(mongoTemplate.findAndModify(
                         any(Query.class),

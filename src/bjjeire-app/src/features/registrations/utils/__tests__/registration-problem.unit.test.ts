@@ -21,7 +21,7 @@ function refused(status: number, type?: string): AxiosError {
 
 describe('registrationProblemMessage', () => {
   it.each([
-    ['urn:bjjeire:tournament-full', problems['urn:bjjeire:tournament-full']],
+    ['urn:bjjeire:competition-full', problems['urn:bjjeire:competition-full']],
     ['urn:bjjeire:under-18', problems['urn:bjjeire:under-18']],
     ['urn:bjjeire:too-many-unpaid', problems['urn:bjjeire:too-many-unpaid']],
     [

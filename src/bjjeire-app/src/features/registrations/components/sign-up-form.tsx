@@ -2,14 +2,17 @@ import { useState, type JSX, type SubmitEvent } from 'react'
 import { Button } from '@/components/ui/button/button'
 import { uiContent } from '@/config/ui-content'
 import { SignUpPageTestIds } from '@/constants/registrationDataTestIds'
-import { formatEntryFee } from '@/features/tournaments/utils/tournament-format'
-import type { DivisionDto, TournamentDto } from '@/types/tournaments'
+import { formatEntryFee } from '@/features/bjjeire-competitions/utils/bjjeire-competition-format'
+import type {
+  DivisionDto,
+  BjjEireCompetitionDto,
+} from '@/types/bjjeire-competitions'
 import { divisionLabel } from '../utils/registration-format'
 
 const { signUp } = uiContent.registrations
 
 interface SignUpFormProps {
-  tournament: TournamentDto
+  bjjEireCompetition: BjjEireCompetitionDto
   divisions: DivisionDto[]
   isSubmitting: boolean
   error: string | null
@@ -23,11 +26,11 @@ const checkClass =
 
 /**
  * Division choice, the fee, and the two consents a competitor gives before
- * paying (FR-012, FR-018). The fee shown is the tournament's; the API charges
+ * paying (FR-012, FR-018). The fee shown is the competition's; the API charges
  * the same and never takes an amount from the browser.
  */
 export const SignUpForm = function SignUpForm({
-  tournament,
+  bjjEireCompetition,
   divisions,
   isSubmitting,
   error,
@@ -103,7 +106,10 @@ export const SignUpForm = function SignUpForm({
           className="text-2xl font-bold text-fg"
           data-testid={SignUpPageTestIds.FEE}
         >
-          {formatEntryFee(tournament.entryFeeCents, tournament.currency)}
+          {formatEntryFee(
+            bjjEireCompetition.entryFeeCents,
+            bjjEireCompetition.currency
+          )}
         </p>
         <p className="text-sm text-fg-subtle">{signUp.feeNote}</p>
       </section>

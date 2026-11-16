@@ -2,12 +2,12 @@ package com.bjjeire.api.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -32,16 +32,16 @@ class PublicCompetitorListIT extends RegistrationIntegrationTest {
     void shouldListConfirmedCompetitorsByDivisionWithNameAcademyAndAffiliation() throws Exception {
         Division lightweight = maleWhiteAdult("-70 kg");
         Division middleweight = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("listed", null, lightweight, middleweight);
+        BjjEireCompetition competition = publishedBjjEireCompetition("listed", null, lightweight, middleweight);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE, "null", "null");
         saveProfile(NIAMH, "Niamh", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        confirm(signUpAndFind(AOIFE, tournament, lightweight));
-        confirm(signUpAndFind(CIARAN, tournament, lightweight));
+        confirm(signUpAndFind(AOIFE, competition, lightweight));
+        confirm(signUpAndFind(CIARAN, competition, lightweight));
         // Awaiting payment: not listed.
-        signUp(NIAMH, tournament.getId(), middleweight.getId());
+        signUp(NIAMH, competition.getId(), middleweight.getId());
 
-        ResponseEntity<String> response = list(tournament.getId());
+        ResponseEntity<String> response = list(competition.getId());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode body = objectMapper.readTree(response.getBody());
@@ -61,11 +61,11 @@ class PublicCompetitorListIT extends RegistrationIntegrationTest {
     @Tag("#5015")
     void shouldCarryNoPrivateFieldInThePublicJson() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("private", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("private", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        confirm(signUpAndFind(AOIFE, tournament, division));
+        confirm(signUpAndFind(AOIFE, competition, division));
 
-        String json = list(tournament.getId()).getBody();
+        String json = list(competition.getId()).getBody();
 
         assertThat(json).contains("Aoife Byrne");
         for (String field : List.of(
@@ -87,11 +87,11 @@ class PublicCompetitorListIT extends RegistrationIntegrationTest {
     @Tag("#5015")
     void shouldShowANewlyConfirmedCompetitorStraightAway() throws Exception {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("fresh", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("fresh", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration registration = signUpAndFind(AOIFE, tournament, division);
+        BjjEireCompetitionRegistration registration = signUpAndFind(AOIFE, competition, division);
         assertThat(objectMapper
-                        .readTree(list(tournament.getId()).getBody())
+                        .readTree(list(competition.getId()).getBody())
                         .at("/0/competitors")
                         .size())
                 .isZero();
@@ -99,36 +99,37 @@ class PublicCompetitorListIT extends RegistrationIntegrationTest {
         postSignedWebhook(checkoutEvent("evt_fresh", "checkout.session.completed", registration));
 
         assertThat(objectMapper
-                        .readTree(list(tournament.getId()).getBody())
+                        .readTree(list(competition.getId()).getBody())
                         .at("/0/competitors")
                         .size())
                 .isEqualTo(1);
     }
 
     @Test
-    void shouldNotListADraftOrAnUnknownTournament() {
-        Tournament draft = insertTournament(
-                "draft-list", TournamentStatus.DRAFT, OPENS_AT, CLOSES_AT, null, maleWhiteAdult("-76 kg"));
+    void shouldNotListADraftOrAnUnknownBjjEireCompetition() {
+        BjjEireCompetition draft = insertBjjEireCompetition(
+                "draft-list", BjjEireCompetitionStatus.DRAFT, OPENS_AT, CLOSES_AT, null, maleWhiteAdult("-76 kg"));
 
         assertThat(list(draft.getId()).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(list("665f1c2b9b1e8a0012345678").getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
-    private TournamentRegistration signUpAndFind(String token, Tournament tournament, Division division) {
-        signUp(token, tournament.getId(), division.getId());
-        return mongoTemplate.findAll(TournamentRegistration.class).stream()
+    private BjjEireCompetitionRegistration signUpAndFind(
+            String token, BjjEireCompetition competition, Division division) {
+        signUp(token, competition.getId(), division.getId());
+        return mongoTemplate.findAll(BjjEireCompetitionRegistration.class).stream()
                 .filter(registration -> registration.getDivisionId().equals(division.getId()))
                 .reduce((first, second) -> second)
                 .orElseThrow();
     }
 
-    private void confirm(TournamentRegistration registration) {
+    private void confirm(BjjEireCompetitionRegistration registration) {
         postSignedWebhook(checkoutEvent("evt_" + registration.getId(), "checkout.session.completed", registration));
     }
 
-    private ResponseEntity<String> list(String tournamentId) {
+    private ResponseEntity<String> list(String competitionId) {
         return restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/" + tournamentId + "/competitor",
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competitionId + "/competitor",
                 HttpMethod.GET,
                 jsonEntity(null, null),
                 String.class);

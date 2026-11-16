@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { features } from '@/config/features'
+import { features, featureSubRoutes } from '@/config/features'
 import { createFeatureFlagClient } from '../client'
 import {
   DEFAULT_FLAGS,
@@ -26,8 +26,13 @@ describe('createFeatureFlagClient', () => {
 })
 
 describe('feature flag catalogue', () => {
-  it('given the route table, when it is compared with the catalogue, then both list the same flags apart from those that switch a view inside a page', () => {
-    const flagsWithoutARoute = ['GymsMap', 'EventsMap']
+  it('given the route table, when it is compared with the catalogue, then both list the same flags apart from those that switch a view inside a page or guard only sub-pages', () => {
+    // BjjEireCompetitions has no landing page of its own (#3015): it guards
+    // the /competitions/:slug pages, the account pages and the featured section.
+    const flagsWithoutARoute = ['GymsMap', 'EventsMap', 'BjjEireCompetitions']
+    expect(featureSubRoutes.map(route => route.flag)).toContain(
+      'BjjEireCompetitions'
+    )
 
     expect(features.map(feature => feature.flag).sort()).toEqual(
       FEATURE_FLAG_NAMES.filter(

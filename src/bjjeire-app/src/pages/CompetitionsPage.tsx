@@ -7,6 +7,7 @@ import { ListPageShell } from '@/components/layout/list-page-shell'
 import { uiContent } from '@/config/ui-content'
 import { useCompetitionsPage } from '@/features/competitions/hooks/useCompetitionsPage'
 import { CompetitionsPageTestIds } from '@/constants/competitionDataTestIds'
+import { FeaturedBjjEireCompetitions } from '@/features/bjjeire-competitions/components/featured-bjjeire-competitions'
 
 const { search, errors, noData } = uiContent.competitions
 
@@ -34,6 +35,7 @@ export default function CompetitionsPage(): JSX.Element {
           }
         />
       }
+      featured={<FeaturedBjjEireCompetitions />}
       filterBar={
         <div className="w-full sm:max-w-160">
           <ListSearchInput

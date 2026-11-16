@@ -46,7 +46,7 @@ export const RegistrationActions = function RegistrationActions({
   const change = useChangeDivision()
   const open = isRefundable(registration)
   const eligible = useEligibleDivisions(
-    registration.tournamentId,
+    registration.competitionId,
     mode === 'changing'
   )
 

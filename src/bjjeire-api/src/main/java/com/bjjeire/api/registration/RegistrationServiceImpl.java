@@ -2,6 +2,10 @@ package com.bjjeire.api.registration;
 
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditInfoProvider;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.RegistrationState;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.competitor.CompetitorService;
@@ -15,10 +19,6 @@ import com.bjjeire.api.registration.PaymentGateway.CheckoutStatus;
 import com.bjjeire.api.registration.PaymentGateway.PaymentGatewayException;
 import com.bjjeire.api.registration.PaymentGateway.RefundRequest;
 import com.bjjeire.api.registration.PaymentGateway.RefundResult;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.RegistrationState;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
@@ -59,7 +59,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private static final String UNPAID_SLOT_INDEX = "ux_registration_unpaid_slot";
 
     private final MongoTemplate mongoTemplate;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final CompetitorService competitorService;
     private final PaymentGateway paymentGateway;
     private final RegistrationSupport support;
@@ -73,7 +73,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     public RegistrationServiceImpl(
             MongoTemplate mongoTemplate,
-            TournamentService tournamentService,
+            BjjEireCompetitionService bjjEireCompetitionService,
             CompetitorService competitorService,
             PaymentGateway paymentGateway,
             RegistrationSupport support,
@@ -83,7 +83,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             BjjEireProperties properties,
             MeterRegistry meterRegistry) {
         this.mongoTemplate = mongoTemplate;
-        this.tournamentService = tournamentService;
+        this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.competitorService = competitorService;
         this.paymentGateway = paymentGateway;
         this.support = support;
@@ -104,25 +104,25 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public RegistrationCheckoutDto create(CompetitorIdentity caller, CreateRegistrationCommand command) {
-        TournamentDto tournament =
-                tournamentService.getPublicById(command.tournamentId()).orElseThrow(ApiProblems::notFound);
+        BjjEireCompetitionDto competition =
+                bjjEireCompetitionService.getPublicById(command.competitionId()).orElseThrow(ApiProblems::notFound);
         DivisionDto division =
-                RegistrationSupport.division(tournament, command.divisionId()).orElseThrow(ApiProblems::notFound);
-        RegistrationState state = tournament.registrationState();
+                RegistrationSupport.division(competition, command.divisionId()).orElseThrow(ApiProblems::notFound);
+        RegistrationState state = competition.registrationState();
         if (state != RegistrationState.OPEN && state != RegistrationState.FULL) {
             throw ApiProblems.conflict(
-                    ProblemTypes.REGISTRATION_NOT_OPEN, "Registration for this tournament is not open.");
+                    ProblemTypes.REGISTRATION_NOT_OPEN, "Registration for this competition is not open.");
         }
 
         SignUpProfile profile = competitorService
                 .findSignUpProfile(caller)
                 .filter(SignUpProfile::profileComplete)
                 .orElseThrow(CompetitorServiceImpl::profileIncomplete);
-        if (!Eligibility.isAdultOn(profile.dateOfBirth(), tournament.date())) {
+        if (!Eligibility.isAdultOn(profile.dateOfBirth(), competition.date())) {
             throw CompetitorServiceImpl.underEighteen();
         }
         if (!Eligibility.isEligible(
-                profile.gender(), profile.belt(), profile.dateOfBirth(), division, tournament.date())) {
+                profile.gender(), profile.belt(), profile.dateOfBirth(), division, competition.date())) {
             throw ApiProblems.conflict(
                     ProblemTypes.NOT_ELIGIBLE,
                     "This division is not open to you: it is for another gender or belt, or an older age category.");
@@ -130,26 +130,27 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (state == RegistrationState.FULL) {
             throw full();
         }
-        if (hasActive(profile.competitorId(), tournament.id(), division.id())) {
+        if (hasActive(profile.competitorId(), competition.id(), division.id())) {
             throw alreadyRegistered();
         }
-        if (unpaidCount(profile.competitorId(), tournament.id()) >= RegistrationRules.MAX_UNPAID_PER_TOURNAMENT) {
+        if (unpaidCount(profile.competitorId(), competition.id()) >= RegistrationRules.MAX_UNPAID_PER_COMPETITION) {
             throw tooManyUnpaid();
         }
 
-        if (!tournamentService.takePlace(tournament.id())) {
+        if (!bjjEireCompetitionService.takePlace(competition.id())) {
             throw full();
         }
-        TournamentRegistration registration = insertHoldingASlot(newRegistration(tournament, division, profile));
+        BjjEireCompetitionRegistration registration =
+                insertHoldingASlot(newRegistration(competition, division, profile));
 
         CheckoutSession session;
         try {
-            session = paymentGateway.createCheckout(checkoutRequest(tournament, division, profile, registration));
+            session = paymentGateway.createCheckout(checkoutRequest(competition, division, profile, registration));
         } catch (PaymentGatewayException failed) {
             // Nothing reached Stripe that can be paid: forget the sign-up and give the place back.
             mongoTemplate.remove(
-                    Query.query(Criteria.where("_id").is(registration.getId())), TournamentRegistration.class);
-            tournamentService.releasePlace(tournament.id());
+                    Query.query(Criteria.where("_id").is(registration.getId())), BjjEireCompetitionRegistration.class);
+            bjjEireCompetitionService.releasePlace(competition.id());
             log.error(
                     "Checkout for registration {} could not be created: {}", registration.getId(), failed.getMessage());
             throw ApiProblems.badGateway(
@@ -159,41 +160,41 @@ public class RegistrationServiceImpl implements RegistrationService {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id").is(registration.getId())),
                 new Update().set("payment.checkoutSessionId", session.id()).set("payment.checkoutUrl", session.url()),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         support.afterWrite(AuditAction.Create, registration.getId());
         log.info(
-                "Sign-up {} started for tournament {} division {}",
+                "Sign-up {} started for competition {} division {}",
                 registration.getId(),
-                tournament.id(),
+                competition.id(),
                 division.id());
         return new RegistrationCheckoutDto(registration.getId(), session.url(), registration.getHoldExpiresAt());
     }
 
     /**
      * Inserts the sign-up in a free unpaid slot, 0 then 1. The two partial unique indexes make both limits hold under
-     * concurrency: one active sign-up per division (FR-020) and two unpaid per tournament (FR-041). Gives the place
+     * concurrency: one active sign-up per division (FR-020) and two unpaid per competition (FR-041). Gives the place
      * back when neither is free.
      */
-    private TournamentRegistration insertHoldingASlot(TournamentRegistration registration) {
-        for (int slot = 0; slot < RegistrationRules.MAX_UNPAID_PER_TOURNAMENT; slot++) {
+    private BjjEireCompetitionRegistration insertHoldingASlot(BjjEireCompetitionRegistration registration) {
+        for (int slot = 0; slot < RegistrationRules.MAX_UNPAID_PER_COMPETITION; slot++) {
             try {
                 return mongoTemplate.insert(
                         registration.toBuilder().unpaidSlot(slot).build());
             } catch (DuplicateKeyException taken) {
                 if (!String.valueOf(taken.getMessage()).contains(UNPAID_SLOT_INDEX)) {
                     // The same competitor started this division at the same moment.
-                    tournamentService.releasePlace(registration.getTournamentId());
+                    bjjEireCompetitionService.releasePlace(registration.getCompetitionId());
                     throw alreadyRegistered();
                 }
             }
         }
-        tournamentService.releasePlace(registration.getTournamentId());
+        bjjEireCompetitionService.releasePlace(registration.getCompetitionId());
         throw tooManyUnpaid();
     }
 
     @Override
     public RegistrationCheckoutDto resumeCheckout(CompetitorIdentity caller, String registrationId) {
-        TournamentRegistration registration = support.owned(caller, registrationId);
+        BjjEireCompetitionRegistration registration = support.owned(caller, registrationId);
         Instant now = clock.instant();
         boolean awaiting = registration.getStatus() == RegistrationStatus.AWAITING_PAYMENT
                 && registration.getPayment() != null
@@ -229,32 +230,39 @@ public class RegistrationServiceImpl implements RegistrationService {
         Query query = Query.query(
                         Criteria.where("competitorId").is(profile.get().competitorId()))
                 .with(Sort.by(Sort.Order.desc("createdAt")));
-        List<TournamentRegistration> registrations = mongoTemplate.find(query, TournamentRegistration.class);
-        Map<String, Optional<TournamentDto>> tournaments = new HashMap<>();
+        List<BjjEireCompetitionRegistration> registrations =
+                mongoTemplate.find(query, BjjEireCompetitionRegistration.class);
+        Map<String, Optional<BjjEireCompetitionDto>> competitions = new HashMap<>();
         List<RegistrationDto> result = new ArrayList<>();
-        for (TournamentRegistration registration : registrations) {
-            Optional<TournamentDto> tournament =
-                    tournaments.computeIfAbsent(registration.getTournamentId(), tournamentService::getForAdmin);
-            result.add(support.toDto(registration, tournament.orElse(null)));
+        for (BjjEireCompetitionRegistration registration : registrations) {
+            Optional<BjjEireCompetitionDto> competition = competitions.computeIfAbsent(
+                    registration.getCompetitionId(), bjjEireCompetitionService::getForAdmin);
+            result.add(support.toDto(registration, competition.orElse(null)));
         }
         return result;
     }
 
     @Override
-    public List<DivisionCompetitorsDto> getListedCompetitors(String tournamentId) {
-        TournamentDto tournament = tournamentService.getPublicById(tournamentId).orElseThrow(ApiProblems::notFound);
+    public List<DivisionCompetitorsDto> getListedCompetitors(String competitionId) {
+        BjjEireCompetitionDto competition =
+                bjjEireCompetitionService.getPublicById(competitionId).orElseThrow(ApiProblems::notFound);
         return cache.getOrCreate(
-                ApiCache.TOURNAMENTS_TAG, "Tournament_Competitors_" + tournamentId, () -> listed(tournament));
+                ApiCache.BJJEIRE_COMPETITIONS_TAG,
+                "BjjEireCompetition_Competitors_" + competitionId,
+                () -> listed(competition));
     }
 
-    private List<DivisionCompetitorsDto> listed(TournamentDto tournament) {
-        Query query = Query.query(
-                Criteria.where("tournamentId").is(tournament.id()).and("status").is(RegistrationStatus.CONFIRMED));
+    private List<DivisionCompetitorsDto> listed(BjjEireCompetitionDto competition) {
+        Query query = Query.query(Criteria.where("competitionId")
+                .is(competition.id())
+                .and("status")
+                .is(RegistrationStatus.CONFIRMED));
         Map<String, List<ListedCompetitorDto>> byDivision = new LinkedHashMap<>();
-        tournament.divisions().forEach(division -> byDivision.put(division.id(), new ArrayList<>()));
-        mongoTemplate.find(query, TournamentRegistration.class).stream()
+        competition.divisions().forEach(division -> byDivision.put(division.id(), new ArrayList<>()));
+        mongoTemplate.find(query, BjjEireCompetitionRegistration.class).stream()
                 .sorted(Comparator.comparing(
-                        TournamentRegistration::getDisplayName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+                        BjjEireCompetitionRegistration::getDisplayName,
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .forEach(registration -> {
                     List<ListedCompetitorDto> list = byDivision.get(registration.getDivisionId());
                     if (list != null) {
@@ -275,14 +283,14 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public void onCheckoutPaid(String registrationId, String checkoutSessionId, String paymentIntentId) {
-        TournamentRegistration registration = findForSession(registrationId, checkoutSessionId);
+        BjjEireCompetitionRegistration registration = findForSession(registrationId, checkoutSessionId);
         if (registration == null) {
             return;
         }
         switch (registration.getStatus()) {
             case CONFIRMED, CANCELLED -> log.info("Payment for registration {} already handled", registrationId);
             case AWAITING_PAYMENT -> {
-                TournamentRegistration confirmed =
+                BjjEireCompetitionRegistration confirmed =
                         confirm(registrationId, RegistrationStatus.AWAITING_PAYMENT, paymentIntentId);
                 if (confirmed == null) {
                     // The sweep or the expiry event ended the hold a moment ago; treat it as a late payment.
@@ -296,15 +304,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
     }
 
-    private void lateConfirmOrRefund(TournamentRegistration registration, String paymentIntentId) {
+    private void lateConfirmOrRefund(BjjEireCompetitionRegistration registration, String paymentIntentId) {
         if (registration.getRefund() != null) {
             // A refund was already tried and may have gone through at Stripe even if we saw it fail. Never confirm
             // after that: finish the refund with the same idempotency key (FR-020, SC-004).
             refundLatePayment(registration, paymentIntentId);
             return;
         }
-        if (tournamentService.takePlace(registration.getTournamentId())) {
-            TournamentRegistration confirmed;
+        if (bjjEireCompetitionService.takePlace(registration.getCompetitionId())) {
+            BjjEireCompetitionRegistration confirmed;
             try {
                 confirmed = confirm(registration.getId(), RegistrationStatus.EXPIRED, paymentIntentId);
             } catch (DuplicateKeyException alreadyEntered) {
@@ -316,8 +324,9 @@ public class RegistrationServiceImpl implements RegistrationService {
                 afterConfirmed(confirmed);
                 return;
             }
-            tournamentService.releasePlace(registration.getTournamentId());
-            TournamentRegistration current = mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+            bjjEireCompetitionService.releasePlace(registration.getCompetitionId());
+            BjjEireCompetitionRegistration current =
+                    mongoTemplate.findById(registration.getId(), BjjEireCompetitionRegistration.class);
             if (current == null || current.getStatus() != RegistrationStatus.EXPIRED) {
                 return;
             }
@@ -325,7 +334,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         refundLatePayment(registration, paymentIntentId);
     }
 
-    private void refundLatePayment(TournamentRegistration registration, String paymentIntentId) {
+    private void refundLatePayment(BjjEireCompetitionRegistration registration, String paymentIntentId) {
         int amount = registration.getPayment().getAmountCents();
         // Throws on failure: the webhook answers 5xx and Stripe retries; the idempotency key prevents a second refund.
         RefundResult refund;
@@ -346,7 +355,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .set("payment.paymentIntentId", paymentIntentId)
                 .set("payment.paidAt", now)
                 .set("cancelledAt", now)
-                .set("cancelledBy", TournamentRegistration.CANCELLED_BY_SYSTEM)
+                .set("cancelledBy", BjjEireCompetitionRegistration.CANCELLED_BY_SYSTEM)
                 .set(
                         "refund",
                         Refund.builder()
@@ -357,25 +366,25 @@ public class RegistrationServiceImpl implements RegistrationService {
                                 .requestedAt(now)
                                 .completedAt(refund.succeeded() ? now : null)
                                 .build()));
-        TournamentRegistration cancelled = mongoTemplate.findAndModify(
+        BjjEireCompetitionRegistration cancelled = mongoTemplate.findAndModify(
                 Query.query(Criteria.where("_id")
                         .is(registration.getId())
                         .and("status")
                         .is(RegistrationStatus.EXPIRED)),
                 update,
                 FindAndModifyOptions.options().returnNew(true),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         if (cancelled == null) {
             return;
         }
         support.afterWrite(AuditAction.Update, cancelled.getId());
         log.warn(
-                "Late payment for registration {} refunded in full: no place left in tournament {}",
+                "Late payment for registration {} refunded in full: no place left in competition {}",
                 cancelled.getId(),
-                cancelled.getTournamentId());
+                cancelled.getCompetitionId());
         support.mail(
                 cancelled,
-                (to, tournament, division) -> RegistrationMails.refundedNoPlace(to, tournament, division, amount));
+                (to, competition, division) -> RegistrationMails.refundedNoPlace(to, competition, division, amount));
     }
 
     /**
@@ -383,7 +392,7 @@ public class RegistrationServiceImpl implements RegistrationService {
      * pending", organiser alerted). The webhook then answers 5xx and Stripe's retry tries the same refund again.
      */
     private void recordFailedRefund(
-            TournamentRegistration registration, String paymentIntentId, int amount, RuntimeException failed) {
+            BjjEireCompetitionRegistration registration, String paymentIntentId, int amount, RuntimeException failed) {
         Instant now = clock.instant();
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("_id")
@@ -403,7 +412,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                                         .requestedAt(now)
                                         .failureReason(failed.getMessage())
                                         .build())),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         refundFailures.increment();
         log.error(
                 "ALERT refund of registration {} ({} cents) failed and must be resolved by hand if Stripe's retries also"
@@ -415,7 +424,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public void onCheckoutExpired(String registrationId, String checkoutSessionId) {
-        TournamentRegistration registration = findForSession(registrationId, checkoutSessionId);
+        BjjEireCompetitionRegistration registration = findForSession(registrationId, checkoutSessionId);
         if (registration != null) {
             expire(Criteria.where("_id").is(registrationId));
         }
@@ -433,7 +442,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                         .exists(false))
                 .limit(SWEEP_BATCH);
         int expired = 0;
-        for (TournamentRegistration registration : mongoTemplate.find(lapsed, TournamentRegistration.class)) {
+        for (BjjEireCompetitionRegistration registration :
+                mongoTemplate.find(lapsed, BjjEireCompetitionRegistration.class)) {
             String sessionId = registration.getPayment() == null
                     ? null
                     : registration.getPayment().getCheckoutSessionId();
@@ -467,11 +477,14 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
-    public int endHolds(String tournamentId) {
-        Query holds = Query.query(
-                Criteria.where("tournamentId").is(tournamentId).and("status").is(RegistrationStatus.AWAITING_PAYMENT));
+    public int endHolds(String competitionId) {
+        Query holds = Query.query(Criteria.where("competitionId")
+                .is(competitionId)
+                .and("status")
+                .is(RegistrationStatus.AWAITING_PAYMENT));
         int ended = 0;
-        for (TournamentRegistration registration : mongoTemplate.find(holds, TournamentRegistration.class)) {
+        for (BjjEireCompetitionRegistration registration :
+                mongoTemplate.find(holds, BjjEireCompetitionRegistration.class)) {
             if (expire(Criteria.where("_id").is(registration.getId()))) {
                 ended++;
             }
@@ -484,15 +497,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public RegistrationDto changeOwnDivision(
             CompetitorIdentity caller, String registrationId, ChangeDivisionCommand command) {
-        TournamentRegistration registration = support.owned(caller, registrationId);
-        TournamentDto tournament =
-                tournamentService.getForAdmin(registration.getTournamentId()).orElseThrow(ApiProblems::notFound);
+        BjjEireCompetitionRegistration registration = support.owned(caller, registrationId);
+        BjjEireCompetitionDto competition = bjjEireCompetitionService
+                .getForAdmin(registration.getCompetitionId())
+                .orElseThrow(ApiProblems::notFound);
         DivisionDto target =
-                RegistrationSupport.division(tournament, command.divisionId()).orElseThrow(ApiProblems::notFound);
+                RegistrationSupport.division(competition, command.divisionId()).orElseThrow(ApiProblems::notFound);
         if (registration.getStatus() != RegistrationStatus.CONFIRMED) {
             throw ApiProblems.conflict(ProblemTypes.CONFLICT, "Only a confirmed sign-up can change division.");
         }
-        RegistrationState state = tournament.registrationState();
+        RegistrationState state = competition.registrationState();
         if (state != RegistrationState.OPEN && state != RegistrationState.FULL) {
             throw ApiProblems.conflict(
                     ProblemTypes.REGISTRATION_CLOSED,
@@ -500,25 +514,25 @@ public class RegistrationServiceImpl implements RegistrationService {
                             + " organiser.");
         }
         if (target.id().equals(registration.getDivisionId())) {
-            return support.toDto(registration, tournament);
+            return support.toDto(registration, competition);
         }
         SignUpProfile profile = competitorService
                 .findSignUpProfile(caller)
                 .filter(SignUpProfile::profileComplete)
                 .orElseThrow(CompetitorServiceImpl::profileIncomplete);
         if (!Eligibility.isEligible(
-                profile.gender(), profile.belt(), profile.dateOfBirth(), target, tournament.date())) {
+                profile.gender(), profile.belt(), profile.dateOfBirth(), target, competition.date())) {
             throw ApiProblems.conflict(
                     ProblemTypes.NOT_ELIGIBLE,
                     "This division is not open to you: it is for another gender or belt, or an older age category.");
         }
-        TournamentRegistration moved = support.move(registration, target.id(), false);
+        BjjEireCompetitionRegistration moved = support.move(registration, target.id(), false);
         log.info("Sign-up {} moved by its competitor to division {}", moved.getId(), target.id());
-        return support.toDto(moved, tournament);
+        return support.toDto(moved, competition);
     }
 
     /** A paid session with no webhook: keep the place, record it once, and raise it for the organiser. */
-    private void alertUnconfirmedPayment(TournamentRegistration registration, Object atStripe) {
+    private void alertUnconfirmedPayment(BjjEireCompetitionRegistration registration, Object atStripe) {
         boolean first = mongoTemplate
                         .updateFirst(
                                 Query.query(Criteria.where("_id")
@@ -526,7 +540,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                                         .and("payment.unconfirmedAlertedAt")
                                         .exists(false)),
                                 Update.update("payment.unconfirmedAlertedAt", clock.instant()),
-                                TournamentRegistration.class)
+                                BjjEireCompetitionRegistration.class)
                         .getModifiedCount()
                 == 1;
         if (first) {
@@ -540,7 +554,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /** Whether Stripe already took the money for this sign-up's session; false when it cannot say. */
-    private boolean alreadyPaid(TournamentRegistration registration) {
+    private boolean alreadyPaid(BjjEireCompetitionRegistration registration) {
         try {
             CheckoutStatus atStripe =
                     paymentGateway.checkoutStatus(registration.getPayment().getCheckoutSessionId());
@@ -554,7 +568,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     /** Ends one unpaid hold; the guard on its status makes the place go back exactly once. */
     private boolean expire(Criteria which) {
         Query query = Query.query(which.and("status").is(RegistrationStatus.AWAITING_PAYMENT));
-        TournamentRegistration expired = mongoTemplate.findAndModify(
+        BjjEireCompetitionRegistration expired = mongoTemplate.findAndModify(
                 query,
                 support.audited(new Update()
                         .set("status", RegistrationStatus.EXPIRED)
@@ -563,17 +577,18 @@ public class RegistrationServiceImpl implements RegistrationService {
                         .unset("unpaidSlot")
                         .set("payment.status", PaymentStatus.FAILED)),
                 FindAndModifyOptions.options().returnNew(true),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         if (expired == null) {
             return false;
         }
-        tournamentService.releasePlace(expired.getTournamentId());
+        bjjEireCompetitionService.releasePlace(expired.getCompetitionId());
         support.afterWrite(AuditAction.Update, expired.getId());
         log.info("Sign-up {} expired unpaid; its place is released", expired.getId());
         return true;
     }
 
-    private TournamentRegistration confirm(String registrationId, RegistrationStatus from, String paymentIntentId) {
+    private BjjEireCompetitionRegistration confirm(
+            String registrationId, RegistrationStatus from, String paymentIntentId) {
         Update update = support.audited(new Update()
                 .set("status", RegistrationStatus.CONFIRMED)
                 .set("active", Boolean.TRUE)
@@ -587,21 +602,23 @@ public class RegistrationServiceImpl implements RegistrationService {
                         Criteria.where("_id").is(registrationId).and("status").is(from)),
                 update,
                 FindAndModifyOptions.options().returnNew(true),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
     }
 
-    private void afterConfirmed(TournamentRegistration confirmed) {
+    private void afterConfirmed(BjjEireCompetitionRegistration confirmed) {
         support.afterWrite(AuditAction.Update, confirmed.getId());
         log.info("Sign-up {} confirmed", confirmed.getId());
         int amount = confirmed.getPayment().getAmountCents();
         support.mail(
-                confirmed, (to, tournament, division) -> RegistrationMails.confirmed(to, tournament, division, amount));
+                confirmed,
+                (to, competition, division) -> RegistrationMails.confirmed(to, competition, division, amount));
     }
 
     /** The sign-up a Stripe event names, or null when it is unknown or the event is for another session. */
-    private TournamentRegistration findForSession(String registrationId, String checkoutSessionId) {
-        TournamentRegistration registration =
-                registrationId == null ? null : mongoTemplate.findById(registrationId, TournamentRegistration.class);
+    private BjjEireCompetitionRegistration findForSession(String registrationId, String checkoutSessionId) {
+        BjjEireCompetitionRegistration registration = registrationId == null
+                ? null
+                : mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
         if (registration == null) {
             log.warn("Stripe event names registration {}, which does not exist", registrationId);
             return null;
@@ -621,11 +638,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     // ---- Helpers --------------------------------------------------------------------------------------------------
 
-    private TournamentRegistration newRegistration(
-            TournamentDto tournament, DivisionDto division, SignUpProfile profile) {
+    private BjjEireCompetitionRegistration newRegistration(
+            BjjEireCompetitionDto competition, DivisionDto division, SignUpProfile profile) {
         Instant now = clock.instant();
-        return TournamentRegistration.builder()
-                .tournamentId(tournament.id())
+        return BjjEireCompetitionRegistration.builder()
+                .competitionId(competition.id())
                 .divisionId(division.id())
                 .competitorId(profile.competitorId())
                 .status(RegistrationStatus.AWAITING_PAYMENT)
@@ -639,8 +656,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .acceptedPublicListingAt(now)
                 .acceptedTermsAt(now)
                 .payment(Payment.builder()
-                        .amountCents(tournament.entryFeeCents())
-                        .currency(tournament.currency())
+                        .amountCents(competition.entryFeeCents())
+                        .currency(competition.currency())
                         .status(PaymentStatus.PENDING)
                         .build())
                 .createdOnUtc(auditInfoProvider.currentInstant())
@@ -649,18 +666,18 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     private CheckoutRequest checkoutRequest(
-            TournamentDto tournament,
+            BjjEireCompetitionDto competition,
             DivisionDto division,
             SignUpProfile profile,
-            TournamentRegistration registration) {
+            BjjEireCompetitionRegistration registration) {
         String id = registration.getId();
         String signUpPage =
-                siteUrl + "/tournaments/" + URLEncoder.encode(tournament.slug(), StandardCharsets.UTF_8) + "/signup";
+                siteUrl + "/competitions/" + URLEncoder.encode(competition.slug(), StandardCharsets.UTF_8) + "/signup";
         return new CheckoutRequest(
                 id,
-                tournament.id(),
+                competition.id(),
                 division.id(),
-                tournament.name() + " — " + RegistrationMails.label(division),
+                competition.name() + " — " + RegistrationMails.label(division),
                 registration.getPayment().getAmountCents(),
                 registration.getPayment().getCurrency(),
                 profile.email(),
@@ -670,39 +687,39 @@ public class RegistrationServiceImpl implements RegistrationService {
                 "checkout-" + id + "-1");
     }
 
-    private boolean hasActive(String competitorId, String tournamentId, String divisionId) {
+    private boolean hasActive(String competitorId, String competitionId, String divisionId) {
         return mongoTemplate.exists(
                 Query.query(Criteria.where("competitorId")
                         .is(competitorId)
-                        .and("tournamentId")
-                        .is(tournamentId)
+                        .and("competitionId")
+                        .is(competitionId)
                         .and("divisionId")
                         .is(divisionId)
                         .and("active")
                         .is(true)),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
     }
 
-    private long unpaidCount(String competitorId, String tournamentId) {
+    private long unpaidCount(String competitorId, String competitionId) {
         return mongoTemplate.count(
                 Query.query(Criteria.where("competitorId")
                         .is(competitorId)
-                        .and("tournamentId")
-                        .is(tournamentId)
+                        .and("competitionId")
+                        .is(competitionId)
                         .and("status")
                         .is(RegistrationStatus.AWAITING_PAYMENT)),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
     }
 
     private static ResponseStatusException full() {
         return ApiProblems.conflict(
-                ProblemTypes.TOURNAMENT_FULL, "This tournament is full. You have not been charged.");
+                ProblemTypes.COMPETITION_FULL, "This competition is full. You have not been charged.");
     }
 
     private static ResponseStatusException tooManyUnpaid() {
         return ApiProblems.conflict(
                 ProblemTypes.TOO_MANY_UNPAID,
-                "You already have two unpaid sign-ups in this tournament. Pay for or cancel one first.");
+                "You already have two unpaid sign-ups in this competition. Pay for or cancel one first.");
     }
 
     private static ResponseStatusException alreadyRegistered() {

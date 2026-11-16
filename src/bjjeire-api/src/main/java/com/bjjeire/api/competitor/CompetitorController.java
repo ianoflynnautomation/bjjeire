@@ -65,7 +65,7 @@ public class CompetitorController {
     }
 
     @GetMapping("/history")
-    @Operation(summary = "Get your medal totals and the tournaments you entered")
+    @Operation(summary = "Get your medal totals and the competitions you entered")
     public ResponseEntity<CompetitorHistoryDto> getOwnHistory(
             @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(competitorService.getOwnHistory(CompetitorIdentity.from(jwt)));

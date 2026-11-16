@@ -1,6 +1,6 @@
 import { api } from '@/lib/api-client'
 import { API_RESOURCE_ROUTES } from '@/config/api-routes'
-import type { DivisionDto } from '@/types/tournaments'
+import type { DivisionDto } from '@/types/bjjeire-competitions'
 import type {
   CancellationDto,
   ChangeDivisionCommand,
@@ -10,20 +10,20 @@ import type {
   RegistrationDto,
 } from '@/types/registrations'
 
-const tournamentPath = (tournamentId: string): string =>
-  `${API_RESOURCE_ROUTES.tournaments}/${encodeURIComponent(tournamentId)}`
+const bjjEireCompetitionPath = (competitionId: string): string =>
+  `${API_RESOURCE_ROUTES.bjjEireCompetitions}/${encodeURIComponent(competitionId)}`
 
 /** Competitor token: the divisions the caller may enter. */
 export const getEligibleDivisions = (
-  tournamentId: string
+  competitionId: string
 ): Promise<DivisionDto[]> =>
-  api.get(`${tournamentPath(tournamentId)}/eligible-division`)
+  api.get(`${bjjEireCompetitionPath(competitionId)}/eligible-division`)
 
 /** Public: confirmed competitors by division. */
-export const getTournamentCompetitors = (
-  tournamentId: string
+export const getBjjEireCompetitionCompetitors = (
+  competitionId: string
 ): Promise<DivisionCompetitorsDto[]> =>
-  api.get(`${tournamentPath(tournamentId)}/competitor`)
+  api.get(`${bjjEireCompetitionPath(competitionId)}/competitor`)
 
 export const createRegistration = (
   command: CreateRegistrationCommand

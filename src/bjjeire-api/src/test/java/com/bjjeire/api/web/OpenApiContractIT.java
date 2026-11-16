@@ -2,6 +2,8 @@ package com.bjjeire.api.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.common.ApiRoutes;
 import com.bjjeire.api.common.County;
 import com.bjjeire.api.common.GeoCoordinates;
@@ -27,8 +29,6 @@ import com.bjjeire.api.store.Store;
 import com.bjjeire.api.store.StoreRepository;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import com.bjjeire.api.testsupport.OpenApiResponseValidator;
-import com.bjjeire.api.tournament.Tournament;
-import com.bjjeire.api.tournament.TournamentStatus;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -92,30 +92,32 @@ class OpenApiContractIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldPublishTournamentRoutesWithBearerAuthOnEveryAdminOperation() throws Exception {
+    void shouldPublishBjjEireCompetitionRoutesWithBearerAuthOnEveryAdminOperation() throws Exception {
         JsonNode document = objectMapper.readTree(openApiDocument().getBody());
 
         assertThat(document.at("/paths").propertyNames())
                 .contains(
-                        ApiRoutes.TOURNAMENT,
-                        ApiRoutes.TOURNAMENT + "/{slug}",
-                        ApiRoutes.TOURNAMENT + "/admin",
-                        ApiRoutes.TOURNAMENT + "/admin/{id}",
-                        ApiRoutes.TOURNAMENT + "/{id}",
-                        ApiRoutes.TOURNAMENT + "/{id}/publish");
-        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT, "get")).has("security"))
+                        ApiRoutes.BJJEIRE_COMPETITION,
+                        ApiRoutes.BJJEIRE_COMPETITION + "/{slug}",
+                        ApiRoutes.BJJEIRE_COMPETITION + "/admin",
+                        ApiRoutes.BJJEIRE_COMPETITION + "/admin/{id}",
+                        ApiRoutes.BJJEIRE_COMPETITION + "/{id}",
+                        ApiRoutes.BJJEIRE_COMPETITION + "/{id}/publish");
+        assertThat(document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION, "get"))
+                        .has("security"))
                 .isFalse();
-        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/{slug}", "get"))
+        assertThat(document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION + "/{slug}", "get"))
                         .has("security"))
                 .isFalse();
         // Admin reads are GETs, which the method-based rule alone would leave unmarked.
-        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/admin", "get"))))
+        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION + "/admin", "get"))))
                 .isTrue();
-        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT + "/admin/{id}", "get"))))
+        assertThat(hasBearerSecurity(
+                        document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION + "/admin/{id}", "get"))))
                 .isTrue();
-        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.TOURNAMENT, "post"))))
+        assertThat(hasBearerSecurity(document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION, "post"))))
                 .isTrue();
-        assertThat(document.at(operationPointer(ApiRoutes.TOURNAMENT, "post") + "/security"))
+        assertThat(document.at(operationPointer(ApiRoutes.BJJEIRE_COMPETITION, "post") + "/security"))
                 .hasSize(1);
     }
 
@@ -142,8 +144,8 @@ class OpenApiContractIT extends MongoIntegrationTest {
     }
 
     @Test
-    void shouldReturnAPublicTournamentListingThatMatchesTheServedSchema() throws Exception {
-        mongoTemplate.insert(Tournament.builder()
+    void shouldReturnAPublicBjjEireCompetitionListingThatMatchesTheServedSchema() throws Exception {
+        mongoTemplate.insert(BjjEireCompetition.builder()
                 .slug("bjjeire")
                 .name("BjjEire")
                 .date(java.time.LocalDate.parse("2026-06-27"))
@@ -154,13 +156,13 @@ class OpenApiContractIT extends MongoIntegrationTest {
                 .entryFeeCents(2500)
                 .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
                 .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
-                .status(TournamentStatus.PUBLISHED)
+                .status(BjjEireCompetitionStatus.PUBLISHED)
                 .build());
 
         OpenApiResponseValidator validator = new OpenApiResponseValidator(
                 objectMapper.readTree(openApiDocument().getBody()));
 
-        assertListingMatches(validator, ApiRoutes.TOURNAMENT);
+        assertListingMatches(validator, ApiRoutes.BJJEIRE_COMPETITION);
     }
 
     @Test

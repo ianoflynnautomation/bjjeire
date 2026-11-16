@@ -6,7 +6,10 @@ import { stores } from './stores'
 import { brand, navigation, footer } from './layout'
 import { about } from './about'
 import { supportModal } from './support'
-import { tournaments, tournamentAdmin } from './tournaments'
+import {
+  bjjEireCompetitions,
+  bjjEireCompetitionAdmin,
+} from './bjjeire-competitions'
 import { competitor } from './competitor'
 import { registrations } from './registrations'
 
@@ -21,8 +24,8 @@ export const uiContent = {
   footer,
   about,
   supportModal,
-  tournaments,
-  tournamentAdmin,
+  bjjEireCompetitions,
+  bjjEireCompetitionAdmin,
   competitor,
   registrations,
 } as const

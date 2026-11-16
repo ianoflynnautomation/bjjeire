@@ -1,8 +1,8 @@
 package com.bjjeire.api.competitor;
 
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ValidObjectId;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Gender;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

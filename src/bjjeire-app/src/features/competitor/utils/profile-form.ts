@@ -1,5 +1,5 @@
 import { uiContent } from '@/config/ui-content'
-import type { Belt, Gender } from '@/types/tournaments'
+import type { Belt, Gender } from '@/types/bjjeire-competitions'
 import type {
   CompetitorDto,
   PostalAddressDto,

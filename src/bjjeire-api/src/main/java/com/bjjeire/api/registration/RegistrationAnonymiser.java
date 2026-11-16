@@ -50,11 +50,11 @@ class RegistrationAnonymiser {
                         Query.query(Criteria.where("competitorId").in(ids)),
                         new Update()
                                 .unset("competitorId")
-                                .set("displayName", TournamentRegistration.DELETED_DISPLAY_NAME)
+                                .set("displayName", BjjEireCompetitionRegistration.DELETED_DISPLAY_NAME)
                                 .set("financialRecordsExpireAt", expireAt),
-                        TournamentRegistration.class)
+                        BjjEireCompetitionRegistration.class)
                 .getModifiedCount();
-        cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+        cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
         log.info("{} sign-up(s) anonymised for a deleted account; payment records kept until {}", anonymised, expireAt);
     }
 }

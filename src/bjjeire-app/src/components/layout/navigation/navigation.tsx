@@ -35,8 +35,8 @@ const Navigation = function Navigation(): JSX.Element {
     closeMobileMenu,
   } = useNavigationState()
   const { theme, cycleTheme } = useTheme()
-  // #5038: no account entry point while tournaments are switched off.
-  const showAccount = useFeatureFlagClient().isEnabled('Tournaments')
+  // #5038: no account entry point while BJJ Éire competitions are switched off.
+  const showAccount = useFeatureFlagClient().isEnabled('BjjEireCompetitions')
 
   useEffect(() => {
     if (!isMobileMenuOpen || isSupportModalOpen) {

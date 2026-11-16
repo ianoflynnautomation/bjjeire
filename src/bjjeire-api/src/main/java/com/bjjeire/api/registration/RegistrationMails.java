@@ -1,41 +1,42 @@
 package com.bjjeire.api.registration;
 
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.TournamentDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import java.util.Locale;
 
 /** The text of sign-up mails. Plain text; the site is English only. */
 final class RegistrationMails {
     private RegistrationMails() {}
 
-    static MailMessage confirmed(String to, TournamentDto tournament, DivisionDto division, int amountCents) {
+    static MailMessage confirmed(String to, BjjEireCompetitionDto competition, DivisionDto division, int amountCents) {
         String body = """
                 Your sign-up is confirmed.
 
-                Tournament: %s
+                Competition: %s
                 Date: %s
                 Division: %s
                 Paid: %s
 
                 You are now on the public competitor list for your division. You can see and manage your
                 sign-ups under My sign-ups on the site.
-                """.formatted(tournament.name(), tournament.date(), label(division), euro(amountCents));
-        return new MailMessage(to, "Sign-up confirmed: " + tournament.name(), body);
+                """.formatted(competition.name(), competition.date(), label(division), euro(amountCents));
+        return new MailMessage(to, "Sign-up confirmed: " + competition.name(), body);
     }
 
-    static MailMessage refundedNoPlace(String to, TournamentDto tournament, DivisionDto division, int amountCents) {
+    static MailMessage refundedNoPlace(
+            String to, BjjEireCompetitionDto competition, DivisionDto division, int amountCents) {
         String body = """
-                Your payment arrived after your place was released, and the tournament had no place left.
+                Your payment arrived after your place was released, and the competition had no place left.
 
-                Tournament: %s
+                Competition: %s
                 Division: %s
                 We have issued a full refund of %s to your original payment method.
-                """.formatted(tournament.name(), label(division), euro(amountCents));
-        return new MailMessage(to, "Sign-up not confirmed, refund issued: " + tournament.name(), body);
+                """.formatted(competition.name(), label(division), euro(amountCents));
+        return new MailMessage(to, "Sign-up not confirmed, refund issued: " + competition.name(), body);
     }
 
     /** FR-024, #5027: says whether a refund was issued and for how much. */
-    static MailMessage cancelled(String to, TournamentDto tournament, DivisionDto division, Refund refund) {
+    static MailMessage cancelled(String to, BjjEireCompetitionDto competition, DivisionDto division, Refund refund) {
         String outcome;
         if (refund == null) {
             outcome = "No refund is due: the sign-up was cancelled after registration closed.";
@@ -51,42 +52,44 @@ final class RegistrationMails {
         String body = """
                 Your sign-up has been cancelled.
 
-                Tournament: %s
+                Competition: %s
                 Date: %s
                 Division: %s
 
                 %s
 
                 You are no longer on the competitor list for this division.
-                """.formatted(tournament.name(), tournament.date(), label(division), outcome);
-        return new MailMessage(to, "Sign-up cancelled: " + tournament.name(), body);
+                """.formatted(competition.name(), competition.date(), label(division), outcome);
+        return new MailMessage(to, "Sign-up cancelled: " + competition.name(), body);
     }
 
     /** Stripe reported the refund of a cancelled sign-up as completed. */
-    static MailMessage refundCompleted(String to, TournamentDto tournament, DivisionDto division, int amountCents) {
+    static MailMessage refundCompleted(
+            String to, BjjEireCompetitionDto competition, DivisionDto division, int amountCents) {
         String body = """
                 Your refund has been completed.
 
-                Tournament: %s
+                Competition: %s
                 Division: %s
                 Refunded: %s to your original payment method.
-                """.formatted(tournament.name(), label(division), euro(amountCents));
-        return new MailMessage(to, "Refund completed: " + tournament.name(), body);
+                """.formatted(competition.name(), label(division), euro(amountCents));
+        return new MailMessage(to, "Refund completed: " + competition.name(), body);
     }
 
-    /** FR-024, #5026: the organiser cancelled the whole tournament. */
-    static MailMessage tournamentCancelled(String to, TournamentDto tournament, DivisionDto division, int amountCents) {
+    /** FR-024, #5026: the organiser cancelled the whole competition. */
+    static MailMessage bjjEireCompetitionCancelled(
+            String to, BjjEireCompetitionDto competition, DivisionDto division, int amountCents) {
         String body = """
-                The organiser has cancelled this tournament.
+                The organiser has cancelled this competition.
 
-                Tournament: %s
+                Competition: %s
                 Date: %s
                 Division: %s
 
                 Your sign-up is cancelled and we are issuing a full refund of %s to your original payment method.
                 It can take 5 to 10 days to appear.
-                """.formatted(tournament.name(), tournament.date(), label(division), euro(amountCents));
-        return new MailMessage(to, "Tournament cancelled: " + tournament.name(), body);
+                """.formatted(competition.name(), competition.date(), label(division), euro(amountCents));
+        return new MailMessage(to, "Competition cancelled: " + competition.name(), body);
     }
 
     static String label(DivisionDto division) {
@@ -95,7 +98,7 @@ final class RegistrationMails {
         }
         return "%s, %s, %s, %s belt, %s"
                 .formatted(
-                        division.discipline() == com.bjjeire.api.tournament.Discipline.NO_GI ? "No-gi" : "Gi",
+                        division.discipline() == com.bjjeire.api.bjjeirecompetition.Discipline.NO_GI ? "No-gi" : "Gi",
                         capitalise(division.gender().name()),
                         capitalise(division.ageCategory().name().replace('_', ' ')),
                         capitalise(division.belt().name()),

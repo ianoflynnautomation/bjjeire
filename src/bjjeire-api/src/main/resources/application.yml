@@ -35,7 +35,7 @@ management:
 bjjeire:
   auth:
     writer-scope: ${BJJ_EIRE_WRITER_SCOPE:access_as_writer}
-  # Tournament registration (specs/001-tournament-registration, ADR-0012, ADR-0013). The all-zero
+  # BJJ Éire competition registration (specs/001-tournament-registration, ADR-0012, ADR-0013). The all-zero
   # tenant and the REPLACE_ME keys are placeholders. competitor-auth is read by SecurityConfig;
   # stripe, mail and registration by the registration package.
   competitor-auth:
@@ -58,7 +58,7 @@ bjjeire:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}
-    # The site's origin: Checkout returns the competitor to /tournaments/<slug>/signup[/complete] under it.
+    # The site's origin: Checkout returns the competitor to /competitions/<slug>/signup[/complete] under it.
     success-url-base: ${STRIPE_SUCCESS_URL_BASE:https://bjjeire.com}
   # Research R6. The SMTP server is Spring Boot's spring.mail.* (SPRING_MAIL_HOST, SPRING_MAIL_PORT,
   # SPRING_MAIL_USERNAME, SPRING_MAIL_PASSWORD). Without SPRING_MAIL_HOST sign-up mail is logged, not sent.
@@ -92,6 +92,6 @@ bjjeire:
     Gyms: ${FEATURE_GYMS:true}
     Competitions: ${FEATURE_COMPETITIONS:true}
     Stores: ${FEATURE_STORES:true}
-    Tournaments: ${FEATURE_TOURNAMENTS:false}
+    BjjEireCompetitions: ${FEATURE_BJJEIRE_COMPETITIONS:false}
     GymsMap: ${FEATURE_GYMS_MAP:false}
     EventsMap: ${FEATURE_EVENTS_MAP:false}

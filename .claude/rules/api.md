@@ -23,10 +23,10 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 ## Controller Pattern
 - Thin controllers: inject the feature service interface only, no repositories
 - The use-case contract is an interface in the feature package (`GymService`). The Spring bean is `GymServiceImpl` in that same package. Do not add a `service/` package or a ports layer. `UriService` and `SeederService` follow the same split
-- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, and for tournaments `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`). Do not add a second PascalCase alias
+- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, and for BJJ Éire competitions `/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration`). Do not add a second PascalCase alias
 - One public version, `/api/v1`. Extend a resource with optional fields. Do not publish a second copy of it
 - Queries return DTOs (never domain entities directly); writes accept command records that wrap the read DTO
-- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`. Exception: the tournament feature (`tournament`, `competitor`, `registration`) uses the `UPPER_SNAKE` values its contract fixes (`DRAFT`, `NO_GI`, `NOT_OPEN`, `MASTER_1`; `specs/stc/tournaments/contract.yaml`). They are published; changing either family is a breaking change
+- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`. Exception: the BJJ Éire competition feature (`bjjeirecompetition`, `competitor`, `registration`) uses the `UPPER_SNAKE` values its contract fixes (`DRAFT`, `NO_GI`, `NOT_OPEN`, `MASTER_1`; `specs/stc/competitions/contract.yaml`). They are published; changing either family is a breaking change
 - Pagination query params bind to `common.PaginationRequest`. Path ids take `@ValidObjectId`
 
 ## Pagination
@@ -35,20 +35,20 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - `pagination` fields: `totalItems`, `currentPage`, `pageSize`, `totalPages`, `hasNextPage`, `hasPreviousPage`, `nextPageUrl`, `previousPageUrl`
 
 ## Writes
-- Gym, event and tournament updates are `PUT` of the full resource plus `version`. A stale version is 409 (a missing one is 409 for gyms and events, 400 for tournaments). Do not replace that with `PATCH`
+- Gym, event and BJJ Éire competition updates are `PUT` of the full resource plus `version`. A stale version is 409 (a missing one is 409 for gyms and events, 400 for BJJ Éire competitions). Do not replace that with `PATCH`
 - There is no `Idempotency-Key`. Create without an id inserts again. The same id again is 409 and does not replay 201. A second delete is 404. Say so on the operation description
 - `GeoCoordinates.latitude` and `longitude` are derived and omitted when the pair is absent. SPA handwritten types must not require a field the served schema omits. `src/types/generated` is the CI check; feature clients keep their handwritten types
 
 ## Auth
 - Public read endpoints require no auth; write operations require `Authorization: Bearer {token}` (see `SecurityConfig`)
-- Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, tournament admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
+- Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, BJJ Éire competition admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
 - `anyRequest()` means a workforce account, not any valid token. A competitor token does not satisfy it
 - `POST /api/v1/registration/stripe-webhook` is the only write with no bearer token (ADR-0013). Its controller must verify the Stripe signature
 - Local development only: `POST /api/v1/local-sign-in` issues an organiser token when `bjjeire.local-sign-in.enabled` is true (ADR-0014). The API refuses to start that way unless `local` is the only active profile, and the local stack publishes the API on `127.0.0.1` only. `POST /api/v1/local-sign-in/competitor` issues a competitor token for a typed email under the same guard; its issuer (`LocalSignInTokens.COMPETITOR_ISSUER`) gets `ROLE_COMPETITOR` and nothing else, exactly like the competitor tenant. Never enable either in a cluster, and never map the organiser issuer to anything but the workforce rules
 
 ## Cross-cutting filters (`config/`)
 - `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping
-- Tournament routes (`/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`) skip `ReadOnlyModeFilter` and are governed by the `Tournaments` flag instead: with it off, `web.TournamentFeatureGateFilter` answers 404 ahead of authentication. Both use `ApiRoutes.isTournamentFeaturePath`, which matches the percent-decoded path
+- BJJ Éire competition routes (`/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration`) skip `ReadOnlyModeFilter` and are governed by the `BjjEireCompetitions` flag instead: with it off, `web.BjjEireCompetitionFeatureGateFilter` answers 404 ahead of authentication. Both use `ApiRoutes.isBjjEireCompetitionFeaturePath`, which matches the percent-decoded path
 - `RateLimitFilter` is on by default (600 requests per 60 seconds, 429 on rejection). `/health` is exempt
 - `SecurityHeadersFilter` sets the response security headers, including the Content-Security-Policy. Change headers there, not in a controller
 

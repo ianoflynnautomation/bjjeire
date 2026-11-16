@@ -3,12 +3,12 @@
 **Collections**: `Competitor`, `DeletedCompetitor`
 **Java**: `com.bjjeire.api.competitor.Competitor` (embedded `Academy`, `PostalAddress`), `com.bjjeire.api.competitor.DeletedCompetitor`
 **Seeder**: none. Profiles are created only by the competitor through `PUT /api/v1/competitor/me`.
-**API contract**: [../stc/tournaments/contract.yaml](../stc/tournaments/contract.yaml)
+**API contract**: [../stc/competitions/contract.yaml](../stc/competitions/contract.yaml)
 **Design record**: [../001-tournament-registration/data-model.md](../001-tournament-registration/data-model.md) § Competitor, research R11
 
 Personal data under GDPR. No public response is ever built from these
 collections (FR-011). Public lists, podiums and rankings read the snapshot on
-each sign-up instead (`TournamentRegistration`, slice 3).
+each sign-up instead (`BjjEireCompetitionRegistration`, slice 3).
 
 ## Competitor
 
@@ -88,7 +88,7 @@ Declared in `config/MongoIndexInitializer`.
 
 `DELETE /api/v1/competitor/me`, in order:
 
-1. Refused with 409 `urn:bjjeire:has-active-registration` while the caller has a `TournamentRegistration` with `competitorId` = their profile id (as a string or an ObjectId) and `active: true` (read by its documented fields until the sign-up slice owns the collection).
+1. Refused with 409 `urn:bjjeire:has-active-registration` while the caller has a `BjjEireCompetitionRegistration` with `competitorId` = their profile id (as a string or an ObjectId) and `active: true` (read by its documented fields until the sign-up slice owns the collection).
 2. `DeletedCompetitor` is upserted, so the identity's tokens stop working.
 3. The `Competitor` document is removed by (`issuer`, `subject`) and the delete audited. Removing by identity after step 2 catches a first save that raced the delete; a save that lands later finds the tombstone, removes its own document and answers 401.
 4. Graph deletes the user by the token's `oid` claim (not `sub`: Entra issues a different `sub` per application). A failure is logged and counted; the response is still 204.

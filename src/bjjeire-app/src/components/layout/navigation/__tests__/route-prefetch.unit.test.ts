@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { describe, it, expect, vi } from 'vitest'
 import { prefetchRouteData } from '../route-prefetch'
-import { initialTournamentFilters } from '@/features/tournaments/hooks/useTournamentsPage'
+import { RETIRED_NAME } from '@/testing/retired-name'
 import { initialGymFilters } from '@/features/gyms/hooks/useGymsPage'
 
 describe('prefetchRouteData', () => {
@@ -18,23 +18,15 @@ describe('prefetchRouteData', () => {
     })
   })
 
-  it('given the tournaments route, then it primes the key the tournament list page uses', () => {
-    const queryClient = new QueryClient()
-    const spy = vi.spyOn(queryClient, 'query').mockResolvedValue(undefined)
-
-    prefetchRouteData(queryClient, 'tournaments')
-
-    expect(spy.mock.calls[0][0]).toMatchObject({
-      queryKey: ['tournaments', { ...initialTournamentFilters, page: 1 }],
-    })
-  })
-
   it('given a route with no list query (about) or an unknown id, then it does not prefetch', () => {
     const queryClient = new QueryClient()
     const spy = vi.spyOn(queryClient, 'query').mockResolvedValue(undefined)
 
     prefetchRouteData(queryClient, 'about')
     prefetchRouteData(queryClient, 'does-not-exist')
+    // #3016: the BJJ Éire competitions list page is gone, so there is nothing to prime.
+    prefetchRouteData(queryClient, `${RETIRED_NAME}s`)
+    prefetchRouteData(queryClient, 'bjjeire-competitions')
 
     expect(spy).not.toHaveBeenCalled()
   })

@@ -88,7 +88,7 @@ describe('SignUpCompletePage', () => {
     ).toHaveTextContent(complete.failedMessage)
     expect(screen.getByTestId(SignUpCompleteTestIds.TRY_AGAIN)).toHaveAttribute(
       'href',
-      paths.tournamentSignUp.getHref('bjjeire')
+      paths.bjjEireCompetitionSignUp.getHref('bjjeire')
     )
   })
 

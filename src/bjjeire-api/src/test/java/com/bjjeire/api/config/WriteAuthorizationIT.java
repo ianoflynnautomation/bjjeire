@@ -66,7 +66,7 @@ class WriteAuthorizationIT extends MongoIntegrationTest {
         }
     }
 
-    /** #5036: the directory is still readable without an account while the tournament feature is on. */
+    /** #5036: the directory is still readable without an account while the competition feature is on. */
     @ParameterizedTest
     @Tag("#5036")
     @ValueSource(strings = {ApiRoutes.GYM, ApiRoutes.BJJ_EVENT, ApiRoutes.COMPETITION, ApiRoutes.STORE})

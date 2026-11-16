@@ -1,0 +1,84 @@
+# Interface changes for 002-merge-tournaments-competitions.
+# Everything not listed here keeps its route, method, auth, request and response shape,
+# as defined in specs/stc/tournaments/contract.yaml. That file moves into
+# specs/stc/competitions/contract.yaml (section bjjeire_competitions) when this change is built.
+
+feature_flag:
+  from: Tournaments            # env FEATURE_TOURNAMENTS
+  to: BjjEireCompetitions      # env FEATURE_BJJEIRE_COMPETITIONS; default false; fail-closed
+  gates: [/api/v1/bjjeire-competition, /api/v1/competitor, /api/v1/registration]   # 404 before auth when off
+  covers: ["#3014", "#3015"]
+
+api_routes:
+  prefix:
+    from: /api/v1/tournament
+    to: /api/v1/bjjeire-competition
+    old_prefix_after_change: 404 (no redirect)          # "#3016"
+  changed_meaning:
+    - method: GET
+      path: /api/v1/bjjeire-competition
+      auth: public
+      response: PagedResponse<BjjEireCompetitionSummaryDto>   # same fields as TournamentSummaryDto
+      was: PUBLISHED, FINISHED and CANCELLED; ordered by date
+      now: upcoming only = status PUBLISHED and date >= today in Europe/Dublin; ordered by date then name
+      params: page (>=1, default 1), pageSize (1..100, default 20)
+      covers: ["#3006", "#3007"]
+  unchanged_paths_under_new_prefix:
+    - GET /{slug}                      # PUBLISHED, FINISHED, CANCELLED; draft/unknown 404 ("#3009")
+    - GET /{id}/competitor
+    - GET /{id}/eligible-division      # competitor
+    - GET /admin, GET /admin/{id}, POST /, PUT /{id}, POST /{id}/publish, POST /{id}/cancel     # admin
+    - GET /{id}/registration (+ ?format=csv), PUT /{id}/registration/{registrationId}/division,
+      POST /{id}/registration/{registrationId}/cancel, POST /{id}/team-merge                     # admin
+  unchanged_prefixes: [/api/v1/competitor, /api/v1/registration, /api/v1/registration/stripe-webhook]
+
+json_fields:
+  RegistrationDto:                     # GET /api/v1/registration/me, organiser sign-up list
+    tournamentId: competitionId
+    tournamentSlug: competitionSlug
+    tournamentName: competitionName
+    tournamentDate: competitionDate
+  CompetitorHistoryDto:                # GET /api/v1/competitor/me/history
+    tournaments: competitions
+    "tournaments[].tournamentId": "competitions[].competitionId"
+  schema_names:                        # OpenAPI component names
+    TournamentDto: BjjEireCompetitionDto
+    TournamentSummaryDto: BjjEireCompetitionSummaryDto
+    TournamentStatus: BjjEireCompetitionStatus
+    CreateTournamentCommand: CreateBjjEireCompetitionCommand
+    UpdateTournamentCommand: UpdateBjjEireCompetitionCommand
+    TournamentMedalsDto: CompetitionMedalsDto
+
+problem_types:
+  urn:bjjeire:tournament-full: urn:bjjeire:competition-full     # "#3012"; every other URN unchanged
+
+downloads:
+  csv_filename: competition-<id>-signups.csv    # was tournament-<id>-signups.csv
+
+stripe:
+  checkout_metadata: { tournamentId: competitionId }   # registrationId unchanged; webhook does not read it
+  line_item: "«competition name» — «division»"
+  success_url: <site>/competitions/<slug>/signup/complete?registration=<id>   # was /tournaments/...
+  cancel_url:  <site>/competitions/<slug>/signup?registration=<id>
+  webhook_endpoint: unchanged
+
+spa_routes:
+  removed: [/tournaments, /tournaments/:slug, /tournaments/:slug/signup, /tournaments/:slug/signup/complete,
+            /admin/tournaments, /admin/tournaments/:id]      # fall through to not-found ("#3016")
+  added:
+    - { path: /competitions/:slug, flag: BjjEireCompetitions, covers: ["#3009"] }
+    - { path: /competitions/:slug/signup, flag: BjjEireCompetitions, covers: ["#3010"] }
+    - { path: /competitions/:slug/signup/complete, flag: BjjEireCompetitions, covers: ["#3010"] }
+    - { path: /admin/competitions, flag: BjjEireCompetitions, covers: ["#3013"] }
+    - { path: /admin/competitions/:id, flag: BjjEireCompetitions, covers: ["#3013"] }
+  changed:
+    - path: /competitions
+      flag: Competitions
+      adds: featured section "BJJ Éire competitions" above the search box when BjjEireCompetitions is on
+            and the upcoming list is non-empty; omitted while loading or on error; search/paging do not touch it
+      covers: ["#3006", "#3007", "#3008"]
+  nav: the "Tournaments" item is removed; the account icon stays under BjjEireCompetitions   # "#3011", "#3015"
+
+mongo:
+  collections: { Tournament: BjjEireCompetition, TournamentRegistration: BjjEireCompetitionRegistration }
+  legacy: dropped at startup if present, count logged; drop removed one release later   # "#3017"

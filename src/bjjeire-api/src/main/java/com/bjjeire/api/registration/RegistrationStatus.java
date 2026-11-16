@@ -2,7 +2,7 @@ package com.bjjeire.api.registration;
 
 import java.util.Set;
 
-/** Where a sign-up is in its life (data-model.md § TournamentRegistration, state transitions). */
+/** Where a sign-up is in its life (data-model.md § BjjEireCompetitionRegistration, state transitions). */
 public enum RegistrationStatus {
     AWAITING_PAYMENT,
     CONFIRMED,

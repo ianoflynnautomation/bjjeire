@@ -55,7 +55,7 @@ describe('dublin-time', () => {
     expect(isoToDublinLocal('')).toBe('')
   })
 
-  it('given a tournament day, when its end is worked out, then it is midnight Irish time after that day', () => {
+  it('given a competition day, when its end is worked out, then it is midnight Irish time after that day', () => {
     expect(endOfDublinDayIso('2026-06-27')).toBe('2026-06-27T23:00:00.000Z')
     expect(endOfDublinDayIso('2026-12-05')).toBe('2026-12-06T00:00:00.000Z')
     expect(endOfDublinDayIso('')).toBeNull()

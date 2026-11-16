@@ -5,7 +5,7 @@ import { CompetitorProfileTestIds } from '@/constants/competitorDataTestIds'
 import {
   createCompetitor,
   createCompetitorHistory,
-  createTournamentMedals,
+  createCompetitionMedals,
 } from '@/testing/factories/competitor.factory'
 import { createGym } from '@/testing/factories/gym.factory'
 import {
@@ -234,7 +234,7 @@ describe('ProfilePage', () => {
   })
 
   // #5039
-  it('given medals won, when the profile opens, then the totals and each tournament with its medals are shown', async () => {
+  it('given medals won, when the profile opens, then the totals and each competition with its medals are shown', async () => {
     signedIn()
     seedOwnProfile(createCompetitor())
     seedOwnHistory(
@@ -242,10 +242,10 @@ describe('ProfilePage', () => {
         gold: 1,
         silver: 2,
         bronze: 0,
-        tournaments: [
-          createTournamentMedals({ name: 'BjjEire', gold: 1, silver: 1 }),
-          createTournamentMedals({
-            tournamentId: 'second',
+        competitions: [
+          createCompetitionMedals({ name: 'BjjEire', gold: 1, silver: 1 }),
+          createCompetitionMedals({
+            competitionId: 'second',
             slug: 'bjjeire-spring',
             name: 'BjjEire Spring',
             gold: 0,
@@ -269,11 +269,15 @@ describe('ProfilePage', () => {
     expect(rows).toHaveLength(2)
     expect(
       within(rows[1]).getByRole('link', { name: 'BjjEire Spring' })
-    ).toHaveAttribute('href', '/tournaments/bjjeire-spring')
+    ).toHaveAttribute('href', '/competitions/bjjeire-spring')
+    // #3011
+    expect(
+      screen.getByRole('columnheader', { name: 'Competitions entered' })
+    ).toBeInTheDocument()
   })
 
   // #5039
-  it('given no tournaments entered, when the profile opens, then the medals section says so', async () => {
+  it('given no competitions entered, when the profile opens, then the medals section says so', async () => {
     signedIn()
     seedOwnProfile(createCompetitor())
     renderProfilePage()

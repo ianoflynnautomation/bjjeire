@@ -1,13 +1,13 @@
-import type { Belt, DivisionDto, Gender } from './tournaments'
+import type { Belt, DivisionDto, Gender } from './bjjeire-competitions'
 
 export type RegistrationStatus =
   'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED'
 export type RefundStatus = 'PENDING' | 'REFUNDED' | 'FAILED'
 
-/** Body of `POST /registration`. The amount is never sent: the API charges the tournament's fee. */
+/** Body of `POST /registration`. The amount is never sent: the API charges the competition's fee. */
 export interface CreateRegistrationCommand {
-  tournamentId: string
+  competitionId: string
   divisionId: string
   acceptPublicListing: boolean
   acceptTerms: boolean
@@ -23,12 +23,12 @@ export interface RegistrationCheckoutDto {
 /** One of the signed-in competitor's own sign-ups. */
 export interface RegistrationDto {
   id: string
-  tournamentId: string
-  tournamentSlug?: string | null
-  tournamentName?: string | null
+  competitionId: string
+  competitionSlug?: string | null
+  competitionName?: string | null
   /** `YYYY-MM-DD`, Irish time. */
-  tournamentDate?: string | null
-  /** Absent when the division was removed from the tournament. */
+  competitionDate?: string | null
+  /** Absent when the division was removed from the competition. */
   division?: DivisionDto | null
   status: RegistrationStatus
   amountCents: number
@@ -72,7 +72,7 @@ export interface AdminCancelCommand {
 
 export type TeamKind = 'ACADEMY' | 'AFFILIATION'
 
-/** Body of `POST /tournament/{id}/team-merge`. */
+/** Body of `POST /bjjeire-competition/{id}/team-merge`. */
 export interface MergeTeamsCommand {
   kind: TeamKind
   fromKeys: string[]

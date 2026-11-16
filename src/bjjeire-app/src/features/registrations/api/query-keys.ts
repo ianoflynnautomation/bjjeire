@@ -5,7 +5,7 @@ export const OWN_REGISTRATIONS_KEY = [
   ...COMPETITOR_KEY,
   'registrations',
 ] as const
-export const eligibleDivisionsKey = (tournamentId: string) =>
-  [...COMPETITOR_KEY, 'eligible-divisions', tournamentId] as const
-export const tournamentCompetitorsKey = (tournamentId: string) =>
-  ['tournament-competitors', tournamentId] as const
+export const eligibleDivisionsKey = (competitionId: string) =>
+  [...COMPETITOR_KEY, 'eligible-divisions', competitionId] as const
+export const bjjEireCompetitionCompetitorsKey = (competitionId: string) =>
+  ['bjjeire-competition-competitors', competitionId] as const

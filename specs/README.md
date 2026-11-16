@@ -17,20 +17,20 @@ specs/
 │   ├── bjj-event.md
 │   ├── competition.md
 │   ├── store.md
-│   └── tournament.md             # Tournament (slice 1); competitor and registration follow
+│   ├── bjjeire-competition.md    # BJJ Éire competition (ADR-0015)
+│   ├── bjjeire-competition-registration.md
+│   └── competitor.md
 ├── features/                     # visitor-facing feature specs
 │   ├── gyms.md
 │   ├── events.md
-│   ├── competitions.md
-│   ├── stores.md
-│   └── tournaments.md            # in progress; design record in 001-tournament-registration/
+│   ├── competitions.md           # directory + BJJ Éire competitions (ADR-0015)
+│   └── stores.md
 └── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/
     ├── events/
-    ├── competitions/
-    ├── stores/
-    └── tournaments/
+    ├── competitions/             # directory + BJJ Éire competitions
+    └── stores/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).

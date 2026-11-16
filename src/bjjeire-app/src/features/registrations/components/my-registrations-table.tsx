@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button/button'
 import { paths } from '@/config/paths'
 import { uiContent } from '@/config/ui-content'
 import { MySignUpsTestIds } from '@/constants/registrationDataTestIds'
-import { formatEntryFee } from '@/features/tournaments/utils/tournament-format'
+import { formatEntryFee } from '@/features/bjjeire-competitions/utils/bjjeire-competition-format'
 import { formatDate } from '@/utils/date-utils'
 import { formatDublinDateTime } from '@/utils/dublin-time'
 import type { RegistrationDto } from '@/types/registrations'
@@ -23,7 +23,7 @@ const cellClass = 'px-3 py-3 align-top text-sm text-fg'
 const headClass =
   'px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-fg-subtle'
 
-/** Every sign-up of the competitor with tournament, division, amount and status (#5021). */
+/** Every sign-up of the competitor with competition, division, amount and status (#5021). */
 export const MyRegistrationsTable = function MyRegistrationsTable({
   registrations,
 }: MyRegistrationsTableProps): JSX.Element {
@@ -71,7 +71,7 @@ export const MyRegistrationsTable = function MyRegistrationsTable({
           <thead className="border-b border-hairline">
             <tr>
               <th scope="col" className={headClass}>
-                {mine.tournamentColumn}
+                {mine.bjjEireCompetitionColumn}
               </th>
               <th scope="col" className={headClass}>
                 {mine.divisionColumn}
@@ -89,21 +89,23 @@ export const MyRegistrationsTable = function MyRegistrationsTable({
               <tr key={registration.id} data-testid={MySignUpsTestIds.ROW}>
                 <td
                   className={cellClass}
-                  data-testid={MySignUpsTestIds.ROW_TOURNAMENT}
+                  data-testid={MySignUpsTestIds.ROW_BJJEIRE_COMPETITION}
                 >
-                  {registration.tournamentSlug ? (
+                  {registration.competitionSlug ? (
                     <Link
-                      to={paths.tournament.getHref(registration.tournamentSlug)}
+                      to={paths.bjjEireCompetition.getHref(
+                        registration.competitionSlug
+                      )}
                       className="font-semibold text-primary-700 underline-offset-2 hover:underline dark:text-primary-300"
                     >
-                      {registration.tournamentName}
+                      {registration.competitionName}
                     </Link>
                   ) : (
-                    registration.tournamentName
+                    registration.competitionName
                   )}
-                  {registration.tournamentDate && (
+                  {registration.competitionDate && (
                     <span className="block text-fg-subtle">
-                      {formatDate(registration.tournamentDate)}
+                      {formatDate(registration.competitionDate)}
                     </span>
                   )}
                 </td>

@@ -90,7 +90,7 @@ export const events = {
   },
   hero: {
     tagline: 'Find BJJ Events Across Ireland',
-    subtitle: 'Discover tournaments, seminars, open mats, and camps near you.',
+    subtitle: 'Discover competitions, seminars, open mats, and camps near you.',
     imageAlt: 'BJJ Éire logo',
     ariaLabel: "BJJ Éire — Ireland's BJJ directory",
   },

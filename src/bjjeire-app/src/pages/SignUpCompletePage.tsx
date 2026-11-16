@@ -118,7 +118,7 @@ const Outcome = function Outcome({
       </h1>
       <p className="mt-3 text-sm text-fg-muted">{complete.failedMessage}</p>
       <Link
-        to={paths.tournamentSignUp.getHref(slug)}
+        to={paths.bjjEireCompetitionSignUp.getHref(slug)}
         className={buttonVariants({ className: 'mt-4 inline-block' })}
         data-testid={SignUpCompleteTestIds.TRY_AGAIN}
       >
@@ -129,7 +129,7 @@ const Outcome = function Outcome({
 }
 
 /**
- * `/tournaments/:slug/signup/complete`: where Stripe Checkout returns the
+ * `/competitions/:slug/signup/complete`: where Stripe Checkout returns the
  * competitor. It only reads: confirmation comes from the webhook (FR-018).
  */
 export default function SignUpCompletePage(): JSX.Element {
@@ -148,8 +148,11 @@ export default function SignUpCompletePage(): JSX.Element {
           <Outcome slug={slug} registrationId={registrationId} />
         </CompetitorSignInGate>
         <nav className="flex flex-wrap gap-4 text-sm">
-          <Link to={paths.tournament.getHref(slug)} className={linkClass}>
-            {complete.tournamentLink}
+          <Link
+            to={paths.bjjEireCompetition.getHref(slug)}
+            className={linkClass}
+          >
+            {complete.bjjEireCompetitionLink}
           </Link>
           <Link to={paths.accountSignUps.getHref()} className={linkClass}>
             {complete.mySignUpsLink}

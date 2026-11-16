@@ -20,7 +20,7 @@ const featureFlags = { BjjEvents: true, Gyms: true }
 describe('Navigation', () => {
   describe('Competitor account entry point', () => {
     // #5038: no account entry point while the feature is off.
-    it('given the tournaments flag is off, when the nav renders, then there is no account link', () => {
+    it('given the BjjEireCompetitions flag is off, when the nav renders, then there is no account link', () => {
       renderWithProviders(<Navigation />, { featureFlags })
 
       expect(
@@ -28,9 +28,9 @@ describe('Navigation', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('given the tournaments flag is on, when the nav renders, then the account link leads to the profile page', () => {
+    it('given the BjjEireCompetitions flag is on, when the nav renders, then the account link leads to the profile page', () => {
       renderWithProviders(<Navigation />, {
-        featureFlags: { ...featureFlags, Tournaments: true },
+        featureFlags: { ...featureFlags, BjjEireCompetitions: true },
       })
 
       const link = screen.getByTestId(CompetitorNavTestIds.ACCOUNT_LINK)

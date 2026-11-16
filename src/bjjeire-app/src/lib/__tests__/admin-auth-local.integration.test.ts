@@ -87,23 +87,26 @@ describe('admin auth with local sign-in (ADR-0014)', () => {
     await signInAdmin()
     const seen: Record<string, string | null> = {}
     server.use(
-      http.get(testApiUrl(API_ROUTES.tournamentsAdmin), ({ request }) => {
-        seen.adminRead = request.headers.get('Authorization')
-        return HttpResponse.json({})
-      }),
-      http.post(testApiUrl(API_ROUTES.tournaments), ({ request }) => {
+      http.get(
+        testApiUrl(API_ROUTES.bjjEireCompetitionsAdmin),
+        ({ request }) => {
+          seen.adminRead = request.headers.get('Authorization')
+          return HttpResponse.json({})
+        }
+      ),
+      http.post(testApiUrl(API_ROUTES.bjjEireCompetitions), ({ request }) => {
         seen.write = request.headers.get('Authorization')
         return HttpResponse.json({})
       }),
-      http.get(testApiUrl(API_ROUTES.tournaments), ({ request }) => {
+      http.get(testApiUrl(API_ROUTES.bjjEireCompetitions), ({ request }) => {
         seen.publicRead = request.headers.get('Authorization')
         return HttpResponse.json({})
       })
     )
 
-    await api.get('tournament/admin')
-    await api.post('tournament', {})
-    await api.get('tournament')
+    await api.get('bjjeire-competition/admin')
+    await api.post('bjjeire-competition', {})
+    await api.get('bjjeire-competition')
 
     expect(seen).toEqual({
       adminRead: 'Bearer local-token',

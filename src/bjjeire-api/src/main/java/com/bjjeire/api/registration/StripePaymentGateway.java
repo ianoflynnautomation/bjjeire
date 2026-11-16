@@ -31,7 +31,7 @@ public class StripePaymentGateway implements PaymentGateway {
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setClientReferenceId(request.registrationId())
                 .putMetadata("registrationId", request.registrationId())
-                .putMetadata("tournamentId", request.tournamentId())
+                .putMetadata("competitionId", request.competitionId())
                 .putMetadata("divisionId", request.divisionId())
                 .setCustomerEmail(request.customerEmail())
                 .setExpiresAt(request.expiresAt().getEpochSecond())

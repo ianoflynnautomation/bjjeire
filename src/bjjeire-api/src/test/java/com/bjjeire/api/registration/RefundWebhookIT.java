@@ -1,12 +1,13 @@
 package com.bjjeire.api.registration;
 
+import static com.bjjeire.api.testsupport.RetiredNames.OLD_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -31,14 +32,14 @@ class RefundWebhookIT extends RegistrationIntegrationTest {
     @Tag("#5022")
     @Tag("#5027")
     void shouldMarkThePendingRefundRefundedAndMailTheCompetitorWhenStripeReportsItSucceeded() {
-        TournamentRegistration cancelled = cancelledWithPendingRefund("refund-ok");
+        BjjEireCompetitionRegistration cancelled = cancelledWithPendingRefund("refund-ok");
         mailer.reset();
 
         ResponseEntity<String> response =
                 postSignedWebhook(refundEvent("evt_refund_ok", "refund.updated", "succeeded", cancelled));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration refunded = reload(cancelled);
+        BjjEireCompetitionRegistration refunded = reload(cancelled);
         assertThat(refunded.getRefund().getStatus()).isEqualTo(RefundStatus.REFUNDED);
         assertThat(refunded.getRefund().getCompletedAt()).isEqualTo(FIXED_NOW);
         List<MailMessage> sent = mailer.awaitSent(1);
@@ -46,12 +47,13 @@ class RefundWebhookIT extends RegistrationIntegrationTest {
         assertThat(sent.getFirst().to()).isEqualTo(competitorEmail("aoife"));
         assertThat(sent.getFirst().subject()).contains("Refund");
         assertThat(sent.getFirst().body()).contains("€25.00");
+        assertThat(sent.getFirst().subject() + sent.getFirst().body()).doesNotContainIgnoringCase(OLD_NAME);
     }
 
     @Test
     @Tag("#5022")
     void shouldChangeNothingAndSendNoSecondMailWhenTheRefundEventArrivesAgain() {
-        TournamentRegistration cancelled = cancelledWithPendingRefund("refund-twice");
+        BjjEireCompetitionRegistration cancelled = cancelledWithPendingRefund("refund-twice");
         mailer.reset();
         postSignedWebhook(refundEvent("evt_refund_a", "refund.updated", "succeeded", cancelled));
         mailer.awaitSent(1);
@@ -66,14 +68,14 @@ class RefundWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldRecordAFailedRefundRaiseTheAlertAndShowTheCompetitorRefundPending() {
-        TournamentRegistration cancelled = cancelledWithPendingRefund("refund-failed");
+        BjjEireCompetitionRegistration cancelled = cancelledWithPendingRefund("refund-failed");
         double before = refundFailures();
 
         ResponseEntity<String> response =
                 postSignedWebhook(refundEvent("evt_refund_failed", "refund.failed", "failed", cancelled));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        TournamentRegistration failed = reload(cancelled);
+        BjjEireCompetitionRegistration failed = reload(cancelled);
         assertThat(failed.getRefund().getStatus()).isEqualTo(RefundStatus.FAILED);
         assertThat(failed.getRefund().getFailureReason()).isEqualTo("expired_or_canceled_card");
         assertThat(refundFailures()).isEqualTo(before + 1);
@@ -85,7 +87,7 @@ class RefundWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldIgnoreARefundEventForAnotherRefundOfTheSameSignUp() {
-        TournamentRegistration cancelled = cancelledWithPendingRefund("refund-other");
+        BjjEireCompetitionRegistration cancelled = cancelledWithPendingRefund("refund-other");
         String payload = refundEvent("evt_refund_other", "refund.updated", "succeeded", cancelled)
                 .replace(cancelled.getRefund().getRefundId(), "re_someone_else");
 
@@ -97,18 +99,18 @@ class RefundWebhookIT extends RegistrationIntegrationTest {
 
     @Test
     void shouldLeaveARefundPendingWhileStripeStillReportsItPending() {
-        TournamentRegistration cancelled = cancelledWithPendingRefund("refund-still-pending");
+        BjjEireCompetitionRegistration cancelled = cancelledWithPendingRefund("refund-still-pending");
 
         postSignedWebhook(refundEvent("evt_refund_created", "refund.created", "pending", cancelled));
 
         assertThat(reload(cancelled).getRefund().getStatus()).isEqualTo(RefundStatus.PENDING);
     }
 
-    private TournamentRegistration cancelledWithPendingRefund(String slug) {
+    private BjjEireCompetitionRegistration cancelledWithPendingRefund(String slug) {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament(slug, null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition(slug, null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration confirmed = confirmedSignUp(AOIFE, tournament, division);
+        BjjEireCompetitionRegistration confirmed = confirmedSignUp(AOIFE, competition, division);
         paymentGateway.reportRefundsPending(true);
         int mails = mailer.sent().size();
         assertThat(cancel(AOIFE, confirmed.getId()).getStatusCode()).isEqualTo(HttpStatus.OK);

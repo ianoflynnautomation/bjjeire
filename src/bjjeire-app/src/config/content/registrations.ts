@@ -1,29 +1,29 @@
-import { tournaments } from './tournaments'
+import { bjjEireCompetitions } from './bjjeire-competitions'
 
 export const registrations = {
   signUp: {
     documentTitle: 'Sign Up | BJJ Éire',
     headingPrefix: 'Sign up for',
-    backLink: 'Back to the tournament',
+    backLink: 'Back to the competition',
     loadFailed: 'Failed to load the divisions you can enter. Please try again.',
-    notOpen: 'Registration for this tournament is not open.',
+    notOpen: 'Registration for this competition is not open.',
     profileIncomplete:
       'Your competitor profile is missing details a sign-up needs. Complete it, then come back to this page.',
     profileLink: 'Complete my profile',
     underEighteen:
-      'You must be 18 or over on the tournament day to compete in this tournament.',
+      'You must be 18 or over on the competition day to compete in this competition.',
     noDivisions:
-      'No division of this tournament matches your gender, belt and age.',
+      'No division of this competition matches your gender, belt and age.',
     divisionsLegend: 'Choose your division',
     divisionsHint:
-      'Only divisions for your gender and belt whose minimum age you reach on the tournament day are shown. Pick your own weight class.',
+      'Only divisions for your gender and belt whose minimum age you reach on the competition day are shown. Pick your own weight class.',
     divisionRequired: 'Choose a division.',
     feeLabel: 'Entry fee to pay now',
     feeNote:
       'Each division is a separate sign-up with its own fee. Your place is held for 30 minutes while you pay.',
     consentsLegend: 'Before you pay',
     acceptPublicListing:
-      'I agree that my name, academy, affiliation and division are listed publicly on this tournament.',
+      'I agree that my name, academy, affiliation and division are listed publicly on this competition.',
     acceptTerms: 'I accept the terms of entry, including the liability waiver.',
     consentsRequired: 'Tick both boxes to continue.',
     submit: 'Continue to payment',
@@ -37,19 +37,19 @@ export const registrations = {
   },
   problems: {
     'urn:bjjeire:registration-not-open':
-      'Registration for this tournament is not open.',
+      'Registration for this competition is not open.',
     'urn:bjjeire:not-eligible':
       'This division is not open to you. Choose one of the divisions listed.',
     'urn:bjjeire:under-18':
-      'You must be 18 or over on the tournament day to compete in this tournament.',
+      'You must be 18 or over on the competition day to compete in this competition.',
     'urn:bjjeire:already-registered':
       'You already have a sign-up in this division. You have not been charged again.',
-    'urn:bjjeire:tournament-full':
-      'This tournament is full. You have not been charged.',
+    'urn:bjjeire:competition-full':
+      'This competition is full. You have not been charged.',
     'urn:bjjeire:profile-incomplete':
       'Your competitor profile is missing details a sign-up needs. Complete it first.',
     'urn:bjjeire:too-many-unpaid':
-      'You already have two unpaid sign-ups in this tournament. Pay for one first, or wait for its hold to end.',
+      'You already have two unpaid sign-ups in this competition. Pay for one first, or wait for its hold to end.',
     'urn:bjjeire:hold-expired':
       'This sign-up is no longer held. Choose a division to start again.',
     'urn:bjjeire:payment-received':
@@ -75,22 +75,22 @@ export const registrations = {
     tryAgain: 'Try again',
     refundedHeading: 'Payment refunded',
     refundedMessage:
-      'Your payment arrived after your place had been released and the tournament had no place left, so it was refunded in full to your original payment method. You are not signed up.',
+      'Your payment arrived after your place had been released and the competition had no place left, so it was refunded in full to your original payment method. You are not signed up.',
     refundPendingMessage:
-      'Your payment arrived after your place had been released and the tournament had no place left. A full refund is on its way to your original payment method. You are not signed up.',
+      'Your payment arrived after your place had been released and the competition had no place left. A full refund is on its way to your original payment method. You are not signed up.',
     unknown:
       'We could not find this sign-up on your account. Check My sign-ups.',
-    tournamentLink: 'Back to the tournament',
+    bjjEireCompetitionLink: 'Back to the competition',
     mySignUpsLink: 'My sign-ups',
   },
   mine: {
     documentTitle: 'My Sign-Ups | BJJ Éire',
     heading: 'My sign-ups',
-    intro: 'Every tournament division you have signed up for.',
+    intro: 'Every competition division you have signed up for.',
     loadFailed: 'Failed to load your sign-ups. Please try again.',
-    empty: 'You have not signed up for a tournament yet.',
-    browseLink: 'See tournaments',
-    tournamentColumn: 'Tournament',
+    empty: 'You have not signed up for a competition yet.',
+    browseLink: 'See competitions',
+    bjjEireCompetitionColumn: 'Competition',
     divisionColumn: 'Division',
     amountColumn: 'Amount',
     statusColumn: 'Status',
@@ -126,7 +126,7 @@ export const registrations = {
     changeDivisionLabel: 'New division',
     changeDivisionSave: 'Move to this division',
     changeDivisionNone:
-      'There is no other division you can move to in this tournament.',
+      'There is no other division you can move to in this competition.',
     changeDivisionLoadFailed: 'Failed to load the divisions you can enter.',
     changed: 'Your sign-up was moved. There is no extra charge.',
     closedContactOrganiser:
@@ -146,8 +146,8 @@ export const registrations = {
     signUp: 'Sign up',
     mySignUps: 'My sign-ups',
   },
-  disciplines: tournaments.disciplines,
-  genders: tournaments.genders,
-  ageCategories: tournaments.ageCategories,
-  belts: tournaments.belts,
+  disciplines: bjjEireCompetitions.disciplines,
+  genders: bjjEireCompetitions.genders,
+  ageCategories: bjjEireCompetitions.ageCategories,
+  belts: bjjEireCompetitions.belts,
 } as const

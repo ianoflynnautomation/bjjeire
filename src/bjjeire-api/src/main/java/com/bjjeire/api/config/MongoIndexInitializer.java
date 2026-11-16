@@ -1,16 +1,17 @@
 package com.bjjeire.api.config;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.StripeEvent;
-import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
-import com.bjjeire.api.tournament.Tournament;
 import java.time.Duration;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -32,6 +33,12 @@ import org.springframework.stereotype.Component;
 public class MongoIndexInitializer implements ApplicationRunner {
     private static final Duration EXPIRE_AT_STORED_DATE = Duration.ZERO;
 
+    /**
+     * Collections from before ADR-0015, dropped at startup (research R4). Remove one release after
+     * specs/002-merge-tournaments-competitions, together with {@link #dropLegacyCollections()}.
+     */
+    static final List<String> LEGACY_COLLECTIONS = List.of("Tournament", "TournamentRegistration");
+
     private final MongoTemplate mongoTemplate;
 
     @Override
@@ -42,6 +49,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
             return;
         }
 
+        dropLegacyCollections();
         migrate();
         dropObsolete("BjjEvent", "ix_event_county_status_endDate");
         ensureIndexes();
@@ -138,7 +146,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .on("name", Sort.Direction.ASC)
                         .named("ix_store_isActive_name"));
 
-        ensureTournamentIndexes();
+        ensureBjjEireCompetitionIndexes();
         ensureCompetitorIndexes();
         ensureRegistrationIndexes();
     }
@@ -146,21 +154,21 @@ public class MongoIndexInitializer implements ApplicationRunner {
     private void ensureRegistrationIndexes() {
         // FR-020: one active sign-up per competitor and division. Partial, so ended sign-ups do not count.
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("competitorId", Sort.Direction.ASC)
-                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("competitionId", Sort.Direction.ASC)
                         .on("divisionId", Sort.Direction.ASC)
                         .named("ux_registration_active_competitor_division")
                         .unique()
                         .partial(PartialIndexFilter.of(Criteria.where("active").is(true))));
 
-        // FR-041: at most two unpaid sign-ups per competitor and tournament. Slot 0 or 1 while awaiting payment.
+        // FR-041: at most two unpaid sign-ups per competitor and competition. Slot 0 or 1 while awaiting payment.
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("competitorId", Sort.Direction.ASC)
-                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("competitionId", Sort.Direction.ASC)
                         .on("unpaidSlot", Sort.Direction.ASC)
                         .named("ux_registration_unpaid_slot")
                         .unique()
@@ -168,36 +176,36 @@ public class MongoIndexInitializer implements ApplicationRunner {
                                 Criteria.where("unpaidSlot").exists(true))));
 
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
-                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("competitionId", Sort.Direction.ASC)
                         .on("divisionId", Sort.Direction.ASC)
                         .on("status", Sort.Direction.ASC)
-                        .named("ix_registration_tournament_division_status"));
+                        .named("ix_registration_competition_division_status"));
 
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("competitorId", Sort.Direction.ASC)
                         .on("createdAt", Sort.Direction.ASC)
                         .named("ix_registration_competitor"));
 
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("status", Sort.Direction.ASC)
                         .on("holdExpiresAt", Sort.Direction.ASC)
                         .named("ix_registration_status_holdExpiresAt"));
 
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("financialRecordsExpireAt", Sort.Direction.ASC)
                         .named("ix_registration_financialRecordsExpireAt")
                         .sparse());
 
         ensure(
-                TournamentRegistration.ENTITY_NAME,
+                BjjEireCompetitionRegistration.ENTITY_NAME,
                 new Index()
                         .on("payment.checkoutSessionId", Sort.Direction.ASC)
                         .named("ix_registration_checkoutSessionId"));
@@ -228,20 +236,20 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .unique());
     }
 
-    private void ensureTournamentIndexes() {
+    private void ensureBjjEireCompetitionIndexes() {
         ensure(
-                Tournament.ENTITY_NAME,
+                BjjEireCompetition.ENTITY_NAME,
                 new Index()
                         .on("slug", Sort.Direction.ASC)
-                        .named("ix_tournament_slug_unique")
+                        .named("ix_bjjeire_competition_slug_unique")
                         .unique());
 
         ensure(
-                Tournament.ENTITY_NAME,
+                BjjEireCompetition.ENTITY_NAME,
                 new Index()
                         .on("status", Sort.Direction.ASC)
                         .on("date", Sort.Direction.ASC)
-                        .named("ix_tournament_status_date"));
+                        .named("ix_bjjeire_competition_status_date"));
     }
 
     public void migrate() {
@@ -262,15 +270,28 @@ public class MongoIndexInitializer implements ApplicationRunner {
                 .getModifiedCount();
         long gyms = initializeVersion(Gym.ENTITY_NAME);
         long versionedEvents = initializeVersion(BjjEvent.ENTITY_NAME);
-        long versionedTournaments = initializeVersion(Tournament.ENTITY_NAME);
+        long versionedBjjEireCompetitions = initializeVersion(BjjEireCompetition.ENTITY_NAME);
         log.info(
                 "Stored-document migration updated {} open-ended events, {} open-ended competitions, {} gym versions, {} event"
-                        + " versions, {} tournament versions",
+                        + " versions, {} competition versions",
                 events,
                 competitions,
                 gyms,
                 versionedEvents,
-                versionedTournaments);
+                versionedBjjEireCompetitions);
+    }
+
+    // Remove one release after specs/002-merge-tournaments-competitions (ADR-0015, research R4).
+    private void dropLegacyCollections() {
+        for (String legacy : LEGACY_COLLECTIONS) {
+            if (!mongoTemplate.collectionExists(legacy)) {
+                log.info("Legacy collection {} not present", legacy);
+                continue;
+            }
+            long documents = mongoTemplate.getCollection(legacy).countDocuments();
+            mongoTemplate.dropCollection(legacy);
+            log.info("Dropped legacy collection {} holding {} document(s)", legacy, documents);
+        }
     }
 
     private long initializeVersion(String collection) {

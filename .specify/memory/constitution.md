@@ -19,7 +19,7 @@ does not use.
 ### II. Package-by-feature (NON-NEGOTIABLE)
 
 The Java API is one flat package per feature (`event`, `gym`, `competition`,
-`store`, and for in-house tournaments `tournament`, `competitor`,
+`store`, and for BJJ Éire competitions `bjjeirecompetition`, `competitor`,
 `registration`) holding controller, service, DTOs, domain, mapper, validator, and
 repository together. Shared code lives only in `common`, `audit`,
 `deactivation`, `web`, `config`, and `seeder`. New backend types go in their
@@ -52,17 +52,17 @@ create/update/delete require the admin's Entra JWT
 (`Authorization: Bearer`, scope `access_as_writer`). That rule is the
 catch-all: any write not named below needs the admin authority.
 
-Two additions serve in-house tournaments and nothing else:
+Two additions serve BJJ Éire competitions and nothing else:
 
 - **Competitor routes** (`/api/v1/competitor`, `/api/v1/registration`)
   require a token from the competitor issuer. A competitor may read and
   change only their own profile and sign-ups, and has no authority over the
-  directory or over tournaments. See ADR-0012.
+  directory or over BJJ Éire competitions. See ADR-0012.
 - **The Stripe webhook** is the one write with no bearer token. It is
   authenticated by Stripe's signature. See ADR-0013.
 
-Tournament, competitor and registration routes are governed by the
-`Tournaments` flag, not by read-only mode. Read-only mode keeps protecting
+BJJ Éire competition, competitor and registration routes are governed by the
+`BjjEireCompetitions` flag, not by read-only mode. Read-only mode keeps protecting
 the directory.
 
 Feature flags fail closed: a failed flag fetch redirects feature routes to
@@ -127,4 +127,15 @@ specs: none needed. A spec that adds a write must say which of the three
 kinds it is (admin, competitor, signed webhook); anything else is still an
 admin write.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-11-13
+### Amendment 1.2.0 (2026-11-16)
+
+In-house tournaments became BJJ Éire competitions inside the Competitions
+feature (ADR-0015). Principle II names the `bjjeirecompetition` package
+instead of `tournament`; principle V names the `BjjEireCompetitions` flag
+instead of `Tournaments`. Migration for in-flight specs: where a spec says
+"tournament" it means a BJJ Éire competition, and its routes, packages and
+fields follow ADR-0015. The unbuilt slice 5 work in
+`specs/001-tournament-registration/` is re-pointed by
+`specs/002-merge-tournaments-competitions/`.
+
+**Version**: 1.2.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-11-16

@@ -6,10 +6,10 @@ import { SignUpPageTestIds } from '@/constants/registrationDataTestIds'
 import { CompetitorSignInTestIds } from '@/constants/competitorDataTestIds'
 import {
   createDivision,
-  createTournament,
-} from '@/testing/factories/tournament.factory'
+  createBjjEireCompetition,
+} from '@/testing/factories/bjjeire-competition.factory'
 import { createRegistrationCheckout } from '@/testing/factories/registration.factory'
-import { seedTournament } from '@/features/tournaments/testing/tournaments-test-helpers'
+import { seedBjjEireCompetition } from '@/features/bjjeire-competitions/testing/bjjeire-competitions-test-helpers'
 import {
   renderSignUpPage,
   seedCreateRegistration,
@@ -17,7 +17,7 @@ import {
   seedEligibleDivisionsProblem,
   seedResumeCheckout,
 } from '@/features/registrations/testing/registration-test-helpers'
-import type { TournamentDto } from '@/types/tournaments'
+import type { BjjEireCompetitionDto } from '@/types/bjjeire-competitions'
 
 const { competitorMsal } = vi.hoisted(() => ({
   competitorMsal: {
@@ -40,9 +40,11 @@ vi.mock('@/lib/competitor-msal-config', () => ({
 const { signUp, problems } = uiContent.registrations
 const assign = vi.fn<(url: string) => void>()
 
-function bjjeire(overrides: Partial<TournamentDto> = {}): TournamentDto {
-  return createTournament({
-    id: 'tournament-bjjeire',
+function bjjeire(
+  overrides: Partial<BjjEireCompetitionDto> = {}
+): BjjEireCompetitionDto {
+  return createBjjEireCompetition({
+    id: 'bjjeire-competition-bjjeire',
     slug: 'bjjeire',
     name: 'BjjEire',
     entryFeeCents: 2500,
@@ -65,9 +67,9 @@ describe('SignUpPage', () => {
   // #5013: signing in happens over this page, so the visitor returns to the sign-up afterwards.
   it('given a visitor who is not signed in, when they open the sign-up, then they are asked to sign in on the same page and see the divisions once they have', async () => {
     competitorMsal.getAllAccounts.mockReturnValue([])
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    const eligible = seedEligibleDivisions(tournament.id, [
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    const eligible = seedEligibleDivisions(bjjEireCompetition.id, [
       createDivision({ weightClass: '-76 kg' }),
     ])
     const { user } = renderSignUpPage('bjjeire')
@@ -91,17 +93,17 @@ describe('SignUpPage', () => {
 
   // #5014
   it('given a competitor with a complete profile, when the sign-up opens, then only the divisions the API calls eligible are offered, with the fee', async () => {
-    const tournament = bjjeire({
+    const bjjEireCompetition = bjjeire({
       divisions: [
         createDivision({ weightClass: '-70 kg' }),
         createDivision({ weightClass: '-76 kg' }),
         createDivision({ weightClass: '-82 kg', belt: 'BLUE' }),
       ],
     })
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, [
-      tournament.divisions[0],
-      tournament.divisions[1],
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, [
+      bjjEireCompetition.divisions[0],
+      bjjEireCompetition.divisions[1],
     ])
     renderSignUpPage('bjjeire')
 
@@ -119,10 +121,10 @@ describe('SignUpPage', () => {
 
   // #5015, FR-012: both consents before paying; the fee never comes from the browser.
   it('given a chosen division, when both consents are ticked and the competitor continues, then the sign-up starts and they leave for Stripe Checkout', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    const division = tournament.divisions[0]
-    seedEligibleDivisions(tournament.id, [division])
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    const division = bjjEireCompetition.divisions[0]
+    seedEligibleDivisions(bjjEireCompetition.id, [division])
     const created = seedCreateRegistration(
       createRegistrationCheckout({
         checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_42',
@@ -154,7 +156,7 @@ describe('SignUpPage', () => {
     )
     expect(created.calls).toEqual([
       {
-        tournamentId: tournament.id,
+        competitionId: bjjEireCompetition.id,
         divisionId: division.id,
         acceptPublicListing: true,
         acceptTerms: true,
@@ -164,9 +166,9 @@ describe('SignUpPage', () => {
   })
 
   it('given no division chosen, when the competitor continues, then they are asked to choose one', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, tournament.divisions)
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, bjjEireCompetition.divisions)
     const created = seedCreateRegistration(createRegistrationCheckout())
     const { user } = renderSignUpPage('bjjeire')
 
@@ -181,15 +183,15 @@ describe('SignUpPage', () => {
 
   // #5020, #5017, #5042
   it.each([
-    'urn:bjjeire:tournament-full',
+    'urn:bjjeire:competition-full',
     'urn:bjjeire:already-registered',
     'urn:bjjeire:too-many-unpaid',
   ] as const)(
     'given the API refuses with %s, when the competitor continues, then they are told why and stay on the page',
     async type => {
-      const tournament = bjjeire()
-      seedTournament(tournament)
-      seedEligibleDivisions(tournament.id, tournament.divisions)
+      const bjjEireCompetition = bjjeire()
+      seedBjjEireCompetition(bjjEireCompetition)
+      seedEligibleDivisions(bjjEireCompetition.id, bjjEireCompetition.divisions)
       seedCreateRegistration({ problem: type })
       const { user } = renderSignUpPage('bjjeire')
 
@@ -210,10 +212,10 @@ describe('SignUpPage', () => {
   )
 
   // #5019
-  it('given a competitor under 18 on the tournament day, when the sign-up opens, then it explains they cannot enter and offers no division', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisionsProblem(tournament.id, 'urn:bjjeire:under-18')
+  it('given a competitor under 18 on the competition day, when the sign-up opens, then it explains they cannot enter and offers no division', async () => {
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisionsProblem(bjjEireCompetition.id, 'urn:bjjeire:under-18')
     renderSignUpPage('bjjeire')
 
     expect(
@@ -226,10 +228,10 @@ describe('SignUpPage', () => {
 
   // #5013: profile completion first.
   it('given an incomplete profile, when the sign-up opens, then it sends the competitor to complete the profile', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
     seedEligibleDivisionsProblem(
-      tournament.id,
+      bjjEireCompetition.id,
       'urn:bjjeire:profile-incomplete'
     )
     renderSignUpPage('bjjeire')
@@ -244,9 +246,9 @@ describe('SignUpPage', () => {
   })
 
   it('given no division matches the competitor, when the sign-up opens, then it says so', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, [])
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, [])
     renderSignUpPage('bjjeire')
 
     expect(
@@ -256,9 +258,12 @@ describe('SignUpPage', () => {
 
   // #5003
   it('given registration is not open, when the sign-up page opens, then no division is offered', async () => {
-    const tournament = bjjeire({ registrationState: 'CLOSED' })
-    seedTournament(tournament)
-    const eligible = seedEligibleDivisions(tournament.id, tournament.divisions)
+    const bjjEireCompetition = bjjeire({ registrationState: 'CLOSED' })
+    seedBjjEireCompetition(bjjEireCompetition)
+    const eligible = seedEligibleDivisions(
+      bjjEireCompetition.id,
+      bjjEireCompetition.divisions
+    )
     renderSignUpPage('bjjeire')
 
     expect(
@@ -269,9 +274,9 @@ describe('SignUpPage', () => {
 
   // #5016
   it('given the competitor came back from Checkout without paying, when the page opens, then it says nothing was charged and lets them return to the same payment', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, tournament.divisions)
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, bjjEireCompetition.divisions)
     const resumed = seedResumeCheckout(
       'registration-9',
       createRegistrationCheckout({
@@ -296,9 +301,9 @@ describe('SignUpPage', () => {
 
   // #5016
   it('given the held place has lapsed, when the competitor tries to return to payment, then they are told to start again', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, tournament.divisions)
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, bjjEireCompetition.divisions)
     seedResumeCheckout('registration-9', {
       problem: 'urn:bjjeire:hold-expired',
     })
@@ -313,9 +318,9 @@ describe('SignUpPage', () => {
   })
 
   it('given the API answers with an address that is not Stripe Checkout, when the sign-up starts, then the competitor is not sent there', async () => {
-    const tournament = bjjeire()
-    seedTournament(tournament)
-    seedEligibleDivisions(tournament.id, tournament.divisions)
+    const bjjEireCompetition = bjjeire()
+    seedBjjEireCompetition(bjjEireCompetition)
+    seedEligibleDivisions(bjjEireCompetition.id, bjjEireCompetition.divisions)
     seedCreateRegistration(
       createRegistrationCheckout({ checkoutUrl: 'https://evil.test/pay' })
     )
@@ -335,15 +340,18 @@ describe('SignUpPage', () => {
   })
 
   // #5020
-  it('given the tournament is full, when the sign-up page opens, then the competitor is told it is full and offered no division', async () => {
-    const tournament = bjjeire({ registrationState: 'FULL' })
-    seedTournament(tournament)
-    const eligible = seedEligibleDivisions(tournament.id, tournament.divisions)
+  it('given the competition is full, when the sign-up page opens, then the competitor is told it is full and offered no division', async () => {
+    const bjjEireCompetition = bjjeire({ registrationState: 'FULL' })
+    seedBjjEireCompetition(bjjEireCompetition)
+    const eligible = seedEligibleDivisions(
+      bjjEireCompetition.id,
+      bjjEireCompetition.divisions
+    )
     renderSignUpPage('bjjeire')
 
     expect(
       await screen.findByTestId(SignUpPageTestIds.NOT_OPEN)
-    ).toHaveTextContent(problems['urn:bjjeire:tournament-full'])
+    ).toHaveTextContent(problems['urn:bjjeire:competition-full'])
     expect(eligible.calls).toHaveLength(0)
   })
 })

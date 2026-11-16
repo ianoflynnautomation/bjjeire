@@ -3,12 +3,12 @@ package com.bjjeire.api.competitor;
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.RegistrationState;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymStatus;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.RegistrationState;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
@@ -34,18 +34,18 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CompetitorServiceImpl implements CompetitorService {
     /**
-     * The sign-up collection, read by its documented fields (specs/database-contracts/tournament-registration.md) so
+     * The sign-up collection, read by its documented fields (specs/database-contracts/competition-registration.md) so
      * this package does not depend on {@code registration}, which depends on it. Must match
-     * {@code TournamentRegistration.ENTITY_NAME}.
+     * {@code BjjEireCompetitionRegistration.ENTITY_NAME}.
      */
-    static final String REGISTRATION_COLLECTION = "TournamentRegistration";
+    static final String REGISTRATION_COLLECTION = "BjjEireCompetitionRegistration";
 
     private final MongoTemplate mongoTemplate;
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
     private final IdentityDirectory identityDirectory;
     private final Counter directoryFailures;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApplicationEventPublisher events;
 
     public CompetitorServiceImpl(
@@ -54,13 +54,13 @@ public class CompetitorServiceImpl implements CompetitorService {
             AuditRecorder auditRecorder,
             IdentityDirectory identityDirectory,
             MeterRegistry meterRegistry,
-            TournamentService tournamentService,
+            BjjEireCompetitionService bjjEireCompetitionService,
             ApplicationEventPublisher events) {
         this.mongoTemplate = mongoTemplate;
         this.auditInfoProvider = auditInfoProvider;
         this.auditRecorder = auditRecorder;
         this.identityDirectory = identityDirectory;
-        this.tournamentService = tournamentService;
+        this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.events = events;
         this.directoryFailures = Counter.builder("competitor.identity.deletion.failures")
                 .description("Account deletions whose sign-in identity is still in the external tenant")
@@ -122,22 +122,23 @@ public class CompetitorServiceImpl implements CompetitorService {
     }
 
     @Override
-    public List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String tournamentId) {
-        TournamentDto tournament = tournamentService.getPublicById(tournamentId).orElseThrow(ApiProblems::notFound);
-        RegistrationState state = tournament.registrationState();
+    public List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String competitionId) {
+        BjjEireCompetitionDto competition =
+                bjjEireCompetitionService.getPublicById(competitionId).orElseThrow(ApiProblems::notFound);
+        RegistrationState state = competition.registrationState();
         if (state != RegistrationState.OPEN && state != RegistrationState.FULL) {
-            // A closed tournament, or one not open yet, offers no division at all.
+            // A closed competition, or one not open yet, offers no division at all.
             throw ApiProblems.conflict(
-                    ProblemTypes.REGISTRATION_NOT_OPEN, "Registration for this tournament is not open.");
+                    ProblemTypes.REGISTRATION_NOT_OPEN, "Registration for this competition is not open.");
         }
         SignUpProfile profile = findSignUpProfile(caller)
                 .filter(SignUpProfile::profileComplete)
                 .orElseThrow(CompetitorServiceImpl::profileIncomplete);
-        if (!Eligibility.isAdultOn(profile.dateOfBirth(), tournament.date())) {
+        if (!Eligibility.isAdultOn(profile.dateOfBirth(), competition.date())) {
             throw underEighteen();
         }
         return Eligibility.eligibleDivisions(
-                profile.gender(), profile.belt(), profile.dateOfBirth(), tournament.divisions(), tournament.date());
+                profile.gender(), profile.belt(), profile.dateOfBirth(), competition.divisions(), competition.date());
     }
 
     @Override
@@ -175,11 +176,11 @@ public class CompetitorServiceImpl implements CompetitorService {
                 "Complete your profile (name, nationality, date of birth, gender and belt) before signing up.");
     }
 
-    /** The 409 a sign-up gets from someone under 18 on the tournament day (FR-017). */
+    /** The 409 a sign-up gets from someone under 18 on the competition day (FR-017). */
     public static ResponseStatusException underEighteen() {
         return ApiProblems.conflict(
                 ProblemTypes.UNDER_18,
-                "You must be " + Eligibility.MINIMUM_AGE + " or over on the tournament day to compete.");
+                "You must be " + Eligibility.MINIMUM_AGE + " or over on the competition day to compete.");
     }
 
     @Override

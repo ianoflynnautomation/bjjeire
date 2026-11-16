@@ -3,13 +3,13 @@ package com.bjjeire.api.registration;
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.competitor.CompetitorService;
 import com.bjjeire.api.competitor.SignUpProfile;
-import com.bjjeire.api.tournament.DivisionDto;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import java.util.Optional;
@@ -29,17 +29,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class RegistrationSupport {
     private final MongoTemplate mongoTemplate;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final CompetitorService competitorService;
     private final RegistrationMailSender mailSender;
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
     private final ApiCache cache;
 
-    /** The text of one mail, built once the sign-up's tournament and division are known. */
+    /** The text of one mail, built once the sign-up's competition and division are known. */
     @FunctionalInterface
     interface MailTemplate {
-        MailMessage build(String to, TournamentDto tournament, DivisionDto division);
+        MailMessage build(String to, BjjEireCompetitionDto competition, DivisionDto division);
     }
 
     /**
@@ -47,8 +47,9 @@ class RegistrationSupport {
      *
      * @throws org.springframework.web.server.ResponseStatusException 404 unknown; 403 another competitor's
      */
-    TournamentRegistration owned(CompetitorIdentity caller, String registrationId) {
-        TournamentRegistration registration = mongoTemplate.findById(registrationId, TournamentRegistration.class);
+    BjjEireCompetitionRegistration owned(CompetitorIdentity caller, String registrationId) {
+        BjjEireCompetitionRegistration registration =
+                mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
         if (registration == null) {
             throw ApiProblems.notFound();
         }
@@ -62,17 +63,17 @@ class RegistrationSupport {
         return registration;
     }
 
-    RegistrationDto toDto(TournamentRegistration registration, TournamentDto tournament) {
+    RegistrationDto toDto(BjjEireCompetitionRegistration registration, BjjEireCompetitionDto competition) {
         Payment payment = registration.getPayment();
         return new RegistrationDto(
                 registration.getId(),
-                registration.getTournamentId(),
-                tournament == null ? null : tournament.slug(),
-                tournament == null ? null : tournament.name(),
-                tournament == null ? null : tournament.date(),
-                tournament == null
+                registration.getCompetitionId(),
+                competition == null ? null : competition.slug(),
+                competition == null ? null : competition.name(),
+                competition == null ? null : competition.date(),
+                competition == null
                         ? null
-                        : division(tournament, registration.getDivisionId()).orElse(null),
+                        : division(competition, registration.getDivisionId()).orElse(null),
                 registration.getStatus(),
                 payment == null ? 0 : payment.getAmountCents(),
                 payment == null ? null : payment.getCurrency(),
@@ -81,29 +82,30 @@ class RegistrationSupport {
                         ? null
                         : registration.getRefund().getStatus(),
                 registration.getHoldExpiresAt(),
-                tournament == null ? null : tournament.registrationClosesAt(),
+                competition == null ? null : competition.registrationClosesAt(),
                 registration.getCreatedOnUtc());
     }
 
-    static Optional<DivisionDto> division(TournamentDto tournament, String divisionId) {
-        return tournament.divisions().stream()
+    static Optional<DivisionDto> division(BjjEireCompetitionDto competition, String divisionId) {
+        return competition.divisions().stream()
                 .filter(division -> division.id().equals(divisionId))
                 .findFirst();
     }
 
     /** Queues a mail to the sign-up's competitor. Call only after the change it reports is saved. */
-    void mail(TournamentRegistration registration, MailTemplate template) {
+    void mail(BjjEireCompetitionRegistration registration, MailTemplate template) {
         try {
             Optional<String> to =
                     Optional.ofNullable(registration.getCompetitorId()).flatMap(competitorService::findEmail);
-            Optional<TournamentDto> tournament = tournamentService.getForAdmin(registration.getTournamentId());
-            if (to.isEmpty() || tournament.isEmpty()) {
-                log.warn("No mail for registration {}: no competitor email or tournament", registration.getId());
+            Optional<BjjEireCompetitionDto> competition =
+                    bjjEireCompetitionService.getForAdmin(registration.getCompetitionId());
+            if (to.isEmpty() || competition.isEmpty()) {
+                log.warn("No mail for registration {}: no competitor email or competition", registration.getId());
                 return;
             }
             DivisionDto division =
-                    division(tournament.get(), registration.getDivisionId()).orElse(null);
-            mailSender.send(template.build(to.get(), tournament.get(), division));
+                    division(competition.get(), registration.getDivisionId()).orElse(null);
+            mailSender.send(template.build(to.get(), competition.get(), division));
         } catch (RuntimeException failed) {
             // The change is saved; a failed lookup must not turn it into a 5xx whose retry then sends nothing.
             log.error("Mail for registration {} not queued: {}", registration.getId(), failed.getMessage());
@@ -111,13 +113,14 @@ class RegistrationSupport {
     }
 
     /**
-     * Moves a confirmed sign-up to another division of its tournament. Its place, price and payment are unchanged.
+     * Moves a confirmed sign-up to another division of its competition. Its place, price and payment are unchanged.
      *
      * @throws org.springframework.web.server.ResponseStatusException 409 {@code already-registered} when the competitor
      *     already holds the target division; 409 when the sign-up changed in the meantime
      */
-    TournamentRegistration move(TournamentRegistration registration, String divisionId, boolean profileMismatch) {
-        TournamentRegistration moved;
+    BjjEireCompetitionRegistration move(
+            BjjEireCompetitionRegistration registration, String divisionId, boolean profileMismatch) {
+        BjjEireCompetitionRegistration moved;
         try {
             moved = mongoTemplate.findAndModify(
                     Query.query(Criteria.where("_id")
@@ -128,7 +131,7 @@ class RegistrationSupport {
                             .is(registration.getDivisionId())),
                     audited(new Update().set("divisionId", divisionId).set("profileMismatch", profileMismatch)),
                     FindAndModifyOptions.options().returnNew(true),
-                    TournamentRegistration.class);
+                    BjjEireCompetitionRegistration.class);
         } catch (DuplicateKeyException held) {
             // ux_registration_active_competitor_division: one active sign-up per competitor and division (FR-020).
             throw ApiProblems.conflict(
@@ -149,7 +152,7 @@ class RegistrationSupport {
     }
 
     void afterWrite(AuditAction action, String id) {
-        auditRecorder.record(action, TournamentRegistration.ENTITY_NAME, id, 1);
-        cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+        auditRecorder.record(action, BjjEireCompetitionRegistration.ENTITY_NAME, id, 1);
+        cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
     }
 }

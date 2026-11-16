@@ -91,6 +91,6 @@ export function seedDirectoryGyms(gyms: GymDto[]): void {
 export function renderProfilePage(): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(<ProfilePage />, {
     initialRoutes: [paths.accountProfile.path],
-    featureFlags: { Tournaments: true },
+    featureFlags: { BjjEireCompetitions: true },
   })
 }

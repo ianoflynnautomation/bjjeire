@@ -9,7 +9,7 @@ package com.bjjeire.api.registration;
  *     it, shown to the competitor as "refund pending" while the organiser resolves it
  */
 public record CancellationDto(boolean refunded, int refundAmountCents, RefundStatus refundStatus) {
-    static CancellationDto of(TournamentRegistration registration) {
+    static CancellationDto of(BjjEireCompetitionRegistration registration) {
         Refund refund = registration.getRefund();
         return refund == null
                 ? new CancellationDto(false, 0, null)

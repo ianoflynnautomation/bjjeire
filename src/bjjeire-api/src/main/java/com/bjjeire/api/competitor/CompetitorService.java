@@ -1,6 +1,6 @@
 package com.bjjeire.api.competitor;
 
-import com.bjjeire.api.tournament.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public interface CompetitorService {
     CompetitorDto saveOwn(CompetitorIdentity caller, SaveCompetitorCommand command);
 
     /**
-     * The caller's medal totals and tournaments. Empty until results are recorded (slice 5).
+     * The caller's medal totals and competitions. Empty until results are recorded (slice 5).
      *
      * @param caller the identity from the token
      * @return the history
@@ -44,15 +44,15 @@ public interface CompetitorService {
     void deleteOwn(CompetitorIdentity caller);
 
     /**
-     * Lists the divisions of a published tournament the caller may enter (FR-016).
+     * Lists the divisions of a published competition the caller may enter (FR-016).
      *
      * @param caller the signed-in competitor
-     * @param tournamentId tournament id
-     * @return eligible divisions in the tournament's order, possibly empty
-     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft tournament; 409
+     * @param competitionId competition id
+     * @return eligible divisions in the competition's order, possibly empty
+     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft competition; 409
      *     {@code profile-incomplete} or {@code under-18}
      */
-    List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String tournamentId);
+    List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String competitionId);
 
     /**
      * Returns what a sign-up needs from the caller's profile.

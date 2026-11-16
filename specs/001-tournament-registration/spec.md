@@ -1,5 +1,7 @@
 # Feature Specification: In-House Tournament Registration
 
+> Slice 5 re-pointed to BJJ Éire competition names by specs/002-merge-tournaments-competitions; slices 0–4 below are historical.
+
 **Feature Branch**: `001-tournament-registration`
 
 **Created**: 2026-11-13
@@ -123,9 +125,9 @@ A competitor who can no longer attend cancels their sign-up from their account. 
 
 ### User Story 5 - Results, leaderboard and team points (Priority: P2)
 
-On the day, as each division finishes, the organiser enters who took gold, silver and bronze. The tournament page shows a public leaderboard: the podium of every completed division, an academy ranking and an affiliation ranking, each built from the points every medal earns for the medallist's academy and affiliation. When the tournament is finished, the academy and the affiliation with the most points are shown as the winners.
+On the day, as each division finishes, the organiser enters who took gold, silver and bronze. The competition page shows a public leaderboard: the podium of every completed division, an academy ranking and an affiliation ranking, each built from the points every medal earns for the medallist's academy and affiliation. When the competition is finished, the academy and the affiliation with the most points are shown as the winners.
 
-**Why this priority**: It is what makes the tournament feel complete to competitors and gyms, but it only matters once entries exist, and the event can run without it.
+**Why this priority**: It is what makes the competition feel complete to competitors and gyms, but it only matters once entries exist, and the event can run without it.
 
 **Independent Test**: With confirmed sign-ups in a division, the organiser records the podium; a visitor who is not logged in sees that podium and the updated academy and affiliation rankings.
 
@@ -137,10 +139,10 @@ On the day, as each division finishes, the organiser enters who took gold, silve
 4. **`#5031`**: **Given** a medallist with no academy or no affiliation, **When** the rankings are calculated, **Then** their medal appears on the division podium but adds nothing to the ranking they have no entry for
 5. **`#5032`**: **Given** a division with only one confirmed competitor, **When** the organiser records them as the winner, **Then** the podium is shown but no academy or affiliation points are awarded
 6. **`#5033`**: **Given** a recorded podium that is wrong, **When** the organiser corrects it, **Then** the leaderboard and both rankings reflect the correction
-7. **`#5034`**: **Given** a tournament with no results yet, **When** a visitor opens the leaderboard, **Then** they see a message that results will appear as divisions finish
+7. **`#5034`**: **Given** a competition with no results yet, **When** a visitor opens the leaderboard, **Then** they see a message that results will appear as divisions finish
 8. **`#5035`**: **Given** a person who is not an organiser, **When** they attempt to record or change a result, **Then** they are refused
 9. **`#5040`**: **Given** recorded podiums whose medallists belong to academies under the same affiliation, **When** a visitor opens the leaderboard, **Then** a separate affiliation ranking shows those medallists' points added together under that affiliation
-10. **`#5041`**: **Given** an organiser marks the tournament as finished, **When** a visitor opens the leaderboard, **Then** the academy and the affiliation with the most points are each shown as the winner
+10. **`#5041`**: **Given** an organiser marks the competition as finished, **When** a visitor opens the leaderboard, **Then** the academy and the affiliation with the most points are each shown as the winner
 
 ---
 

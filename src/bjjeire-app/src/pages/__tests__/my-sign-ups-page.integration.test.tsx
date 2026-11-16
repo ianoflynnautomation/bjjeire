@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 import { uiContent } from '@/config/ui-content'
 import { MySignUpsTestIds } from '@/constants/registrationDataTestIds'
-import { createDivision } from '@/testing/factories/tournament.factory'
+import { createDivision } from '@/testing/factories/bjjeire-competition.factory'
 import {
   createCancellation,
   createRegistration,
@@ -50,10 +50,10 @@ afterEach(() => {
 
 describe('MySignUpsPage', () => {
   // #5021
-  it('given a competitor with sign-ups, when they open my sign-ups, then each shows its tournament, division, amount paid and status', async () => {
+  it('given a competitor with sign-ups, when they open my sign-ups, then each shows its competition, division, amount paid and status', async () => {
     seedOwnRegistrations([
       createRegistration({
-        tournamentName: 'BjjEire',
+        competitionName: 'BjjEire',
         division: createDivision({
           discipline: 'NO_GI',
           weightClass: '-82 kg',
@@ -63,7 +63,7 @@ describe('MySignUpsPage', () => {
         paymentStatus: 'PAID',
       }),
       createRegistration({
-        tournamentName: 'BjjEire',
+        competitionName: 'BjjEire',
         status: 'EXPIRED',
         paymentStatus: 'FAILED',
       }),
@@ -73,7 +73,7 @@ describe('MySignUpsPage', () => {
     const rows = await screen.findAllByTestId(MySignUpsTestIds.ROW)
     expect(rows).toHaveLength(2)
     expect(
-      within(rows[0]).getByTestId(MySignUpsTestIds.ROW_TOURNAMENT)
+      within(rows[0]).getByTestId(MySignUpsTestIds.ROW_BJJEIRE_COMPETITION)
     ).toHaveTextContent('BjjEire')
     expect(
       within(rows[0]).getByTestId(MySignUpsTestIds.ROW_DIVISION)
@@ -247,7 +247,7 @@ describe('MySignUpsPage: cancel and change division', () => {
       refundableUntil: stillOpen(),
     })
     seedOwnRegistrations([confirmed], [{ ...confirmed, division: heavier }])
-    seedEligibleDivisions(confirmed.tournamentId, [current, heavier])
+    seedEligibleDivisions(confirmed.competitionId, [current, heavier])
     const move = seedChangeDivision(confirmed.id, {
       ...confirmed,
       division: heavier,
@@ -299,7 +299,7 @@ describe('MySignUpsPage: cancel and change division', () => {
       refundableUntil: stillOpen(),
     })
     seedOwnRegistrations([confirmed])
-    seedEligibleDivisions(confirmed.tournamentId, [current, heavier])
+    seedEligibleDivisions(confirmed.competitionId, [current, heavier])
     seedChangeDivision(confirmed.id, {
       problem: 'urn:bjjeire:registration-closed',
     })

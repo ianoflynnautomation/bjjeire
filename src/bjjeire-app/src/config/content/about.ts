@@ -5,7 +5,7 @@ export const about = {
     'A community-built, open source directory for Brazilian Jiu-Jitsu gyms and events across Ireland.',
   missionTitle: 'Our Mission',
   missionParagraph1:
-    'BJJ Éire exists to make Irish Jiu-Jitsu more accessible. Whether you are looking for a gym to train at, a tournament to compete in, or an open mat to visit, this is the place to find it — accurate, up to date, and free.',
+    'BJJ Éire exists to make Irish Jiu-Jitsu more accessible. Whether you are looking for a gym to train at, a competition to compete in, or an open mat to visit, this is the place to find it — accurate, up to date, and free.',
   missionParagraph2:
     'The goal is simple: help the Irish BJJ community train more, compete more, and connect more. Every listing, filter, and fix moves that mission forward.',
   principlesTitle: 'Open Source Philosophy',

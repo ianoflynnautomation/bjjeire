@@ -34,7 +34,7 @@ const MySignUps = function MySignUps(): JSX.Element {
       >
         <p>{mine.empty}</p>
         <Link
-          to={paths.tournaments.getHref()}
+          to={paths.competitions.getHref()}
           className="mt-3 inline-block font-semibold text-primary-700 underline-offset-2 hover:underline dark:text-primary-300"
         >
           {mine.browseLink}

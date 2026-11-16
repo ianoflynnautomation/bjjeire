@@ -1,6 +1,7 @@
 package com.bjjeire.api.testsupport;
 
 import com.bjjeire.api.audit.AuditLogEntry;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.competitor.Competitor;
@@ -8,10 +9,9 @@ import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.StripeEvent;
-import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
-import com.bjjeire.api.tournament.Tournament;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -115,10 +115,10 @@ public abstract class MongoIntegrationTest {
                 BjjEvent.class,
                 Competition.class,
                 Store.class,
-                Tournament.class,
+                BjjEireCompetition.class,
                 Competitor.class,
                 DeletedCompetitor.class,
-                TournamentRegistration.class,
+                BjjEireCompetitionRegistration.class,
                 StripeEvent.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
@@ -129,7 +129,7 @@ public abstract class MongoIntegrationTest {
                 ApiCache.BJJ_EVENTS_TAG,
                 ApiCache.COMPETITIONS_TAG,
                 ApiCache.STORES_TAG,
-                ApiCache.TOURNAMENTS_TAG)) {
+                ApiCache.BJJEIRE_COMPETITIONS_TAG)) {
             apiCache.removeByTag(tag);
         }
         identityDirectory.reset();

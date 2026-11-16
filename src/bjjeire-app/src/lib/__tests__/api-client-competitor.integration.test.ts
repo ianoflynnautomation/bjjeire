@@ -81,7 +81,7 @@ describe('api client: the competitor token (ADR-0012)', () => {
     ['get', 'competitor/me/history'],
     ['get', 'registration/me'],
     ['post', 'registration'],
-    ['get', 'tournament/0123456789abcdef01234567/eligible-division'],
+    ['get', 'bjjeire-competition/0123456789abcdef01234567/eligible-division'],
   ] as const)(
     'given both people are signed in, when %s %s is sent, then the competitor token is attached and the organiser token is never fetched',
     async (method, path) => {
@@ -95,9 +95,9 @@ describe('api client: the competitor token (ADR-0012)', () => {
   )
 
   it('given the organiser is signed in, when an organiser write is sent, then the organiser token is attached, never the competitor one', async () => {
-    const seen = captureAuthorization('post', 'tournament')
+    const seen = captureAuthorization('post', 'bjjeire-competition')
 
-    await api.post('tournament', {})
+    await api.post('bjjeire-competition', {})
 
     expect(seen.header).toBe('Bearer organiser-token')
     expect(competitorMsal.acquireTokenSilent).not.toHaveBeenCalled()
@@ -113,10 +113,10 @@ describe('api client: the competitor token (ADR-0012)', () => {
     expect(adminMsal.acquireTokenSilent).not.toHaveBeenCalled()
   })
 
-  it('given a public tournament read, when it is sent, then no token of either kind is attached', async () => {
-    const seen = captureAuthorization('get', 'tournament/bjjeire')
+  it('given a public competition read, when it is sent, then no token of either kind is attached', async () => {
+    const seen = captureAuthorization('get', 'bjjeire-competition/bjjeire')
 
-    await api.get('tournament/bjjeire')
+    await api.get('bjjeire-competition/bjjeire')
 
     expect(seen.header).toBeNull()
     expect(competitorMsal.acquireTokenSilent).not.toHaveBeenCalled()

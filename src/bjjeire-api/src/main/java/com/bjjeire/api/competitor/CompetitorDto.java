@@ -1,7 +1,7 @@
 package com.bjjeire.api.competitor;
 
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Gender;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import java.time.LocalDate;
 
 /**

@@ -2,8 +2,8 @@ package com.bjjeire.api.competitor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Gender;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

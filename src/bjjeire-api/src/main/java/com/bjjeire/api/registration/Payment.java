@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** What was charged for a sign-up. Holds no card data (FR-023). Embedded in {@link TournamentRegistration}. */
+/** What was charged for a sign-up. Holds no card data (FR-023). Embedded in {@link BjjEireCompetitionRegistration}. */
 @Getter
 @Setter
 @Builder
@@ -21,7 +21,7 @@ public class Payment {
 
     private String paymentIntentId;
 
-    /** The tournament's fee when the sign-up started; a later fee change never touches it. */
+    /** The competition's fee when the sign-up started; a later fee change never touches it. */
     private int amountCents;
 
     private String currency;

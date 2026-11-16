@@ -13,9 +13,9 @@ import { SignUpForm } from '@/features/registrations/components/sign-up-form'
 import { useCheckoutRedirect } from '@/features/registrations/hooks/useCheckoutRedirect'
 import { useEligibleDivisions } from '@/features/registrations/hooks/useEligibleDivisions'
 import { registrationProblemType } from '@/features/registrations/utils/registration-problem'
-import { useTournament } from '@/features/tournaments/hooks/useTournament'
+import { useBjjEireCompetition } from '@/features/bjjeire-competitions/hooks/useBjjEireCompetition'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import type { TournamentDto } from '@/types/tournaments'
+import type { BjjEireCompetitionDto } from '@/types/bjjeire-competitions'
 
 const { signUp, problems } = uiContent.registrations
 
@@ -23,21 +23,21 @@ const noticeClass =
   'rounded-xl bg-surface-solid p-5 text-sm text-fg ring-1 ring-hairline'
 
 interface ChooseDivisionProps {
-  tournament: TournamentDto
+  bjjEireCompetition: BjjEireCompetitionDto
 }
 
 const ChooseDivision = function ChooseDivision({
-  tournament,
+  bjjEireCompetition,
 }: ChooseDivisionProps): JSX.Element {
-  const open = tournament.registrationState === 'OPEN'
-  const eligible = useEligibleDivisions(tournament.id, open)
+  const open = bjjEireCompetition.registrationState === 'OPEN'
+  const eligible = useEligibleDivisions(bjjEireCompetition.id, open)
   const start = useCheckoutRedirect(createRegistration)
 
   if (!open) {
     return (
       <p className={noticeClass} data-testid={SignUpPageTestIds.NOT_OPEN}>
-        {tournament.registrationState === 'FULL'
-          ? problems['urn:bjjeire:tournament-full']
+        {bjjEireCompetition.registrationState === 'FULL'
+          ? problems['urn:bjjeire:competition-full']
           : signUp.notOpen}
       </p>
     )
@@ -94,13 +94,13 @@ const ChooseDivision = function ChooseDivision({
   }
   return (
     <SignUpForm
-      tournament={tournament}
+      bjjEireCompetition={bjjEireCompetition}
       divisions={eligible.data}
       isSubmitting={start.isPending}
       error={start.error}
       onSubmit={divisionId =>
         start.start({
-          tournamentId: tournament.id,
+          competitionId: bjjEireCompetition.id,
           divisionId,
           acceptPublicListing: true,
           acceptTerms: true,
@@ -110,21 +110,21 @@ const ChooseDivision = function ChooseDivision({
   )
 }
 
-/** `/tournaments/:slug/signup`: choose a division, consent, and go to Checkout (User Story 3). */
+/** `/competitions/:slug/signup`: choose a division, consent, and go to Checkout (User Story 3). */
 export default function SignUpPage(): JSX.Element {
   useDocumentTitle(signUp.documentTitle)
   const { slug = '' } = useParams()
   const [searchParams] = useSearchParams()
   const returnedRegistration = searchParams.get('registration')
-  const { tournament, isLoading, formattedErrorMessage, refetch } =
-    useTournament(slug)
+  const { bjjEireCompetition, isLoading, formattedErrorMessage, refetch } =
+    useBjjEireCompetition(slug)
 
   let content: JSX.Element
-  if (tournament) {
+  if (bjjEireCompetition) {
     content = (
       <div className="space-y-6">
         <Link
-          to={paths.tournament.getHref(tournament.slug)}
+          to={paths.bjjEireCompetition.getHref(bjjEireCompetition.slug)}
           className="inline-block text-sm font-semibold text-primary-700 underline-offset-2 hover:underline dark:text-primary-300"
           data-testid={SignUpPageTestIds.BACK_LINK}
         >
@@ -134,14 +134,14 @@ export default function SignUpPage(): JSX.Element {
           className="display-expanded text-3xl font-bold text-fg"
           data-testid={SignUpPageTestIds.HEADING}
         >
-          {`${signUp.headingPrefix} ${tournament.name}`}
+          {`${signUp.headingPrefix} ${bjjEireCompetition.name}`}
         </h1>
         <CompetitorSignInGate>
           <div className="space-y-6">
             {returnedRegistration && (
               <AbandonedCheckout registrationId={returnedRegistration} />
             )}
-            <ChooseDivision tournament={tournament} />
+            <ChooseDivision bjjEireCompetition={bjjEireCompetition} />
           </div>
         </CompetitorSignInGate>
       </div>

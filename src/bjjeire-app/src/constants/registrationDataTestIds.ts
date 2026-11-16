@@ -33,7 +33,7 @@ export const MySignUpsTestIds = {
   ROOT: 'my-sign-ups-page',
   TABLE: 'my-sign-ups-table',
   ROW: 'my-sign-ups-row',
-  ROW_TOURNAMENT: 'my-sign-ups-row-tournament',
+  ROW_BJJEIRE_COMPETITION: 'my-sign-ups-row-bjjeire-competition',
   ROW_DIVISION: 'my-sign-ups-row-division',
   ROW_AMOUNT: 'my-sign-ups-row-amount',
   ROW_STATUS: 'my-sign-ups-row-status',
@@ -51,15 +51,15 @@ export const MySignUpsTestIds = {
   EMPTY: 'my-sign-ups-empty',
 }
 
-export const TournamentCompetitorsTestIds = {
-  ROOT: 'tournament-competitors',
-  DIVISION: 'tournament-competitors-division',
-  DIVISION_COUNT: 'tournament-competitors-division-count',
-  ROW: 'tournament-competitors-row',
-  EMPTY: 'tournament-competitors-empty',
+export const BjjEireCompetitionCompetitorsTestIds = {
+  ROOT: 'bjjeire-competition-competitors',
+  DIVISION: 'bjjeire-competition-competitors-division',
+  DIVISION_COUNT: 'bjjeire-competition-competitors-division-count',
+  ROW: 'bjjeire-competition-competitors-row',
+  EMPTY: 'bjjeire-competition-competitors-empty',
 }
 
-export const TournamentSignUpTestIds = {
-  SIGN_UP_LINK: 'tournament-sign-up-link',
-  MY_SIGN_UPS_LINK: 'tournament-my-sign-ups-link',
+export const BjjEireCompetitionSignUpTestIds = {
+  SIGN_UP_LINK: 'bjjeire-competition-sign-up-link',
+  MY_SIGN_UPS_LINK: 'bjjeire-competition-my-sign-ups-link',
 }

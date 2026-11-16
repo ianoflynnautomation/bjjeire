@@ -2,10 +2,10 @@ package com.bjjeire.api.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -27,19 +27,19 @@ class RegistrationConcurrencyIT extends RegistrationIntegrationTest {
     @Tag("#5020")
     void shouldGiveTheLastPlaceToExactlyOneOfManySimultaneousCompetitors() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("last-place", 1, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("last-place", 1, division);
         for (int i = 0; i < RACERS; i++) {
             saveProfile(competitorToken("racer" + i), "Racer" + i, Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         }
 
         List<HttpStatusCode> statuses =
-                race(i -> () -> signUp(competitorToken("racer" + i), tournament.getId(), division.getId()));
+                race(i -> () -> signUp(competitorToken("racer" + i), competition.getId(), division.getId()));
 
         assertThat(statuses).filteredOn(HttpStatus.CREATED::equals).hasSize(1);
         assertThat(statuses).filteredOn(HttpStatus.CONFLICT::equals).hasSize(RACERS - 1);
-        assertThat(mongoTemplate.count(new Query(), TournamentRegistration.class))
+        assertThat(mongoTemplate.count(new Query(), BjjEireCompetitionRegistration.class))
                 .isEqualTo(1);
-        assertThat(placesTaken(tournament.getId())).isEqualTo(1);
+        assertThat(placesTaken(competition.getId())).isEqualTo(1);
         assertThat(paymentGateway.checkouts()).hasSize(1);
     }
 
@@ -47,17 +47,17 @@ class RegistrationConcurrencyIT extends RegistrationIntegrationTest {
     @Tag("#5017")
     void shouldCreateOneSignUpWhenTheSameCompetitorSubmitsTheSameDivisionManyTimesAtOnce() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("double-click", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("double-click", null, division);
         String token = competitorToken("clicker");
         saveProfile(token, "Clicker", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
 
-        List<HttpStatusCode> statuses = race(i -> () -> signUp(token, tournament.getId(), division.getId()));
+        List<HttpStatusCode> statuses = race(i -> () -> signUp(token, competition.getId(), division.getId()));
 
         assertThat(statuses).filteredOn(HttpStatus.CREATED::equals).hasSize(1);
-        assertThat(mongoTemplate.count(new Query(), TournamentRegistration.class))
+        assertThat(mongoTemplate.count(new Query(), BjjEireCompetitionRegistration.class))
                 .isEqualTo(1);
         // Every refused attempt gave back the place it took.
-        assertThat(placesTaken(tournament.getId())).isEqualTo(1);
+        assertThat(placesTaken(competition.getId())).isEqualTo(1);
         assertThat(paymentGateway.checkouts()).hasSize(1);
     }
 
@@ -68,17 +68,17 @@ class RegistrationConcurrencyIT extends RegistrationIntegrationTest {
         for (int i = 0; i < RACERS; i++) {
             divisions[i] = maleWhiteAdult("-" + (60 + i) + " kg");
         }
-        Tournament tournament = publishedTournament("unpaid-race", null, divisions);
+        BjjEireCompetition competition = publishedBjjEireCompetition("unpaid-race", null, divisions);
         String token = competitorToken("hoarder");
         saveProfile(token, "Hoarder", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
 
-        List<HttpStatusCode> statuses = race(i -> () -> signUp(token, tournament.getId(), divisions[i].getId()));
+        List<HttpStatusCode> statuses = race(i -> () -> signUp(token, competition.getId(), divisions[i].getId()));
 
         assertThat(statuses).filteredOn(HttpStatus.CREATED::equals).hasSize(2);
         assertThat(statuses).filteredOn(HttpStatus.CONFLICT::equals).hasSize(RACERS - 2);
-        assertThat(mongoTemplate.count(new Query(), TournamentRegistration.class))
+        assertThat(mongoTemplate.count(new Query(), BjjEireCompetitionRegistration.class))
                 .isEqualTo(2);
-        assertThat(placesTaken(tournament.getId())).isEqualTo(2);
+        assertThat(placesTaken(competition.getId())).isEqualTo(2);
         assertThat(paymentGateway.checkouts()).hasSize(2);
     }
 

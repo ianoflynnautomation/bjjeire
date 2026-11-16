@@ -1,3 +1,5 @@
+# Slice 5 re-pointed to BJJ Éire competition names by specs/002-merge-tournaments-competitions; slices 0–4 below are historical.
+# Slice 5 routes (leaderboard, finish, division results) live under /api/v1/bjjeire-competition; the SPA shows them on /competitions/:slug and /admin/competitions/:id.
 # Design-time contract for specs/001-tournament-registration.
 # Same shape as specs/stc/<feature>/contract.yaml. On implementation this moves
 # to specs/stc/tournaments/contract.yaml and the served OpenAPI document becomes
@@ -41,7 +43,7 @@ routes:
     response: DivisionCompetitorsDto[]   # per division: displayName, academy, affiliation
     covers: ["#5015"]
   - method: GET
-    path: /api/v1/tournament/{id}/leaderboard
+    path: /api/v1/bjjeire-competition/{id}/leaderboard
     auth: public
     response: LeaderboardDto   # podiums[], academyRanking[], affiliationRanking[], winners?
     covers: ["#5028", "#5029", "#5030", "#5031", "#5032", "#5034", "#5040", "#5041"]
@@ -76,17 +78,17 @@ routes:
     notes: "refunds every CONFIRMED registration in full, ends unpaid holds, and emails each competitor. Safe to repeat: a second call on a CANCELLED tournament retries only refunds that failed (under a new key, refund-<registrationId>-<attempt>) or never reached Stripe"
     covers: ["#5026"]
   - method: POST
-    path: /api/v1/tournament/{id}/finish
+    path: /api/v1/bjjeire-competition/{id}/finish
     auth: admin
     covers: ["#5041"]
   - method: PUT
-    path: /api/v1/tournament/{id}/division/{divisionId}/result
+    path: /api/v1/bjjeire-competition/{id}/division/{divisionId}/result
     auth: admin
     request: RecordResultCommand   # goldRegistrationId, silverRegistrationId?, bronzeRegistrationIds[0..2]
     conflicts: [not-in-division, duplicate-medallist]
     covers: ["#5028", "#5033", "#5035"]
   - method: DELETE
-    path: /api/v1/tournament/{id}/division/{divisionId}/result
+    path: /api/v1/bjjeire-competition/{id}/division/{divisionId}/result
     auth: admin
   - method: GET
     path: /api/v1/tournament/{id}/registration

@@ -1,6 +1,7 @@
 # ADR-0012: Competitor identity is a second token issuer
 
 - **Status:** Accepted
+- **Note (2026-11-16):** renamed by [ADR-0015](0015-bjjeire-competitions-inside-competitions.md). The decision stands; the feature, package, routes, flag and collections it names now use the BJJ Éire competition names.
 - **Date:** 2026-11-13
 - **Applies to:** `src/bjjeire-api/src/main/java/com/bjjeire/api/config/SecurityConfig.java`, `config/RevocationCheckingJwtDecoder.java`, `config/RoutingJwtDecoder.java`, `config/BackoffJwtDecoder.java`, `config/IssuerAwareAuthoritiesConverter.java`, `common/ApiRoutes.java`, the `competitor` and `registration` packages, `src/bjjeire-app/src/lib/msal-config.ts`
 - **Amends:** constitution principle V (1.0.0 → 1.1.0)

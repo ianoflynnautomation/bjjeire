@@ -2,13 +2,13 @@ package com.bjjeire.api.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bjjeire.api.bjjeirecompetition.AgeCategory;
+import com.bjjeire.api.bjjeirecompetition.Belt;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
+import com.bjjeire.api.bjjeirecompetition.Discipline;
+import com.bjjeire.api.bjjeirecompetition.Division;
+import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
-import com.bjjeire.api.tournament.AgeCategory;
-import com.bjjeire.api.tournament.Belt;
-import com.bjjeire.api.tournament.Discipline;
-import com.bjjeire.api.tournament.Division;
-import com.bjjeire.api.tournament.Gender;
-import com.bjjeire.api.tournament.Tournament;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -56,13 +56,13 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     @Test
     void shouldListEverySignUpWithExactlyTheAdminFields() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-list", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-list", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        confirmedSignUp(AOIFE, tournament, division);
-        signUp(CIARAN, tournament.getId(), division.getId());
+        confirmedSignUp(AOIFE, competition, division);
+        signUp(CIARAN, competition.getId(), division.getId());
 
-        ResponseEntity<String> response = get(tournament.getId(), "?page=1&pageSize=20", ADMIN);
+        ResponseEntity<String> response = get(competition.getId(), "?page=1&pageSize=20", ADMIN);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         JsonNode body = objectMapper.readTree(response.getBody());
@@ -99,14 +99,16 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     @Test
     void shouldFlagAPaymentStripeTookThatNoWebhookConfirmed() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-unconfirmed", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-unconfirmed", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        signUp(AOIFE, tournament.getId(), division.getId());
+        signUp(AOIFE, competition.getId(), division.getId());
         mongoTemplate.updateFirst(
-                new Query(), Update.update("payment.unconfirmedAlertedAt", FIXED_NOW), TournamentRegistration.class);
+                new Query(),
+                Update.update("payment.unconfirmedAlertedAt", FIXED_NOW),
+                BjjEireCompetitionRegistration.class);
 
         JsonNode rows = objectMapper
-                .readTree(get(tournament.getId(), "", ADMIN).getBody())
+                .readTree(get(competition.getId(), "", ADMIN).getBody())
                 .at("/data");
 
         assertThat(rows.at("/0/paymentUnconfirmed").asBoolean()).isTrue();
@@ -115,7 +117,7 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     @Test
     void shouldExportEveryRowAsCsvWithTheSameColumns() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-csv", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-csv", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(
                 CIARAN,
@@ -125,15 +127,16 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
                 ADULT_BIRTH_DATE,
                 "{ \"name\": \"Team, \\\"Quoted\\\"\" }",
                 "null");
-        confirmedSignUp(AOIFE, tournament, division);
-        confirmedSignUp(CIARAN, tournament, division);
+        confirmedSignUp(AOIFE, competition, division);
+        confirmedSignUp(CIARAN, competition, division);
 
-        ResponseEntity<String> response = get(tournament.getId(), "?format=csv&pageSize=1", ADMIN);
+        ResponseEntity<String> response = get(competition.getId(), "?format=csv&pageSize=1", ADMIN);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType().isCompatibleWith(MediaType.parseMediaType("text/csv")))
                 .isTrue();
-        assertThat(response.getHeaders().getContentDisposition().getFilename()).endsWith(".csv");
+        assertThat(response.getHeaders().getContentDisposition().getFilename())
+                .isEqualTo("competition-" + competition.getId() + "-signups.csv");
         String[] lines = response.getBody().split("\r\n");
         assertThat(lines[0])
                 .isEqualTo("registrationId,displayName,email,phone,dateOfBirth,gender,belt,academy,affiliation,"
@@ -148,11 +151,11 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     @Test
     void shouldNotLetASpreadsheetRunAFormulaFromACompetitorsName() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-csv-formula", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-csv-formula", null, division);
         saveProfile(AOIFE, "=SUM(1)", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        confirmedSignUp(AOIFE, tournament, division);
+        confirmedSignUp(AOIFE, competition, division);
 
-        String csv = get(tournament.getId(), "?format=csv", ADMIN).getBody();
+        String csv = get(competition.getId(), "?format=csv", ADMIN).getBody();
 
         assertThat(csv).doesNotContain(",=SUM(1)").contains("'=SUM(1) Byrne");
     }
@@ -161,13 +164,14 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     void shouldLetTheOrganiserMoveASignUpAfterRegistrationHasClosedWithoutAnEligibilityCheck() {
         Division white = maleWhiteAdult("-76 kg");
         Division blue = division(Discipline.GI, Gender.MALE, AgeCategory.ADULT, Belt.BLUE, "-76 kg");
-        Tournament tournament = publishedTournament("admin-move", null, white, blue);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-move", null, white, blue);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration confirmed = confirmedSignUp(AOIFE, tournament, white);
-        closeRegistration(tournament.getId());
+        BjjEireCompetitionRegistration confirmed = confirmedSignUp(AOIFE, competition, white);
+        closeRegistration(competition.getId());
 
         ResponseEntity<String> response = restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/" + tournament.getId() + "/registration/" + confirmed.getId() + "/division",
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competition.getId() + "/registration/" + confirmed.getId()
+                        + "/division",
                 HttpMethod.PUT,
                 jsonEntity("{ \"divisionId\": \"" + blue.getId() + "\" }", ADMIN),
                 String.class);
@@ -178,23 +182,23 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
         // A white belt in a blue-belt division: the organiser sees the mismatch.
         assertThat(row.at("/profileMismatch").asBoolean()).isTrue();
         assertThat(reload(confirmed).getDivisionId()).isEqualTo(blue.getId());
-        assertThat(placesTaken(tournament.getId())).isEqualTo(1);
+        assertThat(placesTaken(competition.getId())).isEqualTo(1);
         assertThat(paymentGateway.refunds()).isEmpty();
     }
 
     @Test
     void shouldCancelWithOrWithoutARefundAsTheOrganiserChooses() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-cancel", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-cancel", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration refunded = confirmedSignUp(AOIFE, tournament, division);
-        TournamentRegistration kept = confirmedSignUp(CIARAN, tournament, division);
+        BjjEireCompetitionRegistration refunded = confirmedSignUp(AOIFE, competition, division);
+        BjjEireCompetitionRegistration kept = confirmedSignUp(CIARAN, competition, division);
         // After the window: a competitor would get nothing back, the organiser may still refund.
-        closeRegistration(tournament.getId());
+        closeRegistration(competition.getId());
 
-        ResponseEntity<String> withRefund = adminCancel(tournament.getId(), refunded.getId(), true);
-        ResponseEntity<String> withoutRefund = adminCancel(tournament.getId(), kept.getId(), false);
+        ResponseEntity<String> withRefund = adminCancel(competition.getId(), refunded.getId(), true);
+        ResponseEntity<String> withoutRefund = adminCancel(competition.getId(), kept.getId(), false);
 
         assertThat(withRefund.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(objectMapper.readTree(withRefund.getBody()).at("/refunded").asBoolean())
@@ -206,19 +210,19 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
                 .isFalse();
         assertThat(paymentGateway.refunds()).hasSize(1);
         assertThat(paymentGateway.refunds().getFirst().idempotencyKey()).isEqualTo("refund-" + refunded.getId());
-        assertThat(reload(refunded).getCancelledBy()).isEqualTo(TournamentRegistration.CANCELLED_BY_ADMIN);
+        assertThat(reload(refunded).getCancelledBy()).isEqualTo(BjjEireCompetitionRegistration.CANCELLED_BY_ADMIN);
         assertThat(reload(kept).getStatus()).isEqualTo(RegistrationStatus.CANCELLED);
         assertThat(reload(kept).getRefund()).isNull();
-        assertThat(placesTaken(tournament.getId())).isZero();
+        assertThat(placesTaken(competition.getId())).isZero();
     }
 
     @Test
-    void shouldRefuseASignUpFromAnotherTournament() {
+    void shouldRefuseASignUpFromAnotherBjjEireCompetition() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-own", null, division);
-        Tournament other = publishedTournament("admin-other", null, maleWhiteAdult("-76 kg"));
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-own", null, division);
+        BjjEireCompetition other = publishedBjjEireCompetition("admin-other", null, maleWhiteAdult("-76 kg"));
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration confirmed = confirmedSignUp(AOIFE, tournament, division);
+        BjjEireCompetitionRegistration confirmed = confirmedSignUp(AOIFE, competition, division);
 
         assertThat(adminCancel(other.getId(), confirmed.getId(), true).getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
@@ -226,10 +230,10 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     }
 
     @Test
-    void shouldMergeTeamNamesWithinOneTournamentOnly() {
+    void shouldMergeTeamNamesWithinOneBjjEireCompetitionOnly() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-merge", null, division);
-        Tournament other = publishedTournament("admin-merge-other", null, maleWhiteAdult("-76 kg"));
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-merge", null, division);
+        BjjEireCompetition other = publishedBjjEireCompetition("admin-merge-other", null, maleWhiteAdult("-76 kg"));
         saveProfile(
                 AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE, "{ \"name\": \"Team X\" }", "\"Alliance\"");
         saveProfile(
@@ -240,16 +244,16 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
                 ADULT_BIRTH_DATE,
                 "{ \"name\": \"team x BJJ\" }",
                 "\"alliance bjj\"");
-        TournamentRegistration aoife = confirmedSignUp(AOIFE, tournament, division);
-        TournamentRegistration ciaran = confirmedSignUp(CIARAN, tournament, division);
-        TournamentRegistration elsewhere =
+        BjjEireCompetitionRegistration aoife = confirmedSignUp(AOIFE, competition, division);
+        BjjEireCompetitionRegistration ciaran = confirmedSignUp(CIARAN, competition, division);
+        BjjEireCompetitionRegistration elsewhere =
                 confirmedSignUp(CIARAN, other, other.getDivisions().getFirst());
 
         ResponseEntity<String> academies = merge(
-                tournament.getId(),
+                competition.getId(),
                 "{ \"kind\": \"ACADEMY\", \"fromKeys\": [\"name:team x\", \"name:team x bjj\"], \"target\": \"Team X\" }");
         ResponseEntity<String> affiliations = merge(
-                tournament.getId(),
+                competition.getId(),
                 "{ \"kind\": \"AFFILIATION\", \"fromKeys\": [\"alliance bjj\"], \"target\": \"Alliance\" }");
 
         assertThat(academies.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -257,7 +261,7 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
                 .isEqualTo(2);
         assertThat(objectMapper.readTree(affiliations.getBody()).at("/updated").asInt())
                 .isEqualTo(1);
-        for (TournamentRegistration registration : List.of(reload(aoife), reload(ciaran))) {
+        for (BjjEireCompetitionRegistration registration : List.of(reload(aoife), reload(ciaran))) {
             assertThat(registration.getAcademy().name()).isEqualTo("Team X");
             assertThat(registration.getAcademyKey()).isEqualTo("name:team x");
             assertThat(registration.getAffiliation()).isEqualTo("Alliance");
@@ -270,10 +274,10 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
     @Test
     void shouldRefuseEveryAdminSignUpToolToCompetitorsAndVisitors() {
         Division division = maleWhiteAdult("-76 kg");
-        Tournament tournament = publishedTournament("admin-refused", null, division);
+        BjjEireCompetition competition = publishedBjjEireCompetition("admin-refused", null, division);
         saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
-        TournamentRegistration confirmed = confirmedSignUp(AOIFE, tournament, division);
-        String base = ApiRoutes.TOURNAMENT + "/" + tournament.getId();
+        BjjEireCompetitionRegistration confirmed = confirmedSignUp(AOIFE, competition, division);
+        String base = ApiRoutes.BJJEIRE_COMPETITION + "/" + competition.getId();
 
         for (String token : new String[] {AOIFE, null}) {
             List<ResponseEntity<String>> responses = List.of(
@@ -300,25 +304,25 @@ class AdminRegistrationIT extends RegistrationIntegrationTest {
         assertThat(reload(confirmed).getStatus()).isEqualTo(RegistrationStatus.CONFIRMED);
     }
 
-    private ResponseEntity<String> get(String tournamentId, String query, String token) {
+    private ResponseEntity<String> get(String competitionId, String query, String token) {
         return restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/" + tournamentId + "/registration" + query,
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competitionId + "/registration" + query,
                 HttpMethod.GET,
                 jsonEntity("", token),
                 String.class);
     }
 
-    private ResponseEntity<String> adminCancel(String tournamentId, String registrationId, boolean refund) {
+    private ResponseEntity<String> adminCancel(String competitionId, String registrationId, boolean refund) {
         return restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/" + tournamentId + "/registration/" + registrationId + "/cancel",
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competitionId + "/registration/" + registrationId + "/cancel",
                 HttpMethod.POST,
                 jsonEntity("{ \"refund\": " + refund + " }", ADMIN),
                 String.class);
     }
 
-    private ResponseEntity<String> merge(String tournamentId, String body) {
+    private ResponseEntity<String> merge(String competitionId, String body) {
         return restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/" + tournamentId + "/team-merge",
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competitionId + "/team-merge",
                 HttpMethod.POST,
                 jsonEntity(body, ADMIN),
                 String.class);

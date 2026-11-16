@@ -15,7 +15,7 @@ Browser (MSAL SPA)
     → Istio ingress (AKS)
       → bjjeire-frontend (Caddy + Vite bundle)
       → bjjeire-api (Java 25 Spring Boot)
-           → MongoDB (Gym, BjjEvent, Competition, Store, AuditLog; tournament collections)
+           → MongoDB (Gym, BjjEvent, Competition, Store, AuditLog; BJJ Éire competition collections)
            → Azure Blob (images)
            → Entra ID (JWT audience bjjeire-api-<env>)
            → Entra External ID (competitor tokens, ADR-0012; Microsoft Graph to delete an account)
@@ -48,14 +48,14 @@ Package-by-feature under `com.bjjeire.api.{gym,event,competition,store}`.
 | Events | `/api/v1/bjjevent` | `BjjEvent` |
 | Competitions | `/api/v1/competition` | `Competition` |
 | Stores | `/api/v1/store` | `Store` |
-| Tournaments (flag `Tournaments`, default off; set-up, public pages, profiles and paid sign-up live) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`, `Competitor`, `DeletedCompetitor`, `TournamentRegistration`, `StripeEvent` |
+| BJJ Éire competitions (flag `BjjEireCompetitions`, default off; set-up, public pages, profiles and paid sign-up live) | `/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration` | `BjjEireCompetition`, `Competitor`, `DeletedCompetitor`, `BjjEireCompetitionRegistration`, `StripeEvent` |
 | Feature flags | `/api/v1/featureflag` | (config) |
 | Donate | `/api/v1/donate` | (static) |
 
 List endpoints: `page` (1-based), `pageSize` (1–100), optional `county`.
 Envelope: `PagedResponse<T>`. Errors: `ProblemDetail` (`urn:bjjeire`).
 
-Public GET; POST/PUT/DELETE require the admin's Bearer token. Tournament routes add a second
+Public GET; POST/PUT/DELETE require the admin's Bearer token. BJJ Éire competition routes add a second
 token issuer for competitors and one signature-authenticated webhook (ADR-0012, ADR-0013).
 
 ## Frontend

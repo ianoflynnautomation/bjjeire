@@ -3,7 +3,7 @@ import { featureFlagsHandlers } from './feature-flags'
 import { gymsHandlers } from './gyms'
 import { bjjEventsHandlers } from './bjj-events'
 import { competitionsHandlers } from './competitions'
-import { tournamentsHandlers } from './tournaments'
+import { bjjEireCompetitionsHandlers } from './bjjeire-competitions'
 import { competitorHandlers } from './competitor'
 import { registrationsHandlers } from './registrations'
 
@@ -12,7 +12,7 @@ export { defaultFeatureFlags, featureFlagsHandlers } from './feature-flags'
 export { gymsHandlers } from './gyms'
 export { bjjEventsHandlers } from './bjj-events'
 export { competitionsHandlers } from './competitions'
-export { tournamentsHandlers } from './tournaments'
+export { bjjEireCompetitionsHandlers } from './bjjeire-competitions'
 export { competitorHandlers } from './competitor'
 export { registrationsHandlers } from './registrations'
 
@@ -22,7 +22,7 @@ export const handlers = [
   ...gymsHandlers,
   ...bjjEventsHandlers,
   ...competitionsHandlers,
-  ...tournamentsHandlers,
+  ...bjjEireCompetitionsHandlers,
   ...competitorHandlers,
   ...registrationsHandlers,
 ]

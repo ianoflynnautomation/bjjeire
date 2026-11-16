@@ -1,7 +1,7 @@
 import type {
   CompetitorDto,
   CompetitorHistoryDto,
-  TournamentMedalsDto,
+  CompetitionMedalsDto,
 } from '@/types/competitor'
 
 export function createCompetitor(
@@ -38,11 +38,11 @@ export function createUnsavedCompetitor(email: string): CompetitorDto {
   }
 }
 
-export function createTournamentMedals(
-  overrides: Partial<TournamentMedalsDto> = {}
-): TournamentMedalsDto {
+export function createCompetitionMedals(
+  overrides: Partial<CompetitionMedalsDto> = {}
+): CompetitionMedalsDto {
   return {
-    tournamentId: '665624c1ad01ce465c6cf456',
+    competitionId: '665624c1ad01ce465c6cf456',
     slug: 'bjjeire',
     name: 'BjjEire',
     date: '2026-06-27',
@@ -56,5 +56,5 @@ export function createTournamentMedals(
 export function createCompetitorHistory(
   overrides: Partial<CompetitorHistoryDto> = {}
 ): CompetitorHistoryDto {
-  return { gold: 0, silver: 0, bronze: 0, tournaments: [], ...overrides }
+  return { gold: 0, silver: 0, bronze: 0, competitions: [], ...overrides }
 }

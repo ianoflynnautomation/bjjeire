@@ -27,13 +27,13 @@ class LocalSignInIT extends MongoIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    void shouldLetALocalOrganiserCreateAndListTournaments() throws Exception {
+    void shouldLetALocalOrganiserCreateAndListBjjEireCompetitions() throws Exception {
         String token = signIn();
 
-        ResponseEntity<String> created =
-                restTemplate.postForEntity(ApiRoutes.TOURNAMENT, jsonEntity(tournamentJson(), token), String.class);
+        ResponseEntity<String> created = restTemplate.postForEntity(
+                ApiRoutes.BJJEIRE_COMPETITION, jsonEntity(bjjEireCompetitionJson(), token), String.class);
         ResponseEntity<String> drafts = restTemplate.exchange(
-                ApiRoutes.TOURNAMENT + "/admin", HttpMethod.GET, jsonEntity(null, token), String.class);
+                ApiRoutes.BJJEIRE_COMPETITION + "/admin", HttpMethod.GET, jsonEntity(null, token), String.class);
 
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(drafts.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -87,18 +87,24 @@ class LocalSignInIT extends MongoIntegrationTest {
                 .doesNotContain("Aoife");
     }
 
-    /** A local competitor is a competitor and nothing more: no tournament set-up, no directory write. */
+    /** A local competitor is a competitor and nothing more: no competition set-up, no directory write. */
     @Test
     void shouldNeverTreatALocalCompetitorAsAnOrganiser() throws Exception {
         String token = signInCompetitor("aoife@example.test");
 
         assertThat(restTemplate
-                        .postForEntity(ApiRoutes.TOURNAMENT, jsonEntity(tournamentJson(), token), String.class)
+                        .postForEntity(
+                                ApiRoutes.BJJEIRE_COMPETITION,
+                                jsonEntity(bjjEireCompetitionJson(), token),
+                                String.class)
                         .getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(restTemplate
                         .exchange(
-                                ApiRoutes.TOURNAMENT + "/admin", HttpMethod.GET, jsonEntity(null, token), String.class)
+                                ApiRoutes.BJJEIRE_COMPETITION + "/admin",
+                                HttpMethod.GET,
+                                jsonEntity(null, token),
+                                String.class)
                         .getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(restTemplate
@@ -123,8 +129,8 @@ class LocalSignInIT extends MongoIntegrationTest {
                         "someone-elses-secret-0123456789abcdef", "access_as_writer", Clock.systemUTC())
                 .accessToken();
 
-        ResponseEntity<String> response =
-                restTemplate.postForEntity(ApiRoutes.TOURNAMENT, jsonEntity(tournamentJson(), forged), String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                ApiRoutes.BJJEIRE_COMPETITION, jsonEntity(bjjEireCompetitionJson(), forged), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
@@ -147,7 +153,7 @@ class LocalSignInIT extends MongoIntegrationTest {
         return objectMapper.readTree(response.getBody()).at("/accessToken").asString();
     }
 
-    private static String tournamentJson() {
+    private static String bjjEireCompetitionJson() {
         return """
             {
               "slug": "local-sign-in-cup",

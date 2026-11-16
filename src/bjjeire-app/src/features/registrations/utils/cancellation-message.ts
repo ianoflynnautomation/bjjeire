@@ -1,5 +1,5 @@
 import { uiContent } from '@/config/ui-content'
-import { formatEntryFee } from '@/features/tournaments/utils/tournament-format'
+import { formatEntryFee } from '@/features/bjjeire-competitions/utils/bjjeire-competition-format'
 import type { CancellationDto, RegistrationDto } from '@/types/registrations'
 
 const { mine } = uiContent.registrations

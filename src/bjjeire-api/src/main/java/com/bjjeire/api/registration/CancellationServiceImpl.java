@@ -1,12 +1,12 @@
 package com.bjjeire.api.registration;
 
 import com.bjjeire.api.audit.AuditAction;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.registration.PaymentGateway.PaymentGatewayException;
 import com.bjjeire.api.registration.PaymentGateway.RefundRequest;
 import com.bjjeire.api.registration.PaymentGateway.RefundResult;
-import com.bjjeire.api.tournament.TournamentDto;
-import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CancellationServiceImpl implements CancellationService {
     private final MongoTemplate mongoTemplate;
-    private final TournamentService tournamentService;
+    private final BjjEireCompetitionService bjjEireCompetitionService;
     private final RegistrationService registrationService;
     private final PaymentGateway paymentGateway;
     private final RegistrationSupport support;
@@ -44,14 +44,14 @@ public class CancellationServiceImpl implements CancellationService {
 
     public CancellationServiceImpl(
             MongoTemplate mongoTemplate,
-            TournamentService tournamentService,
+            BjjEireCompetitionService bjjEireCompetitionService,
             RegistrationService registrationService,
             PaymentGateway paymentGateway,
             RegistrationSupport support,
             Clock clock,
             MeterRegistry meterRegistry) {
         this.mongoTemplate = mongoTemplate;
-        this.tournamentService = tournamentService;
+        this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.registrationService = registrationService;
         this.paymentGateway = paymentGateway;
         this.support = support;
@@ -64,46 +64,48 @@ public class CancellationServiceImpl implements CancellationService {
 
     @Override
     public CancellationDto cancelOwn(CompetitorIdentity caller, String registrationId) {
-        TournamentRegistration registration = support.owned(caller, registrationId);
-        TournamentDto tournament =
-                tournamentService.getForAdmin(registration.getTournamentId()).orElseThrow(ApiProblems::notFound);
+        BjjEireCompetitionRegistration registration = support.owned(caller, registrationId);
+        BjjEireCompetitionDto competition = bjjEireCompetitionService
+                .getForAdmin(registration.getCompetitionId())
+                .orElseThrow(ApiProblems::notFound);
         // FR-027: refunded in full only before registration closes.
-        boolean refund = tournament.registrationClosesAt() != null
-                && clock.instant().isBefore(tournament.registrationClosesAt());
-        return cancel(registration, refund, TournamentRegistration.CANCELLED_BY_COMPETITOR);
+        boolean refund = competition.registrationClosesAt() != null
+                && clock.instant().isBefore(competition.registrationClosesAt());
+        return cancel(registration, refund, BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITOR);
     }
 
     @Override
-    public CancellationDto cancelByAdmin(String tournamentId, String registrationId, boolean refund) {
-        TournamentRegistration registration = mongoTemplate.findById(registrationId, TournamentRegistration.class);
-        if (registration == null || !tournamentId.equals(registration.getTournamentId())) {
+    public CancellationDto cancelByAdmin(String competitionId, String registrationId, boolean refund) {
+        BjjEireCompetitionRegistration registration =
+                mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
+        if (registration == null || !competitionId.equals(registration.getCompetitionId())) {
             throw ApiProblems.notFound();
         }
-        return cancel(registration, refund, TournamentRegistration.CANCELLED_BY_ADMIN);
+        return cancel(registration, refund, BjjEireCompetitionRegistration.CANCELLED_BY_ADMIN);
     }
 
     @Override
-    public TournamentDto cancelTournament(String tournamentId) {
-        if (tournamentService.cancel(tournamentId).isEmpty()) {
+    public BjjEireCompetitionDto cancelBjjEireCompetition(String competitionId) {
+        if (bjjEireCompetitionService.cancel(competitionId).isEmpty()) {
             throw ApiProblems.notFound();
         }
         // Holds first: a payment confirmed before this still shows as CONFIRMED below; one after it is a late payment,
-        // refunded because a cancelled tournament gives no place.
-        int holds = registrationService.endHolds(tournamentId);
+        // refunded because a cancelled competition gives no place.
+        int holds = registrationService.endHolds(competitionId);
 
         java.util.Set<String> thisRun = new java.util.HashSet<>();
-        for (TournamentRegistration registration : find(
-                Criteria.where("tournamentId").is(tournamentId).and("status").is(RegistrationStatus.CONFIRMED))) {
-            cancel(registration, true, TournamentRegistration.CANCELLED_BY_TOURNAMENT);
+        for (BjjEireCompetitionRegistration registration : find(
+                Criteria.where("competitionId").is(competitionId).and("status").is(RegistrationStatus.CONFIRMED))) {
+            cancel(registration, true, BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITION);
             thisRun.add(registration.getId());
         }
 
         // Resume an earlier run that stopped part way: refunds that failed, or were saved but never reached Stripe.
         // A refund that failed just now is left for the organiser's next attempt rather than hammered at once.
         int retried = 0;
-        // Every refund of the tournament that failed, whoever cancelled, so the organiser has one place to retry.
-        for (TournamentRegistration registration : find(Criteria.where("tournamentId")
-                .is(tournamentId)
+        // Every refund of the competition that failed, whoever cancelled, so the organiser has one place to retry.
+        for (BjjEireCompetitionRegistration registration : find(Criteria.where("competitionId")
+                .is(competitionId)
                 .orOperator(
                         Criteria.where("refund.status").is(RefundStatus.FAILED),
                         Criteria.where("refund.status")
@@ -111,7 +113,7 @@ public class CancellationServiceImpl implements CancellationService {
                                 .and("refund.refundId")
                                 .exists(false)
                                 .and("cancelledBy")
-                                .is(TournamentRegistration.CANCELLED_BY_TOURNAMENT)))) {
+                                .is(BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITION)))) {
             if (thisRun.contains(registration.getId())) {
                 continue;
             }
@@ -119,18 +121,19 @@ public class CancellationServiceImpl implements CancellationService {
             retried++;
         }
         log.info(
-                "Tournament {} cancelled: {} sign-up(s) cancelled and refunded, {} refund(s) retried, {} hold(s) ended",
-                tournamentId,
+                "Competition {} cancelled: {} sign-up(s) cancelled and refunded, {} refund(s) retried, {} hold(s) ended",
+                competitionId,
                 thisRun.size(),
                 retried,
                 holds);
-        return tournamentService.getForAdmin(tournamentId).orElseThrow(ApiProblems::notFound);
+        return bjjEireCompetitionService.getForAdmin(competitionId).orElseThrow(ApiProblems::notFound);
     }
 
     @Override
     public void onRefundUpdated(String registrationId, String refundId, String status, String failureReason) {
-        TournamentRegistration registration =
-                registrationId == null ? null : mongoTemplate.findById(registrationId, TournamentRegistration.class);
+        BjjEireCompetitionRegistration registration = registrationId == null
+                ? null
+                : mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
         if (registration == null || registration.getRefund() == null) {
             log.warn("Stripe refund {} names registration {}, which has no refund", refundId, registrationId);
             return;
@@ -146,7 +149,7 @@ public class CancellationServiceImpl implements CancellationService {
                 .in(RefundStatus.PENDING, RefundStatus.FAILED);
         switch (status == null ? "" : status) {
             case "succeeded" -> {
-                TournamentRegistration refunded = mongoTemplate.findAndModify(
+                BjjEireCompetitionRegistration refunded = mongoTemplate.findAndModify(
                         Query.query(unsettled),
                         support.audited(new Update()
                                 .set("refund.refundId", refundId)
@@ -154,7 +157,7 @@ public class CancellationServiceImpl implements CancellationService {
                                 .set("refund.completedAt", clock.instant())
                                 .unset("refund.failureReason")),
                         FindAndModifyOptions.options().returnNew(true),
-                        TournamentRegistration.class);
+                        BjjEireCompetitionRegistration.class);
                 if (refunded == null) {
                     log.info("Refund of registration {} already recorded as completed", registrationId);
                     return;
@@ -163,8 +166,8 @@ public class CancellationServiceImpl implements CancellationService {
                 int amount = refunded.getRefund().getAmountCents();
                 support.mail(
                         refunded,
-                        (to, tournament, division) ->
-                                RegistrationMails.refundCompleted(to, tournament, division, amount));
+                        (to, competition, division) ->
+                                RegistrationMails.refundCompleted(to, competition, division, amount));
             }
             case "failed", "canceled" -> {
                 boolean changed = mongoTemplate
@@ -177,7 +180,7 @@ public class CancellationServiceImpl implements CancellationService {
                                                 .set("refund.refundId", refundId)
                                                 .set("refund.status", RefundStatus.FAILED)
                                                 .set("refund.failureReason", failureReason)),
-                                        TournamentRegistration.class)
+                                        BjjEireCompetitionRegistration.class)
                                 .getModifiedCount()
                         == 1;
                 if (changed) {
@@ -191,7 +194,8 @@ public class CancellationServiceImpl implements CancellationService {
 
     // ---- Helpers --------------------------------------------------------------------------------------------------
 
-    private CancellationDto cancel(TournamentRegistration registration, boolean refundWanted, String cancelledBy) {
+    private CancellationDto cancel(
+            BjjEireCompetitionRegistration registration, boolean refundWanted, String cancelledBy) {
         if (registration.getStatus() == RegistrationStatus.CANCELLED) {
             return CancellationDto.of(registration);
         }
@@ -219,18 +223,18 @@ public class CancellationServiceImpl implements CancellationService {
                             .requestedAt(now)
                             .build());
         }
-        TournamentRegistration cancelled = mongoTemplate.findAndModify(
+        BjjEireCompetitionRegistration cancelled = mongoTemplate.findAndModify(
                 Query.query(Criteria.where("_id")
                         .is(registration.getId())
                         .and("status")
                         .is(RegistrationStatus.CONFIRMED)),
                 update,
                 FindAndModifyOptions.options().returnNew(true),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         if (cancelled == null) {
             return cancelledMeanwhile(registration.getId());
         }
-        tournamentService.releasePlace(cancelled.getTournamentId());
+        bjjEireCompetitionService.releasePlace(cancelled.getCompetitionId());
         support.afterWrite(AuditAction.Update, cancelled.getId());
         log.info(
                 "Sign-up {} cancelled by {}, {}",
@@ -252,7 +256,8 @@ public class CancellationServiceImpl implements CancellationService {
 
     /** Another request cancelled it a moment ago: report what that one did. */
     private CancellationDto cancelledMeanwhile(String registrationId) {
-        TournamentRegistration current = mongoTemplate.findById(registrationId, TournamentRegistration.class);
+        BjjEireCompetitionRegistration current =
+                mongoTemplate.findById(registrationId, BjjEireCompetitionRegistration.class);
         if (current != null && current.getStatus() == RegistrationStatus.CANCELLED) {
             return CancellationDto.of(current);
         }
@@ -260,23 +265,23 @@ public class CancellationServiceImpl implements CancellationService {
                 ProblemTypes.CONFLICT, "The sign-up was changed meanwhile. Reload it and try again.");
     }
 
-    private void mailCancellation(TournamentRegistration done, String cancelledBy) {
-        if (TournamentRegistration.CANCELLED_BY_TOURNAMENT.equals(cancelledBy)) {
+    private void mailCancellation(BjjEireCompetitionRegistration done, String cancelledBy) {
+        if (BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITION.equals(cancelledBy)) {
             int amount = done.getRefund() == null ? 0 : done.getRefund().getAmountCents();
             support.mail(
                     done,
-                    (to, tournament, division) ->
-                            RegistrationMails.tournamentCancelled(to, tournament, division, amount));
+                    (to, competition, division) ->
+                            RegistrationMails.bjjEireCompetitionCancelled(to, competition, division, amount));
         } else {
             support.mail(
                     done,
-                    (to, tournament, division) ->
-                            RegistrationMails.cancelled(to, tournament, division, done.getRefund()));
+                    (to, competition, division) ->
+                            RegistrationMails.cancelled(to, competition, division, done.getRefund()));
         }
     }
 
     /** Asks Stripe for the saved refund and records the answer. Never throws for a Stripe failure. */
-    private TournamentRegistration issueRefund(TournamentRegistration registration) {
+    private BjjEireCompetitionRegistration issueRefund(BjjEireCompetitionRegistration registration) {
         Refund refund = registration.getRefund();
         String id = registration.getId();
         Criteria unsettled =
@@ -291,7 +296,7 @@ public class CancellationServiceImpl implements CancellationService {
         if (paymentIntentId == null) {
             recordRefundFailure(
                     id, attempt, refund.getAmountCents(), "No Stripe payment is recorded for this sign-up.");
-            return mongoTemplate.findById(id, TournamentRegistration.class);
+            return mongoTemplate.findById(id, BjjEireCompetitionRegistration.class);
         }
         try {
             RefundResult result =
@@ -305,13 +310,13 @@ public class CancellationServiceImpl implements CancellationService {
                 update.set("refund.completedAt", clock.instant());
             }
             // Guarded: a refund webhook that already completed it is not set back to pending.
-            mongoTemplate.updateFirst(Query.query(unsettled), update, TournamentRegistration.class);
+            mongoTemplate.updateFirst(Query.query(unsettled), update, BjjEireCompetitionRegistration.class);
         } catch (PaymentGatewayException failed) {
             recordRefundFailure(id, attempt, refund.getAmountCents(), failed.getMessage());
-            return mongoTemplate.findById(id, TournamentRegistration.class);
+            return mongoTemplate.findById(id, BjjEireCompetitionRegistration.class);
         }
         support.afterWrite(AuditAction.Update, id);
-        return mongoTemplate.findById(id, TournamentRegistration.class);
+        return mongoTemplate.findById(id, BjjEireCompetitionRegistration.class);
     }
 
     private void recordRefundFailure(String id, int attempt, int amountCents, String reason) {
@@ -324,7 +329,7 @@ public class CancellationServiceImpl implements CancellationService {
                         .set("refund.attempts", attempt)
                         .set("refund.status", RefundStatus.FAILED)
                         .set("refund.failureReason", reason)),
-                TournamentRegistration.class);
+                BjjEireCompetitionRegistration.class);
         support.afterWrite(AuditAction.Update, id);
         alertRefundFailure(id, amountCents, reason);
     }
@@ -338,7 +343,7 @@ public class CancellationServiceImpl implements CancellationService {
                 reason);
     }
 
-    private List<TournamentRegistration> find(Criteria criteria) {
-        return mongoTemplate.find(Query.query(criteria), TournamentRegistration.class);
+    private List<BjjEireCompetitionRegistration> find(Criteria criteria) {
+        return mongoTemplate.find(Query.query(criteria), BjjEireCompetitionRegistration.class);
     }
 }

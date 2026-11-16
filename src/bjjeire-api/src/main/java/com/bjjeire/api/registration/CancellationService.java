@@ -1,7 +1,7 @@
 package com.bjjeire.api.registration;
 
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.competitor.CompetitorIdentity;
-import com.bjjeire.api.tournament.TournamentDto;
 
 /** Cancelling sign-ups and the refunds that follow (User Story 4). */
 public interface CancellationService {
@@ -17,18 +17,18 @@ public interface CancellationService {
     /**
      * The organiser cancels one sign-up, refunding it or not, at any time (FR-007).
      *
-     * @throws org.springframework.web.server.ResponseStatusException 404 when the sign-up is not in this tournament;
+     * @throws org.springframework.web.server.ResponseStatusException 404 when the sign-up is not in this competition;
      *     409 when it is not confirmed
      */
-    CancellationDto cancelByAdmin(String tournamentId, String registrationId, boolean refund);
+    CancellationDto cancelByAdmin(String competitionId, String registrationId, boolean refund);
 
     /**
-     * Cancels the tournament, ends its unpaid holds and refunds every confirmed sign-up in full, mailing each
+     * Cancels the competition, ends its unpaid holds and refunds every confirmed sign-up in full, mailing each
      * competitor (FR-029). Safe to call again: it retries only refunds that failed or never reached Stripe.
      *
      * @throws org.springframework.web.server.ResponseStatusException 404 unknown; 409 finished
      */
-    TournamentDto cancelTournament(String tournamentId);
+    BjjEireCompetitionDto cancelBjjEireCompetition(String competitionId);
 
     /**
      * Stripe reports a refund's state. {@code succeeded} completes it and mails the competitor; {@code failed} or
