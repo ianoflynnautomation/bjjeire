@@ -55,6 +55,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     private static final int SWEEP_BATCH = 200;
     static final String REFUND_FAILURE_METRIC = "registration.refund.failures";
     static final String UNCONFIRMED_PAYMENT_METRIC = "registration.payment.unconfirmed";
+    private static final Duration UNKNOWN_STATE_ALERT_AFTER = Duration.ofHours(24);
+
     private static final String UNPAID_SLOT_INDEX = "ux_registration_unpaid_slot";
 
     private final MongoTemplate mongoTemplate;
@@ -440,6 +442,12 @@ public class RegistrationServiceImpl implements RegistrationService {
             try {
                 atStripe = sessionId == null ? CheckoutStatus.EXPIRED : paymentGateway.checkoutStatus(sessionId);
             } catch (PaymentGatewayException unknown) {
+                if (registration.getHoldExpiresAt().isBefore(clock.instant().minus(UNKNOWN_STATE_ALERT_AFTER))) {
+                    // Still unknown a day on: hand it to the organiser and stop asking, so it cannot crowd out the
+                    // other lapsed holds in each batch.
+                    alertUnconfirmedPayment(registration, "UNKNOWN");
+                    continue;
+                }
                 // Never expire a hold that may have been paid; the next sweep asks again.
                 log.warn(
                         "Hold of registration {} kept: Stripe could not be asked ({})",
@@ -460,7 +468,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     /** A paid session with no webhook: keep the place, record it once, and raise it for the organiser. */
-    private void alertUnconfirmedPayment(TournamentRegistration registration, CheckoutStatus atStripe) {
+    private void alertUnconfirmedPayment(TournamentRegistration registration, Object atStripe) {
         boolean first = mongoTemplate
                         .updateFirst(
                                 Query.query(Criteria.where("_id")
@@ -475,7 +483,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             unconfirmedPayments.increment();
             log.error(
                     "ALERT registration {} is {} at Stripe but no webhook confirmed it: check the webhook endpoint and"
-                            + " resend the event (docs/stripe-local.md). Its place stays held.",
+                            + " resend the event, or resolve it by hand (docs/stripe-local.md). Its place stays held.",
                     registration.getId(),
                     atStripe);
         }

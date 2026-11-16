@@ -140,6 +140,56 @@ class HoldSweepIT extends RegistrationIntegrationTest {
         assertThat(placesTaken(tournament.getId())).isEqualTo(1);
     }
 
+    @Test
+    @Tag("#5016")
+    void shouldReleaseAHoldWhoseSessionStripeNoLongerKnowsSoTheCompetitorCanSignUpAgain() {
+        Division division = maleWhiteAdult("-76 kg");
+        Tournament tournament = publishedTournament("sweep-gone", 5, division);
+        TournamentRegistration orphan = signUpAs(AOIFE, "Aoife", tournament, division);
+        lapse(orphan);
+        // What StripePaymentGateway answers for resource_missing.
+        paymentGateway.setCheckoutStatus(
+                orphan.getPayment().getCheckoutSessionId(), PaymentGateway.CheckoutStatus.EXPIRED);
+
+        holdSweep.sweep();
+
+        assertThat(status(orphan)).isEqualTo(RegistrationStatus.EXPIRED);
+        assertThat(placesTaken(tournament.getId())).isZero();
+        assertThat(signUp(AOIFE, tournament.getId(), division.getId()).getStatusCode())
+                .isEqualTo(org.springframework.http.HttpStatus.CREATED);
+    }
+
+    @Test
+    void shouldAlertOnceAndStopAskingWhenStripeCannotReportAHoldForADay() {
+        Division division = maleWhiteAdult("-76 kg");
+        Tournament tournament = publishedTournament("sweep-unknown-day", 5, division);
+        TournamentRegistration stuck = signUpAs(AOIFE, "Aoife", tournament, division);
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(stuck.getId())),
+                Update.update("holdExpiresAt", FIXED_NOW.minus(Duration.ofHours(25))),
+                TournamentRegistration.class);
+        paymentGateway.failStatusLookups(true);
+        double alertsBefore = meterRegistry
+                .counter(RegistrationServiceImpl.UNCONFIRMED_PAYMENT_METRIC)
+                .count();
+
+        holdSweep.sweep();
+        int lookupsAfterFirst = paymentGateway.statusLookups();
+        holdSweep.sweep();
+
+        TournamentRegistration kept = mongoTemplate.findById(stuck.getId(), TournamentRegistration.class);
+        // It may have been paid: never expired blind. The organiser resolves it.
+        assertThat(kept.getStatus()).isEqualTo(RegistrationStatus.AWAITING_PAYMENT);
+        assertThat(kept.getPayment().getUnconfirmedAlertedAt()).isEqualTo(FIXED_NOW);
+        assertThat(meterRegistry
+                                .counter(RegistrationServiceImpl.UNCONFIRMED_PAYMENT_METRIC)
+                                .count()
+                        - alertsBefore)
+                .isEqualTo(1.0);
+        // Out of later batches, so it cannot crowd out other lapsed holds.
+        assertThat(paymentGateway.statusLookups()).isEqualTo(lookupsAfterFirst);
+    }
+
     private TournamentRegistration signUpAs(String token, String name, Tournament tournament, Division division) {
         saveProfile(token, name, Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
         String body = signUp(token, tournament.getId(), division.getId()).getBody();

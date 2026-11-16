@@ -1436,7 +1436,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description hold-expired: the hold ended or the sign-up is no longer awaiting payment */
+      /** @description hold-expired: the hold ended or the sign-up is no longer awaiting payment; payment-received: Stripe already took the payment and the sign-up is being confirmed */
       409: {
         headers: {
           [name: string]: unknown
@@ -1705,7 +1705,7 @@ export interface operations {
           'application/problem+json': unknown
         }
       }
-      /** @description profile-incomplete, or under-18 on the tournament day */
+      /** @description registration-not-open, profile-incomplete, or under-18 on the tournament day */
       409: {
         headers: {
           [name: string]: unknown

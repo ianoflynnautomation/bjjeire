@@ -31,7 +31,9 @@ Never confirms anything; only the webhook does. Asked in two places:
 | Where | Session is paid or processing | Session is open or expired | Stripe cannot be reached |
 |---|---|---|---|
 | "Return to payment" (`POST /registration/{id}/checkout`) | 409 `payment-received`; no link to the finished page | the open page again (or 409 `hold-expired` once the hold ended) | the open page again |
-| Hold sweep, once the hold and the 2-minute margin have passed | the hold is kept, `payment.unconfirmedAlertedAt` set, one `ALERT` and `registration.payment.unconfirmed` | the sign-up expires and its place is given back | the hold is kept; the next sweep asks again |
+| Hold sweep, once the hold and the 2-minute margin have passed | the hold is kept, `payment.unconfirmedAlertedAt` set, one `ALERT` and `registration.payment.unconfirmed` | the sign-up expires and its place is given back | the hold is kept and the next sweep asks again; 24 hours after the hold ended it is alerted once (state `UNKNOWN`) and no longer asked about |
+
+A session Stripe does not know (`resource_missing`, for example after a key, sandbox or test-to-live switch) counts as expired: it can never be paid.
 
 ## Outbound: create refund
 

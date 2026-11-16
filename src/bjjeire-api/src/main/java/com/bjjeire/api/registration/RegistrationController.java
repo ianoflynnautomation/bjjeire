@@ -78,7 +78,8 @@ public class RegistrationController {
     @ApiResponse(responseCode = "404", description = "No such sign-up", content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "409",
-            description = "hold-expired: the hold ended or the sign-up is no longer awaiting payment",
+            description = "hold-expired: the hold ended or the sign-up is no longer awaiting payment; payment-received:"
+                    + " Stripe already took the payment and the sign-up is being confirmed",
             content = @Content(mediaType = PROBLEM))
     public ResponseEntity<RegistrationCheckoutDto> resumeCheckout(
             @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt, @PathVariable @ValidObjectId String id) {

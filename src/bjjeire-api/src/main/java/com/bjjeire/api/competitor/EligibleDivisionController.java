@@ -39,7 +39,7 @@ public class EligibleDivisionController {
             content = @Content(mediaType = PROBLEM))
     @ApiResponse(
             responseCode = "409",
-            description = "profile-incomplete, or under-18 on the tournament day",
+            description = "registration-not-open, profile-incomplete, or under-18 on the tournament day",
             content = @Content(mediaType = PROBLEM))
     public ResponseEntity<List<DivisionDto>> getEligibleDivisions(
             @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt, @PathVariable @ValidObjectId String id) {

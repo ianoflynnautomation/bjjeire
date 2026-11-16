@@ -2,6 +2,7 @@ package com.bjjeire.api.registration;
 
 import com.bjjeire.api.config.BjjEireProperties;
 import com.stripe.StripeClient;
+import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Refund;
 import com.stripe.model.checkout.Session;
@@ -62,9 +63,25 @@ public class StripePaymentGateway implements PaymentGateway {
             Session session = client.v1().checkout().sessions().retrieve(checkoutSessionId);
             return CheckoutStatus.of(session.getStatus(), session.getPaymentStatus());
         } catch (StripeException failed) {
-            throw new PaymentGatewayException(
-                    "Stripe could not report the Checkout Session: " + failed.getMessage(), failed);
+            return statusWhenRetrieveFails(failed);
         }
+    }
+
+    /**
+     * Tells a session Stripe does not know, which can never be paid again (another key or sandbox, or test to live),
+     * from a failure to ask.
+     *
+     * @return {@code EXPIRED} for {@code resource_missing}
+     * @throws PaymentGatewayException for anything else: the state is unknown
+     */
+    static CheckoutStatus statusWhenRetrieveFails(StripeException failed) {
+        if (failed instanceof InvalidRequestException invalid
+                && ("resource_missing".equals(invalid.getCode())
+                        || Integer.valueOf(404).equals(invalid.getStatusCode()))) {
+            return CheckoutStatus.EXPIRED;
+        }
+        throw new PaymentGatewayException(
+                "Stripe could not report the Checkout Session: " + failed.getMessage(), failed);
     }
 
     @Override
