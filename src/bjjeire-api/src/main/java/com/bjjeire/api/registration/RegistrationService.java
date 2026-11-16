@@ -70,4 +70,24 @@ public interface RegistrationService {
      * @return how many sign-ups were expired by this call
      */
     int expireLapsedHolds();
+
+    /**
+     * Ends every unpaid hold of a tournament now and gives its places back, for a tournament being cancelled. A payment
+     * that still arrives is then a late payment, refunded because the tournament has no place to give (research R5).
+     *
+     * @param tournamentId the tournament
+     * @return how many holds were ended
+     */
+    int endHolds(String tournamentId);
+
+    /**
+     * The competitor moves their confirmed sign-up to another division they are eligible for, at no charge, while
+     * registration is open (FR-028).
+     *
+     * @return the sign-up as it is now
+     * @throws org.springframework.web.server.ResponseStatusException 404 unknown sign-up or division; 403 another
+     *     competitor's; 409 {@code registration-closed}, {@code not-eligible}, {@code already-registered}, or when it
+     *     is not confirmed
+     */
+    RegistrationDto changeOwnDivision(CompetitorIdentity caller, String registrationId, ChangeDivisionCommand command);
 }

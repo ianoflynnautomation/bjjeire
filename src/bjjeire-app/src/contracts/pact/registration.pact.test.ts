@@ -3,12 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { API_ROUTES } from '@/config/api-routes'
 import { createPact } from './pact-setup'
 
-const { eachLike, integer, string, regex } = MatchersV3
+const { boolean, eachLike, integer, string, regex } = MatchersV3
 
 // Ids fixed by the provider states in PactProviderVerificationIT.
 const TOURNAMENT_ID = '0123456789abcdef0123aaaa'
 const DIVISION_ID = '0123456789abcdef0123cccc'
 const REGISTRATION_ID = '0123456789abcdef0123bbbb'
+const OTHER_DIVISION_ID = '0123456789abcdef0123eeee'
 
 const COMPETITOR_AUTHORIZATION = regex('^Bearer .+$', 'Bearer competitor-token')
 const INSTANT = regex(
@@ -143,7 +144,10 @@ describe('Pact - Tournament sign-up consumer contract', () => {
             tournamentId: string(TOURNAMENT_ID),
             tournamentSlug: string('pact-sign-up'),
             tournamentName: string('Pact Sign-Up Tournament'),
-            tournamentDate: regex(String.raw`^\d{4}-\d{2}-\d{2}$`, '2026-06-27'),
+            tournamentDate: regex(
+              String.raw`^\d{4}-\d{2}-\d{2}$`,
+              '2026-06-27'
+            ),
             division: DIVISION_BODY,
             status: STATUS,
             amountCents: integer(2500),
@@ -186,6 +190,75 @@ describe('Pact - Tournament sign-up consumer contract', () => {
       })
       .executeTest(async mockServer => {
         const response = await fetch(`${mockServer.url}${path}`)
+        expect(response.ok).toBe(true)
+      })
+  })
+
+  it('POST /api/v1/registration/{id}/cancel cancels a confirmed sign-up and says what was refunded', async () => {
+    const pact = createPact()
+    const path = `${API_ROUTES.registration}/${REGISTRATION_ID}/cancel`
+
+    await pact
+      .addInteraction()
+      .given('a competitor with a confirmed sign-up and another division open')
+      .uponReceiving('a request to cancel a confirmed sign-up')
+      .withRequest('POST', path, builder => {
+        builder.headers({ Authorization: COMPETITOR_AUTHORIZATION })
+      })
+      .willRespondWith(200, builder => {
+        builder.headers({ 'content-type': 'application/json' })
+        builder.jsonBody({
+          refunded: boolean(true),
+          refundAmountCents: integer(2500),
+          refundStatus: regex('PENDING|REFUNDED|FAILED', 'REFUNDED'),
+        })
+      })
+      .executeTest(async mockServer => {
+        const response = await fetch(`${mockServer.url}${path}`, {
+          method: 'POST',
+          headers: { Authorization: 'Bearer competitor-token' },
+        })
+        expect(response.ok).toBe(true)
+      })
+  })
+
+  it('PUT /api/v1/registration/{id}/division moves a confirmed sign-up', async () => {
+    const pact = createPact()
+    const path = `${API_ROUTES.registration}/${REGISTRATION_ID}/division`
+
+    await pact
+      .addInteraction()
+      .given('a competitor with a confirmed sign-up and another division open')
+      .uponReceiving(
+        'a request to move a confirmed sign-up to another division'
+      )
+      .withRequest('PUT', path, builder => {
+        builder.headers({
+          Authorization: COMPETITOR_AUTHORIZATION,
+          'Content-Type': 'application/json',
+        })
+        builder.jsonBody({ divisionId: OTHER_DIVISION_ID })
+      })
+      .willRespondWith(200, builder => {
+        builder.headers({ 'content-type': 'application/json' })
+        builder.jsonBody({
+          id: ID,
+          tournamentId: string(TOURNAMENT_ID),
+          division: { ...DIVISION_BODY, id: string(OTHER_DIVISION_ID) },
+          status: regex('CONFIRMED', 'CONFIRMED'),
+          amountCents: integer(2500),
+          refundableUntil: INSTANT,
+        })
+      })
+      .executeTest(async mockServer => {
+        const response = await fetch(`${mockServer.url}${path}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: 'Bearer competitor-token',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ divisionId: OTHER_DIVISION_ID }),
+        })
         expect(response.ok).toBe(true)
       })
   })

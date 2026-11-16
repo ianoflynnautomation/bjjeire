@@ -64,6 +64,7 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
 
     private static final String SIGN_UP_TOURNAMENT_ID = "0123456789abcdef0123aaaa";
     private static final String SIGN_UP_DIVISION_ID = "0123456789abcdef0123cccc";
+    private static final String SIGN_UP_OTHER_DIVISION_ID = "0123456789abcdef0123eeee";
     private static final String SIGN_UP_REGISTRATION_ID = "0123456789abcdef0123bbbb";
 
     @LocalServerPort
@@ -210,6 +211,31 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
         insertRegistration(competitor.getId(), RegistrationStatus.AWAITING_PAYMENT);
     }
 
+    @State("a competitor with a confirmed sign-up and another division open")
+    void aCompetitorWithAConfirmedSignUpAndAnotherDivisionOpen() {
+        aCompetitorWithAProfileIsSignedIn();
+        insertSignUpTournament();
+        mongoTemplate.updateFirst(
+                org.springframework.data.mongodb.core.query.Query.query(
+                        org.springframework.data.mongodb.core.query.Criteria.where("_id")
+                                .is(SIGN_UP_TOURNAMENT_ID)),
+                new org.springframework.data.mongodb.core.query.Update()
+                        .push(
+                                "divisions",
+                                Division.builder()
+                                        .id(SIGN_UP_OTHER_DIVISION_ID)
+                                        .discipline(Discipline.GI)
+                                        .gender(Gender.FEMALE)
+                                        .ageCategory(AgeCategory.ADULT)
+                                        .belt(Belt.BLUE)
+                                        .weightClass("-70 kg")
+                                        .build()),
+                Tournament.class);
+        Competitor competitor =
+                mongoTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(), Competitor.class);
+        insertRegistration(competitor.getId(), RegistrationStatus.CONFIRMED);
+    }
+
     @State("a tournament with a confirmed competitor")
     void aTournamentWithAConfirmedCompetitor() {
         insertSignUpTournament();
@@ -257,6 +283,7 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                         .amountCents(2500)
                         .currency("EUR")
                         .status(status == RegistrationStatus.CONFIRMED ? PaymentStatus.PAID : PaymentStatus.PENDING)
+                        .paymentIntentId(status == RegistrationStatus.CONFIRMED ? "pi_test_pact" : null)
                         .build())
                 .createdOnUtc(FIXED_NOW)
                 .build());

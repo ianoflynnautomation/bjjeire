@@ -11,6 +11,7 @@ interface SelectFieldProps {
   placeholder: string
   error?: string
   className?: string
+  dataTestId?: string
 }
 
 const controlClass =
@@ -25,6 +26,7 @@ export const SelectField = function SelectField({
   placeholder,
   error,
   className,
+  dataTestId,
 }: SelectFieldProps): JSX.Element {
   const errorId = error ? `${id}-error` : undefined
   return (
@@ -38,6 +40,7 @@ export const SelectField = function SelectField({
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId}
         onChange={event => onChange(event.target.value)}
+        data-testid={dataTestId}
         className={cn(
           controlClass,
           error ? 'border-danger-500' : 'border-hairline'

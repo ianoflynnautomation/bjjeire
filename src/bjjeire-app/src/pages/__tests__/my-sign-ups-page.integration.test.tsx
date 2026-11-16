@@ -4,11 +4,15 @@ import { uiContent } from '@/config/ui-content'
 import { MySignUpsTestIds } from '@/constants/registrationDataTestIds'
 import { createDivision } from '@/testing/factories/tournament.factory'
 import {
+  createCancellation,
   createRegistration,
   createRegistrationCheckout,
 } from '@/testing/factories/registration.factory'
 import {
   renderMySignUpsPage,
+  seedCancelRegistration,
+  seedChangeDivision,
+  seedEligibleDivisions,
   seedOwnRegistrations,
   seedResumeCheckout,
 } from '@/features/registrations/testing/registration-test-helpers'
@@ -50,7 +54,10 @@ describe('MySignUpsPage', () => {
     seedOwnRegistrations([
       createRegistration({
         tournamentName: 'BjjEire',
-        division: createDivision({ discipline: 'NO_GI', weightClass: '-82 kg' }),
+        division: createDivision({
+          discipline: 'NO_GI',
+          weightClass: '-82 kg',
+        }),
         amountCents: 2500,
         status: 'CONFIRMED',
         paymentStatus: 'PAID',
@@ -90,9 +97,9 @@ describe('MySignUpsPage', () => {
     seedOwnRegistrations([])
     renderMySignUpsPage()
 
-    expect(
-      await screen.findByTestId(MySignUpsTestIds.EMPTY)
-    ).toHaveTextContent(mine.empty)
+    expect(await screen.findByTestId(MySignUpsTestIds.EMPTY)).toHaveTextContent(
+      mine.empty
+    )
   })
 
   // #5016
@@ -135,5 +142,212 @@ describe('MySignUpsPage', () => {
       )
     ).toBeInTheDocument()
     expect(assign).not.toHaveBeenCalled()
+  })
+})
+
+const DAY_MS = 24 * 60 * 60 * 1000
+const stillOpen = (): string => new Date(Date.now() + 7 * DAY_MS).toISOString()
+const alreadyClosed = (): string => new Date(Date.now() - DAY_MS).toISOString()
+
+describe('MySignUpsPage: cancel and change division', () => {
+  // #5022
+  it('given a confirmed sign-up and open registration, when the competitor cancels, then they are told the full fee is refunded and the cancellation is sent', async () => {
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      paymentStatus: 'PAID',
+      amountCents: 2500,
+      refundableUntil: stillOpen(),
+    })
+    seedOwnRegistrations(
+      [confirmed],
+      [{ ...confirmed, status: 'CANCELLED', refundStatus: 'PENDING' }]
+    )
+    const cancelCall = seedCancelRegistration(
+      confirmed.id,
+      createCancellation()
+    )
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
+    const warning = screen.getByTestId(MySignUpsTestIds.CANCEL_WARNING)
+    expect(warning).toHaveTextContent(mine.refundWarningPrefix)
+    expect(warning).toHaveTextContent('€25.00')
+    await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_CONFIRM))
+
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(`${mine.cancelledRefundPrefix} €25.00`)
+    expect(cancelCall.calls).toHaveLength(1)
+    expect(cancelCall.authorization[0]).toBe('Bearer competitor-token')
+    await waitFor(() =>
+      expect(screen.getByTestId(MySignUpsTestIds.ROW_STATUS)).toHaveTextContent(
+        mine.statuses.CANCELLED
+      )
+    )
+    expect(screen.queryByTestId(MySignUpsTestIds.ROW_CANCEL)).toBeNull()
+  })
+
+  // #5023
+  it('given a confirmed sign-up and closed registration, when the competitor cancels, then they are warned no refund is due before confirming', async () => {
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      paymentStatus: 'PAID',
+      refundableUntil: alreadyClosed(),
+    })
+    seedOwnRegistrations([confirmed])
+    const cancelCall = seedCancelRegistration(
+      confirmed.id,
+      createCancellation({
+        refunded: false,
+        refundAmountCents: 0,
+        refundStatus: null,
+      })
+    )
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
+    expect(
+      screen.getByTestId(MySignUpsTestIds.CANCEL_WARNING)
+    ).toHaveTextContent(mine.noRefundWarning)
+    expect(cancelCall.calls).toHaveLength(0)
+    await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_CONFIRM))
+
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(mine.cancelledNoRefund)
+  })
+
+  // #5023
+  it('given the warning is shown, when the competitor keeps the sign-up, then nothing is sent', async () => {
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      refundableUntil: stillOpen(),
+    })
+    seedOwnRegistrations([confirmed])
+    const cancelCall = seedCancelRegistration(
+      confirmed.id,
+      createCancellation()
+    )
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
+    await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_KEEP))
+
+    expect(screen.queryByTestId(MySignUpsTestIds.CANCEL_WARNING)).toBeNull()
+    expect(cancelCall.calls).toHaveLength(0)
+  })
+
+  // #5024
+  it('given a confirmed sign-up and open registration, when the competitor picks another eligible division, then the sign-up is moved at no charge', async () => {
+    const current = createDivision({ weightClass: '-76 kg' })
+    const heavier = createDivision({ weightClass: '-82 kg' })
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      division: current,
+      refundableUntil: stillOpen(),
+    })
+    seedOwnRegistrations([confirmed], [{ ...confirmed, division: heavier }])
+    seedEligibleDivisions(confirmed.tournamentId, [current, heavier])
+    const move = seedChangeDivision(confirmed.id, {
+      ...confirmed,
+      division: heavier,
+    })
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CHANGE))
+    const select = await screen.findByTestId(MySignUpsTestIds.CHANGE_SELECT)
+    expect(within(select).queryByRole('option', { name: /-76 kg/u })).toBeNull()
+    await user.selectOptions(select, String(heavier.id))
+    await user.click(screen.getByTestId(MySignUpsTestIds.CHANGE_SAVE))
+
+    await waitFor(() =>
+      expect(move.calls).toEqual([{ divisionId: heavier.id }])
+    )
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.NOTICE)
+    ).toHaveTextContent(mine.changed)
+    await waitFor(() =>
+      expect(
+        screen.getByTestId(MySignUpsTestIds.ROW_DIVISION)
+      ).toHaveTextContent('-82 kg')
+    )
+  })
+
+  // #5025
+  it('given registration has closed, when the competitor views a confirmed sign-up, then there is no change-division control and they are told to contact the organiser', async () => {
+    seedOwnRegistrations([
+      createRegistration({
+        status: 'CONFIRMED',
+        refundableUntil: alreadyClosed(),
+      }),
+    ])
+    renderMySignUpsPage()
+
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.CLOSED_NOTE)
+    ).toHaveTextContent(mine.closedContactOrganiser)
+    expect(screen.queryByTestId(MySignUpsTestIds.ROW_CHANGE)).toBeNull()
+  })
+
+  // #5025
+  it('given registration closes while the page is open, when the competitor tries to change division, then the refusal tells them to contact the organiser', async () => {
+    const current = createDivision({ weightClass: '-76 kg' })
+    const heavier = createDivision({ weightClass: '-82 kg' })
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      division: current,
+      refundableUntil: stillOpen(),
+    })
+    seedOwnRegistrations([confirmed])
+    seedEligibleDivisions(confirmed.tournamentId, [current, heavier])
+    seedChangeDivision(confirmed.id, {
+      problem: 'urn:bjjeire:registration-closed',
+    })
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CHANGE))
+    await user.selectOptions(
+      await screen.findByTestId(MySignUpsTestIds.CHANGE_SELECT),
+      String(heavier.id)
+    )
+    await user.click(screen.getByTestId(MySignUpsTestIds.CHANGE_SAVE))
+
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.ACTION_ERROR)
+    ).toHaveTextContent(
+      uiContent.registrations.problems['urn:bjjeire:registration-closed']
+    )
+  })
+
+  it('given the cancellation fails for an unknown reason, when the competitor confirms, then they are told it did not work', async () => {
+    const confirmed = createRegistration({
+      status: 'CONFIRMED',
+      refundableUntil: stillOpen(),
+    })
+    seedOwnRegistrations([confirmed])
+    seedCancelRegistration(confirmed.id, {
+      problem: 'urn:bjjeire:internal-error',
+      status: 500,
+    })
+    const { user } = renderMySignUpsPage()
+
+    await user.click(await screen.findByTestId(MySignUpsTestIds.ROW_CANCEL))
+    await user.click(screen.getByTestId(MySignUpsTestIds.CANCEL_CONFIRM))
+
+    expect(
+      await screen.findByTestId(MySignUpsTestIds.ACTION_ERROR)
+    ).toHaveTextContent(mine.actionFailed)
+  })
+
+  it('given an unpaid or cancelled sign-up, when the competitor views it, then neither cancel nor change division is offered', async () => {
+    seedOwnRegistrations([
+      createRegistration({ status: 'AWAITING_PAYMENT' }),
+      createRegistration({ status: 'CANCELLED', refundStatus: 'REFUNDED' }),
+    ])
+    renderMySignUpsPage()
+
+    expect(await screen.findAllByTestId(MySignUpsTestIds.ROW)).toHaveLength(2)
+    expect(screen.queryByTestId(MySignUpsTestIds.ROW_CANCEL)).toBeNull()
+    expect(screen.queryByTestId(MySignUpsTestIds.ROW_CHANGE)).toBeNull()
   })
 })

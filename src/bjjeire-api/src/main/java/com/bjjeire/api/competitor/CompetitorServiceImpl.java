@@ -146,6 +146,23 @@ public class CompetitorServiceImpl implements CompetitorService {
     }
 
     @Override
+    public java.util.Map<String, CompetitorContact> findContacts(java.util.Collection<String> competitorIds) {
+        if (competitorIds.isEmpty()) {
+            return java.util.Map.of();
+        }
+        return mongoTemplate.find(Query.query(Criteria.where("_id").in(competitorIds)), Competitor.class).stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        Competitor::getId,
+                        competitor -> new CompetitorContact(
+                                competitor.getId(),
+                                competitor.getEmail(),
+                                competitor.getPhone(),
+                                competitor.getDateOfBirth(),
+                                competitor.getGender(),
+                                competitor.getBelt())));
+    }
+
+    @Override
     public Optional<String> findEmail(String competitorId) {
         return Optional.ofNullable(mongoTemplate.findById(competitorId, Competitor.class))
                 .map(Competitor::getEmail);
@@ -178,6 +195,12 @@ public class CompetitorServiceImpl implements CompetitorService {
             throw ApiProblems.conflict(
                     ProblemTypes.HAS_ACTIVE_REGISTRATION,
                     "You have a sign-up that is awaiting payment or confirmed. Cancel it before deleting your account.");
+        }
+
+        if (competitor != null) {
+            // Before anything else changes: if anonymising the sign-ups fails, the account is untouched and the
+            // deletion can be retried.
+            events.publishEvent(new CompetitorAccountDeleting(competitor.getId()));
         }
 
         // First stop the identity at the API, so nothing it sends from here on is accepted.

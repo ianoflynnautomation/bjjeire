@@ -6,6 +6,15 @@ import { server } from '@/testing/msw/server'
 import { renderWithProviders } from '@/testing/render-utils'
 import { testApiUrl } from '@/testing/seed-helpers'
 import { createPaginatedTournaments } from '@/testing/factories/tournament.factory'
+import { createPaginatedAdminRegistrations } from '@/testing/factories/registration.factory'
+import type {
+  AdminCancelCommand,
+  AdminRegistrationDto,
+  CancellationDto,
+  ChangeDivisionCommand,
+  MergeTeamsCommand,
+  TeamMergeDto,
+} from '@/types/registrations'
 import type {
   TournamentCommand,
   TournamentDto,
@@ -111,6 +120,98 @@ export function seedPublish(
       captured.calls.push(null)
       captured.authorization.push(request.headers.get('Authorization'))
       return HttpResponse.json(published)
+    })
+  )
+  return captured
+}
+
+export function seedCancelTournament(
+  id: string,
+  cancelled: TournamentDto
+): Captured<null> {
+  const captured = capture<null>()
+  server.use(
+    http.post(`${TOURNAMENTS_API}/${id}/cancel`, ({ request }) => {
+      captured.calls.push(null)
+      captured.authorization.push(request.headers.get('Authorization'))
+      return HttpResponse.json(cancelled)
+    })
+  )
+  return captured
+}
+
+/** Answers each read with the next list, then keeps repeating the last. */
+export function seedAdminRegistrations(
+  id: string,
+  ...lists: AdminRegistrationDto[][]
+): Captured<null> {
+  const captured = capture<null>()
+  server.use(
+    http.get(`${TOURNAMENTS_API}/${id}/registration`, ({ request }) => {
+      const index = Math.min(captured.calls.length, lists.length - 1)
+      captured.calls.push(null)
+      captured.authorization.push(request.headers.get('Authorization'))
+      if (new URL(request.url).searchParams.get('format') === 'csv') {
+        return new HttpResponse('registrationId,displayName\r\n', {
+          headers: { 'Content-Type': 'text/csv' },
+        })
+      }
+      return HttpResponse.json(
+        createPaginatedAdminRegistrations(lists[index] ?? [])
+      )
+    })
+  )
+  return captured
+}
+
+export function seedAdminMove(
+  id: string,
+  registrationId: string,
+  moved: AdminRegistrationDto
+): Captured<ChangeDivisionCommand> {
+  const captured = capture<ChangeDivisionCommand>()
+  server.use(
+    http.put(
+      `${TOURNAMENTS_API}/${id}/registration/${registrationId}/division`,
+      async ({ request }) => {
+        captured.calls.push((await request.json()) as ChangeDivisionCommand)
+        captured.authorization.push(request.headers.get('Authorization'))
+        return HttpResponse.json(moved)
+      }
+    )
+  )
+  return captured
+}
+
+export function seedAdminCancel(
+  id: string,
+  registrationId: string,
+  outcome: CancellationDto
+): Captured<AdminCancelCommand> {
+  const captured = capture<AdminCancelCommand>()
+  server.use(
+    http.post(
+      `${TOURNAMENTS_API}/${id}/registration/${registrationId}/cancel`,
+      async ({ request }) => {
+        captured.calls.push((await request.json()) as AdminCancelCommand)
+        captured.authorization.push(request.headers.get('Authorization'))
+        return HttpResponse.json(outcome)
+      }
+    )
+  )
+  return captured
+}
+
+export function seedMerge(
+  id: string,
+  result: TeamMergeDto
+): Captured<MergeTeamsCommand> {
+  const captured = capture<MergeTeamsCommand>()
+  server.use(
+    http.post(`${TOURNAMENTS_API}/${id}/team-merge`, async ({ request }) => {
+      captured.calls.push((await request.json()) as MergeTeamsCommand)
+      captured.authorization.push(request.headers.get('Authorization'))
+      return HttpResponse.json(result)
     })
   )
   return captured

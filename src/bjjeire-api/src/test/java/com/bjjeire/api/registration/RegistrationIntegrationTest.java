@@ -145,6 +145,90 @@ abstract class RegistrationIntegrationTest extends MongoIntegrationTest {
         return mongoTemplate.findById(tournamentId, Tournament.class).getPlacesTaken();
     }
 
+    /** Signs {@code token} up for the division and has Stripe report the payment, so the sign-up is confirmed. */
+    TournamentRegistration confirmedSignUp(String token, Tournament tournament, Division division) {
+        ResponseEntity<String> started = signUp(token, tournament.getId(), division.getId());
+        if (started.getStatusCode().value() != 201) {
+            throw new IllegalStateException("Sign-up failed: " + started.getBody());
+        }
+        java.util.regex.Matcher id = java.util.regex.Pattern.compile("\"registrationId\"\\s*:\\s*\"([0-9a-f]{24})\"")
+                .matcher(started.getBody());
+        if (!id.find()) {
+            throw new IllegalStateException("No registrationId in " + started.getBody());
+        }
+        TournamentRegistration registration = mongoTemplate.findById(id.group(1), TournamentRegistration.class);
+        int mailsBefore = mailer.sent().size();
+        ResponseEntity<String> paid = postSignedWebhook(
+                checkoutEvent("evt_paid_" + registration.getId(), "checkout.session.completed", registration));
+        if (paid.getStatusCode().value() != 200) {
+            throw new IllegalStateException("Webhook failed: " + paid.getBody());
+        }
+        // The confirmation mail is queued on its own thread; wait for it so a test that resets the mailer sees only
+        // what follows.
+        mailer.awaitSent(mailsBefore + 1);
+        return mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+    }
+
+    /** Moves the tournament's registration window so that it has closed by {@code FIXED_NOW}. */
+    void closeRegistration(String tournamentId) {
+        mongoTemplate.updateFirst(
+                org.springframework.data.mongodb.core.query.Query.query(
+                        org.springframework.data.mongodb.core.query.Criteria.where("_id")
+                                .is(tournamentId)),
+                new org.springframework.data.mongodb.core.query.Update()
+                        .set("registrationClosesAt", FIXED_NOW.minusSeconds(60)),
+                Tournament.class);
+        apiCache.removeByTag(com.bjjeire.api.common.ApiCache.TOURNAMENTS_TAG);
+    }
+
+    TournamentRegistration reload(TournamentRegistration registration) {
+        return mongoTemplate.findById(registration.getId(), TournamentRegistration.class);
+    }
+
+    ResponseEntity<String> cancel(String token, String registrationId) {
+        return restTemplate.exchange(
+                ApiRoutes.REGISTRATION + "/" + registrationId + "/cancel",
+                HttpMethod.POST,
+                jsonEntity("", token),
+                String.class);
+    }
+
+    ResponseEntity<String> changeDivision(String token, String registrationId, String divisionId) {
+        return restTemplate.exchange(
+                ApiRoutes.REGISTRATION + "/" + registrationId + "/division",
+                HttpMethod.PUT,
+                jsonEntity("{ \"divisionId\": \"" + divisionId + "\" }", token),
+                String.class);
+    }
+
+    /** A Stripe refund event for the sign-up's refund. */
+    static String refundEvent(String eventId, String type, String status, TournamentRegistration registration) {
+        return """
+            {
+              "id": "%s",
+              "object": "event",
+              "type": "%s",
+              "data": {
+                "object": {
+                  "id": "%s",
+                  "object": "refund",
+                  "status": "%s",
+                  "failure_reason": %s,
+                  "amount": %d,
+                  "metadata": { "registrationId": "%s" }
+                }
+              }
+            }
+            """.formatted(
+                        eventId,
+                        type,
+                        registration.getRefund().getRefundId(),
+                        status,
+                        "failed".equals(status) ? "\"expired_or_canceled_card\"" : "null",
+                        registration.getRefund().getAmountCents(),
+                        registration.getId());
+    }
+
     // ---- Stripe webhook ---------------------------------------------------------------------------------------
 
     static String checkoutEvent(String eventId, String type, TournamentRegistration registration) {

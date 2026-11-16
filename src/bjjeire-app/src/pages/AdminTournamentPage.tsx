@@ -16,6 +16,9 @@ import {
   updateTournament,
 } from '@/features/tournament-admin/api/tournament-admin-api'
 import { AdminSignInGate } from '@/features/tournament-admin/components/admin-sign-in-gate'
+import { AdminSignUps } from '@/features/tournament-admin/components/admin-sign-ups'
+import { TournamentCancelAction } from '@/features/tournament-admin/components/tournament-cancel-action'
+import { useAdminRegistrations } from '@/features/tournament-admin/hooks/useAdminRegistrations'
 import { ADMIN_TOURNAMENTS_KEY } from '@/features/tournament-admin/api/query-keys'
 import { TournamentForm } from '@/features/tournament-admin/components/tournament-form'
 import { problemMessage } from '@/features/tournament-admin/utils/problem-message'
@@ -66,6 +69,11 @@ const TournamentEditor = function TournamentEditor({
 
   const readOnly =
     tournament.status === 'CANCELLED' || tournament.status === 'FINISHED'
+  // Shares the sign-up list's cache: a refund Stripe refused can be retried from here.
+  const registrations = useAdminRegistrations(tournament.id)
+  const hasFailedRefunds = (registrations.data ?? []).some(
+    row => row.refundStatus === 'FAILED'
+  )
   let publishHint: string | null = null
   if (dirty) {
     publishHint = copy.publish.unsavedChanges
@@ -131,6 +139,10 @@ const TournamentEditor = function TournamentEditor({
       {readOnly && (
         <p className="text-sm text-fg-muted">{copy.edit.readOnly}</p>
       )}
+      <TournamentCancelAction
+        tournament={tournament}
+        hasFailedRefunds={hasFailedRefunds}
+      />
       <TournamentForm
         key={revision}
         initialValues={toFormValues(tournament)}
@@ -153,6 +165,9 @@ const TournamentEditor = function TournamentEditor({
         }}
         actions={publishAction}
       />
+      {tournament.status !== 'DRAFT' && (
+        <AdminSignUps tournament={tournament} />
+      )}
     </div>
   )
 }

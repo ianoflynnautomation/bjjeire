@@ -31,13 +31,23 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
     static final String SESSION_ASYNC_SUCCEEDED = "checkout.session.async_payment_succeeded";
     static final String SESSION_EXPIRED = "checkout.session.expired";
     static final String SESSION_ASYNC_FAILED = "checkout.session.async_payment_failed";
+    static final String REFUND_CREATED = "refund.created";
+    static final String REFUND_UPDATED = "refund.updated";
+    static final String REFUND_FAILED = "refund.failed";
 
-    private static final Set<String> HANDLED =
-            Set.of(SESSION_COMPLETED, SESSION_ASYNC_SUCCEEDED, SESSION_EXPIRED, SESSION_ASYNC_FAILED);
+    private static final Set<String> HANDLED = Set.of(
+            SESSION_COMPLETED,
+            SESSION_ASYNC_SUCCEEDED,
+            SESSION_EXPIRED,
+            SESSION_ASYNC_FAILED,
+            REFUND_CREATED,
+            REFUND_UPDATED,
+            REFUND_FAILED);
     private static final long TOLERANCE_SECONDS = Webhook.DEFAULT_TOLERANCE;
     private static final Duration LEDGER_TTL = Duration.ofDays(30);
 
     private final RegistrationService registrationService;
+    private final CancellationService cancellationService;
     private final MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper;
     private final Clock clock;
@@ -45,11 +55,13 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
 
     public StripeWebhookServiceImpl(
             RegistrationService registrationService,
+            CancellationService cancellationService,
             MongoTemplate mongoTemplate,
             ObjectMapper objectMapper,
             Clock clock,
             BjjEireProperties properties) {
         this.registrationService = registrationService;
+        this.cancellationService = cancellationService;
         this.mongoTemplate = mongoTemplate;
         this.objectMapper = objectMapper;
         this.clock = clock;
@@ -100,7 +112,17 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
                 Query.query(Criteria.where("_id").is(eventId)), Update.update("handled", true), StripeEvent.class);
     }
 
-    private void dispatch(String type, JsonNode session) {
+    private void dispatch(String type, JsonNode object) {
+        if (type.startsWith("refund.")) {
+            // Matched by the metadata the refund was created with, never by email (contracts/stripe-webhook.md).
+            cancellationService.onRefundUpdated(
+                    text(object.at("/metadata/registrationId")),
+                    text(object.at("/id")),
+                    REFUND_FAILED.equals(type) ? "failed" : text(object.at("/status")),
+                    text(object.at("/failure_reason")));
+            return;
+        }
+        JsonNode session = object;
         String registrationId = text(session.at("/client_reference_id"));
         if (registrationId == null) {
             registrationId = text(session.at("/metadata/registrationId"));

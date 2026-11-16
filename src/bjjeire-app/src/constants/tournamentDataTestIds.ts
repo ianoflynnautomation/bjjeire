@@ -55,3 +55,46 @@ export const TournamentAdminTestIds = {
   DIVISION_REMOVE: 'tournament-admin-division-remove',
   DIVISION_COUNT: 'tournament-admin-division-count',
 }
+
+export const TournamentAdminCancelTestIds = {
+  BUTTON: 'tournament-admin-cancel',
+  WARNING: 'tournament-admin-cancel-warning',
+  CONFIRM: 'tournament-admin-cancel-confirm',
+  KEEP: 'tournament-admin-cancel-keep',
+  RETRY: 'tournament-admin-cancel-retry',
+  NOTICE: 'tournament-admin-cancel-notice',
+  ERROR: 'tournament-admin-cancel-error',
+}
+
+export const TournamentAdminSignUpsTestIds = {
+  ROOT: 'tournament-admin-sign-ups',
+  TABLE: 'tournament-admin-sign-ups-table',
+  ROW: 'tournament-admin-sign-ups-row',
+  ROW_NAME: 'tournament-admin-sign-ups-row-name',
+  ROW_CONTACT: 'tournament-admin-sign-ups-row-contact',
+  ROW_DIVISION: 'tournament-admin-sign-ups-row-division',
+  ROW_STATUS: 'tournament-admin-sign-ups-row-status',
+  ROW_MISMATCH: 'tournament-admin-sign-ups-row-mismatch',
+  ROW_UNCONFIRMED: 'tournament-admin-sign-ups-row-unconfirmed',
+  ROW_MOVE: 'tournament-admin-sign-ups-row-move',
+  MOVE_SELECT: 'tournament-admin-sign-ups-move-select',
+  MOVE_CONFIRM: 'tournament-admin-sign-ups-move-confirm',
+  ROW_CANCEL: 'tournament-admin-sign-ups-row-cancel',
+  CANCEL_REFUND: 'tournament-admin-sign-ups-cancel-refund',
+  CANCEL_CONFIRM: 'tournament-admin-sign-ups-cancel-confirm',
+  EXPORT: 'tournament-admin-sign-ups-export',
+  EMPTY: 'tournament-admin-sign-ups-empty',
+  NOTICE: 'tournament-admin-sign-ups-notice',
+  ERROR: 'tournament-admin-sign-ups-error',
+  PAGINATION: 'tournament-admin-sign-ups-pagination',
+}
+
+export const TournamentAdminMergeTestIds = {
+  ROOT: 'tournament-admin-merge',
+  KIND: 'tournament-admin-merge-kind',
+  NAME_OPTION: 'tournament-admin-merge-name',
+  TARGET: 'tournament-admin-merge-target',
+  SUBMIT: 'tournament-admin-merge-submit',
+  NOTICE: 'tournament-admin-merge-notice',
+  ERROR: 'tournament-admin-merge-error',
+}

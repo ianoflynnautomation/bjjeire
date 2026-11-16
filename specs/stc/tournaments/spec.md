@@ -267,7 +267,65 @@ And once one is paid, expired or cancelled they may start another.
 
 **Owns**: T2 `RegistrationIT`; T4 `sign-up-page.integration.test.tsx`.
 
-### `#5022`–`#5035`, `#5040`–`#5041` — not built
+### `#5022` — Cancelling before registration closes refunds in full (P2)
+
+Given a confirmed sign-up and open registration,
+When the competitor cancels it,
+Then it becomes `CANCELLED`, its place is released and it leaves the public competitor list,
+And Stripe is asked once for a full refund of the amount paid with the key `refund-<registrationId>`,
+And the answer says it was refunded and for how much, and My sign-ups shows it cancelled with the refund pending or refunded,
+And Stripe's refund event later completes it (`REFUNDED`, one refund mail) or records it `FAILED` (shown as "refund pending", organiser alerted),
+And cancelling again returns the same answer and refunds nothing more; another competitor's sign-up is 403; an unpaid one is 409.
+
+**Owns**: T2 `CancellationIT`, `RefundWebhookIT`; T0 `registration.pact.test.ts`; T4 `my-sign-ups-page.integration.test.tsx`; T6 planned (Stripe test mode).
+
+### `#5023` — Cancelling after registration closes is not refunded, and the competitor is told first (P2)
+
+Given a confirmed sign-up and closed registration,
+When the competitor chooses to cancel,
+Then they are warned that no refund is due before confirming,
+And on confirming the sign-up is cancelled and leaves the list, with no refund asked of Stripe.
+
+**Owns**: T2 `CancellationIT` (`refundableUntil` is the closing instant); T4 `my-sign-ups-page.integration.test.tsx`; T6 planned.
+
+### `#5024` — Changing to another eligible division while open costs nothing (P2)
+
+Given a confirmed sign-up and open registration,
+When the competitor moves it to another division they are eligible for,
+Then it moves to that division's competitor list, with no payment and no change to the places taken or the price paid,
+And a division they are not eligible for is 409 `not-eligible`, one they already hold is 409 `already-registered`.
+
+**Owns**: T2 `ChangeDivisionIT`; T0 `registration.pact.test.ts`; T4 `my-sign-ups-page.integration.test.tsx`; T6 planned.
+
+### `#5025` — No division change by the competitor after registration closes (P2)
+
+Given registration has closed,
+When a competitor tries to change division,
+Then they are refused with 409 `urn:bjjeire:registration-closed` and told to contact the organiser,
+And My sign-ups shows no change control, only that message.
+
+**Owns**: T2 `ChangeDivisionIT`; T4 `my-sign-ups-page.integration.test.tsx`.
+
+### `#5026` — Cancelling a tournament refunds every confirmed sign-up and tells each competitor (P2)
+
+Given a published tournament with confirmed sign-ups,
+When the organiser cancels it,
+Then it becomes `CANCELLED`, every confirmed sign-up is cancelled and refunded in full, and each competitor gets one "Tournament cancelled" mail with the amount,
+And unpaid holds are ended, so a payment that still arrives is refunded, never confirmed,
+And running it again retries only refunds that failed or never reached Stripe, never refunding twice,
+And competitors and visitors are refused, and a finished tournament is 409.
+
+**Owns**: T2 `TournamentCancellationIT`; T4 `admin-tournament-sign-ups.integration.test.tsx`.
+
+### `#5027` — Each cancellation mails the refund outcome (P2)
+
+Given a competitor cancels,
+When the cancellation completes,
+Then one mail states whether a refund was issued and for how much.
+
+**Owns**: T2 `CancellationIT`, `RefundWebhookIT`.
+
+### `#5028`–`#5035`, `#5040`–`#5041` — not built
 
 Defined in the Spec Kit spec. Each moves here with the slice that builds it.
 

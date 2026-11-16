@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,7 @@ public class RegistrationController {
     private static final String PROBLEM = "application/problem+json";
 
     private final RegistrationService registrationService;
+    private final CancellationService cancellationService;
 
     @PostMapping
     @Operation(
@@ -94,5 +96,54 @@ public class RegistrationController {
     public ResponseEntity<List<RegistrationDto>> getOwnRegistrations(
             @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(registrationService.getOwn(CompetitorIdentity.from(jwt)));
+    }
+
+    @PostMapping("/{id}/cancel")
+    @Operation(
+            summary = "Cancel your confirmed sign-up",
+            description = "Before registration closes the fee is refunded in full to the original payment method;"
+                    + " after it closes there is no refund (RegistrationDto.refundableUntil says which applies). Your"
+                    + " place is released and you leave the public list. A mail states the refund outcome. Safe to"
+                    + " retry: cancelling a cancelled sign-up returns the same outcome and changes nothing.")
+    @ApiResponse(responseCode = "200", description = "Cancelled; whether and how much was refunded")
+    @ApiResponse(
+            responseCode = "403",
+            description = "The sign-up belongs to another competitor",
+            content = @Content(mediaType = PROBLEM))
+    @ApiResponse(responseCode = "404", description = "No such sign-up", content = @Content(mediaType = PROBLEM))
+    @ApiResponse(
+            responseCode = "409",
+            description = "conflict: the sign-up is not confirmed; an unpaid one ends by itself when its hold runs out",
+            content = @Content(mediaType = PROBLEM))
+    public ResponseEntity<CancellationDto> cancelRegistration(
+            @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt, @PathVariable @ValidObjectId String id) {
+        return ResponseEntity.ok(cancellationService.cancelOwn(CompetitorIdentity.from(jwt), id));
+    }
+
+    @PutMapping("/{id}/division")
+    @Operation(
+            summary = "Move your confirmed sign-up to another division",
+            description = "Free of charge, to a division you are eligible for, while registration is open. Your place"
+                    + " and the price you paid are unchanged.")
+    @ApiResponse(responseCode = "200", description = "The sign-up in its new division")
+    @ApiResponse(responseCode = "400", description = "Validation failed", content = @Content(mediaType = PROBLEM))
+    @ApiResponse(
+            responseCode = "403",
+            description = "The sign-up belongs to another competitor",
+            content = @Content(mediaType = PROBLEM))
+    @ApiResponse(
+            responseCode = "404",
+            description = "No such sign-up, or no such division in its tournament",
+            content = @Content(mediaType = PROBLEM))
+    @ApiResponse(
+            responseCode = "409",
+            description = "registration-closed (contact the organiser), not-eligible, already-registered, or conflict"
+                    + " when the sign-up is not confirmed",
+            content = @Content(mediaType = PROBLEM))
+    public ResponseEntity<RegistrationDto> changeRegistrationDivision(
+            @Parameter(hidden = true) @AuthenticationPrincipal Jwt jwt,
+            @PathVariable @ValidObjectId String id,
+            @RequestBody @Valid ChangeDivisionCommand command) {
+        return ResponseEntity.ok(registrationService.changeOwnDivision(CompetitorIdentity.from(jwt), id, command));
     }
 }

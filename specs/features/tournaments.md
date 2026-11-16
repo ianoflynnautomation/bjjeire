@@ -1,6 +1,6 @@
 # Feature: Tournaments
 
-**Status**: In progress — slices 0 to 3 of 6 shipped (plumbing; tournament set-up and public pages; competitor accounts and profile; sign-up and payment)
+**Status**: In progress — slices 0 to 4 of 6 shipped (plumbing; tournament set-up and public pages; competitor accounts and profile; sign-up and payment; cancellation, refunds and organiser sign-up tools)
 **Design record**: [../001-tournament-registration/](../001-tournament-registration/spec.md) (spec, plan, tasks, data model, contracts)
 **Database**: [tournament.md](../database-contracts/tournament.md), [competitor.md](../database-contracts/competitor.md), [tournament-registration.md](../database-contracts/tournament-registration.md)
 **API**: `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`
@@ -79,6 +79,26 @@ How it behaves:
 - **Profile changes.** Saving a new name, academy or affiliation updates the competitor's active sign-ups in tournaments still running. Changing belt or gender keeps the division and flags the sign-up for the organiser.
 - **Mail.** Sign-up mail is sent after the change is saved, on its own thread, with three attempts; a failure is counted (`registration.mail.failures`) and never undoes the sign-up. Locally it goes to Mailpit ([docs/stripe-local.md](../../docs/stripe-local.md)).
 
+### User Story 4 — Competitor cancels or changes a sign-up (P2)
+
+1. Given a confirmed sign-up and open registration, when the competitor cancels, then the full fee is refunded to the original payment method, the sign-up shows as cancelled and refunded, and they are removed from the competitor list (`#5022`)
+2. Given a confirmed sign-up and closed registration, when the competitor cancels, then they are warned that no refund is due, and on confirming they are removed from the competitor list with no refund (`#5023`)
+3. Given a confirmed sign-up and open registration, when the competitor switches to another division they are eligible for, then they move to the new division's competitor list at no extra charge (`#5024`)
+4. Given registration has closed, when a competitor tries to change division, then they are refused and told to contact the organiser (`#5025`)
+5. Given the organiser cancels a whole tournament, when the cancellation is confirmed, then every confirmed sign-up is refunded in full and each competitor is notified by email (`#5026`)
+6. Given a competitor cancels, when the cancellation completes, then they receive an email stating whether a refund was issued and for how much (`#5027`)
+
+How it behaves:
+
+- **Cancelling.** On `/account/signups` a confirmed sign-up offers "Cancel sign-up". Before confirming, the competitor sees either "You will be refunded €25.00 in full to your original payment method" (before registration closes; `refundableUntil` on each sign-up is the closing instant) or "Registration has closed, so no refund is due". Confirming calls `POST /api/v1/registration/{id}/cancel`: the sign-up becomes `CANCELLED`, its place is released, it leaves the public list, and the answer says whether and how much was refunded. Cancelling again returns the same answer and changes nothing. An unpaid sign-up cannot be cancelled (409 `conflict`); it ends by itself when its hold runs out.
+- **Refunds.** The cancellation is saved first with refund `PENDING`, then Stripe is asked for a full refund of the amount paid with the key `refund-<registrationId>`. Retrying a refund that failed uses a new key (`refund-<registrationId>-<attempt>`), since Stripe replays a reused key; Stripe never refunds more than was paid. A confirmed sign-up with no recorded Stripe payment is cancelled with its refund recorded `FAILED` and alerted. Stripe's `refund.created`, `refund.updated` and `refund.failed` events, matched by the refund's `registrationId` metadata and its refund id, complete it (`REFUNDED`, with a "Refund completed" mail) or record it `FAILED`. A refund Stripe refuses, at once or later, keeps the cancellation, shows "Refund pending" to the competitor, increments `registration.refund.failures` and logs an `ALERT` for the organiser.
+- **Mail.** Each cancellation sends one mail stating the refund outcome: "a full refund of €25.00" or "No refund is due" (`#5027`).
+- **Changing division.** While registration is open a confirmed sign-up offers "Change division", which lists the other divisions the competitor is eligible for (the same rule as signing up) and calls `PUT /api/v1/registration/{id}/division`. The place, price and payment are unchanged and nothing is charged. A division they already hold is 409 `already-registered`, one they may not enter 409 `not-eligible`. After registration closes the control is replaced by "Registration has closed. To change division, contact the organiser.", and the API answers 409 `registration-closed` (`#5025`).
+- **Organiser sign-up list.** A published, finished or cancelled tournament's admin page lists every sign-up, oldest first, 100 per page: name, date of birth, email, phone, academy, affiliation, division, status, amount, refund state, "Profile no longer matches this division", and "Paid at Stripe but not confirmed" (the reconciliation check: the hold sweep found the session paid with no webhook). "Export CSV" downloads every row with the same columns as `text/csv`; a value starting with `=`, `+`, `-`, `@`, tab or carriage return is prefixed with `'` so a spreadsheet does not run it.
+- **Organiser tools.** Per confirmed sign-up: "Move" to any division of the tournament, also after registration closes and with no eligibility check (the mismatch flag is set when the competitor's belt or gender does not fit), and "Cancel", refunding in full or not as the organiser chooses. "Merge team names" picks academy or affiliation names typed differently and rewrites them, and their ranking keys, to one name on every sign-up of that tournament only.
+- **Cancelling a tournament.** "Cancel tournament" warns first, then `POST /api/v1/tournament/{id}/cancel` sets it `CANCELLED`, ends every unpaid hold (a payment that still arrives is refunded because a cancelled tournament gives no place), cancels and refunds every confirmed sign-up in full, and mails each competitor "Tournament cancelled" with the refund amount. A finished tournament cannot be cancelled. Calling it again on a cancelled tournament retries every failed refund of that tournament (whoever cancelled) and any that never reached Stripe; the admin page offers "Retry failed refunds" while any is `FAILED`. The organiser's sign-up list also shows each competitor's gender, belt and payment status.
+- **Account deletion.** Deleting an account (still refused while a sign-up is awaiting payment or confirmed) first anonymises the competitor's sign-ups: the name becomes "Former competitor", the link to the profile is removed, and `financialRecordsExpireAt` is set to six years later. A daily sweep then removes `payment` and `refund` from sign-ups past that instant, leaving the division, team names and any medal (FR-013).
+
 ### User Story 6 — Existing directory stays open and read-only (P1)
 
 1. Given a visitor who is not signed in, when they browse gyms, events, competitions and stores, then everything works as before and they are never required to sign in (`#5036`)
@@ -90,8 +110,8 @@ How it behaves:
 | Routes | Who |
 |---|---|
 | `GET /api/v1/tournament`, `/{slug}`, `/{id}/competitor` (live); `/{id}/leaderboard` (slice 5) | anyone |
-| `GET /api/v1/tournament/admin`, `/admin/{id}`, `POST /api/v1/tournament`, `PUT /{id}`, `POST /{id}/publish` (live); `/{id}/registration` and other tournament writes (later slices) | admin (workforce token, `access_as_writer`) |
-| `GET`, `PUT`, `DELETE /api/v1/competitor/me`, `GET /me/history`, `GET /api/v1/tournament/{id}/eligible-division`, `POST /api/v1/registration`, `POST /api/v1/registration/{id}/checkout`, `GET /api/v1/registration/me` (live); cancel and change division (slice 4) | signed-in competitor (competitor-tenant token, `access_as_competitor`), acting on their own profile and sign-ups only (another competitor's sign-up is 403); a deleted account's tokens are refused |
+| `GET /api/v1/tournament/admin`, `/admin/{id}`, `POST /api/v1/tournament`, `PUT /{id}`, `POST /{id}/publish`, `POST /{id}/cancel`, `GET /{id}/registration` (also `?format=csv`), `PUT /{id}/registration/{registrationId}/division`, `POST /{id}/registration/{registrationId}/cancel`, `POST /{id}/team-merge` (live); results and finish (slice 5) | admin (workforce token, `access_as_writer`) |
+| `GET`, `PUT`, `DELETE /api/v1/competitor/me`, `GET /me/history`, `GET /api/v1/tournament/{id}/eligible-division`, `POST /api/v1/registration`, `POST /api/v1/registration/{id}/checkout`, `GET /api/v1/registration/me`, `POST /api/v1/registration/{id}/cancel`, `PUT /api/v1/registration/{id}/division` (live) | signed-in competitor (competitor-tenant token, `access_as_competitor`), acting on their own profile and sign-ups only (another competitor's sign-up is 403); a deleted account's tokens are refused |
 | `POST /api/v1/registration/stripe-webhook` | no bearer token; the `Stripe-Signature` header is verified over the raw body (bad or missing: 400, nothing changes); each event is applied once; hidden from the published OpenAPI; a method other than POST answers 405 |
 
 The admin is not a competitor: the writer scope opens no competitor route.
@@ -106,21 +126,28 @@ The admin is not a competitor: the writer scope opens no competitor route.
 - **FR-002**: The organiser defines the divisions, each a combination of gi or no-gi, gender, age category, belt and weight class.
 - **FR-003**: A tournament is a draft, hidden from the public, until the organiser publishes it.
 - **FR-004** (in part): Published tournaments, their divisions and competitor lists are viewable by anyone without an account. Leaderboards come with slice 5.
-- **FR-005** (in part): Only the organiser can create, edit and publish tournaments. Cancelling a tournament and recording results come with later slices.
+- **FR-005** (in part): Only the organiser can create, edit, publish and cancel tournaments. Recording results comes with slice 5.
+- **FR-006**: The organiser sees every sign-up of a tournament and exports the list as CSV, with name, email, phone, date of birth, gender, belt, academy, affiliation, division, status, amount paid, payment and refund status, and the profile-mismatch flag.
+- **FR-007**: The organiser moves a competitor to another division, cancels a sign-up with or without a refund, and merges duplicate academy or affiliation names.
 
 - **FR-008**: Members of the public register, confirm their email, sign in, sign out and reset a forgotten password, on the competitor tenant's hosted pages.
 - **FR-009**: Each account has one competitor profile: first name, optional middle name, last name, nationality, date of birth, gender, belt, academy and optional affiliation; optional phone and postal address.
 - **FR-010**: The academy is a directory gym, a typed name, or "no academy"; an affiliation may be named separately.
-- **FR-011** (in part): A profile is visible only to its owner. There is no public profile page. (The organiser's view of competitors comes with the sign-up tools, slice 4.)
-- **FR-013** (in part): A competitor can delete their account; the profile is removed and the identity can no longer sign in. Keeping payment records for six years applies from the sign-up slices.
+- **FR-011**: A profile is visible only to its owner and, through the sign-up list, to the organiser. There is no public profile page.
+- **FR-013**: A competitor can delete their account; the profile is removed, the identity can no longer sign in, and their sign-ups are anonymised. Payment and refund records are kept for six years after the deletion, then removed by a daily sweep.
 - **FR-039** (in part): The profile shows medal totals and tournaments entered; empty until results exist.
 - **FR-012**: Competitors are told their name, academy, affiliation and division will be listed publicly, and accept that and the terms of entry with the liability waiver before paying; the time of each acceptance is recorded.
 - **FR-015** to **FR-018**: A signed-in competitor with a complete profile signs up for a division of a published tournament while registration is open; only eligible divisions are offered; anyone under 18 on the day is refused; a sign-up is confirmed only after the fee is paid online, and the full amount is shown first.
 - **FR-019**: A place is held for 30 minutes while the competitor pays and released if payment is not completed.
 - **FR-020** to **FR-022**, **FR-041**: One active sign-up per competitor per division, never charged twice; separate paid sign-ups per division; never beyond the competitor limit; at most two unpaid sign-ups per competitor per tournament.
 - **FR-023**: No card details are stored; payment is on Stripe's hosted page.
-- **FR-024** (in part): Mail on confirmation, and on the automatic refund of a payment that found no place. Cancellation and tournament-cancellation mail come with slice 4.
+- **FR-024**: Mail on confirmation, cancellation (stating the refund outcome), refund completion, tournament cancellation, and the automatic refund of a payment that found no place.
 - **FR-025**: Competitors see all their sign-ups with tournament, division, amount and status.
+- **FR-026** (in part): A competitor can cancel their own confirmed sign-up. The refusal once a result names them comes with results (slice 5).
+- **FR-027**: A cancellation before registration closes is refunded in full automatically to the original payment method; after it closes there is no refund, and the competitor is told before confirming.
+- **FR-028**: A competitor can move to another eligible division at no charge while registration is open.
+- **FR-029**: Cancelling a tournament refunds every confirmed sign-up in full.
+- **FR-030**: Each sign-up keeps its payment and refund record with amount, time and outcome, visible to the organiser in the sign-up list and export.
 - **FR-014**: Competitor accounts grant no ability to change gyms, events, competitions or stores. A competitor-tenant token is granted only the competitor role; its scopes and roles never become authorities.
 - **FR-037**: Gyms, events, competitions and stores remain browsable without an account, with unchanged behaviour.
 - **FR-038**: The tournament and account features switch off as a whole. With the flag off every tournament, competitor and registration route answers 404 before authentication, and the SPA shows no entry point.
@@ -128,8 +155,7 @@ The admin is not a competitor: the writer scope opens no competitor route.
 
 ## Not built yet
 
-User stories 4–5 (`#5022`–`#5035`, `#5040`–`#5041`): cancellation, refunds
-and division changes, organiser sign-up tools, results and leaderboard.
-Refund webhooks (refund succeeded or failed) come with slice 4. Medal history fills in with
-results (slice 5). Cancelling and finishing a tournament also come with those slices. See
-[tasks.md](../001-tournament-registration/tasks.md).
+User story 5 (`#5028`–`#5035`, `#5040`–`#5041`): results, leaderboard, both
+rankings, finishing a tournament and winners. Medal history fills in with
+results. FR-026's refusal to cancel a sign-up a result names also comes with
+results. See [tasks.md](../001-tournament-registration/tasks.md).

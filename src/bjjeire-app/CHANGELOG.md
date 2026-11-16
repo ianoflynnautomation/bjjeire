@@ -2,29 +2,25 @@
 
 ## [0.1.41](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.40...frontend-v0.1.41) (2026-11-16)
 
-
 ### Features
 
-* add tournament and competitor phase 3 implementation ([9bd621e](https://github.com/ianoflynnautomation/bjjeire/commit/9bd621e89b70fc56099e31ce33a3a79b7725cace))
-
+- add tournament and competitor phase 3 implementation ([9bd621e](https://github.com/ianoflynnautomation/bjjeire/commit/9bd621e89b70fc56099e31ce33a3a79b7725cace))
 
 ### Bug Fixes
 
-* strip stripe session issue ([4883bc8](https://github.com/ianoflynnautomation/bjjeire/commit/4883bc8ec1bb82e4c6a7da5c4f2c50295218fcc7))
+- strip stripe session issue ([4883bc8](https://github.com/ianoflynnautomation/bjjeire/commit/4883bc8ec1bb82e4c6a7da5c4f2c50295218fcc7))
 
 ## [0.1.40](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.39...frontend-v0.1.40) (2026-11-15)
 
-
 ### Features
 
-* add competitor profile ([#221](https://github.com/ianoflynnautomation/bjjeire/issues/221)) ([89ec6b0](https://github.com/ianoflynnautomation/bjjeire/commit/89ec6b083f2b86fddc622eca7fa69f552bcf038e))
+- add competitor profile ([#221](https://github.com/ianoflynnautomation/bjjeire/issues/221)) ([89ec6b0](https://github.com/ianoflynnautomation/bjjeire/commit/89ec6b083f2b86fddc622eca7fa69f552bcf038e))
 
 ## [0.1.39](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.38...frontend-v0.1.39) (2026-11-15)
 
-
 ### Features
 
-* add admin tournament and tournament features phase 1 ([#217](https://github.com/ianoflynnautomation/bjjeire/issues/217)) ([4fdceb6](https://github.com/ianoflynnautomation/bjjeire/commit/4fdceb695c74d6947bfab7c3f623a623ace1d79d))
+- add admin tournament and tournament features phase 1 ([#217](https://github.com/ianoflynnautomation/bjjeire/issues/217)) ([4fdceb6](https://github.com/ianoflynnautomation/bjjeire/commit/4fdceb695c74d6947bfab7c3f623a623ace1d79d))
 
 ## [0.1.38](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.37...frontend-v0.1.38) (2026-11-07)
 

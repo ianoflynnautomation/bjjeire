@@ -7,6 +7,8 @@ import { renderWithProviders } from '@/testing/render-utils'
 import { testApiUrl } from '@/testing/seed-helpers'
 import type { DivisionDto } from '@/types/tournaments'
 import type {
+  CancellationDto,
+  ChangeDivisionCommand,
   CreateRegistrationCommand,
   DivisionCompetitorsDto,
   RegistrationCheckoutDto,
@@ -108,6 +110,43 @@ export function seedOwnRegistrations(
       seen.calls.push(null)
       return HttpResponse.json(responses[index] ?? [])
     })
+  )
+  return seen
+}
+
+export function seedCancelRegistration(
+  registrationId: string,
+  respond: CancellationDto | { problem: string; status?: number }
+): Captured<null> {
+  const seen = captured<null>()
+  server.use(
+    http.post(`${REGISTRATION_API}/${registrationId}/cancel`, ({ request }) => {
+      seen.calls.push(null)
+      seen.authorization.push(request.headers.get('Authorization'))
+      return 'problem' in respond
+        ? problem(respond.problem, respond.status)
+        : HttpResponse.json(respond)
+    })
+  )
+  return seen
+}
+
+export function seedChangeDivision(
+  registrationId: string,
+  respond: RegistrationDto | { problem: string; status?: number }
+): Captured<ChangeDivisionCommand> {
+  const seen = captured<ChangeDivisionCommand>()
+  server.use(
+    http.put(
+      `${REGISTRATION_API}/${registrationId}/division`,
+      async ({ request }) => {
+        seen.calls.push((await request.json()) as ChangeDivisionCommand)
+        seen.authorization.push(request.headers.get('Authorization'))
+        return 'problem' in respond
+          ? problem(respond.problem, respond.status)
+          : HttpResponse.json(respond)
+      }
+    )
   )
   return seen
 }

@@ -24,6 +24,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/tournament/{id}/registration/{registrationId}/division': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Move a confirmed sign-up to another division
+     * @description Any division of the tournament, also after registration closes, with no eligibility check. No charge; the place is unchanged.
+     */
+    put: operations['moveTournamentRegistration']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/registration/{id}/division': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Move your confirmed sign-up to another division
+     * @description Free of charge, to a division you are eligible for, while registration is open. Your place and the price you paid are unchanged.
+     */
+    put: operations['changeRegistrationDivision']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym/{id}': {
     parameters: {
       query?: never
@@ -126,6 +166,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/tournament/{id}/team-merge': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Merge differently typed academy or affiliation names
+     * @description Rewrites every sign-up of this tournament whose key is in fromKeys, so points are not split. Other tournaments are untouched.
+     */
+    post: operations['mergeTournamentTeams']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{id}/registration/{registrationId}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Cancel a confirmed sign-up, with or without a refund
+     * @description The refund is the organiser's choice, whatever the registration window. Safe to retry.
+     */
+    post: operations['cancelTournamentRegistration']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/tournament/{id}/publish': {
     parameters: {
       query?: never
@@ -140,6 +220,26 @@ export interface paths {
      * @description Returns 409 no-divisions or invalid-window when the draft is not ready, and 409 when the tournament is not a draft or was changed by another save while it was being published.
      */
     post: operations['publishTournament']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{id}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Cancel a tournament and refund every confirmed sign-up
+     * @description Ends unpaid holds, refunds every confirmed sign-up in full and mails each competitor. Safe to repeat on a cancelled tournament: only refunds that failed or never reached Stripe are retried, never one already issued.
+     */
+    post: operations['cancelTournament']
     delete?: never
     options?: never
     head?: never
@@ -180,6 +280,26 @@ export interface paths {
      * @description Gives the same Checkout page again while the hold lasts. It never opens a second one.
      */
     post: operations['resumeCheckout']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/registration/{id}/cancel': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Cancel your confirmed sign-up
+     * @description Before registration closes the fee is refunded in full to the original payment method; after it closes there is no refund (RegistrationDto.refundableUntil says which applies). Your place is released and you leave the public list. A mail states the refund outcome. Safe to retry: cancelling a cancelled sign-up returns the same outcome and changes nothing.
+     */
+    post: operations['cancelRegistration']
     delete?: never
     options?: never
     head?: never
@@ -277,6 +397,26 @@ export interface paths {
      * @description Details, fee, registration window and divisions. A draft answers 404. registrationState is worked out by the API at the time of the request.
      */
     get: operations['getTournamentBySlug']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{id}/registration': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Export a tournament's sign-ups as CSV
+     * @description Every row; page and pageSize are ignored.
+     */
+    get: operations['listTournamentRegistrations']
     put?: never
     post?: never
     delete?: never
@@ -538,6 +678,62 @@ export interface components {
       divisions?: components['schemas']['DivisionDto'][]
       /** Format: int64 */
       version?: number
+    }
+    ChangeDivisionCommand: {
+      divisionId: string
+    }
+    AdminRegistrationDto: {
+      registrationId?: string
+      displayName?: string
+      email?: string
+      phone?: string
+      /** Format: date */
+      dateOfBirth?: string
+      /** @enum {string} */
+      gender?: 'MALE' | 'FEMALE'
+      /** @enum {string} */
+      belt?: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
+      academy?: string
+      affiliation?: string
+      academyKey?: string
+      affiliationKey?: string
+      division?: components['schemas']['DivisionDto']
+      /** @enum {string} */
+      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
+      /** Format: int32 */
+      amountCents?: number
+      /** @enum {string} */
+      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+      paymentUnconfirmed?: boolean
+      profileMismatch?: boolean
+      /** Format: date-time */
+      createdAt?: string
+    }
+    RegistrationDto: {
+      id?: string
+      tournamentId?: string
+      tournamentSlug?: string
+      tournamentName?: string
+      /** Format: date */
+      tournamentDate?: string
+      division?: components['schemas']['DivisionDto']
+      /** @enum {string} */
+      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
+      /** Format: int32 */
+      amountCents?: number
+      currency?: string
+      /** @enum {string} */
+      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+      /** Format: date-time */
+      holdExpiresAt?: string
+      /** Format: date-time */
+      refundableUntil?: string
+      /** Format: date-time */
+      createdAt?: string
     }
     Affiliation: {
       name?: string
@@ -826,6 +1022,27 @@ export interface components {
       competitorLimit?: number
       divisions?: components['schemas']['DivisionDto'][]
     }
+    MergeTeamsCommand: {
+      /** @enum {string} */
+      kind: 'ACADEMY' | 'AFFILIATION'
+      fromKeys: string[]
+      target: string
+      targetGymId?: string
+    }
+    TeamMergeDto: {
+      /** Format: int32 */
+      updated?: number
+    }
+    AdminCancelCommand: {
+      refund: boolean
+    }
+    CancellationDto: {
+      refunded?: boolean
+      /** Format: int32 */
+      refundAmountCents?: number
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+    }
     CreateRegistrationCommand: {
       tournamentId: string
       divisionId: string
@@ -913,6 +1130,10 @@ export interface components {
       /** Format: int32 */
       divisionCount?: number
     }
+    PagedResponseAdminRegistrationDto: {
+      data?: components['schemas']['AdminRegistrationDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
     DivisionCompetitorsDto: {
       divisionId?: string
       competitors?: components['schemas']['ListedCompetitorDto'][]
@@ -933,30 +1154,6 @@ export interface components {
       websiteUrl?: string
       logoUrl?: string
       isActive?: boolean
-    }
-    RegistrationDto: {
-      id?: string
-      tournamentId?: string
-      tournamentSlug?: string
-      tournamentName?: string
-      /** Format: date */
-      tournamentDate?: string
-      division?: components['schemas']['DivisionDto']
-      /** @enum {string} */
-      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
-      /** Format: int32 */
-      amountCents?: number
-      currency?: string
-      /** @enum {string} */
-      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
-      /** @enum {string} */
-      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
-      /** Format: date-time */
-      holdExpiresAt?: string
-      /** Format: date-time */
-      refundableUntil?: string
-      /** Format: date-time */
-      createdAt?: string
     }
     PagedResponseGymDto: {
       data?: components['schemas']['GymDto'][]
@@ -1040,6 +1237,113 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
+  moveTournamentRegistration: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+        registrationId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeDivisionCommand']
+      }
+    }
+    responses: {
+      /** @description The sign-up in its new division */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminRegistrationDto']
+        }
+      }
+      /** @description The sign-up or division is not in this tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description already-registered, or conflict when the sign-up is not confirmed */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  changeRegistrationDivision: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeDivisionCommand']
+      }
+    }
+    responses: {
+      /** @description The sign-up in its new division */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RegistrationDto']
+        }
+      }
+      /** @description Validation failed */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description The sign-up belongs to another competitor */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No such sign-up, or no such division in its tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description registration-closed (contact the organiser), not-eligible, already-registered, or conflict when the sign-up is not confirmed */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
         }
       }
     }
@@ -1316,6 +1620,95 @@ export interface operations {
       }
     }
   }
+  mergeTournamentTeams: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MergeTeamsCommand']
+      }
+    }
+    responses: {
+      /** @description How many sign-ups were rewritten */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TeamMergeDto']
+        }
+      }
+      /** @description Validation failed */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No such tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  cancelTournamentRegistration: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+        registrationId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminCancelCommand']
+      }
+    }
+    responses: {
+      /** @description Cancelled; whether and how much was refunded */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CancellationDto']
+        }
+      }
+      /** @description The sign-up is not in this tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description conflict: the sign-up is not confirmed */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
   publishTournament: {
     parameters: {
       query?: never
@@ -1334,6 +1727,46 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
+  cancelTournament: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The cancelled tournament */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['TournamentDto']
+        }
+      }
+      /** @description No such tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description conflict: the tournament is finished */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
         }
       }
     }
@@ -1437,6 +1870,55 @@ export interface operations {
         }
       }
       /** @description hold-expired: the hold ended or the sign-up is no longer awaiting payment; payment-received: Stripe already took the payment and the sign-up is being confirmed */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  cancelRegistration: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Cancelled; whether and how much was refunded */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['CancellationDto']
+        }
+      }
+      /** @description The sign-up belongs to another competitor */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No such sign-up */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description conflict: the sign-up is not confirmed; an unpaid one ends by itself when its hold runs out */
       409: {
         headers: {
           [name: string]: unknown
@@ -1672,6 +2154,40 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['TournamentDto']
+        }
+      }
+    }
+  }
+  listTournamentRegistrations: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The CSV file */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseAdminRegistrationDto']
+        }
+      }
+      /** @description No such tournament */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
         }
       }
     }

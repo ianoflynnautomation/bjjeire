@@ -7,6 +7,57 @@ listed here are not built yet.
 Paths below are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/`
 (API) or `src/bjjeire-app/src/` (SPA) unless they start with a repository name.
 
+## Slice 4 — User Story 4, cancellation, refunds, division change and organiser sign-up tools
+
+| Issue | Layer | Test path | Implementation path |
+|---|---|---|---|
+| `#5022` | T2 IT | `registration/CancellationIT.java` (`shouldRefundTheFullFeeReleaseThePlaceAndRemoveTheCompetitorFromTheListWhenRegistrationIsOpen`, `shouldRecordTheRefundAsDoneWhenStripeReportsItSucceededAtOnce`, `shouldChangeNothingWhenTheSameSignUpIsCancelledTwice`, `shouldKeepTheCancellationAndShowTheRefundAsPendingWhenStripeRefusesIt`, `shouldRecordTheRefundAsFailedAndAlertWhenNoPaymentIdWasRecorded`, `shouldRefuseToCancelAnotherCompetitorsSignUp`, `shouldRefuseToCancelAnUnpaidSignUpWhichEndsWithItsHold`) | `RegistrationController.cancelRegistration`, `CancellationServiceImpl.cancelOwn`, `PaymentGateway.refund` |
+| `#5022` | T2 IT | `registration/RefundWebhookIT.java` (`shouldMarkThePendingRefundRefundedAndMailTheCompetitorWhenStripeReportsItSucceeded`, `shouldChangeNothingAndSendNoSecondMailWhenTheRefundEventArrivesAgain`, `shouldIgnoreARefundEventForAnotherRefundOfTheSameSignUp`, `shouldLeaveARefundPendingWhileStripeStillReportsItPending`, `shouldRecordAFailedRefundRaiseTheAlertAndShowTheCompetitorRefundPending`) | `StripeWebhookServiceImpl` (`refund.*`), `CancellationServiceImpl.onRefundUpdated` |
+| `#5022` | T0 Pact | `contracts/pact/registration.pact.test.ts` (`POST /registration/{id}/cancel`); provider state `a competitor with a confirmed sign-up and another division open` in `web/PactProviderVerificationIT.java` | `features/registrations/api/registration-api.ts` |
+| `#5022` | T4 SPA | `pages/__tests__/my-sign-ups-page.integration.test.tsx` (refund warning with amount, confirm, outcome, status reloads; keep sends nothing; no action on unpaid or cancelled) | `features/registrations/components/registration-actions.tsx`, `utils/cancellation-message.ts`, `hooks/useRegistrationChanges.ts` |
+| `#5022` | T6 | `bjjeire-tests` (planned; Stripe test mode) | running images |
+| `#5023` | T2 IT | `registration/CancellationIT.java` (`shouldCancelWithoutARefundOnceRegistrationHasClosed`, `shouldTellTheCompetitorUntilWhenACancellationIsRefunded`) | `CancellationServiceImpl.cancelOwn`, `RegistrationDto.refundableUntil` |
+| `#5023` | T4 SPA | `pages/__tests__/my-sign-ups-page.integration.test.tsx` (no-refund warning before confirming) | `utils/cancellation-message.ts` |
+| `#5023` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5024` | T2 IT | `registration/ChangeDivisionIT.java` (`shouldMoveTheSignUpToAnEligibleDivisionWithoutChargingOrTakingAnotherPlace`, `shouldRefuseADivisionTheCompetitorIsNotEligibleFor`, `shouldRefuseADivisionTheCompetitorAlreadyHolds`, `shouldRefuseADivisionTheTournamentDoesNotHaveAndAnotherCompetitorsSignUp`, `shouldRefuseToMoveAnUnpaidSignUp`) | `RegistrationController.changeRegistrationDivision`, `RegistrationServiceImpl.changeOwnDivision`, `RegistrationSupport.move` |
+| `#5024` | T0 Pact | `contracts/pact/registration.pact.test.ts` (`PUT /registration/{id}/division`) | `features/registrations/api/registration-api.ts` |
+| `#5024` | T4 SPA | `pages/__tests__/my-sign-ups-page.integration.test.tsx` (eligible divisions only, current one left out; move sent; list reloads) | `features/registrations/components/registration-actions.tsx` |
+| `#5024` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5025` | T2 IT | `registration/ChangeDivisionIT.java` (`shouldRefuseToChangeDivisionOnceRegistrationHasClosed`) | `ProblemTypes.REGISTRATION_CLOSED` |
+| `#5025` | T4 SPA | `pages/__tests__/my-sign-ups-page.integration.test.tsx` (closed: no control, contact-the-organiser note; `registration-closed` refusal message) | `config/content/registrations.ts` |
+| `#5026` | T2 IT | `registration/TournamentCancellationIT.java` (`shouldRefundEveryConfirmedSignUpInFullAndMailEachCompetitor`, `shouldRetryOnlyTheRefundsThatFailedWhenTheCancellationIsRunAgain`, `shouldAskStripeForANewRefundWhenOneItReportedFailedIsRetried`, `shouldAskStripeForANewRefundWhenALatePaymentRefundItReportedFailedIsRetried`, `shouldAlsoRetryAFailedRefundOfASignUpCancelledBeforeTheTournament`, `shouldEndUnpaidHoldsSoALatePaymentIsRefundedNotConfirmed`, `shouldRefuseCompetitorsAndVisitorsAndAFinishedTournament`; the fake gateway replays a reused key as Stripe does) | `TournamentRegistrationAdminController.cancelTournament`, `CancellationServiceImpl.cancelTournament`, `TournamentServiceImpl.cancel`, `RegistrationServiceImpl.endHolds` |
+| `#5026` | T4 SPA | `pages/__tests__/admin-tournament-sign-ups.integration.test.tsx` (`AdminTournamentPage: cancel the tournament`) | `features/tournament-admin/components/tournament-cancel-action.tsx` |
+| `#5027` | T2 IT | `registration/CancellationIT.java` (`shouldSendOneMailStatingTheRefundOutcome`), `RefundWebhookIT` (refund completed mail once) | `RegistrationMails.cancelled`, `refundCompleted`, `tournamentCancelled` |
+
+Supporting tests for the organiser tools and retention (FR-006, FR-007, FR-013; no
+visitor-facing requirement issue): `registration/AdminRegistrationIT.java`
+(`shouldListEverySignUpWithExactlyTheAdminFields`, `shouldFlagAPaymentStripeTookThatNoWebhookConfirmed`,
+`shouldExportEveryRowAsCsvWithTheSameColumns`, `shouldNotLetASpreadsheetRunAFormulaFromACompetitorsName`,
+`shouldLetTheOrganiserMoveASignUpAfterRegistrationHasClosedWithoutAnEligibilityCheck`,
+`shouldCancelWithOrWithoutARefundAsTheOrganiserChooses`, `shouldRefuseASignUpFromAnotherTournament`,
+`shouldMergeTeamNamesWithinOneTournamentOnly`, `shouldRefuseEveryAdminSignUpToolToCompetitorsAndVisitors`);
+`registration/FinancialRetentionIT.java` (`shouldAnonymiseTheSignUpsAndKeepTheirPaymentRecordsForSixYears`,
+`shouldRemovePaymentAndRefundOnlyFromSignUpsPastTheirRetention`, tagged `#5012`);
+`pages/__tests__/admin-tournament-sign-ups.integration.test.tsx` (`AdminTournamentPage: sign-ups`: list
+with private details and flags, empty, CSV export with the token, move, cancel without refund, merge);
+`lib/__tests__/api-client.integration.test.ts` (organiser token on `/tournament/{id}/registration`, none on
+`/tournament/{id}/competitor`). Implementation: `TournamentRegistrationAdminController`,
+`RegistrationAdminServiceImpl`, `RegistrationCsv`, `RegistrationAnonymiser`, `FinancialRecordsSweep`,
+`competitor.CompetitorAccountDeleting`, `CompetitorServiceImpl.findContacts`,
+`features/tournament-admin/components/{admin-sign-ups,sign-up-row-actions,team-merge-form}.tsx`.
+
+### Known limits (slice 4)
+
+- Stripe is still the recording fake in every automated test. The refund event names and the `refund` object fields (`status`, `failure_reason`, `metadata`) follow Stripe's documented API and are not yet seen from Stripe test mode. The webhook endpoint registered in Stripe must add `refund.created`, `refund.updated` and `refund.failed`.
+- FR-026's "refused once a result names the sign-up" waits for results (slice 5); until then a confirmed sign-up can always be cancelled.
+- A competitor cannot cancel an unpaid sign-up; it ends when its 30-minute hold runs out (FR-041 counts it until then). Ending it early would need Stripe's session-expire call.
+- The organiser's merge and the "retry failed refunds" check read the sign-ups on the page shown (100 per page).
+- Failed refunds are retried only through "Retry failed refunds" on a cancelled tournament. A failed refund of a single cancellation in a tournament that goes ahead is resolved by hand from the `ALERT` (the sign-up list shows "Refund pending").
+- A refund that failed because Stripe could not be reached may in fact have been created. Its retry uses a new key and Stripe then refuses it as already refunded, leaving it `FAILED` for the organiser to check by hand. Nobody is refunded twice.
+- A profile save after a merge copies the competitor's own typed names back onto their active sign-ups (research R8 propagation), so a merge done before results can be undone by a later profile edit. Merging after registration closes, or again before results, avoids it.
+- Anonymising on account deletion runs before the profile is removed. A sign-up started by the same person in the moment between that step and the revocation would keep its link to the deleted profile id.
+- The CSV export shares the list's OpenAPI operation (`?format=csv`); the served document does not describe the `text/csv` response separately.
+
 ## Slice 3 — User Story 3, sign-up, payment and competitor list
 
 | Issue | Layer | Test path | Implementation path |
@@ -53,7 +104,7 @@ Supporting tests with no requirement issue: `registration/RegistrationStatusTest
 ### Known limits (slice 3)
 
 - Stripe is a recording fake in every automated test here; the SDK call shape (`StripePaymentGateway`) is not exercised against Stripe test mode until the owner supplies test keys (T001) and `bjjeire-tests` runs the T6 scenarios. Signature verification is the real SDK code against HMAC-signed payloads.
-- Refund webhooks (`refund` succeeded or failed) are slice 4. A late payment refunded for want of a place records refund `REFUNDED` when Stripe reports it succeeded at once, otherwise `PENDING`.
+- A late payment refunded for want of a place records refund `REFUNDED` when Stripe reports it succeeded at once, otherwise `PENDING`; the refund webhooks (slice 4) complete it.
 - No test seed of sign-ups yet (T079): the test-dataset prune would remove sign-ups acceptance runs create, and `placesTaken` would drift. Slice 5 adds it with medallists.
 - Mail is plain text and asynchronous without an outbox (research R6): a crash between the save and the send loses that mail.
 - A late refund that Stripe keeps refusing is recorded (payment `PAID`, refund `FAILED`), counted in `registration.refund.failures` and logged as `ALERT`; the alert rule itself and the organiser's view of it come with slice 4 (T107).

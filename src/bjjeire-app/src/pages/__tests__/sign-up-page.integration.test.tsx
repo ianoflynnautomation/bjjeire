@@ -131,7 +131,9 @@ describe('SignUpPage', () => {
     const { user } = renderSignUpPage('bjjeire')
 
     await user.click(
-      await screen.findByRole('radio', { name: new RegExp(division.weightClass) })
+      await screen.findByRole('radio', {
+        name: new RegExp(division.weightClass),
+      })
     )
     await user.click(screen.getByTestId(SignUpPageTestIds.SUBMIT))
     expect(
@@ -139,7 +141,9 @@ describe('SignUpPage', () => {
     ).toHaveTextContent(signUp.consentsRequired)
     expect(created.calls).toHaveLength(0)
 
-    await user.click(screen.getByRole('checkbox', { name: signUp.acceptPublicListing }))
+    await user.click(
+      screen.getByRole('checkbox', { name: signUp.acceptPublicListing })
+    )
     await user.click(screen.getByRole('checkbox', { name: signUp.acceptTerms }))
     await user.click(screen.getByTestId(SignUpPageTestIds.SUBMIT))
 
@@ -190,8 +194,12 @@ describe('SignUpPage', () => {
       const { user } = renderSignUpPage('bjjeire')
 
       await user.click(await screen.findByRole('radio'))
-      await user.click(screen.getByRole('checkbox', { name: signUp.acceptPublicListing }))
-      await user.click(screen.getByRole('checkbox', { name: signUp.acceptTerms }))
+      await user.click(
+        screen.getByRole('checkbox', { name: signUp.acceptPublicListing })
+      )
+      await user.click(
+        screen.getByRole('checkbox', { name: signUp.acceptTerms })
+      )
       await user.click(screen.getByTestId(SignUpPageTestIds.SUBMIT))
 
       expect(
@@ -220,7 +228,10 @@ describe('SignUpPage', () => {
   it('given an incomplete profile, when the sign-up opens, then it sends the competitor to complete the profile', async () => {
     const tournament = bjjeire()
     seedTournament(tournament)
-    seedEligibleDivisionsProblem(tournament.id, 'urn:bjjeire:profile-incomplete')
+    seedEligibleDivisionsProblem(
+      tournament.id,
+      'urn:bjjeire:profile-incomplete'
+    )
     renderSignUpPage('bjjeire')
 
     const notice = await screen.findByTestId(
@@ -288,7 +299,9 @@ describe('SignUpPage', () => {
     const tournament = bjjeire()
     seedTournament(tournament)
     seedEligibleDivisions(tournament.id, tournament.divisions)
-    seedResumeCheckout('registration-9', { problem: 'urn:bjjeire:hold-expired' })
+    seedResumeCheckout('registration-9', {
+      problem: 'urn:bjjeire:hold-expired',
+    })
     const { user } = renderSignUpPage('bjjeire', 'registration-9')
 
     await user.click(await screen.findByTestId(SignUpPageTestIds.RESUME))
@@ -309,7 +322,9 @@ describe('SignUpPage', () => {
     const { user } = renderSignUpPage('bjjeire')
 
     await user.click(await screen.findByRole('radio'))
-    await user.click(screen.getByRole('checkbox', { name: signUp.acceptPublicListing }))
+    await user.click(
+      screen.getByRole('checkbox', { name: signUp.acceptPublicListing })
+    )
     await user.click(screen.getByRole('checkbox', { name: signUp.acceptTerms }))
     await user.click(screen.getByTestId(SignUpPageTestIds.SUBMIT))
 

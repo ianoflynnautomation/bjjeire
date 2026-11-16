@@ -6,15 +6,20 @@ import { logger } from '@/lib/logger'
 
 /**
  * Reads are public and carry no token, except the organiser's tournament
- * reads, which list drafts and answer 401 without one.
+ * reads, which list drafts or private sign-up details and answer 401 without
+ * one: `/tournament/admin…` and `/tournament/{id}/registration`.
  */
 function isAdminRead(url: string | undefined): boolean {
   const path = `/${(url ?? '').replace(/^\/+/u, '')}`
   const admin = API_RESOURCE_ROUTES.tournamentsAdmin
+  const route = path.split('?')[0]
+  const { tournaments } = API_RESOURCE_ROUTES
   return (
     path === admin ||
     path.startsWith(`${admin}/`) ||
-    path.startsWith(`${admin}?`)
+    path.startsWith(`${admin}?`) ||
+    (route.startsWith(`${tournaments}/`) &&
+      /^\/[^/]+\/registration(?:\/|$)/u.test(route.slice(tournaments.length)))
   )
 }
 

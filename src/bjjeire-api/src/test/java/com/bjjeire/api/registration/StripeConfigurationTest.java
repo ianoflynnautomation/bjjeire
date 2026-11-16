@@ -31,16 +31,22 @@ class StripeConfigurationTest {
     @ValueSource(strings = {"", "  ", "whsec_REPLACE_ME"})
     void shouldRefuseEveryWebhookWhileTheSigningSecretIsAPlaceholder(String secret) {
         RegistrationService registrations = mock(RegistrationService.class);
+        CancellationService cancellations = mock(CancellationService.class);
         MongoTemplate mongo = mock(MongoTemplate.class);
         StripeWebhookServiceImpl webhook = new StripeWebhookServiceImpl(
-                registrations, mongo, JsonMapper.builder().build(), CLOCK, properties("sk_test_real", secret));
+                registrations,
+                cancellations,
+                mongo,
+                JsonMapper.builder().build(),
+                CLOCK,
+                properties("sk_test_real", secret));
 
         assertThatThrownBy(() -> webhook.handle("{}", "t=1,v1=abc"))
                 .isInstanceOfSatisfying(ResponseStatusException.class, refused -> {
                     assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
                     assertThat(refused.getBody().getType()).hasToString("urn:bjjeire:service-unavailable");
                 });
-        verifyNoInteractions(registrations, mongo);
+        verifyNoInteractions(registrations, cancellations, mongo);
     }
 
     @ParameterizedTest
