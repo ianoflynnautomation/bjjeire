@@ -152,7 +152,12 @@ describe('request interceptor — auth', () => {
     expect(authHeader).toBe('Bearer test-token')
   })
 
-  it.each(['tournament/admin', '/tournament/admin/0123456789abcdef01234567'])(
+  it.each([
+    'tournament/admin',
+    '/tournament/admin/0123456789abcdef01234567',
+    'tournament/0123456789abcdef01234567/registration',
+    'tournament/0123456789abcdef01234567/registration?format=csv',
+  ])(
     'given a signed-in organiser, when the admin read %s is sent, then the Bearer token is attached',
     async path => {
       mockMsalInstance.getAllAccounts.mockReturnValue([
@@ -164,7 +169,7 @@ describe('request interceptor — auth', () => {
 
       let authHeader: string | null = null
       server.use(
-        http.get(`${BASE}/tournament/admin*`, ({ request }) => {
+        http.get(`${BASE}/tournament/*`, ({ request }) => {
           authHeader = request.headers.get('Authorization')
           return HttpResponse.json({ ok: true })
         })
@@ -179,6 +184,7 @@ describe('request interceptor — auth', () => {
     'tournament',
     'tournament/administrators-cup',
     'tournament/bjjeire',
+    'tournament/0123456789abcdef01234567/competitor',
   ])(
     'given a signed-in organiser, when the public read %s is sent, then no token is attached',
     async path => {

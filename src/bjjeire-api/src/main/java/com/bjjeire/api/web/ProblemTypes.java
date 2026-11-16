@@ -38,6 +38,8 @@ public final class ProblemTypes {
     public static final URI PROFILE_INCOMPLETE = URI.create("urn:bjjeire:profile-incomplete");
     /** The competitor already has two unpaid sign-ups in this tournament (FR-041). */
     public static final URI TOO_MANY_UNPAID = URI.create("urn:bjjeire:too-many-unpaid");
+    /** Changing division once registration has closed; the organiser can still move the sign-up. */
+    public static final URI REGISTRATION_CLOSED = URI.create("urn:bjjeire:registration-closed");
     /** Resuming payment for a sign-up whose hold has ended or that is no longer awaiting payment. */
     public static final URI HOLD_EXPIRED = URI.create("urn:bjjeire:hold-expired");
     /** The sign-up's Checkout is already paid; the confirmation is on its way. */

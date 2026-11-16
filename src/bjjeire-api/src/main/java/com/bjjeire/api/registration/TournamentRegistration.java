@@ -27,6 +27,18 @@ public class TournamentRegistration {
     /** Who cancelled when the system refunded a payment that arrived with no place left (research R5). */
     public static final String CANCELLED_BY_SYSTEM = "SYSTEM";
 
+    /** The competitor cancelled their own sign-up. */
+    public static final String CANCELLED_BY_COMPETITOR = "COMPETITOR";
+
+    /** The organiser cancelled this one sign-up (FR-007). */
+    public static final String CANCELLED_BY_ADMIN = "ADMIN";
+
+    /** The organiser cancelled the whole tournament (FR-029). */
+    public static final String CANCELLED_BY_TOURNAMENT = "TOURNAMENT";
+
+    /** Shown in place of the name once the competitor deleted their account (research R11). */
+    public static final String DELETED_DISPLAY_NAME = "Former competitor";
+
     /** Also the Stripe {@code client_reference_id}. */
     @Id
     private String id;

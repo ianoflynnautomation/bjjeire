@@ -69,4 +69,12 @@ public interface CompetitorService {
      * @return the email, or empty when the account is gone or has none
      */
     Optional<String> findEmail(String competitorId);
+
+    /**
+     * The private details of the given competitors, for the organiser's sign-up list (FR-006).
+     *
+     * @param competitorIds profile ids; unknown ones, such as deleted accounts, are left out
+     * @return by profile id
+     */
+    java.util.Map<String, CompetitorContact> findContacts(java.util.Collection<String> competitorIds);
 }

@@ -197,6 +197,31 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    public Optional<TournamentDto> cancel(String id) {
+        Tournament existing = mongoTemplate.findById(id, Tournament.class);
+        if (existing == null) {
+            return Optional.empty();
+        }
+        if (existing.getStatus() == TournamentStatus.CANCELLED) {
+            return Optional.of(TournamentMapper.toDto(existing, clock.instant()));
+        }
+        if (!existing.getStatus().canBecome(TournamentStatus.CANCELLED)) {
+            throw ApiProblems.conflict(ProblemTypes.CONFLICT, "A finished tournament can no longer be cancelled.");
+        }
+        Tournament saved = modify(
+                id,
+                Set.of(TournamentStatus.DRAFT, TournamentStatus.PUBLISHED),
+                false,
+                existing.getVersion(),
+                new Update().set("status", TournamentStatus.CANCELLED));
+        if (saved == null) {
+            throw changedMeanwhile();
+        }
+        afterWrite(AuditAction.Update, id);
+        return Optional.of(TournamentMapper.toDto(saved, clock.instant()));
+    }
+
+    @Override
     public Optional<TournamentDto> getPublicById(String id) {
         Query query = Query.query(Criteria.where("_id").is(id).and("status").in(TournamentStatus.PUBLIC));
         return Optional.ofNullable(mongoTemplate.findOne(query, Tournament.class))

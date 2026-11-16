@@ -23,3 +23,11 @@ export function registrationProblemMessage(error: unknown): string {
   const type = registrationProblemType(error)
   return type !== null && isKnown(type) ? problems[type] : problems.fallback
 }
+
+/** Why a cancel or division change was refused; an unknown failure reads as "did not work", not as a sign-up. */
+export function registrationActionMessage(error: unknown): string {
+  const type = registrationProblemType(error)
+  return type !== null && isKnown(type)
+    ? problems[type]
+    : uiContent.registrations.mine.actionFailed
+}

@@ -42,7 +42,7 @@ A session Stripe does not know (`resource_missing`, for example after a key, san
 | Target | the registration's payment |
 | Amount | full `payment.amountCents` |
 | `metadata` | `registrationId` |
-| Idempotency key | `refund-<registrationId>` |
+| Idempotency key | `refund-<registrationId>`; a retry of a refund that failed uses `refund-<registrationId>-<attempt>`, because Stripe answers a reused key with its first answer and creates nothing. Stripe refuses to refund more than was paid, so a new key cannot pay back twice |
 
 The registration's refund is `PENDING` until Stripe reports the outcome.
 
@@ -57,10 +57,10 @@ The registration's refund is `PENDING` until Stripe reports the outcome.
 |---|---|
 | Checkout session completed (paid) | `AWAITING_PAYMENT` → `CONFIRMED`, payment `PAID`, confirmation email. If the hold had lapsed: re-take a place if one is free, otherwise refund in full and end `CANCELLED` |
 | Checkout session expired | `AWAITING_PAYMENT` → `EXPIRED`, place released |
-| Refund succeeded | refund `PENDING` → `REFUNDED`, refund email |
-| Refund failed | refund → `FAILED`, admin alert; competitor sees "refund pending" |
+| Refund succeeded (`refund.created` / `refund.updated` with status `succeeded`) | refund `PENDING` or `FAILED` → `REFUNDED`, refund email |
+| Refund failed (`refund.failed`, or `refund.updated` with status `failed` / `canceled`) | refund `PENDING` → `FAILED`, admin alert (`registration.refund.failures`, `ALERT` log); competitor sees "refund pending" |
 
-Events are matched to a registration by `client_reference_id` / `metadata.registrationId`, never by email.
+Events are matched to a registration by `client_reference_id` / `metadata.registrationId`, never by email. A refund event must also name the refund id the sign-up recorded (when one is recorded); another refund of the same sign-up is ignored. The Stripe webhook endpoint must subscribe to `refund.created`, `refund.updated` and `refund.failed` as well as the Checkout events.
 
 ## Local and test
 

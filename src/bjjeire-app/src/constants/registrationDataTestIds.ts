@@ -38,6 +38,16 @@ export const MySignUpsTestIds = {
   ROW_AMOUNT: 'my-sign-ups-row-amount',
   ROW_STATUS: 'my-sign-ups-row-status',
   ROW_RESUME: 'my-sign-ups-row-resume',
+  ROW_CANCEL: 'my-sign-ups-row-cancel',
+  CANCEL_WARNING: 'my-sign-ups-cancel-warning',
+  CANCEL_CONFIRM: 'my-sign-ups-cancel-confirm',
+  CANCEL_KEEP: 'my-sign-ups-cancel-keep',
+  ROW_CHANGE: 'my-sign-ups-row-change-division',
+  CHANGE_SELECT: 'my-sign-ups-change-division-select',
+  CHANGE_SAVE: 'my-sign-ups-change-division-save',
+  CLOSED_NOTE: 'my-sign-ups-closed-note',
+  NOTICE: 'my-sign-ups-notice',
+  ACTION_ERROR: 'my-sign-ups-action-error',
   EMPTY: 'my-sign-ups-empty',
 }
 

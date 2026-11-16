@@ -14,8 +14,11 @@ public class RecordingPaymentGateway implements PaymentGateway {
     private final AtomicBoolean failCheckout = new AtomicBoolean();
     private final AtomicBoolean failRefund = new AtomicBoolean();
     private final AtomicBoolean failStatus = new AtomicBoolean();
+    private final AtomicBoolean refundsPending = new AtomicBoolean();
+    private final AtomicInteger refundFailuresLeft = new AtomicInteger();
     private final java.util.Map<String, CheckoutStatus> statuses = new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicInteger statusLookups = new AtomicInteger();
+    private final java.util.Map<String, RefundResult> refundsByKey = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Override
     public CheckoutSession createCheckout(CheckoutRequest request) {
@@ -29,11 +32,18 @@ public class RecordingPaymentGateway implements PaymentGateway {
 
     @Override
     public RefundResult refund(RefundRequest request) {
-        if (failRefund.get()) {
+        if (failRefund.get() || refundFailuresLeft.getAndUpdate(left -> Math.max(0, left - 1)) > 0) {
             throw new PaymentGatewayException("Stripe refused the refund (test)", null);
         }
+        // Like Stripe: a key already used replays the first answer and creates no second refund.
+        RefundResult earlier = refundsByKey.get(request.idempotencyKey());
+        if (earlier != null) {
+            return earlier;
+        }
         refunds.add(request);
-        return new RefundResult("re_test_" + sequence.incrementAndGet(), true);
+        RefundResult result = new RefundResult("re_test_" + sequence.incrementAndGet(), !refundsPending.get());
+        refundsByKey.put(request.idempotencyKey(), result);
+        return result;
     }
 
     @Override
@@ -74,12 +84,25 @@ public class RecordingPaymentGateway implements PaymentGateway {
         failRefund.set(fail);
     }
 
+    /** Fails only the next {@code count} refunds, then accepts them again. */
+    public void failRefunds(int count) {
+        refundFailuresLeft.set(count);
+    }
+
+    /** Whether Stripe reports new refunds as pending (true) or already succeeded (false, the default). */
+    public void reportRefundsPending(boolean pending) {
+        refundsPending.set(pending);
+    }
+
     public void reset() {
         checkouts.clear();
         refunds.clear();
         failCheckout.set(false);
         failRefund.set(false);
         failStatus.set(false);
+        refundsPending.set(false);
+        refundsByKey.clear();
+        refundFailuresLeft.set(0);
         statuses.clear();
         statusLookups.set(0);
     }

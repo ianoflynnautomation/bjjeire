@@ -1,6 +1,12 @@
 import type { components } from '@/types/generated/api'
 import type {
+  AdminCancelCommand,
+  AdminRegistrationDto,
+  CancellationDto,
+  ChangeDivisionCommand,
   CreateRegistrationCommand,
+  MergeTeamsCommand,
+  TeamMergeDto,
   DivisionCompetitorsDto,
   ListedCompetitorDto,
   RegistrationCheckoutDto,
@@ -46,6 +52,28 @@ type RefundValues =
     ? true
     : never
 
+type CancellationKeys = KeysArePublished<
+  CancellationDto,
+  Schemas['CancellationDto']
+>
+type ChangeDivisionKeys = KeysArePublished<
+  ChangeDivisionCommand,
+  Schemas['ChangeDivisionCommand']
+>
+type AdminCancelKeys = KeysArePublished<
+  AdminCancelCommand,
+  Schemas['AdminCancelCommand']
+>
+type MergeKeys = KeysArePublished<
+  MergeTeamsCommand,
+  Schemas['MergeTeamsCommand']
+>
+type MergeResultKeys = KeysArePublished<TeamMergeDto, Schemas['TeamMergeDto']>
+type AdminRowKeys = KeysArePublished<
+  AdminRegistrationDto,
+  Schemas['AdminRegistrationDto']
+>
+
 // Separate checks. An intersection of `true` is redundant, and the lint fixer deletes it.
 export const registrationsContractOk = [
   true satisfies RegistrationKeys,
@@ -55,4 +83,10 @@ export const registrationsContractOk = [
   true satisfies ListedKeys,
   true satisfies StatusValues,
   true satisfies RefundValues,
+  true satisfies CancellationKeys,
+  true satisfies ChangeDivisionKeys,
+  true satisfies AdminCancelKeys,
+  true satisfies MergeKeys,
+  true satisfies MergeResultKeys,
+  true satisfies AdminRowKeys,
 ] as const

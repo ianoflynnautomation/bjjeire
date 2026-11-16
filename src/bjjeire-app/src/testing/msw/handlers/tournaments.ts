@@ -5,6 +5,7 @@ import {
   createTournament,
   createTournamentSummary,
 } from '../../factories/tournament.factory'
+import { createPaginatedAdminRegistrations } from '../../factories/registration.factory'
 
 export const tournamentsHandlers = [
   // Registered before the slug route: `admin` is not a slug.
@@ -21,6 +22,10 @@ export const tournamentsHandlers = [
     HttpResponse.json(
       createTournament({ id: String(params.id), status: 'DRAFT' })
     )
+  ),
+  // The organiser's sign-up list: empty unless a test seeds one.
+  http.get(`*${API_ROUTES.tournaments}/:id/registration`, () =>
+    HttpResponse.json(createPaginatedAdminRegistrations([]))
   ),
   http.get(`*${API_ROUTES.tournaments}`, () =>
     HttpResponse.json(

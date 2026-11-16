@@ -1,4 +1,4 @@
-import type { JSX } from 'react'
+import { useState, type JSX } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button/button'
 import { paths } from '@/config/paths'
@@ -11,6 +11,7 @@ import type { RegistrationDto } from '@/types/registrations'
 import { resumeCheckout } from '../api/registration-api'
 import { useCheckoutRedirect } from '../hooks/useCheckoutRedirect'
 import { divisionLabel } from '../utils/registration-format'
+import { RegistrationActions } from './registration-actions'
 
 const { mine } = uiContent.registrations
 
@@ -27,8 +28,28 @@ export const MyRegistrationsTable = function MyRegistrationsTable({
   registrations,
 }: MyRegistrationsTableProps): JSX.Element {
   const resume = useCheckoutRedirect(resumeCheckout)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   return (
     <div className="space-y-3">
+      {notice && (
+        <p
+          role="status"
+          className="rounded-lg bg-surface-solid p-3 text-sm text-fg ring-1 ring-hairline"
+          data-testid={MySignUpsTestIds.NOTICE}
+        >
+          {notice}
+        </p>
+      )}
+      {actionError && (
+        <p
+          role="alert"
+          className="text-sm text-danger-600 dark:text-danger-400"
+          data-testid={MySignUpsTestIds.ACTION_ERROR}
+        >
+          {actionError}
+        </p>
+      )}
       {resume.received && (
         <p
           role="status"
@@ -133,6 +154,17 @@ export const MyRegistrationsTable = function MyRegistrationsTable({
                       </Button>
                     </>
                   )}
+                  <RegistrationActions
+                    registration={registration}
+                    onNotice={message => {
+                      setActionError(null)
+                      setNotice(message)
+                    }}
+                    onError={message => {
+                      setNotice(null)
+                      setActionError(message)
+                    }}
+                  />
                 </td>
               </tr>
             ))}

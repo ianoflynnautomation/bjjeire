@@ -95,4 +95,14 @@ public interface TournamentService {
      * @param id tournament id
      */
     void releasePlace(String id);
+
+    /**
+     * Cancels a draft or published tournament. Asking again for a cancelled one returns it unchanged, so a refund run
+     * that stopped part way can be resumed (FR-029).
+     *
+     * @param id tournament id
+     * @return the cancelled tournament, or empty when the id is unknown
+     * @throws org.springframework.web.server.ResponseStatusException 409 when it is finished
+     */
+    Optional<TournamentDto> cancel(String id);
 }

@@ -54,6 +54,8 @@ export const registrations = {
       'This sign-up is no longer held. Choose a division to start again.',
     'urn:bjjeire:payment-received':
       'Your payment was received. Your sign-up is being confirmed and will show as confirmed shortly.',
+    'urn:bjjeire:registration-closed':
+      'Registration has closed. To change division, contact the organiser.',
     'urn:bjjeire:payment-unavailable':
       'Payment is unavailable right now. Nothing was charged; please try again shortly.',
     fallback: 'The sign-up could not be started. Please try again.',
@@ -106,6 +108,30 @@ export const registrations = {
       FAILED: 'Refund pending',
     },
     resume: 'Pay now',
+    actionsColumn: 'Actions',
+    cancel: 'Cancel sign-up',
+    refundWarningPrefix: 'You will be refunded',
+    refundWarningSuffix: 'in full to your original payment method.',
+    noRefundWarning:
+      'Registration has closed, so no refund is due. You will be removed from the competitor list.',
+    cancelConfirm: 'Yes, cancel my sign-up',
+    keep: 'Keep my sign-up',
+    cancelling: 'Cancelling...',
+    cancelledRefundPrefix: 'Your sign-up is cancelled. A refund of',
+    cancelledRefundSuffix: 'is on its way.',
+    cancelledNoRefund: 'Your sign-up is cancelled. No refund was due.',
+    cancelledRefundPending:
+      'Your sign-up is cancelled. Your refund is pending and the organiser has been told.',
+    changeDivision: 'Change division',
+    changeDivisionLabel: 'New division',
+    changeDivisionSave: 'Move to this division',
+    changeDivisionNone:
+      'There is no other division you can move to in this tournament.',
+    changeDivisionLoadFailed: 'Failed to load the divisions you can enter.',
+    changed: 'Your sign-up was moved. There is no extra charge.',
+    closedContactOrganiser:
+      'Registration has closed. To change division, contact the organiser.',
+    actionFailed: 'That did not work. Please try again.',
   },
   competitors: {
     heading: 'Competitors',

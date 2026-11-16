@@ -20,4 +20,12 @@ public class Refund {
     private Instant requestedAt;
     private Instant completedAt;
     private String failureReason;
+
+    /**
+     * How many times Stripe was asked for this refund. The first ask uses the key {@code refund-<registrationId>}; a
+     * retry of a refund that failed uses {@code refund-<registrationId>-<attempts>}, because Stripe answers a reused
+     * key with its first answer and creates nothing. Stripe refuses to refund more than was paid, so a new key cannot
+     * pay back twice.
+     */
+    private int attempts;
 }
