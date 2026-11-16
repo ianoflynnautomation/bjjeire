@@ -29,6 +29,10 @@ import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymRepository;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.gym.TrialOffer;
+import com.bjjeire.api.registration.Payment;
+import com.bjjeire.api.registration.PaymentStatus;
+import com.bjjeire.api.registration.RegistrationStatus;
+import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.store.StoreRepository;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
@@ -57,6 +61,10 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 @Provider("BjjEireApi")
 @PactFolder("pacts")
 class PactProviderVerificationIT extends MongoIntegrationTest {
+
+    private static final String SIGN_UP_TOURNAMENT_ID = "0123456789abcdef0123aaaa";
+    private static final String SIGN_UP_DIVISION_ID = "0123456789abcdef0123cccc";
+    private static final String SIGN_UP_REGISTRATION_ID = "0123456789abcdef0123bbbb";
 
     @LocalServerPort
     private int port;
@@ -184,6 +192,73 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .belt(Belt.BLUE)
                 .academy(new Academy(null, "Team X"))
                 .affiliation("Alliance")
+                .build());
+    }
+
+    @State("a competitor with a profile and a tournament open for sign-up")
+    void aCompetitorWithAProfileAndATournamentOpenForSignUp() {
+        aCompetitorWithAProfileIsSignedIn();
+        insertSignUpTournament();
+    }
+
+    @State("a competitor with an unpaid sign-up")
+    void aCompetitorWithAnUnpaidSignUp() {
+        aCompetitorWithAProfileIsSignedIn();
+        insertSignUpTournament();
+        Competitor competitor =
+                mongoTemplate.findOne(new org.springframework.data.mongodb.core.query.Query(), Competitor.class);
+        insertRegistration(competitor.getId(), RegistrationStatus.AWAITING_PAYMENT);
+    }
+
+    @State("a tournament with a confirmed competitor")
+    void aTournamentWithAConfirmedCompetitor() {
+        insertSignUpTournament();
+        insertRegistration("0123456789abcdef0123dddd", RegistrationStatus.CONFIRMED);
+    }
+
+    private void insertSignUpTournament() {
+        mongoTemplate.insert(Tournament.builder()
+                .id(SIGN_UP_TOURNAMENT_ID)
+                .slug("pact-sign-up")
+                .name("Pact Sign-Up Tournament")
+                .date(LocalDate.parse("2026-06-27"))
+                .venue(location())
+                .entryFeeCents(2500)
+                .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
+                .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
+                .status(TournamentStatus.PUBLISHED)
+                .version(0L)
+                .divisions(List.of(Division.builder()
+                        .id(SIGN_UP_DIVISION_ID)
+                        .discipline(Discipline.GI)
+                        .gender(Gender.FEMALE)
+                        .ageCategory(AgeCategory.ADULT)
+                        .belt(Belt.BLUE)
+                        .weightClass("-64 kg")
+                        .build()))
+                .build());
+    }
+
+    private void insertRegistration(String competitorId, RegistrationStatus status) {
+        mongoTemplate.insert(TournamentRegistration.builder()
+                .id(SIGN_UP_REGISTRATION_ID)
+                .tournamentId(SIGN_UP_TOURNAMENT_ID)
+                .divisionId(SIGN_UP_DIVISION_ID)
+                .competitorId(competitorId)
+                .status(status)
+                .active(Boolean.TRUE)
+                .holdExpiresAt(status == RegistrationStatus.AWAITING_PAYMENT ? FIXED_NOW.plusSeconds(1800) : null)
+                .displayName("Aoife Byrne")
+                .academy(new Academy(null, "Team X"))
+                .affiliation("Alliance")
+                .payment(Payment.builder()
+                        .checkoutSessionId("cs_test_pact")
+                        .checkoutUrl("https://checkout.stripe.com/c/pay/cs_test_pact")
+                        .amountCents(2500)
+                        .currency("EUR")
+                        .status(status == RegistrationStatus.CONFIRMED ? PaymentStatus.PAID : PaymentStatus.PENDING)
+                        .build())
+                .createdOnUtc(FIXED_NOW)
                 .build());
     }
 

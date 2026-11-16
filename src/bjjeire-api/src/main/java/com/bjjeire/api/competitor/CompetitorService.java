@@ -1,5 +1,9 @@
 package com.bjjeire.api.competitor;
 
+import com.bjjeire.api.tournament.DivisionDto;
+import java.util.List;
+import java.util.Optional;
+
 /** The signed-in competitor's own profile. Every method acts on the caller only; none takes a competitor id. */
 public interface CompetitorService {
     /**
@@ -38,4 +42,31 @@ public interface CompetitorService {
      *     sign-up is awaiting payment or confirmed
      */
     void deleteOwn(CompetitorIdentity caller);
+
+    /**
+     * Lists the divisions of a published tournament the caller may enter (FR-016).
+     *
+     * @param caller the signed-in competitor
+     * @param tournamentId tournament id
+     * @return eligible divisions in the tournament's order, possibly empty
+     * @throws org.springframework.web.server.ResponseStatusException 404 for an unknown or draft tournament; 409
+     *     {@code profile-incomplete} or {@code under-18}
+     */
+    List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String tournamentId);
+
+    /**
+     * Returns what a sign-up needs from the caller's profile.
+     *
+     * @param caller the signed-in competitor
+     * @return the profile, or empty when none is saved
+     */
+    Optional<SignUpProfile> findSignUpProfile(CompetitorIdentity caller);
+
+    /**
+     * Returns the sign-in email of a competitor, for sign-up mail sent without a caller (the payment webhook).
+     *
+     * @param competitorId profile id
+     * @return the email, or empty when the account is gone or has none
+     */
+    Optional<String> findEmail(String competitorId);
 }

@@ -4,6 +4,7 @@ import { resetGymIdCounter } from './factories/gym.factory'
 import { resetEventIdCounter } from './factories/event.factory'
 import { resetCompetitionIdCounter } from './factories/competition.factory'
 import { resetTournamentIdCounter } from './factories/tournament.factory'
+import { resetRegistrationIdCounter } from './factories/registration.factory'
 import './setup-tests'
 
 vi.mock('@/config/env', () => ({
@@ -28,4 +29,5 @@ afterEach(() => {
   resetEventIdCounter()
   resetCompetitionIdCounter()
   resetTournamentIdCounter()
+  resetRegistrationIdCounter()
 })

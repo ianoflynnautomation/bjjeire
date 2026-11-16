@@ -71,4 +71,28 @@ public interface TournamentService {
      *     or when it is not a draft
      */
     Optional<TournamentDto> publish(String id);
+
+    /**
+     * Returns a tournament the public may see, read fresh from the database, with its registration state worked out for
+     * now. For sign-ups, which must not act on a cached place count.
+     *
+     * @param id tournament id
+     * @return the tournament, or empty when the id is unknown or it is a draft
+     */
+    Optional<TournamentDto> getPublicById(String id);
+
+    /**
+     * Takes one place, atomically: only while the tournament is published and below its competitor limit (FR-022).
+     *
+     * @param id tournament id
+     * @return true when a place was taken; false when it is full or no longer published
+     */
+    boolean takePlace(String id);
+
+    /**
+     * Gives one place back. Never takes the count below zero.
+     *
+     * @param id tournament id
+     */
+    void releasePlace(String id);
 }

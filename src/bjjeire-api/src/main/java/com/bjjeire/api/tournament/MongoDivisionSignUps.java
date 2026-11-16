@@ -8,9 +8,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 /**
- * Reads the sign-up collection by name. The {@code registration} package that owns it is not built yet, so this depends
- * only on the documented shape (specs/001-tournament-registration/data-model.md): {@code tournamentId},
- * {@code divisionId}, and {@code active: true} while a sign-up is awaiting payment or confirmed.
+ * Reads the sign-up collection by name, so this package does not depend on {@code registration}, which depends on it.
+ * Relies only on the documented shape (specs/database-contracts/tournament-registration.md): {@code tournamentId},
+ * {@code divisionId}, and {@code active: true} while a sign-up is awaiting payment or confirmed. Must match
+ * {@code TournamentRegistration.ENTITY_NAME}.
  */
 @Component
 @RequiredArgsConstructor

@@ -5,6 +5,7 @@ import { bjjEventsHandlers } from './bjj-events'
 import { competitionsHandlers } from './competitions'
 import { tournamentsHandlers } from './tournaments'
 import { competitorHandlers } from './competitor'
+import { registrationsHandlers } from './registrations'
 
 export { optionsPassthrough, sharedHandlers } from './shared'
 export { defaultFeatureFlags, featureFlagsHandlers } from './feature-flags'
@@ -13,6 +14,7 @@ export { bjjEventsHandlers } from './bjj-events'
 export { competitionsHandlers } from './competitions'
 export { tournamentsHandlers } from './tournaments'
 export { competitorHandlers } from './competitor'
+export { registrationsHandlers } from './registrations'
 
 export const handlers = [
   ...sharedHandlers,
@@ -22,4 +24,5 @@ export const handlers = [
   ...competitionsHandlers,
   ...tournamentsHandlers,
   ...competitorHandlers,
+  ...registrationsHandlers,
 ]

@@ -18,7 +18,10 @@ public record BjjEireProperties(
         Map<String, Boolean> featureFlags,
         CompetitorAuth competitorAuth,
         LocalSignIn localSignIn,
-        CompetitorDirectory competitorDirectory) {
+        CompetitorDirectory competitorDirectory,
+        Stripe stripe,
+        Mail mail,
+        Registration registration) {
     // Two constructors: tell Spring Boot which one binds configuration.
     @ConstructorBinding
     public BjjEireProperties {
@@ -26,6 +29,9 @@ public record BjjEireProperties(
         localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
         competitorDirectory =
                 competitorDirectory == null ? new CompetitorDirectory("", "", "", "", "", "") : competitorDirectory;
+        stripe = java.util.Objects.requireNonNullElseGet(stripe, () -> new Stripe("", "", ""));
+        mail = java.util.Objects.requireNonNullElseGet(mail, () -> new Mail(""));
+        registration = java.util.Objects.requireNonNullElseGet(registration, () -> new Registration(null, null, null));
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -44,7 +50,7 @@ public record BjjEireProperties(
             RateLimit rateLimit,
             ReadOnlyMode readOnlyMode,
             Map<String, Boolean> featureFlags) {
-        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null, null);
+        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null, null, null, null, null);
     }
 
     /**
@@ -134,6 +140,60 @@ public record BjjEireProperties(
                             .distinct()
                             .toList();
             scope = scope == null || scope.isBlank() ? DEFAULT_SCOPE : scope.trim();
+        }
+    }
+
+    /**
+     * Stripe hosted Checkout (ADR-0013). Read only by the {@code registration} package.
+     *
+     * @param secretKey API secret key; never logged
+     * @param webhookSecret signing secret of the webhook endpoint; never logged
+     * @param successUrlBase the site's origin, e.g. {@code https://bjjeire.com}: Checkout returns the competitor to a
+     *     page under it
+     */
+    public record Stripe(String secretKey, String webhookSecret, String successUrlBase) {
+        public Stripe {
+            secretKey = secretKey == null ? "" : secretKey.trim();
+            webhookSecret = webhookSecret == null ? "" : webhookSecret.trim();
+            successUrlBase = successUrlBase == null || successUrlBase.isBlank()
+                    ? "https://bjjeire.com"
+                    : successUrlBase.trim().replaceAll("/+$", "");
+        }
+
+        @Override
+        public String toString() {
+            return "Stripe[successUrlBase=" + successUrlBase + ", secretKey=" + (secretKey.isEmpty() ? "" : "***")
+                    + ", webhookSecret=" + (webhookSecret.isEmpty() ? "" : "***") + "]";
+        }
+    }
+
+    /**
+     * Sign-up mail (research R6). The SMTP server itself is Spring Boot's {@code spring.mail.*}.
+     *
+     * @param from sender address of every sign-up mail
+     */
+    public record Mail(String from) {
+        public static final String DEFAULT_FROM = "no-reply@bjjeire.com";
+
+        public Mail {
+            from = from == null || from.isBlank() ? DEFAULT_FROM : from.trim();
+        }
+    }
+
+    /**
+     * Sign-up holds (FR-019).
+     *
+     * @param hold how long a place is kept while the competitor pays; Stripe's Checkout floor is 30 minutes
+     * @param holdSweepInitialDelay delay before the first fallback sweep of lapsed holds
+     * @param holdSweepInterval delay between sweeps
+     */
+    public record Registration(
+            java.time.Duration hold, java.time.Duration holdSweepInitialDelay, java.time.Duration holdSweepInterval) {
+        public Registration {
+            hold = hold == null ? java.time.Duration.ofMinutes(30) : hold;
+            holdSweepInitialDelay =
+                    holdSweepInitialDelay == null ? java.time.Duration.ofMinutes(1) : holdSweepInitialDelay;
+            holdSweepInterval = holdSweepInterval == null ? java.time.Duration.ofMinutes(1) : holdSweepInterval;
         }
     }
 

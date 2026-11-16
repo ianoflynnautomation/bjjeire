@@ -15,10 +15,14 @@ Browser (MSAL SPA)
     → Istio ingress (AKS)
       → bjjeire-frontend (Caddy + Vite bundle)
       → bjjeire-api (Java 25 Spring Boot)
-           → MongoDB (Gym, BjjEvent, Competition, Store, AuditLog)
+           → MongoDB (Gym, BjjEvent, Competition, Store, AuditLog; tournament collections)
            → Azure Blob (images)
            → Entra ID (JWT audience bjjeire-api-<env>)
+           → Entra External ID (competitor tokens, ADR-0012; Microsoft Graph to delete an account)
+           → Stripe API (Checkout Sessions, Refunds; ADR-0013)
+           → SMTP relay (sign-up mail; Mailpit locally)
            → OTLP collector
+  Stripe → bjjeire-api POST /api/v1/registration/stripe-webhook (signed)
       → bjjeire-seeder (one-shot Job)
 ```
 
@@ -44,7 +48,7 @@ Package-by-feature under `com.bjjeire.api.{gym,event,competition,store}`.
 | Events | `/api/v1/bjjevent` | `BjjEvent` |
 | Competitions | `/api/v1/competition` | `Competition` |
 | Stores | `/api/v1/store` | `Store` |
-| Tournaments (flag `Tournaments`, default off; set-up and public pages live, sign-up pending) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`; `Competitor`, `TournamentRegistration`, `StripeEvent` (planned) |
+| Tournaments (flag `Tournaments`, default off; set-up, public pages, profiles and paid sign-up live) | `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration` | `Tournament`, `Competitor`, `DeletedCompetitor`, `TournamentRegistration`, `StripeEvent` |
 | Feature flags | `/api/v1/featureflag` | (config) |
 | Donate | `/api/v1/donate` | (static) |
 

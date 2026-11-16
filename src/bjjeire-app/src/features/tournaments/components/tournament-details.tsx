@@ -1,9 +1,11 @@
-import type { JSX } from 'react'
+import type { JSX, ReactNode } from 'react'
 import { Link } from 'react-router'
 import { TricolorEdge } from '@/components/ui/decoration/tricolor-edge'
 import { paths } from '@/config/paths'
 import { uiContent } from '@/config/ui-content'
 import { TournamentPageTestIds } from '@/constants/tournamentDataTestIds'
+import { TournamentSignUpTestIds } from '@/constants/registrationDataTestIds'
+import { buttonVariants } from '@/lib/button-variants'
 import type { TournamentDto } from '@/types/tournaments'
 import { formatDate } from '@/utils/date-utils'
 import { formatDublinDateTime } from '@/utils/dublin-time'
@@ -16,6 +18,8 @@ const { details, registration } = uiContent.tournaments
 
 interface TournamentDetailsProps {
   tournament: TournamentDto
+  /** Shown after the divisions, such as the public competitor list. */
+  children?: ReactNode
 }
 
 const factLabelClass =
@@ -24,6 +28,7 @@ const factValueClass = 'mt-1 text-sm text-fg'
 
 export const TournamentDetails = function TournamentDetails({
   tournament,
+  children,
 }: TournamentDetailsProps): JSX.Element {
   const venueName = readString(tournament.venue?.venue)
   const venueAddress = readString(tournament.venue?.address)
@@ -136,6 +141,25 @@ export const TournamentDetails = function TournamentDetails({
         >
           {registrationMessage(tournament)}
         </p>
+        {tournament.status === 'PUBLISHED' &&
+          tournament.registrationState === 'OPEN' && (
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <Link
+                to={paths.tournamentSignUp.getHref(tournament.slug)}
+                className={buttonVariants({ size: 'lg' })}
+                data-testid={TournamentSignUpTestIds.SIGN_UP_LINK}
+              >
+                {uiContent.registrations.callToAction.signUp}
+              </Link>
+              <Link
+                to={paths.accountSignUps.getHref()}
+                className="text-sm font-semibold text-primary-700 underline-offset-2 hover:underline dark:text-primary-300"
+                data-testid={TournamentSignUpTestIds.MY_SIGN_UPS_LINK}
+              >
+                {uiContent.registrations.callToAction.mySignUps}
+              </Link>
+            </div>
+          )}
       </section>
 
       {tournament.description && (
@@ -164,6 +188,7 @@ export const TournamentDetails = function TournamentDetails({
         </h2>
         <DivisionGroups divisions={tournament.divisions} />
       </section>
+      {children}
     </article>
   )
 }

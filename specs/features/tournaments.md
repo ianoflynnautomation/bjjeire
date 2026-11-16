@@ -1,10 +1,10 @@
 # Feature: Tournaments
 
-**Status**: In progress — slices 0, 1 and 2 of 6 shipped (plumbing; tournament set-up and public pages; competitor accounts and profile)
+**Status**: In progress — slices 0 to 3 of 6 shipped (plumbing; tournament set-up and public pages; competitor accounts and profile; sign-up and payment)
 **Design record**: [../001-tournament-registration/](../001-tournament-registration/spec.md) (spec, plan, tasks, data model, contracts)
-**Database**: [tournament.md](../database-contracts/tournament.md), [competitor.md](../database-contracts/competitor.md); `tournament-registration.md` is added with the sign-up slice
+**Database**: [tournament.md](../database-contracts/tournament.md), [competitor.md](../database-contracts/competitor.md), [tournament-registration.md](../database-contracts/tournament-registration.md)
 **API**: `/api/v1/tournament`, `/api/v1/competitor`, `/api/v1/registration`
-**SPA routes**: `/tournaments`, `/tournaments/:slug`, `/account/profile`, `/admin/tournaments`, `/admin/tournaments/:id`
+**SPA routes**: `/tournaments`, `/tournaments/:slug`, `/tournaments/:slug/signup`, `/tournaments/:slug/signup/complete`, `/account/profile`, `/account/signups`, `/admin/tournaments`, `/admin/tournaments/:id`
 **Feature flag**: `Tournaments`, default off
 **Acceptance**: `bjjeire-tests/specs/features/tournaments.md`
 **Requirements**: `bjjeire/requirements` · epic `&11` (`#5001`–`#5042`, provisional)
@@ -30,7 +30,7 @@ for behaviour that is not built yet. This file records what is live.
 
 How it behaves:
 
-- **Public pages.** `/tournaments` lists published, finished and cancelled tournaments, earliest day first, with name search. Each card shows the day, venue, fee in euro, number of divisions and a badge: the registration state (Not open yet, Open, Closed, Full), or Cancelled / Finished. `/tournaments/:slug` shows the details, the registration window in Irish time whatever the visitor's time zone, places taken when there is a limit, one sentence on registration, the description, and the divisions grouped by discipline and gender. A draft or unknown slug shows "Tournament Not Found" with a link back to the list. No page offers a sign-up yet; that is slice 3.
+- **Public pages.** `/tournaments` lists published, finished and cancelled tournaments, earliest day first, with name search. Each card shows the day, venue, fee in euro, number of divisions and a badge: the registration state (Not open yet, Open, Closed, Full), or Cancelled / Finished. `/tournaments/:slug` shows the details, the registration window in Irish time whatever the visitor's time zone, places taken when there is a limit, one sentence on registration, the description, and the divisions grouped by discipline and gender. A draft or unknown slug shows "Tournament Not Found" with a link back to the list. While registration is open the page offers **Sign up** and a link to My sign-ups, and below the divisions it lists the confirmed competitors (User Story 3).
 - **Registration state** is worked out by the API at each request from the window and places: before it opens `NOT_OPEN`, from opening until just before closing `OPEN` (or `FULL` when every place is taken), from the closing instant `CLOSED`. A draft, cancelled or finished tournament is always `CLOSED`.
 - **Organiser screens.** `/admin/tournaments` and `/admin/tournaments/:id` sit behind the same flag and ask for the existing organiser (workforce) sign-in before loading anything; they are not in the site navigation. The list shows every tournament with its status. The form takes name, web address name (slug), day, venue, fee in euro, registration open and close times on an Irish clock, an optional competitor limit and a description, and checks them before sending. Divisions are added with a generator: tick disciplines, genders, age categories and belts, type weight classes, and one division is added per combination, skipping any the tournament already has; rows can be removed. Save sends the full division list. Publish is available on a saved draft with at least one division and is held back while there are unsaved changes. A finished or cancelled tournament is shown read-only. In the local Docker stack the organiser signs in without a Microsoft account ([ADR-0014](../../docs/adr/0014-local-organiser-sign-in.md)).
 - **Rules the API enforces.** Slug: lowercase letters, digits and single hyphens, unique, and not `admin`. Venue name required (≤ 100), address ≤ 200, map coordinates optional but a valid `[longitude, latitude]` point when sent. Name ≤ 120, description ≤ 4000, fee ≥ 0 cents, limit ≥ 1 or none. Each division is a different combination of discipline, gender, age category, belt and weight class (weight class compared without case or outer spaces); saved divisions keep their ids. Publishing needs a division and a window that closes after it opens and by the end of the tournament day in Ireland; a published tournament must stay that way when edited. Only a draft can be published, and the publish write itself requires a division, so an edit that empties the tournament at the same moment cannot slip through. Removing a division that still has a sign-up awaiting payment or confirmed is refused with `urn:bjjeire:division-has-signups`. An edit never touches places already taken. Every organiser write is audited and clears the tournament cache, so visitors see it on the next read. An update sends the `version` it was edited from; a save from a stale copy is refused with 409 and the organiser is told to reload, and publish is refused the same way if anything changed after it checked the tournament.
@@ -56,6 +56,29 @@ How it behaves:
 - **Medals.** The page shows gold, silver and bronze totals and a table of tournaments entered with the medals won at each, or "You have not entered a tournament yet". Until results are recorded (slice 5) the API returns zero and no tournaments.
 - **Deleting the account.** "Delete my account" asks for confirmation, then removes the profile and the sign-in identity from the competitor tenant, and signs the person out. Sessions from before the deletion are refused (401) even if the tenant could not be reached; such a failure is logged for the organiser to remove the identity by hand. Signing up or in again later with the same email starts a new, empty account. While a sign-up is awaiting payment or confirmed, deletion is refused and the competitor is told to cancel it first.
 
+### User Story 3 — Competitor signs up, picks a division and pays (P1)
+
+1. Given a visitor who is not signed in, when they choose to sign up for a tournament, then they are asked to sign in or register and are returned to the sign-up afterwards (`#5013`)
+2. Given a competitor with a complete profile, when they start a sign-up, then they are offered only the divisions for their gender and belt whose minimum age they meet on the tournament day (`#5014`)
+3. Given a competitor has chosen a division, when their payment succeeds, then the sign-up is confirmed, a confirmation email is sent, and they appear in that division's public competitor list with their name and academy (`#5015`)
+4. Given a competitor has chosen a division, when the payment fails or is abandoned, then no sign-up is confirmed, no money is taken, and they can try again (`#5016`)
+5. Given a competitor already holds a confirmed sign-up in a division, when they try to sign up for the same division again, then they are refused and not charged (`#5017`)
+6. Given a tournament offers gi and no-gi, when a competitor signs up for one division in each, then each is a separate sign-up with its own fee (`#5018`)
+7. Given a competitor who will be under 18 on the tournament day, when they try to sign up, then they are refused with an explanation (`#5019`)
+8. Given a tournament that has reached its competitor limit, when another competitor tries to sign up, then they are told it is full and are not charged (`#5020`)
+9. Given a signed-in competitor, when they open "my sign-ups", then they see each sign-up with its tournament, division, amount paid and status (`#5021`)
+10. Given a competitor already has two unpaid sign-ups in a tournament, when they start a third, then they are refused and told to finish or cancel one first (`#5042`)
+
+How it behaves:
+
+- **Starting.** `/tournaments/:slug/signup` asks a signed-out visitor to sign in over the same page (`#5013`). It then asks the API which divisions the competitor may enter: same gender and belt, and an age on the tournament day (Irish date) of at least the category's minimum (Adult 18, Master 1 30, Master 2 36, Master 3 41, Master 4 46, Master 5 51); an older competitor may enter a younger category. Outside the registration window the API offers no division (409 `registration-not-open`). An incomplete profile gets a link to complete it, someone under 18 on the day is told they cannot enter, and a closed tournament offers nothing; a full one says it is full. The competitor picks one division, sees the fee, and must tick both "my name, academy, affiliation and division are listed publicly" and "I accept the terms of entry, including the liability waiver" (FR-012); the API accepts only the JSON value `true` for each (not `"true"` or `1`) and records when each was given.
+- **Holding and paying.** Continuing takes a place for 30 minutes (Stripe's shortest Checkout expiry) and sends the competitor to Stripe's hosted Checkout page for the tournament's fee; the API never takes an amount from the browser, and keeps the fee charged even if the organiser changes it later. A competitor may hold at most two unpaid sign-ups in one tournament, even when several sign-ups start at once (`#5042`), one active sign-up per division (`#5017`, enforced by a unique index), and a separate paid sign-up for each division they enter (`#5018`). A full tournament (`#5020`), a refused division, or Stripe being unreachable (502 `payment-unavailable`) charge nothing and give the place back. Two competitors racing for the last place: exactly one gets it.
+- **Confirmation.** Only Stripe's signed webhook confirms a sign-up (ADR-0013): returning to the site does not. `/tournaments/:slug/signup/complete` checks the sign-up every 2 seconds for about a minute and shows "You are signed up", "Waiting for your payment" (with a way back to the same payment page), or "Payment not completed" with "Try again". On confirmation the competitor gets an email and appears in the division's public list (`#5015`). A competitor who leaves Checkout without paying lands back on the sign-up page, is told nothing was charged, and can reopen the same payment page while the place is held: one sign-up never has two payable Checkout pages (`#5016`). The hold ends when Stripe reports the session expired, or at the latest when the minute-by-minute sweep finds it lapsed and Stripe confirms the session was not paid; the place is then given back. If Stripe says the session was paid but no webhook has confirmed it, the place stays held and the organiser is alerted (`registration.payment.unconfirmed`); "Pay now" then tells the competitor their payment was received instead of reopening Stripe's finished page. A payment that arrives after its hold lapsed is confirmed if a place is still free, otherwise refunded in full automatically with an email, and the sign-up ends cancelled. A payment started while registration was open is honoured even if it completes after the window closes. Stripe's page itself stays open 2 minutes past the hold, because Stripe counts its 30-minute minimum from when it opens the page; a payment in those minutes is a late payment. If the late refund fails it is recorded as refund pending and raised for the organiser. The return page tells a competitor whose late payment was refunded that it was refunded in full. Without real Stripe keys (the public `REPLACE_ME` placeholders) no sign-up can start (502) and the webhook refuses every call (503).
+- **Competitor list.** The tournament page lists confirmed competitors by division with name, academy (or "No academy") and affiliation only (FR-011). Nobody awaiting payment is listed.
+- **My sign-ups.** `/account/signups` lists every sign-up, newest first, with tournament, day, division, amount, and status (Awaiting payment, Confirmed, Cancelled, Expired, not paid), any refund, and "Pay now" for an unpaid one whose hold lasts (`#5021`).
+- **Profile changes.** Saving a new name, academy or affiliation updates the competitor's active sign-ups in tournaments still running. Changing belt or gender keeps the division and flags the sign-up for the organiser.
+- **Mail.** Sign-up mail is sent after the change is saved, on its own thread, with three attempts; a failure is counted (`registration.mail.failures`) and never undoes the sign-up. Locally it goes to Mailpit ([docs/stripe-local.md](../../docs/stripe-local.md)).
+
 ### User Story 6 — Existing directory stays open and read-only (P1)
 
 1. Given a visitor who is not signed in, when they browse gyms, events, competitions and stores, then everything works as before and they are never required to sign in (`#5036`)
@@ -66,23 +89,23 @@ How it behaves:
 
 | Routes | Who |
 |---|---|
-| `GET /api/v1/tournament`, `/{slug}` (live); `/{id}/competitor`, `/{id}/leaderboard` (later slices) | anyone |
+| `GET /api/v1/tournament`, `/{slug}`, `/{id}/competitor` (live); `/{id}/leaderboard` (slice 5) | anyone |
 | `GET /api/v1/tournament/admin`, `/admin/{id}`, `POST /api/v1/tournament`, `PUT /{id}`, `POST /{id}/publish` (live); `/{id}/registration` and other tournament writes (later slices) | admin (workforce token, `access_as_writer`) |
-| `GET`, `PUT`, `DELETE /api/v1/competitor/me`, `GET /me/history` (live); `/api/v1/registration/**`, `GET /api/v1/tournament/{id}/eligible-division` (later slices) | signed-in competitor (competitor-tenant token, `access_as_competitor`), acting on their own profile only; a deleted account's tokens are refused |
-| `POST /api/v1/registration/stripe-webhook` | no bearer token; Stripe signature (to be verified in the controller) |
+| `GET`, `PUT`, `DELETE /api/v1/competitor/me`, `GET /me/history`, `GET /api/v1/tournament/{id}/eligible-division`, `POST /api/v1/registration`, `POST /api/v1/registration/{id}/checkout`, `GET /api/v1/registration/me` (live); cancel and change division (slice 4) | signed-in competitor (competitor-tenant token, `access_as_competitor`), acting on their own profile and sign-ups only (another competitor's sign-up is 403); a deleted account's tokens are refused |
+| `POST /api/v1/registration/stripe-webhook` | no bearer token; the `Stripe-Signature` header is verified over the raw body (bad or missing: 400, nothing changes); each event is applied once; hidden from the published OpenAPI; a method other than POST answers 405 |
 
 The admin is not a competitor: the writer scope opens no competitor route.
 
 ## Changes outside the tournament feature
 
-- Every route, directory included, now answers a body that is not JSON, or holds a value its field cannot take, with 400 `urn:bjjeire:bad-request`, and a method the route does not have with 405 `urn:bjjeire:method-not-allowed`. Both used to fall through to a 500 with an `errorId`. A valid request behaves as before, and in production read-only mode still answers directory writes with 405 first.
+- Every route, directory included, now answers a body that is not JSON (malformed, or sent as text, XML or a form), or holds a value its field cannot take, with 400 `urn:bjjeire:bad-request`, and a method the route does not have with 405 `urn:bjjeire:method-not-allowed`. Both used to fall through to a 500 with an `errorId`. A valid request behaves as before, and in production read-only mode still answers directory writes with 405 first.
 
 ## Requirements
 
 - **FR-001**: The organiser creates a tournament with name, date, venue, description, entry fee in euro, registration open and close times, and an optional limit on total competitors.
 - **FR-002**: The organiser defines the divisions, each a combination of gi or no-gi, gender, age category, belt and weight class.
 - **FR-003**: A tournament is a draft, hidden from the public, until the organiser publishes it.
-- **FR-004** (in part): Published tournaments and their divisions are viewable by anyone without an account. Competitor lists and leaderboards come with later slices.
+- **FR-004** (in part): Published tournaments, their divisions and competitor lists are viewable by anyone without an account. Leaderboards come with slice 5.
 - **FR-005** (in part): Only the organiser can create, edit and publish tournaments. Cancelling a tournament and recording results come with later slices.
 
 - **FR-008**: Members of the public register, confirm their email, sign in, sign out and reset a forgotten password, on the competitor tenant's hosted pages.
@@ -91,6 +114,13 @@ The admin is not a competitor: the writer scope opens no competitor route.
 - **FR-011** (in part): A profile is visible only to its owner. There is no public profile page. (The organiser's view of competitors comes with the sign-up tools, slice 4.)
 - **FR-013** (in part): A competitor can delete their account; the profile is removed and the identity can no longer sign in. Keeping payment records for six years applies from the sign-up slices.
 - **FR-039** (in part): The profile shows medal totals and tournaments entered; empty until results exist.
+- **FR-012**: Competitors are told their name, academy, affiliation and division will be listed publicly, and accept that and the terms of entry with the liability waiver before paying; the time of each acceptance is recorded.
+- **FR-015** to **FR-018**: A signed-in competitor with a complete profile signs up for a division of a published tournament while registration is open; only eligible divisions are offered; anyone under 18 on the day is refused; a sign-up is confirmed only after the fee is paid online, and the full amount is shown first.
+- **FR-019**: A place is held for 30 minutes while the competitor pays and released if payment is not completed.
+- **FR-020** to **FR-022**, **FR-041**: One active sign-up per competitor per division, never charged twice; separate paid sign-ups per division; never beyond the competitor limit; at most two unpaid sign-ups per competitor per tournament.
+- **FR-023**: No card details are stored; payment is on Stripe's hosted page.
+- **FR-024** (in part): Mail on confirmation, and on the automatic refund of a payment that found no place. Cancellation and tournament-cancellation mail come with slice 4.
+- **FR-025**: Competitors see all their sign-ups with tournament, division, amount and status.
 - **FR-014**: Competitor accounts grant no ability to change gyms, events, competitions or stores. A competitor-tenant token is granted only the competitor role; its scopes and roles never become authorities.
 - **FR-037**: Gyms, events, competitions and stores remain browsable without an account, with unchanged behaviour.
 - **FR-038**: The tournament and account features switch off as a whole. With the flag off every tournament, competitor and registration route answers 404 before authentication, and the SPA shows no entry point.
@@ -98,7 +128,8 @@ The admin is not a competitor: the writer scope opens no competitor route.
 
 ## Not built yet
 
-User stories 3–5 (`#5013`–`#5035`, `#5040`–`#5042`): sign-up and payment,
-cancellation and refunds, results and leaderboard. Medal history fills in with
+User stories 4–5 (`#5022`–`#5035`, `#5040`–`#5041`): cancellation, refunds
+and division changes, organiser sign-up tools, results and leaderboard.
+Refund webhooks (refund succeeded or failed) come with slice 4. Medal history fills in with
 results (slice 5). Cancelling and finishing a tournament also come with those slices. See
 [tasks.md](../001-tournament-registration/tasks.md).

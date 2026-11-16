@@ -60,11 +60,10 @@ desktop.ini
 *.rej
 
 # Local environment and secrets
+# Every .env file in any directory, except the committed templates.
 .env
-.env.local
-.env.development
-.env.test
-.env.production
+.env.*
+!.env.example
 secrets/
 certs/
 *.secret

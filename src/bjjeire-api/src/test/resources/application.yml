@@ -27,3 +27,11 @@ bjjeire:
   # TournamentFeatureOffIT (its own context) and TournamentFeatureGateFilterTest.
   feature-flags:
     Tournaments: true
+  # Sign-up (slice 3). RegistrationIntegrationTest.WEBHOOK_SECRET must match. Stripe and mail are recording
+  # fakes in MongoIntegrationTest; the hold sweep is called directly, never on a timer.
+  stripe:
+    secret-key: sk_test_integration
+    webhook-secret: whsec_integration_test_secret
+    success-url-base: http://localhost:5173
+  registration:
+    hold-sweep-initial-delay: PT24H

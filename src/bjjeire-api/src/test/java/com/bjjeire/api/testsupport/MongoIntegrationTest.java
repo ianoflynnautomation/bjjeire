@@ -8,6 +8,8 @@ import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.StripeEvent;
+import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.tournament.Tournament;
 import java.time.Clock;
@@ -85,6 +87,12 @@ public abstract class MongoIntegrationTest {
     @Autowired
     protected RecordingIdentityDirectory identityDirectory;
 
+    @Autowired
+    protected RecordingPaymentGateway paymentGateway;
+
+    @Autowired
+    protected RecordingMailer mailer;
+
     @LocalServerPort
     private int port;
 
@@ -110,12 +118,12 @@ public abstract class MongoIntegrationTest {
                 Tournament.class,
                 Competitor.class,
                 DeletedCompetitor.class,
+                TournamentRegistration.class,
+                StripeEvent.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
             mongoTemplate.remove(new Query(), entityType);
         }
-        // Sign-ups have no Java type yet; tournament tests write them by collection name.
-        mongoTemplate.remove(new Query(), "TournamentRegistration");
         for (String tag : List.of(
                 ApiCache.GYMS_TAG,
                 ApiCache.BJJ_EVENTS_TAG,
@@ -125,6 +133,8 @@ public abstract class MongoIntegrationTest {
             apiCache.removeByTag(tag);
         }
         identityDirectory.reset();
+        paymentGateway.reset();
+        mailer.reset();
     }
 
     /** A competitor token for the competitor whose subject is {@code subject}. It carries no {@code iat}. */
@@ -185,6 +195,18 @@ public abstract class MongoIntegrationTest {
         @Primary
         RecordingIdentityDirectory recordingIdentityDirectory() {
             return new RecordingIdentityDirectory();
+        }
+
+        @Bean
+        @Primary
+        RecordingPaymentGateway recordingPaymentGateway() {
+            return new RecordingPaymentGateway();
+        }
+
+        @Bean
+        @Primary
+        RecordingMailer recordingMailer() {
+            return new RecordingMailer();
         }
 
         @Bean

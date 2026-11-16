@@ -15,10 +15,12 @@ Contracts: `specs/database-contracts/`.
 | `Tournament` | `tournament.Tournament` | `seeder/data-test/tournaments/` only |
 | `Competitor` | `competitor.Competitor` | (runtime; no seed) |
 | `DeletedCompetitor` | `competitor.DeletedCompetitor` | (runtime; no seed) |
+| `TournamentRegistration` | `registration.TournamentRegistration` | (runtime; no seed yet) |
+| `StripeEvent` | `registration.StripeEvent` | (runtime; 30-day TTL) |
 | `AuditLog` | `audit.AuditLogEntry` | (runtime) |
 
-In-house tournaments will also add `TournamentRegistration` and `StripeEvent`
-(`specs/001-tournament-registration/data-model.md`); add each row here with the slice that creates it.
+The tournament collections are described in `specs/database-contracts/`
+(`tournament.md`, `competitor.md`, `tournament-registration.md`).
 
 Test environments seed from `seeder/data-test/` as well as `seeder/data/`. `Tournament` has no
 production seed, so a production seeder run skips it entirely, prune included.

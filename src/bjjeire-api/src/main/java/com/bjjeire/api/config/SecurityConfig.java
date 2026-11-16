@@ -125,7 +125,9 @@ public class SecurityConfig {
                             .permitAll()
                             // Tournament feature (ADR-0012, ADR-0013). Order matters: the first match wins, and
                             // everything not named here falls through to the writer-only rules below.
-                            .requestMatchers(HttpMethod.POST, ApiRoutes.STRIPE_WEBHOOK)
+                            // Every method, so a method the route lacks answers 405, not 401. Only POST is mapped,
+                            // and its controller verifies the Stripe signature.
+                            .requestMatchers(ApiRoutes.STRIPE_WEBHOOK)
                             .permitAll()
                             .requestMatchers(ApiRoutes.COMPETITOR + "/**", ApiRoutes.REGISTRATION + "/**")
                             .access(competitorAccount)

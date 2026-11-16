@@ -22,6 +22,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.method.ParameterValidationResult;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -99,6 +100,18 @@ public class ApiExceptionHandler {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST,
                 "The request body is missing, is not valid JSON, or holds a value of the wrong type.");
+        detail.setType(ProblemTypes.BAD_REQUEST);
+        detail.setTitle("Bad Request");
+        attachTraceId(detail, request);
+        return ResponseEntity.badRequest().body(detail);
+    }
+
+    /** A body sent as anything but JSON: text, XML or a form. Was a 500 with an errorId. */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ProblemDetail> handleUnsupportedMediaType(
+            HttpMediaTypeNotSupportedException exception, HttpServletRequest request) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "The request body must be JSON, sent as Content-Type application/json.");
         detail.setType(ProblemTypes.BAD_REQUEST);
         detail.setTitle("Bad Request");
         attachTraceId(detail, request);

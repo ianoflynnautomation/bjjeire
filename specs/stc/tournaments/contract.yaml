@@ -145,7 +145,7 @@ routes:
     path: /api/v1/tournament/{id}/eligible-division
     auth: competitor
     response: DivisionDto[]
-    conflicts: [profile-incomplete, under-18]
+    conflicts: [registration-not-open, profile-incomplete, under-18]
     covers: ["#5014", "#5019"]
   - method: POST
     path: /api/v1/registration
@@ -153,12 +153,14 @@ routes:
     request: CreateRegistrationCommand   # tournamentId, divisionId, acceptPublicListing, acceptTerms
     response: 201 RegistrationCheckoutDto   # registrationId, checkoutUrl, holdExpiresAt
     conflicts: [registration-not-open, not-eligible, under-18, already-registered, tournament-full, profile-incomplete, too-many-unpaid]
+    errors: [502 payment-unavailable]   # Stripe unreachable; the place is given back
     notes: too-many-unpaid when the caller already has two AWAITING_PAYMENT registrations in this tournament
     covers: ["#5015", "#5017", "#5018", "#5019", "#5020", "#5042"]
   - method: POST
     path: /api/v1/registration/{id}/checkout
     auth: competitor (owner)
-    response: RegistrationCheckoutDto   # fresh checkout URL while the hold is valid
+    response: RegistrationCheckoutDto   # the open checkout URL again while the hold is valid; never a second session
+    conflicts: [hold-expired, payment-received]   # payment-received: Stripe already took the money; the webhook confirms
     covers: ["#5016"]
   - method: GET
     path: /api/v1/registration/me

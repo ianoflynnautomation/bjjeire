@@ -176,7 +176,98 @@ This slice serves `GET /api/v1/competitor/me/history` with zero totals and no to
 
 **Owns**: T2 `CompetitorDeletionIT` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`); T4 `profile-page.integration.test.tsx`; T2 `CompetitorHistoryIT` with slice 5.
 
-### `#5013`–`#5035`, `#5040`–`#5042` — not built
+### `#5013` — A visitor is asked to sign in and returns to the sign-up (P1)
+
+Given a visitor who is not signed in,
+When they choose Sign up on a tournament whose registration is open,
+Then `/tournaments/:slug/signup` asks them to sign in or register over the same page, and shows the sign-up once they have,
+And a competitor whose profile is incomplete is sent to complete it first.
+
+**Owns**: T4 `sign-up-page.integration.test.tsx`, `tournament-page.integration.test.tsx`; T6 planned.
+
+### `#5014` — Only eligible divisions are offered (P1)
+
+Given a competitor with a complete profile,
+When they start a sign-up,
+Then only divisions with their gender and belt, whose age category minimum (Adult 18, Master 1 30, Master 2 36, Master 3 41, Master 4 46, Master 5 51) they reach on the tournament day in Ireland, are offered,
+And a sign-up for any other division is 409 `urn:bjjeire:not-eligible`.
+
+**Owns**: T1 `EligibilityTest`; T2 `RegistrationIT`; T0 `registration.pact.test.ts`; T4 `sign-up-page.integration.test.tsx`; T6 planned.
+
+### `#5015` — A paid sign-up is confirmed, mailed and listed (P1)
+
+Given a competitor has chosen a division and accepted both the public listing and the terms of entry,
+When Stripe reports their Checkout session paid through the signed webhook,
+Then the sign-up moves to `CONFIRMED` with payment `PAID`, one confirmation mail is sent, and they appear in that division's public list with name, academy and affiliation only,
+And the amount charged is the tournament's fee when the sign-up started, never a value from the browser,
+And the same event delivered again changes nothing, and a bad or missing signature is 400 and changes nothing.
+
+**Owns**: T1 `RegistrationMailSenderTest`; T2 `RegistrationIT`, `StripeWebhookIT`, `PublicCompetitorListIT`; T0 `registration.pact.test.ts`; T4 `sign-up-page`, `sign-up-complete-page`, `tournament-page` integration tests; T6 planned (Stripe test mode).
+
+### `#5016` — A failed or abandoned payment confirms nothing and can be retried (P1)
+
+Given a competitor has chosen a division,
+When they leave Checkout without paying, or the session expires,
+Then the sign-up is not confirmed and nothing is charged,
+And while the 30-minute hold lasts they can reopen the same Checkout page (never a second one),
+And when the session expires, or the sweep finds the hold lapsed, the sign-up becomes `EXPIRED` and its place is given back exactly once,
+And they can start a new sign-up for the division.
+
+**Owns**: T2 `StripeWebhookIT`, `RegistrationOwnershipIT`, `HoldSweepIT`, `RegistrationIT`; T4 `sign-up-page`, `sign-up-complete-page`, `my-sign-ups-page` integration tests; T6 planned.
+
+### `#5017` — No second active sign-up in the same division (P1)
+
+Given a competitor already holds a sign-up awaiting payment or confirmed in a division,
+When they sign up for the same division again, however many times at once,
+Then they are refused with 409 `urn:bjjeire:already-registered`, no Checkout is created and no place is kept.
+
+**Owns**: T2 `RegistrationIT`, `RegistrationConcurrencyIT` (`ux_registration_active_competitor_division`).
+
+### `#5018` — Gi and no-gi are separate sign-ups (P1)
+
+Given a tournament offers gi and no-gi divisions,
+When a competitor signs up for one of each,
+Then each is its own sign-up, with its own Checkout and fee.
+
+**Owns**: T2 `RegistrationIT`.
+
+### `#5019` — Nobody under 18 on the tournament day (P1)
+
+Given a competitor who will be under 18 on the tournament day,
+When they ask for divisions or try to sign up,
+Then they are refused with 409 `urn:bjjeire:under-18` and an explanation, including on the day before their 18th birthday.
+
+**Owns**: T1 `EligibilityTest`; T2 `RegistrationIT`; T4 `sign-up-page.integration.test.tsx`; T6 planned.
+
+### `#5020` — A full tournament takes no more sign-ups (P1)
+
+Given a tournament whose places are all held or confirmed,
+When another competitor tries to sign up,
+Then they are refused with 409 `urn:bjjeire:tournament-full` and not charged,
+And of several competitors racing for the last place exactly one gets it,
+And a payment that arrives after its hold lapsed with no place left is refunded in full and the sign-up ends `CANCELLED`.
+
+**Owns**: T2 `RegistrationIT`, `RegistrationConcurrencyIT`, `StripeWebhookIT`; T4 `sign-up-page.integration.test.tsx`.
+
+### `#5021` — A competitor sees their own sign-ups (P1)
+
+Given a signed-in competitor,
+When they open My sign-ups,
+Then each of their sign-ups shows its tournament, division, amount and status, newest first,
+And they see no one else's, and another competitor's sign-up id is 403 on every route that takes one.
+
+**Owns**: T2 `RegistrationOwnershipIT`; T0 `registration.pact.test.ts`; T4 `my-sign-ups-page.integration.test.tsx`; T6 planned.
+
+### `#5042` — At most two unpaid sign-ups per tournament (P1)
+
+Given a competitor already has two sign-ups awaiting payment in a tournament,
+When they start a third,
+Then they are refused with 409 `urn:bjjeire:too-many-unpaid` and not charged,
+And once one is paid, expired or cancelled they may start another.
+
+**Owns**: T2 `RegistrationIT`; T4 `sign-up-page.integration.test.tsx`.
+
+### `#5022`–`#5035`, `#5040`–`#5041` — not built
 
 Defined in the Spec Kit spec. Each moves here with the slice that builds it.
 

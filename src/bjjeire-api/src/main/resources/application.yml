@@ -37,7 +37,7 @@ bjjeire:
     writer-scope: ${BJJ_EIRE_WRITER_SCOPE:access_as_writer}
   # Tournament registration (specs/001-tournament-registration, ADR-0012, ADR-0013). The all-zero
   # tenant and the REPLACE_ME keys are placeholders. competitor-auth is read by SecurityConfig;
-  # stripe is not read until sign-up is built.
+  # stripe, mail and registration by the registration package.
   competitor-auth:
     issuer-uri: ${COMPETITOR_ISSUER_URI:https://00000000-0000-0000-0000-000000000000.ciamlogin.com/00000000-0000-0000-0000-000000000000/v2.0}
     audiences:
@@ -58,6 +58,17 @@ bjjeire:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}
+    # The site's origin: Checkout returns the competitor to /tournaments/<slug>/signup[/complete] under it.
+    success-url-base: ${STRIPE_SUCCESS_URL_BASE:https://bjjeire.com}
+  # Research R6. The SMTP server is Spring Boot's spring.mail.* (SPRING_MAIL_HOST, SPRING_MAIL_PORT,
+  # SPRING_MAIL_USERNAME, SPRING_MAIL_PASSWORD). Without SPRING_MAIL_HOST sign-up mail is logged, not sent.
+  mail:
+    from: ${MAIL_FROM:no-reply@bjjeire.com}
+  # FR-019: a place is held for 30 minutes while the competitor pays, Stripe Checkout's shortest expiry.
+  registration:
+    hold: ${REGISTRATION_HOLD:PT30M}
+    hold-sweep-initial-delay: ${REGISTRATION_HOLD_SWEEP_INITIAL_DELAY:PT1M}
+    hold-sweep-interval: ${REGISTRATION_HOLD_SWEEP_INTERVAL:PT1M}
   # ADR-0014: organiser sign-in without Entra, for local development only. The API refuses to start with
   # this on unless the 'local' profile is active. docker-compose.override.java-local.yml turns it on.
   local-sign-in:

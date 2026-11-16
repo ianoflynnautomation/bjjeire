@@ -50,7 +50,13 @@ class CompetitorServiceTest {
     @Tag("#5012")
     void shouldRemoveAProfileSavedWhileTheAccountWasBeingDeleted() {
         CompetitorServiceImpl service = new CompetitorServiceImpl(
-                mongoTemplate, auditInfoProvider, auditRecorder, identityDirectory, new SimpleMeterRegistry());
+                mongoTemplate,
+                auditInfoProvider,
+                auditRecorder,
+                identityDirectory,
+                new SimpleMeterRegistry(),
+                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                event -> {});
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
         given(mongoTemplate.exists(any(Query.class), eq(DeletedCompetitor.class)))
                 .willReturn(true);
@@ -78,7 +84,13 @@ class CompetitorServiceTest {
     @Tag("#5012")
     void shouldRefuseRatherThanFailWhenTheProfileVanishedAfterTheSave() {
         CompetitorServiceImpl service = new CompetitorServiceImpl(
-                mongoTemplate, auditInfoProvider, auditRecorder, identityDirectory, new SimpleMeterRegistry());
+                mongoTemplate,
+                auditInfoProvider,
+                auditRecorder,
+                identityDirectory,
+                new SimpleMeterRegistry(),
+                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                event -> {});
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
 
         assertThatThrownBy(() -> service.saveOwn(CALLER, command()))
@@ -97,7 +109,13 @@ class CompetitorServiceTest {
     @Tag("#5012")
     void shouldRemoveByIdentityAfterRevokingSoARacingFirstSaveIsNotLeftBehind() {
         CompetitorServiceImpl service = new CompetitorServiceImpl(
-                mongoTemplate, auditInfoProvider, auditRecorder, identityDirectory, new SimpleMeterRegistry());
+                mongoTemplate,
+                auditInfoProvider,
+                auditRecorder,
+                identityDirectory,
+                new SimpleMeterRegistry(),
+                org.mockito.Mockito.mock(com.bjjeire.api.tournament.TournamentService.class),
+                event -> {});
         given(mongoTemplate.findAndModify(
                         any(Query.class),
                         any(Update.class),

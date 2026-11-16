@@ -24,6 +24,15 @@ services:
       FEATURE_GYMS_MAP: ${FEATURE_GYMS_MAP:-true}
       FEATURE_EVENTS_MAP: ${FEATURE_EVENTS_MAP:-true}
       FEATURE_TOURNAMENTS: ${FEATURE_TOURNAMENTS:-false}
+      # ADR-0013: Stripe test mode. Forward events with the Stripe CLI and put the secret it prints in
+      # STRIPE_WEBHOOK_SECRET (docs/stripe-local.md). Checkout returns the competitor to the local SPA.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_REPLACE_ME}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_REPLACE_ME}
+      STRIPE_SUCCESS_URL_BASE: ${STRIPE_SUCCESS_URL_BASE:-http://localhost:3000}
+      # Research R6: sign-up mail goes to Mailpit; read it at http://127.0.0.1:8025.
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
+      MAIL_FROM: ${MAIL_FROM:-no-reply@bjjeire.local}
       # ADR-0014: organiser sign-in without Entra. Accepted only under the 'local' profile above.
       LOCAL_SIGN_IN_ENABLED: ${LOCAL_SIGN_IN_ENABLED:-true}
       LOCAL_SIGN_IN_SECRET: ${LOCAL_SIGN_IN_SECRET:-local-development-only-not-a-real-secret}
@@ -77,6 +86,16 @@ services:
     profiles:
       - seed
     restart: "no"
+
+  # Local mail catcher for sign-up mail (research R6). SMTP on the compose network only; web UI on loopback.
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    container_name: mailpit
+    profiles: ["app"]
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks:
+      - bjj-network
 
   mongodb:
     profiles: !override ["app", "seed"]

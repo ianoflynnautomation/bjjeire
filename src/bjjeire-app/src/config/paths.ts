@@ -34,6 +34,18 @@ export const paths = {
     label: 'Tournament',
     getHref: (slug: string) => `/tournaments/${encodeURIComponent(slug)}`,
   },
+  tournamentSignUp: {
+    path: '/tournaments/:slug/signup',
+    label: 'Sign up',
+    getHref: (slug: string, registrationId?: string) =>
+      `/tournaments/${encodeURIComponent(slug)}/signup${registrationId ? `?registration=${encodeURIComponent(registrationId)}` : ''}`,
+  },
+  tournamentSignUpComplete: {
+    path: '/tournaments/:slug/signup/complete',
+    label: 'Sign-up payment',
+    getHref: (slug: string, registrationId: string) =>
+      `/tournaments/${encodeURIComponent(slug)}/signup/complete?registration=${encodeURIComponent(registrationId)}`,
+  },
   adminTournaments: {
     path: '/admin/tournaments',
     label: 'Manage tournaments',
@@ -48,6 +60,11 @@ export const paths = {
     path: '/account/profile',
     label: 'My profile',
     getHref: () => '/account/profile',
+  },
+  accountSignUps: {
+    path: '/account/signups',
+    label: 'My sign-ups',
+    getHref: () => '/account/signups',
   },
   about: {
     path: '/about',

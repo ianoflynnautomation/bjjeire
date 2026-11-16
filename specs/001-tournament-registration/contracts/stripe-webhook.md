@@ -17,12 +17,21 @@ Made when a competitor starts or retries a sign-up.
 | `client_reference_id` | registration id |
 | `metadata` | `registrationId`, `tournamentId`, `divisionId` |
 | `customer_email` | competitor's email |
-| Expiry | `holdExpiresAt` (30 minutes) |
+| Expiry | `holdExpiresAt` + 2 minutes: Stripe's 30-minute minimum counts from when it creates the session, a moment after the hold starts. A payment completed in the margin is handled as a late payment |
 | Success URL | `/tournaments/:slug/signup/complete?registration=<id>` |
 | Cancel URL | `/tournaments/:slug/signup?registration=<id>` |
 | Idempotency key | `checkout-<registrationId>-<attempt>` |
 
 The API never sends the amount it was given by the browser; it reads the fee from the tournament.
+
+## Outbound: retrieve Checkout Session
+
+Never confirms anything; only the webhook does. Asked in two places:
+
+| Where | Session is paid or processing | Session is open or expired | Stripe cannot be reached |
+|---|---|---|---|
+| "Return to payment" (`POST /registration/{id}/checkout`) | 409 `payment-received`; no link to the finished page | the open page again (or 409 `hold-expired` once the hold ended) | the open page again |
+| Hold sweep, once the hold and the 2-minute margin have passed | the hold is kept, `payment.unconfirmedAlertedAt` set, one `ALERT` and `registration.payment.unconfirmed` | the sign-up expires and its place is given back | the hold is kept; the next sweep asks again |
 
 ## Outbound: create refund
 
@@ -37,8 +46,8 @@ The registration's refund is `PENDING` until Stripe reports the outcome.
 
 ## Inbound: `POST /api/v1/registration/stripe-webhook`
 
-- **Authentication**: `Stripe-Signature` header verified against `STRIPE_WEBHOOK_SECRET` over the raw request body, with the SDK's default timestamp tolerance. No bearer token. A bad or missing signature returns 400 and changes nothing.
-- **Idempotency**: the event id is inserted into `StripeEvent` first. A duplicate insert means the event was already handled; return 200.
+- **Authentication**: `Stripe-Signature` header verified against `STRIPE_WEBHOOK_SECRET` over the raw request body, with the SDK's default timestamp tolerance. No bearer token. A bad or missing signature returns 400 and changes nothing. While the secret is blank or the public `REPLACE_ME` placeholder every call returns 503, and checkout refuses to start (502) while `STRIPE_SECRET_KEY` is.
+- **Idempotency**: the event id is inserted into `StripeEvent` first and marked `handled` only after its change is saved. A redelivery of a handled event returns 200 and changes nothing; one left unhandled (a failure, or a pod that died part way) is applied again. Every handler is guarded on the sign-up's status, so applying twice changes nothing.
 - **Response**: 200 once the state change is saved. Any failure returns 5xx so Stripe retries. Unknown event types return 200 and are ignored.
 - **Filters**: exempt from read-only mode; counted by the rate limiter per source like any other route; gated by the `Tournaments` flag.
 

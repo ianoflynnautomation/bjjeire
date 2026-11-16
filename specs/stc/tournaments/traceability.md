@@ -7,6 +7,57 @@ listed here are not built yet.
 Paths below are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/`
 (API) or `src/bjjeire-app/src/` (SPA) unless they start with a repository name.
 
+## Slice 3 — User Story 3, sign-up, payment and competitor list
+
+| Issue | Layer | Test path | Implementation path |
+|---|---|---|---|
+| `#5013` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (signed out: sign-in over the page, divisions load after; incomplete profile → link to `/account/profile`) | `pages/SignUpPage`, `features/competitor/components/competitor-sign-in-gate.tsx` |
+| `#5013` | T4 SPA | `pages/__tests__/tournament-page.integration.test.tsx` (open: sign-up link; full: none) | `features/tournaments/components/tournament-details.tsx` |
+| `#5013` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5014` | T1 unit | `competitor/EligibilityTest.java` (gender and belt; 40-year-old gets Adult, Master 1, Master 2; minimum-age birthday) | `competitor/Eligibility` |
+| `#5014` | T2 IT | `registration/RegistrationIT.java` (`shouldOfferOnlyTheDivisionsTheCompetitorMayEnter`, `shouldRefuseADivisionForAnotherBeltOrGender`, `shouldRefuseAnOlderAgeCategoryThanTheCompetitorReaches`) | `competitor/EligibleDivisionController`, `CompetitorServiceImpl.getEligibleDivisions`, `registration/RegistrationServiceImpl.create` |
+| `#5014` | T0 Pact | `contracts/pact/registration.pact.test.ts`; provider state in `web/PactProviderVerificationIT.java` | `features/registrations/api/registration-api.ts` |
+| `#5014` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (only eligible divisions, fee) | `features/registrations/components/sign-up-form.tsx` |
+| `#5014` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5015` | T2 IT | `registration/RegistrationIT.java` (`shouldTakeAPlaceAndReturnACheckoutUrlWhenASignUpStarts`, `shouldSendStripeTheTournamentsFeeNeverAClientValue`, `shouldKeepThePriceAlreadyPaidWhenTheOrganiserChangesTheFee`) | `RegistrationServiceImpl.create`, `StripePaymentGateway` |
+| `#5015` | T2 IT | `registration/StripeWebhookIT.java` (`shouldConfirmTheSignUpAndSendOneMailWhenThePaymentSucceeds`, `shouldChangeNothingWhenTheSameEventArrivesTwice`, `shouldNotConfirmTwiceWhenStripeSendsADifferentEventForTheSamePayment`, `shouldConfirmAPaymentStartedWhileRegistrationWasOpenEvenAfterItCloses`, `shouldConfirmALatePaymentWhenAPlaceIsStillFree`, `shouldRefuseAMissingOrBadSignatureAndChangeNothing`, `shouldApplyStripesRetryWhenTheFirstDeliveryFailed`, `shouldApplyAnEventWhoseEarlierDeliveryWasRecordedButNeverFinished`, `shouldConfirmWhenADelayedPaymentSucceedsAndNotBefore`); `StripeConfigurationTest` (placeholder secrets refuse webhooks and checkout) | `StripeWebhookController`, `StripeWebhookServiceImpl`, `RegistrationServiceImpl.onCheckoutPaid`, `StripeEvent` |
+| `#5015` | T2 IT | `registration/PublicCompetitorListIT.java` (confirmed only, by division; no private field in the JSON; listed straight after confirmation; draft 404) | `TournamentCompetitorController`, `RegistrationServiceImpl.getListedCompetitors` |
+| `#5015` | T1 unit | `registration/RegistrationMailSenderTest.java` (three attempts then counted; queued after the save) | `RegistrationMailSender`, `RegistrationMails`, `SmtpMailer` |
+| `#5015` | T0 Pact | `contracts/pact/registration.pact.test.ts` (create, competitor list) | `features/registrations/api/registration-api.ts` |
+| `#5015` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (consents required, leaves for Checkout, non-Stripe address refused), `sign-up-complete-page.integration.test.tsx` (confirmed; waits for the webhook), `tournament-page.integration.test.tsx` (competitor list) | `pages/SignUpPage`, `pages/SignUpCompletePage`, `features/registrations/components/tournament-competitors.tsx`, `utils/checkout-redirect.ts` |
+| `#5015` | T6 | `bjjeire-tests` (planned; Stripe test mode) | running images |
+| `#5016` | T2 IT | `registration/StripeWebhookIT.java` (`shouldExpireTheSignUpAndGiveThePlaceBackWhenTheCheckoutExpires`, `shouldExpireTheSignUpWhenADelayedPaymentFails`) | `RegistrationServiceImpl.onCheckoutExpired` |
+| `#5016` | T2 IT | `registration/RegistrationOwnershipIT.java` (`shouldGiveTheOwnerTheOpenCheckoutAgainWhileTheHoldLasts`, `shouldRefuseToResumeACheckoutWhoseHoldHasEnded`), `RegistrationIT.shouldGiveThePlaceBackWhenStripeCannotBeReached` | `RegistrationServiceImpl.resumeCheckout`, `create` |
+| `#5016` | T2 IT | `registration/HoldSweepIT.java` (lapsed hold expired and place released once, also on parallel sweeps; confirmed and live holds untouched; waits for the Checkout margin; kept when Stripe cannot be asked; a paid session is kept and alerted once), `RegistrationOwnershipIT` (`shouldTellACompetitorWhoHasAlreadyPaidThatThePaymentIsBeingConfirmedNotSendThemBack`, `shouldStillReturnTheOpenCheckoutWhenStripeCannotSayWhetherItWasPaid`), `CheckoutStatusTest` | `HoldSweep`, `RegistrationServiceImpl.expireLapsedHolds` |
+| `#5016` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (back from Checkout: nothing charged, return to the same payment; hold ended), `sign-up-complete-page.integration.test.tsx` (failed → try again), `my-sign-ups-page.integration.test.tsx` (pay now; already paid → payment received) | `features/registrations/components/abandoned-checkout.tsx`, `hooks/useCheckoutRedirect.ts` |
+| `#5016` | T6 | `bjjeire-tests` (planned; Stripe test mode) | running images |
+| `#5017` | T2 IT | `registration/RegistrationIT.java` (`shouldRefuseASecondSignUpForTheSameDivisionWithoutCharging`, `shouldAllowANewSignUpOnceTheEarlierOneHasEnded`), `RegistrationConcurrencyIT.shouldCreateOneSignUpWhenTheSameCompetitorSubmitsTheSameDivisionManyTimesAtOnce` | `ux_registration_active_competitor_division`, `RegistrationServiceImpl.create` |
+| `#5017` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (`already-registered` message) | `utils/registration-problem.ts` |
+| `#5018` | T2 IT | `registration/RegistrationIT.java` (`shouldMakeGiAndNoGiTwoSignUpsWithTwoPayments`) | `RegistrationServiceImpl.create` |
+| `#5019` | T1 unit | `competitor/EligibilityTest.java` (day before the 18th birthday; on the birthday; every division) | `Eligibility.isAdultOn` |
+| `#5019` | T2 IT | `registration/RegistrationIT.java` (`shouldRefuseSomeoneWhoIsUnderEighteenOnTheTournamentDay`, `shouldExplainWhyNoDivisionIsOfferedToAnUnderEighteenOrAnIncompleteProfile`) | `CompetitorServiceImpl.underEighteen`, `RegistrationServiceImpl.create` |
+| `#5019` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (under 18 explained, no division) | `pages/SignUpPage` |
+| `#5019` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5020` | T2 IT | `registration/RegistrationIT.java` (`shouldTellTheCompetitorTheTournamentIsFullAndNotCharge`), `RegistrationConcurrencyIT.shouldGiveTheLastPlaceToExactlyOneOfManySimultaneousCompetitors`, `StripeWebhookIT.shouldRefundALatePaymentInFullWhenNoPlaceIsLeft`, `shouldStayOnTheRefundOnceARefundWasTriedEvenIfAPlaceComesFree` | `TournamentServiceImpl.takePlace`, `releasePlace`, `RegistrationServiceImpl.refundLatePayment` |
+| `#5020` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (`tournament-full` message on refusal and when the page opens on a full tournament), `sign-up-complete-page.integration.test.tsx` (late payment refunded) | `utils/registration-problem.ts`, `pages/SignUpPage`, `pages/SignUpCompletePage` |
+| `#5021` | T2 IT | `registration/RegistrationOwnershipIT.java` (`shouldListOnlyTheCallersSignUpsWithTournamentDivisionAmountAndStatus`, `shouldListNothingForACompetitorWithoutSignUpsOrProfile`, `shouldRefuseAnotherCompetitorsSignUpOnEveryRouteThatTakesAnId`, `shouldRefuseVisitorsAndTheOrganiser`) | `RegistrationController`, `RegistrationServiceImpl.getOwn`, `owned` |
+| `#5021` | T0 Pact | `contracts/pact/registration.pact.test.ts` (`/registration/me`, `/{id}/checkout`) | `features/registrations/api/registration-api.ts` |
+| `#5021` | T4 SPA | `pages/__tests__/my-sign-ups-page.integration.test.tsx` | `pages/MySignUpsPage`, `features/registrations/components/my-registrations-table.tsx` |
+| `#5021` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5042` | T2 IT | `registration/RegistrationIT.java` (`shouldRefuseAThirdUnpaidSignUpInTheSameTournament`, `shouldAllowAThirdSignUpOnceOneOfTheFirstTwoIsPaid`), `RegistrationConcurrencyIT.shouldHoldAtMostTwoUnpaidSignUpsWhenOneCompetitorStartsSeveralDivisionsAtOnce` | `RegistrationServiceImpl.create`, `insertHoldingASlot`, `ux_registration_unpaid_slot` |
+| `#5042` | T4 SPA | `pages/__tests__/sign-up-page.integration.test.tsx` (`too-many-unpaid` message) | `utils/registration-problem.ts` |
+| `#5038` | T4 SPA | `__tests__/app-routes.integration.test.tsx` (`/tournaments/:slug/signup`, `/signup/complete`, `/account/signups` redirect when off) | `config/features.ts` |
+
+Supporting tests with no requirement issue: `registration/RegistrationStatusTest` (state machine, `active` flag, 30-minute hold), `registration/TeamKeysTest` (research R8 keys), `registration/ProfilePropagationIT` (snapshot and keys follow a profile save in running tournaments; finished left alone; belt change flags `profileMismatch` and keeps the division), `registration/RegistrationIT` (`shouldRefuseWhenRegistrationIsNotOpen`, `shouldRefuseACompetitorWhoseProfileIsIncompleteOrMissing`, `shouldNeedBothConsentsBeforePaying`, `shouldRefuseAConsentThatIsNotTheBooleanTrue` — FR-012, `shouldOfferNoDivisionWhileRegistrationIsNotOpen`, `shouldAnswerABodyThatIsNotJsonWithBadRequest`, `shouldNotFindADraftTournamentOrAnUnknownDivision`), `StripeWebhookIT` (`shouldAcknowledgeEventTypesItDoesNotHandle`, `shouldAnswerAMethodTheWebhookDoesNotHaveWithMethodNotAllowed`, `shouldAcknowledgeAPaymentForASignUpItDoesNotKnow`, `shouldLeaveACancelledTournamentsSignUpForTheOrganiserWhenAPlaceCannotBeRetaken`), `features/registrations/utils/__tests__/registration-problem.unit.test.ts`, `checkout-redirect.unit.test.ts`, `types/registrations.contract.ts` (handwritten types against the served schema).
+
+### Known limits (slice 3)
+
+- Stripe is a recording fake in every automated test here; the SDK call shape (`StripePaymentGateway`) is not exercised against Stripe test mode until the owner supplies test keys (T001) and `bjjeire-tests` runs the T6 scenarios. Signature verification is the real SDK code against HMAC-signed payloads.
+- Refund webhooks (`refund` succeeded or failed) are slice 4. A late payment refunded for want of a place records refund `REFUNDED` when Stripe reports it succeeded at once, otherwise `PENDING`.
+- No test seed of sign-ups yet (T079): the test-dataset prune would remove sign-ups acceptance runs create, and `placesTaken` would drift. Slice 5 adds it with medallists.
+- Mail is plain text and asynchronous without an outbox (research R6): a crash between the save and the send loses that mail.
+- A late refund that Stripe keeps refusing is recorded (payment `PAID`, refund `FAILED`), counted in `registration.refund.failures` and logged as `ALERT`; the alert rule itself and the organiser's view of it come with slice 4 (T107).
+
 ## Slice 2 — User Story 2, competitor account and profile
 
 | Issue | Layer | Test path | Implementation path |

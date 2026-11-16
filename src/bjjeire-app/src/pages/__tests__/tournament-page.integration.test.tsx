@@ -11,6 +11,17 @@ import {
   seedTournamentStatus,
 } from '@/features/tournaments/testing/tournaments-test-helpers'
 import type { TournamentDto } from '@/types/tournaments'
+import { paths } from '@/config/paths'
+import { uiContent } from '@/config/ui-content'
+import {
+  TournamentCompetitorsTestIds,
+  TournamentSignUpTestIds,
+} from '@/constants/registrationDataTestIds'
+import {
+  createDivisionCompetitors,
+  createListedCompetitor,
+} from '@/testing/factories/registration.factory'
+import { seedTournamentCompetitors } from '@/features/registrations/testing/registration-test-helpers'
 
 function bjjeire(overrides: Partial<TournamentDto> = {}): TournamentDto {
   return createTournament({
@@ -190,5 +201,69 @@ describe('TournamentPage Integration (API + Query + UI)', () => {
     expect(
       await screen.findByText('Divisions have not been announced yet.')
     ).toBeInTheDocument()
+  })
+
+  // #5013: the way in to a sign-up while registration is open.
+  it('given registration is open, when a visitor opens the page, then it offers a sign-up link to the sign-up page', async () => {
+    seedTournament(bjjeire({ registrationState: 'OPEN' }))
+    renderTournamentPage('bjjeire')
+
+    expect(
+      await screen.findByTestId(TournamentSignUpTestIds.SIGN_UP_LINK)
+    ).toHaveAttribute('href', paths.tournamentSignUp.getHref('bjjeire'))
+  })
+
+  it('given the tournament is full, when a visitor opens the page, then no sign-up link is offered', async () => {
+    seedTournament(bjjeire({ registrationState: 'FULL' }))
+    renderTournamentPage('bjjeire')
+
+    await screen.findByTestId(TournamentPageTestIds.ROOT)
+    expect(
+      screen.queryByTestId(TournamentSignUpTestIds.SIGN_UP_LINK)
+    ).not.toBeInTheDocument()
+  })
+
+  // #5015, FR-011: confirmed competitors by division, name and academy only.
+  it('given confirmed competitors, when a visitor opens the page, then each division lists their name, academy and affiliation', async () => {
+    const lightweight = createDivision({ weightClass: '-70 kg' })
+    const middleweight = createDivision({ weightClass: '-76 kg' })
+    const tournament = bjjeire({ divisions: [lightweight, middleweight] })
+    seedTournament(tournament)
+    seedTournamentCompetitors(tournament.id, [
+      createDivisionCompetitors(lightweight.id ?? '', [
+        createListedCompetitor({ displayName: 'Aoife Byrne' }),
+        createListedCompetitor({
+          displayName: 'Ciaran Byrne',
+          academy: null,
+          affiliation: null,
+        }),
+      ]),
+      createDivisionCompetitors(middleweight.id ?? '', []),
+    ])
+    renderTournamentPage('bjjeire')
+
+    const divisions = await screen.findAllByTestId(
+      TournamentCompetitorsTestIds.DIVISION
+    )
+    expect(divisions).toHaveLength(1)
+    expect(divisions[0]).toHaveTextContent('-70 kg')
+    const rows = within(divisions[0]).getAllByTestId(
+      TournamentCompetitorsTestIds.ROW
+    )
+    expect(rows[0]).toHaveTextContent('Aoife Byrne')
+    expect(rows[0]).toHaveTextContent('Team X · Alliance')
+    expect(rows[1]).toHaveTextContent('Ciaran Byrne')
+    expect(rows[1]).toHaveTextContent(
+      uiContent.registrations.competitors.noAcademy
+    )
+  })
+
+  it('given no confirmed competitors, when a visitor opens the page, then the competitor list says so', async () => {
+    seedTournament(bjjeire())
+    renderTournamentPage('bjjeire')
+
+    expect(
+      await screen.findByTestId(TournamentCompetitorsTestIds.EMPTY)
+    ).toHaveTextContent(uiContent.registrations.competitors.empty)
   })
 })

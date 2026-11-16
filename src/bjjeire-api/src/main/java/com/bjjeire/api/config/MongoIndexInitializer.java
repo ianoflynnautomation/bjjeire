@@ -6,6 +6,8 @@ import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.StripeEvent;
+import com.bjjeire.api.registration.TournamentRegistration;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.tournament.Tournament;
 import java.time.Duration;
@@ -17,6 +19,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.PartialIndexFilter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -137,6 +140,74 @@ public class MongoIndexInitializer implements ApplicationRunner {
 
         ensureTournamentIndexes();
         ensureCompetitorIndexes();
+        ensureRegistrationIndexes();
+    }
+
+    private void ensureRegistrationIndexes() {
+        // FR-020: one active sign-up per competitor and division. Partial, so ended sign-ups do not count.
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("competitorId", Sort.Direction.ASC)
+                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("divisionId", Sort.Direction.ASC)
+                        .named("ux_registration_active_competitor_division")
+                        .unique()
+                        .partial(PartialIndexFilter.of(Criteria.where("active").is(true))));
+
+        // FR-041: at most two unpaid sign-ups per competitor and tournament. Slot 0 or 1 while awaiting payment.
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("competitorId", Sort.Direction.ASC)
+                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("unpaidSlot", Sort.Direction.ASC)
+                        .named("ux_registration_unpaid_slot")
+                        .unique()
+                        .partial(PartialIndexFilter.of(
+                                Criteria.where("unpaidSlot").exists(true))));
+
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("tournamentId", Sort.Direction.ASC)
+                        .on("divisionId", Sort.Direction.ASC)
+                        .on("status", Sort.Direction.ASC)
+                        .named("ix_registration_tournament_division_status"));
+
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("competitorId", Sort.Direction.ASC)
+                        .on("createdAt", Sort.Direction.ASC)
+                        .named("ix_registration_competitor"));
+
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("holdExpiresAt", Sort.Direction.ASC)
+                        .named("ix_registration_status_holdExpiresAt"));
+
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("financialRecordsExpireAt", Sort.Direction.ASC)
+                        .named("ix_registration_financialRecordsExpireAt")
+                        .sparse());
+
+        ensure(
+                TournamentRegistration.ENTITY_NAME,
+                new Index()
+                        .on("payment.checkoutSessionId", Sort.Direction.ASC)
+                        .named("ix_registration_checkoutSessionId"));
+
+        ensure(
+                StripeEvent.ENTITY_NAME,
+                new Index()
+                        .on("expiresAt", Sort.Direction.ASC)
+                        .named("ttl_stripeEvent_expiresAt")
+                        .expire(EXPIRE_AT_STORED_DATE));
     }
 
     private void ensureCompetitorIndexes() {

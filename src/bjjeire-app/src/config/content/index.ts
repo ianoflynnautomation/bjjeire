@@ -8,6 +8,7 @@ import { about } from './about'
 import { supportModal } from './support'
 import { tournaments, tournamentAdmin } from './tournaments'
 import { competitor } from './competitor'
+import { registrations } from './registrations'
 
 export const uiContent = {
   shared,
@@ -23,4 +24,5 @@ export const uiContent = {
   tournaments,
   tournamentAdmin,
   competitor,
+  registrations,
 } as const

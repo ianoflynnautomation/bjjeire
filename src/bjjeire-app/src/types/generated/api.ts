@@ -146,6 +146,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/registration': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Start a sign-up
+     * @description Takes a place for 30 minutes and returns a Stripe Checkout page for the tournament's fee. The sign-up is confirmed only when Stripe reports the payment. Both consents must be true. Not idempotent: a second call for the same division while the first is active is 409 already-registered.
+     */
+    post: operations['createRegistration']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/registration/{id}/checkout': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Return to the payment page of an unpaid sign-up
+     * @description Gives the same Checkout page again while the hold lasts. It never opens a second one.
+     */
+    post: operations['resumeCheckout']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym': {
     parameters: {
       query?: never
@@ -245,6 +285,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/tournament/{id}/eligible-division': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List the divisions you may enter
+     * @description Only divisions for your gender and belt whose minimum age you reach on the tournament day.
+     */
+    get: operations['getEligibleDivisions']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/tournament/{id}/competitor': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List a tournament's confirmed competitors by division
+     * @description Name, academy and affiliation only. One entry per division, in the tournament's order.
+     */
+    get: operations['getTournamentCompetitors']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/tournament/admin': {
     parameters: {
       query?: never
@@ -287,6 +367,26 @@ export interface paths {
       cookie?: never
     }
     get: operations['getAll_2']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/registration/me': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List your sign-ups
+     * @description Newest first, with tournament, division, amount and status.
+     */
+    get: operations['getOwnRegistrations']
     put?: never
     post?: never
     delete?: never
@@ -726,6 +826,18 @@ export interface components {
       competitorLimit?: number
       divisions?: components['schemas']['DivisionDto'][]
     }
+    CreateRegistrationCommand: {
+      tournamentId: string
+      divisionId: string
+      acceptPublicListing: boolean
+      acceptTerms: boolean
+    }
+    RegistrationCheckoutDto: {
+      registrationId?: string
+      checkoutUrl?: string
+      /** Format: date-time */
+      holdExpiresAt?: string
+    }
     CreateGymCommand: {
       data: components['schemas']['GymDto']
     }
@@ -801,6 +913,15 @@ export interface components {
       /** Format: int32 */
       divisionCount?: number
     }
+    DivisionCompetitorsDto: {
+      divisionId?: string
+      competitors?: components['schemas']['ListedCompetitorDto'][]
+    }
+    ListedCompetitorDto: {
+      displayName?: string
+      academy?: string
+      affiliation?: string
+    }
     PagedResponseStoreDto: {
       data?: components['schemas']['StoreDto'][]
       pagination?: components['schemas']['PaginationMetadata']
@@ -812,6 +933,30 @@ export interface components {
       websiteUrl?: string
       logoUrl?: string
       isActive?: boolean
+    }
+    RegistrationDto: {
+      id?: string
+      tournamentId?: string
+      tournamentSlug?: string
+      tournamentName?: string
+      /** Format: date */
+      tournamentDate?: string
+      division?: components['schemas']['DivisionDto']
+      /** @enum {string} */
+      status?: 'AWAITING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED'
+      /** Format: int32 */
+      amountCents?: number
+      currency?: string
+      /** @enum {string} */
+      paymentStatus?: 'PENDING' | 'PAID' | 'FAILED'
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+      /** Format: date-time */
+      holdExpiresAt?: string
+      /** Format: date-time */
+      refundableUntil?: string
+      /** Format: date-time */
+      createdAt?: string
     }
     PagedResponseGymDto: {
       data?: components['schemas']['GymDto'][]
@@ -1193,6 +1338,115 @@ export interface operations {
       }
     }
   }
+  createRegistration: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateRegistrationCommand']
+      }
+    }
+    responses: {
+      /** @description The place is held; send the competitor to checkoutUrl */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RegistrationCheckoutDto']
+        }
+      }
+      /** @description Validation failed, including a consent that is not true */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No published tournament with this id, or no such division in it */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description registration-not-open, profile-incomplete, under-18, not-eligible, tournament-full, already-registered or too-many-unpaid. Nothing was charged */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description payment-unavailable: Stripe could not be reached; the place was given back */
+      502: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  resumeCheckout: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The open Checkout page */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RegistrationCheckoutDto']
+        }
+      }
+      /** @description The sign-up belongs to another competitor */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description No such sign-up */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description hold-expired: the hold ended or the sign-up is no longer awaiting payment */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
   getAll: {
     parameters: {
       query?: {
@@ -1422,6 +1676,77 @@ export interface operations {
       }
     }
   }
+  getEligibleDivisions: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The eligible divisions, possibly none */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['DivisionDto'][]
+        }
+      }
+      /** @description No published tournament with this id */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description profile-incomplete, or under-18 on the tournament day */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  getTournamentCompetitors: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The competitor lists */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['DivisionCompetitorsDto'][]
+        }
+      }
+      /** @description No published tournament with this id */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
   listTournamentsForAdmin: {
     parameters: {
       query?: {
@@ -1486,6 +1811,26 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['PagedResponseStoreDto']
+        }
+      }
+    }
+  }
+  getOwnRegistrations: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Your sign-ups, possibly none */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RegistrationDto'][]
         }
       }
     }

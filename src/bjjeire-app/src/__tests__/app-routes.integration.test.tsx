@@ -47,6 +47,12 @@ describe('AppRoutes: tournaments', () => {
     paths.adminTournaments.path,
     paths.adminTournament.getHref('0123456789abcdef01234567'),
     paths.accountProfile.path,
+    paths.accountSignUps.path,
+    paths.tournamentSignUp.getHref('bjjeire'),
+    paths.tournamentSignUpComplete.getHref(
+      'bjjeire',
+      '0123456789abcdef01234567'
+    ),
   ])(
     'given the Tournaments flag is off, when a visitor opens %s, then they are redirected to About and no tournament request is made',
     async route => {

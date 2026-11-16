@@ -7,6 +7,7 @@ import LoadingState from '@/components/ui/state/loading-state'
 import { paths } from '@/config/paths'
 import { uiContent } from '@/config/ui-content'
 import { TournamentPageTestIds } from '@/constants/tournamentDataTestIds'
+import { TournamentCompetitors } from '@/features/registrations/components/tournament-competitors'
 import { TournamentDetails } from '@/features/tournaments/components/tournament-details'
 import { useTournament } from '@/features/tournaments/hooks/useTournament'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -31,7 +32,11 @@ export default function TournamentPage(): JSX.Element {
 
   let content: JSX.Element
   if (tournament) {
-    content = <TournamentDetails tournament={tournament} />
+    content = (
+      <TournamentDetails tournament={tournament}>
+        <TournamentCompetitors tournament={tournament} />
+      </TournamentDetails>
+    )
   } else if (isNotFound) {
     content = (
       <div

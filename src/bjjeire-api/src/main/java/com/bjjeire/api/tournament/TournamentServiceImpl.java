@@ -196,6 +196,47 @@ public class TournamentServiceImpl implements TournamentService {
         return Optional.of(TournamentMapper.toDto(saved, clock.instant()));
     }
 
+    @Override
+    public Optional<TournamentDto> getPublicById(String id) {
+        Query query = Query.query(Criteria.where("_id").is(id).and("status").in(TournamentStatus.PUBLIC));
+        return Optional.ofNullable(mongoTemplate.findOne(query, Tournament.class))
+                .map(tournament -> TournamentMapper.toDto(tournament, clock.instant()));
+    }
+
+    @Override
+    public boolean takePlace(String id) {
+        Tournament current = mongoTemplate.findById(id, Tournament.class);
+        if (current == null || current.getStatus() != TournamentStatus.PUBLISHED) {
+            return false;
+        }
+        Criteria filter = Criteria.where("_id").is(id).and("status").is(TournamentStatus.PUBLISHED);
+        Integer limit = current.getCompetitorLimit();
+        if (limit == null) {
+            filter.and("competitorLimit").is(null);
+        } else {
+            // The limit read above is part of the guard: an organiser changing it in between makes this miss, not
+            // overshoot. The caller sees "full" and may retry.
+            filter.and("competitorLimit").is(limit).and("placesTaken").lt(limit);
+        }
+        boolean taken = mongoTemplate
+                        .updateFirst(Query.query(filter), new Update().inc("placesTaken", 1), Tournament.class)
+                        .getModifiedCount()
+                == 1;
+        if (taken) {
+            cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+        }
+        return taken;
+    }
+
+    @Override
+    public void releasePlace(String id) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(id).and("placesTaken").gt(0)),
+                new Update().inc("placesTaken", -1),
+                Tournament.class);
+        cache.removeByTag(ApiCache.TOURNAMENTS_TAG);
+    }
+
     /**
      * Applies an organiser write only to the copy it was made from: same version, an expected status, and with
      * {@code requireDivision} at least one division. Counts the write in {@code version}.

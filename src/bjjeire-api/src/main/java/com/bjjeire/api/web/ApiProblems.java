@@ -62,6 +62,46 @@ public final class ApiProblems {
         return exception;
     }
 
+    /**
+     * A 400 for a request that is malformed in a way bean validation does not cover, such as a bad webhook signature.
+     *
+     * @param detail what is wrong
+     * @return the exception to throw
+     */
+    public static ResponseStatusException badRequest(String detail) {
+        return problem(HttpStatus.BAD_REQUEST, ProblemTypes.BAD_REQUEST, "Bad Request", detail);
+    }
+
+    /**
+     * A 403 for a resource that exists but belongs to someone else.
+     *
+     * @return the exception to throw
+     */
+    public static ResponseStatusException forbidden() {
+        return problem(HttpStatus.FORBIDDEN, ProblemTypes.FORBIDDEN, "Forbidden", "This belongs to another account.");
+    }
+
+    /**
+     * A 502 for an upstream service the request needed and could not reach.
+     *
+     * @param type a {@link ProblemTypes} URI
+     * @param detail what the caller should do about it
+     * @return the exception to throw
+     */
+    public static ResponseStatusException badGateway(URI type, String detail) {
+        return problem(HttpStatus.BAD_GATEWAY, type, "Bad Gateway", detail);
+    }
+
+    /**
+     * A 503 for a capability that is switched on but not configured in this environment.
+     *
+     * @param detail what is missing
+     * @return the exception to throw
+     */
+    public static ResponseStatusException serviceUnavailable(String detail) {
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, ProblemTypes.SERVICE_UNAVAILABLE, "Service Unavailable", detail);
+    }
+
     private static ResponseStatusException problem(HttpStatus status, URI type, String title, String detail) {
         ResponseStatusException exception = new ResponseStatusException(status, detail);
         exception.setType(type);

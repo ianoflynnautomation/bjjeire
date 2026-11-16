@@ -124,6 +124,7 @@ One competitor's entry in one division.
 | `status` | enum | `AWAITING_PAYMENT`, `CONFIRMED`, `CANCELLED`, `EXPIRED` |
 | `active` | boolean \| absent | `true` only while `AWAITING_PAYMENT` or `CONFIRMED`; removed otherwise |
 | `holdExpiresAt` | Instant \| null | set while `AWAITING_PAYMENT` |
+| `unpaidSlot` | 0 \| 1 \| absent | set while `AWAITING_PAYMENT`; unique per (`competitorId`, `tournamentId`), so the database allows two unpaid sign-ups at most (FR-041) |
 | `displayName` | string | snapshot; fixed placeholder after account deletion |
 | `academy` | `Academy` \| null | snapshot |
 | `affiliation` | string \| null | snapshot |
@@ -137,7 +138,7 @@ One competitor's entry in one division.
 | `financialRecordsExpireAt` | Instant \| null | set to account deletion + 6 years; after it, `payment` and `refund` are removed by a sweep (FR-013) |
 | audit | | |
 
-`Payment`: `checkoutSessionId`, `paymentIntentId`, `amountCents`, `currency`, `status` (`PENDING`, `PAID`, `FAILED`), `paidAt`.
+`Payment`: `checkoutSessionId`, `checkoutUrl` (the open hosted page, returned again while the hold lasts), `paymentIntentId`, `amountCents`, `currency`, `status` (`PENDING`, `PAID`, `FAILED`), `paidAt`.
 
 `Refund`: `refundId`, `amountCents`, `status` (`PENDING`, `REFUNDED`, `FAILED`), `requestedAt`, `completedAt`, `failureReason`.
 
@@ -148,7 +149,8 @@ No card data is stored (FR-023). `amountCents` is the price at the time of sign-
 ```
 AWAITING_PAYMENT ──payment webhook──▶ CONFIRMED ──cancel──▶ CANCELLED
        │                                                      (refund: none | PENDING → REFUNDED | FAILED)
-       ├──session expired / sweep──▶ EXPIRED
+       ├──session expired / sweep──▶ EXPIRED ──late payment, place free──▶ CONFIRMED
+       │                                └────late payment, no place──▶ CANCELLED (full refund)
        └──abandoned and retried: stays AWAITING_PAYMENT until the hold ends
 ```
 
@@ -163,6 +165,7 @@ AWAITING_PAYMENT ──payment webhook──▶ CONFIRMED ──cancel──▶ 
 ### Indexes
 
 - `ux_registration_active_competitor_division` on `(competitorId, tournamentId, divisionId)`, unique, partial where `active == true` (critical; FR-020)
+- `ux_registration_unpaid_slot` on `(competitorId, tournamentId, unpaidSlot)`, unique, partial where `unpaidSlot` exists (critical; FR-041)
 - `ix_registration_tournament_division_status` on `(tournamentId, divisionId, status)` — competitor lists, admin list, division removal check
 - `ix_registration_competitor` on `(competitorId, createdAt)` — "my sign-ups" and medal history
 - `ix_registration_status_holdExpiresAt` on `(status, holdExpiresAt)` — expiry sweep
@@ -179,6 +182,7 @@ Webhook idempotency ledger.
 | `type` | string | |
 | `receivedAt` | Instant | |
 | `expiresAt` | Instant | TTL, 30 days |
+| `handled` | boolean | set once the event's change is saved; an entry left unhandled is applied again on Stripe's retry |
 
 Index: `ttl_stripeEvent_expiresAt`.
 

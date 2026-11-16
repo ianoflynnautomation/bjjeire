@@ -51,6 +51,16 @@ export const featureSubRoutes = [
   },
   {
     flag: 'Tournaments',
+    path: paths.tournamentSignUp.path,
+    Component: lazyWithPreload(() => import('@/pages/SignUpPage')),
+  },
+  {
+    flag: 'Tournaments',
+    path: paths.tournamentSignUpComplete.path,
+    Component: lazyWithPreload(() => import('@/pages/SignUpCompletePage')),
+  },
+  {
+    flag: 'Tournaments',
     path: paths.adminTournaments.path,
     Component: lazyWithPreload(() => import('@/pages/AdminTournamentsPage')),
   },
@@ -63,6 +73,11 @@ export const featureSubRoutes = [
     flag: 'Tournaments',
     path: paths.accountProfile.path,
     Component: lazyWithPreload(() => import('@/pages/ProfilePage')),
+  },
+  {
+    flag: 'Tournaments',
+    path: paths.accountSignUps.path,
+    Component: lazyWithPreload(() => import('@/pages/MySignUpsPage')),
   },
 ] as const satisfies readonly FeatureConfig[]
 

@@ -5,14 +5,20 @@ import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymStatus;
+import com.bjjeire.api.tournament.DivisionDto;
+import com.bjjeire.api.tournament.RegistrationState;
+import com.bjjeire.api.tournament.TournamentDto;
+import com.bjjeire.api.tournament.TournamentService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -28,8 +34,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CompetitorServiceImpl implements CompetitorService {
     /**
-     * The sign-up collection, read by its documented fields (data-model.md § TournamentRegistration) until the
-     * {@code registration} package that owns it exists.
+     * The sign-up collection, read by its documented fields (specs/database-contracts/tournament-registration.md) so
+     * this package does not depend on {@code registration}, which depends on it. Must match
+     * {@code TournamentRegistration.ENTITY_NAME}.
      */
     static final String REGISTRATION_COLLECTION = "TournamentRegistration";
 
@@ -38,17 +45,23 @@ public class CompetitorServiceImpl implements CompetitorService {
     private final AuditRecorder auditRecorder;
     private final IdentityDirectory identityDirectory;
     private final Counter directoryFailures;
+    private final TournamentService tournamentService;
+    private final ApplicationEventPublisher events;
 
     public CompetitorServiceImpl(
             MongoTemplate mongoTemplate,
             AuditInfoProvider auditInfoProvider,
             AuditRecorder auditRecorder,
             IdentityDirectory identityDirectory,
-            MeterRegistry meterRegistry) {
+            MeterRegistry meterRegistry,
+            TournamentService tournamentService,
+            ApplicationEventPublisher events) {
         this.mongoTemplate = mongoTemplate;
         this.auditInfoProvider = auditInfoProvider;
         this.auditRecorder = auditRecorder;
         this.identityDirectory = identityDirectory;
+        this.tournamentService = tournamentService;
+        this.events = events;
         this.directoryFailures = Counter.builder("competitor.identity.deletion.failures")
                 .description("Account deletions whose sign-in identity is still in the external tenant")
                 .register(meterRegistry);
@@ -104,7 +117,52 @@ public class CompetitorServiceImpl implements CompetitorService {
         }
         auditRecorder.record(
                 before == null ? AuditAction.Create : AuditAction.Update, Competitor.ENTITY_NAME, saved.getId(), 1);
+        events.publishEvent(new CompetitorProfileSaved(SignUpProfile.of(saved)));
         return CompetitorMapper.toDto(saved);
+    }
+
+    @Override
+    public List<DivisionDto> getEligibleDivisions(CompetitorIdentity caller, String tournamentId) {
+        TournamentDto tournament = tournamentService.getPublicById(tournamentId).orElseThrow(ApiProblems::notFound);
+        RegistrationState state = tournament.registrationState();
+        if (state != RegistrationState.OPEN && state != RegistrationState.FULL) {
+            // A closed tournament, or one not open yet, offers no division at all.
+            throw ApiProblems.conflict(
+                    ProblemTypes.REGISTRATION_NOT_OPEN, "Registration for this tournament is not open.");
+        }
+        SignUpProfile profile = findSignUpProfile(caller)
+                .filter(SignUpProfile::profileComplete)
+                .orElseThrow(CompetitorServiceImpl::profileIncomplete);
+        if (!Eligibility.isAdultOn(profile.dateOfBirth(), tournament.date())) {
+            throw underEighteen();
+        }
+        return Eligibility.eligibleDivisions(
+                profile.gender(), profile.belt(), profile.dateOfBirth(), tournament.divisions(), tournament.date());
+    }
+
+    @Override
+    public Optional<SignUpProfile> findSignUpProfile(CompetitorIdentity caller) {
+        return Optional.ofNullable(find(caller)).map(SignUpProfile::of);
+    }
+
+    @Override
+    public Optional<String> findEmail(String competitorId) {
+        return Optional.ofNullable(mongoTemplate.findById(competitorId, Competitor.class))
+                .map(Competitor::getEmail);
+    }
+
+    /** The 409 a sign-up gets when the profile lacks something it needs (FR-015). */
+    public static ResponseStatusException profileIncomplete() {
+        return ApiProblems.conflict(
+                ProblemTypes.PROFILE_INCOMPLETE,
+                "Complete your profile (name, nationality, date of birth, gender and belt) before signing up.");
+    }
+
+    /** The 409 a sign-up gets from someone under 18 on the tournament day (FR-017). */
+    public static ResponseStatusException underEighteen() {
+        return ApiProblems.conflict(
+                ProblemTypes.UNDER_18,
+                "You must be " + Eligibility.MINIMUM_AGE + " or over on the tournament day to compete.");
     }
 
     @Override
@@ -205,7 +263,7 @@ public class CompetitorServiceImpl implements CompetitorService {
     }
 
     private boolean hasActiveRegistration(String competitorId) {
-        // The sign-up slice may store the link as a string or an ObjectId; match either so the guard never fails open.
+        // Sign-ups store the link as a string; an ObjectId is matched too, so the guard never fails open.
         List<Object> ids = ObjectId.isValid(competitorId)
                 ? List.of(competitorId, new ObjectId(competitorId))
                 : List.of(competitorId);
