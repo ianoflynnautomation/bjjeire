@@ -38,7 +38,7 @@
         <pact.version>4.7.5</pact.version>
         <azure-sdk-bom.version>1.3.10</azure-sdk-bom.version>
         <microsoft-graph.version>6.72.0</microsoft-graph.version>
-        <okhttp.version>5.5.0</okhttp.version>
+        <okhttp.version>5.5.1</okhttp.version>
         <stripe-java.version>34.1.0</stripe-java.version>
     </properties>
 
