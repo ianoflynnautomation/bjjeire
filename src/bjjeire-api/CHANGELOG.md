@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.31](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.30...api-v0.1.31) (2026-11-16)
+
+
+### Features
+
+* add bjjeire competition feature ([eb47618](https://github.com/ianoflynnautomation/bjjeire/commit/eb4761880ba209d25229d77478b4ec9374251aa3))
+* add tournament and competitor phase 4 ([#224](https://github.com/ianoflynnautomation/bjjeire/issues/224)) ([1851874](https://github.com/ianoflynnautomation/bjjeire/commit/18518743a37241911b65147e4ce86d8274ee106e))
+
 ## [0.1.30](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.29...api-v0.1.30) (2026-11-16)
 
 ### Features
