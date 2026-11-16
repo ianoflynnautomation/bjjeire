@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.41](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.40...frontend-v0.1.41) (2026-11-16)
+
+
+### Features
+
+* add tournament and competitor phase 3 implementation ([9bd621e](https://github.com/ianoflynnautomation/bjjeire/commit/9bd621e89b70fc56099e31ce33a3a79b7725cace))
+
+
+### Bug Fixes
+
+* strip stripe session issue ([4883bc8](https://github.com/ianoflynnautomation/bjjeire/commit/4883bc8ec1bb82e4c6a7da5c4f2c50295218fcc7))
+
 ## [0.1.40](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.39...frontend-v0.1.40) (2026-11-15)
 
 
