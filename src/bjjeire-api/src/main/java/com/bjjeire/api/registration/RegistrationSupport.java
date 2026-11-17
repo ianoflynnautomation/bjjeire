@@ -6,6 +6,7 @@ import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.ResultService;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.competitor.CompetitorService;
@@ -35,6 +36,22 @@ class RegistrationSupport {
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
     private final ApiCache cache;
+    private final ResultService resultService;
+
+    /**
+     * Refuses to cancel or move a sign-up a recorded result names (FR-026, data-model.md): its medal and team points
+     * would point at a sign-up no longer in the division. The organiser corrects the result first.
+     *
+     * @throws org.springframework.web.server.ResponseStatusException 409 {@code result-recorded}
+     */
+    void refuseIfMedallist(BjjEireCompetitionRegistration registration) {
+        if (resultService.isNamedInResult(registration.getCompetitionId(), registration.getId())) {
+            throw ApiProblems.conflict(
+                    ProblemTypes.RESULT_RECORDED,
+                    "A recorded result names this sign-up, so it can no longer be cancelled or moved. The organiser"
+                            + " must correct the result first.");
+        }
+    }
 
     /** The text of one mail, built once the sign-up's competition and division are known. */
     @FunctionalInterface

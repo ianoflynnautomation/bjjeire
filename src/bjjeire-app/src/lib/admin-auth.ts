@@ -59,6 +59,19 @@ async function signInLocally(): Promise<boolean> {
   }
 }
 
+type MsalConfigModule = typeof import('@/lib/msal-config')
+
+let msalConfig: Promise<MsalConfigModule> | undefined
+
+/**
+ * Loads MSAL on demand, once: public pages never fetch it, and an admin page
+ * that sends several reads at once shares one import.
+ */
+function loadMsalConfig(): Promise<MsalConfigModule> {
+  msalConfig ??= import('@/lib/msal-config')
+  return msalConfig
+}
+
 /** Whether `signInAdmin` uses local sign-in rather than Microsoft. */
 export function usesLocalSignIn(): boolean {
   return env.LOCAL_SIGN_IN
@@ -70,7 +83,7 @@ export async function hasAdminSession(): Promise<boolean> {
     return readLocalSession() !== null
   }
   // Loaded on demand: public pages never fetch MSAL.
-  const { msalInstance } = await import('@/lib/msal-config')
+  const { msalInstance } = await loadMsalConfig()
   await msalInstance.initialize()
   return msalInstance.getAllAccounts().length > 0
 }
@@ -80,7 +93,7 @@ export async function signInAdmin(): Promise<boolean> {
   if (usesLocalSignIn()) {
     return signInLocally()
   }
-  const { msalInstance, loginRequest } = await import('@/lib/msal-config')
+  const { msalInstance, loginRequest } = await loadMsalConfig()
   await msalInstance.initialize()
   await msalInstance.loginPopup(loginRequest)
   return msalInstance.getAllAccounts().length > 0
@@ -95,7 +108,7 @@ export async function getAdminToken(): Promise<string | null> {
   if (usesLocalSignIn()) {
     return readLocalSession()?.accessToken ?? null
   }
-  const { msalInstance, loginRequest } = await import('@/lib/msal-config')
+  const { msalInstance, loginRequest } = await loadMsalConfig()
   await msalInstance.initialize()
   const accounts = msalInstance.getAllAccounts()
   if (accounts.length === 0) {

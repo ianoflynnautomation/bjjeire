@@ -10,9 +10,11 @@ import type {
   TeamMergeDto,
 } from '@/types/registrations'
 import type {
+  AdminDivisionResultDto,
   BjjEireCompetitionCommand,
   BjjEireCompetitionDto,
   BjjEireCompetitionSummaryDto,
+  RecordResultCommand,
   UpdateBjjEireCompetitionCommand,
 } from '@/types/bjjeire-competitions'
 
@@ -99,3 +101,31 @@ export const mergeBjjEireCompetitionTeams = (
   command: MergeTeamsCommand
 ): Promise<TeamMergeDto> =>
   api.post(`${bjjEireCompetitionPath(id)}/team-merge`, command)
+
+/** Each division's recorded podium and its confirmed competitors, for the results tab. */
+export const getBjjEireCompetitionResults = (
+  id: string
+): Promise<AdminDivisionResultDto[]> =>
+  api.get(`${bjjEireCompetitionsAdmin}/${encodeURIComponent(id)}/result`)
+
+const resultPath = (id: string, divisionId: string): string =>
+  `${bjjEireCompetitionPath(id)}/division/${encodeURIComponent(divisionId)}/result`
+
+/** Records or replaces a division's podium (FR-031). */
+export const recordDivisionResult = (
+  id: string,
+  divisionId: string,
+  command: RecordResultCommand
+): Promise<AdminDivisionResultDto> =>
+  api.put(resultPath(id, divisionId), command)
+
+export const clearDivisionResult = (
+  id: string,
+  divisionId: string
+): Promise<void> => api.delete(resultPath(id, divisionId))
+
+/** Names the winners on the leaderboard (FR-040). Results can still be corrected. */
+export const finishBjjEireCompetition = (
+  id: string
+): Promise<BjjEireCompetitionDto> =>
+  api.post(`${bjjEireCompetitionPath(id)}/finish`)

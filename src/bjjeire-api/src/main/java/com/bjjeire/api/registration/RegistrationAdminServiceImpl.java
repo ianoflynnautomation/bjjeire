@@ -76,6 +76,7 @@ public class RegistrationAdminServiceImpl implements RegistrationAdminService {
         if (registration.getStatus() != RegistrationStatus.CONFIRMED) {
             throw ApiProblems.conflict(ProblemTypes.CONFLICT, "Only a confirmed sign-up can be moved.");
         }
+        support.refuseIfMedallist(registration);
         CompetitorContact contact = registration.getCompetitorId() == null
                 ? null
                 : competitorService

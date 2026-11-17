@@ -506,6 +506,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (registration.getStatus() != RegistrationStatus.CONFIRMED) {
             throw ApiProblems.conflict(ProblemTypes.CONFLICT, "Only a confirmed sign-up can change division.");
         }
+        support.refuseIfMedallist(registration);
         RegistrationState state = competition.registrationState();
         if (state != RegistrationState.OPEN && state != RegistrationState.FULL) {
             throw ApiProblems.conflict(

@@ -205,7 +205,11 @@ public class CancellationServiceImpl implements CancellationService {
                     "Only a confirmed sign-up can be cancelled. An unpaid sign-up ends by itself when its hold runs"
                             + " out.");
         }
-        // FR-026's "refused once a result names the sign-up" waits for results (slice 5).
+        // FR-026: refused while a medal names this sign-up. Cancelling the whole competition refunds everyone,
+        // medallists included.
+        if (!BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITION.equals(cancelledBy)) {
+            support.refuseIfMedallist(registration);
+        }
         Payment payment = registration.getPayment();
         boolean refund = refundWanted && isRefundable(payment);
         Instant now = clock.instant();

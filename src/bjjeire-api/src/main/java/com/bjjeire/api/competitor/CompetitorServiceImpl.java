@@ -5,8 +5,10 @@ import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.CompetitionMedals;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.bjjeirecompetition.RegistrationState;
+import com.bjjeire.api.bjjeirecompetition.ResultService;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.web.ApiProblems;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
@@ -47,6 +50,7 @@ public class CompetitorServiceImpl implements CompetitorService {
     private final Counter directoryFailures;
     private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApplicationEventPublisher events;
+    private final ResultService resultService;
 
     public CompetitorServiceImpl(
             MongoTemplate mongoTemplate,
@@ -55,13 +59,15 @@ public class CompetitorServiceImpl implements CompetitorService {
             IdentityDirectory identityDirectory,
             MeterRegistry meterRegistry,
             BjjEireCompetitionService bjjEireCompetitionService,
-            ApplicationEventPublisher events) {
+            ApplicationEventPublisher events,
+            ResultService resultService) {
         this.mongoTemplate = mongoTemplate;
         this.auditInfoProvider = auditInfoProvider;
         this.auditRecorder = auditRecorder;
         this.identityDirectory = identityDirectory;
         this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.events = events;
+        this.resultService = resultService;
         this.directoryFailures = Counter.builder("competitor.identity.deletion.failures")
                 .description("Account deletions whose sign-in identity is still in the external tenant")
                 .register(meterRegistry);
@@ -185,8 +191,36 @@ public class CompetitorServiceImpl implements CompetitorService {
 
     @Override
     public CompetitorHistoryDto getOwnHistory(CompetitorIdentity caller) {
-        // Results are recorded from slice 5 (FR-039); until then nobody has a medal.
-        return CompetitorHistoryDto.empty();
+        Competitor competitor = find(caller);
+        if (competitor == null) {
+            return CompetitorHistoryDto.empty();
+        }
+        // Entered means confirmed: a cancelled, expired or unpaid sign-up never competed (FR-039).
+        Query query = Query.query(Criteria.where("competitorId")
+                .in(competitorIds(competitor.getId()))
+                .and("status")
+                .is("CONFIRMED"));
+        query.fields().include("_id", "competitionId");
+        List<ResultService.SignUpRef> signUps =
+                mongoTemplate.find(query, Document.class, REGISTRATION_COLLECTION).stream()
+                        .map(document -> new ResultService.SignUpRef(
+                                document.getString("competitionId"), hex(document.get("_id"))))
+                        .toList();
+        List<CompetitionMedals> medals = resultService.medalsFor(signUps);
+        return new CompetitorHistoryDto(
+                medals.stream().mapToInt(CompetitionMedals::gold).sum(),
+                medals.stream().mapToInt(CompetitionMedals::silver).sum(),
+                medals.stream().mapToInt(CompetitionMedals::bronze).sum(),
+                medals.stream()
+                        .map(entry -> new CompetitorHistoryDto.CompetitionMedalsDto(
+                                entry.competitionId(),
+                                entry.slug(),
+                                entry.name(),
+                                entry.date(),
+                                entry.gold(),
+                                entry.silver(),
+                                entry.bronze()))
+                        .toList());
     }
 
     @Override
@@ -287,12 +321,23 @@ public class CompetitorServiceImpl implements CompetitorService {
     }
 
     private boolean hasActiveRegistration(String competitorId) {
-        // Sign-ups store the link as a string; an ObjectId is matched too, so the guard never fails open.
-        List<Object> ids = ObjectId.isValid(competitorId)
+        return mongoTemplate.exists(
+                Query.query(Criteria.where("competitorId")
+                        .in(competitorIds(competitorId))
+                        .and("active")
+                        .is(true)),
+                REGISTRATION_COLLECTION);
+    }
+
+    /** Sign-ups store the link as a string; an ObjectId is matched too, so a lookup never misses one. */
+    private static List<Object> competitorIds(String competitorId) {
+        return ObjectId.isValid(competitorId)
                 ? List.of(competitorId, new ObjectId(competitorId))
                 : List.of(competitorId);
-        return mongoTemplate.exists(
-                Query.query(Criteria.where("competitorId").in(ids).and("active").is(true)), REGISTRATION_COLLECTION);
+    }
+
+    private static String hex(Object id) {
+        return id instanceof ObjectId objectId ? objectId.toHexString() : String.valueOf(id);
     }
 
     private Academy resolveAcademy(CompetitorIdentity caller, SaveCompetitorCommand.AcademyChoice choice) {

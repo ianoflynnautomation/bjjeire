@@ -4,6 +4,7 @@ import { resetGymIdCounter } from './factories/gym.factory'
 import { resetEventIdCounter } from './factories/event.factory'
 import { resetCompetitionIdCounter } from './factories/competition.factory'
 import { resetBjjEireCompetitionIdCounter } from './factories/bjjeire-competition.factory'
+import { resetResultIdCounter } from './factories/result.factory'
 import { resetRegistrationIdCounter } from './factories/registration.factory'
 import './setup-tests'
 
@@ -29,5 +30,6 @@ afterEach(() => {
   resetEventIdCounter()
   resetCompetitionIdCounter()
   resetBjjEireCompetitionIdCounter()
+  resetResultIdCounter()
   resetRegistrationIdCounter()
 })

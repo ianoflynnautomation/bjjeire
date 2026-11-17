@@ -6,6 +6,7 @@ import {
   createBjjEireCompetitionSummary,
 } from '../../factories/bjjeire-competition.factory'
 import { createPaginatedAdminRegistrations } from '../../factories/registration.factory'
+import { createEmptyLeaderboard } from '../../factories/result.factory'
 
 export const bjjEireCompetitionsHandlers = [
   // Registered before the slug route: `admin` is not a slug.
@@ -18,10 +19,18 @@ export const bjjEireCompetitionsHandlers = [
       )
     )
   ),
+  // The results tab: no divisions with competitors unless a test seeds them.
+  http.get(`*${API_ROUTES.bjjEireCompetitionsAdmin}/:id/result`, () =>
+    HttpResponse.json([])
+  ),
   http.get(`*${API_ROUTES.bjjEireCompetitionsAdmin}/:id`, ({ params }) =>
     HttpResponse.json(
       createBjjEireCompetition({ id: String(params.id), status: 'DRAFT' })
     )
+  ),
+  // No results yet (#5034), unless a test seeds them.
+  http.get(`*${API_ROUTES.bjjEireCompetitions}/:id/leaderboard`, () =>
+    HttpResponse.json(createEmptyLeaderboard())
   ),
   // The organiser's sign-up list: empty unless a test seeds one.
   http.get(`*${API_ROUTES.bjjEireCompetitions}/:id/registration`, () =>

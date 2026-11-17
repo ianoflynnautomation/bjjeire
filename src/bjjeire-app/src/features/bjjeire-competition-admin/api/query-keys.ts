@@ -5,3 +5,6 @@ export const ADMIN_BJJEIRE_COMPETITIONS_KEY = [
 /** The organiser's sign-up list of one competition, all pages. */
 export const adminRegistrationsKey = (id: string) =>
   ['admin-bjjeire-competition-registrations', id] as const
+/** The organiser's results tab of one competition. */
+export const adminResultsKey = (id: string) =>
+  ['admin-bjjeire-competition-results', id] as const

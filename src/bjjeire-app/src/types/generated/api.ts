@@ -142,6 +142,30 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/bjjeire-competition/{id}/division/{divisionId}/result': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Record or correct a division's podium
+     * @description Replaces any result already recorded. Every id must be a confirmed sign-up in this division (409 not-in-division) and appear once (409 duplicate-medallist). Allowed while the competition is published or finished; otherwise 409. Safe to retry.
+     */
+    put: operations['recordDivisionResult']
+    post?: never
+    /**
+     * Remove a division's podium
+     * @description Answers 204 also when no result was recorded. Allowed while the competition is published or finished; otherwise 409.
+     */
+    delete: operations['clearDivisionResult']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/registration': {
     parameters: {
       query?: never
@@ -327,6 +351,26 @@ export interface paths {
      * @description Returns 409 no-divisions or invalid-window when the draft is not ready, and 409 when the competition is not a draft or was changed by another save while it was being published.
      */
     post: operations['publishBjjEireCompetition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/{id}/finish': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Mark a published competition finished
+     * @description Names the top academy and affiliation as winners on the leaderboard; results can still be corrected. Finishing a finished competition returns it unchanged. A draft or cancelled one is 409.
+     */
+    post: operations['finishBjjEireCompetition']
     delete?: never
     options?: never
     head?: never
@@ -527,6 +571,26 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/bjjeire-competition/{id}/leaderboard': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get a competition's leaderboard
+     * @description The podium of every division with a result, in the competition's division order, and the academy and affiliation rankings: 9 points per gold, 3 per silver, 1 per bronze, ties broken by golds, then silvers, then bronzes. A division with fewer than two confirmed competitors adds no points. winners is present only once the competition is finished. Names, academies and affiliations only. A draft or unknown id answers 404.
+     */
+    get: operations['getBjjEireCompetitionLeaderboard']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/bjjeire-competition/{id}/eligible-division': {
     parameters: {
       query?: never
@@ -593,6 +657,26 @@ export interface paths {
     }
     /** Get a competition in any status by id */
     get: operations['getBjjEireCompetitionForAdmin']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/bjjeire-competition/admin/{id}/result': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List each division's result and confirmed competitors
+     * @description For the organiser's results tab: the recorded podium by sign-up id, and the confirmed competitors who may be chosen.
+     */
+    get: operations['getBjjEireCompetitionResultsForAdmin']
     put?: never
     post?: never
     delete?: never
@@ -1005,6 +1089,29 @@ export interface components {
       /** Format: date-time */
       createdAt?: string
     }
+    RecordResultCommand: {
+      goldRegistrationId: string
+      silverRegistrationId?: string
+      bronzeRegistrationIds?: string[]
+    }
+    AdminDivisionResultDto: {
+      divisionId?: string
+      result?: components['schemas']['DivisionResultDto']
+      competitors?: components['schemas']['ResultCompetitorDto'][]
+    }
+    DivisionResultDto: {
+      goldRegistrationId?: string
+      silverRegistrationId?: string
+      bronzeRegistrationIds?: string[]
+      /** Format: date-time */
+      recordedAt?: string
+    }
+    ResultCompetitorDto: {
+      registrationId?: string
+      displayName?: string
+      academy?: string
+      affiliation?: string
+    }
     CreateRegistrationCommand: {
       competitionId: string
       divisionId: string
@@ -1196,6 +1303,41 @@ export interface components {
     PagedResponseAdminRegistrationDto: {
       data?: components['schemas']['AdminRegistrationDto'][]
       pagination?: components['schemas']['PaginationMetadata']
+    }
+    LeaderboardDto: {
+      podiums?: components['schemas']['PodiumDto'][]
+      academyRanking?: components['schemas']['TeamStandingDto'][]
+      affiliationRanking?: components['schemas']['TeamStandingDto'][]
+      winners?: components['schemas']['WinnersDto']
+    }
+    MedallistDto: {
+      displayName?: string
+      academy?: string
+      affiliation?: string
+    }
+    PodiumDto: {
+      divisionId?: string
+      gold?: components['schemas']['MedallistDto']
+      silver?: components['schemas']['MedallistDto']
+      bronzes?: components['schemas']['MedallistDto'][]
+      pointsAwarded?: boolean
+    }
+    TeamStandingDto: {
+      /** Format: int32 */
+      rank?: number
+      name?: string
+      /** Format: int32 */
+      points?: number
+      /** Format: int32 */
+      gold?: number
+      /** Format: int32 */
+      silver?: number
+      /** Format: int32 */
+      bronze?: number
+    }
+    WinnersDto: {
+      academies?: string[]
+      affiliations?: string[]
     }
     DivisionCompetitorsDto: {
       divisionId?: string
@@ -1570,6 +1712,54 @@ export interface operations {
         content: {
           'application/problem+json': unknown
         }
+      }
+    }
+  }
+  recordDivisionResult: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+        divisionId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecordResultCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminDivisionResultDto']
+        }
+      }
+    }
+  }
+  clearDivisionResult: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+        divisionId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
     }
   }
@@ -2053,6 +2243,28 @@ export interface operations {
       }
     }
   }
+  finishBjjEireCompetition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+    }
+  }
   cancelBjjEireCompetition: {
     parameters: {
       query?: never
@@ -2321,6 +2533,28 @@ export interface operations {
       }
     }
   }
+  getBjjEireCompetitionLeaderboard: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['LeaderboardDto']
+        }
+      }
+    }
+  }
   getEligibleDivisions: {
     parameters: {
       query?: never
@@ -2433,6 +2667,28 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['BjjEireCompetitionDto']
+        }
+      }
+    }
+  }
+  getBjjEireCompetitionResultsForAdmin: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminDivisionResultDto'][]
         }
       }
     }

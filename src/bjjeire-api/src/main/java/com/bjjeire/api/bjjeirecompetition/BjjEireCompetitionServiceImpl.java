@@ -231,6 +231,31 @@ public class BjjEireCompetitionServiceImpl implements BjjEireCompetitionService 
     }
 
     @Override
+    public Optional<BjjEireCompetitionDto> finish(String id) {
+        BjjEireCompetition existing = mongoTemplate.findById(id, BjjEireCompetition.class);
+        if (existing == null) {
+            return Optional.empty();
+        }
+        if (existing.getStatus() == BjjEireCompetitionStatus.FINISHED) {
+            return Optional.of(BjjEireCompetitionMapper.toDto(existing, clock.instant()));
+        }
+        if (!existing.getStatus().canBecome(BjjEireCompetitionStatus.FINISHED)) {
+            throw ApiProblems.conflict(ProblemTypes.CONFLICT, "Only a published competition can be finished.");
+        }
+        BjjEireCompetition saved = modify(
+                id,
+                Set.of(BjjEireCompetitionStatus.PUBLISHED),
+                false,
+                existing.getVersion(),
+                new Update().set("status", BjjEireCompetitionStatus.FINISHED));
+        if (saved == null) {
+            throw changedMeanwhile();
+        }
+        afterWrite(AuditAction.Update, id);
+        return Optional.of(BjjEireCompetitionMapper.toDto(saved, clock.instant()));
+    }
+
+    @Override
     public Optional<BjjEireCompetitionDto> getPublicById(String id) {
         Query query = Query.query(Criteria.where("_id").is(id).and("status").in(BjjEireCompetitionStatus.PUBLIC));
         return Optional.ofNullable(mongoTemplate.findOne(query, BjjEireCompetition.class))
@@ -305,7 +330,12 @@ public class BjjEireCompetitionServiceImpl implements BjjEireCompetitionService 
                         "Divisions", "Division " + dto.id() + " is not part of this competition.", "UNKNOWN_DIVISION");
             }
             String id = dto.id() != null ? dto.id() : new ObjectId().toHexString();
-            merged.add(BjjEireCompetitionMapper.toDivision(dto, id));
+            Division division = BjjEireCompetitionMapper.toDivision(dto, id);
+            // The form never sends results; a division kept keeps its podium.
+            if (dto.id() != null) {
+                division.setResult(known.get(dto.id()).getResult());
+            }
+            merged.add(division);
         }
         if (merged.stream().map(Division::getId).distinct().count() != merged.size()
                 || BjjEireCompetitionRules.hasDuplicateDivisions(merged)) {
