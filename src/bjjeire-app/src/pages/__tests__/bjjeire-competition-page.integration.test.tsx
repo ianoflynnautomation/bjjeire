@@ -126,7 +126,9 @@ describe('CompetitionPage Integration (API + Query + UI)', () => {
       await screen.findByTestId(
         BjjEireCompetitionPageTestIds.REGISTRATION_MESSAGE
       )
-    ).toHaveTextContent('Registration opens on 1 June 2026, 10:00 (Irish time).')
+    ).toHaveTextContent(
+      'Registration opens on 1 June 2026, 10:00 (Irish time).'
+    )
     expectNoSignUpControl()
   })
 
