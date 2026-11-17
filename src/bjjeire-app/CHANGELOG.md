@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.43](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.42...frontend-v0.1.43) (2026-11-17)
+
+
+### Features
+
+* bjjeire competition results feature ([#229](https://github.com/ianoflynnautomation/bjjeire/issues/229)) ([4b38203](https://github.com/ianoflynnautomation/bjjeire/commit/4b38203988d728994236f463adbd4e2cce512b87))
+
 ## [0.1.42](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.41...frontend-v0.1.42) (2026-11-16)
 
 
