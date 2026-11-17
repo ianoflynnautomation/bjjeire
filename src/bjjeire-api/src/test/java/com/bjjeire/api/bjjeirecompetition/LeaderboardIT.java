@@ -296,7 +296,7 @@ class LeaderboardIT extends ResultsIntegrationTest {
                 "draft-board", BjjEireCompetitionStatus.DRAFT, LocalDate.of(2026, 6, 27)));
 
         assertThat(leaderboard(draft.getId()).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(leaderboard("665f1c2b9b1e8a0012345678").getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(leaderboard(UNKNOWN_ID).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     private String firstAcademy(BjjEireCompetition competition) throws Exception {

@@ -73,7 +73,7 @@ class DivisionResultIT extends ResultsIntegrationTest {
         String cancelled =
                 insertRegistration(competition, division, "Sean Byrne", null, null, RegistrationStatus.CANCELLED);
 
-        for (String wrong : new String[] {elsewhere, unpaid, cancelled, "665f1c2b9b1e8a0012345678"}) {
+        for (String wrong : new String[] {elsewhere, unpaid, cancelled, UNKNOWN_ID}) {
             ResponseEntity<String> response =
                     recordResult(ADMIN_TOKEN, competition.getId(), division.getId(), gold, wrong);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -248,7 +248,7 @@ class DivisionResultIT extends ResultsIntegrationTest {
                                 null)
                         .getStatusCode())
                 .isEqualTo(HttpStatus.CONFLICT);
-        assertThat(recordResult(ADMIN_TOKEN, competition.getId(), "665f1c2b9b1e8a0012345678", aoife, null)
+        assertThat(recordResult(ADMIN_TOKEN, competition.getId(), UNKNOWN_ID, aoife, null)
                         .getStatusCode())
                 .isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -281,8 +281,7 @@ class DivisionResultIT extends ResultsIntegrationTest {
 
         assertThat(finish(ADMIN_TOKEN, draft.getId()).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(finish(ADMIN_TOKEN, cancelled.getId()).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(finish(ADMIN_TOKEN, "665f1c2b9b1e8a0012345678").getStatusCode())
-                .isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(finish(ADMIN_TOKEN, UNKNOWN_ID).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

@@ -1,0 +1,6 @@
+# Findings gitleaks reports that are not secrets. One fingerprint per line, as gitleaks prints it.
+# Remove an entry only once the commit it names has left every branch.
+
+# DivisionResultIT: an unknown MongoDB ObjectId next to the test constant ADMIN_TOKEN ("integration-test-token").
+# Trips generic-api-key on the word "token". The test now uses ResultsIntegrationTest.UNKNOWN_ID.
+d0db18ad326d2534ee78f4bb497194623e53e9d0:src/bjjeire-api/src/test/java/com/bjjeire/api/bjjeirecompetition/DivisionResultIT.java:generic-api-key:283

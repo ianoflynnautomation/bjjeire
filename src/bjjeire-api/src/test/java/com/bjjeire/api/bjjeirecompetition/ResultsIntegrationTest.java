@@ -21,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 abstract class ResultsIntegrationTest extends MongoIntegrationTest {
     static final String ADMIN_TOKEN = "integration-test-token";
 
+    /** A well-formed id no document has. Named, so it never sits beside a token on one line (gitleaks). */
+    static final String UNKNOWN_ID = "665f1c2b9b1e8a0012345678";
+
     BjjEireCompetition publishedWith(String slug, Division... divisions) {
         BjjEireCompetition competition = BjjEireCompetitionTestData.competition(
                 slug, BjjEireCompetitionStatus.PUBLISHED, LocalDate.of(2026, 6, 27));
