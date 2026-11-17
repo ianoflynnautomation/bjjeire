@@ -4,6 +4,7 @@ import { http } from 'msw'
 import { describe, it, expect, vi } from 'vitest'
 import { paths } from '@/config/paths'
 import { uiContent } from '@/config/ui-content'
+import { BJJEIRE_COMPETITION_IMAGE } from '@/features/bjjeire-competitions/utils/card-image'
 import {
   BjjEireCompetitionCardTestIds,
   BjjEireCompetitionsFeaturedTestIds,
@@ -98,6 +99,28 @@ describe('CompetitionsPage: featured BJJ Éire competitions', () => {
     expect(
       section.compareDocumentPosition(search) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
+  })
+
+  // #3006
+  it('given an upcoming BJJ Éire competition, when a visitor opens Competitions, then its featured card shows the BJJ Éire logo as a decorative header image', async () => {
+    seedBjjEireCompetitions(upcoming())
+    seedCompetitions([])
+    renderCompetitionsPage(ON)
+
+    const section = await findFeatured()
+    const cards = within(section).getAllByTestId(
+      BjjEireCompetitionsFeaturedTestIds.FEATURED_CARD
+    )
+    for (const card of cards) {
+      const image = within(card).getByTestId(
+        BjjEireCompetitionCardTestIds.IMAGE
+      )
+      expect(image).toHaveAttribute('src', BJJEIRE_COMPETITION_IMAGE)
+      // The same logo on every card: the heading names the competition, so
+      // the image is hidden from assistive technology.
+      expect(image).toHaveAttribute('alt', '')
+      expect(image).toHaveAttribute('loading', 'lazy')
+    }
   })
 
   // #3007

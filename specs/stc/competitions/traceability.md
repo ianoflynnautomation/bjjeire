@@ -27,7 +27,7 @@ Paths are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/` (API) or 
 | `#3006` | T1 unit | `bjjeirecompetition/BjjEireCompetitionServiceTest.java` (`shouldStopServingYesterdaysCachedUpcomingListAtMidnightInIreland`) | `BjjEireCompetitionServiceImpl.getUpcoming` |
 | `#3006` | T2 IT | `bjjeirecompetition/BjjEireCompetitionMongoRepositoryIT.java` (`shouldListOnlyUpcomingPublishedBjjEireCompetitionsEarliestDayThenName`) | `BjjEireCompetitionController.listBjjEireCompetitions`, `getUpcoming` |
 | `#3006` | T0 Pact | `contracts/pact/bjjeire-competition.pact.test.ts` (upcoming list, one page of 100) | `features/bjjeire-competitions/api/get-bjjeire-competitions.ts` |
-| `#3006` | T4 SPA | `pages/__tests__/competitions-page-featured.integration.test.tsx` (section above the search box, order, card fields) | `features/bjjeire-competitions/components/featured-bjjeire-competitions.tsx`, `hooks/useUpcomingBjjEireCompetitions.ts`, `components/layout/list-page-shell.tsx` (`featured`), `pages/CompetitionsPage.tsx` |
+| `#3006` | T4 SPA | `pages/__tests__/competitions-page-featured.integration.test.tsx` (section above the search box, order, card fields; the BJJ Éire logo heads each card, `alt=""`, lazy) | `features/bjjeire-competitions/components/featured-bjjeire-competitions.tsx`, `components/bjjeire-competition-card.tsx`, `utils/card-image.ts`, `public/bjjeire-competition.jpg`, `hooks/useUpcomingBjjEireCompetitions.ts`, `components/layout/list-page-shell.tsx` (`featured`), `pages/CompetitionsPage.tsx` |
 | `#3006` | T6 | `bjjeire-tests` (`specs/features/competitions.md`) | running images |
 | `#3007` | T1 unit | `bjjeirecompetition/BjjEireCompetitionRulesTest.java` (`shouldNeverCountAnUnpublishedFinishedOrCancelledCompetitionAsUpcoming`) | `BjjEireCompetitionRules.isUpcoming` |
 | `#3007` | T2 IT | `bjjeirecompetition/BjjEireCompetitionMongoRepositoryIT.java` (`shouldListOnlyUpcomingPublishedBjjEireCompetitionsEarliestDayThenName`: passed, finished, cancelled, draft left out) | `getUpcoming` |
@@ -65,6 +65,30 @@ Paths are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/` (API) or 
 
 Paths below are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/`
 (API) or `src/bjjeire-app/src/` (SPA) unless they start with a repository name.
+
+## Slice 6 — Phase 9, polish and verification
+
+Every issue `#5001`–`#5042` has at least one row below T6 in the slices that follow,
+except `#5011` (password reset). Like the hosted parts of `#5006` and `#5010`, it
+happens on the competitor tenant's pages. It stays `UNTESTED` until that tenant
+exists (T001) and `bjjeire-tests` runs against it.
+
+Supporting tests with no requirement issue (T107, signals for FR-018, FR-024, FR-027,
+FR-030 and SC-004/SC-005): `registration/RegistrationMetricsIT.java`
+(`shouldCountASignUpStartedAndConfirmed`, `shouldCountASignUpWhoseCheckoutExpiredOnce`,
+`shouldCountARefundRequestedAndSucceeded`, `shouldCountAPendingRefundAsSucceededOnlyWhenStripeReportsIt`,
+`shouldCountARefundStripeRefused`, `shouldCountARejectedWebhookByReason`);
+`registration/StripeConfigurationTest.java` (`shouldRefuseEveryWebhookWhileTheSigningSecretIsAPlaceholder`
+counts `reason="unconfigured"`). Implementation: `registration/RegistrationMetrics`, called from
+`RegistrationServiceImpl`, `CancellationServiceImpl` and `StripeWebhookServiceImpl`. Alert rules
+and the switch-on order: `docs/registration-operations.md`.
+
+### Known limits (slice 6)
+
+- The `PrometheusRule` in `docs/registration-operations.md` is not deployed. It goes into
+  `bjjeire-gitops` with the cluster wiring (T109), once the API is scraped.
+- T110 (500 sign-ups, 200 readers) and T112 (quickstart in a preview with Stripe test mode)
+  need a preview environment and have not been run.
 
 ## Slice 5 — User Story 5, results, leaderboard and team points
 

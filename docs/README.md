@@ -11,6 +11,8 @@
 | [contract-testing.md](contract-testing.md) | Field change, breaking OpenAPI diff, SPA types, and acceptance |
 | [acceptance-ci-debug.md](acceptance-ci-debug.md) | Debugging a red acceptance job |
 | [cutover-checklist.md](cutover-checklist.md) | Release cutover steps |
+| [registration-operations.md](registration-operations.md) | BJJ Éire competition sign-ups: metrics, alert rules, and the order to switch the feature on |
+| [stripe-local.md](stripe-local.md) | Stripe test mode against the local stack |
 | [release-test-report.md](release-test-report.md) | Audit-ready release PDF |
 
 ## Reading order

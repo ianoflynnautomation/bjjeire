@@ -11,6 +11,8 @@ adapted to the **actual** stack (AKS + Flux + MongoDB, not Container Apps + Cosm
 specs/
 ├── README.md                     # this file
 ├── system-architecture.md        # runtime topology + repo boundaries
+├── 001-tournament-registration/  # design record: BJJ Éire competitions (living spec: features/competitions.md)
+├── 002-merge-tournaments-competitions/  # design record: the merge (ADR-0015)
 ├── database-contracts/           # Mongo document contracts
 │   ├── shared.md
 │   ├── gym.md

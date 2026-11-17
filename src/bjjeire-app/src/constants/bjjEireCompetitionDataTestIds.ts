@@ -5,6 +5,7 @@ export const BjjEireCompetitionsFeaturedTestIds = {
 }
 
 export const BjjEireCompetitionCardTestIds = {
+  IMAGE: 'bjjeire-competition-card-image',
   NAME: 'bjjeire-competition-card-name',
   DATE: 'bjjeire-competition-card-date',
   VENUE: 'bjjeire-competition-card-venue',

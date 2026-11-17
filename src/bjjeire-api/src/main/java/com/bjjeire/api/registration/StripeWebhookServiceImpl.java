@@ -1,6 +1,7 @@
 package com.bjjeire.api.registration;
 
 import com.bjjeire.api.config.BjjEireProperties;
+import com.bjjeire.api.registration.RegistrationMetrics.WebhookRejection;
 import com.bjjeire.api.web.ApiProblems;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.net.Webhook;
@@ -52,6 +53,7 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
     private final ObjectMapper objectMapper;
     private final Clock clock;
     private final String webhookSecret;
+    private final RegistrationMetrics metrics;
 
     public StripeWebhookServiceImpl(
             RegistrationService registrationService,
@@ -59,19 +61,22 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
             MongoTemplate mongoTemplate,
             ObjectMapper objectMapper,
             Clock clock,
-            BjjEireProperties properties) {
+            BjjEireProperties properties,
+            RegistrationMetrics metrics) {
         this.registrationService = registrationService;
         this.cancellationService = cancellationService;
         this.mongoTemplate = mongoTemplate;
         this.objectMapper = objectMapper;
         this.clock = clock;
         this.webhookSecret = properties.stripe().webhookSecret();
+        this.metrics = metrics;
     }
 
     @Override
     public void handle(String payload, String signatureHeader) {
         if (!StripeSecrets.isConfigured(webhookSecret)) {
             // A public placeholder secret would let anyone sign a "paid" event. Stripe retries a 503.
+            metrics.webhookRejected(WebhookRejection.UNCONFIGURED);
             log.error("Stripe webhook refused: STRIPE_WEBHOOK_SECRET is blank or a placeholder");
             throw ApiProblems.serviceUnavailable("Payment confirmation is not configured.");
         }
@@ -80,6 +85,8 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
         String eventId = text(event.at("/id"));
         String type = text(event.at("/type"));
         if (eventId == null || type == null) {
+            metrics.webhookRejected(WebhookRejection.MALFORMED);
+            log.warn("Stripe webhook rejected: the event has no id or type");
             throw ApiProblems.badRequest("The event has no id or type.");
         }
         if (!HANDLED.contains(type)) {
@@ -145,11 +152,14 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
 
     private void verify(String payload, String signatureHeader) {
         if (signatureHeader == null || signatureHeader.isBlank()) {
+            metrics.webhookRejected(WebhookRejection.SIGNATURE);
+            log.warn("Stripe webhook rejected: no Stripe-Signature header");
             throw ApiProblems.badRequest("The Stripe-Signature header is missing.");
         }
         try {
             Webhook.Signature.verifyHeader(payload, signatureHeader, webhookSecret, TOLERANCE_SECONDS, clock);
         } catch (SignatureVerificationException invalid) {
+            metrics.webhookRejected(WebhookRejection.SIGNATURE);
             log.warn("Stripe webhook rejected: {}", invalid.getMessage());
             throw ApiProblems.badRequest("The Stripe-Signature header does not match the body.");
         }
@@ -159,6 +169,8 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
         try {
             return objectMapper.readTree(payload);
         } catch (JacksonException unreadable) {
+            metrics.webhookRejected(WebhookRejection.MALFORMED);
+            log.warn("Stripe webhook rejected: the signed body is not JSON");
             throw ApiProblems.badRequest("The event body is not JSON.");
         }
     }

@@ -1,6 +1,6 @@
 # Feature: Competitions
 
-**Status**: Living. Directory: brownfield. BJJ Éire competitions: slices 0 to 5 shipped (set-up and public pages; competitor accounts and profile; sign-up and payment; cancellation, refunds and organiser sign-up tools; results, leaderboard and team points); polish (Phase 9) open; merged into this feature by `specs/002-merge-tournaments-competitions/`
+**Status**: Living. Directory: brownfield. BJJ Éire competitions: slices 0 to 5 shipped (set-up and public pages; competitor accounts and profile; sign-up and payment; cancellation, refunds and organiser sign-up tools; results, leaderboard and team points) and slice 6, polish (Phase 9: sign-up and refund metrics, alerts and the switch-on checklist in [docs/registration-operations.md](../../docs/registration-operations.md)); the cluster wiring, load check and preview run (T109, T110, T112) are still open; merged into this feature by `specs/002-merge-tournaments-competitions/`
 **Design records**: [../001-tournament-registration/](../001-tournament-registration/spec.md) (BJJ Éire competitions, slices 0–5), [../002-merge-tournaments-competitions/](../002-merge-tournaments-competitions/spec.md) (the merge)
 **Database**: [competition.md](../database-contracts/competition.md) (directory), [bjjeire-competition.md](../database-contracts/bjjeire-competition.md), [bjjeire-competition-registration.md](../database-contracts/bjjeire-competition-registration.md), [competitor.md](../database-contracts/competitor.md)
 **API**: `/api/v1/competition` (directory); `/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration` (BJJ Éire competitions)
@@ -54,7 +54,7 @@ Same empty / network / server-error pattern as gyms.
 
 ## User Story 4 — Visitor finds BJJ Éire competitions on the Competitions page (P1)
 
-1. Given one or more published BJJ Éire competitions whose day has not passed, when a visitor opens Competitions, then a featured "BJJ Éire competitions" section above the directory listing shows each one, earliest day first, with the day, venue, entry fee in euro, number of divisions and registration state (`#3006`)
+1. Given one or more published BJJ Éire competitions whose day has not passed, when a visitor opens Competitions, then a featured "BJJ Éire competitions" section above the directory listing shows each one, earliest day first, with the day, venue, entry fee in euro, number of divisions and registration state; each card is headed by the BJJ Éire logo (`#3006`)
 2. Given no BJJ Éire competition is upcoming (none published, or every one finished, cancelled, a draft, or its day has passed), when a visitor opens Competitions, then there is no featured section and no placeholder, and the listing behaves as before (`#3007`)
 3. Given the featured section is shown, when a visitor searches or moves between listing pages, then only the directory listing is filtered or paged, the featured section stays, and the listing's empty state refers only to the listing (`#3008`)
 4. Given a featured card, when the visitor opens it, then they reach `/competitions/{slug}`; a draft or unknown slug shows "Competition not found" with a link back to Competitions (`#3009`)

@@ -81,9 +81,9 @@ See [traceability.md](traceability.md).
 
 Given one or more published BJJ Éire competitions whose day has not passed in Ireland,
 When a visitor opens Competitions,
-Then a featured "BJJ Éire competitions" section above the directory search shows each one, earliest day first, with day, venue, fee, division count and registration state.
+Then a featured "BJJ Éire competitions" section above the directory search shows each one, earliest day first, with day, venue, fee, division count and registration state. Each card is headed by the BJJ Éire logo, a decorative image hidden from assistive technology.
 
-**Owns**: T1 `BjjEireCompetitionRulesTest` (`shouldCountAPublishedCompetitionAsUpcomingUntilTheEndOfItsDayInIreland`), `BjjEireCompetitionServiceTest` (`shouldStopServingYesterdaysCachedUpcomingListAtMidnightInIreland`); T2 `BjjEireCompetitionMongoRepositoryIT` (`shouldListOnlyUpcomingPublishedBjjEireCompetitionsEarliestDayThenName`); T0 Pact `bjjeire-competition.pact.test.ts` (upcoming list); T4 `competitions-page-featured.integration.test.tsx`; T6 `bjjeire-tests`.
+**Owns**: T1 `BjjEireCompetitionRulesTest` (`shouldCountAPublishedCompetitionAsUpcomingUntilTheEndOfItsDayInIreland`), `BjjEireCompetitionServiceTest` (`shouldStopServingYesterdaysCachedUpcomingListAtMidnightInIreland`); T2 `BjjEireCompetitionMongoRepositoryIT` (`shouldListOnlyUpcomingPublishedBjjEireCompetitionsEarliestDayThenName`); T0 Pact `bjjeire-competition.pact.test.ts` (upcoming list); T4 `competitions-page-featured.integration.test.tsx` (card fields; logo header); T6 `bjjeire-tests`.
 
 ### `#3007` — No featured section when none is upcoming (P1)
 

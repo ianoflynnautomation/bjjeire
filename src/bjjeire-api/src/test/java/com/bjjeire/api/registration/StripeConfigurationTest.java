@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import com.bjjeire.api.config.BjjEireProperties;
 import com.bjjeire.api.registration.PaymentGateway.CheckoutRequest;
 import com.bjjeire.api.registration.PaymentGateway.PaymentGatewayException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -33,13 +34,15 @@ class StripeConfigurationTest {
         RegistrationService registrations = mock(RegistrationService.class);
         CancellationService cancellations = mock(CancellationService.class);
         MongoTemplate mongo = mock(MongoTemplate.class);
+        SimpleMeterRegistry meters = new SimpleMeterRegistry();
         StripeWebhookServiceImpl webhook = new StripeWebhookServiceImpl(
                 registrations,
                 cancellations,
                 mongo,
                 JsonMapper.builder().build(),
                 CLOCK,
-                properties("sk_test_real", secret));
+                properties("sk_test_real", secret),
+                new RegistrationMetrics(meters));
 
         assertThatThrownBy(() -> webhook.handle("{}", "t=1,v1=abc"))
                 .isInstanceOfSatisfying(ResponseStatusException.class, refused -> {
@@ -47,6 +50,11 @@ class StripeConfigurationTest {
                     assertThat(refused.getBody().getType()).hasToString("urn:bjjeire:service-unavailable");
                 });
         verifyNoInteractions(registrations, cancellations, mongo);
+        assertThat(meters.get(RegistrationMetrics.WEBHOOK_REJECTED)
+                        .tag("reason", "unconfigured")
+                        .counter()
+                        .count())
+                .isEqualTo(1);
     }
 
     @ParameterizedTest

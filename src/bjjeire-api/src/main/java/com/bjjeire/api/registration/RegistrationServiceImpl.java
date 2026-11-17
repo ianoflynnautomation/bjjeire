@@ -21,8 +21,6 @@ import com.bjjeire.api.registration.PaymentGateway.RefundRequest;
 import com.bjjeire.api.registration.PaymentGateway.RefundResult;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -52,8 +50,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
     private static final int SWEEP_BATCH = 200;
-    static final String REFUND_FAILURE_METRIC = "registration.refund.failures";
-    static final String UNCONFIRMED_PAYMENT_METRIC = "registration.payment.unconfirmed";
+    static final String REFUND_FAILURE_METRIC = RegistrationMetrics.REFUND_FAILED;
+    static final String UNCONFIRMED_PAYMENT_METRIC = RegistrationMetrics.PAYMENT_UNCONFIRMED;
     private static final Duration UNKNOWN_STATE_ALERT_AFTER = Duration.ofHours(24);
 
     private static final String UNPAID_SLOT_INDEX = "ux_registration_unpaid_slot";
@@ -68,8 +66,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final Clock clock;
     private final Duration hold;
     private final String siteUrl;
-    private final Counter refundFailures;
-    private final Counter unconfirmedPayments;
+    private final RegistrationMetrics metrics;
 
     public RegistrationServiceImpl(
             MongoTemplate mongoTemplate,
@@ -81,7 +78,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             ApiCache cache,
             Clock clock,
             BjjEireProperties properties,
-            MeterRegistry meterRegistry) {
+            RegistrationMetrics metrics) {
         this.mongoTemplate = mongoTemplate;
         this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.competitorService = competitorService;
@@ -92,12 +89,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         this.clock = clock;
         this.hold = properties.registration().hold();
         this.siteUrl = properties.stripe().successUrlBase();
-        this.refundFailures = Counter.builder(REFUND_FAILURE_METRIC)
-                .description("Refunds Stripe refused or could not be reached for; the organiser resolves them by hand")
-                .register(meterRegistry);
-        this.unconfirmedPayments = Counter.builder(UNCONFIRMED_PAYMENT_METRIC)
-                .description("Holds paid at Stripe with no confirming webhook when their hold ended")
-                .register(meterRegistry);
+        this.metrics = metrics;
     }
 
     // ---- Sign-up --------------------------------------------------------------------------------------------------
@@ -162,6 +154,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 new Update().set("payment.checkoutSessionId", session.id()).set("payment.checkoutUrl", session.url()),
                 BjjEireCompetitionRegistration.class);
         support.afterWrite(AuditAction.Create, registration.getId());
+        metrics.signUpStarted();
         log.info(
                 "Sign-up {} started for competition {} division {}",
                 registration.getId(),
@@ -338,6 +331,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         int amount = registration.getPayment().getAmountCents();
         // Throws on failure: the webhook answers 5xx and Stripe retries; the idempotency key prevents a second refund.
         RefundResult refund;
+        metrics.refundRequested();
         try {
             refund = paymentGateway.refund(
                     new RefundRequest(registration.getId(), paymentIntentId, amount, "refund-" + registration.getId()));
@@ -378,6 +372,9 @@ public class RegistrationServiceImpl implements RegistrationService {
             return;
         }
         support.afterWrite(AuditAction.Update, cancelled.getId());
+        if (refund.succeeded()) {
+            metrics.refundSucceeded();
+        }
         log.warn(
                 "Late payment for registration {} refunded in full: no place left in competition {}",
                 cancelled.getId(),
@@ -413,7 +410,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                                         .failureReason(failed.getMessage())
                                         .build())),
                 BjjEireCompetitionRegistration.class);
-        refundFailures.increment();
+        metrics.refundFailed();
         log.error(
                 "ALERT refund of registration {} ({} cents) failed and must be resolved by hand if Stripe's retries also"
                         + " fail: {}",
@@ -545,7 +542,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                         .getModifiedCount()
                 == 1;
         if (first) {
-            unconfirmedPayments.increment();
+            metrics.paymentUnconfirmed();
             log.error(
                     "ALERT registration {} is {} at Stripe but no webhook confirmed it: check the webhook endpoint and"
                             + " resend the event, or resolve it by hand (docs/stripe-local.md). Its place stays held.",
@@ -584,6 +581,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
         bjjEireCompetitionService.releasePlace(expired.getCompetitionId());
         support.afterWrite(AuditAction.Update, expired.getId());
+        metrics.signUpExpired();
         log.info("Sign-up {} expired unpaid; its place is released", expired.getId());
         return true;
     }
@@ -608,6 +606,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private void afterConfirmed(BjjEireCompetitionRegistration confirmed) {
         support.afterWrite(AuditAction.Update, confirmed.getId());
+        metrics.signUpConfirmed();
         log.info("Sign-up {} confirmed", confirmed.getId());
         int amount = confirmed.getPayment().getAmountCents();
         support.mail(

@@ -9,8 +9,6 @@ import com.bjjeire.api.registration.PaymentGateway.RefundRequest;
 import com.bjjeire.api.registration.PaymentGateway.RefundResult;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -40,7 +38,7 @@ public class CancellationServiceImpl implements CancellationService {
     private final PaymentGateway paymentGateway;
     private final RegistrationSupport support;
     private final Clock clock;
-    private final Counter refundFailures;
+    private final RegistrationMetrics metrics;
 
     public CancellationServiceImpl(
             MongoTemplate mongoTemplate,
@@ -49,17 +47,15 @@ public class CancellationServiceImpl implements CancellationService {
             PaymentGateway paymentGateway,
             RegistrationSupport support,
             Clock clock,
-            MeterRegistry meterRegistry) {
+            RegistrationMetrics metrics) {
         this.mongoTemplate = mongoTemplate;
         this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.registrationService = registrationService;
         this.paymentGateway = paymentGateway;
         this.support = support;
         this.clock = clock;
-        // The same counter the late-payment refund uses: one alert for every refund that needs the organiser.
-        this.refundFailures = Counter.builder(RegistrationServiceImpl.REFUND_FAILURE_METRIC)
-                .description("Refunds Stripe refused or could not be reached for; the organiser resolves them by hand")
-                .register(meterRegistry);
+        // The same counters the late-payment refund uses: one alert for every refund that needs the organiser.
+        this.metrics = metrics;
     }
 
     @Override
@@ -163,6 +159,7 @@ public class CancellationServiceImpl implements CancellationService {
                     return;
                 }
                 support.afterWrite(AuditAction.Update, registrationId);
+                metrics.refundSucceeded();
                 int amount = refunded.getRefund().getAmountCents();
                 support.mail(
                         refunded,
@@ -305,6 +302,7 @@ public class CancellationServiceImpl implements CancellationService {
                     id, attempt, refund.getAmountCents(), "No Stripe payment is recorded for this sign-up.");
             return mongoTemplate.findById(id, BjjEireCompetitionRegistration.class);
         }
+        metrics.refundRequested();
         try {
             RefundResult result =
                     paymentGateway.refund(new RefundRequest(id, paymentIntentId, refund.getAmountCents(), key));
@@ -317,7 +315,13 @@ public class CancellationServiceImpl implements CancellationService {
                 update.set("refund.completedAt", clock.instant());
             }
             // Guarded: a refund webhook that already completed it is not set back to pending.
-            mongoTemplate.updateFirst(Query.query(unsettled), update, BjjEireCompetitionRegistration.class);
+            boolean recorded = mongoTemplate
+                            .updateFirst(Query.query(unsettled), update, BjjEireCompetitionRegistration.class)
+                            .getModifiedCount()
+                    == 1;
+            if (recorded && result.succeeded()) {
+                metrics.refundSucceeded();
+            }
         } catch (PaymentGatewayException failed) {
             recordRefundFailure(id, attempt, refund.getAmountCents(), failed.getMessage());
             return mongoTemplate.findById(id, BjjEireCompetitionRegistration.class);
@@ -342,7 +346,7 @@ public class CancellationServiceImpl implements CancellationService {
     }
 
     private void alertRefundFailure(String registrationId, int amountCents, String reason) {
-        refundFailures.increment();
+        metrics.refundFailed();
         log.error(
                 "ALERT refund of registration {} ({} cents) failed and must be resolved by hand: {}",
                 registrationId,

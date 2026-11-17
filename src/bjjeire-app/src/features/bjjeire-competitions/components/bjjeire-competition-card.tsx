@@ -18,6 +18,11 @@ import type { BjjEireCompetitionSummaryDto } from '@/types/bjjeire-competitions'
 import { formatDate } from '@/utils/date-utils'
 import { readString } from '@/utils/untrusted'
 import { formatEntryFee } from '../utils/bjjeire-competition-format'
+import {
+  BJJEIRE_COMPETITION_IMAGE,
+  BJJEIRE_COMPETITION_IMAGE_HEIGHT,
+  BJJEIRE_COMPETITION_IMAGE_WIDTH,
+} from '../utils/card-image'
 import { RegistrationStateBadge } from './registration-state-badge'
 
 const { card } = uiContent.bjjEireCompetitions
@@ -44,6 +49,20 @@ export const BjjEireCompetitionCard = function BjjEireCompetitionCard({
       data-testid={dataTestId}
       aria-labelledby={headingId}
     >
+      <header className="h-28 w-full overflow-hidden bg-ink-50 sm:h-36 md:h-40">
+        {/* The same logo on every card, and the heading names the competition. */}
+        <img
+          src={BJJEIRE_COMPETITION_IMAGE}
+          alt=""
+          width={BJJEIRE_COMPETITION_IMAGE_WIDTH}
+          height={BJJEIRE_COMPETITION_IMAGE_HEIGHT}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          data-testid={BjjEireCompetitionCardTestIds.IMAGE}
+        />
+      </header>
+
       <CardContent>
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <h3
