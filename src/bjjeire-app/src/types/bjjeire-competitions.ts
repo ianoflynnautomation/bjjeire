@@ -94,3 +94,72 @@ export interface GetBjjEireCompetitionsPaginationQuery {
   page: number
   pageSize: number
 }
+
+// ---- Results and leaderboard (US5) -------------------------------------------
+
+/** A medallist on a public podium: name, academy and affiliation only (FR-011). */
+export interface MedallistDto {
+  displayName: string
+  academy?: string | null
+  affiliation?: string | null
+}
+
+export interface PodiumDto {
+  divisionId: string
+  gold: MedallistDto
+  silver?: MedallistDto | null
+  bronzes: MedallistDto[]
+  /** False when the division had fewer than two confirmed competitors (FR-035). */
+  pointsAwarded: boolean
+}
+
+export interface TeamStandingDto {
+  /** Entries level on points, golds, silvers and bronzes share a rank. */
+  rank: number
+  name: string
+  points: number
+  gold: number
+  silver: number
+  bronze: number
+}
+
+/** Present only once the competition is finished; more than one name means joint winners. */
+export interface WinnersDto {
+  academies: string[]
+  affiliations: string[]
+}
+
+export interface LeaderboardDto {
+  podiums: PodiumDto[]
+  academyRanking: TeamStandingDto[]
+  affiliationRanking: TeamStandingDto[]
+  winners?: WinnersDto | null
+}
+
+/** A recorded podium by sign-up id. Admin only. */
+export interface DivisionResultDto {
+  goldRegistrationId: string
+  silverRegistrationId?: string | null
+  bronzeRegistrationIds: string[]
+  recordedAt?: string | null
+}
+
+/** A confirmed competitor the organiser may choose as a medallist. */
+export interface ResultCompetitorDto {
+  registrationId: string
+  displayName: string
+  academy?: string | null
+  affiliation?: string | null
+}
+
+export interface AdminDivisionResultDto {
+  divisionId: string
+  result?: DivisionResultDto | null
+  competitors: ResultCompetitorDto[]
+}
+
+export interface RecordResultCommand {
+  goldRegistrationId: string
+  silverRegistrationId?: string | null
+  bronzeRegistrationIds: string[]
+}

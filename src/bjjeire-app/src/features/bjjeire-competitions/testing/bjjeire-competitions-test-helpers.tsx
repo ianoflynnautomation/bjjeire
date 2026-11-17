@@ -12,6 +12,7 @@ import {
 import type {
   BjjEireCompetitionDto,
   BjjEireCompetitionSummaryDto,
+  LeaderboardDto,
 } from '@/types/bjjeire-competitions'
 import BjjEireCompetitionPage from '@/pages/BjjEireCompetitionPage'
 
@@ -69,5 +70,16 @@ export function renderBjjEireCompetitionPage(
       initialRoutes: [paths.bjjEireCompetition.getHref(slug)],
       featureFlags: FLAGS,
     }
+  )
+}
+
+export function seedBjjEireCompetitionLeaderboard(
+  id: string,
+  leaderboard: LeaderboardDto
+): void {
+  server.use(
+    http.get(`${BJJEIRE_COMPETITIONS_API}/${id}/leaderboard`, () =>
+      HttpResponse.json(leaderboard)
+    )
   )
 }

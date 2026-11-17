@@ -6,6 +6,7 @@ import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.bjjeirecompetition.ResultService;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.competitor.CompetitorService;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 /** What the sign-up services share: ownership, the competitor's view of a sign-up, mail, audit and cache. */
 @Slf4j
@@ -35,6 +37,55 @@ class RegistrationSupport {
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
     private final ApiCache cache;
+    private final ResultService resultService;
+
+    /**
+     * Refuses to cancel or move a sign-up a recorded result names (FR-026, data-model.md): its medal and team points
+     * would point at a sign-up no longer in the division. The organiser corrects the result first.
+     *
+     * @throws org.springframework.web.server.ResponseStatusException 409 {@code result-recorded}
+     */
+    void refuseIfMedallist(BjjEireCompetitionRegistration registration) {
+        if (resultService.isNamedInResult(registration.getCompetitionId(), registration.getId())) {
+            throw resultRecorded();
+        }
+    }
+
+    /**
+     * Checks again after a cancellation was saved, before its place is released or a refund is asked for: when the
+     * organiser saved a result naming the sign-up in between, the sign-up is restored as confirmed and the cancellation
+     * refused. The result side checks again after its own write too, so whichever lands second sees the other.
+     *
+     * @param cancelled the sign-up as the cancellation saved it
+     * @throws org.springframework.web.server.ResponseStatusException 409 {@code result-recorded}
+     */
+    void undoCancellationIfMedallist(BjjEireCompetitionRegistration cancelled) {
+        if (!resultService.isNamedInResult(cancelled.getCompetitionId(), cancelled.getId())) {
+            return;
+        }
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id")
+                        .is(cancelled.getId())
+                        .and("status")
+                        .is(RegistrationStatus.CANCELLED)),
+                audited(new Update()
+                        .set("status", RegistrationStatus.CONFIRMED)
+                        .set("active", Boolean.TRUE)
+                        .unset("cancelledAt")
+                        .unset("cancelledBy")
+                        .unset("refund")),
+                BjjEireCompetitionRegistration.class);
+        // A public read between the cancellation and this undo may have cached the sign-up as cancelled.
+        cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
+        throw resultRecorded();
+    }
+
+    private static ResponseStatusException resultRecorded() {
+        return ApiProblems.conflict(
+                ProblemTypes.RESULT_RECORDED,
+                "A recorded result names this sign-up, so it can no longer be cancelled or moved. The organiser must"
+                        + " correct the result first.");
+    }
 
     /** The text of one mail, built once the sign-up's competition and division are known. */
     @FunctionalInterface
@@ -141,6 +192,20 @@ class RegistrationSupport {
         if (moved == null) {
             throw ApiProblems.conflict(
                     ProblemTypes.CONFLICT, "The sign-up was changed meanwhile. Reload it and try again.");
+        }
+        // A result naming the sign-up was saved between the caller's check and this write: move it back (FR-026).
+        if (resultService.isNamedInResult(moved.getCompetitionId(), moved.getId())) {
+            mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("_id")
+                            .is(moved.getId())
+                            .and("divisionId")
+                            .is(divisionId)),
+                    audited(new Update()
+                            .set("divisionId", registration.getDivisionId())
+                            .set("profileMismatch", registration.isProfileMismatch())),
+                    BjjEireCompetitionRegistration.class);
+            cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
+            throw resultRecorded();
         }
         afterWrite(AuditAction.Update, moved.getId());
         return moved;

@@ -23,6 +23,11 @@ import tools.jackson.databind.ObjectMapper;
 
 /** A competitor's own sign-ups, and nobody else's (#5021, contract invariant "ownership"). */
 class RegistrationOwnershipIT extends RegistrationIntegrationTest {
+    /** Well-formed ids no document has. Named, so they never sit beside a token on one line (gitleaks). */
+    private static final String UNKNOWN_COMPETITION_ID = "665f1c2b9b1e8a0012345678";
+
+    private static final String UNKNOWN_DIVISION_ID = "665f1c2b9b1e8a0012345679";
+
     private static final String AOIFE = competitorToken("aoife");
     private static final String CIARAN = competitorToken("ciaran");
     private static final String ME = ApiRoutes.REGISTRATION + "/me";
@@ -182,17 +187,16 @@ class RegistrationOwnershipIT extends RegistrationIntegrationTest {
         assertThat(checkout(aoifes.getId(), CIARAN).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(checkout(aoifes.getId(), competitorToken("no-profile")).getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(checkout("665f1c2b9b1e8a0012345678", CIARAN).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(checkout(UNKNOWN_COMPETITION_ID, CIARAN).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     void shouldRefuseVisitorsAndTheOrganiser() {
         assertThat(get(ME, null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(get(ME, "organiser-token").getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(signUp(null, "665f1c2b9b1e8a0012345678", "665f1c2b9b1e8a0012345679")
-                        .getStatusCode())
+        assertThat(signUp(null, UNKNOWN_COMPETITION_ID, UNKNOWN_DIVISION_ID).getStatusCode())
                 .isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(signUp("organiser-token", "665f1c2b9b1e8a0012345678", "665f1c2b9b1e8a0012345679")
+        assertThat(signUp("organiser-token", UNKNOWN_COMPETITION_ID, UNKNOWN_DIVISION_ID)
                         .getStatusCode())
                 .isEqualTo(HttpStatus.FORBIDDEN);
     }

@@ -82,4 +82,14 @@ public class BjjEireCompetitionAdminController {
     public ResponseEntity<BjjEireCompetitionDto> publishBjjEireCompetition(@PathVariable @ValidObjectId String id) {
         return bjjEireCompetitionService.publish(id).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }
+
+    @PostMapping("/{id}/finish")
+    @Operation(
+            summary = "Mark a published competition finished",
+            description = "Names the top academy and affiliation as winners on the leaderboard; results can still be"
+                    + " corrected. Finishing a finished competition returns it unchanged. A draft or cancelled one is"
+                    + " 409.")
+    public ResponseEntity<BjjEireCompetitionDto> finishBjjEireCompetition(@PathVariable @ValidObjectId String id) {
+        return bjjEireCompetitionService.finish(id).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
+    }
 }

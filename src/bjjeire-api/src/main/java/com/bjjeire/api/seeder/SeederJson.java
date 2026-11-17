@@ -2,8 +2,10 @@ package com.bjjeire.api.seeder;
 
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.competition.Competition;
+import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.store.Store;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -35,7 +37,10 @@ public final class SeederJson {
         for (Class<?> entityType : List.of(Gym.class, BjjEvent.class, Competition.class, Store.class)) {
             mapper.addMixIn(entityType, EntityJsonMixin.class);
         }
-        mapper.addMixIn(BjjEireCompetition.class, AuditJsonMixin.class);
+        for (Class<?> auditedType :
+                List.of(BjjEireCompetition.class, Competitor.class, BjjEireCompetitionRegistration.class)) {
+            mapper.addMixIn(auditedType, AuditJsonMixin.class);
+        }
         return mapper;
     }
 

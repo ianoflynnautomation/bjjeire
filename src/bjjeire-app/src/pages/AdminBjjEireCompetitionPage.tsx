@@ -18,6 +18,8 @@ import {
 import { AdminSignInGate } from '@/features/bjjeire-competition-admin/components/admin-sign-in-gate'
 import { AdminSignUps } from '@/features/bjjeire-competition-admin/components/admin-sign-ups'
 import { BjjEireCompetitionCancelAction } from '@/features/bjjeire-competition-admin/components/bjjeire-competition-cancel-action'
+import { BjjEireCompetitionFinishAction } from '@/features/bjjeire-competition-admin/components/bjjeire-competition-finish-action'
+import { DivisionResults } from '@/features/bjjeire-competition-admin/components/division-results'
 import { useAdminRegistrations } from '@/features/bjjeire-competition-admin/hooks/useAdminRegistrations'
 import { ADMIN_BJJEIRE_COMPETITIONS_KEY } from '@/features/bjjeire-competition-admin/api/query-keys'
 import { BjjEireCompetitionForm } from '@/features/bjjeire-competition-admin/components/bjjeire-competition-form'
@@ -149,10 +151,15 @@ const BjjEireCompetitionEditor = function BjjEireCompetitionEditor({
       {readOnly && (
         <p className="text-sm text-fg-muted">{copy.edit.readOnly}</p>
       )}
-      <BjjEireCompetitionCancelAction
-        bjjEireCompetition={bjjEireCompetition}
-        hasFailedRefunds={hasFailedRefunds}
-      />
+      <div className="flex flex-wrap items-start gap-3">
+        <BjjEireCompetitionFinishAction
+          bjjEireCompetition={bjjEireCompetition}
+        />
+        <BjjEireCompetitionCancelAction
+          bjjEireCompetition={bjjEireCompetition}
+          hasFailedRefunds={hasFailedRefunds}
+        />
+      </div>
       <BjjEireCompetitionForm
         key={revision}
         initialValues={toFormValues(bjjEireCompetition)}
@@ -175,6 +182,10 @@ const BjjEireCompetitionEditor = function BjjEireCompetitionEditor({
         }}
         actions={publishAction}
       />
+      {(bjjEireCompetition.status === 'PUBLISHED' ||
+        bjjEireCompetition.status === 'FINISHED') && (
+        <DivisionResults bjjEireCompetition={bjjEireCompetition} />
+      )}
       {bjjEireCompetition.status !== 'DRAFT' && (
         <AdminSignUps bjjEireCompetition={bjjEireCompetition} />
       )}

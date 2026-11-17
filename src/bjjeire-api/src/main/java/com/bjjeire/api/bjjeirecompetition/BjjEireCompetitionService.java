@@ -105,4 +105,14 @@ public interface BjjEireCompetitionService {
      * @throws org.springframework.web.server.ResponseStatusException 409 when it is finished
      */
     Optional<BjjEireCompetitionDto> cancel(String id);
+
+    /**
+     * Marks a published competition finished, which names the winners on its leaderboard (FR-040). Results can still be
+     * corrected. Asking again for a finished one returns it unchanged.
+     *
+     * @param id competition id
+     * @return the finished competition, or empty when the id is unknown
+     * @throws org.springframework.web.server.ResponseStatusException 409 when it is a draft or cancelled
+     */
+    Optional<BjjEireCompetitionDto> finish(String id);
 }

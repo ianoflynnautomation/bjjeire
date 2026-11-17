@@ -1,0 +1,388 @@
+[
+  {
+    "id": "acce77000000000000000401",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000401",
+    "status": "CONFIRMED",
+    "displayName": "Seán Murphy",
+    "academy": {
+      "gymId": null,
+      "name": "Lee Valley Jiu-Jitsu"
+    },
+    "affiliation": "Celtic Collective",
+    "academyKey": "name:lee valley jiu-jitsu",
+    "affiliationKey": "celtic collective",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000402",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000401",
+    "status": "CONFIRMED",
+    "displayName": "Cian Walsh",
+    "academy": {
+      "gymId": null,
+      "name": "Liffey BJJ"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:liffey bjj",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000403",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000401",
+    "status": "CONFIRMED",
+    "displayName": "Darragh Kelly",
+    "academy": null,
+    "affiliation": null,
+    "academyKey": null,
+    "affiliationKey": null,
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000404",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000401",
+    "status": "CONFIRMED",
+    "displayName": "Oisín Byrne",
+    "academy": {
+      "gymId": null,
+      "name": "Shannon Combat Club"
+    },
+    "affiliation": null,
+    "academyKey": "name:shannon combat club",
+    "affiliationKey": null,
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000405",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000401",
+    "status": "CANCELLED",
+    "displayName": "Fionn Daly",
+    "academy": {
+      "gymId": null,
+      "name": "Liffey BJJ"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:liffey bjj",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "refund": {
+      "amountCents": 3000,
+      "status": "REFUNDED",
+      "requestedAt": "2026-02-20T09:00:00Z"
+    },
+    "cancelledAt": "2026-02-20T09:00:00Z",
+    "cancelledBy": "COMPETITOR",
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000406",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000402",
+    "competitorId": "acce66000000000000000001",
+    "active": true,
+    "status": "CONFIRMED",
+    "displayName": "Aoife Ní Bhriain",
+    "academy": {
+      "gymId": null,
+      "name": "Liffey BJJ"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:liffey bjj",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000407",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000402",
+    "status": "CONFIRMED",
+    "displayName": "Róisín Doyle",
+    "academy": {
+      "gymId": null,
+      "name": "Corrib Grappling"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:corrib grappling",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000408",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000402",
+    "status": "CONFIRMED",
+    "displayName": "Niamh Brennan",
+    "academy": {
+      "gymId": null,
+      "name": "Lee Valley Jiu-Jitsu"
+    },
+    "affiliation": "Celtic Collective",
+    "academyKey": "name:lee valley jiu-jitsu",
+    "affiliationKey": "celtic collective",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000409",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000403",
+    "status": "CONFIRMED",
+    "displayName": "Eoin Fitzgerald",
+    "academy": {
+      "gymId": null,
+      "name": "Corrib Grappling"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:corrib grappling",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000410",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000403",
+    "status": "CONFIRMED",
+    "displayName": "Pádraig Ryan",
+    "academy": {
+      "gymId": null,
+      "name": "Lee Valley Jiu-Jitsu"
+    },
+    "affiliation": "Celtic Collective",
+    "academyKey": "name:lee valley jiu-jitsu",
+    "affiliationKey": "celtic collective",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000411",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000403",
+    "status": "CONFIRMED",
+    "displayName": "Ciarán O'Neill",
+    "academy": {
+      "gymId": null,
+      "name": "Shannon Combat Club"
+    },
+    "affiliation": null,
+    "academyKey": "name:shannon combat club",
+    "affiliationKey": null,
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000412",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000404",
+    "status": "CONFIRMED",
+    "displayName": "Niamh Brennan",
+    "academy": {
+      "gymId": null,
+      "name": "Lee Valley Jiu-Jitsu"
+    },
+    "affiliation": "Celtic Collective",
+    "academyKey": "name:lee valley jiu-jitsu",
+    "affiliationKey": "celtic collective",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000413",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000404",
+    "competitorId": "acce66000000000000000001",
+    "active": true,
+    "status": "CONFIRMED",
+    "displayName": "Aoife Ní Bhriain",
+    "academy": {
+      "gymId": null,
+      "name": "Liffey BJJ"
+    },
+    "affiliation": "Atlantic Alliance",
+    "academyKey": "name:liffey bjj",
+    "affiliationKey": "atlantic alliance",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  },
+  {
+    "id": "acce77000000000000000414",
+    "competitionId": "acce88000000000000000004",
+    "divisionId": "acce99000000000000000405",
+    "status": "CONFIRMED",
+    "displayName": "Tadhg Quinn",
+    "academy": {
+      "gymId": null,
+      "name": "Shannon Combat Club"
+    },
+    "affiliation": null,
+    "academyKey": "name:shannon combat club",
+    "affiliationKey": null,
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

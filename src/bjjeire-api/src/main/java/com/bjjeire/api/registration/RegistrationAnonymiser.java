@@ -18,10 +18,11 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 /**
- * Anonymises a deleting competitor's sign-ups (research R11, FR-013): the name becomes a fixed placeholder and the link
- * to the profile is removed. The division, academy, affiliation and any medal stay, so team points are kept. Payment
- * and refund records stay for {@link #FINANCIAL_RETENTION}, then {@link FinancialRecordsSweep} removes them. Runs
- * inside the deletion: a failure here stops it before anything else changed.
+ * Anonymises a deleting competitor's sign-ups (research R11, FR-013): the name becomes a fixed placeholder, the link to
+ * the profile is removed and the sign-up no longer counts as active. The division, academy, affiliation and any medal
+ * stay, so team points are kept. Payment and refund records stay for {@link #FINANCIAL_RETENTION}, then
+ * {@link FinancialRecordsSweep} removes them. Runs inside the deletion: a failure here stops it before anything else
+ * changed.
  */
 @Slf4j
 @Component
@@ -48,8 +49,12 @@ class RegistrationAnonymiser {
         long anonymised = mongoTemplate
                 .updateMulti(
                         Query.query(Criteria.where("competitorId").in(ids)),
+                        // Ends `active` too: an account goes only once its active sign-ups are in finished or
+                        // cancelled competitions, where they hold no place. Left set, two anonymised sign-ups in
+                        // one division would collide on ux_registration_active_competitor_division (null link).
                         new Update()
                                 .unset("competitorId")
+                                .unset("active")
                                 .set("displayName", BjjEireCompetitionRegistration.DELETED_DISPLAY_NAME)
                                 .set("financialRecordsExpireAt", expireAt),
                         BjjEireCompetitionRegistration.class)

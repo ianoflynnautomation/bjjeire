@@ -1,0 +1,29 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "competitionId": "000000000000000000000000",
+    "divisionId": "000000000000000000000001",
+    "status": "CONFIRMED",
+    "displayName": "Example Competitor",
+    "academy": {
+      "gymId": null,
+      "name": "Lee Valley Jiu-Jitsu"
+    },
+    "affiliation": "Celtic Collective",
+    "academyKey": "name:lee valley jiu-jitsu",
+    "affiliationKey": "celtic collective",
+    "profileMismatch": false,
+    "acceptedPublicListingAt": "2026-02-01T10:00:00Z",
+    "acceptedTermsAt": "2026-02-01T10:00:00Z",
+    "payment": {
+      "amountCents": 3000,
+      "currency": "EUR",
+      "status": "PAID",
+      "paidAt": "2026-02-01T10:05:00Z"
+    },
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

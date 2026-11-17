@@ -16,9 +16,11 @@ import type {
   TeamMergeDto,
 } from '@/types/registrations'
 import type {
+  AdminDivisionResultDto,
   BjjEireCompetitionCommand,
   BjjEireCompetitionDto,
   BjjEireCompetitionSummaryDto,
+  RecordResultCommand,
   UpdateBjjEireCompetitionCommand,
 } from '@/types/bjjeire-competitions'
 import AdminBjjEireCompetitionsPage from '@/pages/AdminBjjEireCompetitionsPage'
@@ -269,4 +271,84 @@ export function renderAdminBjjEireCompetitionPage(
       featureFlags: FLAGS,
     }
   )
+}
+
+/** Answers each read of the results tab with the next list, then keeps repeating the last. */
+export function seedAdminResults(
+  id: string,
+  ...lists: AdminDivisionResultDto[][]
+): Captured<null> {
+  const captured = capture<null>()
+  server.use(
+    http.get(
+      `${BJJEIRE_COMPETITIONS_ADMIN_API}/${id}/result`,
+      ({ request }) => {
+        captured.calls.push(null)
+        captured.authorization.push(request.headers.get('Authorization'))
+        const list =
+          lists[Math.min(captured.calls.length - 1, lists.length - 1)]
+        return HttpResponse.json(list)
+      }
+    )
+  )
+  return captured
+}
+
+export interface RecordedResult {
+  divisionId: string
+  command: RecordResultCommand
+}
+
+export function seedRecordResult(
+  id: string,
+  respond: (
+    divisionId: string,
+    command: RecordResultCommand
+  ) => AdminDivisionResultDto | Response
+): Captured<RecordedResult> {
+  const captured = capture<RecordedResult>()
+  server.use(
+    http.put(
+      `${BJJEIRE_COMPETITIONS_API}/${id}/division/:divisionId/result`,
+      async ({ request, params }) => {
+        const command = (await request.json()) as RecordResultCommand
+        const divisionId = String(params.divisionId)
+        captured.calls.push({ divisionId, command })
+        captured.authorization.push(request.headers.get('Authorization'))
+        const answer = respond(divisionId, command)
+        return answer instanceof Response ? answer : HttpResponse.json(answer)
+      }
+    )
+  )
+  return captured
+}
+
+export function seedClearResult(id: string): Captured<string> {
+  const captured = capture<string>()
+  server.use(
+    http.delete(
+      `${BJJEIRE_COMPETITIONS_API}/${id}/division/:divisionId/result`,
+      ({ request, params }) => {
+        captured.calls.push(String(params.divisionId))
+        captured.authorization.push(request.headers.get('Authorization'))
+        return new HttpResponse(null, { status: 204 })
+      }
+    )
+  )
+  return captured
+}
+
+export function seedFinish(
+  id: string,
+  finished: BjjEireCompetitionDto
+): Captured<null> {
+  const captured = capture<null>()
+  server.use(
+    http.post(`${BJJEIRE_COMPETITIONS_API}/${id}/finish`, ({ request }) => {
+      captured.calls.push(null)
+      captured.authorization.push(request.headers.get('Authorization'))
+      return HttpResponse.json(finished)
+    })
+  )
+  return captured
 }

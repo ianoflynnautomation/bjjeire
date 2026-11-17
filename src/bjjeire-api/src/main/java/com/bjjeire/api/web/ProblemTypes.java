@@ -47,6 +47,13 @@ public final class ProblemTypes {
     /** The payment provider could not be reached; nothing was charged. */
     public static final URI PAYMENT_UNAVAILABLE = URI.create("urn:bjjeire:payment-unavailable");
 
+    /** A medal names someone who is not a confirmed competitor in that division. */
+    public static final URI NOT_IN_DIVISION = URI.create("urn:bjjeire:not-in-division");
+    /** One competitor named for two places on the same podium. */
+    public static final URI DUPLICATE_MEDALLIST = URI.create("urn:bjjeire:duplicate-medallist");
+    /** Cancelling or moving a sign-up a recorded result names (FR-026); correct the result first. */
+    public static final URI RESULT_RECORDED = URI.create("urn:bjjeire:result-recorded");
+
     /** A capability that is switched on but not configured here, such as Stripe with placeholder secrets. */
     public static final URI SERVICE_UNAVAILABLE = URI.create("urn:bjjeire:service-unavailable");
 

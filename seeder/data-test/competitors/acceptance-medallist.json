@@ -1,0 +1,26 @@
+[
+  {
+    "id": "acce66000000000000000001",
+    "issuer": "https://local-competitor-sign-in.bjjeire.invalid",
+    "subject": "local-competitor:dd0596520fb0ee15e4dc12bffb6e345abfaf29680cbf191f47ce09b0986785d0",
+    "email": "medallist@acceptance.bjjeire.test",
+    "firstName": "Aoife",
+    "middleName": null,
+    "lastName": "Ní Bhriain",
+    "nationality": "IE",
+    "dateOfBirth": "1994-08-21",
+    "gender": "FEMALE",
+    "belt": "BLUE",
+    "academy": {
+      "gymId": null,
+      "name": "Liffey BJJ"
+    },
+    "affiliation": "Atlantic Alliance",
+    "phone": null,
+    "address": null,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-20T00:00:00Z",
+    "updatedBy": null,
+    "updatedAt": null
+  }
+]

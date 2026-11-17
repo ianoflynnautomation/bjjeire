@@ -56,7 +56,8 @@ class CompetitorServiceTest {
                 identityDirectory,
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
-                event -> {});
+                event -> {},
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
         given(mongoTemplate.exists(any(Query.class), eq(DeletedCompetitor.class)))
                 .willReturn(true);
@@ -90,7 +91,8 @@ class CompetitorServiceTest {
                 identityDirectory,
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
-                event -> {});
+                event -> {},
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
 
         assertThatThrownBy(() -> service.saveOwn(CALLER, command()))
@@ -115,7 +117,8 @@ class CompetitorServiceTest {
                 identityDirectory,
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
-                event -> {});
+                event -> {},
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
         given(mongoTemplate.findAndModify(
                         any(Query.class),
                         any(Update.class),

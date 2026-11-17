@@ -5,6 +5,7 @@ import type {
   GetBjjEireCompetitionsPaginationQuery,
   BjjEireCompetitionDto,
   BjjEireCompetitionSummaryDto,
+  LeaderboardDto,
 } from '@/types/bjjeire-competitions'
 
 export const getBjjEireCompetitions = ({
@@ -22,4 +23,12 @@ export const getBjjEireCompetition = (
 ): Promise<BjjEireCompetitionDto> =>
   api.get(
     `${API_RESOURCE_ROUTES.bjjEireCompetitions}/${encodeURIComponent(slug)}`
+  )
+
+/** Podiums and both rankings (FR-032 to FR-035); winners once finished (FR-040). */
+export const getBjjEireCompetitionLeaderboard = (
+  id: string
+): Promise<LeaderboardDto> =>
+  api.get(
+    `${API_RESOURCE_ROUTES.bjjEireCompetitions}/${encodeURIComponent(id)}/leaderboard`
   )

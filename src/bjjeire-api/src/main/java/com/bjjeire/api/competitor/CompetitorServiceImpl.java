@@ -3,10 +3,14 @@ package com.bjjeire.api.competitor;
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
+import com.bjjeire.api.bjjeirecompetition.CompetitionMedals;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.bjjeirecompetition.RegistrationState;
+import com.bjjeire.api.bjjeirecompetition.ResultService;
 import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.web.ApiProblems;
@@ -14,9 +18,12 @@ import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
@@ -40,6 +47,10 @@ public class CompetitorServiceImpl implements CompetitorService {
      */
     static final String REGISTRATION_COLLECTION = "BjjEireCompetitionRegistration";
 
+    /** Competitions whose sign-ups no longer hold an account. */
+    private static final Set<BjjEireCompetitionStatus> OVER =
+            Set.of(BjjEireCompetitionStatus.FINISHED, BjjEireCompetitionStatus.CANCELLED);
+
     private final MongoTemplate mongoTemplate;
     private final AuditInfoProvider auditInfoProvider;
     private final AuditRecorder auditRecorder;
@@ -47,6 +58,7 @@ public class CompetitorServiceImpl implements CompetitorService {
     private final Counter directoryFailures;
     private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApplicationEventPublisher events;
+    private final ResultService resultService;
 
     public CompetitorServiceImpl(
             MongoTemplate mongoTemplate,
@@ -55,13 +67,15 @@ public class CompetitorServiceImpl implements CompetitorService {
             IdentityDirectory identityDirectory,
             MeterRegistry meterRegistry,
             BjjEireCompetitionService bjjEireCompetitionService,
-            ApplicationEventPublisher events) {
+            ApplicationEventPublisher events,
+            ResultService resultService) {
         this.mongoTemplate = mongoTemplate;
         this.auditInfoProvider = auditInfoProvider;
         this.auditRecorder = auditRecorder;
         this.identityDirectory = identityDirectory;
         this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.events = events;
+        this.resultService = resultService;
         this.directoryFailures = Counter.builder("competitor.identity.deletion.failures")
                 .description("Account deletions whose sign-in identity is still in the external tenant")
                 .register(meterRegistry);
@@ -185,8 +199,36 @@ public class CompetitorServiceImpl implements CompetitorService {
 
     @Override
     public CompetitorHistoryDto getOwnHistory(CompetitorIdentity caller) {
-        // Results are recorded from slice 5 (FR-039); until then nobody has a medal.
-        return CompetitorHistoryDto.empty();
+        Competitor competitor = find(caller);
+        if (competitor == null) {
+            return CompetitorHistoryDto.empty();
+        }
+        // Entered means confirmed: a cancelled, expired or unpaid sign-up never competed (FR-039).
+        Query query = Query.query(Criteria.where("competitorId")
+                .in(competitorIds(competitor.getId()))
+                .and("status")
+                .is("CONFIRMED"));
+        query.fields().include("_id", "competitionId");
+        List<ResultService.SignUpRef> signUps =
+                mongoTemplate.find(query, Document.class, REGISTRATION_COLLECTION).stream()
+                        .map(document -> new ResultService.SignUpRef(
+                                document.getString("competitionId"), hex(document.get("_id"))))
+                        .toList();
+        List<CompetitionMedals> medals = resultService.medalsFor(signUps);
+        return new CompetitorHistoryDto(
+                medals.stream().mapToInt(CompetitionMedals::gold).sum(),
+                medals.stream().mapToInt(CompetitionMedals::silver).sum(),
+                medals.stream().mapToInt(CompetitionMedals::bronze).sum(),
+                medals.stream()
+                        .map(entry -> new CompetitorHistoryDto.CompetitionMedalsDto(
+                                entry.competitionId(),
+                                entry.slug(),
+                                entry.name(),
+                                entry.date(),
+                                entry.gold(),
+                                entry.silver(),
+                                entry.bronze()))
+                        .toList());
     }
 
     @Override
@@ -286,13 +328,45 @@ public class CompetitorServiceImpl implements CompetitorService {
         return mongoTemplate.findOne(identityQuery(caller), Competitor.class);
     }
 
+    /**
+     * Whether a sign-up still holds the account: awaiting payment or confirmed, in a competition that has not finished
+     * or been cancelled. A confirmed sign-up stays active after its competition finishes, and one a result names can no
+     * longer be cancelled (FR-026), so a finished competition must not keep a medallist from deleting their account
+     * (FR-013). A sign-up whose competition cannot be found still blocks: the guard never fails open.
+     */
     private boolean hasActiveRegistration(String competitorId) {
-        // Sign-ups store the link as a string; an ObjectId is matched too, so the guard never fails open.
-        List<Object> ids = ObjectId.isValid(competitorId)
+        Query active = Query.query(Criteria.where("competitorId")
+                .in(competitorIds(competitorId))
+                .and("active")
+                .is(true));
+        active.fields().include("competitionId");
+        Set<String> competitionIds = new HashSet<>();
+        for (Document signUp : mongoTemplate.find(active, Document.class, REGISTRATION_COLLECTION)) {
+            Object competitionId = signUp.get("competitionId");
+            if (competitionId == null) {
+                return true;
+            }
+            competitionIds.add(String.valueOf(competitionId));
+        }
+        if (competitionIds.isEmpty()) {
+            return false;
+        }
+        long over = mongoTemplate.count(
+                Query.query(
+                        Criteria.where("_id").in(competitionIds).and("status").in(OVER)),
+                BjjEireCompetition.class);
+        return over < competitionIds.size();
+    }
+
+    /** Sign-ups store the link as a string; an ObjectId is matched too, so a lookup never misses one. */
+    private static List<Object> competitorIds(String competitorId) {
+        return ObjectId.isValid(competitorId)
                 ? List.of(competitorId, new ObjectId(competitorId))
                 : List.of(competitorId);
-        return mongoTemplate.exists(
-                Query.query(Criteria.where("competitorId").in(ids).and("active").is(true)), REGISTRATION_COLLECTION);
+    }
+
+    private static String hex(Object id) {
+        return id instanceof ObjectId objectId ? objectId.toHexString() : String.valueOf(id);
     }
 
     private Academy resolveAcademy(CompetitorIdentity caller, SaveCompetitorCommand.AcademyChoice choice) {

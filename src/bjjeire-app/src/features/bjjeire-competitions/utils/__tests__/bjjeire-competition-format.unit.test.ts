@@ -28,7 +28,7 @@ describe('registrationMessage', () => {
       registrationMessage(
         createBjjEireCompetition({ registrationState: 'NOT_OPEN' })
       )
-    ).toBe('Registration opens on 1 June 2026, 10:00.')
+    ).toBe('Registration opens on 1 June 2026, 10:00 (Irish time).')
   })
 
   // #5003
@@ -45,7 +45,7 @@ describe('registrationMessage', () => {
       registrationMessage(
         createBjjEireCompetition({ registrationState: 'OPEN' })
       )
-    ).toBe('Registration is open until 20 June 2026, 21:00.')
+    ).toBe('Registration is open until 20 June 2026, 21:00 (Irish time).')
   })
 
   it('given every place is taken, then the message says the competition is full', () => {

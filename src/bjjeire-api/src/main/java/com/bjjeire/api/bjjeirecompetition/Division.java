@@ -19,4 +19,7 @@ public class Division {
     private AgeCategory ageCategory;
     private Belt belt;
     private String weightClass;
+
+    /** The podium, once the organiser has recorded it; null until then. */
+    private DivisionResult result;
 }

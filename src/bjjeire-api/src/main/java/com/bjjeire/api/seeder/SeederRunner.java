@@ -96,8 +96,10 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
                 seededIds.addAll(seedResult.ids());
             }
 
-            if (options.prune()) {
+            if (options.prune() && collection.prunable()) {
                 result |= seeder.prune(collection, seededIds);
+            } else if (options.prune()) {
+                System.out.printf("  Not pruning %s: the API writes it too.%n", collection.name());
             }
         }
 

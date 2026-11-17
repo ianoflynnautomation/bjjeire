@@ -66,6 +66,70 @@ Paths are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/` (API) or 
 Paths below are relative to `src/bjjeire-api/src/test/java/com/bjjeire/api/`
 (API) or `src/bjjeire-app/src/` (SPA) unless they start with a repository name.
 
+## Slice 5 — User Story 5, results, leaderboard and team points
+
+| Issue | Layer | Test path | Implementation path |
+|---|---|---|---|
+| `#5028` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldListPodiumsInTheCompetitionsDivisionOrder`) | `bjjeirecompetition/Leaderboards.calculate` |
+| `#5028` | T2 IT | `bjjeirecompetition/DivisionResultIT.java` (`shouldRecordGoldSilverAndTwoBronzesFromTheDivisionsConfirmedCompetitors`, `shouldRecordAGoldAlone`, `shouldRefuseAMedallistWhoIsNotConfirmedInThatDivision`, `shouldRefuseTheSameCompetitorTwice`, `shouldRefuseMoreThanTwoBronzesOrNoGold`, `shouldListEachDivisionsConfirmedCompetitorsAndResultForTheOrganiser`) | `BjjEireCompetitionResultController`, `ResultServiceImpl.record`, `ResultServiceImpl.getForAdmin`, `MongoDivisionSignUps.confirmed` |
+| `#5028` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldShowPodiumsAndBothRankingsToAVisitor`) | `ResultServiceImpl.getLeaderboard`, `MongoDivisionSignUps.byIds` |
+| `#5028` | T2 IT | `registration/ResultRecordedIT.java` (`shouldRefuseTheMedallistsOwnCancellationAndDivisionChange`, `shouldRefuseTheOrganisersMoveAndCancelOfAMedallist`) (FR-026) | `RegistrationSupport.refuseIfMedallist`, `ResultService.isNamedInResult` |
+| `#5028` | T1 unit | `bjjeirecompetition/ResultServiceImplTest.java` (`shouldUndoTheResultWhenAMedallistWasCancelledWhileItWasBeingWritten`, `shouldRetryTheUndoWhenAnotherSaveChangedTheCompetitionMeanwhile`, `shouldLeaveANewerResultAloneWhenTheUndoFindsItReplaced`); `registration/RegistrationSupportTest.java` (`shouldMoveTheSignUpBackWhenAResultNamedItWhileItWasMoving`, `shouldRestoreTheSignUpWhenAResultNamedItWhileItWasBeingCancelled`, `shouldKeepACancellationNoResultNames`) (the race, FR-026) | `ResultServiceImpl.record` (check after write), `ResultServiceImpl.undoResult` (retried against a fresh read), `RegistrationSupport.move`, `RegistrationSupport.undoCancellationIfMedallist`, `CancellationServiceImpl.cancel` |
+| `#5028` | T0 Pact | `contracts/pact/bjjeire-competition.pact.test.ts` (`GET /{id}/leaderboard`); provider state `a finished competition with a recorded podium` in `web/PactProviderVerificationIT.java` | `features/bjjeire-competitions/api/get-bjjeire-competitions.ts` |
+| `#5028` | T4 SPA | `pages/__tests__/admin-bjjeire-competition-results.integration.test.tsx` (record by sign-up id; only confirmed competitors offered; duplicate and missing gold blocked; API refusal shown; no form without competitors; no tab on a draft) | `features/bjjeire-competition-admin/components/division-results.tsx`, `utils/division-result-form.ts` |
+| `#5028` | T3 SPA | `features/bjjeire-competition-admin/utils/__tests__/division-result-form.unit.test.ts` | `utils/division-result-form.ts` |
+| `#5028` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (podium with gold, silver and two bronzes) | `features/bjjeire-competitions/components/bjjeire-competition-leaderboard.tsx` |
+| `#5028` | T6 | `bjjeire-tests` (planned; needs seeded medallists, T079) | running images |
+| `#5029` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldAwardNinePerGoldThreePerSilverAndOnePerBronzePerAcademyAndAffiliation`, `shouldGroupAcademiesByKeyWhateverTheSpelling`) | `Leaderboards.calculate`, `Medal` |
+| `#5029` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldShowPodiumsAndBothRankingsToAVisitor`, `shouldReflectATeamMergeOnTheNextRead`) | `ResultServiceImpl.getLeaderboard` |
+| `#5029` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (both ranking tables) | `bjjeire-competition-leaderboard.tsx` |
+| `#5029` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5030` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldBreakTiesOnGoldsThenSilversThenBronzes`, `shouldRankSilversAheadOfBronzesWhenPointsAndGoldsAreLevel`, `shouldNameJointWinnersWhenLevelOnEveryTieBreak` for shared ranks) | `Leaderboards.RANKING`, `Leaderboards.rank` |
+| `#5031` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldShowAMedallistWithNoAcademyOrAffiliationOnThePodiumOnly`) | `Leaderboards.award` |
+| `#5031` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` ("No academy" on the podium, in the `#5028` podium test) | `bjjeire-competition-leaderboard.tsx` |
+| `#5032` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldAwardNoPointsInADivisionWithOneConfirmedCompetitor`) | `Leaderboards.MINIMUM_FOR_POINTS` |
+| `#5032` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldAwardNoPointsWhenTheResultIsRecordedWithOneConfirmedCompetitor`, `shouldKeepPointsWhenACompetitorCancelsAfterTheResultWasRecorded`, `shouldKeepPointsWhenACompetitorIsMovedAfterTheResultWasRecorded`); `DivisionResultIT.java` (stored `confirmedCompetitors`) | `DivisionResult.confirmedCompetitors`, `ResultServiceImpl.record`, `Leaderboards.calculate` |
+| `#5032` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (no-points note) | `bjjeire-competition-leaderboard.tsx` |
+| `#5033` | T2 IT | `bjjeirecompetition/DivisionResultIT.java` (`shouldReplaceARecordedResultWhenTheOrganiserCorrectsIt`, `shouldClearAResult`, `shouldKeepAResultWhenTheOrganiserSavesTheCompetitionDetails`) | `ResultServiceImpl.record`, `ResultServiceImpl.clear`, `BjjEireCompetitionServiceImpl.mergeDivisions` |
+| `#5033` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldReflectACorrectionOnTheNextRead`, `shouldCountTheCompetitorsAgainWhenTheOrganiserCorrectsTheResult`); `registration/ResultRecordedIT.java` (`shouldAllowCancellingOnceTheResultNoLongerNamesTheSignUp`) | cache eviction in `ResultServiceImpl` |
+| `#5033` | T4 SPA | `pages/__tests__/admin-bjjeire-competition-results.integration.test.tsx` (recorded podium filled in, corrected, cleared) | `division-results.tsx` |
+| `#5034` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldBeEmptyWithNoResults`) | `Leaderboards.calculate` |
+| `#5034` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldServeEmptyPodiumsAndRankingsBeforeAnyResult`, `shouldNotServeTheLeaderboardOfADraftOrAnUnknownCompetition`, `shouldNotServeTheLeaderboardOfACancelledCompetition`) | `ResultServiceImpl.getLeaderboard` (`WITH_LEADERBOARD`) |
+| `#5034` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (empty-state message) | `bjjeire-competition-leaderboard.tsx` |
+| `#5034` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5035` | T2 IT | `bjjeirecompetition/DivisionResultIT.java` (`shouldRefuseCompetitorsAndAnonymousCallers`: record, clear, finish and the admin result list for competitor, reader and anonymous callers) | `config/SecurityConfig` (writer catch-all; `/admin/**`) |
+| `#5039` | T2 IT | `competitor/CompetitorHistoryIT.java` (`shouldTotalTheCallersMedalsAndListEachCompetitionEnteredLatestFirst`, `shouldBeEmptyForACompetitorWithNoProfileOrNoSignUp`) | `CompetitorServiceImpl.getOwnHistory`, `ResultService.medalsFor` |
+| `#5039` | T6 | `bjjeire-tests` (planned; needs seeded medallists, T079) | running images |
+| `#5040` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldAwardNinePerGoldThreePerSilverAndOnePerBronzePerAcademyAndAffiliation`) | `Leaderboards.award` (affiliation key) |
+| `#5040` | T2 IT | `bjjeirecompetition/LeaderboardIT.java` (`shouldShowPodiumsAndBothRankingsToAVisitor`) | `ResultServiceImpl.getLeaderboard` |
+| `#5040` | T4 SPA | `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (affiliation table) | `bjjeire-competition-leaderboard.tsx` |
+| `#5040` | T6 | `bjjeire-tests` (planned) | running images |
+| `#5041` | T1 unit | `bjjeirecompetition/LeaderboardsTest.java` (`shouldNameWinnersOnlyOnceTheCompetitionIsFinished`, `shouldNameJointWinnersWhenLevelOnEveryTieBreak`) | `Leaderboards.top` |
+| `#5041` | T2 IT | `bjjeirecompetition/DivisionResultIT.java` (`shouldFinishAPublishedCompetitionAndStillAllowCorrections`, `shouldRefuseToFinishADraftOrCancelledCompetition`); `bjjeirecompetition/LeaderboardIT.java` (`shouldNameTheWinnersOnceTheCompetitionIsFinished`) | `BjjEireCompetitionAdminController.finishBjjEireCompetition`, `BjjEireCompetitionServiceImpl.finish` |
+| `#5041` | T0 Pact | `contracts/pact/bjjeire-competition.pact.test.ts` (`winners` on a finished competition) | `get-bjjeire-competitions.ts` |
+| `#5041` | T4 SPA | `pages/__tests__/admin-bjjeire-competition-results.integration.test.tsx` (finish after warning; keep; corrections after finishing); `pages/__tests__/bjjeire-competition-leaderboard.integration.test.tsx` (winners, joint winners, none before finishing) | `features/bjjeire-competition-admin/components/bjjeire-competition-finish-action.tsx`, `bjjeire-competition-leaderboard.tsx` |
+| `#5041` | T6 | `bjjeire-tests` (planned) | running images |
+
+`#5012` (slice 2) gained `competitor/CompetitorDeletionIT.java` (`shouldDeleteAMedallistOnceTheirCompetitionHasFinishedAndKeepTheMedal`, `shouldStillRefuseWhileTheCompetitionOfAConfirmedSignUpIsPublished`) → `CompetitorServiceImpl.hasActiveRegistration`: a medallist could otherwise never delete their account, since FR-026 stops them cancelling.
+
+`#5012` also gained `CompetitorDeletionIT.shouldDeleteTwoMedallistsOfTheSameFinishedDivision` → `registration/RegistrationAnonymiser` (unsets `active` with the link, so two anonymised sign-ups in one division do not collide on `ux_registration_active_competitor_division`).
+
+Test seed (T079): `seeder/SeederIT.java` (`shouldSeedAFinishedCompetitionWithMedallistsAndAProfileFromTheTestDataset`, `shouldServeTheSeededFinishedCompetitionsLeaderboardAndWinners`, `shouldKeepSignUpsAndProfilesCreatedThroughTheApiWhenPruningTheTestDataset`, `shouldValidateTestRegistrationAndCompetitorFilesStrictlyAgainstTheJavaDomain`) → `seeder/SeederCollection` (`prunable`), `SeederRunner`, `SeederJson`, `seeder/data-test/{bjjeire-competitions/acceptance-finished.json,bjjeire-competition-registrations/,competitors/}`. It gives the T6 scenarios for `#5028`, `#5029`, `#5039`, `#5040` and `#5041` their data.
+
+Supporting tests with no requirement issue: `bjjeirecompetition/LeaderboardIT.java`
+(`shouldCarryNoPrivateFieldInThePublicJson`: FR-011, no sign-up or competitor id;
+`shouldKeepADeletedCompetitorsMedalAndPointsUnderThePlaceholderName`: research R11).
+`lib/admin-auth.ts` now imports MSAL once per page load: three admin reads sent at once made
+Vitest resolve one of the concurrent dynamic imports to the global MSAL mock, which
+`pages/__tests__/admin-bjjeire-competition-sign-ups.integration.test.tsx` caught.
+
+### Known limits (slice 5)
+
+- A result and a cancellation or move racing each other are resolved by a check after each write, not by one transaction: in the instant between a write and its undo, a reader can see the losing write. An undo refused three times in a row by other organiser saves is logged as an `ALERT` for the organiser to correct by hand. The race path is proven with mocks (`ResultServiceImplTest`, `RegistrationSupportTest`); no automated test interleaves two real requests.
+- Results recorded before `confirmedCompetitors` existed would count as no points. No such data exists: the feature was never switched on.
+- A result on a competition that is later cancelled stays stored; the leaderboard of a cancelled competition answers 404.
+- The seeded finished competition (`acceptance-finished`) is fixed: a T6 scenario that records or corrects a podium must create its own competition, never edit the seed.
+
 ## Slice 4 — User Story 4, cancellation, refunds, division change and organiser sign-up tools
 
 | Issue | Layer | Test path | Implementation path |
@@ -108,7 +172,7 @@ with private details and flags, empty, CSV export with the token, move, cancel w
 ### Known limits (slice 4)
 
 - Stripe is still the recording fake in every automated test. The refund event names and the `refund` object fields (`status`, `failure_reason`, `metadata`) follow Stripe's documented API and are not yet seen from Stripe test mode. The webhook endpoint registered in Stripe must add `refund.created`, `refund.updated` and `refund.failed`.
-- FR-026's "refused once a result names the sign-up" waits for results (slice 5); until then a confirmed sign-up can always be cancelled.
+- FR-026's "refused once a result names the sign-up" shipped with slice 5 (`ResultRecordedIT`).
 - A competitor cannot cancel an unpaid sign-up; it ends when its 30-minute hold runs out (FR-041 counts it until then). Ending it early would need Stripe's session-expire call.
 - The organiser's merge and the "retry failed refunds" check read the sign-ups on the page shown (100 per page).
 - Failed refunds are retried only through "Retry failed refunds" on a cancelled competition. A failed refund of a single cancellation in a competition that goes ahead is resolved by hand from the `ALERT` (the sign-up list shows "Refund pending").
@@ -195,7 +259,7 @@ Supporting tests with no requirement issue: `registration/RegistrationStatusTest
 | `#5012` | T1 unit | `competitor/CompetitorServiceTest.java` (`shouldRemoveAProfileSavedWhileTheAccountWasBeingDeleted`, `shouldRefuseRatherThanFailWhenTheProfileVanishedAfterTheSave`, `shouldRemoveByIdentityAfterRevokingSoARacingFirstSaveIsNotLeftBehind`) | `CompetitorServiceImpl.saveOwn` (revoked check after the upsert), `deleteOwn` (remove by identity after revoking) |
 | `#5012` | T1 unit | `config/RevocationCheckingJwtDecoderTest.java` (incl. `shouldAcceptATokenIssuedAfterTheDeletion`), `competitor/GraphIdentityDirectoryTest.java` | `config/RevocationCheckingJwtDecoder`, `GraphIdentityDirectory` |
 | `#5012` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (confirm then delete and sign out; active sign-up message) | `features/competitor/components/account-actions.tsx` |
-| `#5039` | T2 IT | `competitor/CompetitorDeletionIT.java` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`) | `CompetitorServiceImpl.getOwnHistory` (empty until slice 5) |
+| `#5039` | T2 IT | `competitor/CompetitorDeletionIT.java` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`) | `CompetitorServiceImpl.getOwnHistory` (see slice 5 for medals) |
 | `#5039` | T4 SPA | `pages/__tests__/profile-page.integration.test.tsx` (totals and rows; empty state) | `features/competitor/components/medal-history.tsx` |
 
 Supporting tests with no requirement issue: `config/LocalSignInTokensTest` (`shouldIssueACompetitorTokenThatTheLocalDecoderAccepts`, `shouldGiveTheSameEmailTheSameLocalCompetitor`), `config/RoutingJwtDecoderTest` (`shouldSendLocalCompetitorTokensToTheLocalDecoderOnlyWhenLocalSignInIsConfigured`), `config/IssuerAwareAuthoritiesConverterTest` (`shouldTreatEveryConfiguredCompetitorIssuerTheSameWay`), `config/LocalSignInIT` (`shouldLetALocalCompetitorKeepAProfile`, `shouldNeverTreatALocalCompetitorAsAnOrganiser`, `shouldRefuseALocalCompetitorSignInWithoutAValidEmail`, `shouldLetALocalCompetitorSignUpAgainWithTheSameEmailAfterDeleting`), `config/BjjEireCompetitionRouteAuthorizationIT.shouldOfferNoLocalSignInOutsideLocalDevelopment` (both local routes) — ADR-0014 amendment; `lib/__tests__/competitor-auth-local.integration.test.ts`; `lib/__tests__/api-client-competitor.integration.test.ts` (competitor token only on competitor routes, organiser token never there); `components/layout/__tests__/navigation.unit.test.tsx` (account link only with the flag, `#5038`); `__tests__/app-routes.integration.test.tsx` (`/account/profile` redirects when off, `#5038`); `utils/__tests__/dublin-time.unit.test.ts` (`dublinToday`).

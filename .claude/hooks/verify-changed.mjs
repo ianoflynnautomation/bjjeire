@@ -48,6 +48,15 @@ const checkApp = () => {
   const bin = name => path.join(appRoot, 'node_modules', '.bin', name);
   if (!existsSync(bin('tsc'))) return skipped.push(`SPA: no node_modules in ${APP_DIR}; run checks in the dev container`);
 
+  // CI's frontend_lint job also runs `prettier --check src/`; catch it here, including files a script wrote.
+  const formattable = appFiles
+    .filter(file => file.startsWith(`${APP_DIR}/src/`) && existsSync(path.join(root, file)))
+    .map(file => path.relative(APP_DIR, file));
+  if (formattable.length > 0) {
+    const format = run(bin('prettier'), ['--check', '--ignore-unknown', ...formattable], appRoot);
+    if (!format.ok) failures.push(`prettier --check (run prettier --write on these files)\n${format.output}`);
+  }
+
   const lintable = appFiles.filter(file => LINTABLE.test(file) && existsSync(path.join(root, file)));
   if (lintable.length > 0) {
     const relative = lintable.map(file => path.relative(APP_DIR, file));

@@ -95,3 +95,41 @@ export const BjjEireCompetitionAdminMergeTestIds = {
   NOTICE: 'bjjeire-competition-admin-merge-notice',
   ERROR: 'bjjeire-competition-admin-merge-error',
 }
+
+export const BjjEireCompetitionLeaderboardTestIds = {
+  ROOT: 'bjjeire-competition-leaderboard',
+  EMPTY: 'bjjeire-competition-leaderboard-empty',
+  ERROR: 'bjjeire-competition-leaderboard-error',
+  PODIUM: 'bjjeire-competition-leaderboard-podium',
+  GOLD: 'bjjeire-competition-leaderboard-gold',
+  SILVER: 'bjjeire-competition-leaderboard-silver',
+  BRONZE: 'bjjeire-competition-leaderboard-bronze',
+  NO_POINTS: 'bjjeire-competition-leaderboard-no-points',
+  ACADEMY_RANKING: 'bjjeire-competition-leaderboard-academy-ranking',
+  AFFILIATION_RANKING: 'bjjeire-competition-leaderboard-affiliation-ranking',
+  RANKING_ROW: 'bjjeire-competition-leaderboard-ranking-row',
+  WINNERS: 'bjjeire-competition-leaderboard-winners',
+}
+
+export const BjjEireCompetitionAdminResultsTestIds = {
+  ROOT: 'bjjeire-competition-admin-results',
+  EMPTY: 'bjjeire-competition-admin-results-empty',
+  DIVISION: 'bjjeire-competition-admin-results-division',
+  DIVISION_STATUS: 'bjjeire-competition-admin-results-division-status',
+  GOLD: 'bjjeire-competition-admin-results-gold',
+  SILVER: 'bjjeire-competition-admin-results-silver',
+  BRONZE: 'bjjeire-competition-admin-results-bronze',
+  SAVE: 'bjjeire-competition-admin-results-save',
+  CLEAR: 'bjjeire-competition-admin-results-clear',
+  NOTICE: 'bjjeire-competition-admin-results-notice',
+  ERROR: 'bjjeire-competition-admin-results-error',
+}
+
+export const BjjEireCompetitionAdminFinishTestIds = {
+  BUTTON: 'bjjeire-competition-admin-finish',
+  WARNING: 'bjjeire-competition-admin-finish-warning',
+  CONFIRM: 'bjjeire-competition-admin-finish-confirm',
+  KEEP: 'bjjeire-competition-admin-finish-keep',
+  NOTICE: 'bjjeire-competition-admin-finish-notice',
+  ERROR: 'bjjeire-competition-admin-finish-error',
+}

@@ -34,8 +34,7 @@ pointers:
 bjjeire_competitions:
   # Routes, auth and invariants for BJJ Éire competitions. Copied from the design record
   # (specs/001-tournament-registration/contracts/contract.yaml) and kept here from now on.
-  # status: the auth rules and the feature flag gate are live. Live routes: GET /api/v1/bjjeire-competition, GET /{slug},
-  # GET /admin, GET /admin/{id}, POST /, PUT /{id}, POST /{id}/publish (slice 1). Every other route has no controller yet.
+  # status: every route below is live (slices 1 to 5).
   feature_flag: BjjEireCompetitions   # default off; API answers 404 and SPA hides routes when off
   openapi:
     served: /v3/api-docs
@@ -77,6 +76,7 @@ bjjeire_competitions:
       path: /api/v1/bjjeire-competition/{id}/leaderboard
       auth: public
       response: LeaderboardDto   # podiums[], academyRanking[], affiliationRanking[], winners?
+      notes: "404 for a draft, cancelled or unknown id. Podiums in the competition's division order, each with pointsAwarded (false when fewer than two competitors were confirmed in the division when its result was recorded, FR-035). Rankings carry rank (shared when level on points, golds, silvers, bronzes), name, points, gold, silver, bronze. winners (academies[], affiliations[]; several = joint) only when FINISHED. Names, academies and affiliations only: no sign-up or competitor id"
       covers: ["#5028", "#5029", "#5030", "#5031", "#5032", "#5034", "#5040", "#5041"]
 
     # ---- Competition: admin ---------------------------------------------------
@@ -120,16 +120,31 @@ bjjeire_competitions:
     - method: POST
       path: /api/v1/bjjeire-competition/{id}/finish
       auth: admin
+      response: BjjEireCompetitionDto (status FINISHED)
+      conflicts: [conflict]   # a draft or cancelled competition; finishing a finished one returns it unchanged
+      notes: results can still be corrected after finishing; the winners are recomputed
       covers: ["#5041"]
+    - method: GET
+      path: /api/v1/bjjeire-competition/admin/{id}/result
+      auth: admin
+      response: AdminDivisionResultDto[]   # per division in order: divisionId, result? (sign-up ids, recordedAt), competitors[] (registrationId, displayName, academy, affiliation; CONFIRMED only)
+      notes: added in slice 5 for the results tab, because the public leaderboard carries no sign-up id. Admin only
+      covers: ["#5028", "#5035"]
     - method: PUT
       path: /api/v1/bjjeire-competition/{id}/division/{divisionId}/result
       auth: admin
       request: RecordResultCommand   # goldRegistrationId, silverRegistrationId?, bronzeRegistrationIds[0..2]
-      conflicts: [not-in-division, duplicate-medallist]
+      response: AdminDivisionResultDto
+      conflicts: [not-in-division, duplicate-medallist, conflict]   # conflict: neither published nor finished, or changed meanwhile
+      errors: [400 validation when gold is missing or there are more than two bronzes, 404 unknown competition or division]
+      notes: replaces any recorded result and stores the division's confirmed count with it; safe to retry. Checks the medallists again after the write and puts the earlier result back with 409 not-in-division if one was cancelled or moved meanwhile
       covers: ["#5028", "#5033", "#5035"]
     - method: DELETE
       path: /api/v1/bjjeire-competition/{id}/division/{divisionId}/result
       auth: admin
+      response: 204   # also when no result was recorded
+      conflicts: [conflict]
+      covers: ["#5033", "#5035"]
     - method: GET
       path: /api/v1/bjjeire-competition/{id}/registration
       auth: admin
@@ -141,14 +156,14 @@ bjjeire_competitions:
       auth: admin
       request: ChangeDivisionCommand   # divisionId
       response: AdminRegistrationDto
-      conflicts: [already-registered, conflict]   # conflict: the sign-up is not confirmed
-      notes: no eligibility check and allowed after registration closes (FR-007); placesTaken unchanged
+      conflicts: [already-registered, result-recorded, conflict]   # conflict: the sign-up is not confirmed
+      notes: no eligibility check and allowed after registration closes (FR-007); placesTaken unchanged; refused while a result names the sign-up
     - method: POST
       path: /api/v1/bjjeire-competition/{id}/registration/{registrationId}/cancel
       auth: admin
       request: AdminCancelCommand   # refund: boolean
       response: CancellationDto
-      conflicts: [conflict]   # the sign-up is not confirmed
+      conflicts: [result-recorded, conflict]   # conflict: the sign-up is not confirmed
     - method: POST
       path: /api/v1/bjjeire-competition/{id}/team-merge
       auth: admin
@@ -173,14 +188,15 @@ bjjeire_competitions:
     - method: GET
       path: /api/v1/competitor/me/history
       auth: competitor
-      response: CompetitorHistoryDto   # gold, silver, bronze totals; competitions[] with medals
+      response: CompetitorHistoryDto   # gold, silver, bronze totals; competitions[] with medals, latest day first
+      notes: entered = the caller's CONFIRMED sign-ups; medals from recorded results, including divisions that award no team points
       covers: ["#5039"]
     - method: DELETE
       path: /api/v1/competitor/me
       auth: competitor
       response: 204
       conflicts: [has-active-registration]
-      notes: removes the profile and deletes the tenant user by the oid claim; tokens of that (iss, sub) issued before the deletion are 401 (DeletedCompetitor.deletedAt), a later sign-in starts a new empty account
+      notes: has-active-registration counts only sign-ups in a competition that is not FINISHED or CANCELLED, so a medallist can leave once it finished; removes the profile and deletes the tenant user by the oid claim; tokens of that (iss, sub) issued before the deletion are 401 (DeletedCompetitor.deletedAt), a later sign-in starts a new empty account
       covers: ["#5012"]
 
     # ---- Registration (sign-up) ---------------------------------------------
@@ -215,13 +231,13 @@ bjjeire_competitions:
       auth: competitor (owner)
       request: ChangeDivisionCommand   # divisionId
       response: RegistrationDto
-      conflicts: [registration-closed, not-eligible, already-registered, conflict]   # conflict: the sign-up is not confirmed
+      conflicts: [registration-closed, not-eligible, already-registered, result-recorded, conflict]   # conflict: the sign-up is not confirmed
       covers: ["#5024", "#5025"]
     - method: POST
       path: /api/v1/registration/{id}/cancel
       auth: competitor (owner)
       response: CancellationDto   # refunded: boolean, refundAmountCents, refundStatus
-      conflicts: [result-recorded, conflict]   # result-recorded from slice 5; conflict: not confirmed (an unpaid sign-up ends with its hold)
+      conflicts: [result-recorded, conflict]   # result-recorded: a recorded result names it (FR-026); conflict: not confirmed (an unpaid sign-up ends with its hold)
       notes: "GET .../cancel-preview is not provided; RegistrationDto carries refundableUntil so the SPA can warn before the call. Cancelling a cancelled sign-up again returns the same CancellationDto and changes nothing"
       covers: ["#5022", "#5023", "#5027"]
     - method: POST
@@ -236,7 +252,7 @@ bjjeire_competitions:
     - ownership: a competitor route addressed by id returns 403 unless the registration belongs to the caller
     - money: integer cents, EUR; amounts are never taken from the client
     - confirmation: only the verified webhook moves a registration to CONFIRMED
-    - cache_tag: BJJEIRE_COMPETITIONS_TAG, evicted by every competition write (live); result, registration and merge writes evict it when they exist
+    - cache_tag: BJJEIRE_COMPETITIONS_TAG, evicted by every competition, result, registration, merge and account-deletion write
     - audit: admin and competitor writes are recorded through audit.AuditRecorder
 
   ui_routes:   # SPA, all behind the BjjEireCompetitions feature gate

@@ -103,4 +103,56 @@ describe('Pact - BJJ Éire competition consumer contract', () => {
         expect(body.divisions.length).toBeGreaterThan(0)
       })
   })
+
+  // #5028, #5029, #5040, #5041: podiums, both rankings and the winners of a finished competition.
+  it('GET /api/v1/bjjeire-competition/{id}/leaderboard returns podiums, rankings and winners', async () => {
+    const pact = createPact()
+    const path = `${API_ROUTES.bjjEireCompetitions}/0123456789abcdef0123ffff/leaderboard`
+    const standing = {
+      rank: integer(1),
+      name: string('Team X'),
+      points: integer(9),
+      gold: integer(1),
+      silver: integer(0),
+      bronze: integer(0),
+    }
+    const medallist = {
+      displayName: string('Aoife Byrne'),
+      academy: string('Team X'),
+      affiliation: string('Alliance'),
+    }
+
+    await pact
+      .addInteraction()
+      .given('a finished competition with a recorded podium')
+      .uponReceiving('a request for a competition leaderboard')
+      .withRequest('GET', path)
+      .willRespondWith(200, builder => {
+        builder.headers({ 'content-type': 'application/json' })
+        builder.jsonBody({
+          podiums: eachLike({
+            divisionId: string('0123456789abcdef01230001'),
+            gold: like(medallist),
+            silver: like({ ...medallist, displayName: string('Ciaran Byrne') }),
+            bronzes: [],
+            pointsAwarded: boolean(true),
+          }),
+          academyRanking: eachLike(standing),
+          affiliationRanking: eachLike({
+            ...standing,
+            name: string('Alliance'),
+          }),
+          winners: like({
+            academies: eachLike(string('Team X')),
+            affiliations: eachLike(string('Alliance')),
+          }),
+        })
+      })
+      .executeTest(async mockServer => {
+        const response = await fetch(`${mockServer.url}${path}`)
+        expect(response.ok).toBe(true)
+        const body = (await response.json()) as { podiums: unknown[] }
+        expect(body.podiums.length).toBeGreaterThan(0)
+      })
+  })
 })

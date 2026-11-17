@@ -9,6 +9,7 @@ import { uiContent } from '@/config/ui-content'
 import { BjjEireCompetitionPageTestIds } from '@/constants/bjjEireCompetitionDataTestIds'
 import { BjjEireCompetitionCompetitors } from '@/features/registrations/components/bjjeire-competition-competitors'
 import { BjjEireCompetitionDetails } from '@/features/bjjeire-competitions/components/bjjeire-competition-details'
+import { BjjEireCompetitionLeaderboard } from '@/features/bjjeire-competitions/components/bjjeire-competition-leaderboard'
 import { useBjjEireCompetition } from '@/features/bjjeire-competitions/hooks/useBjjEireCompetition'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { buttonVariants } from '@/lib/button-variants'
@@ -36,6 +37,11 @@ export default function BjjEireCompetitionPage(): JSX.Element {
   if (bjjEireCompetition) {
     content = (
       <BjjEireCompetitionDetails bjjEireCompetition={bjjEireCompetition}>
+        {bjjEireCompetition.status !== 'CANCELLED' && (
+          <BjjEireCompetitionLeaderboard
+            bjjEireCompetition={bjjEireCompetition}
+          />
+        )}
         <BjjEireCompetitionCompetitors
           bjjEireCompetition={bjjEireCompetition}
         />
