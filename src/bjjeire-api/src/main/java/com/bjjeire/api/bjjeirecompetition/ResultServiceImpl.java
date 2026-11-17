@@ -6,6 +6,8 @@ import com.bjjeire.api.audit.AuditRecorder;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -14,11 +16,13 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -31,12 +35,19 @@ import org.springframework.stereotype.Service;
  * Mongo implementation of {@link ResultService}. A result is embedded in its division; a write replaces the division
  * list guarded by the competition's version, as an organiser edit does, so neither overwrites the other.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ResultServiceImpl implements ResultService {
     /** Results may be recorded and corrected once published, and still after finishing (data-model.md). */
     private static final Set<BjjEireCompetitionStatus> RECORDABLE =
             Set.of(BjjEireCompetitionStatus.PUBLISHED, BjjEireCompetitionStatus.FINISHED);
+
+    /** A cancelled competition has no leaderboard: every sign-up in it was cancelled. */
+    private static final Set<BjjEireCompetitionStatus> WITH_LEADERBOARD = RECORDABLE;
+
+    /** How often an undo is tried against a freshly read competition before it is left for the organiser. */
+    private static final int UNDO_ATTEMPTS = 3;
 
     private final MongoTemplate mongoTemplate;
     private final AuditInfoProvider auditInfoProvider;
@@ -91,22 +102,28 @@ public class ResultServiceImpl implements ResultService {
             throw ApiProblems.conflict(
                     ProblemTypes.DUPLICATE_MEDALLIST, "A competitor can take only one place on a podium.");
         }
-        Map<String, ResultEntrant> confirmedHere = divisionSignUps.confirmed(competitionId).stream()
-                .filter(entrant -> divisionId.equals(entrant.divisionId()))
-                .collect(Collectors.toMap(ResultEntrant::registrationId, Function.identity()));
-        if (!confirmedHere.keySet().containsAll(named)) {
-            throw ApiProblems.conflict(
-                    ProblemTypes.NOT_IN_DIVISION, "Every medallist must be a confirmed competitor in this division.");
+        Set<String> confirmedHere = confirmedIn(competitionId, divisionId);
+        if (!confirmedHere.containsAll(named)) {
+            throw notInDivision();
         }
 
         DivisionResult result = DivisionResult.builder()
                 .goldRegistrationId(command.goldRegistrationId())
                 .silverRegistrationId(command.silverRegistrationId())
                 .bronzeRegistrationIds(new ArrayList<>(command.bronzes()))
-                .recordedAt(auditInfoProvider.currentInstant())
+                .confirmedCompetitors(confirmedHere.size())
+                // Mongo keeps milliseconds; storing exactly that lets the undo recognise this write when read back.
+                .recordedAt(auditInfoProvider.currentInstant().truncatedTo(ChronoUnit.MILLIS))
                 .recordedBy(auditInfoProvider.currentUser())
                 .build();
+        DivisionResult previous = findDivision(competition, divisionId).getResult();
         BjjEireCompetition saved = writeResult(competition, divisionId, result);
+        // A medallist cancelled or moved between the check above and this write: put the earlier result back. The
+        // cancellation and move check again after their own write, so whichever lands second sees the other (FR-026).
+        if (!confirmedIn(competitionId, divisionId).containsAll(named)) {
+            undoResult(saved, divisionId, result, previous);
+            throw notInDivision();
+        }
         auditRecorder.record(AuditAction.Update, BjjEireCompetition.ENTITY_NAME, competitionId, 1);
         cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
 
@@ -198,7 +215,7 @@ public class ResultServiceImpl implements ResultService {
 
     private LeaderboardDto loadLeaderboard(String competitionId) {
         Query query = Query.query(
-                Criteria.where("_id").is(competitionId).and("status").in(BjjEireCompetitionStatus.PUBLIC));
+                Criteria.where("_id").is(competitionId).and("status").in(WITH_LEADERBOARD));
         BjjEireCompetition competition = mongoTemplate.findOne(query, BjjEireCompetition.class);
         if (competition == null) {
             return null;
@@ -211,11 +228,7 @@ public class ResultServiceImpl implements ResultService {
                 .collect(Collectors.toSet());
         Map<String, ResultEntrant> entrants = divisionSignUps.byIds(competitionId, medallistIds).stream()
                 .collect(Collectors.toMap(ResultEntrant::registrationId, Function.identity(), (a, b) -> a));
-        Map<String, Integer> confirmedPerDivision = new HashMap<>();
-        for (ResultEntrant entrant : divisionSignUps.confirmed(competitionId)) {
-            confirmedPerDivision.merge(entrant.divisionId(), 1, Integer::sum);
-        }
-        return Leaderboards.calculate(competition.getStatus(), divisions, entrants, confirmedPerDivision);
+        return Leaderboards.calculate(competition.getStatus(), divisions, entrants);
     }
 
     private BjjEireCompetition writeResult(BjjEireCompetition competition, String divisionId, DivisionResult result) {
@@ -244,6 +257,64 @@ public class ResultServiceImpl implements ResultService {
                     "The competition was changed by another save. Reload it and retry.");
         }
         return saved;
+    }
+
+    /**
+     * Puts the earlier result back after a write named a sign-up that was cancelled or moved meanwhile. Another
+     * organiser save on the competition can land first and make the version guard miss: then the competition is read
+     * again and the undo retried, as long as the stored result is still the one just written. A result the organiser
+     * has since replaced or cleared is left as it is. The cache is cleared whatever happens.
+     */
+    private void undoResult(
+            BjjEireCompetition saved, String divisionId, DivisionResult written, DivisionResult previous) {
+        BjjEireCompetition current = saved;
+        try {
+            for (int attempt = 1; attempt <= UNDO_ATTEMPTS; attempt++) {
+                try {
+                    writeResult(current, divisionId, previous);
+                    return;
+                } catch (OptimisticLockingFailureException changedMeanwhile) {
+                    current = mongoTemplate.findById(saved.getId(), BjjEireCompetition.class);
+                    Division division = current == null ? null : findDivision(current, divisionId);
+                    if (division == null
+                            || !RECORDABLE.contains(current.getStatus())
+                            || !isSameResult(division.getResult(), written)) {
+                        return;
+                    }
+                }
+            }
+            log.error(
+                    "ALERT result of division {} in competition {} names a sign-up that is no longer confirmed there,"
+                            + " and putting the earlier result back was refused {} times: correct it by hand",
+                    divisionId,
+                    saved.getId(),
+                    UNDO_ATTEMPTS);
+        } finally {
+            cache.removeByTag(ApiCache.BJJEIRE_COMPETITIONS_TAG);
+        }
+    }
+
+    /** Whether a stored result is the very write being undone: same medallists, recorded at the same instant. */
+    private static boolean isSameResult(DivisionResult stored, DivisionResult written) {
+        return stored != null
+                && Objects.equals(toMillis(stored.getRecordedAt()), toMillis(written.getRecordedAt()))
+                && Objects.equals(stored.medallistIds(), written.medallistIds());
+    }
+
+    private static Instant toMillis(Instant instant) {
+        return instant == null ? null : instant.truncatedTo(ChronoUnit.MILLIS);
+    }
+
+    private Set<String> confirmedIn(String competitionId, String divisionId) {
+        return divisionSignUps.confirmed(competitionId).stream()
+                .filter(entrant -> divisionId.equals(entrant.divisionId()))
+                .map(ResultEntrant::registrationId)
+                .collect(Collectors.toSet());
+    }
+
+    private static RuntimeException notInDivision() {
+        return ApiProblems.conflict(
+                ProblemTypes.NOT_IN_DIVISION, "Every medallist must be a confirmed competitor in this division.");
     }
 
     private static void requireRecordable(BjjEireCompetition competition) {

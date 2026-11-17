@@ -142,7 +142,7 @@ class LeaderboardIT extends ResultsIntegrationTest {
 
     @Test
     @Tag("#5032")
-    void shouldDropPointsOnTheNextReadWhenACancellationLeavesOneConfirmedCompetitor() throws Exception {
+    void shouldKeepPointsWhenACompetitorCancelsAfterTheResultWasRecorded() throws Exception {
         Division division = BjjEireCompetitionTestData.division("-76 kg");
         BjjEireCompetition competition = publishedWith("cancelled-out", division);
         String aoife = confirmed(competition, division, "Aoife Byrne", "Team X", null);
@@ -157,15 +157,55 @@ class LeaderboardIT extends ResultsIntegrationTest {
                 String.class);
         assertThat(cancelled.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        // Two competitors took part when the result was recorded; a later cancellation changes nothing (FR-035).
         JsonNode body = objectMapper.readTree(leaderboard(competition.getId()).getBody());
         assertThat(body.at("/podiums/0/gold/displayName").asString()).isEqualTo("Aoife Byrne");
-        assertThat(body.at("/podiums/0/pointsAwarded").asBoolean()).isFalse();
-        assertThat(body.at("/academyRanking").size()).isZero();
+        assertThat(body.at("/podiums/0/pointsAwarded").asBoolean()).isTrue();
+        assertThat(body.at("/academyRanking/0/points").asInt()).isEqualTo(9);
     }
 
     @Test
     @Tag("#5032")
-    void shouldReflectAMoveOnTheNextRead() throws Exception {
+    void shouldAwardNoPointsWhenTheResultIsRecordedWithOneConfirmedCompetitor() throws Exception {
+        Division division = BjjEireCompetitionTestData.division("-76 kg");
+        BjjEireCompetition competition = publishedWith("alone", division);
+        String aoife = confirmed(competition, division, "Aoife Byrne", "Team X", "Alliance");
+
+        recordResult(ADMIN_TOKEN, competition.getId(), division.getId(), aoife, null);
+
+        JsonNode body = objectMapper.readTree(leaderboard(competition.getId()).getBody());
+        assertThat(body.at("/podiums/0/gold/displayName").asString()).isEqualTo("Aoife Byrne");
+        assertThat(body.at("/podiums/0/pointsAwarded").asBoolean()).isFalse();
+        assertThat(body.at("/academyRanking").size()).isZero();
+        assertThat(body.at("/affiliationRanking").size()).isZero();
+    }
+
+    @Test
+    @Tag("#5033")
+    void shouldCountTheCompetitorsAgainWhenTheOrganiserCorrectsTheResult() throws Exception {
+        Division division = BjjEireCompetitionTestData.division("-76 kg");
+        BjjEireCompetition competition = publishedWith("recount", division);
+        String aoife = confirmed(competition, division, "Aoife Byrne", "Team X", null);
+        String ciaran = confirmed(competition, division, "Ciaran Byrne", "Team Y", null);
+        recordResult(ADMIN_TOKEN, competition.getId(), division.getId(), aoife, null);
+        restTemplate.exchange(
+                ApiRoutes.BJJEIRE_COMPETITION + "/" + competition.getId() + "/registration/" + ciaran + "/cancel",
+                HttpMethod.POST,
+                jsonEntity("{ \"refund\": false }", ADMIN_TOKEN),
+                String.class);
+
+        recordResult(ADMIN_TOKEN, competition.getId(), division.getId(), aoife, null);
+
+        assertThat(objectMapper
+                        .readTree(leaderboard(competition.getId()).getBody())
+                        .at("/podiums/0/pointsAwarded")
+                        .asBoolean())
+                .isFalse();
+    }
+
+    @Test
+    @Tag("#5032")
+    void shouldKeepPointsWhenACompetitorIsMovedAfterTheResultWasRecorded() throws Exception {
         Division division = BjjEireCompetitionTestData.division("-76 kg");
         Division other = BjjEireCompetitionTestData.division("-82 kg");
         BjjEireCompetition competition = publishedWith("moved", division, other);
@@ -183,9 +223,23 @@ class LeaderboardIT extends ResultsIntegrationTest {
 
         assertThat(objectMapper
                         .readTree(leaderboard(competition.getId()).getBody())
-                        .at("/academyRanking")
-                        .size())
-                .isZero();
+                        .at("/academyRanking/0/points")
+                        .asInt())
+                .isEqualTo(9);
+    }
+
+    @Test
+    void shouldNotServeTheLeaderboardOfACancelledCompetition() {
+        Division division = BjjEireCompetitionTestData.division("-76 kg");
+        BjjEireCompetition competition = publishedWith("cancelled-board", division);
+        mongoTemplate.updateFirst(
+                org.springframework.data.mongodb.core.query.Query.query(
+                        org.springframework.data.mongodb.core.query.Criteria.where("_id")
+                                .is(competition.getId())),
+                org.springframework.data.mongodb.core.query.Update.update("status", BjjEireCompetitionStatus.CANCELLED),
+                BjjEireCompetition.class);
+
+        assertThat(leaderboard(competition.getId()).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

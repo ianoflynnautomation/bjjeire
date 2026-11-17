@@ -57,7 +57,7 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Adding or removing a flag is one change in three places: the enum, the `feature-flags` block in `application.yml` (`FEATURE_*` variables), and `src/bjjeire-app/src/features/feature-flags/definitions.ts`
 
 ## Errors
-- `web.ApiExceptionHandler` returns `ProblemDetail` with an `errors[]` array for validation failures, a `traceId` extension, and an `errorId` on unexpected 500s. A body that is not JSON or holds an unreadable value is 400 `urn:bjjeire:bad-request`, and a method a route lacks is 405 `urn:bjjeire:method-not-allowed`, for every route. Do not add per-controller exception handling
+- `web.ApiExceptionHandler` returns `ProblemDetail` with an `errors[]` array for validation failures, a `traceId` extension, and an `errorId` on unexpected 500s. A body that is not JSON or holds an unreadable value is 400 `urn:bjjeire:bad-request`, and a method a route lacks is 405 `urn:bjjeire:method-not-allowed`, for every route. A request Tomcat refuses before Spring sees it (an encoded NUL in the path, say) gets the same problem document from `config.ProblemErrorReportValve`, never Tomcat's HTML page. Do not add per-controller exception handling
 - Every error `type` is a `urn:bjjeire:*` URI from `web.ProblemTypes`. Do not emit an RFC document URL
 - `errors[].field` stays PascalCase (`Location.Address`). That casing is part of the contract
 - Authentication and authorization failures are problem documents, not an empty body. `SecurityProblemHandlers` writes them. The resource-server defaults set a status and `WWW-Authenticate` and write no body. A 401 includes `WWW-Authenticate: Bearer`

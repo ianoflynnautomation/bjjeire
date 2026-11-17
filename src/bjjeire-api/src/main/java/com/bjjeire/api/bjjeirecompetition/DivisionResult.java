@@ -28,6 +28,12 @@ public class DivisionResult {
     @Builder.Default
     private List<String> bronzeRegistrationIds = new ArrayList<>();
 
+    /**
+     * Confirmed competitors in the division when the result was recorded or last corrected. Fewer than two means its
+     * medals add no team points (FR-035); a later cancellation or move does not change that.
+     */
+    private Integer confirmedCompetitors;
+
     private Instant recordedAt;
     private String recordedBy;
 

@@ -21,7 +21,7 @@ rankings are built from the snapshot fields here, never from `Competitor`
 | `divisionId` | `divisionId` | ObjectId string, stored as a string | a `BjjEireCompetition.divisions[].id` |
 | `competitorId` | `competitorId` | ObjectId string, stored as a string \| null | `Competitor._id`; unset when the account is deleted |
 | `status` | `status` | enum | `AWAITING_PAYMENT`, `CONFIRMED`, `CANCELLED`, `EXPIRED` |
-| `active` | `active` | `true` \| absent | `true` exactly while `AWAITING_PAYMENT` or `CONFIRMED`; unset otherwise, so the partial unique index ignores ended sign-ups |
+| `active` | `active` | `true` \| absent | `true` while `AWAITING_PAYMENT` or `CONFIRMED`; unset otherwise, so the partial unique index ignores ended sign-ups. Exception: a `CONFIRMED` sign-up with no account behind it (anonymised on account deletion, or a snapshot-only test seed) has no `active`, since it holds no place in a finished or cancelled competition |
 | `holdExpiresAt` | `holdExpiresAt` | Instant \| absent | now + 30 minutes on creation (`bjjeire.registration.hold`); unset when the sign-up leaves `AWAITING_PAYMENT`. The Checkout Session expires 2 minutes later |
 | `unpaidSlot` | `unpaidSlot` | 0 \| 1 \| absent | while `AWAITING_PAYMENT`; unset when it leaves that status. Unique per competitor and competition, so at most two unpaid sign-ups exist at once (FR-041) |
 | `displayName` | `displayName` | string | first and last name, copied from the profile; `Former competitor` after account deletion |
@@ -86,9 +86,10 @@ a failed refund `refund-<id>-<attempts>`).
 - The organiser's team merge rewrites `academy` and `academyKey`, or
   `affiliation` and `affiliationKey`, on every sign-up of one competition
   whose key is in the merged list.
-- Account deletion first unsets `competitorId`, sets `displayName` to
+- Account deletion first unsets `competitorId` and `active`, sets `displayName` to
   `Former competitor` and `financialRecordsExpireAt` to now + 6 years on all
-  the competitor's sign-ups. A daily sweep unsets `payment` and `refund` on
+  the competitor's sign-ups. Deletion is allowed only once every active sign-up
+  is in a finished or cancelled competition, so no place is released. A daily sweep unsets `payment` and `refund` on
   sign-ups past `financialRecordsExpireAt`.
 - Cancelling a competition first ends its `AWAITING_PAYMENT` sign-ups
   (`EXPIRED`, place given back); a payment that arrives later is refunded.
@@ -96,6 +97,17 @@ a failed refund `refund-<id>-<attempts>`).
   to the competitor's active sign-ups in competitions that are not finished or
   cancelled, and sets `profileMismatch`.
 - Every write evicts `ApiCache.BJJEIRE_COMPETITIONS_TAG`.
+
+### Test seed
+
+`seeder/data-test/bjjeire-competition-registrations/` (test dataset only; `_template.json` documents the shape) holds the sign-ups of the finished `acceptance-finished` competition: confirmed medallists and others, and one cancelled sign-up. Most are snapshot-only, with no `competitorId` and no `active`, as after an account deletion; the two of `seeder/data-test/competitors/acceptance-medallist.json` keep their link. The seeder upserts these by id and `--prune` never deletes from this collection, because acceptance runs create sign-ups through the API.
+
+### Read by other packages
+
+`bjjeirecompetition` and `competitor` read this collection by name, so they do not depend on `registration`, which depends on them. Keep these fields and their meaning:
+
+- `bjjeirecompetition.MongoDivisionSignUps`: `competitionId`, `divisionId`, `active` (division removal, `#5005`); `_id`, `status`, `displayName`, `academy.name`, `affiliation`, `academyKey`, `affiliationKey` (results and leaderboard).
+- `competitor.CompetitorServiceImpl`: `competitorId` (string or ObjectId), `active` (account deletion guard); `_id`, `competitionId`, `status` (medal history, `#5039`: only `CONFIRMED` sign-ups count as entered).
 
 ### Indexes (`config/MongoIndexInitializer`)
 

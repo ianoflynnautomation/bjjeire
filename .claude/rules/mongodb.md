@@ -30,7 +30,7 @@ paths:
 - After every write, call `apiCache.removeByTag(...)` with the feature's tag (`ApiCache.GYMS_TAG`, `BJJ_EVENTS_TAG`, `COMPETITIONS_TAG`, `STORES_TAG`, `BJJEIRE_COMPETITIONS_TAG`). The deactivators do this too
 
 ## Seeder (`seeder/` data + `com.bjjeire.api.seeder`)
-- One JSON file per entity under `seeder/data/{gyms,bjj-events,competitions,stores}/`. BJJ Éire competitions have a test seed only (`seeder/data-test/bjjeire-competitions/`): the `BjjEireCompetition` collection is skipped, never pruned, outside `SEED_DATASET=test`. `_template.json` in each directory documents the schema
+- One JSON file per entity under `seeder/data/{gyms,bjj-events,competitions,stores}/`. BJJ Éire competitions have a test seed only (`seeder/data-test/bjjeire-competitions/`): the `BjjEireCompetition` collection is skipped, never pruned, outside `SEED_DATASET=test`. The test dataset also seeds one finished competition's sign-ups (`seeder/data-test/bjjeire-competition-registrations/`) and the profile that owns two of its medals (`seeder/data-test/competitors/`); `--prune` never touches those two collections (`SeederCollection.prunable`), because acceptance runs write them through the API. `_template.json` in each directory documents the schema
 - `seeder/data-test/` is the test dataset. `SEED_DATASET=test` selects it, and the local compose override defaults to it
 - Run it with the compose `seed` profile (command in `README.md`), or `java -jar target/bjjeire-api-*.jar --spring.profiles.active=seeder`. Add `--validate` for a dry run
 - `TrialOffer.isAvailable` is `true` or `false`, never `null`. The edit hook rejects `null`

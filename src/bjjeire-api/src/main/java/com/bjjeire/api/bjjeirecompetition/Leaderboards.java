@@ -10,12 +10,12 @@ import java.util.Map;
  * Works out a leaderboard from recorded results (FR-032 to FR-035, FR-040). Pure: no database, no clock.
  *
  * <p>Every medal adds {@link Medal#points()} to the medallist's academy and to their affiliation, grouped by key, so
- * differently typed names of one team count together once merged. A division with fewer than two confirmed competitors
- * adds nothing. Rankings order by points, golds, silvers, bronzes; entries level on all four share a rank, and at the
- * top they are joint winners.
+ * differently typed names of one team count together once merged. A division that had fewer than two confirmed
+ * competitors when its result was recorded adds nothing. Rankings order by points, golds, silvers, bronzes; entries
+ * level on all four share a rank, and at the top they are joint winners.
  */
 final class Leaderboards {
-    /** A division awards team points only with at least this many confirmed competitors (FR-035). */
+    /** A division awards team points only with at least this many confirmed competitors when recorded (FR-035). */
     static final int MINIMUM_FOR_POINTS = 2;
 
     private static final Comparator<Standing> RANKING = Comparator.comparingInt(Standing::points)
@@ -30,13 +30,9 @@ final class Leaderboards {
      * @param status the competition's status; winners are named only when {@code FINISHED}
      * @param divisions the competition's divisions in its order, with their results
      * @param entrants the sign-ups named in any result, by registration id
-     * @param confirmedPerDivision confirmed sign-ups now in each division, by division id
      */
     static LeaderboardDto calculate(
-            BjjEireCompetitionStatus status,
-            List<Division> divisions,
-            Map<String, ResultEntrant> entrants,
-            Map<String, Integer> confirmedPerDivision) {
+            BjjEireCompetitionStatus status, List<Division> divisions, Map<String, ResultEntrant> entrants) {
         List<PodiumDto> podiums = new ArrayList<>();
         Map<String, Standing> academies = new LinkedHashMap<>();
         Map<String, Standing> affiliations = new LinkedHashMap<>();
@@ -50,7 +46,8 @@ final class Leaderboards {
             ResultEntrant silver =
                     result.getSilverRegistrationId() == null ? null : entrants.get(result.getSilverRegistrationId());
             List<ResultEntrant> bronzes = bronzes(result, entrants);
-            boolean pointsAwarded = confirmedPerDivision.getOrDefault(division.getId(), 0) >= MINIMUM_FOR_POINTS;
+            Integer competed = result.getConfirmedCompetitors();
+            boolean pointsAwarded = competed != null && competed >= MINIMUM_FOR_POINTS;
             podiums.add(new PodiumDto(
                     division.getId(),
                     medallist(gold),

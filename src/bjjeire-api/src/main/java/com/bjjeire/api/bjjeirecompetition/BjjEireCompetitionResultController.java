@@ -34,9 +34,10 @@ public class BjjEireCompetitionResultController {
             summary = "Get a competition's leaderboard",
             description = "The podium of every division with a result, in the competition's division order, and the"
                     + " academy and affiliation rankings: 9 points per gold, 3 per silver, 1 per bronze, ties broken by"
-                    + " golds, then silvers, then bronzes. A division with fewer than two confirmed competitors adds no"
-                    + " points. winners is present only once the competition is finished. Names, academies and"
-                    + " affiliations only. A draft or unknown id answers 404.")
+                    + " golds, then silvers, then bronzes. A division that had fewer than two confirmed competitors when"
+                    + " its result was recorded adds no points. winners is present only once the competition is"
+                    + " finished. Names, academies and affiliations only. A draft, cancelled or unknown id answers"
+                    + " 404.")
     public ResponseEntity<LeaderboardDto> getBjjEireCompetitionLeaderboard(@PathVariable @ValidObjectId String id) {
         return resultService.getLeaderboard(id).map(ResponseEntity::ok).orElseThrow(ApiProblems::notFound);
     }

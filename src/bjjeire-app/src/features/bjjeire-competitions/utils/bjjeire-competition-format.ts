@@ -10,7 +10,8 @@ import {
 } from '@/types/bjjeire-competitions'
 import { formatDublinDateTime } from '@/utils/dublin-time'
 
-const { registration, disciplines, genders } = uiContent.bjjEireCompetitions
+const { registration, details, disciplines, genders } =
+  uiContent.bjjEireCompetitions
 
 /** `€25.00` from 2500. Money is whole cents everywhere; only display divides. */
 export function formatEntryFee(cents: number, currency = 'EUR'): string {
@@ -38,9 +39,9 @@ export function registrationMessage(
   }
   switch (bjjEireCompetition.registrationState) {
     case 'NOT_OPEN':
-      return `${registration.opensOnPrefix} ${formatDublinDateTime(bjjEireCompetition.registrationOpensAt)}.`
+      return `${registration.opensOnPrefix} ${formatDublinDateTime(bjjEireCompetition.registrationOpensAt)} (${details.timeZoneNote}).`
     case 'OPEN':
-      return `${registration.openUntilPrefix} ${formatDublinDateTime(bjjEireCompetition.registrationClosesAt)}.`
+      return `${registration.openUntilPrefix} ${formatDublinDateTime(bjjEireCompetition.registrationClosesAt)} (${details.timeZoneNote}).`
     case 'FULL':
       return registration.full
     case 'CLOSED':

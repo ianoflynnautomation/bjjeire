@@ -44,6 +44,7 @@ class DivisionResultIT extends ResultsIntegrationTest {
         assertThat(stored.getGoldRegistrationId()).isEqualTo(gold);
         assertThat(stored.getBronzeRegistrationIds()).containsExactly(bronze1, bronze2);
         assertThat(stored.getRecordedAt()).isEqualTo(FIXED_NOW);
+        assertThat(stored.getConfirmedCompetitors()).isEqualTo(4);
         assertThat(stored.getRecordedBy()).isEqualTo(AUTHENTICATED_USER);
     }
 

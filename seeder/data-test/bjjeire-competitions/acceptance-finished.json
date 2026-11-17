@@ -1,0 +1,123 @@
+[
+  {
+    "id": "acce88000000000000000004",
+    "version": 5,
+    "slug": "acceptance-finished",
+    "name": "Acceptance Finished",
+    "description": "Seeded BJJ Éire competition that has finished, with recorded podiums, both team rankings and winners. Sign in locally as medallist@acceptance.bjjeire.test to see a medal history.",
+    "date": "2026-03-14",
+    "venue": {
+      "address": "Dangan, Galway",
+      "venue": "University of Galway Sports Centre",
+      "coordinates": {
+        "type": "Point",
+        "coordinates": [
+          -9.0712,
+          53.2829
+        ],
+        "placeName": "Galway",
+        "placeId": "acceptance-seed"
+      }
+    },
+    "entryFeeCents": 3000,
+    "currency": "EUR",
+    "registrationOpensAt": "2026-01-10T09:00:00Z",
+    "registrationClosesAt": "2026-03-07T20:00:00Z",
+    "competitorLimit": 64,
+    "placesTaken": 13,
+    "status": "FINISHED",
+    "divisions": [
+      {
+        "id": "acce99000000000000000401",
+        "discipline": "GI",
+        "gender": "MALE",
+        "ageCategory": "ADULT",
+        "belt": "WHITE",
+        "weightClass": "-76 kg",
+        "result": {
+          "goldRegistrationId": "acce77000000000000000401",
+          "silverRegistrationId": "acce77000000000000000402",
+          "bronzeRegistrationIds": [
+            "acce77000000000000000403",
+            "acce77000000000000000404"
+          ],
+          "confirmedCompetitors": 4,
+          "recordedAt": "2026-03-14T18:00:00Z",
+          "recordedBy": "acceptance-seed"
+        }
+      },
+      {
+        "id": "acce99000000000000000402",
+        "discipline": "GI",
+        "gender": "FEMALE",
+        "ageCategory": "ADULT",
+        "belt": "BLUE",
+        "weightClass": "-64 kg",
+        "result": {
+          "goldRegistrationId": "acce77000000000000000406",
+          "silverRegistrationId": "acce77000000000000000407",
+          "bronzeRegistrationIds": [
+            "acce77000000000000000408"
+          ],
+          "confirmedCompetitors": 3,
+          "recordedAt": "2026-03-14T18:00:00Z",
+          "recordedBy": "acceptance-seed"
+        }
+      },
+      {
+        "id": "acce99000000000000000403",
+        "discipline": "NO_GI",
+        "gender": "MALE",
+        "ageCategory": "MASTER_1",
+        "belt": "PURPLE",
+        "weightClass": "-85.5 kg",
+        "result": {
+          "goldRegistrationId": "acce77000000000000000409",
+          "silverRegistrationId": "acce77000000000000000410",
+          "bronzeRegistrationIds": [
+            "acce77000000000000000411"
+          ],
+          "confirmedCompetitors": 3,
+          "recordedAt": "2026-03-14T18:00:00Z",
+          "recordedBy": "acceptance-seed"
+        }
+      },
+      {
+        "id": "acce99000000000000000404",
+        "discipline": "NO_GI",
+        "gender": "FEMALE",
+        "ageCategory": "ADULT",
+        "belt": "BLUE",
+        "weightClass": "-64 kg",
+        "result": {
+          "goldRegistrationId": "acce77000000000000000412",
+          "silverRegistrationId": "acce77000000000000000413",
+          "bronzeRegistrationIds": [],
+          "confirmedCompetitors": 2,
+          "recordedAt": "2026-03-14T18:00:00Z",
+          "recordedBy": "acceptance-seed"
+        }
+      },
+      {
+        "id": "acce99000000000000000405",
+        "discipline": "GI",
+        "gender": "MALE",
+        "ageCategory": "ADULT",
+        "belt": "BROWN",
+        "weightClass": "-94.3 kg",
+        "result": {
+          "goldRegistrationId": "acce77000000000000000414",
+          "silverRegistrationId": null,
+          "bronzeRegistrationIds": [],
+          "confirmedCompetitors": 1,
+          "recordedAt": "2026-03-14T18:00:00Z",
+          "recordedBy": "acceptance-seed"
+        }
+      }
+    ],
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-05T00:00:00Z",
+    "updatedBy": "acceptance-seed",
+    "updatedAt": "2026-03-14T18:30:00Z"
+  }
+]

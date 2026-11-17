@@ -286,7 +286,8 @@ When they confirm deleting their account,
 Then their profile is removed, their identity is deleted from the competitor tenant by its `oid`,
 And every token of that identity issued before the deletion is refused with 401, even if the tenant could not be reached,
 And signing up or in again afterwards with the same email starts a new, empty account (owner's defect report 2026-11-15).
-Given an active sign-up (awaiting payment or confirmed), the delete is refused with 409 `urn:bjjeire:has-active-registration`.
+Given an active sign-up (awaiting payment or confirmed) in a competition that has not finished or been cancelled, the delete is refused with 409 `urn:bjjeire:has-active-registration`.
+Given a medallist whose competition has finished, the delete succeeds and the medal and its points stay under "Former competitor" (spec edge case; FR-013).
 
 **Owns**: T1 `RevocationCheckingJwtDecoderTest`, `GraphIdentityDirectoryTest`; T2 `CompetitorDeletionIT`; T4 `profile-page.integration.test.tsx`.
 
@@ -296,9 +297,9 @@ Given a competitor who has entered competitions and won medals,
 When they open their own profile,
 Then they see their gold, silver and bronze totals and each competition entered with its medals.
 
-This slice serves `GET /api/v1/competitor/me/history` with zero totals and no competitions, because results are recorded from slice 5; the SPA already renders totals, rows and the empty state.
+Entered means a confirmed sign-up; cancelled, expired and unpaid ones are left out. Medals come from recorded results, including divisions that award no team points. Competitions are listed latest day first.
 
-**Owns**: T2 `CompetitorDeletionIT` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`); T4 `profile-page.integration.test.tsx`; T2 `CompetitorHistoryIT` with slice 5.
+**Owns**: T2 `CompetitorHistoryIT`, `CompetitorDeletionIT` (`shouldShowEmptyMedalHistoryUntilResultsAreRecorded`); T4 `profile-page.integration.test.tsx`; T6 planned.
 
 ### `#5013` — A visitor is asked to sign in and returns to the sign-up (P1)
 
@@ -449,9 +450,95 @@ Then one mail states whether a refund was issued and for how much.
 
 **Owns**: T2 `CancellationIT`, `RefundWebhookIT`.
 
-### `#5028`–`#5035`, `#5040`–`#5041` — not built
+### `#5028` — The organiser records a division's podium from its confirmed competitors (P2)
 
-Defined in the Spec Kit spec. Each moves here with the slice that builds it.
+Given a published or finished competition and a division with confirmed competitors,
+When the organiser records a gold, an optional silver and up to two bronzes on the results tab,
+Then the division's podium appears on the public leaderboard with each medallist's name, academy and affiliation,
+And a medallist who is not a confirmed competitor in that division is 409 `urn:bjjeire:not-in-division`, the same competitor twice is 409 `urn:bjjeire:duplicate-medallist`, no gold or three bronzes is 400, and a draft or cancelled competition is 409,
+And the results tab offers only that division's confirmed competitors and blocks a duplicate before saving,
+And a sign-up a result names can no longer be cancelled or moved, by its competitor or the organiser (409 `urn:bjjeire:result-recorded`, FR-026), until the result is corrected; cancelling the whole competition still refunds it,
+And when a cancellation or move and a result are saved at the same moment, whichever write lands second is undone and refused.
+
+**Owns**: T1 `ResultServiceImplTest`, `RegistrationSupportTest`; T2 `DivisionResultIT`, `LeaderboardIT`, `ResultRecordedIT`; T0 `bjjeire-competition.pact.test.ts`; T4 `admin-bjjeire-competition-results.integration.test.tsx`, `bjjeire-competition-leaderboard.integration.test.tsx`; T6 planned.
+
+### `#5029` — Academies are ranked by points: 9 per gold, 3 per silver, 1 per bronze (P2)
+
+Given recorded podiums,
+When a visitor opens the competition page,
+Then an academy ranking lists each academy with its points, golds, silvers and bronzes, highest first,
+And academies are grouped by their key (a directory gym, or the name trimmed and case-folded), so the organiser's team merge joins their points.
+
+**Owns**: T1 `LeaderboardsTest`; T2 `LeaderboardIT`; T4 `bjjeire-competition-leaderboard.integration.test.tsx`; T6 planned.
+
+### `#5030` — Ties break on golds, then silvers, then bronzes (P2)
+
+Given two academies or two affiliations with equal points,
+When a ranking is shown,
+Then the one with more golds ranks higher, then more silvers, then more bronzes,
+And entries level on all four share a rank.
+
+**Owns**: T1 `LeaderboardsTest`.
+
+### `#5031` — A medallist with no academy or affiliation adds nothing to that ranking (P2)
+
+Given a medallist with no academy or no affiliation,
+When the rankings are worked out,
+Then the medal shows on the podium but adds nothing to the ranking they have no entry for.
+
+**Owns**: T1 `LeaderboardsTest`; T4 `bjjeire-competition-leaderboard.integration.test.tsx` ("No academy" on the podium).
+
+### `#5032` — A division with one confirmed competitor awards no team points (P2)
+
+Given a division with fewer than two confirmed competitors when the organiser records its result,
+When its podium is shown,
+Then it says no team points were awarded and adds nothing to either ranking,
+And the count is the one taken when the result was recorded or last corrected: a later cancellation or move changes nothing, so a finished competition's points and winners stay as they were on the day.
+
+**Owns**: T1 `LeaderboardsTest`; T2 `LeaderboardIT`; T4 `bjjeire-competition-leaderboard.integration.test.tsx`.
+
+### `#5033` — Correcting a podium updates the leaderboard (P2)
+
+Given a recorded podium that is wrong,
+When the organiser records it again or clears it,
+Then the stored result is replaced or removed, and the next leaderboard read reflects it in the podium and both rankings,
+And saving the competition's details keeps every recorded result.
+
+**Owns**: T2 `DivisionResultIT`, `LeaderboardIT`, `ResultRecordedIT`; T4 `admin-bjjeire-competition-results.integration.test.tsx`.
+
+### `#5034` — Before any result the leaderboard says results will follow (P2)
+
+Given a competition with no results yet,
+When a visitor opens it,
+Then the results section says results will appear as divisions finish, with no podium, ranking or winners,
+And a cancelled competition has no leaderboard (404; the page shows no results section).
+
+**Owns**: T1 `LeaderboardsTest`; T2 `LeaderboardIT`; T4 `bjjeire-competition-leaderboard.integration.test.tsx`; T6 planned.
+
+### `#5035` — Only the organiser records or changes results (P2)
+
+Given a person who is not the organiser,
+When they record, clear or list results, or finish a competition,
+Then a competitor or a workforce token without the writer scope is 403, no token is 401, and nothing changes.
+
+**Owns**: T2 `DivisionResultIT`.
+
+### `#5040` — Affiliations get their own ranking (P2)
+
+Given recorded podiums whose medallists belong to academies under the same affiliation,
+When a visitor opens the leaderboard,
+Then a separate affiliation ranking adds those medallists' points together under that affiliation.
+
+**Owns**: T1 `LeaderboardsTest`; T2 `LeaderboardIT`; T4 `bjjeire-competition-leaderboard.integration.test.tsx`; T6 planned.
+
+### `#5041` — Finishing the competition names the winners (P2)
+
+Given a published competition,
+When the organiser marks it finished after a warning,
+Then it becomes `FINISHED` and the leaderboard names the top academy and the top affiliation, with every entry level on all tie-breaks named as joint winners,
+And before that no winners are shown; results can still be corrected after finishing and the winners follow; finishing again changes nothing; a draft or cancelled competition is 409.
+
+**Owns**: T1 `LeaderboardsTest`; T2 `DivisionResultIT`, `LeaderboardIT`; T0 `bjjeire-competition.pact.test.ts`; T4 `admin-bjjeire-competition-results.integration.test.tsx`, `bjjeire-competition-leaderboard.integration.test.tsx`; T6 planned.
 
 ## Executable contract
 

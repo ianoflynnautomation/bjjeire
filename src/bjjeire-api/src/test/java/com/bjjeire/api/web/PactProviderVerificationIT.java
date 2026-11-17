@@ -242,6 +242,67 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
         insertRegistration("0123456789abcdef0123dddd", RegistrationStatus.CONFIRMED);
     }
 
+    @State("a finished competition with a recorded podium")
+    void aFinishedBjjEireCompetitionWithARecordedPodium() {
+        String competitionId = "0123456789abcdef0123ffff";
+        String divisionId = "0123456789abcdef01230001";
+        String gold = "0123456789abcdef01230002";
+        String silver = "0123456789abcdef01230003";
+        mongoTemplate.insert(BjjEireCompetition.builder()
+                .id(competitionId)
+                .slug("pact-finished")
+                .name("Pact Finished Competition")
+                .date(LocalDate.parse("2026-06-27"))
+                .venue(location())
+                .entryFeeCents(2500)
+                .registrationOpensAt(Instant.parse("2026-05-01T09:00:00Z"))
+                .registrationClosesAt(Instant.parse("2026-06-20T20:00:00Z"))
+                .status(BjjEireCompetitionStatus.FINISHED)
+                .version(0L)
+                .divisions(List.of(Division.builder()
+                        .id(divisionId)
+                        .discipline(Discipline.GI)
+                        .gender(Gender.FEMALE)
+                        .ageCategory(AgeCategory.ADULT)
+                        .belt(Belt.BLUE)
+                        .weightClass("-64 kg")
+                        .result(com.bjjeire.api.bjjeirecompetition.DivisionResult.builder()
+                                .goldRegistrationId(gold)
+                                .silverRegistrationId(silver)
+                                .confirmedCompetitors(2)
+                                .recordedAt(FIXED_NOW)
+                                .recordedBy("pact")
+                                .build())
+                        .build()))
+                .build());
+        insertMedallist(competitionId, divisionId, gold, "Aoife Byrne", "Team X", "Alliance");
+        insertMedallist(competitionId, divisionId, silver, "Ciaran Byrne", "Team Y", "Checkmat");
+    }
+
+    private void insertMedallist(
+            String competitionId,
+            String divisionId,
+            String registrationId,
+            String name,
+            String academy,
+            String affiliation) {
+        mongoTemplate.insert(BjjEireCompetitionRegistration.builder()
+                .id(registrationId)
+                .competitionId(competitionId)
+                .divisionId(divisionId)
+                // One active sign-up per competitor and division: each medallist is a different competitor.
+                .competitorId("competitor-" + registrationId)
+                .status(RegistrationStatus.CONFIRMED)
+                .active(Boolean.TRUE)
+                .displayName(name)
+                .academy(new Academy(null, academy))
+                .academyKey("name:" + academy.toLowerCase(java.util.Locale.ROOT))
+                .affiliation(affiliation)
+                .affiliationKey(affiliation.toLowerCase(java.util.Locale.ROOT))
+                .createdOnUtc(FIXED_NOW)
+                .build());
+    }
+
     private void insertSignUpBjjEireCompetition() {
         mongoTemplate.insert(BjjEireCompetition.builder()
                 .id(SIGN_UP_COMPETITION_ID)

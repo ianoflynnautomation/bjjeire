@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 /** The points calculation behind the leaderboard (FR-032 to FR-035, FR-040). */
 class LeaderboardsTest {
     private final Map<String, ResultEntrant> entrants = new HashMap<>();
-    private final Map<String, Integer> confirmed = new HashMap<>();
     private final List<Division> divisions = new ArrayList<>();
 
     @Test
@@ -204,7 +203,7 @@ class LeaderboardsTest {
     }
 
     private LeaderboardDto calculate(BjjEireCompetitionStatus status) {
-        return Leaderboards.calculate(status, divisions, entrants, confirmed);
+        return Leaderboards.calculate(status, divisions, entrants);
     }
 
     private void division(String id, int confirmedCount, String gold, String silver, String bronze1, String bronze2) {
@@ -221,11 +220,11 @@ class LeaderboardsTest {
                         .goldRegistrationId(gold)
                         .silverRegistrationId(silver)
                         .bronzeRegistrationIds(bronzes)
+                        .confirmedCompetitors(confirmedCount)
                         .recordedAt(Instant.EPOCH)
                         .recordedBy("organiser")
                         .build())
                 .build());
-        confirmed.put(id, confirmedCount);
     }
 
     private void entrant(String id, String academy, String affiliation) {

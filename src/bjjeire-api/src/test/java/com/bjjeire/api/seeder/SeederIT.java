@@ -6,9 +6,13 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.common.OpenEndedInstant;
 import com.bjjeire.api.competition.Competition;
+import com.bjjeire.api.competitor.Competitor;
+import com.bjjeire.api.config.LocalSignInTokens;
 import com.bjjeire.api.config.SeederProperties;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
+import com.bjjeire.api.registration.RegistrationStatus;
 import com.bjjeire.api.store.Store;
 import com.bjjeire.api.testsupport.MongoIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 class SeederIT extends MongoIntegrationTest {
@@ -121,13 +126,129 @@ class SeederIT extends MongoIntegrationTest {
         List<BjjEireCompetition> seeded = mongoTemplate.findAll(BjjEireCompetition.class);
         assertThat(seeded)
                 .extracting(BjjEireCompetition::getSlug)
-                .containsExactlyInAnyOrder("acceptance-open", "acceptance-opens-later", "acceptance-closed");
+                .containsExactlyInAnyOrder(
+                        "acceptance-open", "acceptance-opens-later", "acceptance-closed", "acceptance-finished");
         assertThat(seeded).isNotEmpty().allSatisfy(competition -> {
-            assertThat(competition.getStatus()).isEqualTo(BjjEireCompetitionStatus.PUBLISHED);
+            assertThat(competition.getStatus())
+                    .isIn(BjjEireCompetitionStatus.PUBLISHED, BjjEireCompetitionStatus.FINISHED);
             assertThat(competition.getDivisions()).isNotEmpty();
             assertThat(competition.getCurrency()).isEqualTo(BjjEireCompetition.CURRENCY);
             assertThat(competition.getRegistrationClosesAt()).isAfter(competition.getRegistrationOpensAt());
         });
+    }
+
+    /**
+     * The finished competition shows a past event's leaderboard: every medallist is a seeded confirmed sign-up in that
+     * division, each result stores the division's confirmed count, and a seeded profile owns two of the medals so a
+     * local sign-in as that email shows a medal history.
+     */
+    @Test
+    void shouldSeedAFinishedCompetitionWithMedallistsAndAProfileFromTheTestDataset() {
+        SeederRunner testRunner = testDatasetRunner();
+        testRunner.run("--force");
+
+        assertThat(testRunner.getExitCode()).isZero();
+        BjjEireCompetition finished = mongoTemplate.findOne(
+                Query.query(Criteria.where("slug").is("acceptance-finished")), BjjEireCompetition.class);
+        assertThat(finished.getStatus()).isEqualTo(BjjEireCompetitionStatus.FINISHED);
+        List<BjjEireCompetitionRegistration> signUps = mongoTemplate.find(
+                Query.query(Criteria.where("competitionId").is(finished.getId())),
+                BjjEireCompetitionRegistration.class);
+        assertThat(finished.getDivisions()).allSatisfy(division -> {
+            assertThat(division.getResult()).isNotNull();
+            List<String> confirmedHere = signUps.stream()
+                    .filter(signUp -> signUp.getDivisionId().equals(division.getId()))
+                    .filter(signUp -> signUp.getStatus() == RegistrationStatus.CONFIRMED)
+                    .map(BjjEireCompetitionRegistration::getId)
+                    .toList();
+            assertThat(confirmedHere).containsAll(division.getResult().medallistIds());
+            assertThat(division.getResult().getConfirmedCompetitors()).isEqualTo(confirmedHere.size());
+        });
+
+        Competitor medallist = mongoTemplate.findById(SEEDED_COMPETITOR_ID, Competitor.class);
+        assertThat(medallist.getIssuer()).isEqualTo(LocalSignInTokens.COMPETITOR_ISSUER);
+        assertThat(medallist.getSubject())
+                .isEqualTo(LocalSignInTokens.COMPETITOR_SUBJECT_PREFIX + sha256("medallist@acceptance.bjjeire.test"));
+        assertThat(signUps)
+                .filteredOn(signUp -> SEEDED_COMPETITOR_ID.equals(signUp.getCompetitorId()))
+                .hasSize(2);
+        // A snapshot-only sign-up has no account behind it, so it holds no place: active is unset, as after deletion.
+        assertThat(signUps)
+                .filteredOn(signUp -> signUp.getCompetitorId() == null)
+                .allSatisfy(signUp -> assertThat(signUp.getActive()).isNull());
+    }
+
+    /** The seeded finished competition's public leaderboard, worked out by hand from the seed files. */
+    @Test
+    void shouldServeTheSeededFinishedCompetitionsLeaderboardAndWinners() {
+        testDatasetRunner().run("--force");
+
+        String json = restTemplate
+                .getForEntity(
+                        com.bjjeire.api.common.ApiRoutes.BJJEIRE_COMPETITION + "/acce88000000000000000004/leaderboard",
+                        String.class)
+                .getBody();
+
+        // Academies: Lee Valley 9+1+3+9 = 22, Liffey 3+9+3 = 15, Corrib 3+9 = 12, Shannon 1+1 = 2 (its
+        // single-competitor gold adds nothing). Affiliations: Atlantic Alliance 15+12 = 27, Celtic Collective 22.
+        assertThat(json)
+                .contains(
+                        "\"winners\":{\"academies\":[\"Lee Valley Jiu-Jitsu\"],\"affiliations\":[\"Atlantic Alliance\"]}")
+                .contains("\"name\":\"Lee Valley Jiu-Jitsu\",\"points\":22")
+                .contains("\"name\":\"Liffey BJJ\",\"points\":15")
+                .contains("\"name\":\"Corrib Grappling\",\"points\":12")
+                .contains("\"name\":\"Shannon Combat Club\",\"points\":2")
+                .contains("\"name\":\"Atlantic Alliance\",\"points\":27")
+                .contains("\"name\":\"Celtic Collective\",\"points\":22")
+                .contains("\"pointsAwarded\":false");
+    }
+
+    /**
+     * Sign-ups and profiles also come from acceptance runs through the API; a test-dataset prune never deletes them.
+     */
+    @Test
+    void shouldKeepSignUpsAndProfilesCreatedThroughTheApiWhenPruningTheTestDataset() {
+        mongoTemplate.save(BjjEireCompetitionRegistration.builder()
+                .id("202611160000000000000001")
+                .competitionId("acce88000000000000000001")
+                .divisionId("acce99000000000000000101")
+                .status(RegistrationStatus.AWAITING_PAYMENT)
+                .build());
+        mongoTemplate.save(Competitor.builder()
+                .id("202611160000000000000002")
+                .issuer(LocalSignInTokens.COMPETITOR_ISSUER)
+                .subject("local-competitor:created-by-a-test")
+                .build());
+
+        SeederRunner testRunner = testDatasetRunner();
+        testRunner.run("--force", "--prune");
+
+        assertThat(testRunner.getExitCode()).isZero();
+        assertThat(mongoTemplate.findById("202611160000000000000001", BjjEireCompetitionRegistration.class))
+                .isNotNull();
+        assertThat(mongoTemplate.findById("202611160000000000000002", Competitor.class))
+                .isNotNull();
+    }
+
+    @Test
+    void shouldValidateTestRegistrationAndCompetitorFilesStrictlyAgainstTheJavaDomain() {
+        SeederRunner testRunner = testDatasetRunner();
+
+        testRunner.run("--validate");
+
+        assertThat(testRunner.getExitCode()).isZero();
+    }
+
+    private static final String SEEDED_COMPETITOR_ID = "acce66000000000000000001";
+
+    private static String sha256(String text) {
+        try {
+            return java.util.HexFormat.of()
+                    .formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
     }
 
     @Test

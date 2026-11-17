@@ -3,8 +3,10 @@ package com.bjjeire.api.competitor;
 import com.bjjeire.api.audit.AuditAction;
 import com.bjjeire.api.audit.AuditInfoProvider;
 import com.bjjeire.api.audit.AuditRecorder;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
+import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.bjjeirecompetition.CompetitionMedals;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.bjjeirecompetition.RegistrationState;
@@ -16,8 +18,10 @@ import com.bjjeire.api.web.ProblemTypes;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -42,6 +46,10 @@ public class CompetitorServiceImpl implements CompetitorService {
      * {@code BjjEireCompetitionRegistration.ENTITY_NAME}.
      */
     static final String REGISTRATION_COLLECTION = "BjjEireCompetitionRegistration";
+
+    /** Competitions whose sign-ups no longer hold an account. */
+    private static final Set<BjjEireCompetitionStatus> OVER =
+            Set.of(BjjEireCompetitionStatus.FINISHED, BjjEireCompetitionStatus.CANCELLED);
 
     private final MongoTemplate mongoTemplate;
     private final AuditInfoProvider auditInfoProvider;
@@ -320,13 +328,34 @@ public class CompetitorServiceImpl implements CompetitorService {
         return mongoTemplate.findOne(identityQuery(caller), Competitor.class);
     }
 
+    /**
+     * Whether a sign-up still holds the account: awaiting payment or confirmed, in a competition that has not finished
+     * or been cancelled. A confirmed sign-up stays active after its competition finishes, and one a result names can no
+     * longer be cancelled (FR-026), so a finished competition must not keep a medallist from deleting their account
+     * (FR-013). A sign-up whose competition cannot be found still blocks: the guard never fails open.
+     */
     private boolean hasActiveRegistration(String competitorId) {
-        return mongoTemplate.exists(
-                Query.query(Criteria.where("competitorId")
-                        .in(competitorIds(competitorId))
-                        .and("active")
-                        .is(true)),
-                REGISTRATION_COLLECTION);
+        Query active = Query.query(Criteria.where("competitorId")
+                .in(competitorIds(competitorId))
+                .and("active")
+                .is(true));
+        active.fields().include("competitionId");
+        Set<String> competitionIds = new HashSet<>();
+        for (Document signUp : mongoTemplate.find(active, Document.class, REGISTRATION_COLLECTION)) {
+            Object competitionId = signUp.get("competitionId");
+            if (competitionId == null) {
+                return true;
+            }
+            competitionIds.add(String.valueOf(competitionId));
+        }
+        if (competitionIds.isEmpty()) {
+            return false;
+        }
+        long over = mongoTemplate.count(
+                Query.query(
+                        Criteria.where("_id").in(competitionIds).and("status").in(OVER)),
+                BjjEireCompetition.class);
+        return over < competitionIds.size();
     }
 
     /** Sign-ups store the link as a string; an ObjectId is matched too, so a lookup never misses one. */

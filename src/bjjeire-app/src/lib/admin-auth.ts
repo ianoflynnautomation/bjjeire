@@ -5,6 +5,7 @@
 import { env } from '@/config/env'
 import { API_ROUTES } from '@/config/api-routes'
 import { logger } from '@/lib/logger'
+import type * as MsalConfig from '@/lib/msal-config'
 
 export const LOCAL_SESSION_KEY = 'bjjeire.localOrganiserSession'
 
@@ -59,7 +60,7 @@ async function signInLocally(): Promise<boolean> {
   }
 }
 
-type MsalConfigModule = typeof import('@/lib/msal-config')
+type MsalConfigModule = typeof MsalConfig
 
 let msalConfig: Promise<MsalConfigModule> | undefined
 

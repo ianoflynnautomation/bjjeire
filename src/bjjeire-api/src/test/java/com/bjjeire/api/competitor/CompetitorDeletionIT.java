@@ -161,6 +161,138 @@ class CompetitorDeletionIT extends MongoIntegrationTest {
         assertThat(exchange(HttpMethod.GET, AOIFE).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    /**
+     * Spec edge case: a medallist deletes their account after the competition finished. Their confirmed sign-up stays
+     * active for ever and cannot be cancelled once a result names it (FR-026), so it must not block the deletion; the
+     * medal and its points stay under the placeholder name (FR-013).
+     */
+    @Test
+    @Tag("#5012")
+    void shouldDeleteAMedallistOnceTheirCompetitionHasFinishedAndKeepTheMedal() throws Exception {
+        put(profileJson("Aoife"), AOIFE);
+        String competitorId = mongoTemplate.findAll(Competitor.class).getFirst().getId();
+        String competitionId = "665624c1ad01ce465c6cf460";
+        String divisionId = "665624c1ad01ce465c6cf461";
+        String gold = "665624c1ad01ce465c6cf462";
+        String silver = "665624c1ad01ce465c6cf463";
+        mongoTemplate.insert(com.bjjeire.api.bjjeirecompetition.BjjEireCompetition.builder()
+                .id(competitionId)
+                .slug("finished-medal")
+                .name("Finished")
+                .date(java.time.LocalDate.parse("2026-05-02"))
+                .status(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus.FINISHED)
+                .version(0L)
+                .divisions(java.util.List.of(com.bjjeire.api.bjjeirecompetition.Division.builder()
+                        .id(divisionId)
+                        .result(com.bjjeire.api.bjjeirecompetition.DivisionResult.builder()
+                                .goldRegistrationId(gold)
+                                .silverRegistrationId(silver)
+                                .confirmedCompetitors(2)
+                                .build())
+                        .build()))
+                .build());
+        for (String[] signUp :
+                new String[][] {{gold, competitorId, "Aoife Byrne"}, {silver, "someone-else", "Ciaran"}}) {
+            mongoTemplate.insert(
+                    new Document("_id", new org.bson.types.ObjectId(signUp[0]))
+                            .append("competitionId", competitionId)
+                            .append("divisionId", divisionId)
+                            .append("competitorId", signUp[1])
+                            .append("status", "CONFIRMED")
+                            .append("active", true)
+                            .append("displayName", signUp[2])
+                            .append("academy", new Document("name", "Team X"))
+                            .append("academyKey", "name:team x"),
+                    "BjjEireCompetitionRegistration");
+        }
+
+        ResponseEntity<String> deleted = exchange(HttpMethod.DELETE, AOIFE);
+
+        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(mongoTemplate.count(new Query(), Competitor.class)).isZero();
+        JsonNode board = objectMapper.readTree(restTemplate
+                .exchange(
+                        com.bjjeire.api.common.ApiRoutes.BJJEIRE_COMPETITION + "/" + competitionId + "/leaderboard",
+                        HttpMethod.GET,
+                        jsonEntity(null, null),
+                        String.class)
+                .getBody());
+        assertThat(board.at("/podiums/0/gold/displayName").asString())
+                .isEqualTo(com.bjjeire.api.registration.BjjEireCompetitionRegistration.DELETED_DISPLAY_NAME);
+        assertThat(board.at("/academyRanking/0/points").asInt()).isEqualTo(12);
+    }
+
+    /**
+     * Two medallists of one finished division delete their accounts. Anonymising unsets each sign-up's competitor link;
+     * it must also end {@code active}, or the second deletion collides with the first on the one-active-sign-up index.
+     */
+    @Test
+    @Tag("#5012")
+    void shouldDeleteTwoMedallistsOfTheSameFinishedDivision() {
+        String competitionId = "665624c1ad01ce465c6cf480";
+        String divisionId = "665624c1ad01ce465c6cf481";
+        mongoTemplate.insert(com.bjjeire.api.bjjeirecompetition.BjjEireCompetition.builder()
+                .id(competitionId)
+                .slug("finished-two")
+                .name("Finished")
+                .date(java.time.LocalDate.parse("2026-05-02"))
+                .status(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus.FINISHED)
+                .version(0L)
+                .build());
+        String ciaran = competitorToken("ciaran-two");
+        for (String token : new String[] {AOIFE, ciaran}) {
+            put(profileJson("Someone"), token);
+        }
+        for (Competitor competitor : mongoTemplate.findAll(Competitor.class)) {
+            mongoTemplate.insert(
+                    new Document("competitionId", competitionId)
+                            .append("divisionId", divisionId)
+                            .append("competitorId", competitor.getId())
+                            .append("status", "CONFIRMED")
+                            .append("active", true)
+                            .append("displayName", "Someone Byrne"),
+                    "BjjEireCompetitionRegistration");
+        }
+
+        assertThat(exchange(HttpMethod.DELETE, AOIFE).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(exchange(HttpMethod.DELETE, ciaran).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        assertThat(mongoTemplate.count(new Query(), Competitor.class)).isZero();
+        assertThat(mongoTemplate.findAll(Document.class, "BjjEireCompetitionRegistration"))
+                .hasSize(2)
+                .allSatisfy(signUp -> {
+                    assertThat(signUp.get("status")).isEqualTo("CONFIRMED");
+                    assertThat(signUp).doesNotContainKeys("competitorId", "active");
+                });
+    }
+
+    /** A sign-up in a competition that is still published blocks the deletion, as before. */
+    @Test
+    @Tag("#5012")
+    void shouldStillRefuseWhileTheCompetitionOfAConfirmedSignUpIsPublished() {
+        put(profileJson("Aoife"), AOIFE);
+        String competitorId = mongoTemplate.findAll(Competitor.class).getFirst().getId();
+        String competitionId = "665624c1ad01ce465c6cf470";
+        mongoTemplate.insert(com.bjjeire.api.bjjeirecompetition.BjjEireCompetition.builder()
+                .id(competitionId)
+                .slug("published-still")
+                .name("Published")
+                .date(java.time.LocalDate.parse("2026-06-27"))
+                .status(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus.PUBLISHED)
+                .version(0L)
+                .build());
+        mongoTemplate.insert(
+                new Document("competitionId", competitionId)
+                        .append("divisionId", "665624c1ad01ce465c6cf471")
+                        .append("competitorId", competitorId)
+                        .append("status", "CONFIRMED")
+                        .append("active", true),
+                "BjjEireCompetitionRegistration");
+
+        assertThat(exchange(HttpMethod.DELETE, AOIFE).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(mongoTemplate.count(new Query(), Competitor.class)).isOne();
+    }
+
     /** The sign-up slice may store the link as an ObjectId; the guard must not fail open then. */
     @Test
     @Tag("#5012")

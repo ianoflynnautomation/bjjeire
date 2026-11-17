@@ -238,6 +238,9 @@ public class CancellationServiceImpl implements CancellationService {
         if (cancelled == null) {
             return cancelledMeanwhile(registration.getId());
         }
+        if (!BjjEireCompetitionRegistration.CANCELLED_BY_COMPETITION.equals(cancelledBy)) {
+            support.undoCancellationIfMedallist(cancelled);
+        }
         bjjEireCompetitionService.releasePlace(cancelled.getCompetitionId());
         support.afterWrite(AuditAction.Update, cancelled.getId());
         log.info(
