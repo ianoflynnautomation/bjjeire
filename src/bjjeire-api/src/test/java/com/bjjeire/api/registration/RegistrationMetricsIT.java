@@ -10,6 +10,9 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -18,9 +21,13 @@ import org.springframework.http.HttpStatus;
  */
 class RegistrationMetricsIT extends RegistrationIntegrationTest {
     private static final String AOIFE = competitorToken("aoife");
+    private static final String CIARAN = competitorToken("ciaran");
 
     @Autowired
     private MeterRegistry meterRegistry;
+
+    @Autowired
+    private RegistrationService registrationService;
 
     @Test
     void shouldCountASignUpStartedAndConfirmed() {
@@ -102,6 +109,91 @@ class RegistrationMetricsIT extends RegistrationIntegrationTest {
 
         assertThat(rejected("signature")).isEqualTo(signature + 2);
         assertThat(rejected("malformed")).isEqualTo(malformed + 1);
+    }
+
+    @Test
+    void shouldCountALatePaymentConfirmedWithAFreePlace() {
+        double confirmedBefore = count(RegistrationMetrics.SIGNUP_CONFIRMED);
+        BjjEireCompetitionRegistration registration = started("metrics-late-free", 2);
+        expireByHand(registration);
+
+        postSignedWebhook(checkoutEvent("evt_metrics_late_free", "checkout.session.completed", registration));
+
+        assertThat(reload(registration).getStatus()).isEqualTo(RegistrationStatus.CONFIRMED);
+        assertThat(count(RegistrationMetrics.SIGNUP_CONFIRMED)).isEqualTo(confirmedBefore + 1);
+    }
+
+    @Test
+    void shouldCountEveryAttemptToRefundALatePaymentAndTheOneSuccess() {
+        double requested = count(RegistrationMetrics.REFUND_REQUESTED);
+        double failed = count(RegistrationMetrics.REFUND_FAILED);
+        double succeeded = count(RegistrationMetrics.REFUND_SUCCEEDED);
+        double confirmed = count(RegistrationMetrics.SIGNUP_CONFIRMED);
+        BjjEireCompetitionRegistration registration = started("metrics-late-full", 1);
+        expireByHand(registration);
+        saveProfile(CIARAN, "Ciaran", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
+        assertThat(signUp(CIARAN, registration.getCompetitionId(), registration.getDivisionId())
+                        .getStatusCode())
+                .isEqualTo(HttpStatus.CREATED);
+        paymentGateway.failRefunds(1);
+        String payload = checkoutEvent("evt_metrics_late_full", "checkout.session.completed", registration);
+
+        // Stripe refuses the refund, the webhook answers 5xx, and Stripe retries the same event.
+        assertThat(postSignedWebhook(payload).getStatusCode().is5xxServerError())
+                .isTrue();
+        assertThat(postSignedWebhook(payload).getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        // Attempts count each try; the outcome counts once (docs/registration-operations.md § Metrics).
+        assertThat(count(RegistrationMetrics.REFUND_REQUESTED)).isEqualTo(requested + 2);
+        assertThat(count(RegistrationMetrics.REFUND_FAILED)).isEqualTo(failed + 1);
+        assertThat(count(RegistrationMetrics.REFUND_SUCCEEDED)).isEqualTo(succeeded + 1);
+        assertThat(count(RegistrationMetrics.SIGNUP_CONFIRMED)).isEqualTo(confirmed);
+        assertThat(reload(registration).getRefund().getStatus()).isEqualTo(RefundStatus.REFUNDED);
+    }
+
+    @Test
+    void shouldCountASignedEventWithNoIdOrTypeAsMalformed() {
+        double malformed = rejected("malformed");
+
+        assertThat(postSignedWebhook("{}").getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        assertThat(rejected("malformed")).isEqualTo(malformed + 1);
+    }
+
+    @Test
+    void shouldCountTheHoldsEndedWhenACompetitionIsCancelled() {
+        double expired = count(RegistrationMetrics.SIGNUP_EXPIRED);
+        BjjEireCompetitionRegistration registration = started("metrics-end-holds", null);
+
+        assertThat(registrationService.endHolds(registration.getCompetitionId()))
+                .isEqualTo(1);
+
+        assertThat(count(RegistrationMetrics.SIGNUP_EXPIRED)).isEqualTo(expired + 1);
+    }
+
+    private BjjEireCompetitionRegistration started(String slug, Integer limit) {
+        Division division = maleWhiteAdult("-76 kg");
+        BjjEireCompetition competition = publishedBjjEireCompetition(slug, limit, division);
+        saveProfile(AOIFE, "Aoife", Gender.MALE, Belt.WHITE, ADULT_BIRTH_DATE);
+        assertThat(signUp(AOIFE, competition.getId(), division.getId()).getStatusCode())
+                .isEqualTo(HttpStatus.CREATED);
+        return onlyRegistration();
+    }
+
+    /** What the hold sweep does when the expiry webhook never came (as in StripeWebhookIT). */
+    private void expireByHand(BjjEireCompetitionRegistration registration) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(registration.getId())),
+                new Update()
+                        .set("status", RegistrationStatus.EXPIRED)
+                        .unset("active")
+                        .unset("unpaidSlot")
+                        .unset("holdExpiresAt"),
+                BjjEireCompetitionRegistration.class);
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(registration.getCompetitionId())),
+                new Update().inc("placesTaken", -1),
+                BjjEireCompetition.class);
     }
 
     private BjjEireCompetitionRegistration confirmed(String slug) {

@@ -1,1 +1,4 @@
-# No accepted breaks. See docs/contract-testing.md for the line format.
+# Accepted breaks. See docs/contract-testing.md for the line format.
+# GET /metrics is hidden from the published document: it answers only on the metrics port (9464), never on the API
+# host the document describes (config/MetricsPortConfig). Delete this line once :latest no longer lists /metrics.
+GET /metrics api path removed without deprecation

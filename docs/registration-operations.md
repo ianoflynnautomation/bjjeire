@@ -8,8 +8,31 @@ running Stripe locally by [stripe-local.md](stripe-local.md).
 
 ## Metrics
 
-The API serves them at `/actuator/prometheus`. Micrometer changes the dots to
-underscores and adds `_total` to each counter.
+Every counter is a Micrometer meter. The names below are their Prometheus
+form: Micrometer changes the dots to underscores and adds `_total`.
+
+**How they reach Prometheus.** The API serves every meter as Prometheus text
+at `/metrics` with no token, **only on its metrics port** (`METRICS_PORT`,
+9464; `config/MetricsPortConfig`). The API port, which the public route
+forwards every path to, never serves the meters, however the path is written
+(the controller checks the port, not the path), and the metrics port answers
+nothing else. `/metrics` is left out of the published API description. The `bjj-api` ServiceMonitor in `bjjeire-gitops`
+(`kubernetes/apps/base/bjj-eire/app/servicemonitor.yaml`) scrapes the Service
+port named `metrics` every 30 seconds in staging and production. The dev
+overlay deletes it. The `bjjeire-deploy` chart must declare that port: a
+container port and a Service port `metrics` → 9464. Until it does, the
+ServiceMonitor matches no Service port, so Prometheus shows no `bjj-api` target
+at all and no meter is scraped. Until 2026-11-17, `/metrics` answered 200 with an empty page, because it
+asked the scrape for an empty set of names, which matches nothing. So no API
+meter reached Prometheus before that fix (`web/OperationalEndpointIT`). The
+mesh lets Prometheus reach the pod: `allow-observability-to-bjjeire-app` in
+`istio-system/policy/ambient-authorization-policies.yaml` allows the
+`observability` namespace. Confirm the target is up in Prometheus before
+relying on the alerts.
+
+**`/metrics` must not be reachable from outside the cluster.** Keep port 9464
+off every `HTTPRoute` and gateway listener. `web/OperationalEndpointIT`
+proves the API port refuses `/metrics`.
 
 | Prometheus name | Counts | Code |
 |---|---|---|
@@ -24,15 +47,27 @@ underscores and adds `_total` to each counter.
 | `registration_mail_failures_total` | mails still unsent after three attempts | `RegistrationMailSender` |
 | `competitor_identity_deletion_failures_total` | account deletions the identity directory (Graph) did not complete | `CompetitorServiceImpl` |
 
-Each counter increments only when its change is saved. A Stripe event that
-arrives twice counts once.
+Two kinds of counter:
+
+- **Outcomes** count once per sign-up. A Stripe event that arrives twice
+  counts once, because each increments only after its guarded save changed
+  the sign-up: `signup_confirmed`, `signup_expired`, `refund_succeeded`,
+  `payment_unconfirmed`. `signup_started` increments after the sign-up and its
+  checkout are saved.
+- **Attempts** count every try, Stripe's retries included:
+  `refund_requested` increments before each call to Stripe; `refund_failures`
+  increments on every refusal, so a late-payment refund that Stripe keeps
+  refusing counts again on each webhook retry; `webhook_rejected` counts every
+  refused delivery, and Stripe retries 400 and 503. Alert on any increase,
+  not on a total.
 
 ## Logs
 
 Every step logs one line with the sign-up id. These are `INFO` unless marked:
 `Sign-up … started`, `… confirmed`, `… expired unpaid`, `… cancelled by …`,
 `Late payment … refunded in full` (`WARN`), `Stripe webhook rejected: …`
-(`WARN`; `ERROR` for an unconfigured secret). A line that starts with `ALERT`
+(`WARN`) and `Stripe webhook refused: STRIPE_WEBHOOK_SECRET is blank or a
+placeholder` (`ERROR`). A line that starts with `ALERT`
 (`ERROR`) needs a person: a failed refund, a paid sign-up with no webhook, or
 a result whose undo was refused three times. Card details never reach the
 API, so no log line contains them. The sign-up code logs ids, not email
@@ -44,8 +79,8 @@ includes the SMTP server's error message, and that can name the recipient.
 Two alerts need the organiser on the same day. Three more show something is
 misconfigured. Below is a `PrometheusRule` that would fit beside the existing
 ones in `bjjeire-gitops`. It is **not deployed yet**. Add it with the cluster
-wiring (tasks.md T109), once the API's `ServiceMonitor` scrapes
-`/actuator/prometheus`.
+wiring (tasks.md T109), once the `bjj-api` target is up in Prometheus (see
+[Metrics](#metrics)).
 
 ```yaml
 apiVersion: monitoring.coreos.com/v1
@@ -124,13 +159,15 @@ Each must be in place before the next starts.
    are placeholders today.
 3. **Chart** (`bjjeire-deploy`): the API chart takes the Stripe values from a
    Kubernetes secret by reference, and the mail settings (`SPRING_MAIL_*`,
-   `MAIL_FROM`, `STRIPE_SUCCESS_URL_BASE`) from values.
+   `MAIL_FROM`, `STRIPE_SUCCESS_URL_BASE`) from values. It also declares the
+   metrics port: a container port and a Service port named `metrics` → 9464, which
+   the `bjj-api` ServiceMonitor already targets.
 4. **GitOps** (`bjjeire-gitops`): an `ExternalSecret` for the four names in
    `kubernetes/apps/base/bjj-eire/app/externalsecrets.yaml` and the preview
    copies, the Helm release mapping, and `ServiceEntry` resources in
    `kubernetes/apps/base/istio-egress/config/service-entries.yaml` for
    `api.stripe.com`, the competitor tenant's sign-in host,
-   `graph.microsoft.com` and the SMTP relay. Add the `PrometheusRule` above.
+   `graph.microsoft.com` and the SMTP relay. Check the `bjj-api` target is up in Prometheus (see [Metrics](#metrics)), then add the `PrometheusRule` above.
 5. **Stripe**: register the webhook endpoint
    `https://<api host>/api/v1/registration/stripe-webhook` for
    `checkout.session.completed`, `checkout.session.async_payment_succeeded`,

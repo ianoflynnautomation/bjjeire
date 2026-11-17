@@ -77,13 +77,35 @@ Supporting tests with no requirement issue (T107, signals for FR-018, FR-024, FR
 FR-030 and SC-004/SC-005): `registration/RegistrationMetricsIT.java`
 (`shouldCountASignUpStartedAndConfirmed`, `shouldCountASignUpWhoseCheckoutExpiredOnce`,
 `shouldCountARefundRequestedAndSucceeded`, `shouldCountAPendingRefundAsSucceededOnlyWhenStripeReportsIt`,
-`shouldCountARefundStripeRefused`, `shouldCountARejectedWebhookByReason`);
+`shouldCountARefundStripeRefused`, `shouldCountARejectedWebhookByReason`,
+`shouldCountALatePaymentConfirmedWithAFreePlace`, `shouldCountEveryAttemptToRefundALatePaymentAndTheOneSuccess`
+(attempt counters count each Stripe retry, outcome counters once), `shouldCountASignedEventWithNoIdOrTypeAsMalformed`,
+`shouldCountTheHoldsEndedWhenACompetitionIsCancelled`);
 `registration/StripeConfigurationTest.java` (`shouldRefuseEveryWebhookWhileTheSigningSecretIsAPlaceholder`
 counts `reason="unconfigured"`). Implementation: `registration/RegistrationMetrics`, called from
 `RegistrationServiceImpl`, `CancellationServiceImpl` and `StripeWebhookServiceImpl`. Alert rules
 and the switch-on order: `docs/registration-operations.md`.
 
+`web/OperationalEndpointIT.java` (`shouldServeEveryMeterToAnAnonymousScraperOnTheMetricsPort`,
+`shouldNotServeMetricsOnTheApiPortThatThePublicRouteReaches`, `shouldNotServeMetricsOnTheApiPortHoweverThePathIsWritten`
+(`/%6detrics` and other spellings), `shouldRefuseAWriteRouteOnTheMetricsPortBeforeAuthentication`,
+`shouldServeOnlyMetricsOnTheMetricsPort`) → `web/OperationalEndpointController.metrics` (checks the port, not the path;
+hidden from OpenAPI), `config/MetricsPortConfig`. `/metrics` served an empty page (the scrape
+was asked for an empty set of names), so no API meter reached Prometheus. Fixed with this slice, and moved to its own
+port (9464, owner's decision 2026-11-17), because the public route forwards every path on the API host. Needs the
+`bjjeire-deploy` chart to declare a container and Service port `metrics`; `bjjeire-gitops` already points the
+ServiceMonitor and pod annotation at it.
+
 ### Known limits (slice 6)
+
+- `RegistrationServiceImpl.recordFailedRefund` overwrites the refund of an `EXPIRED` sign-up whatever its status.
+  A late-payment refund the organiser's retry already completed can be set back to `FAILED` by a later Stripe
+  retry of the checkout event. The organiser's next retry is then refused by Stripe (already refunded), counts
+  `refund_failures` and logs a false `ALERT`. Because that failed record has no `refundId`, a late `refund.updated`
+  for the original refund is accepted again: a second `refund_succeeded` and a second "refund completed" mail.
+  Nobody is refunded twice. Not fixed here (`spec-verifier`, rounds 2 and 3).
+- The featured card shows the whole logo (`object-contain`) after `qa-subagent` found the wordmark cropped at
+  375, 600–639 and 1023 px. jsdom does no layout, so no automated test covers the crop.
 
 - The `PrometheusRule` in `docs/registration-operations.md` is not deployed. It goes into
   `bjjeire-gitops` with the cluster wiring (T109), once the API is scraped.

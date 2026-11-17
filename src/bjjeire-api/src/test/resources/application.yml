@@ -2,6 +2,14 @@ otel:
   sdk:
     disabled: true
 
+# Same exposure as src/main/resources/application.yml, which this file replaces on the test classpath, so /metrics
+# (OperationalEndpointController) has the Prometheus scrape endpoint behind it.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
 spring:
   mongodb:
     database: BjjEireTest
@@ -12,6 +20,9 @@ spring:
           issuer-uri: https://login.microsoftonline.com/test/v2.0
 
 bjjeire:
+  metrics:
+    # Any free port: tests read the bound port from MetricsPortConfig.MetricsConnector.
+    port: 0
   read-only-mode:
     enabled: false
   rate-limit:
