@@ -4,7 +4,8 @@
     "additionalDirectories": [
       "/workspaces/bjjeire-tests",
       "/workspaces/bjjeire-terraform-azurerm-aks",
-      "/workspaces/bjjeire-gitops"
+      "/workspaces/bjjeire-gitops",
+      "/workspaces/bjjeire-deploy"
     ],
     "deny": [
       "Read(./.env)",
@@ -16,6 +17,7 @@
       "Read(//workspaces/bjjeire-terraform-azurerm-aks/**/*.tfstate*)",
       "Read(//workspaces/bjjeire-terraform-azurerm-aks/**/.terraform/**)",
       "Read(//workspaces/bjjeire-gitops/.env*)",
+      "Read(//workspaces/bjjeire-deploy/.env*)",
       "Bash(git push * main)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",

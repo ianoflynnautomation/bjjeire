@@ -3,9 +3,20 @@ package com.bjjeire.api.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bjjeire.api.gym.ClassCategory;
+import com.mongodb.MongoClientSettings;
+import org.bson.UuidRepresentation;
 import org.junit.jupiter.api.Test;
 
 class MongoConfigTest {
+    @Test
+    void shouldEncodeUuidsAsStandardSoTheEventRegistryCanStoreItsIds() {
+        MongoClientSettings.Builder builder = MongoClientSettings.builder();
+
+        new MongoConfig().mongoClientTimeouts().customize(builder);
+
+        assertThat(builder.build().getUuidRepresentation()).isEqualTo(UuidRepresentation.STANDARD);
+    }
+
     @Test
     void integerClassCategoryReadConverterUsesStoredEnumValues() {
         MongoConfig.IntegerClassCategoryReadConverter converter = new MongoConfig.IntegerClassCategoryReadConverter();

@@ -8,7 +8,7 @@ import {
 import { createStore } from '@/testing/factories/store.factory'
 import { uiContent } from '@/config/ui-content'
 
-const { card } = uiContent.stores
+const { card } = uiContent.shop
 
 const FULL_STORE = createStore({
   id: 'store-full',

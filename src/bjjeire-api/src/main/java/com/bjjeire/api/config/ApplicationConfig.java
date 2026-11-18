@@ -7,13 +7,19 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import tools.jackson.databind.ext.javatime.deser.LocalTimeDeserializer;
 import tools.jackson.databind.ext.javatime.ser.LocalTimeSerializer;
 import tools.jackson.databind.module.SimpleModule;
 
+/**
+ * Application-wide beans. {@code @EnableAsync} runs {@code @ApplicationModuleListener}s off the publishing request,
+ * after its transaction commits (ADR-0017).
+ */
 @Configuration
 @EnableScheduling
+@EnableAsync
 public class ApplicationConfig {
     @Bean
     Clock clock() {

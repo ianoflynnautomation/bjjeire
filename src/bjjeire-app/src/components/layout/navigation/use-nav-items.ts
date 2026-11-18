@@ -6,14 +6,14 @@ import type { FeatureFlagName } from '@/features/feature-flags'
 interface NavItem {
   to: string
   label: string
-  id: 'events' | 'gyms' | 'competitions' | 'stores' | 'about'
+  id: 'events' | 'gyms' | 'competitions' | 'shop' | 'about'
 }
 
 const FEATURE_NAV_ITEMS = [
   { flag: 'BjjEvents', id: 'events', route: paths.events },
   { flag: 'Gyms', id: 'gyms', route: paths.gyms },
   { flag: 'Competitions', id: 'competitions', route: paths.competitions },
-  { flag: 'Stores', id: 'stores', route: paths.stores },
+  { flag: 'Stores', id: 'shop', route: paths.shop },
 ] as const satisfies readonly {
   flag: FeatureFlagName
   id: NavItem['id']

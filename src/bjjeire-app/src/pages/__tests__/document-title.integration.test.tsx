@@ -15,7 +15,7 @@ import {
   seedGyms,
 } from '@/features/gyms/testing/gyms-test-helpers'
 import {
-  renderStoresPage,
+  renderShopPage,
   seedStores,
 } from '@/features/stores/testing/stores-test-helpers'
 
@@ -45,12 +45,12 @@ const PAGES: [string, () => void, string][] = [
     'BJJ Competitions | BJJ Éire',
   ],
   [
-    'Stores',
+    'Shop',
     (): void => {
       seedStores([])
-      renderStoresPage()
+      renderShopPage()
     },
-    'BJJ Clothing Stores | BJJ Éire',
+    'Shop | BJJ Éire',
   ],
   [
     'About',

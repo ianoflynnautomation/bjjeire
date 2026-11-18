@@ -44,7 +44,7 @@ export const FEATURE_FLAGS = {
   Stores: {
     key: 'Stores',
     defaultValue: false,
-    description: 'Public stores page (/stores).',
+    description: 'Store directory on the Shop page (/shop).',
     addedAt: '2025-09-01',
   },
   GymsMap: {

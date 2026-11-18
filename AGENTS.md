@@ -23,6 +23,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Payments, the Stripe webhook, read-only mode, the `BjjEireCompetitions` flag | [ADR-0013](docs/adr/0013-stripe-hosted-checkout-and-webhooks.md) — the webhook is the only confirmer |
 | BJJ Éire competitions, `bjjeirecompetition`, the `BjjEireCompetitions` flag, the featured section on `/competitions`, any old "tournament" name | [ADR-0015](docs/adr/0015-bjjeire-competitions-inside-competitions.md) — one Competitions feature; the retired name stays retired |
 | Local organiser or competitor sign-in, `LOCAL_SIGN_IN_*`, `VITE_APP_LOCAL_SIGN_IN`, `lib/admin-auth.ts`, `lib/competitor-auth.ts` | [ADR-0014](docs/adr/0014-local-organiser-sign-in.md) — local profile only; the API refuses to start otherwise |
+| Application events, `@ApplicationModuleListener`, `EventPublicationSweep`, MongoDB replica set or transactions | [ADR-0017](docs/adr/0017-event-publication-registry-outbox.md) — events carry ids only; listeners must be idempotent; Mongo must be a replica set |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
 | Acceptance tests and Playwright agents | `bjjeire-tests` owns the plans, specs and agents: see its `AGENTS.md` and `docs/agents.md` |
@@ -116,7 +117,7 @@ npm run build
 
 - Development runs in the dev container. Do not install tools or start the app directly on the Mac. From the host, run checks with `devcontainer exec --workspace-folder . <command>`. A missing JDK or a Vitest startup error on the host is expected.
 - `bjjeire-tests` is mounted at `/workspaces/bjjeire-tests` (`BJJ_EIRE_TESTS_ROOT`). Edit its `specs/features/<feature>.md` from here when a feature needs acceptance coverage. Run its tests in its own dev container, which has the browsers and the relay to the app. Its `.env*` and `playwright/.auth` stay unread.
-- `bjjeire-terraform-azurerm-aks` is mounted at `/workspaces/bjjeire-terraform-azurerm-aks` (`BJJ_EIRE_TERRAFORM_ROOT`) and `bjjeire-gitops` at `/workspaces/bjjeire-gitops` (`BJJ_EIRE_GITOPS_ROOT`). Entra app registrations are in the terraform repo's `main.app-registrations.tf`; cluster values and secrets references are in gitops. Edit them from here; do not run `terraform apply` or push to either from this container. Their `.env*`, `*.tfvars`, `*.tfstate*` and `.terraform/` stay unread.
+- `bjjeire-terraform-azurerm-aks` is mounted at `/workspaces/bjjeire-terraform-azurerm-aks` (`BJJ_EIRE_TERRAFORM_ROOT`) and `bjjeire-gitops` at `/workspaces/bjjeire-gitops` (`BJJ_EIRE_GITOPS_ROOT`). Entra app registrations are in the terraform repo's `main.app-registrations.tf`; cluster values and secrets references are in gitops. `bjjeire-deploy` (the Helm charts Flux installs, including `bjj-mongodb`) is mounted at `/workspaces/bjjeire-deploy` (`BJJ_EIRE_DEPLOY_ROOT`). Edit them from here; do not run `terraform apply`, install a chart, or push to any of them from this container. Their `.env*`, `*.tfvars`, `*.tfstate*` and `.terraform/` stay unread.
 - `.env` is required.
 - `secrets/` should contain `mongodb_password.txt`.
 - `VITE_APP_*` variables are baked in at Docker build time, not runtime.

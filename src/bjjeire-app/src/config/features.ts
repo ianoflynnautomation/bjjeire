@@ -28,9 +28,10 @@ export const features = [
     Component: lazyWithPreload(() => import('@/pages/CompetitionsPage')),
   },
   {
+    // The directory keeps its Stores flag; only the visible name and address became Shop.
     flag: 'Stores',
-    path: paths.stores.path,
-    Component: lazyWithPreload(() => import('@/pages/StoresPage')),
+    path: paths.shop.path,
+    Component: lazyWithPreload(() => import('@/pages/ShopPage')),
   },
 ] as const satisfies readonly FeatureConfig[]
 

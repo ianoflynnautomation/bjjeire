@@ -25,6 +25,7 @@ and flipping the old one's status — not editing it.
 | [0013](0013-stripe-hosted-checkout-and-webhooks.md) | Entry fees use Stripe hosted checkout, confirmed by signed webhook | Accepted |
 | [0014](0014-local-organiser-sign-in.md) | Local development signs the organiser in without Entra (amended: and competitors) | Accepted |
 | [0015](0015-bjjeire-competitions-inside-competitions.md) | In-house competitions are BJJ Éire competitions inside Competitions | Accepted |
+| [0017](0017-event-publication-registry-outbox.md) | After-commit work runs from an event publication registry in MongoDB (a replica set) | Accepted |
 
 ## Adding one
 

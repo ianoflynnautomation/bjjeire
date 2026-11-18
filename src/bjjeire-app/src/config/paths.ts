@@ -19,10 +19,10 @@ export const paths = {
     label: 'Competitions',
     getHref: () => '/competitions',
   },
-  stores: {
-    path: '/stores',
-    label: 'Stores',
-    getHref: () => '/stores',
+  shop: {
+    path: '/shop',
+    label: 'Shop',
+    getHref: () => '/shop',
   },
   bjjEireCompetition: {
     path: '/competitions/:slug',
@@ -67,3 +67,12 @@ export const paths = {
     getHref: () => '/about',
   },
 } as const
+
+/**
+ * Old addresses that still lead somewhere. Stores became Shop (#4007), so a
+ * bookmark or search result for /stores, or anything under it, lands on /shop.
+ * The redirect goes through Shop's own feature gate.
+ */
+export const legacyRedirects = [
+  { from: '/stores/*', to: paths.shop.path },
+] as const

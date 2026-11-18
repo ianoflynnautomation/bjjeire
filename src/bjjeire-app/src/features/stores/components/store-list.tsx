@@ -5,7 +5,7 @@ import { uiContent } from '@/config/ui-content'
 import { readString } from '@/utils/untrusted'
 import { StoreCard } from './store-card/store-card'
 
-const { list } = uiContent.stores
+const { list } = uiContent.shop
 
 interface StoresListProps {
   stores: StoreDto[]

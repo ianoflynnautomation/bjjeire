@@ -3,7 +3,7 @@ import { ListPageHeader } from '@/components/ui/page-header/list-page-header'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
-const { pageTitle } = uiContent.stores
+const { pageTitle } = uiContent.shop
 
 interface StoresPageHeaderProps {
   totalStores?: number

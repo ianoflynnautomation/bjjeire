@@ -14,6 +14,8 @@ paths:
 
 ## Documents
 - Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `BjjEireCompetition`, `Competitor`, `DeletedCompetitor`, `BjjEireCompetitionRegistration`, `StripeEvent`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
+- `event_publication` belongs to Spring Modulith's event publication registry (ADR-0017). Its shape is the library's; feature code never queries it
+- MongoDB runs as a single-node replica set (`rs0`) in every environment, because the registry writes in transactions. Compose starts it through `tools/mongodb/`; integration tests use `MongoDBContainer.withReplicaSet()`. UUIDs are encoded `STANDARD` (`MongoConfig`)
 - IDs are 24-char hex ObjectId strings
 - GeoJSON coordinates are `[longitude, latitude]`: `{ "type": "Point", "coordinates": [lng, lat] }`. Dublin is `[-6.26, 53.35]`
 - Events and competitions stamp `expiresAt` for the TTL indexes

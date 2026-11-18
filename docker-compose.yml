@@ -91,6 +91,9 @@ services:
     profiles: ["app"]
     image: mongo:8.2
     container_name: mongodb
+    # Single-node replica set rs0 (ADR-0017): the API writes event publications in transactions. The healthcheck
+    # initiates the set and reports healthy once this node is the writable primary.
+    entrypoint: ["bash", "/opt/bjjeire/mongodb/replica-set-entrypoint.sh"]
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -98,10 +101,11 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     volumes:
       - mongodb_data:/data/db
+      - ./tools/mongodb:/opt/bjjeire/mongodb:ro
     secrets:
       - mongodb_password
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD", "bash", "/opt/bjjeire/mongodb/replica-set-healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 5

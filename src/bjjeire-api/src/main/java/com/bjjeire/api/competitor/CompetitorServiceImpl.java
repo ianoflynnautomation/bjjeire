@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.web.server.ResponseStatusException;
 
 /** Mongo implementation of {@link CompetitorService}. */
@@ -59,6 +60,7 @@ public class CompetitorServiceImpl implements CompetitorService {
     private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApplicationEventPublisher events;
     private final ResultService resultService;
+    private final TransactionOperations transactions;
 
     public CompetitorServiceImpl(
             MongoTemplate mongoTemplate,
@@ -68,7 +70,8 @@ public class CompetitorServiceImpl implements CompetitorService {
             MeterRegistry meterRegistry,
             BjjEireCompetitionService bjjEireCompetitionService,
             ApplicationEventPublisher events,
-            ResultService resultService) {
+            ResultService resultService,
+            TransactionOperations transactions) {
         this.mongoTemplate = mongoTemplate;
         this.auditInfoProvider = auditInfoProvider;
         this.auditRecorder = auditRecorder;
@@ -76,6 +79,7 @@ public class CompetitorServiceImpl implements CompetitorService {
         this.bjjEireCompetitionService = bjjEireCompetitionService;
         this.events = events;
         this.resultService = resultService;
+        this.transactions = transactions;
         this.directoryFailures = Counter.builder("competitor.identity.deletion.failures")
                 .description("Account deletions whose sign-in identity is still in the external tenant")
                 .register(meterRegistry);
@@ -131,7 +135,10 @@ public class CompetitorServiceImpl implements CompetitorService {
         }
         auditRecorder.record(
                 before == null ? AuditAction.Create : AuditAction.Update, Competitor.ENTITY_NAME, saved.getId(), 1);
-        events.publishEvent(new CompetitorProfileSaved(SignUpProfile.of(saved)));
+        // In a transaction of its own, so the event publication registry stores it before the listener runs and keeps
+        // it until the listener completes (ADR-0017). The save above is not part of it: its duplicate-key retry cannot
+        // run inside a MongoDB transaction, which a failed write aborts.
+        transactions.executeWithoutResult(status -> events.publishEvent(new CompetitorProfileSaved(saved.getId())));
         return CompetitorMapper.toDto(saved);
     }
 
@@ -158,6 +165,12 @@ public class CompetitorServiceImpl implements CompetitorService {
     @Override
     public Optional<SignUpProfile> findSignUpProfile(CompetitorIdentity caller) {
         return Optional.ofNullable(find(caller)).map(SignUpProfile::of);
+    }
+
+    @Override
+    public Optional<SignUpProfile> findSignUpProfileById(String competitorId) {
+        return Optional.ofNullable(mongoTemplate.findById(competitorId, Competitor.class))
+                .map(SignUpProfile::of);
     }
 
     @Override

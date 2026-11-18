@@ -1,16 +1,16 @@
-export const stores = {
-  documentTitle: 'BJJ Clothing Stores | BJJ Éire',
+export const shop = {
+  documentTitle: 'Shop | BJJ Éire',
   pageTitle: {
-    all: 'BJJ Clothing Stores',
+    all: 'Shop',
     foundPrefix: 'Found',
     foundSuffixSingular: 'store.',
     foundSuffixPlural: 'stores.',
   },
   hero: {
-    tagline: 'BJJ Clothing Stores',
+    tagline: 'Shop',
     subtitle:
-      'Links to official websites for Brazilian Jiu-Jitsu stores active in Ireland and internationally.',
-    imageAlt: 'BJJ Éire stores banner',
+      'Irish BJJ stores: links to official websites for Brazilian Jiu-Jitsu stores active in Ireland and internationally.',
+    imageAlt: 'BJJ Éire Shop banner',
   },
   search: {
     label: 'Search stores',

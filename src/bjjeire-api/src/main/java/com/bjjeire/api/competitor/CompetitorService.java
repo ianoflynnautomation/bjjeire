@@ -63,6 +63,15 @@ public interface CompetitorService {
     Optional<SignUpProfile> findSignUpProfile(CompetitorIdentity caller);
 
     /**
+     * Returns what a sign-up needs from a competitor's profile, by profile id, for work done without a caller (a
+     * profile change reaching the sign-ups).
+     *
+     * @param competitorId profile id
+     * @return the profile, or empty when the account is gone
+     */
+    Optional<SignUpProfile> findSignUpProfileById(String competitorId);
+
+    /**
      * Returns the sign-in email of a competitor, for sign-up mail sent without a caller (the payment webhook).
      *
      * @param competitorId profile id

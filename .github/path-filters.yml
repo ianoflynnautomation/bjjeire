@@ -20,6 +20,7 @@ compose:
   - "docker-compose.yml"
   - "docker-compose.override*.yml"
   - ".github/scripts/smoke-pre-up.sh"
+  - "tools/mongodb/**"
   - "src/bjjeire-api/Dockerfile"
   - "src/bjjeire-api/seeder.Dockerfile"
   - "src/bjjeire-app/Dockerfile"

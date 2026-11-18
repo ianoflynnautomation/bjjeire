@@ -13,7 +13,7 @@ import { ensureExternalUrlScheme } from '@/utils/formatting-utils'
 import { readString } from '@/utils/untrusted'
 import { StoreCardHeader } from './store-card-header'
 
-const { card } = uiContent.stores
+const { card } = uiContent.shop
 
 interface StoreCardProps {
   store: StoreDto

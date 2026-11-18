@@ -1,0 +1,212 @@
+# Design-time contract for specs/003-bjjeire-merch-shop.
+# Same shape as specs/stc/<feature>/contract.yaml. On implementation this moves to
+# specs/stc/shop/contract.yaml and the served OpenAPI document becomes the artifact of
+# record (ADR-0002). Every route is an addition; /api/v1/store is unchanged.
+feature: shop
+feature_flags:
+  Stores: the directory on /shop (unchanged wire name, FEATURE_STORES)
+  Merch: everything below (default off, FEATURE_MERCH); API answers 404 before auth when off
+openapi:
+  served: /v3/api-docs
+  artifact: ghcr.io/<owner>/bjjeire-openapi-contract
+
+auth:
+  public: no token
+  guest: no token; an order is read with header X-Order-Key (the access key from the emailed link)
+  admin: workforce-tenant token with scope access_as_writer (unchanged)
+  stripe: Stripe-Signature header verified against STRIPE_SHOP_WEBHOOK_SECRET
+
+errors: ProblemDetail (urn:bjjeire), via web.ApiExceptionHandler
+  # 400 validation (errors[].field PascalCase) · 401/403 admin routes only
+  # 404 unknown id or slug, draft or hidden product to the public, order key missing or wrong, flag off
+  # 409 business conflict; `type` distinguishes the cases listed per route
+
+enums:
+  ProductKind: [RASHGUARD, SHORTS, T_SHIRT]
+  ProductStatus: [DRAFT, PUBLISHED, HIDDEN]
+  SizeId: [XS, S, M, L, XL, XXL]
+  OrderStatus: [AWAITING_PAYMENT, CONFIRMED, DISPATCHED, EXPIRED, REFUNDED]
+  RefundStatus: [PENDING, REFUNDED, FAILED]
+  DashboardPeriod: [TODAY, LAST_7_DAYS, LAST_30_DAYS, THIS_YEAR, CUSTOM]
+
+routes:
+  # ---- Products: public --------------------------------------------------------------
+  - method: GET
+    path: /api/v1/product
+    auth: public
+    response: PagedResponse<ProductSummaryDto>   # id, slug, name, kind, priceCents, currency, photo, soldOut
+    notes: PUBLISHED only, ordered by kind (RASHGUARD, SHORTS, T_SHIRT) then name; page size up to 100
+    covers: ["#6001", "#6003"]
+  - method: GET
+    path: /api/v1/product/{slug}
+    auth: public
+    response: ProductDto   # summary fields + description, photos[], sizes[{id, available, soldOut}]
+    notes: held and stock are never shown, only available/soldOut; draft or hidden → 404
+    covers: ["#6002"]
+  - method: GET
+    path: /api/v1/product/photo/{sha256}
+    auth: public
+    response: image/jpeg | image/png | image/webp (Cache-Control immutable, nosniff)
+    covers: ["#6001", "#6002"]
+
+  # ---- Products: organiser -----------------------------------------------------------
+  - method: GET
+    path: /api/v1/product/admin
+    auth: admin
+    response: PagedResponse<AdminProductDto>   # every status, stock and held per size
+    covers: ["#6013", "#6017"]
+  - method: GET
+    path: /api/v1/product/admin/{id}
+    auth: admin
+    response: AdminProductDto
+  - method: POST
+    path: /api/v1/product/admin
+    auth: admin
+    request: CreateProductCommand   # slug, name, kind, description, priceCents, sizes[{id, stock}]
+    response: 201 AdminProductDto (status DRAFT)
+    conflicts: [slug-taken]
+    covers: ["#6013", "#6017"]
+  - method: PUT
+    path: /api/v1/product/admin/{id}
+    auth: admin
+    request: UpdateProductCommand   # all fields + photos order + version
+    response: AdminProductDto
+    conflicts: [stale-version, slug-taken, stock-below-held, size-has-holds]
+    notes: price change applies to new checkouts only (FR-007)
+    covers: ["#6015", "#6016"]
+  - method: POST
+    path: /api/v1/product/admin/{id}/publish
+    auth: admin
+    conflicts: [product-not-publishable]   # no photo or no size
+    covers: ["#6014"]
+  - method: POST
+    path: /api/v1/product/admin/{id}/hide
+    auth: admin
+    covers: ["#6014"]
+  - method: PUT
+    path: /api/v1/product/admin/{id}/stock
+    auth: admin
+    request: StockCommand   # sizes[{id, stock}] + version
+    conflicts: [stale-version, stock-below-held]
+    covers: ["#6016"]
+  - method: POST
+    path: /api/v1/product/admin/{id}/photo
+    auth: admin
+    request: multipart/form-data, part "file" (≤ 5 MB, JPEG/PNG/WebP by magic number)
+    response: 201 { sha256 }
+    conflicts: [too-many-photos]
+    errors: [415 unsupported-image]
+  - method: DELETE
+    path: /api/v1/product/admin/{id}
+    auth: admin
+    notes: drafts that no order names only
+    conflicts: [product-has-orders, product-not-draft]
+
+  # ---- Orders: guest -----------------------------------------------------------------
+  - method: POST
+    path: /api/v1/order
+    auth: guest
+    request: CreateOrderCommand   # lines[{productId, sizeId, quantity}], email, address, acceptTerms: true
+    response: 201 OrderCheckoutDto   # orderId, orderKey (once), checkoutUrl, holdExpiresAt, totalCents
+    conflicts:
+      - basket-changed     # body lists lines: {productId, sizeId, reason: SOLD_OUT|PRICE_CHANGED|UNAVAILABLE, nowAvailable?, nowPriceCents?}
+      - size-sold-out
+      - basket-too-large
+      - too-many-unpaid
+      - delivery-not-available   # address outside IE / NI
+    errors: [502 payment-unavailable]
+    covers: ["#6005", "#6006", "#6009", "#6010", "#6012"]
+  - method: GET
+    path: /api/v1/order/{id}
+    auth: guest (X-Order-Key)
+    response: OrderDto   # number, status, lines, amounts, address, dispatch, refund status
+    notes: wrong or missing key → 404
+    covers: ["#6007", "#6008", "#6011"]
+  - method: POST
+    path: /api/v1/order/{id}/checkout
+    auth: guest (X-Order-Key)
+    response: OrderCheckoutDto without orderKey   # the open session again
+    conflicts: [hold-expired, payment-received]
+    covers: ["#6008"]
+
+  # ---- Orders: organiser -------------------------------------------------------------
+  - method: GET
+    path: /api/v1/order/admin
+    auth: admin
+    query: status?, page, pageSize, format=csv?
+    response: PagedResponse<AdminOrderDto> | text/csv (order-<date>.csv, formula-safe)
+    covers: ["#6018", "#6025"]
+  - method: POST
+    path: /api/v1/order/admin/{id}/dispatch
+    auth: admin
+    request: DispatchCommand   # trackingReference?
+    conflicts: [order-not-confirmed]
+    covers: ["#6019"]
+  - method: POST
+    path: /api/v1/order/admin/{id}/refund
+    auth: admin
+    request: RefundCommand   # confirmDispatched: boolean
+    response: AdminOrderDto (refund.status PENDING|REFUNDED|FAILED)
+    conflicts: [order-not-refundable, dispatched-needs-confirmation]
+    covers: ["#6020", "#6021"]
+  - method: GET
+    path: /api/v1/order/admin/dashboard
+    auth: admin
+    query: period (DashboardPeriod), from?, to? (ISO dates, Irish days, CUSTOM only)
+    response: DashboardDto   # orders, takenCents, refundedCents, netCents, byProduct[{productId, name, units, cents, bySize[]}], stock[{productId, sizeId, available, low, soldOut}]
+    covers: ["#6022", "#6023", "#6024", "#6025"]
+  - method: GET
+    path: /api/v1/order/admin/settings
+    auth: admin
+    response: ShopSettingsDto   # deliveryFeeCents, version
+  - method: PUT
+    path: /api/v1/order/admin/settings
+    auth: admin
+    request: ShopSettingsCommand   # deliveryFeeCents, version
+    conflicts: [stale-version]
+
+  # ---- Delivery fee: public ------------------------------------------------------------
+  - method: GET
+    path: /api/v1/order/delivery
+    auth: public
+    response: { deliveryFeeCents, currency, countries: [IE, GB-NIR] }
+    covers: ["#6006"]
+
+  # ---- Stripe ---------------------------------------------------------------------------
+  - method: POST
+    path: /api/v1/order/stripe-webhook
+    auth: stripe
+    notes: hidden from OpenAPI; see stripe-webhook.md
+    covers: ["#6007", "#6008", "#6009", "#6020", "#6021"]
+
+problem_types:   # new urn:bjjeire:* entries in web.ProblemTypes
+  - slug-taken (existing)
+  - stale-version (existing)
+  - stock-below-held
+  - size-has-holds
+  - product-not-publishable
+  - too-many-photos
+  - unsupported-image
+  - product-has-orders
+  - product-not-draft
+  - basket-changed
+  - size-sold-out
+  - basket-too-large
+  - too-many-unpaid (existing)
+  - delivery-not-available
+  - hold-expired (existing)
+  - payment-received (existing)
+  - payment-unavailable (existing)
+  - order-not-confirmed
+  - order-not-refundable
+  - dispatched-needs-confirmation
+
+spa_routes:
+  /shop: ShopPage when Stores OR Merch is on (#6028); directory with Stores; merch section with Merch and a published product
+  /stores, /stores/*: redirect to /shop
+  /shop/products/:slug: ProductPage (Merch)
+  /shop/basket: BasketPage (Merch)
+  /shop/checkout: CheckoutPage (Merch)
+  /shop/orders/:id: OrderPage (Merch); key read from #key=
+  /admin/shop: AdminShopPage — products, orders, dashboard, delivery fee (Merch; organiser sign-in)
+  /admin/shop/products/:id: AdminProductPage (Merch)

@@ -4,7 +4,7 @@ import { StoresPageHeader } from '../stores-page-header'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
-const { pageTitle } = uiContent.stores
+const { pageTitle } = uiContent.shop
 
 describe('StoresPageHeader', () => {
   it('given the stores page, when the header renders, then the page title is shown', () => {
