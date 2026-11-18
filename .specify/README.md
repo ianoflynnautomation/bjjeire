@@ -49,6 +49,11 @@ Do not use `/speckit-implement`. `/build-feature` keeps the failing-test-first o
 requirement issue traceability and the independent `spec-verifier` review. It then writes the
 result back into the living spec.
 
+The one hand edit to a generated skill: `speckit-implement/SKILL.md` sets
+`user-invocable: false` and `disable-model-invocation: true`, so neither you nor an
+agent can start it. `specify init` resets both to the stock values. After an upgrade,
+set them again before committing.
+
 Do not install the Spec2Cloud `verify`/`deploy` extension until it is
 rewritten for Flux + Mongo. The constitution forbids generating `azure.yaml`
 or Cosmos scaffolding.

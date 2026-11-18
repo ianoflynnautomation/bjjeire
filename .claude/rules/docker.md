@@ -2,6 +2,7 @@
 description: Docker Compose stack, images, and Caddy
 paths:
   - docker-compose*.yml
+  - tools/mongodb/
   - src/bjjeire-api/Dockerfile
   - src/bjjeire-api/seeder.Dockerfile
   - src/bjjeire-app/Dockerfile
@@ -29,10 +30,16 @@ docker compose --profile seed -f docker-compose.yml -f docker-compose.override.j
 |---|---|---|---|
 | `api` | `api` | 5003 → 8080 | Spring Boot. Healthcheck `GET /health` |
 | `frontend` | `web` | 3000 → 80 | SPA served by Caddy, which proxies `/api/*` to the API |
-| `mongodb` | `mongodb` | 127.0.0.1:27017 | `mongo:8.2`, auth on |
+| `mongodb` | `mongodb` | 127.0.0.1:27017 | `mongo:8.2`, auth on, single-node replica set `rs0` |
 
 - Keep the MongoDB port bound to `127.0.0.1`. Do not publish it on all interfaces
 - Keep the MongoDB image on a version tag, never `latest`
+
+## MongoDB replica set (ADR-0017)
+- The API writes event publications in transactions, so MongoDB must be a replica set, even with one node
+- Every compose file mounts `./tools/mongodb` into the container. `replica-set-entrypoint.sh` starts `mongod --replSet rs0` with a fresh keyfile. `replica-set-healthcheck.sh` initiates the set and reports healthy once the node is the writable primary
+- Those two scripts must stay tracked in git. `.gitignore` ignores `/tools/*` and re-includes `tools/mongodb/`. If they go missing, Docker mounts an empty folder, mongod never starts, and the Compose smoke job fails with "container mongodb is unhealthy"
+- The replica set's member host is `mongodb:27017`, the service name. Keep the service name and that host in step
 
 ## Configuration
 - `.env` at the repository root is required and gitignored
@@ -51,4 +58,4 @@ docker compose --profile seed -f docker-compose.yml -f docker-compose.override.j
 
 ## Defaults shared by services
 - Resource limits come from the `x-defaults` anchor (0.50 CPU, 512 MB). Change them there
-- `api` and `frontend` use the `x-healthcheck-curl` anchor. `mongodb` has its own `mongosh` healthcheck
+- `api` and `frontend` use the `x-healthcheck-curl` anchor. `mongodb` uses `tools/mongodb/replica-set-healthcheck.sh`
