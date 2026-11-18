@@ -8,6 +8,7 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.bjjeirecompetition.Division;
 import com.bjjeire.api.bjjeirecompetition.Gender;
+import com.bjjeire.api.common.MailMessage;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
@@ -185,6 +186,66 @@ class StripeWebhookIT extends RegistrationIntegrationTest {
         assertThat(sent)
                 .singleElement()
                 .satisfies(mail -> assertThat(mail.body()).contains("refund"));
+    }
+
+    /**
+     * ADR-0016: Stripe sends each event to both webhooks under one id. An object the shop made is the shop's: this
+     * webhook acknowledges it, changes nothing and keeps it out of its ledger, so the shop's own ledger can apply it.
+     */
+    @Test
+    @Tag("#6027")
+    void shouldAcknowledgeAndIgnoreCheckoutEventsTheShopMade() {
+        BjjEireCompetitionRegistration registration = startSignUp("shop-event", null);
+        String payload = checkoutEvent("evt_shop_paid", "checkout.session.completed", registration)
+                .replace("\"metadata\": {", "\"metadata\": { \"bjjeireKind\": \"order\",");
+
+        ResponseEntity<String> response = postSignedWebhook(payload);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(onlyRegistration().getStatus()).isEqualTo(RegistrationStatus.AWAITING_PAYMENT);
+        assertThat(mongoTemplate.count(new Query(), StripeEvent.class)).isZero();
+        assertThat(mailer.sent()).isEmpty();
+    }
+
+    @Test
+    @Tag("#6027")
+    void shouldAcknowledgeAndIgnoreRefundEventsTheShopMade() {
+        String payload = """
+            {
+              "id": "evt_shop_refund",
+              "object": "event",
+              "type": "refund.updated",
+              "data": {
+                "object": {
+                  "id": "re_shop_1",
+                  "object": "refund",
+                  "status": "succeeded",
+                  "amount": 4500,
+                  "metadata": { "bjjeireKind": "order", "orderId": "0123456789abcdef01234567" }
+                }
+              }
+            }
+            """;
+
+        ResponseEntity<String> response = postSignedWebhook(payload);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(mongoTemplate.count(new Query(), StripeEvent.class)).isZero();
+    }
+
+    /** Sessions made from slice 0 on say they are registration's; they are handled exactly as before. */
+    @Test
+    @Tag("#6027")
+    void shouldConfirmASignUpWhoseSessionSaysItIsARegistration() {
+        BjjEireCompetitionRegistration registration = startSignUp("kind-registration", null);
+        String payload = checkoutEvent("evt_kind_registration", "checkout.session.completed", registration)
+                .replace("\"metadata\": {", "\"metadata\": { \"bjjeireKind\": \"registration\",");
+
+        ResponseEntity<String> response = postSignedWebhook(payload);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(onlyRegistration().getStatus()).isEqualTo(RegistrationStatus.CONFIRMED);
+        assertThat(mongoTemplate.count(new Query(), StripeEvent.class)).isEqualTo(1);
     }
 
     @Test

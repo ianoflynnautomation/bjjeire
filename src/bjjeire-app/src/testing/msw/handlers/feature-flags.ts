@@ -10,6 +10,7 @@ export const defaultFeatureFlags: FeatureFlagsMap = {
   GymsMap: false,
   EventsMap: false,
   BjjEireCompetitions: false,
+  Merch: false,
 }
 
 export const featureFlagsHandlers = [

@@ -24,6 +24,7 @@ sort: name ascending
 invariants:
   - listing_excludes: isActive != true
   - feature_flag: Stores fail-closed
+  - merch_flag: Merch fail-closed (FEATURE_MERCH=false); with it off /api/v1/product/** and /api/v1/order/** answer 404 before authentication (#6026, ADR-0016). Merch routes are added here as slices 2-5 ship
   - cache_tag: STORES_TAG
   - writes: not mapped on StoreController (living spec FR-003 is ahead of the API)
   - rename: only the visible name and SPA address are Shop; API path, collection, flag and test ids keep store names (#4005-#4007)

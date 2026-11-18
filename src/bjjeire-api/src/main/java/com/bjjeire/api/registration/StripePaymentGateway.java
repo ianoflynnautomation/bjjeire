@@ -1,5 +1,7 @@
 package com.bjjeire.api.registration;
 
+import com.bjjeire.api.common.StripeMetadata;
+import com.bjjeire.api.common.StripeSecrets;
 import com.bjjeire.api.config.BjjEireProperties;
 import com.stripe.StripeClient;
 import com.stripe.exception.InvalidRequestException;
@@ -27,27 +29,7 @@ public class StripePaymentGateway implements PaymentGateway {
     @Override
     public CheckoutSession createCheckout(CheckoutRequest request) {
         requireConfigured();
-        SessionCreateParams params = SessionCreateParams.builder()
-                .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setClientReferenceId(request.registrationId())
-                .putMetadata("registrationId", request.registrationId())
-                .putMetadata("competitionId", request.competitionId())
-                .putMetadata("divisionId", request.divisionId())
-                .setCustomerEmail(request.customerEmail())
-                .setExpiresAt(request.expiresAt().getEpochSecond())
-                .setSuccessUrl(request.successUrl())
-                .setCancelUrl(request.cancelUrl())
-                .addLineItem(SessionCreateParams.LineItem.builder()
-                        .setQuantity(1L)
-                        .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-                                .setCurrency(request.currency().toLowerCase(Locale.ROOT))
-                                .setUnitAmount((long) request.amountCents())
-                                .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                        .setName(request.description())
-                                        .build())
-                                .build())
-                        .build())
-                .build();
+        SessionCreateParams params = checkoutParams(request);
         try {
             Session session = client.v1().checkout().sessions().create(params, idempotent(request.idempotencyKey()));
             return new CheckoutSession(session.getId(), session.getUrl());
@@ -87,11 +69,7 @@ public class StripePaymentGateway implements PaymentGateway {
     @Override
     public RefundResult refund(RefundRequest request) {
         requireConfigured();
-        RefundCreateParams params = RefundCreateParams.builder()
-                .setPaymentIntent(request.paymentIntentId())
-                .setAmount((long) request.amountCents())
-                .putMetadata("registrationId", request.registrationId())
-                .build();
+        RefundCreateParams params = refundParams(request);
         try {
             Refund refund = client.v1().refunds().create(params, idempotent(request.idempotencyKey()));
             return new RefundResult(refund.getId(), "succeeded".equals(refund.getStatus()));
@@ -109,5 +87,41 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private static RequestOptions idempotent(String key) {
         return RequestOptions.builder().setIdempotencyKey(key).build();
+    }
+
+    /** The session for one sign-up. Marked as registration's, so the shop's webhook leaves its events alone. */
+    static SessionCreateParams checkoutParams(CheckoutRequest request) {
+        return SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setClientReferenceId(request.registrationId())
+                .putMetadata(StripeMetadata.KIND, StripeMetadata.KIND_REGISTRATION)
+                .putMetadata("registrationId", request.registrationId())
+                .putMetadata("competitionId", request.competitionId())
+                .putMetadata("divisionId", request.divisionId())
+                .setCustomerEmail(request.customerEmail())
+                .setExpiresAt(request.expiresAt().getEpochSecond())
+                .setSuccessUrl(request.successUrl())
+                .setCancelUrl(request.cancelUrl())
+                .addLineItem(SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
+                                .setCurrency(request.currency().toLowerCase(Locale.ROOT))
+                                .setUnitAmount((long) request.amountCents())
+                                .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                        .setName(request.description())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    /** The refund of one sign-up, marked as registration's like its session. */
+    static RefundCreateParams refundParams(RefundRequest request) {
+        return RefundCreateParams.builder()
+                .setPaymentIntent(request.paymentIntentId())
+                .setAmount((long) request.amountCents())
+                .putMetadata(StripeMetadata.KIND, StripeMetadata.KIND_REGISTRATION)
+                .putMetadata("registrationId", request.registrationId())
+                .build();
     }
 }

@@ -44,6 +44,7 @@ const ALL_OFF: FeatureFlagsMap = {
   GymsMap: false,
   EventsMap: false,
   BjjEireCompetitions: false,
+  Merch: false,
 }
 
 // The first render of a lazy page waits for its chunk, which can pass the 1 s default on a busy run.

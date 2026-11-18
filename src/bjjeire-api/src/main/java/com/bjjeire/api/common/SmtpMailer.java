@@ -1,11 +1,11 @@
-package com.bjjeire.api.registration;
+package com.bjjeire.api.common;
 
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 /** Sends through the SMTP relay Spring Boot configures from {@code spring.mail.*}. */
-class SmtpMailer implements Mailer {
+final class SmtpMailer implements Mailer {
     private final JavaMailSender sender;
     private final String from;
 

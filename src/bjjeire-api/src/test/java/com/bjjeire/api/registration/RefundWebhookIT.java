@@ -8,6 +8,7 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetition;
 import com.bjjeire.api.bjjeirecompetition.Division;
 import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
+import com.bjjeire.api.common.MailMessage;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import org.junit.jupiter.api.Tag;

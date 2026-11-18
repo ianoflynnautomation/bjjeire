@@ -69,6 +69,39 @@ class CrossCuttingFilterTest {
         }
     }
 
+    /** ADR-0016: merch routes obey the Merch flag, not read-only mode; the directory stays protected. */
+    @Test
+    @org.junit.jupiter.api.Tag("#6026")
+    void readOnlyModeLetsMerchWritesThroughAndStillBlocksTheDirectory() throws Exception {
+        BjjEireProperties properties =
+                properties(new BjjEireProperties.RateLimit(false, 0, 0, 429), new BjjEireProperties.ReadOnlyMode(true));
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new TestController())
+                .addFilters(new ReadOnlyModeFilter(properties, objectMapper))
+                .build();
+
+        for (String path : new String[] {
+            "/api/v1/product/admin",
+            "/api/v1/product/admin/abc/publish",
+            "/api/v1/order",
+            "/api/v1/order/stripe-webhook"
+        }) {
+            mockMvc.perform(post(path)).andExpect(status().isOk());
+        }
+        // The router matches the decoded path, so the exemption does too.
+        // The router may not map these spellings; read-only mode must not be the one answering.
+        for (String path : new String[] {"/api/v1/order%2F", "/api/v1/%6frder", "/api/v1/%70roduct/admin"}) {
+            mockMvc.perform(post(java.net.URI.create(path)))
+                    .andExpect(result -> org.assertj.core.api.Assertions.assertThat(
+                                    result.getResponse().getStatus())
+                            .as(path)
+                            .isNotEqualTo(405));
+        }
+        for (String path : new String[] {"/api/v1/store", "/api/v1/orders", "/api/v1/products"}) {
+            mockMvc.perform(post(path)).andExpect(status().isMethodNotAllowed());
+        }
+    }
+
     @Test
     void rateLimitRejectsRequestsAfterPermitLimit() throws Exception {
         BjjEireProperties properties = properties(
@@ -202,7 +235,14 @@ class CrossCuttingFilterTest {
             "/api/v1/gym",
             "/api/v1/competition",
             "/api/v1/competitors",
-            "/api/v1/bjjeire-competitions"
+            "/api/v1/bjjeire-competitions",
+            "/api/v1/product/admin",
+            "/api/v1/product/admin/abc/publish",
+            "/api/v1/order",
+            "/api/v1/order/stripe-webhook",
+            "/api/v1/store",
+            "/api/v1/orders",
+            "/api/v1/products"
         })
         ResponseEntity<String> post() {
             return ResponseEntity.ok("ok");

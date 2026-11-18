@@ -48,6 +48,7 @@ describe('useFeatureFlag', () => {
       GymsMap: true,
       EventsMap: false,
       BjjEireCompetitions: true,
+      Merch: false,
     }
     for (const flag of ALL_FLAGS) {
       const { result } = renderHook(() => useFeatureFlag(flag), {

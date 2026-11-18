@@ -23,6 +23,7 @@ lives in [docs/adr/](docs/adr/); read the relevant record before reversing one.
 | Payments, the Stripe webhook, read-only mode, the `BjjEireCompetitions` flag | [ADR-0013](docs/adr/0013-stripe-hosted-checkout-and-webhooks.md) — the webhook is the only confirmer |
 | BJJ Éire competitions, `bjjeirecompetition`, the `BjjEireCompetitions` flag, the featured section on `/competitions`, any old "tournament" name | [ADR-0015](docs/adr/0015-bjjeire-competitions-inside-competitions.md) — one Competitions feature; the retired name stays retired |
 | Local organiser or competitor sign-in, `LOCAL_SIGN_IN_*`, `VITE_APP_LOCAL_SIGN_IN`, `lib/admin-auth.ts`, `lib/competitor-auth.ts` | [ADR-0014](docs/adr/0014-local-organiser-sign-in.md) — local profile only; the API refuses to start otherwise |
+| BJJ Éire merch, guest checkout, the `product` or `order` packages, the `Merch` flag, the shop's Stripe webhook | [ADR-0016](docs/adr/0016-bjjeire-merch-guest-checkout.md) — guests write with no token; each Stripe object carries `bjjeireKind`; admin rules come before the public patterns |
 | Application events, `@ApplicationModuleListener`, `EventPublicationSweep`, MongoDB replica set or transactions | [ADR-0017](docs/adr/0017-event-publication-registry-outbox.md) — events carry ids only; listeners must be idempotent; Mongo must be a replica set |
 | Specs, `.specify/`, agentic workflows | [ADR-0010](docs/adr/0010-spec-driven-development-and-agentic-workflows.md) |
 | Tests, TDD, coverage layers | [Testing Strategy](docs/testing-strategy.md) — STC overlay in `specs/stc/` |
@@ -90,7 +91,7 @@ npm run build
 
 ## Architecture Guardrails
 
-- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`, and for BJJ Éire competitions `bjjeirecompetition`, `competitor`, `registration`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
+- The Java API is package-by-feature: one flat package per feature (`event`, `gym`, `competition`, `store`, for BJJ Éire competitions `bjjeirecompetition`, `competitor`, `registration`, and for BJJ Éire merch `product`, `order`) with its controller, service, DTOs, domain model, and repository together. Shared code lives in `common`, `audit`, `deactivation`, `web`, and `config`.
 - Controllers stay thin and delegate use cases to services.
 - Put new backend code in its feature package, not in a shared/layered package.
 - GeoJSON coordinates are `[longitude, latitude]`.

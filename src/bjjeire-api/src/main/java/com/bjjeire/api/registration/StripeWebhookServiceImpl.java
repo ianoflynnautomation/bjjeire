@@ -1,10 +1,11 @@
 package com.bjjeire.api.registration;
 
+import com.bjjeire.api.common.StripeMetadata;
+import com.bjjeire.api.common.StripeSecrets;
+import com.bjjeire.api.common.StripeSignature;
 import com.bjjeire.api.config.BjjEireProperties;
 import com.bjjeire.api.registration.RegistrationMetrics.WebhookRejection;
 import com.bjjeire.api.web.ApiProblems;
-import com.stripe.exception.SignatureVerificationException;
-import com.stripe.net.Webhook;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -44,7 +45,6 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
             REFUND_CREATED,
             REFUND_UPDATED,
             REFUND_FAILED);
-    private static final long TOLERANCE_SECONDS = Webhook.DEFAULT_TOLERANCE;
     private static final Duration LEDGER_TTL = Duration.ofDays(30);
 
     private final RegistrationService registrationService;
@@ -91,6 +91,11 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
         }
         if (!HANDLED.contains(type)) {
             log.debug("Stripe event {} of type {} ignored", eventId, type);
+            return;
+        }
+        if (StripeMetadata.KIND_ORDER.equals(text(event.at("/data/object/metadata/" + StripeMetadata.KIND)))) {
+            // The shop's object (ADR-0016). Not recorded: the shop's own ledger takes the same event id.
+            log.debug("Stripe event {} belongs to the shop; ignored", eventId);
             return;
         }
 
@@ -151,18 +156,17 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
     }
 
     private void verify(String payload, String signatureHeader) {
-        if (signatureHeader == null || signatureHeader.isBlank()) {
-            metrics.webhookRejected(WebhookRejection.SIGNATURE);
+        StripeSignature.Verdict verdict = StripeSignature.verify(payload, signatureHeader, webhookSecret, clock);
+        if (verdict.valid()) {
+            return;
+        }
+        metrics.webhookRejected(WebhookRejection.SIGNATURE);
+        if (verdict.outcome() == StripeSignature.Outcome.MISSING) {
             log.warn("Stripe webhook rejected: no Stripe-Signature header");
             throw ApiProblems.badRequest("The Stripe-Signature header is missing.");
         }
-        try {
-            Webhook.Signature.verifyHeader(payload, signatureHeader, webhookSecret, TOLERANCE_SECONDS, clock);
-        } catch (SignatureVerificationException invalid) {
-            metrics.webhookRejected(WebhookRejection.SIGNATURE);
-            log.warn("Stripe webhook rejected: {}", invalid.getMessage());
-            throw ApiProblems.badRequest("The Stripe-Signature header does not match the body.");
-        }
+        log.warn("Stripe webhook rejected: {}", verdict.reason());
+        throw ApiProblems.badRequest("The Stripe-Signature header does not match the body.");
     }
 
     private JsonNode read(String payload) {

@@ -19,8 +19,8 @@ does not use.
 ### II. Package-by-feature (NON-NEGOTIABLE)
 
 The Java API is one flat package per feature (`event`, `gym`, `competition`,
-`store`, and for BJJ Éire competitions `bjjeirecompetition`, `competitor`,
-`registration`) holding controller, service, DTOs, domain, mapper, validator, and
+`store`, for BJJ Éire competitions `bjjeirecompetition`, `competitor`,
+`registration`, and for BJJ Éire merch `product`, `order`) holding controller, service, DTOs, domain, mapper, validator, and
 repository together. Shared code lives only in `common`, `audit`,
 `deactivation`, `web`, `config`, and `seeder`. New backend types go in their
 feature package. See ADR-0001.
@@ -58,12 +58,21 @@ Two additions serve BJJ Éire competitions and nothing else:
   require a token from the competitor issuer. A competitor may read and
   change only their own profile and sign-ups, and has no authority over the
   directory or over BJJ Éire competitions. See ADR-0012.
-- **The Stripe webhook** is the one write with no bearer token. It is
-  authenticated by Stripe's signature. See ADR-0013.
+- **The Stripe webhooks** are the writes with no bearer token besides guest
+  orders. Each is authenticated by Stripe's signature against its own
+  secret: registration's (ADR-0013) and the shop's,
+  `/api/v1/order/stripe-webhook` (ADR-0016).
+
+BJJ Éire merch adds one more kind, for guests (ADR-0016):
+
+- **Guest order routes** (`POST /api/v1/order`,
+  `POST /api/v1/order/{id}/checkout`) need no token. An order is read
+  (`GET /api/v1/order/{id}`) only with its access key, sent as
+  `X-Order-Key`. Product and order admin routes need the admin authority.
 
 BJJ Éire competition, competitor and registration routes are governed by the
-`BjjEireCompetitions` flag, not by read-only mode. Read-only mode keeps protecting
-the directory.
+`BjjEireCompetitions` flag, and product and order routes by the `Merch` flag,
+not by read-only mode. Read-only mode keeps protecting the directory.
 
 Feature flags fail closed: a failed flag fetch redirects feature routes to
 `/about`. Agents must not "fix" that by stubbing flags in production code.
@@ -138,4 +147,13 @@ fields follow ADR-0015. The unbuilt slice 5 work in
 `specs/001-tournament-registration/` is re-pointed by
 `specs/002-merge-tournaments-competitions/`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-11-16
+### Amendment 1.3.0 (2026-11-18)
+
+BJJ Éire merch (ADR-0016). Principle II gained the `product` and `order`
+packages. Principle V gained guest order routes, read with an order key,
+and the shop's webhook as a second signed write; product and order routes
+follow the `Merch` flag instead of read-only mode. Migration for in-flight
+specs: none needed. A spec that adds a write must now say which of four
+kinds it is (admin, competitor, guest order, signed webhook).
+
+**Version**: 1.3.0 | **Ratified**: 2026-09-18 | **Last Amended**: 2026-11-18

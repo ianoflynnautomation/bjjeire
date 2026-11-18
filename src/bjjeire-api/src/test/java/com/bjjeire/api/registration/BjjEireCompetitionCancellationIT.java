@@ -9,6 +9,7 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.bjjeirecompetition.Division;
 import com.bjjeire.api.bjjeirecompetition.Gender;
 import com.bjjeire.api.common.ApiRoutes;
+import com.bjjeire.api.common.MailMessage;
 import com.bjjeire.api.registration.PaymentGateway.RefundRequest;
 import java.util.List;
 import org.junit.jupiter.api.Tag;

@@ -24,10 +24,12 @@ services:
       FEATURE_GYMS_MAP: ${FEATURE_GYMS_MAP:-true}
       FEATURE_EVENTS_MAP: ${FEATURE_EVENTS_MAP:-true}
       FEATURE_BJJEIRE_COMPETITIONS: ${FEATURE_BJJEIRE_COMPETITIONS:-false}
+      FEATURE_MERCH: ${FEATURE_MERCH:-true}
       # ADR-0013: Stripe test mode. Forward events with the Stripe CLI and put the secret it prints in
       # STRIPE_WEBHOOK_SECRET (docs/stripe-local.md). Checkout returns the competitor to the local SPA.
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_REPLACE_ME}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_REPLACE_ME}
+      STRIPE_SHOP_WEBHOOK_SECRET: ${STRIPE_SHOP_WEBHOOK_SECRET:-whsec_REPLACE_ME}
       STRIPE_SUCCESS_URL_BASE: ${STRIPE_SUCCESS_URL_BASE:-http://localhost:3000}
       # Research R6: sign-up mail goes to Mailpit; read it at http://127.0.0.1:8025.
       SPRING_MAIL_HOST: mailpit

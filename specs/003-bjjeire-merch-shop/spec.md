@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built; living spec: [specs/features/shop.md](../features/shop.md). Slices 0 and 2–5 not built.
+**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built. Slice 0 (plumbing, API side of `#6026`, `#6027`) built. Living spec: [specs/features/shop.md](../features/shop.md). Slices 2–5 not built.
 
 **Input**: User description: "i would like a add a shop feature in which it should allow me to sell bjjeire merch. I want to be able to sell rashguards, shorts and tshirts. you should rename stores feature to shop and add feature at home of page to allow users to buy bjjeire stuff. under this should be similar to competitions in which  you can shop other ireland stores. users should be able to pay via strip the same as competitions. it should have admin page and have a admin dasnboard of sales, inventory etc."
 

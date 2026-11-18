@@ -36,12 +36,12 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 **Purpose**: Amend the rules this feature changes, and line up what cannot be created from this repository.
 
-- [ ] T001 External prerequisites:
+- [ ] T001 External prerequisites. As built: (b) is done, as a placeholder in `main.key-vault.tf` and `variables.tournament.tf`, not applied. (a) and (c) are still open; no Stripe `ServiceEntry` was found in `bjjeire-gitops`.
   - (a) Register a second Stripe webhook endpoint `https://<api host>/api/v1/order/stripe-webhook` in test mode for the seven events in `contracts/stripe-webhook.md`.
   - (b) In `bjjeire-terraform-azurerm-aks`, add a placeholder Key Vault secret `bjj-api-stripe-shop-webhook-secret` beside the existing `bjj-api-stripe-*` placeholders. Do not apply.
   - (c) Confirm the existing Stripe `ServiceEntry` in `bjjeire-gitops` covers `api.stripe.com` (no new host).
 - [ ] T002 Create the requirement issues `#4005`–`#4007` (Stores epic `&4`) and `#6001`–`#6028` (a new merch epic) in `bjjeire/requirements`, or ask the owner to. Replace the provisional ids in `spec.md` if the real numbers differ.
-- [ ] T003 [P] Write `docs/adr/0016-bjjeire-merch-guest-checkout.md` from research R1, R2, R6, R7 and R12, using `docs/adr/0000-template.md`. It covers:
+- [x] T003 [P] Write `docs/adr/0016-bjjeire-merch-guest-checkout.md` from research R1, R2, R6, R7 and R12, using `docs/adr/0000-template.md`. It covers:
   - guest writes with no token, read by order key;
   - a second signed webhook, kind metadata and separate ledgers;
   - GridFS photos;
@@ -50,17 +50,21 @@ description: "Task list for the BJJ Éire Merch Shop"
   - the `UPPER_SNAKE` enum exception extended to `product` and `order`.
 
   Add it to `docs/adr/README.md` and to the table in `AGENTS.md` (row: "Merch, guest checkout, `product`, `order`, the `Merch` flag").
-- [ ] T004 Amend `.specify/memory/constitution.md` to 1.3.0, with a migration note "none needed". Depends on T003.
+
+  As built: the ADR draws on R1, R2, R4 (photos), R6 and R7. R12 (the Stores → Shop rename) shipped with slice 1, changes no rule, and needs no ADR.
+- [x] T004 Amend `.specify/memory/constitution.md` to 1.3.0, with a migration note "none needed". Depends on T003.
   - Principle II lists `product` and `order`.
   - Principle V gains guest order routes, read with an order key, and the shop webhook as the second signed write.
   - Update `AGENTS.md` (Architecture Guardrails package list), `.claude/rules/api.md` (routes, auth, enum exception, cross-cutting filters) and `.claude/rules/mongodb.md` (the `Product`, `MerchOrder`, `OrderStripeEvent` and `ShopSettings` collections, the `productPhotos` bucket, and the product test seed).
-- [ ] T005 [P] Create `specs/features/shop.md` as the living file:
+
+  As built: `.claude/rules/mongodb.md` is not changed yet. Its collection list names what exists, and slice 0 adds no collection. The `Product`, `MerchOrder`, `OrderStripeEvent` and `ShopSettings` collections, the `productPhotos` bucket and the product test seed go in with slices 2 and 3.
+- [x] T005 [P] Create `specs/features/shop.md` as the living file:
   - status "In progress";
   - Part 1 is the directory, with `#4001`–`#4004` moved verbatim from `specs/features/stores.md`, plus `#4005`–`#4007`;
   - Part 2 is merch.
 
   Delete `specs/features/stores.md`, and update `specs/README.md`.
-- [ ] T006 [P] Create `specs/stc/shop/{spec.md,contract.yaml,traceability.md}`:
+- [x] T006 [P] Create `specs/stc/shop/{spec.md,contract.yaml,traceability.md}`:
   - move the content of `specs/stc/stores/`, then delete it;
   - add the scenarios `#4005`–`#4007` and `#6001`–`#6028`;
   - `contract.yaml` comes from `contracts/contract.yaml`.
@@ -81,38 +85,50 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Tests first
 
-- [ ] T008 [P] Extend `config/CrossCuttingFilterTest`: with read-only mode on, `POST` under `/api/v1/product` and `/api/v1/order` passes the filter, `POST /api/v1/order%2F` and `/api/v1/%6frder` are matched decoded (ADR-0013's rule), and `POST /api/v1/store` still answers 405.
-- [ ] T009 [P] Extend `web/FeatureFlagDefaultsTest`: `Merch` defaults to `false` in `application.yml`. Add `web/MerchFeatureGateFilterTest`: with the flag off, reads and writes under `/api/v1/product` and `/api/v1/order` answer a 404 problem with `traceId` (`#6026`), and directory routes are untouched (`#6027`).
-- [ ] T010 [P] Add `config/MerchRouteAuthorizationIT`. Merch on:
+- [x] T008 [P] Extend `config/CrossCuttingFilterTest`: with read-only mode on, `POST` under `/api/v1/product` and `/api/v1/order` passes the filter, `POST /api/v1/order%2F` and `/api/v1/%6frder` are matched decoded (ADR-0013's rule), and `POST /api/v1/store` still answers 405.
+- [x] T009 [P] Extend `web/FeatureFlagDefaultsTest`: `Merch` defaults to `false` in `application.yml`. Add `web/MerchFeatureGateFilterTest`: with the flag off, reads and writes under `/api/v1/product` and `/api/v1/order` answer a 404 problem with `traceId` (`#6026`), and directory routes are untouched (`#6027`).
+- [x] T010 [P] Add `config/MerchRouteAuthorizationIT`. Merch on:
   - anonymous callers get public product reads, `POST /api/v1/order`, `GET /api/v1/order/{id}` and the webhook through to the handler (404 or 400, never 401);
   - `/api/v1/product/admin/**` and `/api/v1/order/admin/**` need the writer scope: anonymous gets 401, and competitor and local-competitor tokens get 403 (`#6017`, `#6025`);
   - anonymous `GET /api/v1/product/admin` and `GET /api/v1/order/admin` get 401, not a public read through the `{slug}` or `{id}` patterns.
-- [ ] T011 [P] Add `config/MerchFeatureOffIT`: with `Merch` off, a sample of product, order and webhook routes answers 404 before authentication, and the directory lists still serve anonymously (`#6026`, `#6027`).
-- [ ] T012 [P] Extend `registration/StripeWebhookIT`:
+
+  As built: the IT checks the competitor, scope-less competitor and reader tokens. It does not check a local-competitor token, because the shared test context has no local issuer. The admin rules use `hasAuthority(writer)`, which a local competitor never holds (`IssuerAwareAuthoritiesConverter`, covered by `LocalSignInIT`).
+- [x] T011 [P] Add `config/MerchFeatureOffIT`: with `Merch` off, a sample of product, order and webhook routes answers 404 before authentication, and the directory lists still serve anonymously (`#6026`, `#6027`).
+
+  As built: `MerchFeatureOffIT` uses the same `@TestPropertySource` as `BjjEireCompetitionFeatureOffIT` (both flags off, read-only on), so the two share one cached context.
+- [x] T012 [P] Extend `registration/StripeWebhookIT`:
   - a signed checkout or refund event whose object has `metadata.bjjeireKind = order` is acknowledged with 200, changes nothing and is not written to `StripeEvent`;
   - an event with no `bjjeireKind` is handled as before.
 
   Extend `RegistrationIT` so that checkout creation sends `bjjeireKind = registration` in the session metadata. Extend `CancellationIT` for the same in the refund metadata.
 
+  As built: the recording gateway in the ITs never builds Stripe parameters, so `RegistrationIT` and `CancellationIT` cannot see the metadata. The kind is asserted on the real parameters instead, in `StripePaymentGatewayTest` (`checkoutParams`, `refundParams`).
+
 ### Implementation
 
-- [ ] T013 Move the mail and Stripe helpers from `registration` to `common` with no behaviour change: `Mailer`, `MailMessage`, `SmtpMailer`, `MailConfig`, `MailDeliveryException`, `StripeSecrets` and the signature verification part of `StripeWebhookServiceImpl` (as `StripeSignature`). Make `RegistrationMailSender`'s retry generic (`common.RetryingMailSender`, keeping the metric name `registration.mail.failures` through a constructor argument). All existing registration tests pass unchanged.
-- [ ] T014 Wire the routes and the flag:
+- [x] T013 Move the mail and Stripe helpers from `registration` to `common` with no behaviour change: `Mailer`, `MailMessage`, `SmtpMailer`, `MailConfig`, `MailDeliveryException`, `StripeSecrets` and the signature verification part of `StripeWebhookServiceImpl` (as `StripeSignature`). Make `RegistrationMailSender`'s retry generic (`common.RetryingMailSender`, keeping the metric name `registration.mail.failures` through a constructor argument). All existing registration tests pass unchanged.
+
+  As built: the registration tests needed only import changes for the moved types. `StripeSignature.verify` returns a verdict, and each webhook keeps its own metrics, logs and problem documents. Both feature gates now extend `web.FeatureGateFilter`.
+- [x] T014 Wire the routes and the flag:
   - `common/ApiRoutes`: `PRODUCT = "/api/v1/product"` and `ORDER = "/api/v1/order"`, and `isMerchFeaturePath`, which percent-decodes like `isBjjEireCompetitionFeaturePath`;
   - `common/ApiCache`: `MERCH_TAG`;
   - `web/FeatureFlag.MERCH` (wire name `Merch`, `FEATURE_MERCH`, default `false`) in `application.yml`;
   - `web/MerchFeatureGateFilter`.
 
   Makes T009 and T011 pass.
-- [ ] T015 Make `config/ReadOnlyModeFilter` skip `isMerchFeaturePath` (T008). In `config/SecurityConfig`, add the merch rules ahead of the catch-all (T010):
+
+  As built: `ApiCache.MERCH_TAG` is deferred to slice 2, with the first product write that evicts it. A region nothing reads or evicts would be dead code.
+- [x] T015 Make `config/ReadOnlyModeFilter` skip `isMerchFeaturePath` (T008). In `config/SecurityConfig`, add the merch rules ahead of the catch-all (T010):
   - `permitAll` on `GET /api/v1/product`, `/api/v1/product/{slug}` and `/api/v1/product/photo/**`;
   - `POST /api/v1/order`, `GET /api/v1/order/{id}`, `POST /api/v1/order/{id}/checkout`, `GET /api/v1/order/delivery` and `POST /api/v1/order/stripe-webhook`;
   - the writer scope on `/api/v1/product/admin/**` and `/api/v1/order/admin/**`.
 
   Declare the two `/admin/**` writer-scope rules **before** the public patterns. `/api/v1/product/*` and `/api/v1/order/*` would otherwise match `/admin` and make the admin lists public.
-- [ ] T016 In `registration`, set `metadata.bjjeireKind = registration` on new Checkout Sessions (`StripePaymentGateway`) and refunds. `StripeWebhookServiceImpl` acknowledges and skips objects whose kind is `order`. Makes T012 pass.
-- [ ] T017 [P] Extend `config/BjjEireProperties` with `stripe.shopWebhookSecret` (`STRIPE_SHOP_WEBHOOK_SECRET`, placeholder `whsec_REPLACE_ME`) and `order(hold = 30m, maxUnitsPerLine = 10, maxUnitsPerOrder = 20, maxUnpaidPerEmail = 3, maxUnpaidPerIp = 3, lowStock = 5)`. Add the variable to `docker-compose.yml`, `.env.example` and the local override. Add `spring.servlet.multipart.max-file-size=5MB` and `max-request-size=6MB` to `application.yml`.
-- [ ] T018 [P] SPA:
+
+  As built: the rules live in `SecurityConfig.merchRules`, and the writer catch-all moved to `writerCatchAll`, to keep `securityFilterChain` under Checkstyle's method length. `GET /api/v1/order/delivery` is covered by the `/order/*` pattern. CORS does not allow `X-Order-Key` yet; add it with the order page in slice 3.
+- [x] T016 In `registration`, set `metadata.bjjeireKind = registration` on new Checkout Sessions (`StripePaymentGateway`) and refunds. `StripeWebhookServiceImpl` acknowledges and skips objects whose kind is `order`. Makes T012 pass.
+- [x] T017 [P] Extend `config/BjjEireProperties` with `stripe.shopWebhookSecret` (`STRIPE_SHOP_WEBHOOK_SECRET`, placeholder `whsec_REPLACE_ME`) and `order(hold = 30m, maxUnitsPerLine = 10, maxUnitsPerOrder = 20, maxUnpaidPerEmail = 3, maxUnpaidPerIp = 3, lowStock = 5)`. Add the variable to `docker-compose.yml`, `.env.example` and the local override. Add `spring.servlet.multipart.max-file-size=5MB` and `max-request-size=6MB` to `application.yml`.
+- [x] T018 [P] SPA:
   - `Merch` in `features/feature-flags/definitions.ts` (default off, fail closed);
   - product and order routes in `config/api-routes.ts`;
   - empty `constants/merchDataTestIds.ts`;
@@ -130,15 +146,15 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Tests first
 
-- [ ] T019 [P] [US1] Write failing tests:
+- [x] T019 [P] [US1] Write failing tests:
   - `components/layout/__tests__/use-nav-items.unit.test.tsx`: the entry is labelled "Shop" and points to `/shop`, and no entry says "Stores" (`#4005`).
   - `config/__tests__/ui-content-shop-name.unit.test.ts`: no visible copy in the stores and shop content calls the section "Stores" (`#4005`).
-- [ ] T020 [P] [US1] Move `pages/__tests__/stores-page.integration.test.tsx` to `shop-page.integration.test.tsx`, with routes `/shop`. It covers the same cards, order, search, empty and error behaviour (`#4006`).
-- [ ] T021 [P] [US1] Write a failing test in `__tests__/app-routes.integration.test.tsx`: `/stores` and `/stores/anything` redirect to `/shop` with `replace`, and with `Stores` off `/shop` redirects to About as today (`#4007`). Add `__tests__/sitemap.unit.test.ts`: `public/sitemap.xml` lists `/shop` and not `/stores` (`#4007`).
+- [x] T020 [P] [US1] Move `pages/__tests__/stores-page.integration.test.tsx` to `shop-page.integration.test.tsx`, with routes `/shop`. It covers the same cards, order, search, empty and error behaviour (`#4006`).
+- [x] T021 [P] [US1] Write a failing test in `__tests__/app-routes.integration.test.tsx`: `/stores` and `/stores/anything` redirect to `/shop` with `replace`, and with `Stores` off `/shop` redirects to About as today (`#4007`). Add `__tests__/sitemap.unit.test.ts`: `public/sitemap.xml` lists `/shop` and not `/stores` (`#4007`).
 
 ### Implementation
 
-- [ ] T022 [US1] Rename the SPA side:
+- [x] T022 [US1] Rename the SPA side:
   - `config/paths.ts`: `stores` becomes `shop`, with path `/shop` and label "Shop".
   - `config/features.ts`: the entry keeps flag `Stores`.
   - `pages/StoresPage.tsx` becomes `ShopPage.tsx`.

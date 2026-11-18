@@ -3,6 +3,9 @@ package com.bjjeire.api.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.bjjeire.api.common.MailDeliveryException;
+import com.bjjeire.api.common.MailMessage;
+import com.bjjeire.api.common.Mailer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Duration;
 import java.util.ArrayList;

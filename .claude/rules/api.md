@@ -10,8 +10,8 @@ paths:
 
 `com.bjjeire.api` contains one flat package per feature plus shared packages:
 
-- `event/`, `gym/`, `competition/`, `store/` — each holds its controller, service, DTOs, validators, mappers, domain model, enums, repository, and feature-specific deactivator
-- `common/` — pagination (`PaginationRequest`, `PagedResponse`, `PagedResponses`), `ApiCache`, `UriService`, shared value types (`Location`, `GeoCoordinates`, `SocialMedia`, `County`)
+- `event/`, `gym/`, `competition/`, `store/`, and for BJJ Éire merch `product/`, `order/` (ADR-0016) — each holds its controller, service, DTOs, validators, mappers, domain model, enums, repository, and feature-specific deactivator
+- `common/` — pagination (`PaginationRequest`, `PagedResponse`, `PagedResponses`), `ApiCache`, `UriService`, shared value types (`Location`, `GeoCoordinates`, `SocialMedia`, `County`), and what registration and the shop both use: mail (`Mailer`, `MailMessage`, `RetryingMailSender`, `MailConfig`) and Stripe (`StripeSecrets`, `StripeSignature`, `StripeMetadata`)
 - `audit/` — audit log entry/action, `AuditRecorder`, `AuditLogRepository`, security-context audit info
 - `deactivation/` — generic sweep infrastructure (`Deactivator`, `PeriodicDeactivationScheduler`, Mongo leader election)
 - `web/` — cross-feature endpoints (`DonateController`, `FeatureFlagController`, `OperationalEndpointController`) and `ApiExceptionHandler`
@@ -23,10 +23,10 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 ## Controller Pattern
 - Thin controllers: inject the feature service interface only, no repositories
 - The use-case contract is an interface in the feature package (`GymService`). The Spring bean is `GymServiceImpl` in that same package. Do not add a `service/` package or a ports layer. `UriService` and `SeederService` follow the same split
-- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, and for BJJ Éire competitions `/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration`). Do not add a second PascalCase alias
+- Routes are the singular lowercase constants in `common.ApiRoutes` (`/api/v1/gym`, `/api/v1/bjjevent`, `/api/v1/competition`, `/api/v1/store`, `/api/v1/featureflag`, for BJJ Éire competitions `/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration`, and for BJJ Éire merch `/api/v1/product`, `/api/v1/order`). Do not add a second PascalCase alias
 - One public version, `/api/v1`. Extend a resource with optional fields. Do not publish a second copy of it
 - Queries return DTOs (never domain entities directly); writes accept command records that wrap the read DTO
-- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`. Exception: the BJJ Éire competition feature (`bjjeirecompetition`, `competitor`, `registration`) uses the `UPPER_SNAKE` values its contract fixes (`DRAFT`, `NO_GI`, `NOT_OPEN`, `MASTER_1`; `specs/stc/competitions/contract.yaml`). They are published; changing either family is a breaking change
+- Enum wire values are PascalCase (`Upcoming`, `OpenMat`, `PendingApproval`). Do not switch them to `UPPER_SNAKE`. Exception: the BJJ Éire competition feature (`bjjeirecompetition`, `competitor`, `registration`) uses the `UPPER_SNAKE` values its contract fixes (`DRAFT`, `NO_GI`, `NOT_OPEN`, `MASTER_1`; `specs/stc/competitions/contract.yaml`). The merch contract (`product`, `order`; `specs/stc/shop/contract.yaml`) uses `UPPER_SNAKE` too (`RASHGUARD`, `AWAITING_PAYMENT`; ADR-0016). They are published; changing either family is a breaking change
 - Pagination query params bind to `common.PaginationRequest`. Path ids take `@ValidObjectId`
 
 ## Pagination
@@ -43,12 +43,14 @@ New feature code goes in its feature package. Only put code in `common/` when tw
 - Public read endpoints require no auth; write operations require `Authorization: Bearer {token}` (see `SecurityConfig`)
 - Two token issuers (ADR-0012). The workforce tenant is the admin (`access_as_writer`). The competitor tenant gets `ROLE_COMPETITOR` and nothing else; never map a competitor-tenant scope or role to an authority. `/api/v1/competitor/**` and `/api/v1/registration/**` need a competitor-tenant principal with that role, BJJ Éire competition admin routes need the writer scope, and the catch-all still sends every other write to the writer scope
 - `anyRequest()` means a workforce account, not any valid token. A competitor token does not satisfy it
-- `POST /api/v1/registration/stripe-webhook` is the only write with no bearer token (ADR-0013). Its controller must verify the Stripe signature
+- `POST /api/v1/registration/stripe-webhook` (ADR-0013) and `POST /api/v1/order/stripe-webhook` (ADR-0016) are the webhooks: writes with no bearer token, each verified with `common.StripeSignature` against its own secret. Every Checkout Session and Refund sets `metadata.bjjeireKind` (`common.StripeMetadata`); each webhook acknowledges and skips the other's kind without recording it
+- BJJ Éire merch guests (ADR-0016): `POST /api/v1/order` and `POST /api/v1/order/{id}/checkout` need no token, and `GET /api/v1/order/{id}` checks the `X-Order-Key` header in the controller, answering 404 when it is wrong. The catalogue reads are public. `/api/v1/product/admin/**` and `/api/v1/order/admin/**` need the writer scope; those rules come before the public `/product/*` and `/order/*` patterns in `SecurityConfig.merchRules`, which would otherwise match `/admin`
 - Local development only: `POST /api/v1/local-sign-in` issues an organiser token when `bjjeire.local-sign-in.enabled` is true (ADR-0014). The API refuses to start that way unless `local` is the only active profile, and the local stack publishes the API on `127.0.0.1` only. `POST /api/v1/local-sign-in/competitor` issues a competitor token for a typed email under the same guard; its issuer (`LocalSignInTokens.COMPETITOR_ISSUER`) gets `ROLE_COMPETITOR` and nothing else, exactly like the competitor tenant. Never enable either in a cluster, and never map the organiser issuer to anything but the workforce rules
 
 ## Cross-cutting filters (`config/`)
 - `ReadOnlyModeFilter` answers every method except `GET`, `HEAD`, and `OPTIONS` with 405 while `READ_ONLY_MODE_ENABLED` is true. `application.yml` defaults it to true. `docker-compose.override.java-local.yml` turns it off. A write that returns 405 is this filter, not a missing mapping
 - BJJ Éire competition routes (`/api/v1/bjjeire-competition`, `/api/v1/competitor`, `/api/v1/registration`) skip `ReadOnlyModeFilter` and are governed by the `BjjEireCompetitions` flag instead: with it off, `web.BjjEireCompetitionFeatureGateFilter` answers 404 ahead of authentication. Both use `ApiRoutes.isBjjEireCompetitionFeaturePath`, which matches the percent-decoded path
+- BJJ Éire merch routes (`/api/v1/product`, `/api/v1/order`) work the same way under the `Merch` flag: `ApiRoutes.isMerchFeaturePath`, `web.MerchFeatureGateFilter` (ADR-0016). Both gates extend `web.FeatureGateFilter`
 - `RateLimitFilter` is on by default (600 requests per 60 seconds, 429 on rejection). `/health` is exempt
 - `SecurityHeadersFilter` sets the response security headers, including the Content-Security-Policy. Change headers there, not in a controller
 

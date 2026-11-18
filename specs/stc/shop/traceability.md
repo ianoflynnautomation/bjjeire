@@ -23,3 +23,15 @@ Requirement issues are defined in [spec.md](spec.md). Narrative SSOT:
 | `#4007` | T4 SPA | `app-routes.integration.test.tsx` (`follows the old address`, `Stores flag is off`) | `App.tsx`, `config/paths.ts` (`legacyRedirects`) |
 | `#4007` | T3 SPA | `src/bjjeire-app/src/__tests__/sitemap.unit.test.ts` | `public/sitemap.xml` |
 | `#4007` | T6 | `bjjeire-tests/specs/features/shop.md` (planned: `… when following an old Stores link`, `… when going back`, `client should find the Shop address … in the site map`) | running images |
+| `#6026` | T1 unit | `src/bjjeire-api/src/test/java/com/bjjeire/api/web/MerchFeatureGateFilterTest.java` (reads, writes, decoded paths) | `web/MerchFeatureGateFilter`, `web/FeatureGateFilter`, `common/ApiRoutes.isMerchFeaturePath` |
+| `#6026` | T1 unit | `FeatureFlagDefaultsTest.java` (`shouldDefaultMerchToOffInApplicationConfiguration`), `FeatureFlagServiceTest.java` (`Merch` false when unconfigured) | `web/FeatureFlag.MERCH`, `application.yml` (`FEATURE_MERCH`) |
+| `#6026` | T1 unit | `CrossCuttingFilterTest.java` (`readOnlyModeLetsMerchWritesThroughAndStillBlocksTheDirectory`) | `config/ReadOnlyModeFilter` |
+| `#6026` | T2 IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/config/MerchFeatureOffIT.java` | `config/SecurityConfig` (gate ahead of authentication) |
+| `#6026` | T3 SPA | `src/bjjeire-app/src/features/feature-flags/__tests__/feature-flag-resolve.integration.test.ts` (`Merch` fails closed), `client.unit.test.ts` (catalogue) | `features/feature-flags/definitions.ts` |
+| `#6026` | T0 Pact | `src/bjjeire-app/src/contracts/pact/featureflag.pact.test.ts` (`Merch: boolean`); provider `PactProviderVerificationIT` | `GET /api/v1/featureflag` |
+| `#6027` | T1 unit | `MerchFeatureGateFilterTest.java` (`shouldLeaveEveryOtherRouteAloneWhenFlagIsOff`) | `web/MerchFeatureGateFilter` |
+| `#6027` | T1 unit | `src/bjjeire-api/src/test/java/com/bjjeire/api/registration/StripePaymentGatewayTest.java` (sessions and refunds marked `registration`) | `registration/StripePaymentGateway`, `common/StripeMetadata` |
+| `#6027` | T2 IT | `MerchFeatureOffIT.java` (directory lists, directory writes 405) | `config/ReadOnlyModeFilter` |
+| `#6027` | T2 IT | `src/bjjeire-api/src/test/java/com/bjjeire/api/registration/StripeWebhookIT.java` (`shouldAcknowledgeAndIgnoreCheckoutEventsTheShopMade`, `…RefundEventsTheShopMade`, `shouldConfirmASignUpWhoseSessionSaysItIsARegistration`) | `registration/StripeWebhookServiceImpl` |
+| `#6017`, `#6025` | T2 IT (security rules only) | `src/bjjeire-api/src/test/java/com/bjjeire/api/config/MerchRouteAuthorizationIT.java` (`shouldReserveMerchAdminRoutesForTheOrganiser`, `shouldNotServeTheAdminListsThroughThePublicPatterns`) | `config/SecurityConfig.merchRules`. The controllers and their own refusal tests land in slices 2 and 5 |
+| `#6012` | T2 IT (security rules only) | `MerchRouteAuthorizationIT.java` (`shouldLetGuestsStartReadAndResumeAnOrderWithoutAToken`) | `config/SecurityConfig.merchRules`. Checkout itself lands in slice 3 |

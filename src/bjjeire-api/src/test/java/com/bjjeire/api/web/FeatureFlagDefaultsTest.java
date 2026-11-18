@@ -48,4 +48,16 @@ class FeatureFlagDefaultsTest {
         assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.BjjEireCompetitions")))
                 .isEqualTo("${FEATURE_BJJEIRE_COMPETITIONS:false}");
     }
+
+    /** #6026: shipping the application config alone leaves the merch shop off. */
+    @Test
+    @Tag("#6026")
+    void shouldDefaultMerchToOffInApplicationConfiguration() throws IOException {
+        PropertySource<?> config = new YamlPropertySourceLoader()
+                .load("main", new FileSystemResource("src/main/resources/application.yml"))
+                .getFirst();
+
+        assertThat(String.valueOf(config.getProperty("bjjeire.feature-flags.Merch")))
+                .isEqualTo("${FEATURE_MERCH:false}");
+    }
 }

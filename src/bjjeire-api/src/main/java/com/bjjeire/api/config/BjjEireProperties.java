@@ -21,7 +21,8 @@ public record BjjEireProperties(
         CompetitorDirectory competitorDirectory,
         Stripe stripe,
         Mail mail,
-        Registration registration) {
+        Registration registration,
+        Order order) {
     // Two constructors: tell Spring Boot which one binds configuration.
     @ConstructorBinding
     public BjjEireProperties {
@@ -29,9 +30,10 @@ public record BjjEireProperties(
         localSignIn = localSignIn == null ? new LocalSignIn(false, "") : localSignIn;
         competitorDirectory =
                 competitorDirectory == null ? new CompetitorDirectory("", "", "", "", "", "") : competitorDirectory;
-        stripe = java.util.Objects.requireNonNullElseGet(stripe, () -> new Stripe("", "", ""));
+        stripe = java.util.Objects.requireNonNullElseGet(stripe, () -> new Stripe("", "", "", ""));
         mail = java.util.Objects.requireNonNullElseGet(mail, () -> new Mail(""));
         registration = java.util.Objects.requireNonNullElseGet(registration, () -> new Registration(null, null, null));
+        order = java.util.Objects.requireNonNullElseGet(order, () -> new Order(null, 0, 0, 0, 0, 0));
         auth = auth == null ? new Auth("access_as_writer") : auth;
         cors = cors == null ? new Cors(List.of("https://bjjeire.com")) : cors;
         donation = donation == null ? new Donation("") : donation;
@@ -50,7 +52,7 @@ public record BjjEireProperties(
             RateLimit rateLimit,
             ReadOnlyMode readOnlyMode,
             Map<String, Boolean> featureFlags) {
-        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null, null, null, null, null);
+        this(auth, cors, donation, rateLimit, readOnlyMode, featureFlags, null, null, null, null, null, null, null);
     }
 
     /**
@@ -144,17 +146,20 @@ public record BjjEireProperties(
     }
 
     /**
-     * Stripe hosted Checkout (ADR-0013). Read only by the {@code registration} package.
+     * Stripe hosted Checkout (ADR-0013, ADR-0016). One account, two webhook endpoints: registration's and the shop's.
      *
      * @param secretKey API secret key; never logged
-     * @param webhookSecret signing secret of the webhook endpoint; never logged
-     * @param successUrlBase the site's origin, e.g. {@code https://bjjeire.com}: Checkout returns the competitor to a
-     *     page under it
+     * @param webhookSecret signing secret of registration's webhook endpoint; never logged
+     * @param successUrlBase the site's origin, e.g. {@code https://bjjeire.com}: Checkout returns the payer to a page
+     *     under it
+     * @param shopWebhookSecret signing secret of the shop's webhook endpoint; never logged
      */
-    public record Stripe(String secretKey, String webhookSecret, String successUrlBase) {
+    public record Stripe(String secretKey, String webhookSecret, String successUrlBase, String shopWebhookSecret) {
+        // One constructor only: with a second, configuration binding cannot choose and leaves every secret blank.
         public Stripe {
             secretKey = secretKey == null ? "" : secretKey.trim();
             webhookSecret = webhookSecret == null ? "" : webhookSecret.trim();
+            shopWebhookSecret = shopWebhookSecret == null ? "" : shopWebhookSecret.trim();
             successUrlBase = successUrlBase == null || successUrlBase.isBlank()
                     ? "https://bjjeire.com"
                     : successUrlBase.trim().replaceAll("/+$", "");
@@ -163,7 +168,8 @@ public record BjjEireProperties(
         @Override
         public String toString() {
             return "Stripe[successUrlBase=" + successUrlBase + ", secretKey=" + (secretKey.isEmpty() ? "" : "***")
-                    + ", webhookSecret=" + (webhookSecret.isEmpty() ? "" : "***") + "]";
+                    + ", webhookSecret=" + (webhookSecret.isEmpty() ? "" : "***") + ", shopWebhookSecret="
+                    + (shopWebhookSecret.isEmpty() ? "" : "***") + "]";
         }
     }
 
@@ -194,6 +200,33 @@ public record BjjEireProperties(
             holdSweepInitialDelay =
                     holdSweepInitialDelay == null ? java.time.Duration.ofMinutes(1) : holdSweepInitialDelay;
             holdSweepInterval = holdSweepInterval == null ? java.time.Duration.ofMinutes(1) : holdSweepInterval;
+        }
+    }
+
+    /**
+     * BJJ Éire merch orders (specs/003-bjjeire-merch-shop research R5, R7). A zero or negative value means the default.
+     *
+     * @param hold how long stock is kept while a guest pays (FR-011); Stripe's Checkout floor is 30 minutes
+     * @param maxUnitsPerLine most units of one size in one order
+     * @param maxUnitsPerOrder most units in one order
+     * @param maxUnpaidPerEmail most unpaid orders at once for one email address
+     * @param maxUnpaidPerIp most unpaid orders at once from one client address
+     * @param lowStock a size with this many available or fewer is low on the dashboard (FR-025)
+     */
+    public record Order(
+            java.time.Duration hold,
+            int maxUnitsPerLine,
+            int maxUnitsPerOrder,
+            int maxUnpaidPerEmail,
+            int maxUnpaidPerIp,
+            int lowStock) {
+        public Order {
+            hold = hold == null ? java.time.Duration.ofMinutes(30) : hold;
+            maxUnitsPerLine = maxUnitsPerLine <= 0 ? 10 : maxUnitsPerLine;
+            maxUnitsPerOrder = maxUnitsPerOrder <= 0 ? 20 : maxUnitsPerOrder;
+            maxUnpaidPerEmail = maxUnpaidPerEmail <= 0 ? 3 : maxUnpaidPerEmail;
+            maxUnpaidPerIp = maxUnpaidPerIp <= 0 ? 3 : maxUnpaidPerIp;
+            lowStock = lowStock <= 0 ? 5 : lowStock;
         }
     }
 
