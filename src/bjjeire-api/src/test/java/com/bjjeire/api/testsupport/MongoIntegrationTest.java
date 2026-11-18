@@ -177,7 +177,9 @@ public abstract class MongoIntegrationTest {
         @Bean
         @ServiceConnection
         MongoDBContainer mongoDbContainer() {
-            return new MongoDBContainer("mongo:8.2");
+            // A single-node replica set, as every environment runs: the event publication registry writes in a
+            // transaction (ADR-0017), and a standalone server refuses transactions.
+            return new MongoDBContainer("mongo:8.2").withReplicaSet();
         }
 
         @Bean

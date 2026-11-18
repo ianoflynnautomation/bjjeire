@@ -42,10 +42,11 @@
     "source=${localEnv:HOME}/Sources/bjjeire-tests,target=/workspaces/bjjeire-tests,type=bind",
     "source=bjjeire-tests-node-modules,target=/workspaces/bjjeire-tests/node_modules,type=volume",
     "source=${localEnv:HOME}/Sources/bjjeire-terraform-azurerm-aks,target=/workspaces/bjjeire-terraform-azurerm-aks,type=bind",
-    "source=${localEnv:HOME}/Sources/bjjeire-gitops,target=/workspaces/bjjeire-gitops,type=bind"
+    "source=${localEnv:HOME}/Sources/bjjeire-gitops,target=/workspaces/bjjeire-gitops,type=bind",
+    "source=${localEnv:HOME}/Sources/bjjeire-deploy,target=/workspaces/bjjeire-deploy,type=bind"
   ],
   // Runs on the host before the container starts: a bind mount above fails if its folder is missing.
-  "initializeCommand": "for repo in bjjeire-tests bjjeire-terraform-azurerm-aks bjjeire-gitops; do test -d \"$HOME/Sources/$repo\" || git clone \"https://github.com/ianoflynnautomation/$repo.git\" \"$HOME/Sources/$repo\" || exit 1; done",
+  "initializeCommand": "for repo in bjjeire-tests bjjeire-terraform-azurerm-aks bjjeire-gitops bjjeire-deploy; do test -d \"$HOME/Sources/$repo\" || git clone \"https://github.com/ianoflynnautomation/$repo.git\" \"$HOME/Sources/$repo\" || exit 1; done",
   // Create and rebuild. Post-create does not run again when the image is rebuilt.
   "updateContentCommand": "bash .devcontainer/post-create-commands.sh",
   // ${containerEnv:PATH} keeps the image's PATH (JDK, Maven, Node). The terminal setting's ${env:PATH} resolved to the
@@ -62,6 +63,7 @@
     "BJJ_EIRE_TESTS_ROOT": "/workspaces/bjjeire-tests",
     "BJJ_EIRE_TERRAFORM_ROOT": "/workspaces/bjjeire-terraform-azurerm-aks",
     "BJJ_EIRE_GITOPS_ROOT": "/workspaces/bjjeire-gitops",
+    "BJJ_EIRE_DEPLOY_ROOT": "/workspaces/bjjeire-deploy",
     "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
     "XAI_API_KEY": "${localEnv:XAI_API_KEY}"
@@ -115,13 +117,14 @@
     }
   },
   // Spring Boot (8080 direct / 5003 via compose), Vite (PORT in src/bjjeire-app/.env),
-  // compose web, Mongo, JVM debug. Login callbacks use otherPortsAttributes.
+  // compose web, JVM debug. Login callbacks use otherPortsAttributes. MongoDB (27017) is not forwarded: compose
+  // publishes it on the host's 127.0.0.1:27017, and a forward claims that port first, so the mongodb service cannot
+  // start. From inside this container it is host.docker.internal:27017.
   "forwardPorts": [
     8080,
     5003,
     3000,
     60743,
-    27017,
     5005
   ],
   "portsAttributes": {
@@ -142,8 +145,8 @@
       "onAutoForward": "openBrowser"
     },
     "27017": {
-      "label": "MongoDB",
-      "onAutoForward": "silent"
+      "label": "MongoDB (compose publishes it; never forward)",
+      "onAutoForward": "ignore"
     },
     "5005": {
       "label": "JVM debug",

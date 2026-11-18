@@ -6,42 +6,41 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionStatus;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.common.ApiCache;
 import com.bjjeire.api.competitor.CompetitorProfileSaved;
+import com.bjjeire.api.competitor.CompetitorService;
 import com.bjjeire.api.competitor.SignUpProfile;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 
 /**
  * Copies a competitor's new name, academy and affiliation to their active sign-ups in competitions still running, and
  * flags a sign-up whose division no longer fits their belt or gender (research R8, spec edge case). The division is
  * never changed for them.
+ *
+ * <p>Runs after the profile save commits, in a transaction of its own, from the event publication registry (ADR-0017).
+ * A failure leaves the publication incomplete and {@code config.EventPublicationSweep} resubmits it. It reads the
+ * profile as it is now, so running it again, or after a later save, is harmless.
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 class RegistrationProfileListener {
     private final MongoTemplate mongoTemplate;
     private final BjjEireCompetitionService bjjEireCompetitionService;
     private final ApiCache cache;
+    private final CompetitorService competitorService;
 
-    @EventListener
+    @ApplicationModuleListener
     void onProfileSaved(CompetitorProfileSaved event) {
-        SignUpProfile profile = event.profile();
-        try {
-            propagate(profile);
-        } catch (RuntimeException failed) {
-            // The profile is saved; a sign-up keeps its older snapshot until the next save.
-            log.error("Profile change of competitor {} not copied to its sign-ups", profile.competitorId(), failed);
-        }
+        // Gone: the account was deleted after the save, and RegistrationAnonymiser has dealt with its sign-ups.
+        competitorService.findSignUpProfileById(event.competitorId()).ifPresent(this::propagate);
     }
 
     private void propagate(SignUpProfile profile) {

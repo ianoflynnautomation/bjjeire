@@ -13,6 +13,7 @@ specs/
 ├── system-architecture.md        # runtime topology + repo boundaries
 ├── 001-tournament-registration/  # design record: BJJ Éire competitions (living spec: features/competitions.md)
 ├── 002-merge-tournaments-competitions/  # design record: the merge (ADR-0015)
+├── 003-bjjeire-merch-shop/       # design record: Shop and BJJ Éire merch (living spec: features/shop.md)
 ├── database-contracts/           # Mongo document contracts
 │   ├── shared.md
 │   ├── gym.md
@@ -26,13 +27,13 @@ specs/
 │   ├── gyms.md
 │   ├── events.md
 │   ├── competitions.md           # directory + BJJ Éire competitions (ADR-0015)
-│   └── stores.md
+│   └── shop.md                   # store directory (was Stores) + BJJ Éire merch
 └── stc/                          # Spec-To-Check overlay (GitLab issue ids, contracts, traceability)
     ├── README.md
     ├── gyms/
     ├── events/
     ├── competitions/             # directory + BJJ Éire competitions
-    └── stores/
+    └── shop/
 ```
 
 Process tooling: `.specify/` (constitution, rules, templates).

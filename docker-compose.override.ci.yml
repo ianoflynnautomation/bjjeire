@@ -34,9 +34,10 @@ services:
         target: /data/db
         tmpfs:
           size: 1024m
+      - ./tools/mongodb:/opt/bjjeire/mongodb:ro
     healthcheck:
       <<: *ci-healthcheck
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD", "bash", "/opt/bjjeire/mongodb/replica-set-healthcheck.sh"]
 
 secrets:
   mongodb_password: !override

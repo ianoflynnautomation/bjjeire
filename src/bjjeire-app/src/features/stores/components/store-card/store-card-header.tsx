@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn'
 import { StoresCardTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
-const { card } = uiContent.stores
+const { card } = uiContent.shop
 
 interface StoreCardHeaderProps {
   name: string

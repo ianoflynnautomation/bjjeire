@@ -1,12 +1,24 @@
 import { Suspense, type ReactElement } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router'
 import Navigation from '@/components/layout/navigation'
 import Footer from '@/components/layout/footer'
 import { PageSuspenseFallback } from '@/components/layout/page-suspense-fallback'
-import { paths } from '@/config/paths'
+import { legacyRedirects, paths } from '@/config/paths'
 import { AboutPage, features, featureSubRoutes } from '@/config/features'
 import { FeatureGate, useFeatureFlagClient } from '@/features/feature-flags'
 import '@/index.css'
+
+// An old address keeps its query (a bookmarked ?q= search) and fragment on the way to its new home.
+function LegacyRedirect({ to }: { to: string }): ReactElement {
+  const { search, hash } = useLocation()
+  return <Navigate to={{ pathname: to, search, hash }} replace />
+}
 
 export function AppRoutes(): ReactElement {
   // Flags are resolved before the first render (main.tsx → loadFeatureFlags).
@@ -36,6 +48,9 @@ export function AppRoutes(): ReactElement {
             </FeatureGate>
           }
         />
+      ))}
+      {legacyRedirects.map(({ from, to }) => (
+        <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
       ))}
       <Route path={paths.about.path} element={<AboutPage />} />
       <Route path="*" element={<Navigate to={defaultPath} replace />} />

@@ -3,7 +3,7 @@
 **Collection**: `Store`
 **Java**: `com.bjjeire.api.store.Store`
 **Seeder template**: `seeder/data/stores/_template.json`
-**API contract**: [../stc/stores/contract.yaml](../stc/stores/contract.yaml) (routes, filters, cache)
+**API contract**: [../stc/shop/contract.yaml](../stc/shop/contract.yaml) (routes, filters, cache)
 
 ## Document
 

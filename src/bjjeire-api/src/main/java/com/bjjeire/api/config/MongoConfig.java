@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.bson.UuidRepresentation;
 import org.bson.types.Decimal128;
 import org.springframework.boot.mongodb.autoconfigure.MongoClientSettingsBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,10 @@ public class MongoConfig {
 
     @Bean
     MongoClientSettingsBuilderCustomizer mongoClientTimeouts() {
-        return settings -> settings.applyToSocketSettings(
+        // STANDARD (subtype 4): the event publication registry keys its documents by UUID (ADR-0017), and the driver
+        // refuses to encode one without a representation. No other document stores a UUID.
+        return settings -> settings.uuidRepresentation(UuidRepresentation.STANDARD)
+                .applyToSocketSettings(
                         socket -> socket.connectTimeout(5, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS))
                 .applyToClusterSettings(cluster -> cluster.serverSelectionTimeout(5, TimeUnit.SECONDS))
                 .applyToConnectionPoolSettings(pool -> pool.maxSize(50).maxWaitTime(2, TimeUnit.SECONDS));

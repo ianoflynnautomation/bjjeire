@@ -1,4 +1,4 @@
-feature: stores
+feature: shop
 openapi:
   served: /v3/api-docs
   artifact: ghcr.io/<owner>/bjjeire-openapi-contract
@@ -7,6 +7,14 @@ openapi:
       path: /api/v1/store
       auth: public
       response: PagedResponse<StoreDto>
+spa:
+  routes:
+    - path: /shop
+      flag: Stores
+      page: ShopPage
+    - path: /stores/*
+      redirect: /shop (replace; then Shop's own Stores gate)
+  sitemap: lists /shop, never /stores
 pagination:
   page: 1-based
   pageSize: max 100
@@ -18,9 +26,10 @@ invariants:
   - feature_flag: Stores fail-closed
   - cache_tag: STORES_TAG
   - writes: not mapped on StoreController (living spec FR-003 is ahead of the API)
+  - rename: only the visible name and SPA address are Shop; API path, collection, flag and test ids keep store names (#4005-#4007)
 pointers:
   database: specs/database-contracts/store.md
-  feature_spec: specs/features/stores.md
+  feature_spec: specs/features/shop.md
   pact: src/bjjeire-app/src/contracts/pact/store.pact.test.ts
   generated_types: src/bjjeire-app/src/types/generated/api.ts
   ui_strings: src/bjjeire-app/src/config/ui-content.ts

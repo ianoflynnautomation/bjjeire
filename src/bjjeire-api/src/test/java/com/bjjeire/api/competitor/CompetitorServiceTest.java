@@ -57,7 +57,8 @@ class CompetitorServiceTest {
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {},
-                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
         given(mongoTemplate.exists(any(Query.class), eq(DeletedCompetitor.class)))
                 .willReturn(true);
@@ -92,7 +93,8 @@ class CompetitorServiceTest {
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {},
-                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         given(auditInfoProvider.currentInstant()).willReturn(Instant.parse("2026-05-31T00:00:00Z"));
 
         assertThatThrownBy(() -> service.saveOwn(CALLER, command()))
@@ -118,7 +120,8 @@ class CompetitorServiceTest {
                 new SimpleMeterRegistry(),
                 org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService.class),
                 event -> {},
-                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class));
+                org.mockito.Mockito.mock(com.bjjeire.api.bjjeirecompetition.ResultService.class),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
         given(mongoTemplate.findAndModify(
                         any(Query.class),
                         any(Update.class),

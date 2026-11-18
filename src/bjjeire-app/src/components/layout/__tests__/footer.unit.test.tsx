@@ -41,7 +41,7 @@ describe('Footer', () => {
       screen.queryByRole('link', { name: paths.competitions.label })
     ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: paths.stores.label })
+      screen.queryByRole('link', { name: paths.shop.label })
     ).not.toBeInTheDocument()
   })
 

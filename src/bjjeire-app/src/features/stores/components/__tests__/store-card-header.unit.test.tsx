@@ -4,7 +4,7 @@ import { StoreCardHeader } from '../store-card/store-card-header'
 import { StoresCardTestIds } from '@/constants/storeDataTestIds'
 import { uiContent } from '@/config/ui-content'
 
-const { card } = uiContent.stores
+const { card } = uiContent.shop
 
 describe('StoreCardHeader', () => {
   it('given a logo URL, when the header renders, then the logo is shown with descriptive alt text', () => {

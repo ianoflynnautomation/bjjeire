@@ -8,10 +8,10 @@ import { uiContent } from '@/config/ui-content'
 import { useStoresPage } from '@/features/stores/hooks/useStoresPage'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
 
-const { search, errors, noData } = uiContent.stores
+const { search, errors, noData } = uiContent.shop
 
-export default function StoresPage(): JSX.Element {
-  useDocumentTitle(uiContent.stores.documentTitle)
+export default function ShopPage(): JSX.Element {
+  useDocumentTitle(uiContent.shop.documentTitle)
   const page = useStoresPage()
   const {
     filteredItems: filteredStores,

@@ -13,6 +13,10 @@ management:
 spring:
   mongodb:
     database: BjjEireTest
+  # Same as src/main/resources/application.yml (ADR-0017): a completed publication is deleted.
+  modulith:
+    events:
+      completion-mode: delete
   security:
     oauth2:
       resourceserver:
@@ -47,3 +51,6 @@ bjjeire:
     success-url-base: http://localhost:5173
   registration:
     hold-sweep-initial-delay: PT24H
+  # The event publication sweep is called directly, never on a timer (EventPublicationSweep).
+  events:
+    resubmit-initial-delay: PT24H

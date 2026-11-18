@@ -57,7 +57,7 @@ specs/
 │   ├── gyms.md
 │   ├── events.md
 │   ├── competitions.md
-│   └── stores.md
+│   └── shop.md
 └── stc/                             # Spec-To-Check overlay (this strategy)
     ├── README.md
     └── <feature>/

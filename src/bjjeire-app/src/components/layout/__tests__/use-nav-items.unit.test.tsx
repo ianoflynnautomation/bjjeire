@@ -58,7 +58,7 @@ describe('useNavItems', () => {
     { flag: 'BjjEvents', expected: ['events', 'about'] },
     { flag: 'Gyms', expected: ['gyms', 'about'] },
     { flag: 'Competitions', expected: ['competitions', 'about'] },
-    { flag: 'Stores', expected: ['stores', 'about'] },
+    { flag: 'Stores', expected: ['shop', 'about'] },
   ] as const)(
     'given only the $flag flag is enabled, when the nav items are built, then its item appears before About',
     ({ flag, expected }) => {
@@ -82,7 +82,7 @@ describe('useNavItems', () => {
       'events',
       'gyms',
       'competitions',
-      'stores',
+      'shop',
       'about',
     ])
   })
@@ -102,11 +102,23 @@ describe('useNavItems', () => {
       'events',
       'gyms',
       'competitions',
-      'stores',
+      'shop',
       'about',
     ] as const) {
       expect(itemMap[id].to).toBe(paths[id].getHref())
       expect(itemMap[id].label).toBe(paths[id].label)
     }
+  })
+
+  // #4005
+  it('given the Stores flag is on, when the nav items are built, then the entry says Shop, opens /shop and no entry says Stores', () => {
+    const items = renderNavItems({ Stores: true })
+
+    const shop = items.find(i => i.id === 'shop')
+    expect(shop?.label).toBe('Shop')
+    expect(shop?.to).toBe('/shop')
+    expect(items.map(i => i.label)).not.toContainEqual(
+      expect.stringMatching(/stores/i)
+    )
   })
 })

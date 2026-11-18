@@ -5,24 +5,27 @@ import {
   createPaginatedStores,
 } from '@/testing/factories/store.factory'
 import {
-  renderStoresPage,
+  renderShopPage,
   seedStores,
   seedStoresError,
   seedStoresPending,
   seedStoresPaged,
 } from '@/features/stores/testing/stores-test-helpers'
+import { StoresCardTestIds } from '@/constants/storeDataTestIds'
 
-describe('StoresPage Integration (API + Query + UI)', () => {
+// #4006: the directory keeps the cards, order, search, empty state and error
+// handling it had as Stores, now on the Shop page.
+describe('ShopPage Integration (API + Query + UI)', () => {
   it('given a pending API request, when the page renders, then a loading indicator is shown', () => {
     seedStoresPending()
-    renderStoresPage()
+    renderShopPage()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
 
   it('given a failing API, when the page renders, then a retry button is shown', async () => {
     seedStoresError()
-    renderStoresPage()
+    renderShopPage()
 
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument()
@@ -31,7 +34,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
 
   it('given the API returns no stores, when the page renders, then the empty state is shown', async () => {
     seedStores([])
-    renderStoresPage()
+    renderShopPage()
 
     expect(await screen.findByText('No Stores Found')).toBeInTheDocument()
   })
@@ -41,7 +44,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
       createStore({ name: 'Tatami Fightwear' }),
       createStore({ name: 'Scramble Brand' }),
     ])
-    renderStoresPage()
+    renderShopPage()
 
     expect(await screen.findByText('Tatami Fightwear')).toBeInTheDocument()
     expect(screen.getByText('Scramble Brand')).toBeInTheDocument()
@@ -52,7 +55,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
       createStore({ name: 'Tatami Fightwear', description: 'Premium gis' }),
       createStore({ name: 'Scramble Brand', description: 'Casual apparel' }),
     ])
-    const { user } = renderStoresPage()
+    const { user } = renderShopPage()
 
     await screen.findByText('Tatami Fightwear')
 
@@ -69,7 +72,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
     seedStores([
       createStore({ name: 'Tatami Fightwear', description: 'Premium gis' }),
     ])
-    const { user } = renderStoresPage()
+    const { user } = renderShopPage()
 
     await screen.findByText('Tatami Fightwear')
 
@@ -89,7 +92,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
       2: createPaginatedStores([storePage2], 2, 2),
     })
 
-    const { user } = renderStoresPage()
+    const { user } = renderShopPage()
 
     expect(await screen.findByText('Tatami Fightwear')).toBeInTheDocument()
     expect(screen.getByText('1 / 2')).toBeInTheDocument()
@@ -104,21 +107,35 @@ describe('StoresPage Integration (API + Query + UI)', () => {
     })
   })
 
-  it('given the page opens, when it renders, then the store title is the main heading', async () => {
+  // #4005
+  it('given the page opens, when it renders, then Shop is the main heading', async () => {
     seedStores([createStore({ name: 'Tatami Fightwear' })])
-    renderStoresPage()
+    renderShopPage()
 
     expect(
-      await screen.findByRole('heading', {
-        level: 1,
-        name: 'BJJ Clothing Stores',
-      })
+      await screen.findByRole('heading', { level: 1, name: 'Shop' })
     ).toBeInTheDocument()
+  })
+
+  // #4006
+  it('given stores from the API, when the page renders, then the cards keep the API order', async () => {
+    seedStores([
+      createStore({ name: 'Charlie Gear' }),
+      createStore({ name: 'Alpha Kimonos' }),
+      createStore({ name: 'Bravo Rashguards' }),
+    ])
+    renderShopPage()
+
+    await screen.findByText('Alpha Kimonos')
+    const names = screen
+      .getAllByTestId(StoresCardTestIds.NAME)
+      .map(el => el.textContent)
+    expect(names).toEqual(['Charlie Gear', 'Alpha Kimonos', 'Bravo Rashguards'])
   })
 
   it('given a search with no match, when the message shows, then it does not mention filters', async () => {
     seedStores([createStore({ name: 'Tatami Fightwear' })])
-    const { user } = renderStoresPage()
+    const { user } = renderShopPage()
     await screen.findByText('Tatami Fightwear')
 
     await user.type(screen.getByRole('searchbox'), 'zzz')
@@ -134,7 +151,7 @@ describe('StoresPage Integration (API + Query + UI)', () => {
       createStore({ name: 'Brú Fightwear' }),
       createStore({ name: 'Tatami Fightwear' }),
     ])
-    const { user } = renderStoresPage()
+    const { user } = renderShopPage()
     await screen.findByText('Brú Fightwear')
 
     await user.type(screen.getByRole('searchbox'), 'Bru')

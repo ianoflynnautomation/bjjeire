@@ -47,7 +47,7 @@ const registry: Partial<
         staleTime: PREFETCH_STALE_TIME,
       })
       .then(noop, noop),
-  stores: queryClient =>
+  shop: queryClient =>
     queryClient
       .query({
         queryKey: ['stores', withPage(initialStoreFilters)],

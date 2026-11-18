@@ -4,6 +4,11 @@ spring:
   threads:
     virtual:
       enabled: true
+  # Event publication registry (ADR-0017). A completed publication is deleted: its listener is done, and keeping it
+  # would only keep data. Incomplete ones are resubmitted by EventPublicationSweep.
+  modulith:
+    events:
+      completion-mode: delete
   mongodb:
     uri: ${MONGODB_URI:mongodb://localhost:27017}
     database: ${MONGODB_DATABASE:BjjEire}

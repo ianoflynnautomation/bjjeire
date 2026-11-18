@@ -6,7 +6,7 @@ import {
   createPaginatedStores,
 } from '@/testing/factories/store.factory'
 import type { StoreDto } from '@/types/stores'
-import StoresPage from '@/pages/StoresPage'
+import ShopPage from '@/pages/ShopPage'
 
 export const STORES_API = testApiUrl(API_ROUTES.stores)
 
@@ -21,8 +21,8 @@ export const seedStoresPaged = seeds.seedPaged
 export const seedStoresError = seeds.seedError
 export const seedStoresPending = seeds.seedPending
 
-export function renderStoresPage(): ReturnType<typeof renderWithProviders> {
-  return renderWithProviders(<StoresPage />, {
+export function renderShopPage(): ReturnType<typeof renderWithProviders> {
+  return renderWithProviders(<ShopPage />, {
     featureFlags: {
       BjjEvents: true,
       Gyms: true,

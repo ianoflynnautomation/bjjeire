@@ -1,4 +1,5 @@
-import { Suspense } from 'react'
+import { Suspense, type ReactElement } from 'react'
+import { useLocation } from 'react-router'
 import { screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
@@ -14,6 +15,13 @@ import {
 import { server } from '@/testing/msw/server'
 import { RETIRED_NAME } from '@/testing/retired-name'
 import { renderWithProviders } from '@/testing/render-utils'
+import { RouterProbe } from '@/testing/router-probe'
+
+const LOCATION_TEST_ID = 'router-probe-pathname'
+
+function HashProbe(): ReactElement {
+  return <span>hash:{useLocation().hash}</span>
+}
 
 function renderAppRoutes(
   initialRoute: string,
@@ -22,6 +30,7 @@ function renderAppRoutes(
   renderWithProviders(
     <Suspense fallback={null}>
       <AppRoutes />
+      <RouterProbe />
     </Suspense>,
     { initialRoutes: [initialRoute], featureFlags }
   )
@@ -234,4 +243,127 @@ describe('AppRoutes', () => {
       })
     ).toBeInTheDocument()
   })
+})
+
+describe('AppRoutes: Shop', () => {
+  // #4005, #4006
+  it('given the Stores flag is on, when a visitor opens /shop, then the Shop page lists the directory', async () => {
+    renderAppRoutes(paths.shop.path, { ...ALL_OFF, Stores: true })
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: uiContent.shop.pageTitle.all },
+        LAZY_PAGE
+      )
+    ).toBeInTheDocument()
+  })
+
+  // #4007
+  it.each(['/stores', '/stores/', '/stores/anything', '/stores/a/b?q=x'])(
+    'given the Stores flag is on, when a visitor follows the old address %s, then they land on the Shop page at /shop',
+    async route => {
+      renderAppRoutes(route, { ...ALL_OFF, Gyms: true, Stores: true })
+
+      expect(
+        await screen.findByRole(
+          'heading',
+          { level: 1, name: uiContent.shop.pageTitle.all },
+          LAZY_PAGE
+        )
+      ).toBeInTheDocument()
+      expect(screen.getByTestId(LOCATION_TEST_ID)).toHaveTextContent(
+        paths.shop.path
+      )
+    }
+  )
+
+  // #4007: the redirect replaces the old entry, so Back skips it.
+  it('given a visitor came from Gyms, when they follow /stores and go back, then they return to Gyms, not to /stores', async () => {
+    const { user } = renderWithProviders(
+      <Suspense fallback={null}>
+        <AppRoutes />
+        <RouterProbe />
+      </Suspense>,
+      {
+        initialRoutes: [paths.gyms.path, '/stores'],
+        featureFlags: { ...ALL_OFF, Gyms: true, Stores: true },
+      }
+    )
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: uiContent.shop.pageTitle.all },
+        LAZY_PAGE
+      )
+    ).toBeInTheDocument()
+    expect(screen.getByTestId(LOCATION_TEST_ID)).toHaveTextContent(
+      paths.shop.path
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Router back' }))
+
+    expect(screen.getByTestId(LOCATION_TEST_ID)).toHaveTextContent(
+      paths.gyms.path
+    )
+  })
+
+  // #4007: a bookmarked search keeps its query on the way to Shop.
+  it('given an old Stores link with a search, when a visitor follows it, then Shop opens with the same query', async () => {
+    renderAppRoutes('/stores?q=Aran', { ...ALL_OFF, Stores: true })
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: uiContent.shop.pageTitle.all },
+        LAZY_PAGE
+      )
+    ).toBeInTheDocument()
+    expect(screen.getByTestId(LOCATION_TEST_ID)).toHaveTextContent(
+      paths.shop.path
+    )
+    expect(screen.getByTestId('router-probe-search')).toHaveTextContent(
+      '?q=Aran'
+    )
+  })
+
+  // #4007: a fragment survives too.
+  it('given an old Stores link with a fragment, when a visitor follows it, then Shop opens with the same fragment', async () => {
+    const { container } = renderWithProviders(
+      <Suspense fallback={null}>
+        <AppRoutes />
+        <HashProbe />
+      </Suspense>,
+      {
+        initialRoutes: ['/stores#top'],
+        featureFlags: { ...ALL_OFF, Stores: true },
+      }
+    )
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: uiContent.shop.pageTitle.all },
+        LAZY_PAGE
+      )
+    ).toBeInTheDocument()
+    expect(container).toHaveTextContent('hash:#top')
+  })
+
+  // #4007: the redirect does not bypass the directory switch.
+  it.each([paths.shop.path, '/stores'])(
+    'given the Stores flag is off, when a visitor opens %s, then they land on About as before',
+    async route => {
+      renderAppRoutes(route, ALL_OFF)
+
+      expect(
+        await screen.findByRole(
+          'heading',
+          { level: 1, name: uiContent.about.title },
+          LAZY_PAGE
+        )
+      ).toBeInTheDocument()
+    }
+  )
 })
