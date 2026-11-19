@@ -23,7 +23,7 @@ services:
       FEATURE_STORES: ${FEATURE_STORES:-true}
       FEATURE_GYMS_MAP: ${FEATURE_GYMS_MAP:-true}
       FEATURE_EVENTS_MAP: ${FEATURE_EVENTS_MAP:-true}
-      FEATURE_BJJEIRE_COMPETITIONS: ${FEATURE_BJJEIRE_COMPETITIONS:-false}
+      FEATURE_BJJEIRE_COMPETITIONS: ${FEATURE_BJJEIRE_COMPETITIONS:-true}
       FEATURE_MERCH: ${FEATURE_MERCH:-true}
       # ADR-0013: Stripe test mode. Forward events with the Stripe CLI and put the secret it prints in
       # STRIPE_WEBHOOK_SECRET (docs/stripe-local.md). Checkout returns the competitor to the local SPA.

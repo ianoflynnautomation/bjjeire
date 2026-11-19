@@ -10,7 +10,7 @@ Requirement issues are defined in [spec.md](spec.md). Narrative SSOT:
 | `#4001` | T0 Pact | `src/bjjeire-app/src/contracts/pact/store.pact.test.ts` | `get-stores.ts` |
 | `#4001` | T4 SPA | `src/bjjeire-app/src/pages/__tests__/shop-page.integration.test.tsx` | `ShopPage` |
 | `#4001` | T6 | `bjjeire-tests/tests/features/stores/` | running images |
-| `#4002` | T4 SPA | `shop-page.integration.test.tsx` (search) | `useListPageSearch` |
+| `#4002` | T4 SPA | `shop-page.integration.test.tsx` (search; `…the count is announced…`: "1 store", "2 stores") | `useListPageSearch`, `ListPageShell` (`resultsSrSuffixSingular`) |
 | `#4003` | T4 SPA | `shop-page.integration.test.tsx` (empty, error, pagination) | `ListPageShell` |
 | `#4004` | T1 unit | `StoreControllerTest.java` (`shouldRejectListingWhenPageIsNotANumber`) | `StoreController` |
 | `#4005` | T3 SPA | `src/bjjeire-app/src/components/layout/__tests__/use-nav-items.unit.test.tsx` (`the entry says Shop, opens /shop and no entry says Stores`) | `use-nav-items.ts`, `config/paths.ts` (`shop`) |

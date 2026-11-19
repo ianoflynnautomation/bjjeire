@@ -113,5 +113,6 @@ export const events = {
     noResultsMessage: 'Try a different search term or clear the filter.',
     resultsSrPrefix: 'Showing',
     resultsSrSuffix: 'events',
+    resultsSrSuffixSingular: 'event',
   },
 } as const

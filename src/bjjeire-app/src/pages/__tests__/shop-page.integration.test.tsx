@@ -68,6 +68,26 @@ describe('ShopPage Integration (API + Query + UI)', () => {
     expect(screen.getByText('Scramble Brand')).toBeInTheDocument()
   })
 
+  // #4002: the screen-reader count agrees in number with the header ("Found 1 store.").
+  it('given a search that leaves one store, when the count is announced, then it says "1 store", and "2 stores" for two', async () => {
+    seedStores([
+      createStore({ name: 'Tatami Fightwear' }),
+      createStore({ name: 'Tatami Kids' }),
+      createStore({ name: 'Scramble Brand' }),
+    ])
+    const { user } = renderShopPage()
+
+    await screen.findByText('Tatami Fightwear')
+    const searchInput = screen.getByRole('searchbox')
+
+    await user.type(searchInput, 'Scramble')
+    expect(await screen.findByText('Showing 1 store')).toBeInTheDocument()
+
+    await user.clear(searchInput)
+    await user.type(searchInput, 'Tatami')
+    expect(await screen.findByText('Showing 2 stores')).toBeInTheDocument()
+  })
+
   it('given a word only in a store description, when the user searches it, then no stores match', async () => {
     seedStores([
       createStore({ name: 'Tatami Fightwear', description: 'Premium gis' }),

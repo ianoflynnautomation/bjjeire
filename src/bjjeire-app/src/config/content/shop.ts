@@ -18,6 +18,7 @@ export const shop = {
     clearLabel: 'Clear search',
     resultsSrPrefix: 'Showing',
     resultsSrSuffix: 'stores',
+    resultsSrSuffixSingular: 'store',
     noResultsTitle: 'No Results Found',
     noResultsMessage: 'No stores matched your search. Try different keywords.',
     noResultsHint: 'Check the spelling or try fewer words.',
