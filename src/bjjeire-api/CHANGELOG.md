@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.33](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.32...api-v0.1.33) (2026-11-19)
+
+
+### Features
+
+* add bjjeire merch shop ([#234](https://github.com/ianoflynnautomation/bjjeire/issues/234)) ([daef629](https://github.com/ianoflynnautomation/bjjeire/commit/daef6294ec709e4071ab2a428e49600600193e55))
+
 ## [0.1.32](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.31...api-v0.1.32) (2026-11-17)
 
 
