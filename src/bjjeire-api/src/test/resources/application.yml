@@ -42,6 +42,9 @@ bjjeire:
   # BjjEireCompetitionFeatureOffIT (its own context) and BjjEireCompetitionFeatureGateFilterTest.
   feature-flags:
     BjjEireCompetitions: true
+    # On so the merch routes exist for every IT (ADR-0016). The off state is covered by MerchFeatureOffIT,
+    # which shares BjjEireCompetitionFeatureOffIT's context, and MerchFeatureGateFilterTest.
+    Merch: true
   # Sign-up (slice 3). RegistrationIntegrationTest.WEBHOOK_SECRET must match. Stripe and mail are recording
   # fakes in MongoIntegrationTest; the hold sweep is called directly, never on a timer.
   stripe:

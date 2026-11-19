@@ -1,29 +1,27 @@
-Run the full test suite for both frontend and backend and report results.
+---
+description: Run the frontend and backend test suites and summarise the results
+allowed-tools: Bash(npm --prefix src/bjjeire-app run *), Bash(mvn *)
+---
 
-Frontend unit tests:
-```
-$(!cd src/bjjeire-app && npm run test 2>&1 | tail -20)
-```
+These ran before this prompt was sent. Run them in the dev container: on the Mac host a missing
+JDK or a Vitest startup error is expected (`AGENTS.md`).
 
-Frontend integration tests:
-```
-$(!cd src/bjjeire-app && npm run test:integration 2>&1 | tail -20)
-```
+Frontend unit:
+!`npm --prefix src/bjjeire-app run test 2>&1 | tail -20`
 
-Frontend browser tests (Vitest + Playwright/Chromium — requires Playwright installed):
-```
-$(!cd src/bjjeire-app && npm run test:browser 2>&1 | tail -20)
-```
+Frontend integration:
+!`npm --prefix src/bjjeire-app run test:integration 2>&1 | tail -20`
 
-Backend tests (JUnit + Testcontainers — requires Docker for the ITs):
-```
-$(!mvn -pl src/bjjeire-api verify 2>&1 | grep -E "Tests run|BUILD|ERROR" | tail -30)
-```
+Frontend browser (Vitest with Playwright Chromium; needs the browsers installed):
+!`npm --prefix src/bjjeire-app run test:browser 2>&1 | tail -20`
+
+Backend unit and integration (Testcontainers; needs Docker):
+!`mvn -pl src/bjjeire-api verify 2>&1 | grep -E "Tests run:|BUILD|\[ERROR\]" | tail -30`
 
 Summarise:
-- Total passed / failed per suite (unit / integration / browser / java)
-- Any failing test names with their error message
-- For browser test failures, note whether screenshots were captured in `src/bjjeire-app/__screenshots__/`
-- Suggested fix if the failure is obvious
+- passed and failed per suite (unit, integration, browser, Java);
+- each failing test's name and error message;
+- for a browser failure, whether a screenshot landed in `src/bjjeire-app/__screenshots__/`;
+- the likely fix, only when the cause is clear from the output.
 
-Note: browser tests run in headless Chromium via `@vitest/browser-playwright`. Test files match `**/*.browser.test.{ts,tsx}`. In CI they run inside `mcr.microsoft.com/playwright:v1.59.1-noble` container.
+The Playwright image CI uses is pinned in `.claude/rules/github-actions.md`.

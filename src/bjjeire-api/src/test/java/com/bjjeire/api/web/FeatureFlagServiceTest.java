@@ -85,12 +85,21 @@ class FeatureFlagServiceTest {
 
         assertThat(service(configured).frontendFlags().keySet())
                 .containsExactly(
-                        "BjjEvents", "Gyms", "Competitions", "Stores", "GymsMap", "EventsMap", "BjjEireCompetitions");
+                        "BjjEvents",
+                        "Gyms",
+                        "Competitions",
+                        "Stores",
+                        "GymsMap",
+                        "EventsMap",
+                        "BjjEireCompetitions",
+                        "Merch");
         assertThat(service(configured).frontendFlags())
                 .containsEntry("BjjEvents", true)
                 .containsEntry("Gyms", true)
                 .containsEntry("Competitions", false)
-                .containsEntry("Stores", false);
+                .containsEntry("Stores", false)
+                // #6026: unconfigured, merch fails closed.
+                .containsEntry("Merch", false);
     }
 
     @Test

@@ -19,8 +19,13 @@ import org.springframework.test.context.TestPropertySource;
  *
  * <p>This class costs a second application context. The shared context keeps the flag on for every other IT.
  */
+// Same properties as MerchFeatureOffIT, so the two share one cached context.
 @TestPropertySource(
-        properties = {"bjjeire.feature-flags.BjjEireCompetitions=false", "bjjeire.read-only-mode.enabled=true"})
+        properties = {
+            "bjjeire.feature-flags.BjjEireCompetitions=false",
+            "bjjeire.feature-flags.Merch=false",
+            "bjjeire.read-only-mode.enabled=true"
+        })
 class BjjEireCompetitionFeatureOffIT extends MongoIntegrationTest {
     private static final String ID = "/0123456789abcdef01234567";
 

@@ -20,7 +20,9 @@ public enum FeatureFlag {
     /** Map view on the events page. Off unless an environment enables it; independent of {@link #GYMS_MAP}. */
     EVENTS_MAP("EventsMap"),
     /** In-house competitions, competitor accounts and sign-ups. Off unless an environment enables it (ADR-0013). */
-    BJJEIRE_COMPETITIONS("BjjEireCompetitions");
+    BJJEIRE_COMPETITIONS("BjjEireCompetitions"),
+    /** BJJ Éire merch: products, basket, guest checkout and the organiser's shop admin. Off by default (ADR-0016). */
+    MERCH("Merch");
 
     private final String wireName;
 

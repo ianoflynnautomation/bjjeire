@@ -10,7 +10,7 @@ status: living
 
 # STC: Shop
 
-**Requirements**: `bjjeire/requirements` · epic `&4` (directory) · merch epic (`#6001`–`#6028`, provisional; added as their slices ship)
+**Requirements**: `bjjeire/requirements` · epic `&4` (directory) · merch epic (`#6001`–`#6028`, provisional; added as their slices ship: `#6026`, `#6027` with slice 0)
 
 ## User intent
 
@@ -88,6 +88,28 @@ When a visitor opens `/stores` or `/shop`,
 Then they land on the default page as before.
 
 **Owns**: T4 `app-routes.integration.test.tsx`; T3 `sitemap.unit.test.ts`. **T6**: `bjjeire-tests`.
+
+### `#6026` — Merch switched off leaves only the directory (P1)
+
+Given the `Merch` switch is off (the default, `FEATURE_MERCH=false`),
+When anyone calls a product or order route (`/api/v1/product/**`, `/api/v1/order/**`, including the shop's webhook),
+Then the API answers 404 `urn:bjjeire:not-found` with a `traceId`, before authentication, whatever the token,
+And `GET /api/v1/featureflag` reports `"Merch": false`,
+And the SPA treats an unreachable flag service as merch off.
+
+*Slice 0 owns the API side. The SPA side (no merch section, basket, product page or merch admin screen) lands with those screens in slices 2–4.*
+
+**Owns**: T1 `MerchFeatureGateFilterTest`, `FeatureFlagDefaultsTest`, `FeatureFlagServiceTest`, `CrossCuttingFilterTest`; T2 `MerchFeatureOffIT`; T3 `feature-flag-resolve.integration.test.ts`. **T6**: `bjjeire-tests` once the screens exist.
+
+### `#6027` — Merch switched on changes nothing a browsing visitor did (P1)
+
+Given the `Merch` switch is on or off,
+When a visitor browses gyms, events, competitions or the store directory,
+Then nothing needs an account and nothing changed,
+And read-only mode still answers 405 for directory writes,
+And registration's Stripe webhook still handles every sign-up event, while acknowledging and ignoring objects marked `bjjeireKind = order`.
+
+**Owns**: T1 `MerchFeatureGateFilterTest`, `StripePaymentGatewayTest`; T2 `MerchFeatureOffIT`, `StripeWebhookIT`, the existing directory and registration suites.
 
 ## Executable contract
 

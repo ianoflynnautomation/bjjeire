@@ -2,6 +2,7 @@ package com.bjjeire.api.registration;
 
 import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionDto;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
+import com.bjjeire.api.common.MailMessage;
 import java.util.Locale;
 
 /** The text of sign-up mails. Plain text; the site is English only. */

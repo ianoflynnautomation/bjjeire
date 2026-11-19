@@ -4,6 +4,8 @@
 // still fails it reports and lets the session stop, so a broken check cannot trap it.
 // A check that could not run (on the Mac host: no JDK 25, Linux node_modules) is reported, never a failure.
 // A passing tree is fingerprinted so unchanged work is not checked again on later turns.
+// It also notes, without blocking, when the branch changes production code but no spec (AGENTS.md:
+// no behaviour change without a spec). A pure refactor or a bug fix may rightly touch no spec.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -87,6 +89,20 @@ const checkApi = () => {
 if (appFiles.length > 0) checkApp();
 if (apiFiles.length > 0) checkApi();
 
+// Whole branch, committed and not, against main: the spec may have been changed in an earlier commit.
+const specNote = (() => {
+  const base = git('merge-base', 'HEAD', 'origin/main').trim();
+  if (!base) return '';
+  const onBranch = [...lines(git('diff', '--name-only', base)), ...changed];
+  const production = onBranch.filter(
+    file =>
+      (file.startsWith('src/bjjeire-api/src/main/') || file.startsWith(`${APP_DIR}/src/`)) &&
+      !/(__tests__|\/testing\/|\.test\.|\/types\/generated\/)/.test(file),
+  );
+  if (production.length === 0 || onBranch.some(file => file.startsWith('specs/'))) return '';
+  return `Spec check: this branch changes production code (${production.length} file(s)) but nothing under specs/. If behaviour changed, update the living spec and its specs/stc overlay (AGENTS.md feature flow); a refactor or a fix that keeps specified behaviour needs none.`;
+})();
+
 const notes = skipped.length > 0 ? `Not verified: ${skipped.join('; ')}.` : '';
 
 if (failures.length > 0) {
@@ -95,9 +111,10 @@ if (failures.length > 0) {
     process.stderr.write(`${report}\n${notes}`);
     process.exit(2);
   }
-  process.stdout.write(JSON.stringify({ systemMessage: `Stopping with failing checks. ${report} ${notes}` }));
+  process.stdout.write(JSON.stringify({ systemMessage: `Stopping with failing checks. ${report} ${notes} ${specNote}` }));
   process.exit(0);
 }
 
-if (notes) process.stdout.write(JSON.stringify({ systemMessage: notes }));
-else writeFileSync(passFile, fingerprint);
+const message = [notes, specNote].filter(Boolean).join(' ');
+if (message) process.stdout.write(JSON.stringify({ systemMessage: message }));
+if (!notes) writeFileSync(passFile, fingerprint);

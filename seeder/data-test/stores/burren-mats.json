@@ -1,0 +1,12 @@
+[
+  {
+    "id": "acce77500000000000000005",
+    "name": "Burren Mats",
+    "description": null,
+    "websiteUrl": "https://burren-mats.example.ie/",
+    "logoUrl": null,
+    "isActive": true,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]

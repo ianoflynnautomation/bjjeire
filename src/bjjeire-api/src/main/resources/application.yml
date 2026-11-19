@@ -4,6 +4,11 @@ spring:
   threads:
     virtual:
       enabled: true
+  # Product photo uploads (research R4): 5 MB a photo, one photo per request.
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   # Event publication registry (ADR-0017). A completed publication is deleted: its listener is done, and keeping it
   # would only keep data. Incomplete ones are resubmitted by EventPublicationSweep.
   modulith:
@@ -66,6 +71,9 @@ bjjeire:
   stripe:
     secret-key: ${STRIPE_SECRET_KEY:sk_test_REPLACE_ME}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_REPLACE_ME}
+    # The shop's own webhook endpoint, /api/v1/order/stripe-webhook (ADR-0016). Key Vault:
+    # bjj-api-stripe-shop-webhook-secret.
+    shop-webhook-secret: ${STRIPE_SHOP_WEBHOOK_SECRET:whsec_REPLACE_ME}
     # The site's origin: Checkout returns the competitor to /competitions/<slug>/signup[/complete] under it.
     success-url-base: ${STRIPE_SUCCESS_URL_BASE:https://bjjeire.com}
   # Research R6. The SMTP server is Spring Boot's spring.mail.* (SPRING_MAIL_HOST, SPRING_MAIL_PORT,
@@ -77,6 +85,15 @@ bjjeire:
     hold: ${REGISTRATION_HOLD:PT30M}
     hold-sweep-initial-delay: ${REGISTRATION_HOLD_SWEEP_INITIAL_DELAY:PT1M}
     hold-sweep-interval: ${REGISTRATION_HOLD_SWEEP_INTERVAL:PT1M}
+  # BJJ Éire merch (specs/003-bjjeire-merch-shop research R5, R7). Stock is held while a shopper pays; the caps
+  # limit what one guest can hold without paying.
+  order:
+    hold: ${ORDER_HOLD:PT30M}
+    max-units-per-line: ${ORDER_MAX_UNITS_PER_LINE:10}
+    max-units-per-order: ${ORDER_MAX_UNITS_PER_ORDER:20}
+    max-unpaid-per-email: ${ORDER_MAX_UNPAID_PER_EMAIL:3}
+    max-unpaid-per-ip: ${ORDER_MAX_UNPAID_PER_IP:3}
+    low-stock: ${ORDER_LOW_STOCK:5}
   # ADR-0014: organiser sign-in without Entra, for local development only. The API refuses to start with
   # this on unless the 'local' profile is active. docker-compose.override.java-local.yml turns it on.
   local-sign-in:
@@ -103,3 +120,5 @@ bjjeire:
     BjjEireCompetitions: ${FEATURE_BJJEIRE_COMPETITIONS:false}
     GymsMap: ${FEATURE_GYMS_MAP:false}
     EventsMap: ${FEATURE_EVENTS_MAP:false}
+    # BJJ Éire merch (ADR-0016): products, basket, guest checkout, shop admin. Fails closed.
+    Merch: ${FEATURE_MERCH:false}

@@ -99,6 +99,7 @@ export const gyms = {
     noResultsMessage: 'Try a different search term or clear the filter.',
     resultsSrPrefix: 'Showing',
     resultsSrSuffix: 'gyms',
+    resultsSrSuffixSingular: 'gym',
   },
   card: {
     imageAlt: 'Exterior or interior of',

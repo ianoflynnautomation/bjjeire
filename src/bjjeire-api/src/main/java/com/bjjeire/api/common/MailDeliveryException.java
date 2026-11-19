@@ -1,4 +1,4 @@
-package com.bjjeire.api.registration;
+package com.bjjeire.api.common;
 
 /** A mail could not be handed to the relay. */
 public class MailDeliveryException extends RuntimeException {

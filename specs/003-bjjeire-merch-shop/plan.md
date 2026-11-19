@@ -52,7 +52,7 @@ Photos live in MongoDB GridFS, so there is no new cloud resource. Mail and the l
 - OpenAPI/Pact gates; additions only, apart from the accepted `/metrics` removal already on main.
 - Path-filtered CI; light, dark and competition themes.
 - Production runs with read-only mode on, so the shop routes need the same exemption as competitions.
-- Mesh egress is deny by default. Stripe's `ServiceEntry` already exists for competitions, so no new host is needed.
+- Mesh egress is deny by default. There is no Stripe `ServiceEntry` in `bjjeire-gitops` yet (checked 2026-11-18); one for `api.stripe.com` is needed before `Merch` or `BjjEireCompetitions` is turned on in a cluster.
 
 **Scale/Scope**:
 

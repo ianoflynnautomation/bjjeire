@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.bjjeire.api.common.StripeSecrets;
 import com.bjjeire.api.config.BjjEireProperties;
 import com.bjjeire.api.registration.PaymentGateway.CheckoutRequest;
 import com.bjjeire.api.registration.PaymentGateway.PaymentGatewayException;
@@ -85,7 +86,8 @@ class StripeConfigurationTest {
                 null,
                 null,
                 null,
-                new BjjEireProperties.Stripe(key, webhookSecret, "https://bjjeire.com"),
+                new BjjEireProperties.Stripe(key, webhookSecret, "https://bjjeire.com", ""),
+                null,
                 null,
                 null);
     }

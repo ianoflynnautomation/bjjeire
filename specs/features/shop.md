@@ -1,11 +1,11 @@
 # Feature: Shop
 
-**Status**: In progress. Part 1 (the directory, renamed from Stores) is shipped: slice 1 of [specs/003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md). Part 2 (BJJ Éire merch) is designed there and not built yet.
+**Status**: In progress. Part 1 (the directory, renamed from Stores) is shipped: slice 1 of [specs/003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md). Part 2 (BJJ Éire merch) is designed there; only its plumbing (slice 0: the `Merch` switch and route gates) is built.
 **Design record**: [../003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md)
 **Database**: [store.md](../database-contracts/store.md) (directory)
 **API**: `/api/v1/store` (directory, unchanged by the rename)
 **SPA route**: `/shop`. The old `/stores` address, and anything under it, redirects to `/shop`.
-**Feature flags**: `Stores` (the directory, fail-closed). The flag keeps its name.
+**Feature flags**: `Stores` (the directory, fail-closed). The flag keeps its name. `Merch` (BJJ Éire merch, `FEATURE_MERCH`, fail-closed, off by default; ADR-0016).
 **Acceptance**: `bjjeire-tests/specs/features/shop.md`, `bjjeire-tests/tests/features/stores/`
 **Requirements**: `bjjeire/requirements` · epic `&4` (`#4001`–`#4007`) · merch epic (`#6001`–`#6028`, provisional)
 
@@ -56,6 +56,11 @@ switch: with it off, `/stores` and `/shop` land on the default page as before.
 
 # Part 2: BJJ Éire merch
 
-Not built. Stories 2 to 7, `#6001`–`#6028`, are specified in
+Plumbing only (slice 0): the `Merch` switch exists and is off. While it is
+off, every product and order route answers 404 ahead of sign-in (`#6026`),
+and nothing a visitor already does changed (`#6027`). No merch screen exists
+yet. Decisions: [ADR-0016](../../docs/adr/0016-bjjeire-merch-guest-checkout.md).
+
+Otherwise not built. Stories 2 to 7, `#6001`–`#6028`, are specified in
 [specs/003-bjjeire-merch-shop/spec.md](../003-bjjeire-merch-shop/spec.md)
 and move here as each slice ships.

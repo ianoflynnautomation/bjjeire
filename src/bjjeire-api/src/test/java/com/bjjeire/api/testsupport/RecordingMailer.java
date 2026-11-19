@@ -1,7 +1,7 @@
 package com.bjjeire.api.testsupport;
 
-import com.bjjeire.api.registration.MailMessage;
-import com.bjjeire.api.registration.Mailer;
+import com.bjjeire.api.common.MailMessage;
+import com.bjjeire.api.common.Mailer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;

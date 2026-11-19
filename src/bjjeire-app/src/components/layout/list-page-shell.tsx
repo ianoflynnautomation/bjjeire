@@ -12,7 +12,10 @@ interface ListPageShellContent {
     noResultsMessage: string
     noResultsHint?: string
     resultsSrPrefix: string
+    /** Plural noun, e.g. "stores". */
     resultsSrSuffix: string
+    /** Singular noun, e.g. "store": "Showing 1 store", never "1 stores". */
+    resultsSrSuffixSingular: string
   }
   noData: {
     title: string
@@ -87,7 +90,11 @@ export function ListPageShell<T>({
 
         <p className="sr-only" aria-live="polite" aria-atomic="true">
           {search.isSearchActive
-            ? `${content.search.resultsSrPrefix} ${filteredItems.length} ${content.search.resultsSrSuffix}`
+            ? `${content.search.resultsSrPrefix} ${filteredItems.length} ${
+                filteredItems.length === 1
+                  ? content.search.resultsSrSuffixSingular
+                  : content.search.resultsSrSuffix
+              }`
             : ''}
         </p>
 

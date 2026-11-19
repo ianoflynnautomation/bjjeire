@@ -5,6 +5,7 @@ import com.bjjeire.api.web.BjjEireCompetitionFeatureGateFilter;
 import com.bjjeire.api.web.FeatureFlag;
 import com.bjjeire.api.web.FeatureFlagContext;
 import com.bjjeire.api.web.FeatureFlagService;
+import com.bjjeire.api.web.MerchFeatureGateFilter;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -95,6 +97,8 @@ public class SecurityConfig {
                 .addFilterBefore(
                         new BjjEireCompetitionFeatureGateFilter(featureFlags, objectMapper),
                         BearerTokenAuthenticationFilter.class)
+                .addFilterBefore(
+                        new MerchFeatureGateFilter(featureFlags, objectMapper), BearerTokenAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(handling ->
                         handling.authenticationEntryPoint(problemHandlers).accessDeniedHandler(problemHandlers))
@@ -145,22 +149,66 @@ public class SecurityConfig {
                                     HttpMethod.GET,
                                     ApiRoutes.BJJEIRE_COMPETITION,
                                     ApiRoutes.BJJEIRE_COMPETITION + "/**")
-                            .permitAll()
-                            .requestMatchers(HttpMethod.POST, "/**")
-                            .hasAuthority(writerAuthority)
-                            .requestMatchers(HttpMethod.PUT, "/**")
-                            .hasAuthority(writerAuthority)
-                            .requestMatchers(HttpMethod.PATCH, "/**")
-                            .hasAuthority(writerAuthority)
-                            .requestMatchers(HttpMethod.DELETE, "/**")
-                            .hasAuthority(writerAuthority)
-                            .anyRequest()
-                            .access(workforceAccount);
+                            .permitAll();
+                    // Ahead of the writer-only catch-all below.
+                    merchRules(authorize, writerAuthority);
+                    writerCatchAll(authorize, writerAuthority, workforceAccount);
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2.authenticationEntryPoint(problemHandlers)
                         .accessDeniedHandler(problemHandlers)
                         .jwt(jwt -> jwt.decoder(routingDecoder).jwtAuthenticationConverter(jwtAuthenticationConverter)))
                 .build();
+    }
+
+    /**
+     * Last: every write not named above needs the writer scope, and anything else a workforce account (constitution
+     * principle V).
+     */
+    private static void writerCatchAll(
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize,
+            String writerAuthority,
+            AuthorizationManager<RequestAuthorizationContext> workforceAccount) {
+        authorize
+                .requestMatchers(HttpMethod.POST, "/**")
+                .hasAuthority(writerAuthority)
+                .requestMatchers(HttpMethod.PUT, "/**")
+                .hasAuthority(writerAuthority)
+                .requestMatchers(HttpMethod.PATCH, "/**")
+                .hasAuthority(writerAuthority)
+                .requestMatchers(HttpMethod.DELETE, "/**")
+                .hasAuthority(writerAuthority)
+                .anyRequest()
+                .access(workforceAccount);
+    }
+
+    /**
+     * BJJ Éire merch (ADR-0016). The admin rules come first: the public patterns {@code /product/*} and
+     * {@code /order/*} would otherwise match {@code /admin} and make the admin lists public. No method restriction on
+     * them, so HEAD is covered too. Guests need no token: they check out without an account (spec {@code #6012}) and
+     * read an order with its key, which the order controller checks.
+     */
+    private static void merchRules(
+            AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize,
+            String writerAuthority) {
+        authorize
+                .requestMatchers(
+                        ApiRoutes.PRODUCT + "/admin",
+                        ApiRoutes.PRODUCT + "/admin/**",
+                        ApiRoutes.ORDER + "/admin",
+                        ApiRoutes.ORDER + "/admin/**")
+                .hasAuthority(writerAuthority)
+                // Every method, as for registration's webhook: its controller verifies the signature.
+                .requestMatchers(ApiRoutes.ORDER_STRIPE_WEBHOOK)
+                .permitAll()
+                .requestMatchers(
+                        HttpMethod.GET,
+                        ApiRoutes.PRODUCT,
+                        ApiRoutes.PRODUCT + "/*",
+                        ApiRoutes.PRODUCT + "/photo/**",
+                        ApiRoutes.ORDER + "/*")
+                .permitAll()
+                .requestMatchers(HttpMethod.POST, ApiRoutes.ORDER, ApiRoutes.ORDER + "/*/checkout")
+                .permitAll();
     }
 
     /**

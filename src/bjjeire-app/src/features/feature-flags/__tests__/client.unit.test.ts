@@ -29,7 +29,14 @@ describe('feature flag catalogue', () => {
   it('given the route table, when it is compared with the catalogue, then both list the same flags apart from those that switch a view inside a page or guard only sub-pages', () => {
     // BjjEireCompetitions has no landing page of its own (#3015): it guards
     // the /competitions/:slug pages, the account pages and the featured section.
-    const flagsWithoutARoute = ['GymsMap', 'EventsMap', 'BjjEireCompetitions']
+    // Merch lives on the Shop page, which the Stores entry routes to; its own
+    // pages arrive with the merch slices (specs/003-bjjeire-merch-shop).
+    const flagsWithoutARoute = [
+      'GymsMap',
+      'EventsMap',
+      'BjjEireCompetitions',
+      'Merch',
+    ]
     expect(featureSubRoutes.map(route => route.flag)).toContain(
       'BjjEireCompetitions'
     )

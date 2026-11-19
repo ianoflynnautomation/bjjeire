@@ -7,8 +7,29 @@
       "/workspaces/bjjeire-gitops",
       "/workspaces/bjjeire-deploy"
     ],
+    "allow": [
+      "Bash(npm --prefix src/bjjeire-app run lint)",
+      "Bash(npm --prefix src/bjjeire-app run typecheck)",
+      "Bash(npm --prefix src/bjjeire-app run test)",
+      "Bash(npm --prefix src/bjjeire-app run test:*)",
+      "Bash(npm --prefix src/bjjeire-app exec -- prettier --check *)",
+      "Bash(mvn -pl src/bjjeire-api test*)",
+      "Bash(mvn -pl src/bjjeire-api verify*)",
+      "Bash(mvn -pl src/bjjeire-api spotless:apply)",
+      "Bash(mvn -o -pl src/bjjeire-api *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch --show-current)",
+      "Bash(git merge-base *)",
+      "Bash(git ls-files*)"
+    ],
     "deny": [
       "Read(./.env)",
+      "Read(./.env.dev)",
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
       "Read(./secrets/**)",
       "Read(//workspaces/bjjeire-tests/.env*)",
       "Read(//workspaces/bjjeire-tests/playwright/.auth/**)",
@@ -26,7 +47,20 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session-start.mjs", "timeout": 10 }
+        ]
+      }
+    ],
     "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-bash.mjs", "timeout": 10 }
+        ]
+      },
       {
         "matcher": "Edit|MultiEdit|Write",
         "hooks": [

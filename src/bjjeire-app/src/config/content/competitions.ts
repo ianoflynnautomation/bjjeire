@@ -18,6 +18,7 @@ export const competitions = {
     clearLabel: 'Clear search',
     resultsSrPrefix: 'Showing',
     resultsSrSuffix: 'competitions',
+    resultsSrSuffixSingular: 'competition',
     noResultsTitle: 'No Results Found',
     noResultsMessage:
       'No competitions matched your search. Try different keywords.',

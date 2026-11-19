@@ -1,6 +1,6 @@
-package com.bjjeire.api.registration;
+package com.bjjeire.api.common;
 
-/** Delivers one mail. {@link SmtpMailer} is the real one (research R6); tests record instead. */
+/** Delivers one mail. {@link SmtpMailer} is the real one; tests record instead. */
 @FunctionalInterface
 public interface Mailer {
     /**

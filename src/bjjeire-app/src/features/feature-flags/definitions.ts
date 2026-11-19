@@ -66,6 +66,13 @@ export const FEATURE_FLAGS = {
       'BJJ Éire competitions: featured section on /competitions, /competitions/:slug pages, competitor accounts and sign-ups (ADR-0013, ADR-0015).',
     addedAt: '2026-11-13',
   },
+  Merch: {
+    key: 'Merch',
+    defaultValue: false,
+    description:
+      'BJJ Éire merch: featured section on /shop, product pages, basket, guest checkout and the shop admin (ADR-0016).',
+    addedAt: '2026-11-18',
+  },
 } as const satisfies Record<string, FeatureFlagDefinition>
 
 export type FeatureFlagName = keyof typeof FEATURE_FLAGS

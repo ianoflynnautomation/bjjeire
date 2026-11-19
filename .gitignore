@@ -105,6 +105,8 @@ CLAUDE.local.md
 .claude/todos/
 
 /tools/*
+# MongoDB replica-set scripts (ADR-0017): every compose file mounts them, so CI needs them in the repo.
+!/tools/mongodb/
 !/tools/images/
 /tools/images/*
 !/tools/images/processed/

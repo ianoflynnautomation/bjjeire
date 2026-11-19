@@ -1,0 +1,12 @@
+[
+  {
+    "id": "acce77500000000000000004",
+    "name": "Fastnet Grappling Co",
+    "description": "Acceptance-test fixture store. Unpublished: the directory must never list it (#4001).",
+    "websiteUrl": "https://fastnet-grappling-co.example.ie/",
+    "logoUrl": null,
+    "isActive": false,
+    "createdBy": "acceptance-seed",
+    "createdAt": "2026-01-01T00:00:00Z"
+  }
+]

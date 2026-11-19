@@ -8,6 +8,7 @@ import com.bjjeire.api.bjjeirecompetition.BjjEireCompetitionService;
 import com.bjjeire.api.bjjeirecompetition.DivisionDto;
 import com.bjjeire.api.bjjeirecompetition.ResultService;
 import com.bjjeire.api.common.ApiCache;
+import com.bjjeire.api.common.MailMessage;
 import com.bjjeire.api.competitor.CompetitorIdentity;
 import com.bjjeire.api.competitor.CompetitorService;
 import com.bjjeire.api.competitor.SignUpProfile;

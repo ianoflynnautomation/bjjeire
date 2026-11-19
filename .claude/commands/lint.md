@@ -1,18 +1,21 @@
-Run all code quality checks across the project.
+---
+description: Run every code quality check CI runs, and report errors by tool
+allowed-tools: Bash(npm --prefix src/bjjeire-app run *), Bash(npm --prefix src/bjjeire-app exec *), Bash(mvn *)
+---
 
-TypeScript check:
-```
-$(!cd src/bjjeire-app && npm run typecheck 2>&1)
-```
+These ran before this prompt was sent.
 
-ESLint:
-```
-$(!cd src/bjjeire-app && npm run lint 2>&1)
-```
+TypeScript:
+!`npm --prefix src/bjjeire-app run typecheck 2>&1 | tail -40`
 
-Java quality gate (Spotless format check, Checkstyle, Error Prone, compile):
-```
-$(!mvn -q -pl src/bjjeire-api verify -DskipTests 2>&1 | tail -30)
-```
+ESLint (`--fix` is on, so it may rewrite files):
+!`npm --prefix src/bjjeire-app run lint 2>&1 | tail -40`
 
-Report all errors grouped by tool. If there are no errors say "All checks passed".
+Prettier, as CI's `frontend_lint` checks it:
+!`npm --prefix src/bjjeire-app exec -- prettier --check src/bjjeire-app/src 2>&1 | tail -20`
+
+Java gate (Spotless, Checkstyle, Error Prone, compile):
+!`mvn -q -pl src/bjjeire-api verify -DskipTests 2>&1 | tail -30`
+
+Report the errors grouped by tool, with `file:line`. If every check passed, say "All checks passed".
+Fix nothing unless I ask.
