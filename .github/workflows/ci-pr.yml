@@ -90,7 +90,7 @@ jobs:
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
