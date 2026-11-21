@@ -130,7 +130,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
     with:
       image-name: bjjeire-api
       dockerfile: ./src/bjjeire-api/Dockerfile
@@ -155,7 +155,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
     with:
       image-name: bjjeire-frontend
       dockerfile: ./src/bjjeire-app/Dockerfile
@@ -190,7 +190,7 @@ jobs:
       id-token: write
       attestations: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/docker-build-push.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
     with:
       image-name: bjjeire-seeder
       dockerfile: ./src/bjjeire-api/seeder.Dockerfile
