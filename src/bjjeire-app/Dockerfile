@@ -42,7 +42,7 @@ ENV VITE_APP_LOCAL_SIGN_IN=${VITE_APP_LOCAL_SIGN_IN}
 
 RUN npm run build
 
-FROM caddy:2.11.4-alpine
+FROM caddy:2.11.9-alpine
 ARG APP_VERSION=dev
 LABEL org.opencontainers.image.version="${APP_VERSION}"
 
