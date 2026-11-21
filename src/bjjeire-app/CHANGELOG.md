@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.45](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.44...frontend-v0.1.45) (2026-11-21)
+
+
+### Features
+
+* add bjjeire shop slice 2 ([c15a1e1](https://github.com/ianoflynnautomation/bjjeire/commit/c15a1e14b913d8849de161fde5d69db8cc699303))
+
 ## [0.1.44](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.43...frontend-v0.1.44) (2026-11-19)
 
 
