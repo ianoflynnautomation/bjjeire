@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.33...api-v0.1.34) (2026-11-21)
+
+
+### Features
+
+* add bjjeire shop slice 2 ([c15a1e1](https://github.com/ianoflynnautomation/bjjeire/commit/c15a1e14b913d8849de161fde5d69db8cc699303))
+
+
+### Bug Fixes
+
+* failing ci action lint job ([05c7db8](https://github.com/ianoflynnautomation/bjjeire/commit/05c7db85d22c0b50553c6a43735084fa345474d9))
+
 ## [0.1.33](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.32...api-v0.1.33) (2026-11-19)
 
 
