@@ -41,7 +41,7 @@ conventions a change must follow.
 
 ## Runners and containers
 - Node jobs run in `node:26-bookworm-slim`. Java jobs use `actions/setup-java` (Temurin 25). Docker build and push jobs stay on `ubuntu-latest` because they need the host daemon. AKS and Flux jobs run on `gha-runner-scale-set`
-- Browser tests run in `mcr.microsoft.com/playwright:v1.63.0-noble`. Change that tag whenever `@playwright/test` or `@vitest/browser-playwright` changes version
+- Browser tests run in `mcr.microsoft.com/playwright:v1.65.1-noble`. Change that tag whenever `@playwright/test` or `@vitest/browser-playwright` changes version
 - In a container job, `${{ github.workspace }}` expands to the host path, which is not mounted. Use a relative path or `$GITHUB_WORKSPACE`:
   ```yaml
   # BAD: works on a host runner, breaks silently in a container
