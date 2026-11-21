@@ -54,6 +54,21 @@ public final class ProblemTypes {
     /** Cancelling or moving a sign-up a recorded result names (FR-026); correct the result first. */
     public static final URI RESULT_RECORDED = URI.create("urn:bjjeire:result-recorded");
 
+    /** Setting a size's stock below what unpaid checkouts hold of it (specs/stc/shop/contract.yaml). */
+    public static final URI STOCK_BELOW_HELD = URI.create("urn:bjjeire:stock-below-held");
+    /** Removing a size that unpaid checkouts still hold. */
+    public static final URI SIZE_HAS_HOLDS = URI.create("urn:bjjeire:size-has-holds");
+    /** Publishing a product with no photo, more than six, or no size. */
+    public static final URI PRODUCT_NOT_PUBLISHABLE = URI.create("urn:bjjeire:product-not-publishable");
+    /** Adding a seventh photo to a product. */
+    public static final URI TOO_MANY_PHOTOS = URI.create("urn:bjjeire:too-many-photos");
+    /** An upload that is not a JPEG, PNG or WebP by its first bytes. */
+    public static final URI UNSUPPORTED_IMAGE = URI.create("urn:bjjeire:unsupported-image");
+    /** An upload over the size limit. */
+    public static final URI PAYLOAD_TOO_LARGE = URI.create("urn:bjjeire:payload-too-large");
+    /** Deleting a product that is not a draft; hide it instead. */
+    public static final URI PRODUCT_NOT_DRAFT = URI.create("urn:bjjeire:product-not-draft");
+
     /** A capability that is switched on but not configured here, such as Stripe with placeholder secrets. */
     public static final URI SERVICE_UNAVAILABLE = URI.create("urn:bjjeire:service-unavailable");
 

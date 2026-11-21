@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // PostToolUse (Edit|MultiEdit|Write): format the file just written the way CI checks it, so a
 // change cannot reach CI unformatted.
-//   SPA (src/bjjeire-app): prettier --write, then eslint --fix for script files. CI's
-//     frontend_lint job runs `eslint src --max-warnings 0` and `prettier --check src/`.
+//   SPA (src/bjjeire-app): prettier --write, then oxlint --fix for script files. CI's
+//     frontend_lint job runs `oxlint src --max-warnings 0` and `prettier --check src/`.
 //   API (src/bjjeire-api): spotless:apply (palantir-java-format) on that one file. `mvn verify`
 //     fails in the validate phase on an unformatted file.
-// ESLint problems --fix cannot repair are handed back to the agent ("decision": "block" on a
+// Oxlint problems --fix cannot repair are handed back to the agent ("decision": "block" on a
 // PostToolUse only reports; the edit itself stands). A tool that cannot run (on the Mac host:
 // no node_modules, no JDK 25) is skipped silently; verify-changed.mjs reports that at Stop.
 import { spawnSync } from 'node:child_process';
@@ -14,7 +14,7 @@ import path from 'node:path';
 
 const APP_DIR = 'src/bjjeire-app';
 const API_DIR = 'src/bjjeire-api';
-const ESLINT_FILE = /\.(ts|tsx|js|jsx|mjs|cjs)$/;
+const LINT_FILE = /\.(ts|tsx|js|jsx|mjs|cjs)$/;
 const MAX_OUTPUT = 4000;
 
 const input = JSON.parse(readFileSync(0, 'utf8'));
@@ -54,9 +54,17 @@ const formatApp = () => {
   const prettier = run(bin('prettier'), ['--write', '--ignore-unknown', '--log-level', 'warn', file], appRoot);
   if (!prettier.ok) return report(`prettier --write\n${prettier.output}`);
 
-  if (ESLINT_FILE.test(file) && existsSync(bin('eslint'))) {
-    const eslint = run(bin('eslint'), ['--fix', '--no-warn-ignored', '--max-warnings', '0', file], appRoot);
-    if (!eslint.ok) report(`eslint --max-warnings 0\n${eslint.output}`);
+  if (LINT_FILE.test(file) && existsSync(bin('oxlint'))) {
+    const lint = run(
+      bin('oxlint'),
+      ['--fix', '--max-warnings', '0', '--no-error-on-unmatched-pattern', file],
+      appRoot
+    );
+    // node_modules is installed in the Linux dev container. On the Mac the
+    // oxlint binary is present but its native binding is not; skip, as with a missing tool.
+    if (!lint.ok && !lint.output.includes('Cannot find native binding')) {
+      report(`oxlint --max-warnings 0\n${lint.output}`);
+    }
   }
 };
 

@@ -1,4 +1,4 @@
-import { Suspense, type ReactElement } from 'react'
+import { Suspense, ViewTransition, type ReactElement } from 'react'
 import {
   BrowserRouter as Router,
   Routes,
@@ -64,9 +64,11 @@ export default function App(): ReactElement {
       <div className="min-h-screen text-fg">
         <Navigation />
         <main className="grow">
-          <Suspense fallback={<PageSuspenseFallback />}>
-            <AppRoutes />
-          </Suspense>
+          <ViewTransition>
+            <Suspense fallback={<PageSuspenseFallback />}>
+              <AppRoutes />
+            </Suspense>
+          </ViewTransition>
         </main>
         <Footer />
       </div>

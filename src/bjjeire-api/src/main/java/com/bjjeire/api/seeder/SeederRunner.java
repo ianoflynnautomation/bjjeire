@@ -1,6 +1,8 @@
 package com.bjjeire.api.seeder;
 
 import com.bjjeire.api.config.SeederProperties;
+import com.bjjeire.api.product.Product;
+import com.bjjeire.api.product.ProductPhotoStore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
     private static final String PRODUCTION_DATA_DIR = "data";
     private static final String TEST_DATA_DIR = "data-test";
+    /** Product photos for the test dataset, loaded into GridFS under their SHA-256 like an organiser's upload. */
+    private static final String PRODUCT_PHOTOS_DIR = "product-photos";
 
     private final MongoTemplate mongoTemplate;
     private final SeederProperties properties;
@@ -96,6 +100,10 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
                 seededIds.addAll(seedResult.ids());
             }
 
+            if (Product.ENTITY_NAME.equals(collection.name())) {
+                result |= seedProductPhotos(options.dryRun());
+            }
+
             if (options.prune() && collection.prunable()) {
                 result |= seeder.prune(collection, seededIds);
             } else if (options.prune()) {
@@ -104,6 +112,35 @@ public class SeederRunner implements CommandLineRunner, ExitCodeGenerator {
         }
 
         return result;
+    }
+
+    /** Stores each test photo once; a photo already stored is left as it is. */
+    private int seedProductPhotos(boolean dryRun) {
+        Path dir = Path.of(properties.dataRoot(), TEST_DATA_DIR, PRODUCT_PHOTOS_DIR);
+        if (!properties.useTestDataset() || !Files.isDirectory(dir)) {
+            return ExitCodes.SUCCESS;
+        }
+        System.out.printf("%n── product photos (%s) ──%n", dir);
+        ProductPhotoStore store = new ProductPhotoStore(mongoTemplate);
+        int stored = 0;
+        try (Stream<Path> entries = Files.list(dir)) {
+            for (Path file : entries.sorted().toList()) {
+                byte[] content = Files.readAllBytes(file);
+                String contentType = ProductPhotoStore.detectType(content).orElse(null);
+                if (contentType == null) {
+                    System.err.printf("  ERROR %s: not a JPEG, PNG or WebP image.%n", file);
+                    return ExitCodes.FAILURE;
+                }
+                if (!dryRun && store.store(ProductPhotoStore.sha256(content), content, contentType, "seeder")) {
+                    stored++;
+                }
+            }
+        } catch (IOException exception) {
+            System.err.println("  ERROR: " + exception.getMessage());
+            return ExitCodes.FAILURE;
+        }
+        System.out.printf("  %s %d photo(s).%n", dryRun ? "[DRY RUN] Would check" : "Stored", stored);
+        return ExitCodes.SUCCESS;
     }
 
     private int validate(List<SeederCollection> toRun) {

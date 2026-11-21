@@ -1,0 +1,20 @@
+[
+  {
+    "id": "000000000000000000000000",
+    "version": 0,
+    "slug": "example-rashguard",
+    "name": "Example Rashguard",
+    "kind": "RASHGUARD",
+    "description": "Test dataset only. There is no production seed: the organiser adds real merch through the shop admin. kind is RASHGUARD, SHORTS or T_SHIRT; status is DRAFT, PUBLISHED or HIDDEN.",
+    "priceCents": 4500,
+    "currency": "EUR",
+    "photos": [
+      "sha256 hex of a file in seeder/data-test/product-photos/, loaded into GridFS by the seeder"
+    ],
+    "sizes": [
+      { "id": "S", "stock": 3, "held": 0 },
+      { "id": "M", "stock": 4, "held": 0 }
+    ],
+    "status": "PUBLISHED"
+  }
+]

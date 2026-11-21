@@ -7,6 +7,82 @@ openapi:
       path: /api/v1/store
       auth: public
       response: PagedResponse<StoreDto>
+    # ---- Merch (flag Merch; ADR-0016). Enum values UPPER_SNAKE. ----
+    - method: GET
+      path: /api/v1/product
+      auth: public
+      response: PagedResponse<ProductSummaryDto> # id, slug, name, kind, priceCents, currency, photo, soldOut
+      notes: PUBLISHED only, by kind (RASHGUARD, SHORTS, T_SHIRT) then name; cached under MERCH_TAG
+      covers: ["#6001", "#6003"]
+    - method: GET
+      path: /api/v1/product/{slug}
+      auth: public
+      response: ProductDto # summary fields + description, photos[], sizes[{id, available, soldOut}]
+      notes: never stock or held; draft, hidden or unknown -> 404
+      covers: ["#6002"]
+    - method: GET
+      path: /api/v1/product/photo/{sha256}
+      auth: public
+      response: image/jpeg | image/png | image/webp; Cache-Control public, max-age=31536000, immutable; nosniff
+      covers: ["#6001", "#6002"]
+    - method: GET
+      path: /api/v1/product/admin
+      auth: admin
+      response: PagedResponse<AdminProductDto> # every status; stock, held, available per size; version
+      covers: ["#6013", "#6017"]
+    - method: GET
+      path: /api/v1/product/admin/{id}
+      auth: admin
+      response: AdminProductDto
+    - method: POST
+      path: /api/v1/product/admin
+      auth: admin
+      request: CreateProductCommand # slug, name, kind, description, priceCents, sizes[{id, stock}]
+      response: 201 AdminProductDto (status DRAFT, version 0), Location /api/v1/product/admin/{id}
+      conflicts: [conflict (slug taken)]
+      covers: ["#6013", "#6017"]
+    - method: PUT
+      path: /api/v1/product/admin/{id}
+      auth: admin
+      request: UpdateProductCommand # create fields + photos (existing hashes, in order) + version
+      response: AdminProductDto
+      conflicts:
+        [
+          conflict (stale version or slug taken),
+          stock-below-held,
+          size-has-holds,
+          product-not-publishable (published product),
+        ]
+      covers: ["#6014", "#6015", "#6016"]
+    - method: POST
+      path: /api/v1/product/admin/{id}/publish
+      auth: admin
+      conflicts: [product-not-publishable]
+      covers: ["#6014"]
+    - method: POST
+      path: /api/v1/product/admin/{id}/hide
+      auth: admin
+      conflicts: [conflict (a draft)]
+      covers: ["#6014"]
+    - method: PUT
+      path: /api/v1/product/admin/{id}/stock
+      auth: admin
+      request: StockCommand # sizes[{id, stock}] (sizes left out keep theirs) + version
+      conflicts: [conflict (stale version), stock-below-held]
+      covers: ["#6016"]
+    - method: POST
+      path: /api/v1/product/admin/{id}/photo
+      auth: admin
+      request: multipart/form-data, part "file"
+      response: 201 PhotoUploadResponse {sha256}
+      errors: [413 payload-too-large (over 5 MB), 415 unsupported-image]
+      conflicts: [too-many-photos]
+      covers: ["#6013"]
+    - method: DELETE
+      path: /api/v1/product/admin/{id}
+      auth: admin
+      response: 204
+      conflicts: [product-not-draft]
 spa:
   routes:
     - path: /shop
@@ -14,6 +90,18 @@ spa:
       page: ShopPage
     - path: /stores/*
       redirect: /shop (replace; then Shop's own Stores gate)
+    - path: /shop (featured slot)
+      flag: Merch
+      component: FeaturedMerch # one request, page 1 of 100; nothing while Merch is off
+    - path: /shop/products/:slug
+      flag: Merch
+      page: ProductPage
+    - path: /admin/shop
+      flag: Merch
+      page: AdminShopPage # organiser sign-in gate
+    - path: /admin/shop/products/:id
+      flag: Merch
+      page: AdminShopProductPage
   sitemap: lists /shop, never /stores
 pagination:
   page: 1-based
@@ -24,12 +112,17 @@ sort: name ascending
 invariants:
   - listing_excludes: isActive != true
   - feature_flag: Stores fail-closed
-  - merch_flag: Merch fail-closed (FEATURE_MERCH=false); with it off /api/v1/product/** and /api/v1/order/** answer 404 before authentication (#6026, ADR-0016). Merch routes are added here as slices 2-5 ship
+  - merch_flag: Merch fail-closed (FEATURE_MERCH=false); with it off /api/v1/product/** and /api/v1/order/** answer 404 before authentication (#6026, ADR-0016). Order routes are added here as slices 3-5 ship
+  - merch_cache_tag: MERCH_TAG, evicted by every product write on the replica that served it; expires after 30 s elsewhere; SPA staleTime 30 s (SC-006)
+  - product_writes: findAndModify guarded by version, status and each size's held value; audit-logged
   - cache_tag: STORES_TAG
   - writes: not mapped on StoreController (living spec FR-003 is ahead of the API)
   - rename: only the visible name and SPA address are Shop; API path, collection, flag and test ids keep store names (#4005-#4007)
 pointers:
   database: specs/database-contracts/store.md
+  database_product: specs/database-contracts/product.md
+  pact_product: src/bjjeire-app/src/contracts/pact/product.pact.test.ts
+  test_ids_merch: src/bjjeire-app/src/constants/merchDataTestIds.ts
   feature_spec: specs/features/shop.md
   pact: src/bjjeire-app/src/contracts/pact/store.pact.test.ts
   generated_types: src/bjjeire-app/src/types/generated/api.ts

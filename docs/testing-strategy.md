@@ -519,7 +519,7 @@ describe('GymCard', () => {
 
 **Rules.**
 
-- Intercept HTTP **at the network** with the shared MSW server (`@/testing/msw/server`). `onUnhandledRequest: 'error'`.
+- Intercept HTTP **at the network** with the shared MSW server (`@/testing/msw/server`). `onUnhandledFrame: 'error'`. The integration project sets the jsdom document URL to `http://localhost/` so those requests stay same-origin (`vitest.integration.config.ts`).
 - Seed via feature helpers (`seedGyms`, `seedGymsByCounty`, `seedGymsError`) — do not open a second `setupServer()` in the test file.
 - `renderWithProviders` (QueryClient `retry: false`, `MemoryRouter`, feature flags). Feature flags fail closed in production; tests that need `/gyms` pass `featureFlags: { Gyms: true }`.
 - **Do not** `vi.mock` child components. **Do not** `vi.mock('@/lib/api-client')` in integration files — that bypasses the contract MSW is there to enforce.

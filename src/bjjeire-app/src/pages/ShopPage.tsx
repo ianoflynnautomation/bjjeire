@@ -7,6 +7,7 @@ import { ListPageShell } from '@/components/layout/list-page-shell'
 import { uiContent } from '@/config/ui-content'
 import { useStoresPage } from '@/features/stores/hooks/useStoresPage'
 import { StoresPageTestIds } from '@/constants/storeDataTestIds'
+import { FeaturedMerch } from '@/features/merch/components/featured-merch'
 
 const { search, errors, noData } = uiContent.shop
 
@@ -34,6 +35,7 @@ export default function ShopPage(): JSX.Element {
           }
         />
       }
+      featured={<FeaturedMerch />}
       filterBar={
         <div className="w-full sm:max-w-160">
           <ListSearchInput

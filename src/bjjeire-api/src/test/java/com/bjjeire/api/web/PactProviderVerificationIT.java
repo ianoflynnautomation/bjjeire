@@ -36,6 +36,11 @@ import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymRepository;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.gym.TrialOffer;
+import com.bjjeire.api.product.Product;
+import com.bjjeire.api.product.ProductKind;
+import com.bjjeire.api.product.ProductSize;
+import com.bjjeire.api.product.ProductStatus;
+import com.bjjeire.api.product.SizeId;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.Payment;
 import com.bjjeire.api.registration.PaymentStatus;
@@ -149,6 +154,22 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .name("Pact Store")
                 .websiteUrl("https://example.com/store")
                 .isActive(true)
+                .build());
+    }
+
+    @State("a published product exists")
+    void aPublishedProductExists() {
+        mongoTemplate.insert(Product.builder()
+                .id("0123456789abcdef0123dddd")
+                .slug("pact-rashguard")
+                .name("Pact Rashguard")
+                .kind(ProductKind.RASHGUARD)
+                .description("Long sleeve.")
+                .priceCents(4500)
+                .photos(List.of("a".repeat(64)))
+                .sizes(List.of(ProductSize.builder().id(SizeId.M).stock(3).build()))
+                .status(ProductStatus.PUBLISHED)
+                .version(1L)
                 .build());
     }
 

@@ -5,6 +5,7 @@ import com.bjjeire.api.competition.Competition;
 import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.product.Product;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.store.Store;
 import java.util.List;
@@ -47,6 +48,15 @@ public record SeederCollection(
                     "bjjeire-competitions",
                     BjjEireCompetition.class,
                     entity -> ((BjjEireCompetition) entity).getId(),
+                    entity -> {},
+                    true,
+                    true),
+            // BJJ Éire merch (test dataset only). Its photos are loaded from data-test/product-photos/ by SeederRunner.
+            new SeederCollection(
+                    Product.ENTITY_NAME,
+                    "products",
+                    Product.class,
+                    entity -> ((Product) entity).getId(),
                     entity -> {},
                     true,
                     true),

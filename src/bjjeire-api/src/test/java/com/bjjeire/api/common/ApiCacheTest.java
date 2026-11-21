@@ -4,11 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 class ApiCacheTest {
     private final ApiCache cache = new ApiCache();
+
+    /**
+     * #6016, SC-006: a stock, price or visibility change shows on Shop within a minute. A write evicts only the replica
+     * that served it, so on the others the merch region's expiry is the bound.
+     */
+    @Test
+    @Tag("#6016")
+    void merchRegionExpiresWithinTheShopsOneMinuteBound() {
+        assertThat(cache.expiration(ApiCache.MERCH_TAG)).isLessThanOrEqualTo(Duration.ofSeconds(30));
+        assertThat(cache.expiration(ApiCache.GYMS_TAG)).isEqualTo(Duration.ofMinutes(5));
+    }
 
     @Test
     void getOrCreateLoadsOnceAndCaches() {

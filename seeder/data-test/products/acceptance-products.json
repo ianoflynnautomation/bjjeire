@@ -1,0 +1,52 @@
+[
+  {
+    "id": "202611190000000000000001",
+    "version": 0,
+    "slug": "harp-rashguard",
+    "name": "Harp Rashguard",
+    "kind": "RASHGUARD",
+    "description": "Long-sleeve competition rashguard with the BJJ Éire harp. IBJJF ranked colours.",
+    "priceCents": 4500,
+    "currency": "EUR",
+    "photos": ["29ae7a9e083cd3369d710e4938810b5bca4954d51d1afc7280da9b6a10b9632c"],
+    "sizes": [
+      { "id": "S", "stock": 10, "held": 0 },
+      { "id": "M", "stock": 10, "held": 0 },
+      { "id": "L", "stock": 10, "held": 0 },
+      { "id": "XL", "stock": 0, "held": 0 }
+    ],
+    "status": "PUBLISHED"
+  },
+  {
+    "id": "202611190000000000000002",
+    "version": 0,
+    "slug": "competition-shorts",
+    "name": "Competition Shorts",
+    "kind": "SHORTS",
+    "description": "No-gi shorts with a split hem and a drawcord.",
+    "priceCents": 3500,
+    "currency": "EUR",
+    "photos": ["8f8e5cd813c34359e3bcb69fa4612cbb8916f82843c0c59fbc85db3e9a05521b"],
+    "sizes": [
+      { "id": "M", "stock": 4, "held": 0 }
+    ],
+    "status": "PUBLISHED"
+  },
+  {
+    "id": "202611190000000000000003",
+    "version": 0,
+    "slug": "logo-t-shirt",
+    "name": "Logo T-Shirt",
+    "kind": "T_SHIRT",
+    "description": "Cotton t-shirt with the BJJ Éire logo on the chest.",
+    "priceCents": 2500,
+    "currency": "EUR",
+    "photos": ["aabcaeacb8e1181da9ca44091dffd67b95efa8053788f797ccd7d4953ccdcbce"],
+    "sizes": [
+      { "id": "S", "stock": 20, "held": 0 },
+      { "id": "M", "stock": 20, "held": 0 },
+      { "id": "L", "stock": 20, "held": 0 }
+    ],
+    "status": "PUBLISHED"
+  }
+]

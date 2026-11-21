@@ -187,7 +187,7 @@ jobs:
       env-vars: |
         HUSKY=0
       commands: |
-        npx eslint src --max-warnings 0
+        npx oxlint src --max-warnings 0
         npx prettier --check src/
 
   frontend_unit:

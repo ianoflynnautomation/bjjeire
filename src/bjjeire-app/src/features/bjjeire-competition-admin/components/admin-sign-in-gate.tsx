@@ -12,6 +12,8 @@ type GateState = 'checking' | 'signedOut' | 'signingIn' | 'signedIn'
 
 interface AdminSignInGateProps {
   children: ReactNode
+  /** What the organiser signs in to do; the competitions wording by default. */
+  message?: string
 }
 
 /**
@@ -21,6 +23,7 @@ interface AdminSignInGateProps {
  */
 export const AdminSignInGate = function AdminSignInGate({
   children,
+  message = signIn.message,
 }: AdminSignInGateProps): JSX.Element {
   const [state, setState] = useState<GateState>('checking')
   const [failed, setFailed] = useState(false)
@@ -74,7 +77,7 @@ export const AdminSignInGate = function AdminSignInGate({
         {signIn.heading}
       </h1>
       <p className="mt-1 text-sm text-fg-subtle">
-        {usesLocalSignIn() ? signIn.localMessage : signIn.message}
+        {usesLocalSignIn() ? signIn.localMessage : message}
       </p>
       {failed && (
         <p

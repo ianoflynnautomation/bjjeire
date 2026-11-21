@@ -9,6 +9,13 @@ export default mergeConfig(
     test: {
       name: 'integration',
       environment: 'jsdom',
+      // MSW 3 intercepts at the socket, so jsdom applies real CORS. The API
+      // origin in tests is http://localhost (env.API_URL). Vitest's default
+      // document URL is http://localhost:3000, which makes those requests
+      // cross-origin and Axios surfaces them as Network Error.
+      environmentOptions: {
+        jsdom: { url: 'http://localhost/' },
+      },
       setupFiles: './src/testing/setup-integration-tests.ts',
       sequence: { groupOrder: 2 },
       maxWorkers: process.env.CI ? 2 : undefined,

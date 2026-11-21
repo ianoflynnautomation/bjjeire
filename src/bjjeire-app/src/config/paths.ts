@@ -24,6 +24,21 @@ export const paths = {
     label: 'Shop',
     getHref: () => '/shop',
   },
+  product: {
+    path: '/shop/products/:slug',
+    label: 'Product',
+    getHref: (slug: string) => `/shop/products/${encodeURIComponent(slug)}`,
+  },
+  adminShop: {
+    path: '/admin/shop',
+    label: 'Manage shop',
+    getHref: () => '/admin/shop',
+  },
+  adminShopProduct: {
+    path: '/admin/shop/products/:id',
+    label: 'Manage product',
+    getHref: (id: string) => `/admin/shop/products/${encodeURIComponent(id)}`,
+  },
   bjjEireCompetition: {
     path: '/competitions/:slug',
     label: 'Competition',

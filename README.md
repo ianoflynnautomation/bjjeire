@@ -11,7 +11,7 @@
 [![Java](https://img.shields.io/badge/Java-25-007396?logo=openjdk)](https://openjdk.org/projects/jdk/25/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7.0-3178C6?logo=typescript)](https://www.typescriptlang.org)
 
 ## Overview
 
@@ -21,25 +21,25 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25
 
 ## Documentation
 
-| | |
-|---|---|
-| **[Architecture](docs/architecture.md)** | Runtime topology, package-by-feature API. The [end user flow](#end-user-flow) and [delivery flow](#delivery-flow) are below |
-| **[CI/CD](docs/ci-cd.md)** | [CI PR sequence](docs/ci-cd.md#ci-pr-sequence), [CI Main sequence](docs/ci-cd.md#ci-main-sequence), job graphs, path filters, promotion |
-| **[Decisions (ADRs)](docs/adr/)** | Why the API is package-by-feature, why contracts ship as OCI artifacts, why flake analysis gates nothing |
-| **[All docs](docs/)** | Full index |
-| **[AGENTS.md](AGENTS.md)** | Conventions and guardrails — for coding agents and new contributors alike |
+|                                          |                                                                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **[Architecture](docs/architecture.md)** | Runtime topology, package-by-feature API. The [end user flow](#end-user-flow) and [delivery flow](#delivery-flow) are below             |
+| **[CI/CD](docs/ci-cd.md)**               | [CI PR sequence](docs/ci-cd.md#ci-pr-sequence), [CI Main sequence](docs/ci-cd.md#ci-main-sequence), job graphs, path filters, promotion |
+| **[Decisions (ADRs)](docs/adr/)**        | Why the API is package-by-feature, why contracts ship as OCI artifacts, why flake analysis gates nothing                                |
+| **[All docs](docs/)**                    | Full index                                                                                                                              |
+| **[AGENTS.md](AGENTS.md)**               | Conventions and guardrails — for coding agents and new contributors alike                                                               |
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
-| Web Server | Caddy |
-| Backend | Java 25, Spring Boot 4, Spring Web, Spring Data MongoDB, Spring Security |
-| Auth | Microsoft Entra ID, MSAL Browser |
-| Database | MongoDB |
-| Infrastructure | Docker, GHCR, AKS, Flux v2, Istio, Helm |
-| Observability | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki |
+| Layer          | Technology                                                                      |
+| -------------- | ------------------------------------------------------------------------------- |
+| Frontend       | React 19, Vite 7, TypeScript, Tailwind CSS 4, TanStack Query v5, React Router 7 |
+| Web Server     | Caddy                                                                           |
+| Backend        | Java 25, Spring Boot 4, Spring Web, Spring Data MongoDB, Spring Security        |
+| Auth           | Microsoft Entra ID, MSAL Browser                                                |
+| Database       | MongoDB                                                                         |
+| Infrastructure | Docker, GHCR, AKS, Flux v2, Istio, Helm                                         |
+| Observability  | OpenTelemetry, Prometheus, Grafana, Jaeger, Loki                                |
 
 ## Getting Started
 
@@ -58,6 +58,11 @@ BJJ Eire is a full-stack application with a React SPA served by Caddy, a Java 25
 ```bash
 docker compose --profile app -f docker-compose.yml -f docker-compose.override.java-local.yml up --build --wait
 
+```
+
+### Seed data
+
+```bash
 docker compose --profile seed -f docker-compose.yml -f docker-compose.override.java-local.yml run --rm --build seeder
 ```
 
@@ -212,14 +217,14 @@ The same picture is in [docs/architecture.md](docs/architecture.md#delivery-flow
 The job sequences are [CI PR](docs/ci-cd.md#ci-pr-sequence) and
 [CI Main](docs/ci-cd.md#ci-main-sequence).
 
-| Workflow | File | Purpose |
-|---|---|---|
-| **CI PR** | `.github/workflows/ci-pr.yml` | Merge gate: build, test, contract checks, Compose `@smoke`. `pr_complete` is the required check |
-| **CI Main** | `.github/workflows/ci-main.yml` | Publish contracts, build images, ephemeral acceptance, promote digests to `:main` |
-| Build & Push | `.github/workflows/build-push-ghcr.yml` | Multi-arch image build, scan, attest, push |
-| PR Env Validation | `.github/workflows/pr-env-validation.yml` | Opt-in `deploy-preview` label: Flux preview on AKS + Playwright acceptance |
-| Release | `.github/workflows/release.yml` | Versioned releases via release-please |
-| Audit Release Report | `.github/workflows/audit-release.yml` | Compliance pack (release ID, SHA-256 catalog, PDF + Step Summary) |
+| Workflow             | File                                      | Purpose                                                                                         |
+| -------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **CI PR**            | `.github/workflows/ci-pr.yml`             | Merge gate: build, test, contract checks, Compose `@smoke`. `pr_complete` is the required check |
+| **CI Main**          | `.github/workflows/ci-main.yml`           | Publish contracts, build images, ephemeral acceptance, promote digests to `:main`               |
+| Build & Push         | `.github/workflows/build-push-ghcr.yml`   | Multi-arch image build, scan, attest, push                                                      |
+| PR Env Validation    | `.github/workflows/pr-env-validation.yml` | Opt-in `deploy-preview` label: Flux preview on AKS + Playwright acceptance                      |
+| Release              | `.github/workflows/release.yml`           | Versioned releases via release-please                                                           |
+| Audit Release Report | `.github/workflows/audit-release.yml`     | Compliance pack (release ID, SHA-256 catalog, PDF + Step Summary)                               |
 
 Debugging a red acceptance job: [docs/acceptance-ci-debug.md](docs/acceptance-ci-debug.md).
 Audit-ready release PDF: [docs/release-test-report.md](docs/release-test-report.md).

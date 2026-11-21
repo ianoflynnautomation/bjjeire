@@ -24,6 +24,51 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/product/admin/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Get a product in any status by id */
+    get: operations['getProductForAdmin']
+    /**
+     * Update a product
+     * @description Replaces the details, the full size list and the photo order. A size or photo left out is removed; removing a size that checkouts hold is 409 size-has-holds, and stock below what is held is 409 stock-below-held. A price change applies to new checkouts only. Send the version from the last read; a missing version is 400, and a stale one is 409: reload and retry.
+     */
+    put: operations['updateProduct']
+    post?: never
+    /**
+     * Delete a draft
+     * @description Only a draft can be deleted (409 product-not-draft otherwise); hide a product to take it off sale. A second delete is 404.
+     */
+    delete: operations['deleteProduct']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/admin/{id}/stock': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Set the stock of some sizes
+     * @description Sizes left out keep their stock. Stock below what checkouts hold is 409 stock-below-held. A stale version is 409.
+     */
+    put: operations['setProductStock']
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym/{id}': {
     parameters: {
       query?: never
@@ -226,6 +271,87 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/product/admin': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** List every product, drafts and hidden ones included, with stock and holds per size */
+    get: operations['listProductsForAdmin']
+    put?: never
+    /**
+     * Create a product as a draft
+     * @description Visitors cannot see a draft. Add photos with the photo route, then publish. Not safe to retry: the slug is unique, so the same request again returns 409.
+     */
+    post: operations['createProduct']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/admin/{id}/publish': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Show a draft or hidden product to visitors
+     * @description Needs 1 to 6 photos and at least one size, or answers 409 product-not-publishable. Publishing a published product returns it unchanged.
+     */
+    post: operations['publishProduct']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/admin/{id}/photo': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Add a photo to the end of a product's photos
+     * @description Part "file": a JPEG, PNG or WebP of at most 5 MB, checked by its first bytes (415 unsupported-image otherwise). A seventh photo is 409 too-many-photos. The same bytes again return the same hash and add nothing.
+     */
+    post: operations['addProductPhoto']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/admin/{id}/hide': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Take a published product off sale
+     * @description Visitors no longer see or buy it; orders already placed are unchanged. A draft is 409.
+     */
+    post: operations['hideProduct']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym': {
     parameters: {
       query?: never
@@ -397,22 +523,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/metrics': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['metrics']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/health': {
     parameters: {
       query?: never
@@ -457,6 +567,66 @@ export interface paths {
      * @description Newest first, with competition, division, amount and status.
      */
     get: operations['getOwnRegistrations']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List published products
+     * @description Published products only, ordered by kind (RASHGUARD, SHORTS, T_SHIRT) then name. soldOut is true when no size can be bought. An empty catalogue is an empty page.
+     */
+    get: operations['listProducts']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/{slug}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get a published product by slug
+     * @description Description, photos and every size it comes in, with what can be bought of each. Stock and what is held in checkouts are never shown. A draft or hidden product answers 404.
+     */
+    get: operations['getProductBySlug']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/product/photo/{sha256}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get a product photo
+     * @description JPEG, PNG or WebP. An unknown hash answers 404.
+     */
+    get: operations['getPhoto']
     put?: never
     post?: never
     delete?: never
@@ -728,6 +898,62 @@ export interface components {
       refundableUntil?: string
       /** Format: date-time */
       createdAt?: string
+    }
+    SizeStockDto: {
+      /** @enum {string} */
+      id: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
+      /** Format: int32 */
+      stock: number
+    }
+    UpdateProductCommand: {
+      slug: string
+      name: string
+      /** @enum {string} */
+      kind: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      description: string
+      /** Format: int32 */
+      priceCents: number
+      sizes: components['schemas']['SizeStockDto'][]
+      photos: string[]
+      /** Format: int64 */
+      version: number
+    }
+    AdminProductDto: {
+      id?: string
+      slug?: string
+      name?: string
+      /** @enum {string} */
+      kind?: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      description?: string
+      /** Format: int32 */
+      priceCents?: number
+      currency?: string
+      photos?: string[]
+      sizes?: components['schemas']['AdminProductSizeDto'][]
+      /** @enum {string} */
+      status?: 'DRAFT' | 'PUBLISHED' | 'HIDDEN'
+      /** Format: int64 */
+      version?: number
+      /** Format: date-time */
+      createdOnUtc?: string
+      /** Format: date-time */
+      updatedOnUtc?: string
+    }
+    AdminProductSizeDto: {
+      /** @enum {string} */
+      id?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
+      /** Format: int32 */
+      stock?: number
+      /** Format: int32 */
+      held?: number
+      /** Format: int32 */
+      available?: number
+      soldOut?: boolean
+    }
+    StockCommand: {
+      sizes: components['schemas']['SizeStockDto'][]
+      /** Format: int64 */
+      version: number
     }
     Affiliation: {
       name?: string
@@ -1131,6 +1357,19 @@ export interface components {
       /** @enum {string} */
       refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
     }
+    CreateProductCommand: {
+      slug: string
+      name: string
+      /** @enum {string} */
+      kind: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      description: string
+      /** Format: int32 */
+      priceCents: number
+      sizes: components['schemas']['SizeStockDto'][]
+    }
+    PhotoUploadResponse: {
+      sha256?: string
+    }
     CreateGymCommand: {
       data: components['schemas']['GymDto']
     }
@@ -1219,6 +1458,47 @@ export interface components {
       websiteUrl?: string
       logoUrl?: string
       isActive?: boolean
+    }
+    PagedResponseProductSummaryDto: {
+      data?: components['schemas']['ProductSummaryDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
+    }
+    ProductSummaryDto: {
+      id?: string
+      slug?: string
+      name?: string
+      /** @enum {string} */
+      kind?: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      /** Format: int32 */
+      priceCents?: number
+      currency?: string
+      photo?: string
+      soldOut?: boolean
+    }
+    ProductDto: {
+      id?: string
+      slug?: string
+      name?: string
+      /** @enum {string} */
+      kind?: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      description?: string
+      /** Format: int32 */
+      priceCents?: number
+      currency?: string
+      photos?: string[]
+      sizes?: components['schemas']['ProductSizeDto'][]
+      soldOut?: boolean
+    }
+    ProductSizeDto: {
+      /** @enum {string} */
+      id?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
+      /** Format: int32 */
+      available?: number
+      soldOut?: boolean
+    }
+    PagedResponseAdminProductDto: {
+      data?: components['schemas']['AdminProductDto'][]
+      pagination?: components['schemas']['PaginationMetadata']
     }
     PagedResponseGymDto: {
       data?: components['schemas']['GymDto'][]
@@ -1415,6 +1695,100 @@ export interface operations {
         }
         content: {
           'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  getProductForAdmin: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
+        }
+      }
+    }
+  }
+  updateProduct: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateProductCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
+        }
+      }
+    }
+  }
+  deleteProduct: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  setProductStock: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StockCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
         }
       }
     }
@@ -1921,6 +2295,126 @@ export interface operations {
       }
     }
   }
+  listProductsForAdmin: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseAdminProductDto']
+        }
+      }
+    }
+  }
+  createProduct: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateProductCommand']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
+        }
+      }
+    }
+  }
+  publishProduct: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
+        }
+      }
+    }
+  }
+  addProductPhoto: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'multipart/form-data': {
+          /** Format: binary */
+          file: string
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PhotoUploadResponse']
+        }
+      }
+    }
+  }
+  hideProduct: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['AdminProductDto']
+        }
+      }
+    }
+  }
   getAll: {
     parameters: {
       query?: {
@@ -2305,26 +2799,6 @@ export interface operations {
       }
     }
   }
-  metrics: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'text/plain': string
-        }
-      }
-    }
-  }
   health: {
     parameters: {
       query?: never
@@ -2387,6 +2861,73 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RegistrationDto'][]
+        }
+      }
+    }
+  }
+  listProducts: {
+    parameters: {
+      query?: {
+        page?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['PagedResponseProductSummaryDto']
+        }
+      }
+    }
+  }
+  getProductBySlug: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['ProductDto']
+        }
+      }
+    }
+  }
+  getPhoto: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        sha256: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': string
         }
       }
     }

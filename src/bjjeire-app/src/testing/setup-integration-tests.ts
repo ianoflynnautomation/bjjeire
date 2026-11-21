@@ -6,6 +6,7 @@ import { resetCompetitionIdCounter } from './factories/competition.factory'
 import { resetBjjEireCompetitionIdCounter } from './factories/bjjeire-competition.factory'
 import { resetResultIdCounter } from './factories/result.factory'
 import { resetRegistrationIdCounter } from './factories/registration.factory'
+import { resetProductIdCounter } from './factories/product.factory'
 import './setup-tests'
 
 vi.mock('@/config/env', () => ({
@@ -21,7 +22,7 @@ vi.mock('@/lib/msal-config', () => ({
   loginRequest: { scopes: [] },
 }))
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterAll(() => server.close())
 
 afterEach(() => {
@@ -30,6 +31,7 @@ afterEach(() => {
   resetEventIdCounter()
   resetCompetitionIdCounter()
   resetBjjEireCompetitionIdCounter()
+  resetProductIdCounter()
   resetResultIdCounter()
   resetRegistrationIdCounter()
 })

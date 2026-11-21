@@ -39,8 +39,24 @@ export const features = [
  * Pages reached from a feature's landing page. They are never a navigation
  * entry or the default landing path. BJJ Éire competition pages sit under
  * /competitions but follow BjjEireCompetitions, not Competitions (#3015).
+ * Merch pages sit under /shop and /admin/shop and follow Merch (#6026).
  */
 export const featureSubRoutes = [
+  {
+    flag: 'Merch',
+    path: paths.product.path,
+    Component: lazyWithPreload(() => import('@/pages/ProductPage')),
+  },
+  {
+    flag: 'Merch',
+    path: paths.adminShop.path,
+    Component: lazyWithPreload(() => import('@/pages/AdminShopPage')),
+  },
+  {
+    flag: 'Merch',
+    path: paths.adminShopProduct.path,
+    Component: lazyWithPreload(() => import('@/pages/AdminShopProductPage')),
+  },
   {
     flag: 'BjjEireCompetitions',
     path: paths.bjjEireCompetition.path,

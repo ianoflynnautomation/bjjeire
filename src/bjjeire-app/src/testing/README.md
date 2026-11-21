@@ -68,8 +68,10 @@ const page = createPaginatedGyms([createGym({ name: 'Origin BJJ' })], 1, 1)
 `@/testing/msw/server` exports a `setupServer` instance pre-configured with the
 full handler set from `msw/handlers/index.ts`. The integration setup file
 (`setup-integration-tests.ts`) owns the lifecycle — it starts the server with
-`onUnhandledRequest: 'error'`, resets handlers after every test, and closes it
-after the file. **Do not create a new `setupServer()` per file and do not
+`onUnhandledFrame: 'error'`, resets handlers after every test, and closes it
+after the file. The integration project sets the jsdom document URL to
+`http://localhost/` (`vitest.integration.config.ts`) so requests to
+`env.API_URL` stay same-origin under MSW 3. **Do not create a new `setupServer()` per file and do not
 repeat `listen`/`close`/`resetHandlers` in test files** — just register
 overrides:
 

@@ -9,6 +9,8 @@ import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.product.Product;
+import com.bjjeire.api.product.ProductPhotoStore;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.StripeEvent;
 import com.bjjeire.api.store.Store;
@@ -120,16 +122,21 @@ public abstract class MongoIntegrationTest {
                 DeletedCompetitor.class,
                 BjjEireCompetitionRegistration.class,
                 StripeEvent.class,
+                Product.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
             mongoTemplate.remove(new Query(), entityType);
+        }
+        for (String suffix : List.of(".files", ".chunks")) {
+            mongoTemplate.getCollection(ProductPhotoStore.BUCKET + suffix).deleteMany(new org.bson.Document());
         }
         for (String tag : List.of(
                 ApiCache.GYMS_TAG,
                 ApiCache.BJJ_EVENTS_TAG,
                 ApiCache.COMPETITIONS_TAG,
                 ApiCache.STORES_TAG,
-                ApiCache.BJJEIRE_COMPETITIONS_TAG)) {
+                ApiCache.BJJEIRE_COMPETITIONS_TAG,
+                ApiCache.MERCH_TAG)) {
             apiCache.removeByTag(tag);
         }
         identityDirectory.reset();

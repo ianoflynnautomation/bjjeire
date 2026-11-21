@@ -3,7 +3,7 @@ import { events } from './events'
 import { gyms } from './gyms'
 import { competitions } from './competitions'
 import { shop } from './shop'
-import { merch } from './merch'
+import { merch, merchAdmin } from './merch'
 import { brand, navigation, footer } from './layout'
 import { about } from './about'
 import { supportModal } from './support'
@@ -21,6 +21,7 @@ export const uiContent = {
   competitions,
   shop,
   merch,
+  merchAdmin,
   brand,
   navigation,
   footer,

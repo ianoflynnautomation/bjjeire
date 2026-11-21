@@ -184,57 +184,61 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Tests first
 
-- [ ] T024 [P] [US2] Write `product/ProductRulesTest`:
+- [x] T024 [P] [US2] Write `product/ProductRulesTest`:
   - publishable only with "1–6" photos and "at least 1" size;
   - sizes unique and ordered "XS, S, M, L, XL, XXL";
   - `available = stock - held`, and `soldOut` when 0;
   - `held` "≥ 0 and ≤ `stock`".
-- [ ] T025 [P] [US2] Write `product/ProductMongoRepositoryIT`:
+- [x] T025 [P] [US2] Write `product/ProductMongoRepositoryIT`:
   - `ux_product_slug` rejects a duplicate;
   - the public listing returns `PUBLISHED` only, ordered by kind (`RASHGUARD`, `SHORTS`, `T_SHIRT`) then name (`#6001`, `#6003`).
-- [ ] T026 [P] [US2] Write `product/ProductIT`:
+- [x] T026 [P] [US2] Write `product/ProductIT`:
   - `GET /api/v1/product/{slug}` shows description, photos, and sizes with `available` and `soldOut` only (no `stock` or `held` in the JSON);
   - a draft or hidden product is 404 (`#6002`);
   - an empty catalogue returns an empty page (`#6003`).
-- [ ] T027 [P] [US2] Write `product/ProductPhotoIT`. `GET /api/v1/product/photo/{sha256}` serves:
+- [x] T027 [P] [US2] Write `product/ProductPhotoIT`. `GET /api/v1/product/photo/{sha256}` serves:
   - the stored bytes with the checked `Content-Type`;
   - `Cache-Control: public, max-age=31536000, immutable`;
   - `X-Content-Type-Options: nosniff`.
 
   An unknown hash is 404 (`#6001`, `#6002`).
-- [ ] T028 [P] [US2] Write `pages/__tests__/shop-page-merch.integration.test.tsx`:
+- [x] T028 [P] [US2] Write `pages/__tests__/shop-page-merch.integration.test.tsx`:
   - the "BJJ Éire merch" section sits above the directory search;
   - each card shows photo, name, kind, euro price, and "Out of stock" when every size is sold out (`#6001`);
   - with no products there is no section and no placeholder (`#6003`);
   - searching or paging the directory leaves the section unchanged, and it is fetched once (`#6004`);
   - with `Merch` off, nothing is requested.
-- [ ] T029 [P] [US2] Write `pages/__tests__/product-page.integration.test.tsx`:
+- [x] T029 [P] [US2] Write `pages/__tests__/product-page.integration.test.tsx`:
   - photos, description, price and every size;
   - sold-out sizes shown but disabled;
   - an unknown slug shows "Product not found" with a link back to Shop (`#6002`);
   - all three themes render.
-- [ ] T030 [P] [US2] Write the Pact consumer test `contracts/pact/product.pact.test.ts` for `GET /api/v1/product` and `GET /api/v1/product/{slug}`, and its provider state in `web/PactProviderVerificationIT`.
+- [x] T030 [P] [US2] Write the Pact consumer test `contracts/pact/product.pact.test.ts` for `GET /api/v1/product` and `GET /api/v1/product/{slug}`, and its provider state in `web/PactProviderVerificationIT`.
 
 ### Implementation
 
-- [ ] T031 [US2] Write the `product/` domain:
+- [x] T031 [US2] Write the `product/` domain:
   - `Product` (`@Document("Product")`) with every field in data-model.md § Product: `slug` "lowercase letters, digits and hyphens, 3–60, `admin` and `photo` reserved"; `name` "1–80"; `description` "1–2000, plain text"; `priceCents` "100–100000"; `currency` `EUR`; `version`; audit fields;
   - embedded `ProductSize {id, stock, held}`;
   - enums `ProductKind {RASHGUARD, SHORTS, T_SHIRT}`, `ProductStatus {DRAFT, PUBLISHED, HIDDEN}` and `SizeId {XS, S, M, L, XL, XXL}`.
-- [ ] T032 [US2] Add the indexes `ux_product_slug` (unique) and `ix_product_status_kind_name` in `config/MongoIndexInitializer`.
-- [ ] T033 [US2] Write `product/`:
+- [x] T032 [US2] Add the indexes `ux_product_slug` (unique) and `ix_product_status_kind_name` in `config/MongoIndexInitializer`.
+- [x] T033 [US2] Write `product/`:
   - `ProductSummaryDto` and `ProductDto` (never exposing `stock` or `held`);
   - the mapper and `ProductService` (`getPublished` page, `getPublishedBySlug`), cached under `MERCH_TAG`;
   - `ProductController` (public reads);
   - `ProductPhotoStore` over `GridFsTemplate`, bucket `productPhotos`, and `ProductPhotoController`.
 
   Makes T024–T027 pass.
-- [ ] T034 [P] [US2] Add the seed:
+
+  As built: the public reads go through `ProductServiceImpl`, with no `ProductRepository` (every write is a guarded `findAndModify` on `MongoTemplate`, as `BjjEireCompetitionServiceImpl` does). `ProductPhotoStore` uses the driver's `GridFSBucket` directly. `ApiCache.MERCH_TAG` is added here, with its first reader and writer.
+- [x] T034 [P] [US2] Add the seed:
   - `seeder/data-test/products/` with `_template.json` and three published products: a rashguard (S, M, L in stock; XL `stock: 0`), shorts (M `stock: 4`) and a t-shirt;
   - three small test photos, loaded into GridFS by the seeder;
   - `SeederCollection` entry, test dataset only and never pruned in production, as `BjjEireCompetition` is;
   - `specs/database-contracts/product.md` from data-model.md.
-- [ ] T035 [US2] Write the SPA `features/merch/`:
+
+  As built: the photos live in `seeder/data-test/product-photos/` (three 64×64 PNGs), and `SeederRunner` loads them after the `Product` collection. `ProductSize.id` is stored as `_id`, as Spring Data maps an embedded `id`; `product.md` records it.
+- [x] T035 [US2] Write the SPA `features/merch/`:
   - `api/get-products.ts`;
   - hooks `useMerchProducts` (one page of 100) and `useProduct`;
   - components `featured-merch.tsx`, `product-card.tsx` (logo-safe `object-contain` images, the lesson of `#3006`), `product-details.tsx` and `size-picker.tsx`.
@@ -245,7 +249,9 @@ description: "Task list for the BJJ Éire Merch Shop"
   - strings in `content/merch.ts`, ids in `merchDataTestIds.ts`.
 
   Makes T028–T030 pass.
-- [ ] T036 [US2] Regenerate `src/types/generated/api.ts` from the served OpenAPI. Add `src/types/products.contract.ts` and confirm additions only. List `#6001`–`#6004` in `bjjeire-tests/specs/features/shop.md`. Add Zod schemas for `ProductSummaryDto` and `ProductDto` in `bjjeire-tests/src/api/features/shop/` in the same change set, or open a follow-up issue and link it in the PR (constitution III).
+- [x] T036 [US2] Regenerate `src/types/generated/api.ts` from the served OpenAPI. Add `src/types/products.contract.ts` and confirm additions only. List `#6001`–`#6004` in `bjjeire-tests/specs/features/shop.md`. Add Zod schemas for `ProductSummaryDto` and `ProductDto` in `bjjeire-tests/src/api/features/shop/` in the same change set, or open a follow-up issue and link it in the PR (constitution III).
+
+  As built: regenerated from `OpenApiContractIT`'s export; the diff adds the product paths and schemas, and drops only `/metrics`, which the test context does not serve. `src/types/products.contract.ts` checks the handwritten types. `#6001`–`#6004` are listed in `bjjeire-tests/specs/features/shop.md`. The Zod schemas in `bjjeire-tests` are not written: a follow-up issue is needed (constitution III).
 
 **Checkpoint**: Quickstart § 2 passes against the seed.
 
@@ -259,13 +265,13 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Tests first
 
-- [ ] T037 [P] [US4] Write `product/ProductControllerTest` (standalone MockMvc), with 400s naming PascalCase fields:
+- [x] T037 [P] [US4] Write `product/ProductControllerTest` (standalone MockMvc), with 400s naming PascalCase fields:
   - `Name` "1–80", `Description` "1–2000", `PriceCents` "100–100000";
   - `Slug` pattern and reserved words;
   - `Sizes` empty, duplicated or unknown, and `Stock` "≥ 0";
   - a missing `Version` on update is 400;
   - an unreadable body is 400 `bad-request`.
-- [ ] T038 [P] [US4] Write `product/ProductAdminIT`:
+- [x] T038 [P] [US4] Write `product/ProductAdminIT`:
   - create returns 201 `DRAFT`, invisible to the public (`#6013`);
   - publish shows it, and publish without a photo or size is 409 `product-not-publishable`;
   - hide removes it from public reads, and a later read of an order line is unchanged (`#6014`);
@@ -276,14 +282,16 @@ description: "Task list for the BJJ Éire Merch Shop"
   - removing a size with holds is 409 `size-has-holds`;
   - delete is allowed only for a draft no order names (409 `product-not-draft` or `product-has-orders`);
   - every admin write is recorded in the audit log.
-- [ ] T039 [P] [US4] Write `product/ProductPhotoUploadIT`:
+- [x] T039 [P] [US4] Write `product/ProductPhotoUploadIT`:
   - JPEG, PNG and WebP are accepted and return their sha256, and uploading the same bytes twice stores one file;
   - a GIF, or a PNG renamed `.jpg` with JPEG bytes missing, is 415 `unsupported-image`;
   - over 5 MB is 413 or a 400 problem;
   - a 7th photo is 409 `too-many-photos`;
   - removing a photo deletes the file only when no product names it;
   - a competitor token is 403 (`#6017`).
-- [ ] T040 [P] [US4] Write `pages/__tests__/admin-shop-products.integration.test.tsx`:
+
+  As built: the 5 MB limit is checked by the service (413 `payload-too-large`), with the multipart caps raised to 6 MB and 7 MB above it. Past Tomcat's own cap it closes the connection after replying, so no client reliably reads a 413 from it. The IT sends the oversized photo with a `Content-Length`, as a browser does.
+- [x] T040 [P] [US4] Write `pages/__tests__/admin-shop-products.integration.test.tsx`:
   - signed out, it asks for sign-in and sends no request;
   - list with every status;
   - the create form, validation messages, upload and reorder photos, the stock per size;
@@ -292,7 +300,7 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Implementation
 
-- [ ] T041 [US4] Write `product/` admin:
+- [x] T041 [US4] Write `product/` admin:
   - commands `CreateProductCommand`, `UpdateProductCommand` and `StockCommand` with the data-model constraints quoted in T031;
   - `AdminProductDto` with `stock` and `held` per size;
   - service methods for create, update, publish, hide, stock and delete, with version guard, audit and `MERCH_TAG` eviction;
@@ -300,12 +308,16 @@ description: "Task list for the BJJ Éire Merch Shop"
   - `ProductAdminController` under `/api/v1/product/admin`.
 
   Makes T037–T039 pass.
-- [ ] T042 [US4] Write the SPA `features/merch-admin/` products tab:
+
+  As built: `StockLedger` (hold, release, commit) moves to slice 3 with its first caller and its tests (T046). Here nothing changes `held`. Organiser writes are guarded by each size's `held` as read, so a hold taken later makes them miss rather than overwrite it. `product-has-orders` is not needed: only a draft can be deleted, and a draft was never on sale.
+- [x] T042 [US4] Write the SPA `features/merch-admin/` products tab:
   - `/admin/shop` and `/admin/shop/products/:id`, behind the existing organiser sign-in gate;
   - photo upload with progress, and an error for unsupported or too-large files;
   - a stock grid.
 
   Makes T040 pass. List `#6013`, `#6014` and `#6016` in `bjjeire-tests/specs/features/shop.md` (local organiser sign-in).
+
+  As built: `AdminSignInGate` takes an optional `message`, so the shop asks the organiser to sign in "to manage the shop". `lib/api-client.ts` sends the organiser token on `/product/admin…` and `/order/admin…` reads.
 
 **Checkpoint**: Quickstart § 4 passes.
 

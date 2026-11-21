@@ -17,16 +17,17 @@ function stubStorage(storedValue: string | null): void {
 }
 
 function setMatchMedia(prefersDark: boolean): void {
-  vi.mocked(globalThis.matchMedia).mockImplementation((query: string) => ({
-    matches: query === '(prefers-color-scheme: dark)' ? prefersDark : false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }))
+  vi.mocked(globalThis.matchMedia).mockImplementation(
+    (query: string) =>
+      ({
+        matches: query === '(prefers-color-scheme: dark)' ? prefersDark : false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }) as unknown as MediaQueryList
+  )
 }
 
 beforeEach(() => {

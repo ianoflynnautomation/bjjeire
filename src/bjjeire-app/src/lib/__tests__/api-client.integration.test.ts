@@ -180,6 +180,61 @@ describe('request interceptor — auth', () => {
     }
   )
 
+  // #6017, #6025: the shop admin reads list drafts, stock and orders, and answer 401 without a token.
+  it.each([
+    ['product/admin', 'product/admin'],
+    ['/product/admin/0123456789abcdef01234567', 'product/admin/*'],
+    ['product/admin?page=1&pageSize=100', 'product/admin'],
+    ['order/admin', 'order/admin'],
+  ])(
+    'given a signed-in organiser, when the shop admin read %s is sent, then the Bearer token is attached',
+    async (path, route) => {
+      mockMsalInstance.getAllAccounts.mockReturnValue([
+        { username: 'user@test.com' },
+      ])
+      mockMsalInstance.acquireTokenSilent.mockResolvedValue({
+        accessToken: 'test-token',
+      })
+
+      let authHeader: string | null = null
+      server.use(
+        http.get(`${BASE}/${route}`, ({ request }) => {
+          authHeader = request.headers.get('Authorization')
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
+      await api.get(path)
+      expect(authHeader).toBe('Bearer test-token')
+    }
+  )
+
+  it.each([
+    'product',
+    'product/harp-rashguard',
+    'product/administrators-tee',
+    'product/photo/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  ])(
+    'given a signed-in organiser, when the public catalogue read %s is sent, then no token is attached',
+    async path => {
+      mockMsalInstance.getAllAccounts.mockReturnValue([
+        { username: 'user@test.com' },
+      ])
+
+      let authHeader: string | null = 'unset'
+      server.use(
+        http.get(`${BASE}/${path}`, ({ request }) => {
+          authHeader = request.headers.get('Authorization')
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
+      await api.get(path)
+      expect(authHeader).toBeNull()
+      expect(mockMsalInstance.acquireTokenSilent).not.toHaveBeenCalled()
+    }
+  )
+
   it.each([
     'bjjeire-competition',
     'bjjeire-competition/administrators-cup',

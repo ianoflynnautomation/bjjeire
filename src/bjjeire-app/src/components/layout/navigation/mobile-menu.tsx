@@ -33,7 +33,6 @@ export const MobileMenu = function MobileMenu({
           <NavLink
             key={id}
             to={to}
-            viewTransition
             onClick={onLinkClick}
             onMouseEnter={() => prefetch(id)}
             onFocus={() => prefetch(id)}

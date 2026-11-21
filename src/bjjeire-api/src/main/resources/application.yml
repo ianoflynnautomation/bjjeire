@@ -4,11 +4,13 @@ spring:
   threads:
     virtual:
       enabled: true
-  # Product photo uploads (research R4): 5 MB a photo, one photo per request.
+  # Product photo uploads (research R4): one photo per request. The 5 MB photo limit is checked by the product
+  # service, which answers 413 with a problem document. These are the hard caps above it: past them Tomcat answers
+  # and closes the connection, so no client reliably reads the reply.
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      max-file-size: 6MB
+      max-request-size: 7MB
   # Event publication registry (ADR-0017). A completed publication is deleted: its listener is done, and keeping it
   # would only keep data. Incomplete ones are resubmitted by EventPublicationSweep.
   modulith:

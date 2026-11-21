@@ -5,19 +5,24 @@ import { API_BASE_PATH, API_RESOURCE_ROUTES } from '@/config/api-routes'
 import { logger } from '@/lib/logger'
 
 /**
- * Reads are public and carry no token, except the organiser's competition
- * reads, which list drafts or private sign-up details and answer 401 without
- * one: `/bjjeire-competition/admin…` and `/bjjeire-competition/{id}/registration`.
+ * Reads are public and carry no token, except the organiser's reads, which
+ * list drafts, stock or private details and answer 401 without one:
+ * `/bjjeire-competition/admin…`, `/bjjeire-competition/{id}/registration`,
+ * and the shop's `/product/admin…` and `/order/admin…` (ADR-0016).
  */
 function isAdminRead(url: string | undefined): boolean {
   const path = `/${(url ?? '').replace(/^\/+/u, '')}`
-  const admin = API_RESOURCE_ROUTES.bjjEireCompetitionsAdmin
   const route = path.split('?')[0]
-  const { bjjEireCompetitions } = API_RESOURCE_ROUTES
+  const {
+    bjjEireCompetitions,
+    bjjEireCompetitionsAdmin,
+    productsAdmin,
+    ordersAdmin,
+  } = API_RESOURCE_ROUTES
   return (
-    path === admin ||
-    path.startsWith(`${admin}/`) ||
-    path.startsWith(`${admin}?`) ||
+    [bjjEireCompetitionsAdmin, productsAdmin, ordersAdmin].some(
+      admin => route === admin || route.startsWith(`${admin}/`)
+    ) ||
     (route.startsWith(`${bjjEireCompetitions}/`) &&
       /^\/[^/]+\/registration(?:\/|$)/u.test(
         route.slice(bjjEireCompetitions.length)

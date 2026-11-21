@@ -44,7 +44,7 @@ const { user } = renderWithProviders(<GymsPage />, {
 
 ### API responses use MSW
 - Integration tests share the server in `@/testing/msw/server`. `setup-integration-tests.ts` starts it, resets handlers, and closes it. Do not call `setupServer`, `listen`, or `close` in a test file
-- An unhandled request fails the test (`onUnhandledRequest: 'error'`)
+- An unhandled request fails the test (`onUnhandledFrame: 'error'`). The integration jsdom document URL is `http://localhost/` so API calls stay same-origin
 - Page tests use the feature helpers in `src/features/{feature}/testing/*-test-helpers.tsx` (`renderGymsPage`, `seedGyms`, `seedGymsError`). A new feature gets its `testing/` folder before its page tests
 - Override a response with `server.use(...)` and the helpers in `@/testing/utils/msw-helpers`. Build URLs with `testApiUrl(API_ROUTES.x)`, never a literal
 - Do not `vi.mock('@/lib/api-client')`

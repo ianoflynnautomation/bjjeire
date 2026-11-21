@@ -23,7 +23,6 @@ export const DesktopNavLinks = function DesktopNavLinks(): JSX.Element {
         <NavLink
           key={item.id}
           to={item.to}
-          viewTransition
           onMouseEnter={() => prefetch(item.id)}
           onFocus={() => prefetch(item.id)}
           className={({ isActive }) =>

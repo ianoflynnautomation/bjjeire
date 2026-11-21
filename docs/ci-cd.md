@@ -226,7 +226,7 @@ flowchart TD
 | `check_openapi_breaking` | after contract | Compares the generated spec against the last published contract in GHCR. **This is a merge blocker.** |
 | `check_frontend_api_compat` | after contract | Downloads the spec into the frontend, regenerates API types, and runs `tsc --noEmit`. Catches an API change that would break the SPA before either side merges. |
 | `frontend_typecheck` | `frontend` | `tsc --noEmit`. Parallel with the other frontend jobs. |
-| `frontend_lint` | `frontend` | ESLint (`--max-warnings 0`) and Prettier check. |
+| `frontend_lint` | `frontend` | Oxlint (`--max-warnings 0`) and Prettier check. |
 | `frontend_unit` | `frontend` | Vitest unit project, JUnit XML uploaded as `frontend-vitest-unit`. |
 | `frontend_integration` | `frontend` | Vitest integration project, JUnit XML uploaded as `frontend-vitest-integration`. |
 | `frontend_pact` | `frontend` or `java_api` | `npm run test:pact`. Pact JSON uploaded as `frontend-pact`. An API-only change still produces the current SPA pact so the provider can replay it. |

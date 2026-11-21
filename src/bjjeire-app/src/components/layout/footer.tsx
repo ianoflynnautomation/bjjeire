@@ -38,7 +38,6 @@ const Footer = function Footer({
                 <li key={item.id}>
                   <Link
                     to={item.to}
-                    viewTransition
                     className="font-medium text-primary-700 underline-offset-2 transition-colors hover:text-primary-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-focus dark:text-primary-300 dark:hover:text-primary-200"
                     data-testid={FooterTestIds.QUICK_LINK}
                   >

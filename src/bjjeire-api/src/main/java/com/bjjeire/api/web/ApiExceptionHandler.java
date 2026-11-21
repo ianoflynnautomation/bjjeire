@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -116,6 +117,21 @@ public class ApiExceptionHandler {
         detail.setTitle("Bad Request");
         attachTraceId(detail, request);
         return ResponseEntity.badRequest().body(detail);
+    }
+
+    /**
+     * An upload over {@code spring.servlet.multipart.max-file-size}, the hard cap above the 5 MB photo limit. Tomcat
+     * closes the connection after this reply, so a client may see a reset instead.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ProblemDetail> handleUploadTooLarge(
+            MaxUploadSizeExceededException exception, HttpServletRequest request) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONTENT_TOO_LARGE, "The file is too large. Send one of at most 5 MB.");
+        detail.setType(ProblemTypes.PAYLOAD_TOO_LARGE);
+        detail.setTitle("Content Too Large");
+        attachTraceId(detail, request);
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(detail);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

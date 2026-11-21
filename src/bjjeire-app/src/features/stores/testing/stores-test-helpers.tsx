@@ -7,6 +7,7 @@ import {
 } from '@/testing/factories/store.factory'
 import type { StoreDto } from '@/types/stores'
 import ShopPage from '@/pages/ShopPage'
+import type { FeatureFlagName } from '@/features/feature-flags/definitions'
 
 export const STORES_API = testApiUrl(API_ROUTES.stores)
 
@@ -21,13 +22,16 @@ export const seedStoresPaged = seeds.seedPaged
 export const seedStoresError = seeds.seedError
 export const seedStoresPending = seeds.seedPending
 
-export function renderShopPage(): ReturnType<typeof renderWithProviders> {
+export function renderShopPage(
+  flags: Partial<Record<FeatureFlagName, boolean>> = {}
+): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(<ShopPage />, {
     featureFlags: {
       BjjEvents: true,
       Gyms: true,
       Competitions: true,
       Stores: true,
+      ...flags,
     },
   })
 }

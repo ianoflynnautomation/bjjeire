@@ -4,9 +4,9 @@
 
 **Created**: 2026-11-17
 
-**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built. Slice 0 (plumbing, API side of `#6026`, `#6027`) built. Living spec: [specs/features/shop.md](../features/shop.md). Slices 2–5 not built.
+**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built. Slice 0 (plumbing, API side of `#6026`, `#6027`) built. Slice 2 (US2 and US4, `#6001`–`#6004`, `#6013`–`#6017`) built. Living spec: [specs/features/shop.md](../features/shop.md). Slices 3–5 not built.
 
-**Input**: User description: "i would like a add a shop feature in which it should allow me to sell bjjeire merch. I want to be able to sell rashguards, shorts and tshirts. you should rename stores feature to shop and add feature at home of page to allow users to buy bjjeire stuff. under this should be similar to competitions in which  you can shop other ireland stores. users should be able to pay via strip the same as competitions. it should have admin page and have a admin dasnboard of sales, inventory etc."
+**Input**: User description: "i would like a add a shop feature in which it should allow me to sell bjjeire merch. I want to be able to sell rashguards, shorts and tshirts. you should rename stores feature to shop and add feature at home of page to allow users to buy bjjeire stuff. under this should be similar to competitions in which you can shop other ireland stores. users should be able to pay via strip the same as competitions. it should have admin page and have a admin dasnboard of sales, inventory etc."
 
 ## Terms
 
@@ -24,7 +24,7 @@
 - **Shopper**: anyone buying merch.
 - **Directory store**: a store in the existing directory of other Irish BJJ stores. BJJ Éire does not sell its goods; it only links to them.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 User stories are prioritized journeys. Each story is independently testable.
 
@@ -186,7 +186,7 @@ The merch shop can be switched off as a whole.
 - A delivery address outside the Republic of Ireland and Northern Ireland: refused before payment, with an explanation.
 - The organiser changes the delivery fee while a shopper is paying: the shopper pays the fee they were shown at checkout.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -248,10 +248,11 @@ The merch shop can be switched off as a whole.
   - its payment and refund records.
 
   Contract to be added at `specs/database-contracts/merch-order.md`.
+
 - **Payment / refund record**: what was charged or returned for an order, when, and whether it succeeded. Holds no card details.
 - **Directory store**: the existing store record (`specs/database-contracts/store.md`), unchanged.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -264,7 +265,7 @@ The merch shop can be switched off as a whole.
 - **SC-007**: The confirmation email reaches the shopper within 5 minutes of payment.
 - **SC-008**: Existing directory browsing shows no change in behaviour apart from the new name and address, verified by the existing store acceptance tests passing against Shop.
 
-## Acceptance Coverage *(mandatory)*
+## Acceptance Coverage _(mandatory)_
 
 Visitor-observable scenarios are proven at T6 by Playwright in `bjjeire-tests`.
 Its `playwright-test-planner` reads this section and turns the listed requirement issues into

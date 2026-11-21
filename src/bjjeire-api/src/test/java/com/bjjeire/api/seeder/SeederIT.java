@@ -11,6 +11,11 @@ import com.bjjeire.api.config.LocalSignInTokens;
 import com.bjjeire.api.config.SeederProperties;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.product.Product;
+import com.bjjeire.api.product.ProductKind;
+import com.bjjeire.api.product.ProductPhotoStore;
+import com.bjjeire.api.product.ProductStatus;
+import com.bjjeire.api.product.SizeId;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.RegistrationStatus;
 import com.bjjeire.api.store.Store;
@@ -249,6 +254,63 @@ class SeederIT extends MongoIntegrationTest {
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException(impossible);
         }
+    }
+
+    /**
+     * The merch test seed (T034): three published products, a sold-out size, a low size, and every photo they name
+     * loaded into GridFS so the shop shows them.
+     */
+    @Test
+    @Tag("#6001")
+    @Tag("#6002")
+    void shouldSeedProductsAndTheirPhotosOnlyFromTheTestDataset() {
+        runner.run("--force");
+        assertThat(mongoTemplate.count(new Query(), Product.class)).isZero();
+
+        SeederRunner testRunner = testDatasetRunner();
+        testRunner.run("--force");
+
+        assertThat(testRunner.getExitCode()).isZero();
+        List<Product> seeded = mongoTemplate.findAll(Product.class);
+        assertThat(seeded)
+                .extracting(Product::getKind)
+                .containsExactlyInAnyOrder(ProductKind.RASHGUARD, ProductKind.SHORTS, ProductKind.T_SHIRT);
+        ProductPhotoStore photos = new ProductPhotoStore(mongoTemplate);
+        assertThat(seeded).allSatisfy(product -> {
+            assertThat(product.getStatus()).isEqualTo(ProductStatus.PUBLISHED);
+            assertThat(product.getPhotos())
+                    .isNotEmpty()
+                    .allSatisfy(photo -> assertThat(photos.load(photo))
+                            .hasValueSatisfying(
+                                    stored -> assertThat(stored.contentType()).isEqualTo("image/png")));
+        });
+        Product rashguard = seeded.stream()
+                .filter(product -> product.getKind() == ProductKind.RASHGUARD)
+                .findFirst()
+                .orElseThrow();
+        assertThat(rashguard.getSizes())
+                .filteredOn(size -> size.getId() == SizeId.XL)
+                .singleElement()
+                .satisfies(size -> assertThat(size.getStock()).isZero());
+
+        // Seeding again stores each photo once.
+        testDatasetRunner().run("--force");
+        assertThat(mongoTemplate
+                        .getCollection(ProductPhotoStore.BUCKET + ".files")
+                        .countDocuments())
+                .isEqualTo(seeded.stream()
+                        .flatMap(product -> product.getPhotos().stream())
+                        .distinct()
+                        .count());
+    }
+
+    @Test
+    void shouldValidateTestProductFilesStrictlyAgainstTheJavaDomain() {
+        SeederRunner testRunner = testDatasetRunner();
+
+        testRunner.run("--validate", "--collection", "Product");
+
+        assertThat(testRunner.getExitCode()).isZero();
     }
 
     @Test

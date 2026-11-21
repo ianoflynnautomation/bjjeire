@@ -102,6 +102,27 @@ public final class ApiProblems {
         return problem(HttpStatus.SERVICE_UNAVAILABLE, ProblemTypes.SERVICE_UNAVAILABLE, "Service Unavailable", detail);
     }
 
+    /**
+     * A 415 for an upload whose content is not a type the route accepts.
+     *
+     * @param type a {@link ProblemTypes} URI
+     * @param detail what the caller may send instead
+     * @return the exception to throw
+     */
+    public static ResponseStatusException unsupportedMediaType(URI type, String detail) {
+        return problem(HttpStatus.UNSUPPORTED_MEDIA_TYPE, type, "Unsupported Media Type", detail);
+    }
+
+    /**
+     * A 413 for a body over a limit the route sets.
+     *
+     * @param detail the limit, so the caller can send something smaller
+     * @return the exception to throw
+     */
+    public static ResponseStatusException payloadTooLarge(String detail) {
+        return problem(HttpStatus.CONTENT_TOO_LARGE, ProblemTypes.PAYLOAD_TOO_LARGE, "Content Too Large", detail);
+    }
+
     private static ResponseStatusException problem(HttpStatus status, URI type, String title, String detail) {
         ResponseStatusException exception = new ResponseStatusException(status, detail);
         exception.setType(type);

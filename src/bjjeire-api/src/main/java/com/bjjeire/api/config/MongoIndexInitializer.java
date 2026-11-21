@@ -7,6 +7,7 @@ import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.product.Product;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.StripeEvent;
 import com.bjjeire.api.store.Store;
@@ -147,6 +148,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .named("ix_store_isActive_name"));
 
         ensureBjjEireCompetitionIndexes();
+        ensureProductIndexes();
         ensureCompetitorIndexes();
         ensureRegistrationIndexes();
     }
@@ -234,6 +236,24 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .on("subject", Sort.Direction.ASC)
                         .named("ix_deletedCompetitor_issuer_subject_unique")
                         .unique());
+    }
+
+    private void ensureProductIndexes() {
+        ensure(
+                Product.ENTITY_NAME,
+                new Index()
+                        .on("slug", Sort.Direction.ASC)
+                        .named("ux_product_slug")
+                        .unique());
+
+        // The public catalogue: published products by kind, then name (#6001).
+        ensure(
+                Product.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("kind", Sort.Direction.ASC)
+                        .on("name", Sort.Direction.ASC)
+                        .named("ix_product_status_kind_name"));
     }
 
     private void ensureBjjEireCompetitionIndexes() {

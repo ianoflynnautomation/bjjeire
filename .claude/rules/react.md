@@ -29,7 +29,7 @@ export const MyComponent = function MyComponent({
   // ...
 }
 ```
-- Named function, explicit `): JSX.Element` return type (ESLint requires it), props interface `{ComponentName}Props` directly above. No `React.FC`, no `any`
+- Named function, explicit `): JSX.Element` return type (Oxlint requires it), props interface `{ComponentName}Props` directly above. No `React.FC`, no `any`
 - Do not wrap a component in `memo`, and do not add `useMemo` or `useCallback`. The React Compiler (`reactCompilerPreset()` in `vite.base.config.ts`, also active in tests) memoizes components and render values. Existing calls can stay. Add one only when the compiler bails out of that function
 - Event handlers are plain functions. Derived values, including `data ?? []`, are plain expressions
 - A `useEffect` that returns a cleanup needs an explicit return type: `(): (() => void) => { ... }`
@@ -64,6 +64,6 @@ export const MyComponent = function MyComponent({
 - Interactive or testable components take a `dataTestId` prop and set `data-testid` on the root element. The value is a constant from `src/constants/*DataTestIds.ts`, passed in by the page
 
 ## Checks
-- Order: `npm run lint`, `npm run typecheck`, `npm test`. `npm run lint` runs ESLint with `--fix`, so it rewrites files
+- Order: `npm run lint`, `npm run typecheck`, `npm test`. `npm run lint` runs Oxlint with `--fix`, so it rewrites files
 - Run them through the dev container: `devcontainer exec --workspace-folder . npm --prefix src/bjjeire-app run typecheck`
 - Tests: see `testing.md` and `src/bjjeire-app/src/testing/README.md`

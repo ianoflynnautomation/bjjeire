@@ -15,7 +15,7 @@ const APP_DIR = 'src/bjjeire-app';
 const APP_SOURCE = /^src\/bjjeire-app\/(src\/|package\.json$|tsconfig.*\.json$|vite.*\.ts$|vitest.*\.ts$)/;
 const API_SOURCE = /^src\/bjjeire-api\/(src\/|pom\.xml$)/;
 const LINTABLE = /\.(ts|tsx)$/;
-const STARTUP_ERROR = /Startup Error|Cannot find native binding/;
+const STARTUP_ERROR = /Startup Error|Cannot find native binding|Unable to resolve @typescript\/typescript-/;
 const MIN_JAVA = 25;
 const MAX_OUTPUT = 6000;
 
@@ -62,11 +62,19 @@ const checkApp = () => {
   const lintable = appFiles.filter(file => LINTABLE.test(file) && existsSync(path.join(root, file)));
   if (lintable.length > 0) {
     const relative = lintable.map(file => path.relative(APP_DIR, file));
-    const lint = run(bin('eslint'), ['--no-warn-ignored', '--max-warnings', '0', ...relative], appRoot);
-    if (!lint.ok) failures.push(`eslint\n${lint.output}`);
+    const lint = run(
+      bin('oxlint'),
+      ['--max-warnings', '0', '--no-error-on-unmatched-pattern', ...relative],
+      appRoot
+    );
+    if (STARTUP_ERROR.test(lint.output)) {
+      skipped.push('oxlint native binding is for the dev container; run lint there');
+    } else if (!lint.ok) failures.push(`oxlint\n${lint.output}`);
   }
   const types = run(bin('tsc'), ['--noEmit'], appRoot);
-  if (!types.ok) failures.push(`tsc --noEmit\n${types.output}`);
+  if (STARTUP_ERROR.test(types.output)) {
+    skipped.push('tsc native binary is for the dev container; run typecheck there');
+  } else if (!types.ok) failures.push(`tsc --noEmit\n${types.output}`);
 
   const unit = run(bin('vitest'), ['run', '--project', 'unit', '--changed', 'HEAD', '--passWithNoTests'], appRoot);
   if (STARTUP_ERROR.test(unit.output)) skipped.push('vitest could not start; run checks in the dev container');
