@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       zizmor-enforce: false
 
@@ -34,11 +34,11 @@ jobs:
     outputs:
       changes: ${{ steps.changes.outputs.changes }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - id: changes
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/detect-changes@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
         with:
           filters: .github/path-filters.yml
 
@@ -48,7 +48,7 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       dependency-review-fail-on-severity: high
       dependency-review-comment-summary: on-failure
@@ -63,7 +63,7 @@ jobs:
     permissions:
       contents: read
       checks: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/maven-build-test.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       working-directory: src/bjjeire-api
       java-version: "25"
@@ -79,24 +79,24 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Set up JDK
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961  # v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           java-version: "25"
           distribution: temurin
           cache: maven
           cache-dependency-path: src/bjjeire-api/pom.xml
       - name: Generate current OpenAPI contract (springdoc)
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/maven-openapi-export@a9bc3cb4b8ea83909408c94409b9de360160b96b # v1.8.0
         with:
           working-directory: src/bjjeire-api
           it-test: OpenApiContractIT
           output-path: ${{ github.workspace }}/artifacts/openapi/openapi-v1.json
       - name: Upload OpenAPI contract
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: openapi-v1-json
           path: artifacts/openapi/openapi-v1.json
@@ -113,16 +113,16 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Download current OpenAPI contract
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: openapi-v1-json
           path: artifacts/openapi
       - name: Compare against last published contract
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@a9bc3cb4b8ea83909408c94409b9de360160b96b  # v1.8.0
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/openapi-breaking-gate@a9bc3cb4b8ea83909408c94409b9de360160b96b # v1.8.0
         with:
           current-spec: artifacts/openapi/openapi-v1.json
           image: ghcr.io/${{ github.repository_owner }}/bjjeire-openapi-contract
@@ -137,7 +137,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Check Frontend API Compatibility
       working-directory: src/bjjeire-app
@@ -159,7 +159,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Typecheck
       working-directory: src/bjjeire-app
@@ -177,7 +177,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Lint
       working-directory: src/bjjeire-app
@@ -197,7 +197,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Unit Tests
       working-directory: src/bjjeire-app
@@ -222,7 +222,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Integration Tests
       working-directory: src/bjjeire-app
@@ -249,7 +249,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Pact
       working-directory: src/bjjeire-app
@@ -271,7 +271,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Frontend Build
       working-directory: src/bjjeire-app
@@ -290,16 +290,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Download consumer pact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: frontend-pact
           path: src/bjjeire-api/pacts
       - name: Set up JDK
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961  # v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           java-version: "25"
           distribution: temurin
@@ -321,7 +321,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1  # npm download cache
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/node-build-test.yml@f69cd6a0c7977cb516ae8f7fe8fbdb1b7c1bc0a1 # npm download cache
     with:
       job-name: Test Frontend Browser
       working-directory: src/bjjeire-app
@@ -350,7 +350,7 @@ jobs:
       id-token: write
       pages: write
       pull-requests: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/playwright-docker-tests.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       compose-files: |
         docker-compose.yml
@@ -409,7 +409,7 @@ jobs:
       packages: read
       id-token: write
       pull-requests: write
-    uses: ianoflynnautomation/aplaytest/.github/workflows/atest-analyze.yml@04f907064c4b6a82eadd4bc454b12bf9a46665a2  # v0.1.1
+    uses: ianoflynnautomation/aplaytest/.github/workflows/atest-analyze.yml@04f907064c4b6a82eadd4bc454b12bf9a46665a2 # v0.1.1
     with:
       results-artifact: playwright-docker-json-results
       history-account: ${{ vars.ATEST_HISTORY_ACCOUNT }}
@@ -433,7 +433,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       download-artifact-name: maven-test-results
       download-artifact-pattern: ""
@@ -458,7 +458,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       download-artifact-name: ""
       download-artifact-pattern: frontend-vitest-*
@@ -479,7 +479,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/package-test-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       download-artifact-name: playwright-docker-json-results
       download-artifact-pattern: ""
@@ -502,7 +502,7 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/audit-report.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
     with:
       product: BjjEire
       title: BjjEire PR Validation — Audit-Ready Compliance Release Report
@@ -544,7 +544,7 @@ jobs:
       - audit_report
     steps:
       - name: Verify all required checks succeeded or were intentionally skipped
-        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@513f5c1c68f1cacda89d32f36167f9187b218366  # v1.6.2
+        uses: ianoflynnautomation/bjjeire-ci-templates/actions/check-required-jobs@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
         with:
           needs-json: ${{ toJson(needs) }}
           summary-title: PR checks

@@ -1,6 +1,5 @@
 version: 2
 updates:
-
   - package-ecosystem: maven
     directory: /src/bjjeire-api
     schedule:
@@ -72,6 +71,10 @@ updates:
       - area/ci
     commit-message:
       prefix: ci
+    ignore:
+      # Held on v1.6.2 in ci-pr.yml: v1.8.0's actionlint step fails posting reviewdog's check run (404).
+      # Remove once a bjjeire-ci-templates release fixes it.
+      - dependency-name: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/lint-workflows.yml
 
   - package-ecosystem: docker
     directory: /src/bjjeire-api
@@ -92,4 +95,3 @@ updates:
       - area/frontend
     commit-message:
       prefix: chore
-
