@@ -48,7 +48,7 @@ jobs:
       contents: read
       pull-requests: write
       security-events: write
-    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@513f5c1c68f1cacda89d32f36167f9187b218366 # v1.6.2
+    uses: ianoflynnautomation/bjjeire-ci-templates/.github/workflows/security-scan.yml@a9bc3cb4b8ea83909408c94409b9de360160b96b # v1.8.0
     with:
       dependency-review-fail-on-severity: high
       dependency-review-comment-summary: on-failure
