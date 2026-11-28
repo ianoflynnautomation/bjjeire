@@ -1,0 +1,187 @@
+package com.bjjeire.api.order;
+
+import com.bjjeire.api.common.StripeMetadata;
+import com.bjjeire.api.common.StripeSecrets;
+import com.bjjeire.api.common.StripeSignature;
+import com.bjjeire.api.config.BjjEireProperties;
+import com.bjjeire.api.order.OrderMetrics.WebhookRejection;
+import com.bjjeire.api.web.ApiProblems;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+/**
+ * The shop's webhook (contracts/stripe-webhook.md). Verifies the signature against the shop's own secret, reads the few
+ * fields it needs with Jackson, and handles only objects marked {@code bjjeireKind = order}: Stripe sends every event
+ * to both endpoints under one id, so registration's are acknowledged and left alone, unrecorded (research R2). The
+ * event id goes into {@link OrderStripeEvent} first and is marked handled once the change is saved, so a failure is
+ * applied again on Stripe's retry.
+ */
+@Slf4j
+@Service
+public class OrderWebhookServiceImpl implements OrderWebhookService {
+    static final String SESSION_COMPLETED = "checkout.session.completed";
+    static final String SESSION_ASYNC_SUCCEEDED = "checkout.session.async_payment_succeeded";
+    static final String SESSION_EXPIRED = "checkout.session.expired";
+    static final String SESSION_ASYNC_FAILED = "checkout.session.async_payment_failed";
+    static final String REFUND_CREATED = "refund.created";
+    static final String REFUND_UPDATED = "refund.updated";
+    static final String REFUND_FAILED = "refund.failed";
+
+    private static final Set<String> HANDLED = Set.of(
+            SESSION_COMPLETED,
+            SESSION_ASYNC_SUCCEEDED,
+            SESSION_EXPIRED,
+            SESSION_ASYNC_FAILED,
+            REFUND_CREATED,
+            REFUND_UPDATED,
+            REFUND_FAILED);
+    private static final Duration LEDGER_TTL = Duration.ofDays(30);
+
+    private final OrderService orderService;
+    private final MongoTemplate mongoTemplate;
+    private final ObjectMapper objectMapper;
+    private final Clock clock;
+    private final String webhookSecret;
+    private final OrderMetrics metrics;
+
+    public OrderWebhookServiceImpl(
+            OrderService orderService,
+            MongoTemplate mongoTemplate,
+            ObjectMapper objectMapper,
+            Clock clock,
+            BjjEireProperties properties,
+            OrderMetrics metrics) {
+        this.orderService = orderService;
+        this.mongoTemplate = mongoTemplate;
+        this.objectMapper = objectMapper;
+        this.clock = clock;
+        this.webhookSecret = properties.stripe().shopWebhookSecret();
+        this.metrics = metrics;
+    }
+
+    @Override
+    public void handle(String payload, String signatureHeader) {
+        if (!StripeSecrets.isConfigured(webhookSecret)) {
+            // A public placeholder secret would let anyone sign a "paid" event. Stripe retries a 503.
+            metrics.webhookRejected(WebhookRejection.UNCONFIGURED);
+            log.error("Shop Stripe webhook refused: STRIPE_SHOP_WEBHOOK_SECRET is blank or a placeholder");
+            throw ApiProblems.serviceUnavailable("Payment confirmation is not configured.");
+        }
+        verify(payload, signatureHeader);
+        JsonNode event = read(payload);
+        String eventId = text(event.at("/id"));
+        String type = text(event.at("/type"));
+        if (eventId == null || type == null) {
+            metrics.webhookRejected(WebhookRejection.MALFORMED);
+            log.warn("Shop Stripe webhook rejected: the event has no id or type");
+            throw ApiProblems.badRequest("The event has no id or type.");
+        }
+        if (!HANDLED.contains(type)) {
+            log.debug("Stripe event {} of type {} ignored", eventId, type);
+            return;
+        }
+        if (!StripeMetadata.KIND_ORDER.equals(text(event.at("/data/object/metadata/" + StripeMetadata.KIND)))) {
+            // Registration's object, or one made before the shop existed. Not recorded: registration's ledger takes
+            // the same event id.
+            log.debug("Stripe event {} is not the shop's; ignored", eventId);
+            return;
+        }
+
+        Instant now = clock.instant();
+        try {
+            mongoTemplate.insert(OrderStripeEvent.builder()
+                    .id(eventId)
+                    .type(type)
+                    .receivedAt(now)
+                    .expiresAt(now.plus(LEDGER_TTL))
+                    .handled(false)
+                    .build());
+        } catch (DuplicateKeyException seenBefore) {
+            OrderStripeEvent earlier = mongoTemplate.findById(eventId, OrderStripeEvent.class);
+            if (earlier != null && earlier.isHandled()) {
+                log.info("Stripe event {} already handled by the shop", eventId);
+                return;
+            }
+            log.warn("Stripe event {} was recorded but not finished; applying it again", eventId);
+        }
+
+        // A failure propagates: the webhook answers 5xx, the entry stays unhandled, and Stripe's retry applies it.
+        dispatch(type, event.at("/data/object"));
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("_id").is(eventId)), Update.update("handled", true), OrderStripeEvent.class);
+    }
+
+    private void dispatch(String type, JsonNode object) {
+        if (type.startsWith("refund.")) {
+            // Matched by the metadata the refund was created with, never by email (contracts/stripe-webhook.md).
+            orderService.onRefundUpdated(
+                    text(object.at("/metadata/orderId")),
+                    text(object.at("/id")),
+                    REFUND_FAILED.equals(type) ? "failed" : text(object.at("/status")),
+                    text(object.at("/failure_reason")));
+            return;
+        }
+        String orderId = text(object.at("/client_reference_id"));
+        if (orderId == null) {
+            orderId = text(object.at("/metadata/orderId"));
+        }
+        String sessionId = text(object.at("/id"));
+        switch (type) {
+            case SESSION_COMPLETED, SESSION_ASYNC_SUCCEEDED -> {
+                if (!"paid".equals(text(object.at("/payment_status")))) {
+                    // A delayed payment method: Stripe sends async_payment_succeeded when the money arrives.
+                    log.info("Checkout session {} completed but not yet paid", sessionId);
+                    return;
+                }
+                orderService.onCheckoutPaid(orderId, sessionId, text(object.at("/payment_intent")));
+            }
+            case SESSION_EXPIRED, SESSION_ASYNC_FAILED -> orderService.onCheckoutExpired(orderId, sessionId);
+            default -> log.debug("Stripe event type {} not handled", type);
+        }
+    }
+
+    private void verify(String payload, String signatureHeader) {
+        StripeSignature.Verdict verdict = StripeSignature.verify(payload, signatureHeader, webhookSecret, clock);
+        if (verdict.valid()) {
+            return;
+        }
+        metrics.webhookRejected(WebhookRejection.SIGNATURE);
+        if (verdict.outcome() == StripeSignature.Outcome.MISSING) {
+            log.warn("Shop Stripe webhook rejected: no Stripe-Signature header");
+            throw ApiProblems.badRequest("The Stripe-Signature header is missing.");
+        }
+        log.warn("Shop Stripe webhook rejected: {}", verdict.reason());
+        throw ApiProblems.badRequest("The Stripe-Signature header does not match the body.");
+    }
+
+    private JsonNode read(String payload) {
+        try {
+            return objectMapper.readTree(payload);
+        } catch (JacksonException unreadable) {
+            metrics.webhookRejected(WebhookRejection.MALFORMED);
+            log.warn("Shop Stripe webhook rejected: the signed body is not JSON");
+            throw ApiProblems.badRequest("The event body is not JSON.");
+        }
+    }
+
+    private static String text(JsonNode node) {
+        return node == null
+                        || node.isMissingNode()
+                        || node.isNull()
+                        || node.asString().isBlank()
+                ? null
+                : node.asString();
+    }
+}

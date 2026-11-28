@@ -51,8 +51,12 @@ bjjeire:
     # Any non-placeholder value counts as configured. Short, so it never matches gitleaks' Stripe-key rule.
     secret-key: sk_test_fake
     webhook-secret: whsec_integration_test_secret
+    # The shop's own endpoint (ADR-0016). OrderIntegrationTest.SHOP_WEBHOOK_SECRET must match.
+    shop-webhook-secret: whsec_shop_integration_test_secret
     success-url-base: http://localhost:5173
   registration:
+    hold-sweep-initial-delay: PT24H
+  order:
     hold-sweep-initial-delay: PT24H
   # The event publication sweep is called directly, never on a timer (EventPublicationSweep).
   events:

@@ -11,6 +11,7 @@ import com.bjjeire.api.common.UriService;
 import com.bjjeire.api.web.ApiProblems;
 import com.bjjeire.api.web.ProblemTypes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -71,6 +72,27 @@ public class ProductServiceImpl implements ProductService {
                     Product.class);
             return product == null ? null : ProductMapper.toDto(product);
         }));
+    }
+
+    @Override
+    public List<ProductOffer> getOffers(Collection<String> ids) {
+        return mongoTemplate.find(Query.query(Criteria.where("_id").in(ids)), Product.class).stream()
+                .map(ProductServiceImpl::toOffer)
+                .toList();
+    }
+
+    private static ProductOffer toOffer(Product product) {
+        Map<SizeId, Integer> available = new EnumMap<>(SizeId.class);
+        sizesOf(product).forEach(size -> available.put(size.getId(), ProductRules.available(size)));
+        List<String> photos = product.getPhotos() == null ? List.of() : product.getPhotos();
+        return new ProductOffer(
+                product.getId(),
+                product.getName(),
+                product.getKind(),
+                product.getPriceCents(),
+                product.getStatus() == ProductStatus.PUBLISHED,
+                photos.isEmpty() ? null : photos.getFirst(),
+                available);
     }
 
     @Override

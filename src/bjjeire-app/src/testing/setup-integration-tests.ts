@@ -7,6 +7,7 @@ import { resetBjjEireCompetitionIdCounter } from './factories/bjjeire-competitio
 import { resetResultIdCounter } from './factories/result.factory'
 import { resetRegistrationIdCounter } from './factories/registration.factory'
 import { resetProductIdCounter } from './factories/product.factory'
+import { resetOrderIdCounter } from './factories/order.factory'
 import './setup-tests'
 
 vi.mock('@/config/env', () => ({
@@ -32,6 +33,7 @@ afterEach(() => {
   resetCompetitionIdCounter()
   resetBjjEireCompetitionIdCounter()
   resetProductIdCounter()
+  resetOrderIdCounter()
   resetResultIdCounter()
   resetRegistrationIdCounter()
 })

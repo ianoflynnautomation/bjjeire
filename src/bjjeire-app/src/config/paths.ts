@@ -29,6 +29,21 @@ export const paths = {
     label: 'Product',
     getHref: (slug: string) => `/shop/products/${encodeURIComponent(slug)}`,
   },
+  basket: {
+    path: '/shop/basket',
+    label: 'Basket',
+    getHref: () => '/shop/basket',
+  },
+  checkout: {
+    path: '/shop/checkout',
+    label: 'Checkout',
+    getHref: () => '/shop/checkout',
+  },
+  order: {
+    path: '/shop/orders/:id',
+    label: 'Order',
+    getHref: (id: string) => `/shop/orders/${encodeURIComponent(id)}`,
+  },
   adminShop: {
     path: '/admin/shop',
     label: 'Manage shop',

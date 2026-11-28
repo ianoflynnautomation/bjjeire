@@ -352,6 +352,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/v1/order': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Start a guest checkout
+     * @description Holds the stock of every line for 30 minutes and returns a Stripe Checkout page for the items plus delivery, at the shop's own prices. No account is needed. orderKey is returned this once: keep it to read the order. Each line names the price the shopper saw and the body names the delivery fee they saw; if either changed, nothing is held and 409 basket-changed lists what changed. Not idempotent: each call makes a new order.
+     */
+    post: operations['createOrder']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/order/{id}/checkout': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Return to payment
+     * @description The order's open Stripe Checkout page again, while its hold lasts. orderKey is not returned. 409 hold-expired once the hold ended, and 409 payment-received when Stripe already has the money.
+     */
+    post: operations['resumeCheckout_1']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/v1/gym': {
     parameters: {
       query?: never
@@ -627,6 +667,46 @@ export interface paths {
      * @description JPEG, PNG or WebP. An unknown hash answers 404.
      */
     get: operations['getPhoto']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/order/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get an order with its key
+     * @description The order's items, amounts, delivery details and status, for the holder of the key in its link. A wrong or missing X-Order-Key answers 404, as an unknown id does.
+     */
+    get: operations['getOrder']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/v1/order/delivery': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get the delivery fee
+     * @description One flat fee per order, in euro cents, and where BJJ Éire delivers: IE and GB-NIR (Northern Ireland).
+     */
+    get: operations['getDelivery']
     put?: never
     post?: never
     delete?: never
@@ -1206,7 +1286,9 @@ export interface components {
         | 'Thursday'
         | 'Friday'
         | 'Saturday'
+      /** Format: time-local */
       startTime?: string
+      /** Format: time-local */
       endTime?: string
       title?: string
       types?: ('OpenMat' | 'Seminar' | 'Camp' | 'Other')[]
@@ -1370,6 +1452,43 @@ export interface components {
     PhotoUploadResponse: {
       sha256?: string
     }
+    CreateOrderCommand: {
+      lines: components['schemas']['OrderLineCommand'][]
+      /** Format: email */
+      email: string
+      address: components['schemas']['DeliveryAddressDto']
+      /** Format: int32 */
+      deliveryCents: number
+      acceptTerms: boolean
+    }
+    DeliveryAddressDto: {
+      name: string
+      line1: string
+      line2?: string
+      town: string
+      county: string
+      postcode?: string
+      country: string
+      phone?: string
+    }
+    OrderLineCommand: {
+      productId: string
+      /** @enum {string} */
+      sizeId: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
+      /** Format: int32 */
+      quantity: number
+      /** Format: int32 */
+      unitPriceCents: number
+    }
+    OrderCheckoutDto: {
+      orderId?: string
+      orderKey?: string
+      checkoutUrl?: string
+      /** Format: date-time */
+      holdExpiresAt?: string
+      /** Format: int32 */
+      totalCents?: number
+    }
     CreateGymCommand: {
       data: components['schemas']['GymDto']
     }
@@ -1431,6 +1550,8 @@ export interface components {
       }
     }
     SystemHealthDescriptor: components['schemas']['CompositeHealthDescriptor'] & {
+      description?: string
+      status?: string
       groups?: string[]
     }
     PagedResponseStoreDto: {
@@ -1499,6 +1620,58 @@ export interface components {
     PagedResponseAdminProductDto: {
       data?: components['schemas']['AdminProductDto'][]
       pagination?: components['schemas']['PaginationMetadata']
+    }
+    OrderDispatchDto: {
+      /** Format: date-time */
+      dispatchedAt?: string
+      trackingReference?: string
+    }
+    OrderDto: {
+      id?: string
+      number?: string
+      /** @enum {string} */
+      status?:
+        'AWAITING_PAYMENT' | 'CONFIRMED' | 'DISPATCHED' | 'EXPIRED' | 'REFUNDED'
+      lines?: components['schemas']['OrderLineDto'][]
+      /** Format: int32 */
+      itemsCents?: number
+      /** Format: int32 */
+      deliveryCents?: number
+      /** Format: int32 */
+      totalCents?: number
+      currency?: string
+      email?: string
+      address?: components['schemas']['DeliveryAddressDto']
+      /** Format: date-time */
+      createdAt?: string
+      /** Format: date-time */
+      holdExpiresAt?: string
+      /** Format: date-time */
+      paidAt?: string
+      dispatch?: components['schemas']['OrderDispatchDto']
+      /** @enum {string} */
+      refundStatus?: 'PENDING' | 'REFUNDED' | 'FAILED'
+    }
+    OrderLineDto: {
+      productId?: string
+      productName?: string
+      /** @enum {string} */
+      kind?: 'RASHGUARD' | 'SHORTS' | 'T_SHIRT'
+      /** @enum {string} */
+      sizeId?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL'
+      /** Format: int32 */
+      quantity?: number
+      /** Format: int32 */
+      unitPriceCents?: number
+      /** Format: int32 */
+      lineCents?: number
+      photo?: string
+    }
+    ShopDeliveryDto: {
+      /** Format: int32 */
+      deliveryFeeCents?: number
+      currency?: string
+      countries?: string[]
     }
     PagedResponseGymDto: {
       data?: components['schemas']['GymDto'][]
@@ -2415,6 +2588,100 @@ export interface operations {
       }
     }
   }
+  createOrder: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateOrderCommand']
+      }
+    }
+    responses: {
+      /** @description The stock is held; send the shopper to checkoutUrl */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['OrderCheckoutDto']
+        }
+      }
+      /** @description Validation failed, such as a quantity of 0, a missing email or a malformed Eircode */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description basket-changed (with lines[] and nowDeliveryCents), size-sold-out, basket-too-large, too-many-unpaid or delivery-not-available. Nothing was charged */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description payment-unavailable: Stripe could not be reached; the stock was released */
+      502: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  resumeCheckout_1: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description The access key from the order's link */
+        'X-Order-Key'?: string
+      }
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The open Checkout page */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['OrderCheckoutDto']
+        }
+      }
+      /** @description No such order, or the key is wrong or missing */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+      /** @description hold-expired or payment-received */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
   getAll: {
     parameters: {
       query?: {
@@ -2928,6 +3195,60 @@ export interface operations {
         }
         content: {
           '*/*': string
+        }
+      }
+    }
+  }
+  getOrder: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description The access key from the order's link */
+        'X-Order-Key'?: string
+      }
+      path: {
+        id: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description The order */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['OrderDto']
+        }
+      }
+      /** @description No such order, or the key is wrong or missing */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/problem+json': unknown
+        }
+      }
+    }
+  }
+  getDelivery: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['ShopDeliveryDto']
         }
       }
     }

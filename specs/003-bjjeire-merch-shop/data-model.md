@@ -61,6 +61,7 @@ A product that any order names is never deleted. Only a draft that no order name
 | `id` | ObjectId | |
 | `number` | string | Human-readable, `BJE-<yyyymmdd>-<6 base32>`. Unique (`ux_order_number`). |
 | `accessKeyHash` | string | SHA-256 of the 32-byte access key (R6). Never returned by any route. |
+| `accessKey` | string? | The key itself, until the order is confirmed or refunded (ADR-0018). Never returned by any route. |
 | `status` | enum | `AWAITING_PAYMENT`, `CONFIRMED`, `DISPATCHED`, `EXPIRED` or `REFUNDED` |
 | `lines` | list<OrderLine> | 1–20 lines, with at most 20 units in total (R7) |
 | `itemsCents` | int | Sum of lines |
@@ -74,6 +75,7 @@ A product that any order names is never deleted. Only a draft that no order name
 | `refund` | Refund? | `refundId?`, `amountCents`, `status` (`PENDING`, `REFUNDED` or `FAILED`), `attempts`, `requestedAt`, `completedAt?`, `failureReason?` |
 | `dispatch` | Dispatch? | `dispatchedAt`, `trackingReference?` (at most 100 characters), `by` |
 | `createdOnUtc`, `expiredAt?`, `refundedAt?` | instant | `refundedAt` is when the refund completed |
+| `emailSlot`, `ipSlot` | int? | 0–2 while `AWAITING_PAYMENT`, unique per email and per address (as built in slice 3): makes the R7 limit exact. Removed on any change of state. |
 | `clientIp` | string? | Kept only while `AWAITING_PAYMENT`, for the unpaid-orders limit (R7). Removed on any change of state. |
 | `retainUntil` | instant | TTL (R11): `paidAt` + 6 years, or `expiredAt` + 30 days |
 

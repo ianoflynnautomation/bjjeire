@@ -43,3 +43,52 @@ export const MerchAdminTestIds = {
   STATUS: 'merch-admin-product-status',
   ACTION_ERROR: 'merch-admin-action-error',
 } as const
+
+export const BasketTestIds = {
+  BADGE: 'basket-badge',
+  BADGE_COUNT: 'basket-badge-count',
+  MENU_LINK: 'basket-menu-link',
+  ADD: 'product-add-to-basket',
+  ADD_MESSAGE: 'product-add-to-basket-message',
+  ROOT: 'basket-page',
+  EMPTY: 'basket-empty',
+  LINE: 'basket-line',
+  LINE_NAME: 'basket-line-name',
+  LINE_SIZE: 'basket-line-size',
+  LINE_PRICE: 'basket-line-price',
+  LINE_TOTAL: 'basket-line-total',
+  LINE_QUANTITY: 'basket-line-quantity',
+  LINE_REMOVE: 'basket-line-remove',
+  LINE_PROBLEM: 'basket-line-problem',
+  ITEMS_TOTAL: 'basket-items-total',
+  CHECKOUT: 'basket-checkout',
+} as const
+
+export const CheckoutTestIds = {
+  ROOT: 'checkout-page',
+  EMPTY: 'checkout-empty',
+  ITEMS: 'checkout-items-total',
+  DELIVERY: 'checkout-delivery',
+  TOTAL: 'checkout-total',
+  FORM: 'checkout-form',
+  SUBMIT: 'checkout-submit',
+  ERROR: 'checkout-error',
+  CHANGES: 'checkout-changes',
+  CHANGE: 'checkout-change',
+} as const
+
+export const OrderPageTestIds = {
+  ROOT: 'order-page',
+  NUMBER: 'order-number',
+  STATUS: 'order-status',
+  MESSAGE: 'order-message',
+  LINE: 'order-line',
+  ITEMS: 'order-items-total',
+  DELIVERY: 'order-delivery',
+  TOTAL: 'order-total',
+  ADDRESS: 'order-address',
+  RESUME: 'order-resume',
+  ERROR: 'order-error',
+  NOT_FOUND: 'order-not-found',
+  NO_KEY: 'order-no-key',
+} as const

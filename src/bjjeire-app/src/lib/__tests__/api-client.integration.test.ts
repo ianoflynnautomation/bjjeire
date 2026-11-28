@@ -276,6 +276,49 @@ describe('request interceptor — auth', () => {
     expect(authHeader).toBeNull()
   })
 
+  it.each(['order', '/order/0123456789abcdef01234567/checkout'])(
+    'given a guest checkout write to %s (ADR-0016, #6012), when it is sent, then no token is asked for or attached',
+    async route => {
+      mockMsalInstance.getAllAccounts.mockReturnValue([
+        { username: 'user@test.com' },
+      ])
+      mockMsalInstance.acquireTokenSilent.mockRejectedValue(
+        new Error('Token expired')
+      )
+
+      let authHeader: string | null = 'unset'
+      server.use(
+        http.post(`${BASE}/${route.replace(/^\//u, '')}`, ({ request }) => {
+          authHeader = request.headers.get('Authorization')
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
+      await api.post(route, {})
+      expect(authHeader).toBeNull()
+      expect(mockMsalInstance.acquireTokenSilent).not.toHaveBeenCalled()
+    }
+  )
+
+  it('given an organiser order route, when it is written to, then it still needs the organiser token', async () => {
+    mockMsalInstance.getAllAccounts.mockReturnValue([
+      { username: 'user@test.com' },
+    ])
+    mockMsalInstance.acquireTokenSilent.mockResolvedValue({
+      accessToken: 'test-token',
+    })
+    let authHeader: string | null = null
+    server.use(
+      http.post(`${BASE}/order/admin/abc/dispatch`, ({ request }) => {
+        authHeader = request.headers.get('Authorization')
+        return HttpResponse.json({ ok: true })
+      })
+    )
+
+    await api.post('order/admin/abc/dispatch', {})
+    expect(authHeader).toBe('Bearer test-token')
+  })
+
   it('given token acquisition fails, when a POST is attempted, then it rejects instead of sending unauthenticated', async () => {
     mockMsalInstance.getAllAccounts.mockReturnValue([
       { username: 'user@test.com' },

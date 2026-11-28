@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built. Slice 0 (plumbing, API side of `#6026`, `#6027`) built. Slice 2 (US2 and US4, `#6001`–`#6004`, `#6013`–`#6017`) built. Living spec: [specs/features/shop.md](../features/shop.md). Slices 3–5 not built.
+**Status**: In progress. Slice 1 (US1, `#4005`–`#4007`) built. Slice 0 (plumbing, API side of `#6026`, `#6027`) built. Slice 2 (US2 and US4, `#6001`–`#6004`, `#6013`–`#6017`) built. Slice 3 (US3, `#6005`–`#6012`) built. Living spec: [specs/features/shop.md](../features/shop.md). Slices 4–5, and US7's `#6028`, not built.
 
 **Input**: User description: "i would like a add a shop feature in which it should allow me to sell bjjeire merch. I want to be able to sell rashguards, shorts and tshirts. you should rename stores feature to shop and add feature at home of page to allow users to buy bjjeire stuff. under this should be similar to competitions in which you can shop other ireland stores. users should be able to pay via strip the same as competitions. it should have admin page and have a admin dasnboard of sales, inventory etc."
 
@@ -272,7 +272,7 @@ Its `playwright-test-planner` reads this section and turns the listed requiremen
 scenarios. Those issues are GitLab issues in `bjjeire/requirements`. CI stays on GitHub.
 
 - **Acceptance spec**: `bjjeire-tests/specs/features/shop.md`. It replaces `stores.md`, whose scenarios move there.
-- **T6 (bjjeire-tests)**: `#4005`, `#4006`, `#4007`, `#6001`, `#6002`, `#6003`, `#6004`, `#6005`, `#6006`, `#6007`, `#6008`, `#6010`, `#6011`, `#6012`, `#6013`, `#6014`, `#6016`, `#6018`, `#6019`, `#6020`, `#6022`, `#6024`, `#6026`, `#6028`. Payment scenarios run against the payment provider's test mode.
+- **T6 (bjjeire-tests)**: `#4005`, `#4006`, `#4007`, `#6001`, `#6002`, `#6003`, `#6004`, `#6005`, `#6006`, `#6007`, `#6008`, `#6010`, `#6011`, `#6012`, `#6013`, `#6014`, `#6016`, `#6018`, `#6019`, `#6020`, `#6022`, `#6024`, `#6026`, `#6028`. Payment scenarios run against the payment provider's test mode. As built in slice 3, `#6007`, `#6008` and the confirmed-order half of `#6011` are held in `bjjeire-tests`: the suite cannot complete a payment on the hosted Checkout page; T2 and T4 own them until it can.
 - **Lower tiers only**:
   - `#6009`: simultaneous last-item purchases. A concurrency rule, owned by integration tests.
   - `#6015`: price change after payment. A service rule.

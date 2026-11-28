@@ -35,6 +35,184 @@ export const merch = {
     message: 'It may have sold out for good or been taken off sale.',
     backLink: 'Back to Shop',
   },
+  addToBasket: {
+    button: 'Add to basket',
+    chooseSize: 'Choose a size first.',
+    added: (size: string): string => `Added size ${size} to your basket.`,
+    basketFull:
+      'Your basket already holds 20 items, the most one order can hold.',
+    noneAdded: (size: string): string =>
+      `Your basket already holds all of size ${size} you can buy.`,
+    viewBasket: 'View basket',
+  },
+  basketBadge: {
+    label: (units: number): string => {
+      if (units === 0) {
+        return 'Basket, empty'
+      }
+      return units === 1 ? 'Basket, 1 item' : `Basket, ${units} items`
+    },
+    menuLabel: (units: number): string =>
+      units === 0 ? 'Basket' : `Basket (${units})`,
+  },
+  basket: {
+    documentTitle: 'Basket | BJJ Éire',
+    title: 'Your basket',
+    empty: 'Your basket is empty.',
+    emptyLink: 'Browse BJJ Éire merch',
+    loadFailed: 'Your basket could not be loaded.',
+    size: (size: string): string => `Size ${size}`,
+    each: (price: string): string => `${price} each`,
+    quantityLabel: (name: string, size: string): string =>
+      `Quantity of ${name}, size ${size}`,
+    remove: (name: string, size: string): string =>
+      `Remove ${name}, size ${size}`,
+    unavailable: 'No longer available. Remove it to carry on.',
+    soldOut: 'Sold out. Remove it to carry on.',
+    fewerLeft: (available: number): string => `Only ${available} left.`,
+    itemsTotal: 'Items',
+    deliveryNote: 'Delivery is added at checkout.',
+    checkout: 'Go to checkout',
+    fixFirst: 'Remove the items that are no longer available to carry on.',
+    lowerFirst: 'Lower the quantities marked to carry on.',
+    limits: 'Up to 10 of one size and 20 items in one order.',
+  },
+  checkout: {
+    documentTitle: 'Checkout | BJJ Éire',
+    title: 'Checkout',
+    summaryHeading: 'Your order',
+    items: 'Items',
+    delivery: 'Delivery',
+    total: 'Total',
+    deliveryNote:
+      'Flat delivery to the Republic of Ireland and Northern Ireland.',
+    empty: 'Your basket is empty, so there is nothing to pay for.',
+    backToBasket: 'Back to basket',
+    detailsHeading: 'Your details',
+    guestNote:
+      'No account needed. We email your receipt and a link to your order.',
+    name: 'Full name',
+    email: 'Email',
+    addressHeading: 'Delivery address',
+    line1: 'Address line 1',
+    line2: 'Address line 2 (optional)',
+    town: 'Town or city',
+    county: 'County',
+    country: 'Country',
+    countries: {
+      IE: 'Republic of Ireland',
+      GB: 'Northern Ireland',
+    },
+    postcodeIe: 'Eircode (optional)',
+    postcodeNi: 'Postcode',
+    postcodeNiHint: 'Northern Ireland postcodes start with BT, as in BT1 1AA.',
+    phone: 'Phone (optional)',
+    terms:
+      'I accept the terms of sale, including the right to cancel within 14 days.',
+    submit: (total: string): string => `Pay ${total}`,
+    submitting: 'Going to payment…',
+    secureNote:
+      'You pay on Stripe’s secure page. Your card details never reach BJJ Éire.',
+    changedHeading: 'Your basket changed',
+    changedIntro:
+      'Some items changed since you added them. Your basket has been updated; check it and pay again. Nothing was charged.',
+    changes: {
+      SOLD_OUT: (name: string, size: string, available: number): string =>
+        available === 0
+          ? `${name}, size ${size}, has sold out and was removed.`
+          : `Only ${available} of ${name}, size ${size}, are left; your basket now has ${available}.`,
+      PRICE_CHANGED: (name: string, size: string, price: string): string =>
+        `${name}, size ${size}, now costs ${price}.`,
+      UNAVAILABLE: (name: string, size: string): string =>
+        `${name}, size ${size}, is no longer for sale and was removed.`,
+      delivery: (fee: string): string => `Delivery now costs ${fee}.`,
+    },
+    unknownProduct: 'An item',
+    validation: {
+      name: 'Enter your name.',
+      email: 'Enter an email address, such as aoife@example.ie.',
+      line1: 'Enter the first line of your address.',
+      town: 'Enter your town or city.',
+      county: 'Enter your county.',
+      postcodeIe: 'Enter an Eircode such as D02 X285, or leave it empty.',
+      postcodeNi: 'Enter a Northern Ireland postcode starting with BT.',
+      terms: 'Accept the terms of sale to carry on.',
+    },
+    problems: {
+      'urn:bjjeire:size-sold-out':
+        'A size in your basket just sold out. Nothing was charged; check your basket and try again.',
+      'urn:bjjeire:basket-too-large':
+        'An order can hold up to 10 of one size and 20 items in all.',
+      'urn:bjjeire:too-many-unpaid':
+        'You already have unpaid orders waiting. Pay for one, or wait 30 minutes for them to lapse.',
+      'urn:bjjeire:delivery-not-available':
+        'We deliver only to the Republic of Ireland and Northern Ireland (postcodes starting BT).',
+      'urn:bjjeire:payment-unavailable':
+        'Payment is unavailable right now. Nothing was charged; please try again shortly.',
+      'urn:bjjeire:validation-error':
+        'Some details are not right. Check the form and try again.',
+      fallback: 'Something went wrong. Nothing was charged; please try again.',
+    },
+  },
+  order: {
+    documentTitle: 'Your order | BJJ Éire',
+    title: (number: string): string => `Order ${number}`,
+    loadFailed: 'Your order could not be loaded.',
+    notFound: {
+      title: 'Order not found',
+      message:
+        'Open the order with the link in your confirmation email. The link must be complete, including the part after #.',
+    },
+    statuses: {
+      AWAITING_PAYMENT: 'Waiting for payment',
+      CONFIRMED: 'Confirmed',
+      DISPATCHED: 'On its way',
+      EXPIRED: 'Not paid',
+      REFUNDED: 'Refunded',
+    },
+    noKeyAfterPayment:
+      'Thank you. If your payment went through, your order is confirmed and a receipt with a link to your order is on its way to your email.',
+    confirming:
+      'Your payment is being confirmed. This page updates by itself in a moment.',
+    stillConfirming:
+      'Your payment is taking longer than usual to confirm. We will email you as soon as it does; there is no need to pay again.',
+    confirmed:
+      'Thank you. Your order is confirmed and a receipt is on its way to your email.',
+    awaiting:
+      'This order is waiting for payment. Its items are held for you until the time below.',
+    holdUntil: (time: string): string => `Held until ${time}.`,
+    resume: 'Return to payment',
+    resuming: 'Going to payment…',
+    expired:
+      'This order was not paid in time, so its items went back on sale. Nothing was charged.',
+    tryAgain: 'Back to basket',
+    refunded:
+      'This order was refunded in full to your original payment method.',
+    refundPending:
+      'A full refund has been issued. It can take 5 to 10 days to appear.',
+    dispatched: (tracking: string | null): string =>
+      tracking === null
+        ? 'Your order has been sent.'
+        : `Your order has been sent. Tracking reference: ${tracking}.`,
+    itemsHeading: 'Items',
+    size: (size: string): string => `Size ${size}`,
+    quantity: (quantity: number): string => `× ${quantity}`,
+    items: 'Items',
+    delivery: 'Delivery',
+    total: 'Paid',
+    totalDue: 'Total',
+    addressHeading: 'Delivering to',
+    emailLabel: 'Receipt sent to',
+    problems: {
+      'urn:bjjeire:hold-expired':
+        'This order is no longer waiting for payment. Its items went back on sale; start again from your basket.',
+      'urn:bjjeire:payment-received':
+        'Your payment was received. Your order is being confirmed and will show as confirmed shortly.',
+      'urn:bjjeire:payment-unavailable':
+        'Payment is unavailable right now. Please try again shortly.',
+      fallback: 'Something went wrong. Please try again.',
+    },
+  },
 } as const
 
 // The organiser's shop admin (User Story 4). Organiser-only screens.

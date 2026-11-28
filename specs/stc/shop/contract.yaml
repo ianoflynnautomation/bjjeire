@@ -83,6 +83,43 @@ openapi:
       auth: admin
       response: 204
       conflicts: [product-not-draft]
+    # ---- Merch orders: guests (slice 3; ADR-0016, ADR-0018). No token. ----
+    - method: GET
+      path: /api/v1/order/delivery
+      auth: public
+      response: ShopDeliveryDto # deliveryFeeCents (0 until the organiser sets one), currency, countries [IE, GB-NIR]
+      covers: ["#6006"]
+    - method: POST
+      path: /api/v1/order
+      auth: guest
+      request: CreateOrderCommand # lines[{productId, sizeId, quantity, unitPriceCents}], email, address, deliveryCents, acceptTerms
+      response: 201 OrderCheckoutDto (orderId, orderKey once, checkoutUrl, holdExpiresAt, totalCents), Location /api/v1/order/{id}
+      notes: unitPriceCents and deliveryCents are what the shopper was shown; a mismatch is basket-changed, never a charge
+      conflicts:
+        - basket-changed # body lines[{productId, sizeId, reason SOLD_OUT|PRICE_CHANGED|UNAVAILABLE, nowAvailable?, nowPriceCents?}], nowDeliveryCents?
+        - size-sold-out
+        - basket-too-large
+        - too-many-unpaid # 3 unpaid per email and per client address
+        - delivery-not-available # outside IE and NI
+      errors: [400 validation (Lines[0].Quantity, Email, Address.Postcode …), 502 payment-unavailable]
+      covers: ["#6005", "#6006", "#6009", "#6010", "#6012"]
+    - method: GET
+      path: /api/v1/order/{id}
+      auth: guest (header X-Order-Key)
+      response: OrderDto # never accessKey, accessKeyHash or clientIp
+      notes: wrong, missing or another order's key -> 404, the same as an unknown id
+      covers: ["#6007", "#6008", "#6011"]
+    - method: POST
+      path: /api/v1/order/{id}/checkout
+      auth: guest (header X-Order-Key)
+      response: OrderCheckoutDto without orderKey # the open session again
+      conflicts: [hold-expired, payment-received]
+      covers: ["#6008"]
+    - method: POST
+      path: /api/v1/order/stripe-webhook
+      auth: stripe (Stripe-Signature against STRIPE_SHOP_WEBHOOK_SECRET; placeholder -> 503)
+      notes: hidden from OpenAPI; handles only objects with metadata.bjjeireKind = order; ledger OrderStripeEvent (specs/003-bjjeire-merch-shop/contracts/stripe-webhook.md)
+      covers: ["#6007", "#6008", "#6009"]
 spa:
   routes:
     - path: /shop
@@ -96,6 +133,18 @@ spa:
     - path: /shop/products/:slug
       flag: Merch
       page: ProductPage
+    - path: /shop/basket
+      flag: Merch
+      page: BasketPage # localStorage bjjeire-basket: {productId, sizeId, quantity} only
+    - path: /shop/checkout
+      flag: Merch
+      page: CheckoutPage # guest; leaves only for https://checkout.stripe.com
+    - path: /shop/orders/:id
+      flag: Merch
+      page: OrderPage # key from #key= or this tab's sessionStorage; polls every 2 s, up to 30 times, after ?checkout=complete
+    - path: navigation basket badge
+      flag: Merch
+      component: BasketBadge
     - path: /admin/shop
       flag: Merch
       page: AdminShopPage # organiser sign-in gate
@@ -112,15 +161,22 @@ sort: name ascending
 invariants:
   - listing_excludes: isActive != true
   - feature_flag: Stores fail-closed
-  - merch_flag: Merch fail-closed (FEATURE_MERCH=false); with it off /api/v1/product/** and /api/v1/order/** answer 404 before authentication (#6026, ADR-0016). Order routes are added here as slices 3-5 ship
+  - merch_flag: Merch fail-closed (FEATURE_MERCH=false); with it off /api/v1/product/** and /api/v1/order/** answer 404 before authentication (#6026, ADR-0016). Organiser order routes are added here as slices 4-5 ship
   - merch_cache_tag: MERCH_TAG, evicted by every product write on the replica that served it; expires after 30 s elsewhere; SPA staleTime 30 s (SC-006)
   - product_writes: findAndModify guarded by version, status and each size's held value; audit-logged
+  - stock_moves: product.StockLedger only; compare-and-set on each size's stock and held, lines in product-then-size order; never sells more than stock (#6009)
+  - order_status_changes: findAndModify guarded on the status left; the signed webhook is the only confirmer (FR-012)
+  - unpaid_limit: each unpaid order holds emailSlot and ipSlot 0-2, unique per email and per address (ux_order_unpaid_email_slot, ux_order_unpaid_ip_slot); freed on any change of state (research R7)
+  - order_access_key: 32 random bytes; SHA-256 stored; the key itself kept until confirmed or refunded (ADR-0018)
   - cache_tag: STORES_TAG
   - writes: not mapped on StoreController (living spec FR-003 is ahead of the API)
   - rename: only the visible name and SPA address are Shop; API path, collection, flag and test ids keep store names (#4005-#4007)
 pointers:
   database: specs/database-contracts/store.md
   database_product: specs/database-contracts/product.md
+  database_order: specs/database-contracts/merch-order.md
+  database_shop_settings: specs/database-contracts/shop-settings.md
+  pact_order: src/bjjeire-app/src/contracts/pact/order.pact.test.ts
   pact_product: src/bjjeire-app/src/contracts/pact/product.pact.test.ts
   test_ids_merch: src/bjjeire-app/src/constants/merchDataTestIds.ts
   feature_spec: specs/features/shop.md

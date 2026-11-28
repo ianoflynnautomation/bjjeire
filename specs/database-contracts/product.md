@@ -32,7 +32,7 @@ BJJ Éire merch (ADR-0016). Built in slice 2 of [specs/003-bjjeire-merch-shop/](
 |---|---|---|---|
 | `id` | `_id` | enum string | `XS`, `S`, `M`, `L`, `XL`, `XXL`; one entry per size. Spring Data maps an embedded `id` property to `_id`; query it as `sizes._id` |
 | `stock` | `stock` | int | ≥ 0; on the shelf and not yet sold; set by the organiser |
-| `held` | `held` | int | ≥ 0 and ≤ `stock`; in unpaid checkouts. Only the order flow changes it (slice 3). An organiser write keeps it as it is and is refused when it changed meanwhile |
+| `held` | `held` | int | ≥ 0 and ≤ `stock`; in unpaid checkouts. Only the order flow changes it, through `product.StockLedger` ([merch-order.md](merch-order.md)). An organiser write keeps it as it is and is refused when it changed meanwhile |
 
 Derived, never stored: `available = max(0, stock - held)`, and `soldOut = available == 0`. A product is out of stock when every size is sold out. The public routes show `available` and `soldOut` only, never `stock` or `held`.
 

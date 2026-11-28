@@ -49,6 +49,21 @@ export const featureSubRoutes = [
   },
   {
     flag: 'Merch',
+    path: paths.basket.path,
+    Component: lazyWithPreload(() => import('@/pages/BasketPage')),
+  },
+  {
+    flag: 'Merch',
+    path: paths.checkout.path,
+    Component: lazyWithPreload(() => import('@/pages/CheckoutPage')),
+  },
+  {
+    flag: 'Merch',
+    path: paths.order.path,
+    Component: lazyWithPreload(() => import('@/pages/OrderPage')),
+  },
+  {
+    flag: 'Merch',
     path: paths.adminShop.path,
     Component: lazyWithPreload(() => import('@/pages/AdminShopPage')),
   },

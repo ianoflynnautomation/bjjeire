@@ -34,8 +34,9 @@ They have different owners and access rules, as `bjjeirecompetition` and
 
 **Guest writes with no token.** `POST /api/v1/order` starts a checkout and
 `POST /api/v1/order/{id}/checkout` resumes one. `GET /api/v1/order/{id}` reads
-an order with the header `X-Order-Key`. The key is 32 random bytes; only its
-SHA-256 is stored, and a wrong or missing key answers 404. These, the public
+an order with the header `X-Order-Key`. The key is 32 random bytes; its
+SHA-256 is stored (and, until the order is confirmed, the key itself:
+[ADR-0018](0018-order-access-key-kept-until-confirmed.md)), and a wrong or missing key answers 404. These, the public
 catalogue reads and the delivery fee are `permitAll` in
 `SecurityConfig.merchRules`. A competitor token gives no extra shop rights.
 

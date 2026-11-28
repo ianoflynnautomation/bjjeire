@@ -27,6 +27,7 @@ and flipping the old one's status — not editing it.
 | [0015](0015-bjjeire-competitions-inside-competitions.md) | In-house competitions are BJJ Éire competitions inside Competitions | Accepted |
 | [0016](0016-bjjeire-merch-guest-checkout.md) | BJJ Éire merch sells to guests, with its own signed webhook | Accepted |
 | [0017](0017-event-publication-registry-outbox.md) | After-commit work runs from an event publication registry in MongoDB (a replica set) | Accepted |
+| [0018](0018-order-access-key-kept-until-confirmed.md) | An order's access key is kept until the order is confirmed, so the confirmation mail can link to it | Accepted |
 
 ## Adding one
 

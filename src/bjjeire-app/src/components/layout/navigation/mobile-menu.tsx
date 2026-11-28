@@ -7,6 +7,11 @@ import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { uiContent } from '@/config/ui-content'
 import { useNavItems } from './use-nav-items'
 import { useRoutePrefetch } from './route-prefetch'
+import { paths } from '@/config/paths'
+import { BasketTestIds } from '@/constants/merchDataTestIds'
+import { useFeatureFlagClient } from '@/features/feature-flags'
+import { useBasket } from '@/features/merch/hooks/useBasket'
+import { basketUnits } from '@/features/merch/utils/basket'
 
 const activeClass =
   'border-primary-600 bg-primary-50 text-primary-800 dark:border-primary-400 dark:bg-primary-900/40 dark:text-primary-300'
@@ -22,6 +27,9 @@ export const MobileMenu = function MobileMenu({
 }: MobileMenuProps): JSX.Element {
   const navItems = useNavItems()
   const prefetch = useRoutePrefetch()
+  // #6026: no basket while merch is switched off. On a phone the bar has no room for the basket icon.
+  const showBasket = useFeatureFlagClient().isEnabled('Merch')
+  const units = basketUnits(useBasket())
   return (
     <div
       id="mobile-menu-panel"
@@ -47,6 +55,21 @@ export const MobileMenu = function MobileMenu({
             {label}
           </NavLink>
         ))}
+        {showBasket && (
+          <NavLink
+            to={paths.basket.getHref()}
+            onClick={onLinkClick}
+            className={({ isActive }) =>
+              cn(
+                'block rounded-md border-l-4 px-3 py-2 text-base font-medium transition-colors',
+                isActive ? activeClass : inactiveClass
+              )
+            }
+            data-testid={BasketTestIds.MENU_LINK}
+          >
+            {uiContent.merch.basketBadge.menuLabel(units)}
+          </NavLink>
+        )}
         {env.GITHUB_URL && (
           <a
             href={env.GITHUB_URL}

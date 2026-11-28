@@ -106,7 +106,7 @@ routes:
   - method: POST
     path: /api/v1/order
     auth: guest
-    request: CreateOrderCommand   # lines[{productId, sizeId, quantity}], email, address, acceptTerms: true
+    request: CreateOrderCommand   # lines[{productId, sizeId, quantity, unitPriceCents}], email, address, deliveryCents, acceptTerms: true (the price and fee shown; as built in slice 3)
     response: 201 OrderCheckoutDto   # orderId, orderKey (once), checkoutUrl, holdExpiresAt, totalCents
     conflicts:
       - basket-changed     # body lists lines: {productId, sizeId, reason: SOLD_OUT|PRICE_CHANGED|UNAVAILABLE, nowAvailable?, nowPriceCents?}

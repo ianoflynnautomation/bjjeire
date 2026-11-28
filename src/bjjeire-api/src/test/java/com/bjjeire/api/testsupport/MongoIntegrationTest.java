@@ -9,6 +9,9 @@ import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.deactivation.DeactivationLock;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.order.MerchOrder;
+import com.bjjeire.api.order.OrderStripeEvent;
+import com.bjjeire.api.order.ShopSettings;
 import com.bjjeire.api.product.Product;
 import com.bjjeire.api.product.ProductPhotoStore;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
@@ -93,6 +96,9 @@ public abstract class MongoIntegrationTest {
     protected RecordingPaymentGateway paymentGateway;
 
     @Autowired
+    protected RecordingShopPaymentGateway shopPaymentGateway;
+
+    @Autowired
     protected RecordingMailer mailer;
 
     @LocalServerPort
@@ -123,6 +129,9 @@ public abstract class MongoIntegrationTest {
                 BjjEireCompetitionRegistration.class,
                 StripeEvent.class,
                 Product.class,
+                MerchOrder.class,
+                OrderStripeEvent.class,
+                ShopSettings.class,
                 DeactivationLock.class,
                 AuditLogEntry.class)) {
             mongoTemplate.remove(new Query(), entityType);
@@ -141,6 +150,7 @@ public abstract class MongoIntegrationTest {
         }
         identityDirectory.reset();
         paymentGateway.reset();
+        shopPaymentGateway.reset();
         mailer.reset();
     }
 
@@ -210,6 +220,12 @@ public abstract class MongoIntegrationTest {
         @Primary
         RecordingPaymentGateway recordingPaymentGateway() {
             return new RecordingPaymentGateway();
+        }
+
+        @Bean
+        @Primary
+        RecordingShopPaymentGateway recordingShopPaymentGateway() {
+            return new RecordingShopPaymentGateway();
         }
 
         @Bean

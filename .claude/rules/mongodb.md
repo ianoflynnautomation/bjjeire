@@ -13,7 +13,7 @@ paths:
 - The URI holds credentials. Do not hardcode it, commit it in a fixture, or log it
 
 ## Documents
-- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `BjjEireCompetition`, `Competitor`, `DeletedCompetitor`, `BjjEireCompetitionRegistration`, `StripeEvent`, `Product`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
+- Collections are `Gym`, `BjjEvent`, `Competition`, `Store`, `BjjEireCompetition`, `Competitor`, `DeletedCompetitor`, `BjjEireCompetitionRegistration`, `StripeEvent`, `Product`, `MerchOrder`, `OrderStripeEvent`, `ShopSettings`, and `AuditLog`. Each domain class declares the name as `ENTITY_NAME` and uses `@Document(ENTITY_NAME)`
 - Product photos live in the GridFS bucket `productPhotos`, one file per content, named by its SHA-256 (`product.ProductPhotoStore`). Only that class reads or writes the bucket
 - An embedded property named `id` is stored as `_id` (`ProductSize.id` is `sizes._id`). Typed `Criteria` on the entity class map it; a raw array filter must say `_id`
 - `event_publication` belongs to Spring Modulith's event publication registry (ADR-0017). Its shape is the library's; feature code never queries it

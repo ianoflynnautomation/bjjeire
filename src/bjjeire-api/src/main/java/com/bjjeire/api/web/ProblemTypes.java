@@ -69,6 +69,18 @@ public final class ProblemTypes {
     /** Deleting a product that is not a draft; hide it instead. */
     public static final URI PRODUCT_NOT_DRAFT = URI.create("urn:bjjeire:product-not-draft");
 
+    /**
+     * A basket line that sold out, changed price or went off sale, or a delivery fee that changed, since the shopper
+     * last saw it (#6010). The body lists each change in {@code lines} and the new fee in {@code nowDeliveryCents}.
+     */
+    public static final URI BASKET_CHANGED = URI.create("urn:bjjeire:basket-changed");
+    /** A size another shopper took the last units of while this checkout was being started (#6009). */
+    public static final URI SIZE_SOLD_OUT = URI.create("urn:bjjeire:size-sold-out");
+    /** More units in one line, or in one order, than a guest may hold (research R7). */
+    public static final URI BASKET_TOO_LARGE = URI.create("urn:bjjeire:basket-too-large");
+    /** A delivery address outside the Republic of Ireland and Northern Ireland (FR-017). */
+    public static final URI DELIVERY_NOT_AVAILABLE = URI.create("urn:bjjeire:delivery-not-available");
+
     /** A capability that is switched on but not configured here, such as Stripe with placeholder secrets. */
     public static final URI SERVICE_UNAVAILABLE = URI.create("urn:bjjeire:service-unavailable");
 

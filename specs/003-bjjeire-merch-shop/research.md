@@ -86,6 +86,7 @@ Decisions behind [plan.md](plan.md). Items marked **Verify** are vendor facts to
   - **Mismatch**: a wrong or missing key gets 404, not 403, so ids can't be probed.
   - **Checkout return**: the API hands the key back once in the checkout response, so the page Stripe returns to can poll the status.
 - **Rationale**: A browser never sends the fragment to a server, so the key stays out of server logs and `Referer`. Hashing means a database leak exposes no working links.
+- **As built (slice 3)**: the confirmation mail is sent by the webhook, which has no key to put in its link. The key itself is therefore kept on the order until the order is confirmed or refunded ([ADR-0018](../../docs/adr/0018-order-access-key-kept-until-confirmed.md)). The success URL carries no key: the checkout page keeps it in `sessionStorage` for the page Stripe returns to.
 - **Alternatives**:
   - A key in the query string: it ends up in access logs.
   - Asking for the email address to look an order up: guessable and enumerable.
@@ -97,6 +98,7 @@ Decisions behind [plan.md](plan.md). Items marked **Verify** are vendor facts to
   - **Concurrent holds**: at most 3 unpaid orders at once per email address and per client IP. Over that is 409 `too-many-unpaid`, using `ClientIps` as rate limiting does.
   - **Rate limiting**: the global limiter covers `/api/v1/order`.
   - **Visibility**: the holds sweep publishes `order.holds.active` as a gauge.
+- **As built (slice 3)**: each unpaid order takes a slot, 0 to 2, per email and per address, enforced by the partial unique indexes `ux_order_unpaid_email_slot` and `ux_order_unpaid_ip_slot`, as registration's `ux_registration_unpaid_slot` does. A count before inserting could be beaten by parallel requests; the slots cannot. A slot is freed by any change of state.
 - **Rationale**: This is the equivalent of the competitions' two-unpaid rule (FR-041) for shoppers with no identity. A determined bot can still rotate emails and IPs, which the risk table records together with the Turnstile follow-up.
 
 ## R8. Basket in the browser
