@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.46](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.45...frontend-v0.1.46) (2026-11-28)
+
+
+### Features
+
+* add shop slice 3 implementation ([#259](https://github.com/ianoflynnautomation/bjjeire/issues/259)) ([103c738](https://github.com/ianoflynnautomation/bjjeire/commit/103c7384fabe221416f32d4c8c9e937b3a99dfbf))
+
 ## [0.1.45](https://github.com/ianoflynnautomation/bjjeire/compare/frontend-v0.1.44...frontend-v0.1.45) (2026-11-21)
 
 

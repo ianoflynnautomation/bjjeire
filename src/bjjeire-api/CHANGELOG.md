@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.35](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.34...api-v0.1.35) (2026-11-28)
+
+
+### Features
+
+* add shop slice 3 implementation ([#259](https://github.com/ianoflynnautomation/bjjeire/issues/259)) ([103c738](https://github.com/ianoflynnautomation/bjjeire/commit/103c7384fabe221416f32d4c8c9e937b3a99dfbf))
+
 ## [0.1.34](https://github.com/ianoflynnautomation/bjjeire/compare/api-v0.1.33...api-v0.1.34) (2026-11-21)
 
 
