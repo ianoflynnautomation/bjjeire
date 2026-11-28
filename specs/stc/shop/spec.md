@@ -1,8 +1,8 @@
 ---
 feature: shop
 ssot: specs/features/shop.md
-database: specs/database-contracts/store.md, specs/database-contracts/product.md
-api_package: com.bjjeire.api.store, com.bjjeire.api.product
+database: specs/database-contracts/store.md, specs/database-contracts/product.md, specs/database-contracts/merch-order.md, specs/database-contracts/shop-settings.md
+api_package: com.bjjeire.api.store, com.bjjeire.api.product, com.bjjeire.api.order
 spa: src/bjjeire-app/src/features/stores, src/bjjeire-app/src/features/merch, src/bjjeire-app/src/features/merch-admin
 acceptance: bjjeire-tests/tests/features/stores/
 status: living
@@ -10,7 +10,7 @@ status: living
 
 # STC: Shop
 
-**Requirements**: `bjjeire/requirements` · epic `&4` (directory) · merch epic (`#6001`–`#6028`, provisional; added as their slices ship: `#6026`, `#6027` with slice 0; `#6001`–`#6004`, `#6013`–`#6017` with slice 2)
+**Requirements**: `bjjeire/requirements` · epic `&4` (directory) · merch epic (`#6001`–`#6028`, provisional; added as their slices ship: `#6026`, `#6027` with slice 0; `#6001`–`#6004`, `#6013`–`#6017` with slice 2; `#6005`–`#6012` with slice 3)
 
 ## User intent
 
@@ -177,9 +177,9 @@ An edit of a published product must leave it publishable. Only a draft can be de
 Given a product,
 When the organiser changes its price,
 Then the next public read shows the new price.
-_The paid-order half (orders keep the price paid) lands with orders in slice 3 (`OrderIT`)._
+And an order already paid keeps the unit prices and delivery fee it was made with (`OrderIT`).
 
-**Owns**: T2 `ProductAdminIT`; T4 `admin-shop-products.integration.test.tsx`.
+**Owns**: T2 `ProductAdminIT`, `OrderIT`; T4 `admin-shop-products.integration.test.tsx`.
 
 ### `#6016` — Stock shows straight away (P1)
 
@@ -197,6 +197,79 @@ When they call any `/api/v1/product/admin/**` route, the photo upload included,
 Then they get 401 (anonymous) or 403, and nothing changes.
 
 **Owns**: T2 `ProductAdminIT`, `ProductPhotoUploadIT`, `MerchRouteAuthorizationIT`; T4 `admin-shop-products.integration.test.tsx` (signed out, nothing requested).
+
+### `#6005` — The basket (P1)
+
+Given a product size in stock,
+When a shopper adds it to the basket,
+Then the basket shows it with quantity, item price and running total, and the shopper can change the quantity or remove it.
+The basket is kept in this browser (`localStorage` `bjjeire-basket`) as `{productId, sizeId, quantity}` only; prices are read fresh from the catalogue. A line holds at most 10 and the basket at most 20, never more than is available; `POST /api/v1/order` refuses more with 409 `basket-too-large`, and a quantity of 0 with 400.
+
+**Owns**: T1 `OrderRulesTest`; T2 `OrderIT`; T3 `basket.unit.test.ts`; T4 `basket-checkout.integration.test.tsx`. **T6**: `bjjeire-tests`.
+
+### `#6006` — The full amount and delivery details before paying (P1)
+
+Given a basket,
+When the shopper goes to pay (`/shop/checkout`),
+Then they see the items, the flat delivery fee (`GET /api/v1/order/delivery`) and the total, and are asked for a name, an email and a delivery address,
+And only the Republic of Ireland and Northern Ireland (`GB` with a `BT` postcode) are accepted; anything else is 409 `delivery-not-available` before payment, and an Irish postcode that is given must be an Eircode (400).
+The order goes to Stripe Checkout at the shop's own prices, one line per order line plus delivery, with the address as the payment's shipping address.
+
+**Owns**: T1 `OrderRulesTest`, `StripeShopPaymentGatewayTest`; T2 `OrderIT`; T4 `basket-checkout.integration.test.tsx`; T0 `order.pact.test.ts`. **T6**: `bjjeire-tests` (Stripe test mode).
+
+### `#6007` — A successful payment confirms the order (P1)
+
+Given a shopper paying for a basket,
+When the shop's signed webhook (`POST /api/v1/order/stripe-webhook`) reports the Checkout Session paid,
+Then the order is `CONFIRMED`, each size's stock goes down by the quantity bought, and one confirmation mail is sent with the items, the amount paid, the delivery address and the order link `/shop/orders/{id}#key=…`,
+And the same event, or a second event for the same payment, changes nothing. The page Stripe returns to asks again every 2 seconds, up to 30 times, until the order is confirmed, then empties the basket.
+
+**Owns**: T2 `OrderWebhookIT`; T4 `order-page.integration.test.tsx`. **T6**: held (`bjjeire-tests` § Held: the suite cannot complete a Stripe test-mode payment; needs a way to finish one).
+
+### `#6008` — A failed or abandoned payment releases the stock (P1)
+
+Given a shopper paying for a basket,
+When the payment fails or is abandoned (`checkout.session.expired`, `checkout.session.async_payment_failed`, or the hold sweep finds the session closed),
+Then the order is `EXPIRED`, no money is taken, and its holds are released.
+While the hold lasts, `POST /api/v1/order/{id}/checkout` returns the open session again; after it, 409 `hold-expired`.
+
+**Owns**: T2 `OrderWebhookIT`, `OrderHoldSweepIT`, `OrderAccessIT`; T4 `order-page.integration.test.tsx`. **T6**: held (`bjjeire-tests` § Held: the suite cannot complete a Stripe test-mode payment; needs a way to finish one).
+
+### `#6009` — The last items are never sold twice (P1)
+
+Given the last items of a size,
+When two shoppers try to buy them at the same moment,
+Then only as many as are in stock are held; the other shopper gets 409 `size-sold-out` or `basket-changed` and is not charged,
+And a payment that arrives after its hold ended is confirmed if the stock can be taken again, and otherwise refunded in full automatically (FR-013).
+
+**Owns**: T2 `OrderConcurrencyIT`, `StockLedgerIT`, `OrderWebhookIT` (late payment). Not T6.
+
+### `#6010` — The shopper is told what changed (P1)
+
+Given a basket holding a size that has since sold out, a product off sale, a price that changed, or a delivery fee that changed,
+When the shopper goes to pay,
+Then 409 `basket-changed` lists each line (`SOLD_OUT` with `nowAvailable`, `PRICE_CHANGED` with `nowPriceCents`, `UNAVAILABLE`) and `nowDeliveryCents`, nothing is held or charged, and the SPA lists each change and updates the basket.
+Each line sends the price the shopper saw (`unitPriceCents`) and the body the fee they saw (`deliveryCents`), so nobody pays a price they were not shown.
+
+**Owns**: T2 `OrderIT`; T4 `basket-checkout.integration.test.tsx`. **T6**: `bjjeire-tests`.
+
+### `#6011` — The order page from the email link (P1)
+
+Given a confirmed order,
+When the shopper follows the link in their confirmation mail,
+Then the SPA reads the key from the URL fragment and sends it as `X-Order-Key` to `GET /api/v1/order/{id}`, and shows the items, amounts, delivery details and status,
+And a wrong, missing or other order's key answers 404 like an unknown id; no route returns the key or its hash.
+
+**Owns**: T2 `OrderAccessIT`; T4 `order-page.integration.test.tsx`; T0 `order.pact.test.ts`. **T6**: the wrong-key half only (`bjjeire-tests`); the confirmed-order half is held, as `#6007`.
+
+### `#6012` — Guest checkout (P1)
+
+Given a visitor with no account,
+When they buy merch,
+Then they check out with a name and email, and are never asked to sign in: the order routes need no token and the SPA sends none.
+At most 3 unpaid orders at once per email and per client address (409 `too-many-unpaid`); exact under any concurrency, because each unpaid order holds one of three slots per email and per address (unique indexes), freed when it is confirmed, expires or is refunded.
+
+**Owns**: T2 `OrderIT`, `MerchRouteAuthorizationIT`; T4 `basket-checkout.integration.test.tsx`, `api-client.integration.test.ts`. **T6**: `bjjeire-tests`.
 
 ## Executable contract
 

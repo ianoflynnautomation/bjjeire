@@ -3,10 +3,11 @@ package com.bjjeire.api.config;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
-final class ClientIps {
+/** The caller's address, read through trusted proxies only. Used by rate limiting, logging and the shop's limits. */
+public final class ClientIps {
     private ClientIps() {}
 
-    static String resolve(HttpServletRequest request, String fallback, List<String> trustedProxies) {
+    public static String resolve(HttpServletRequest request, String fallback, List<String> trustedProxies) {
         String remoteAddress = request.getRemoteAddr();
         if (TrustedProxies.trusts(remoteAddress, trustedProxies)) {
             String cloudflareIp = request.getHeader("CF-Connecting-IP");

@@ -47,6 +47,20 @@ function isCompetitorRoute(url: string | undefined): boolean {
   )
 }
 
+/**
+ * The shop's guest writes (ADR-0016, #6012): starting a checkout and
+ * returning to one. A guest has no account, so these carry no token and must
+ * never load the organiser sign-in.
+ */
+function isGuestOrderWrite(url: string | undefined): boolean {
+  const path = `/${(url ?? '').replace(/^\/+/u, '')}`.split('?')[0]
+  const { orders } = API_RESOURCE_ROUTES
+  return (
+    path === orders ||
+    new RegExp(`^${orders}/[0-9a-f]{24}/checkout$`, 'u').test(path)
+  )
+}
+
 class ApiService {
   private readonly instance: AxiosInstance
 
@@ -71,7 +85,10 @@ class ApiService {
         }
         return config
       }
-      if (method === 'get' && !isAdminRead(config.url)) {
+      if (
+        (method === 'get' && !isAdminRead(config.url)) ||
+        isGuestOrderWrite(config.url)
+      ) {
         return config
       }
       // Public reads never need a token, so the sign-in code loads only for a write or an admin read.

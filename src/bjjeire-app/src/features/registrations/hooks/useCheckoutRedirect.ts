@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { uiContent } from '@/config/ui-content'
 import type { RegistrationCheckoutDto } from '@/types/registrations'
 import { OWN_REGISTRATIONS_KEY } from '../api/query-keys'
-import { goToCheckout } from '../utils/checkout-redirect'
+import { goToCheckout } from '@/lib/checkout-redirect'
 import {
   registrationProblemMessage,
   registrationProblemType,

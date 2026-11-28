@@ -5,6 +5,7 @@ import { uiContent } from '@/config/ui-content'
 import { ProductPageTestIds } from '@/constants/merchDataTestIds'
 import type { ProductDto, SizeId } from '@/types/products'
 import { formatPrice, productPhotoUrl } from '../utils/merch-format'
+import { AddToBasket } from './add-to-basket'
 import { SizePicker } from './size-picker'
 
 const { product: copy, kinds } = uiContent.merch
@@ -84,6 +85,7 @@ export const ProductDetails = function ProductDetails({
             dataTestId={ProductPageTestIds.SIZES}
             sizeTestId={ProductPageTestIds.SIZE}
           />
+          <AddToBasket product={product} size={size} />
           {product.soldOut && (
             <p role="status" className="text-sm font-semibold text-fg-muted">
               {copy.allSoldOut}

@@ -2,6 +2,8 @@ package com.bjjeire.api.product;
 
 import com.bjjeire.api.common.PagedResponse;
 import com.bjjeire.api.common.PaginationRequest;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /** BJJ Éire merch products: the public catalogue and the organiser's product admin (User Stories 2 and 4). */
@@ -12,6 +14,12 @@ public interface ProductService {
 
     /** A published product's page; empty for a draft, a hidden product or an unknown slug (#6002). */
     Optional<ProductDto> getPublishedBySlug(String slug);
+
+    /**
+     * The products a checkout names, in any status, read fresh rather than from the cache (#6010). Ids that name no
+     * product are left out.
+     */
+    List<ProductOffer> getOffers(Collection<String> ids);
 
     /** A stored photo; empty when none has this hash. */
     Optional<ProductPhoto> getPhoto(String sha256);

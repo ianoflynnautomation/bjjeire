@@ -15,6 +15,7 @@ import { paths } from '@/config/paths'
 import { NavigationTestIds } from '@/constants/commonDataTestIds'
 import { CompetitorNavTestIds } from '@/constants/competitorDataTestIds'
 import { useFeatureFlagClient } from '@/features/feature-flags'
+import { BasketBadge } from '@/features/merch/components/basket-badge'
 import { uiContent } from '@/config/ui-content'
 import { Button } from '@/components/ui/button/button'
 import { env } from '@/config/env'
@@ -36,7 +37,10 @@ const Navigation = function Navigation(): JSX.Element {
   } = useNavigationState()
   const { theme, cycleTheme } = useTheme()
   // #5038: no account entry point while BJJ Éire competitions are switched off.
-  const showAccount = useFeatureFlagClient().isEnabled('BjjEireCompetitions')
+  const flags = useFeatureFlagClient()
+  const showAccount = flags.isEnabled('BjjEireCompetitions')
+  // #6026: no basket while merch is switched off.
+  const showBasket = flags.isEnabled('Merch')
 
   useEffect(() => {
     if (!isMobileMenuOpen || isSupportModalOpen) {
@@ -90,6 +94,11 @@ const Navigation = function Navigation(): JSX.Element {
               <DesktopNavLinks />
             </div>
             <div className="flex items-center gap-2">
+              {showBasket && (
+                <BasketBadge
+                  className={cn(navIconButtonClass, 'max-md:hidden')}
+                />
+              )}
               {showAccount && (
                 <Link
                   to={paths.accountProfile.getHref()}
@@ -111,7 +120,7 @@ const Navigation = function Navigation(): JSX.Element {
                   href={env.GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={cn(navIconButtonClass, 'max-md:hidden')}
+                  className={cn(navIconButtonClass, 'max-lg:hidden')}
                   aria-label={uiContent.navigation.githubLinkLabel}
                   data-testid={NavigationTestIds.GITHUB_LINK}
                 >
@@ -128,7 +137,8 @@ const Navigation = function Navigation(): JSX.Element {
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white p-0.5">
                   <BitcoinIcon className="h-full w-full" aria-hidden="true" />
                 </span>
-                <span className="sr-only min-[400px]:not-sr-only">
+                {/* Icon only on tablets, where the bar also holds the basket. */}
+                <span className="sr-only min-[400px]:not-sr-only md:max-lg:sr-only">
                   {uiContent.navigation.supportButtonLabel}
                 </span>
               </Button>

@@ -7,6 +7,8 @@ import com.bjjeire.api.competitor.Competitor;
 import com.bjjeire.api.competitor.DeletedCompetitor;
 import com.bjjeire.api.event.BjjEvent;
 import com.bjjeire.api.gym.Gym;
+import com.bjjeire.api.order.MerchOrder;
+import com.bjjeire.api.order.OrderStripeEvent;
 import com.bjjeire.api.product.Product;
 import com.bjjeire.api.registration.BjjEireCompetitionRegistration;
 import com.bjjeire.api.registration.StripeEvent;
@@ -149,6 +151,7 @@ public class MongoIndexInitializer implements ApplicationRunner {
 
         ensureBjjEireCompetitionIndexes();
         ensureProductIndexes();
+        ensureOrderIndexes();
         ensureCompetitorIndexes();
         ensureRegistrationIndexes();
     }
@@ -254,6 +257,81 @@ public class MongoIndexInitializer implements ApplicationRunner {
                         .on("kind", Sort.Direction.ASC)
                         .on("name", Sort.Direction.ASC)
                         .named("ix_product_status_kind_name"));
+    }
+
+    private void ensureOrderIndexes() {
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("number", Sort.Direction.ASC)
+                        .named("ux_order_number")
+                        .unique());
+
+        // The organiser's list, newest first, filtered by status (#6018).
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("createdAt", Sort.Direction.DESC)
+                        .named("ix_order_status_created"));
+
+        // Dashboard sales and refunds in a period (#6022).
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("payment.paidAt", Sort.Direction.ASC)
+                        .named("ix_order_paidAt")
+                        .sparse());
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("refundedAt", Sort.Direction.ASC)
+                        .named("ix_order_refundedAt")
+                        .sparse());
+
+        // The hold sweep (FR-011).
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("status", Sort.Direction.ASC)
+                        .on("holdExpiresAt", Sort.Direction.ASC)
+                        .named("ix_order_hold"));
+
+        // Research R7: at most three unpaid orders per email and per client address, exact under concurrency. Each
+        // unpaid order holds a slot, 0 to 2; a slot is removed with any change of state. Partial, so ended orders do
+        // not count.
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("email", Sort.Direction.ASC)
+                        .on("emailSlot", Sort.Direction.ASC)
+                        .named("ux_order_unpaid_email_slot")
+                        .unique()
+                        .partial(PartialIndexFilter.of(
+                                Criteria.where("emailSlot").exists(true))));
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("clientIp", Sort.Direction.ASC)
+                        .on("ipSlot", Sort.Direction.ASC)
+                        .named("ux_order_unpaid_ip_slot")
+                        .unique()
+                        .partial(PartialIndexFilter.of(Criteria.where("ipSlot").exists(true))));
+
+        // Research R11: paid orders go after six years, expired ones after 30 days. Unpaid orders have none.
+        ensure(
+                MerchOrder.ENTITY_NAME,
+                new Index()
+                        .on("retainUntil", Sort.Direction.ASC)
+                        .named("ttl_order_retainUntil")
+                        .expire(EXPIRE_AT_STORED_DATE));
+
+        ensure(
+                OrderStripeEvent.ENTITY_NAME,
+                new Index()
+                        .on("expiresAt", Sort.Direction.ASC)
+                        .named("ttl_orderStripeEvent_expiresAt")
+                        .expire(EXPIRE_AT_STORED_DATE));
     }
 
     private void ensureBjjEireCompetitionIndexes() {

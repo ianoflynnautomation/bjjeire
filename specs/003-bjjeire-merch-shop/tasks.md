@@ -331,13 +331,13 @@ description: "Task list for the BJJ Éire Merch Shop"
 
 ### Tests first
 
-- [ ] T043 [P] [US3] Write `order/OrderRulesTest`:
+- [x] T043 [P] [US3] Write `order/OrderRulesTest`:
   - totals: `itemsCents` is the sum of lines, `totalCents = itemsCents + deliveryCents`;
   - limits: "1–10" units per line and "at most 20" units per order;
   - address: country `IE`, or `GB` with a postcode starting `BT`; the optional IE Eircode pattern; field lengths `name` "1–100", `line1` "1–100", `line2` "0–100", `town` "1–60", `county` "1–60", `phone` "≤ 30";
   - email "≤ 254";
   - every state transition in data-model.md § State transitions (R9).
-- [ ] T044 [P] [US3] Write `order/OrderIT`:
+- [x] T044 [P] [US3] Write `order/OrderIT`:
   - create holds stock for every line, returns `orderKey` once and the checkout URL, sends Stripe the API's own prices plus a delivery line and `bjjeireKind = order`, and shows the full amount (`#6005`, `#6006`);
   - an address outside IE and NI is 409 `delivery-not-available`;
   - a basket with a sold-out size, a changed price or a hidden product is 409 `basket-changed` listing each line (`#6010`);
@@ -347,14 +347,16 @@ description: "Task list for the BJJ Éire Merch Shop"
   - Stripe unreachable gives 502 `payment-unavailable` and releases every hold;
   - after the organiser changes a product's price and the delivery fee, a paid order keeps its `unitPriceCents` and `deliveryCents` (`#6015`, FR-007);
   - a body that is not JSON is 400.
-- [ ] T045 [P] [US3] Write `order/OrderConcurrencyIT`:
+  As built: each line also sends `unitPriceCents` and the body `deliveryCents`, the price and fee the shopper saw, so `PRICE_CHANGED` and a changed fee can be detected (`#6010`). Until `ShopSettings` exists, delivery is free.
+- [x] T045 [P] [US3] Write `order/OrderConcurrencyIT`:
   - many guests buy the last units of one size at once: exactly the stock is held, and the rest get `size-sold-out` without a charge (`#6009`);
   - two baskets holding the same two sizes in opposite order never deadlock or oversell.
-- [ ] T046 [P] [US3] Write `product/StockLedgerTest` and `StockLedgerIT`:
+- [x] T046 [P] [US3] Write `product/StockLedgerTest` and `StockLedgerIT`:
   - hold only when `stock - held >= q`;
   - release and commit;
   - a multi-line hold releases the lines already held when a later one fails (research R5).
-- [ ] T047 [P] [US3] Write `order/OrderWebhookIT`:
+  As built: `StockLedgerIT` only. The ledger is all conditional Mongo updates; a mocked `MongoTemplate` would test nothing. Holds and takes are compare-and-set on each size's `stock` and `held`, retried on a miss, because a filtered array update cannot compare two fields.
+- [x] T047 [P] [US3] Write `order/OrderWebhookIT`:
   - signature missing or bad is 400, counted;
   - a placeholder secret is 503;
   - paid confirms, commits stock and sends one mail with items, amount, address and the order link (`#6007`);
@@ -365,39 +367,43 @@ description: "Task list for the BJJ Éire Merch Shop"
   - a failed apply returns 5xx and is retried;
   - `OrderStripeEvent` is separate from `StripeEvent`;
   - after a paid event, the next public read of the product shows the reduced availability (SC-006).
-- [ ] T048 [P] [US3] Write `order/OrderAccessIT`:
+  As built: the placeholder-secret 503 is the unit test `OrderWebhookConfigurationTest`, because the shared IT context has one secret.
+- [x] T048 [P] [US3] Write `order/OrderAccessIT`:
   - `GET /api/v1/order/{id}` with the right `X-Order-Key` shows the order (`#6011`);
   - a wrong, missing or other order's key gives 404, the same as an unknown id;
   - no route returns `accessKeyHash`;
   - `POST /{id}/checkout` returns the open session, gives 409 `hold-expired` after the hold, and 409 `payment-received` for a paid session.
-- [ ] T049 [P] [US3] Write `order/OrderHoldSweepIT`. The registration `HoldSweepIT` cases, applied to orders:
+- [x] T049 [P] [US3] Write `order/OrderHoldSweepIT`. The registration `HoldSweepIT` cases, applied to orders:
   - lapsed holds expire once, also on parallel sweeps;
   - a session Stripe reports paid is kept and alerted once;
   - Stripe unreachable keeps the hold.
-- [ ] T050 [P] [US3] Write `features/merch/utils/__tests__/basket.unit.test.ts`: `localStorage` key `bjjeire-basket` holding `{productId, sizeId, quantity}` only, add, change, remove, the quantity limits, and a corrupt entry cleared.
-- [ ] T051 [P] [US3] Write `pages/__tests__/basket-checkout.integration.test.tsx`:
+- [x] T050 [P] [US3] Write `features/merch/utils/__tests__/basket.unit.test.ts`: `localStorage` key `bjjeire-basket` holding `{productId, sizeId, quantity}` only, add, change, remove, the quantity limits, and a corrupt entry cleared.
+- [x] T051 [P] [US3] Write `pages/__tests__/basket-checkout.integration.test.tsx`:
   - the basket shows lines, quantities, prices and the running total, and quantities can change and lines be removed (`#6005`);
   - checkout shows items plus delivery and asks for name, email and address, with NI postcode guidance (`#6006`);
   - a `basket-changed` response shows each change and updates the basket (`#6010`);
   - only `https://checkout.stripe.com` is followed;
   - never asks to sign in (`#6012`).
-- [ ] T052 [P] [US3] Write `pages/__tests__/order-page.integration.test.tsx`:
+- [x] T052 [P] [US3] Write `pages/__tests__/order-page.integration.test.tsx`:
   - reads `#key=` from the fragment and sends it as `X-Order-Key`;
   - shows the order, and after the return from Stripe polls every 2 s up to 30 times until confirmed (`#6007`, `#6011`);
   - the expired and failed states offer to try again (`#6008`);
   - a wrong key shows "Order not found".
-- [ ] T053 [P] [US3] Write the Pact consumer test `contracts/pact/order.pact.test.ts` for `GET /api/v1/order/delivery`, `POST /api/v1/order` and `GET /api/v1/order/{id}`.
+- [x] T053 [P] [US3] Write the Pact consumer test `contracts/pact/order.pact.test.ts` for `GET /api/v1/order/delivery`, `POST /api/v1/order` and `GET /api/v1/order/{id}`.
 
 ### Implementation
 
-- [ ] T054 [US3] Write the `order/` domain:
+- [x] T054 [US3] Write the `order/` domain:
   - `MerchOrder` (`@Document("MerchOrder")`) with every field in data-model.md § Merch order, including `number` "`BJE-<yyyymmdd>-<6 base32>`", `accessKeyHash`, `clientIp` (removed on any change of state) and `retainUntil`;
   - embedded `OrderLine` (snapshots), `DeliveryAddress`, `Payment`, `Refund` and `Dispatch`;
   - enums `OrderStatus`, `PaymentStatus` and `RefundStatus`;
   - `ShopSettings` (`_id = "shop"`, `deliveryFeeCents` "0–5000");
   - `OrderStripeEvent` with a 30-day TTL.
-- [ ] T055 [US3] Add the indexes `ux_order_number`, `ix_order_status_created`, `ix_order_paidAt`, `ix_order_refundedAt`, `ix_order_hold`, partial `ix_order_unpaid_email` and `ix_order_unpaid_ip`, `ttl_order_retainUntil`, and the `OrderStripeEvent` TTL, all in `config/MongoIndexInitializer`.
-- [ ] T056 [US3] Write `order/ShopPaymentGateway` and `StripeShopPaymentGateway`:
+  As built: `MerchOrder.accessKey` holds the key itself until the order is confirmed or refunded, so the webhook's confirmation mail can carry the link ([ADR-0018](../../docs/adr/0018-order-access-key-kept-until-confirmed.md)). The embedded types are `OrderPayment`, `OrderRefund` and `OrderDispatch`, and the enums `OrderPaymentStatus` and `OrderRefundStatus`, so their OpenAPI schema names never clash with registration's.
+- [x] T055 [US3] Add the indexes `ux_order_number`, `ix_order_status_created`, `ix_order_paidAt`, `ix_order_refundedAt`, `ix_order_hold`, partial `ix_order_unpaid_email` and `ix_order_unpaid_ip`, `ttl_order_retainUntil`, and the `OrderStripeEvent` TTL, all in `config/MongoIndexInitializer`.
+
+  As built: the unpaid limits are the unique partial indexes `ux_order_unpaid_email_slot` and `ux_order_unpaid_ip_slot` on a per-order slot (0–2), not `ix_order_unpaid_email` and `ix_order_unpaid_ip` (research R7).
+- [x] T056 [US3] Write `order/ShopPaymentGateway` and `StripeShopPaymentGateway`:
   - multi-line Checkout with `price_data`;
   - `payment_intent_data.shipping` from the address;
   - `client_reference_id`, `metadata.orderId` and `bjjeireKind = order`;
@@ -406,16 +412,18 @@ description: "Task list for the BJJ Éire Merch Shop"
   - `checkoutStatus` and `refund`.
 
   Add a recording fake in `testsupport/`.
-- [ ] T057 [US3] Write `order/OrderServiceImpl`: create, from validation through to holds and session, with release of the holds on failure; access by key; resume checkout; `onCheckoutPaid`, `onCheckoutExpired` and `lateConfirmOrRefund`; and `expireLapsedHolds`. Also write `OrderController` (guest routes and `GET /delivery`). Makes T043–T046 and T048 pass.
-- [ ] T058 [US3] Write `order/OrderWebhookController` and `OrderWebhookServiceImpl` on `common.StripeSignature`, with kind filtering and the `OrderStripeEvent` ledger. Write `OrderHoldSweep` (scheduled, leader-elected like `HoldSweep`), `OrderMails` (confirmation, plain text, via `common.RetryingMailSender`, metric `order.mail.failures`) and `OrderMetrics`. Makes T047 and T049 pass.
-- [ ] T059 [US3] Write the SPA `features/merch/`:
+- [x] T057 [US3] Write `order/OrderServiceImpl`: create, from validation through to holds and session, with release of the holds on failure; access by key; resume checkout; `onCheckoutPaid`, `onCheckoutExpired` and `lateConfirmOrRefund`; and `expireLapsedHolds`. Also write `OrderController` (guest routes and `GET /delivery`). Makes T043–T046 and T048 pass.
+  As built: `OrderHoldSweep` is not leader-elected, like registration's `HoldSweep`: each order expires by a guarded update, so parallel sweeps are safe (`OrderHoldSweepIT`). Mails go through `OrderMailSender` (a `RetryingMailSender`) after the change is saved, as registration's do, not through the event registry of ADR-0017.
+- [x] T058 [US3] Write `order/OrderWebhookController` and `OrderWebhookServiceImpl` on `common.StripeSignature`, with kind filtering and the `OrderStripeEvent` ledger. Write `OrderHoldSweep` (scheduled, leader-elected like `HoldSweep`), `OrderMails` (confirmation, plain text, via `common.RetryingMailSender`, metric `order.mail.failures`) and `OrderMetrics`. Makes T047 and T049 pass.
+- [x] T059 [US3] Write the SPA `features/merch/`:
   - the basket store and a header badge;
   - `pages/BasketPage.tsx` (`/shop/basket`), `CheckoutPage.tsx` (`/shop/checkout`) and `OrderPage.tsx` (`/shop/orders/:id`);
   - an add-to-basket action on `ProductPage`;
   - `utils/checkout-redirect.ts`, reused from registrations.
 
   Makes T050–T053 pass.
-- [ ] T060 [US3] Do the paperwork:
+  As built: `checkout-redirect.ts` moved from `features/registrations/utils/` to `lib/`, since two features use it. `lib/api-client.ts` sends no token on `POST /order` and `POST /order/{id}/checkout` (`isGuestOrderWrite`): before, every write asked for the organiser token. The routes are `featureSubRoutes` under `Merch` and the basket badge follows the flag; the rest of T063 (Shop with `Stores` off, `#6028`) is not done.
+- [ ] T060 [US3] Do the paperwork (done except the Zod schemas, which follow in `bjjeire-tests`):
   - write `specs/database-contracts/merch-order.md` and `shop-settings.md`;
   - regenerate the generated types, add `src/types/orders.contract.ts`, and confirm additions only;
   - list `#6005`–`#6008`, `#6010`–`#6012` in `bjjeire-tests/specs/features/shop.md` (Stripe test mode);

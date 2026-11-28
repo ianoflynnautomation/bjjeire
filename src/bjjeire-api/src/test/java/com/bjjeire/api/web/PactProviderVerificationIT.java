@@ -36,6 +36,13 @@ import com.bjjeire.api.gym.Gym;
 import com.bjjeire.api.gym.GymRepository;
 import com.bjjeire.api.gym.GymStatus;
 import com.bjjeire.api.gym.TrialOffer;
+import com.bjjeire.api.order.DeliveryAddress;
+import com.bjjeire.api.order.MerchOrder;
+import com.bjjeire.api.order.OrderLine;
+import com.bjjeire.api.order.OrderPayment;
+import com.bjjeire.api.order.OrderPaymentStatus;
+import com.bjjeire.api.order.OrderStatus;
+import com.bjjeire.api.order.ShopSettings;
 import com.bjjeire.api.product.Product;
 import com.bjjeire.api.product.ProductKind;
 import com.bjjeire.api.product.ProductSize;
@@ -170,6 +177,53 @@ class PactProviderVerificationIT extends MongoIntegrationTest {
                 .sizes(List.of(ProductSize.builder().id(SizeId.M).stock(3).build()))
                 .status(ProductStatus.PUBLISHED)
                 .version(1L)
+                .build());
+    }
+
+    @State("the shop charges for delivery")
+    void theShopChargesForDelivery() {
+        mongoTemplate.insert(ShopSettings.builder()
+                .id(ShopSettings.ID)
+                .deliveryFeeCents(650)
+                .version(1L)
+                .build());
+    }
+
+    @State("a confirmed order exists")
+    void aConfirmedOrderExists() throws java.security.NoSuchAlgorithmException {
+        String keyHash = java.util.HexFormat.of()
+                .formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                        .digest("pact-order-key".getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
+        mongoTemplate.insert(MerchOrder.builder()
+                .id("0123456789abcdef0123ffff")
+                .number("BJE-20260531-ABCDEF")
+                .accessKeyHash(keyHash)
+                .status(OrderStatus.CONFIRMED)
+                .lines(new java.util.ArrayList<>(List.of(OrderLine.builder()
+                        .productId("0123456789abcdef0123dddd")
+                        .productName("Pact Rashguard")
+                        .kind(ProductKind.RASHGUARD)
+                        .sizeId(SizeId.M)
+                        .quantity(1)
+                        .unitPriceCents(4500)
+                        .build())))
+                .itemsCents(4500)
+                .deliveryCents(650)
+                .totalCents(5150)
+                .email("pact@example.test")
+                .address(DeliveryAddress.builder()
+                        .name("Pact Shopper")
+                        .line1("1 Shop Street")
+                        .town("Galway")
+                        .county("Galway")
+                        .postcode("H91 E2K3")
+                        .country("IE")
+                        .build())
+                .payment(OrderPayment.builder()
+                        .status(OrderPaymentStatus.PAID)
+                        .paidAt(FIXED_NOW)
+                        .build())
+                .createdOnUtc(FIXED_NOW)
                 .build());
     }
 

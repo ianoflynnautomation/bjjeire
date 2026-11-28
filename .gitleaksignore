@@ -4,3 +4,7 @@
 # DivisionResultIT: an unknown MongoDB ObjectId next to the test constant ADMIN_TOKEN ("integration-test-token").
 # Trips generic-api-key on the word "token". The test now uses ResultsIntegrationTest.UNKNOWN_ID.
 d0db18ad326d2534ee78f4bb497194623e53e9d0:src/bjjeire-api/src/test/java/com/bjjeire/api/bjjeirecompetition/DivisionResultIT.java:generic-api-key:283
+
+# order.factory.ts: the SPA test factory's made-up order key 'k3y-from-the-api' (a field named orderKey, entropy 3.7).
+# Not a credential: order keys are random per order and never in source. The factory now uses 'test-order-key'.
+d21d316bd61c97223f1f85a2ca98e7413dc5a5ab:src/bjjeire-app/src/testing/factories/order.factory.ts:generic-api-key:34

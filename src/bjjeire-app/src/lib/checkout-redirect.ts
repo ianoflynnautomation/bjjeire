@@ -12,7 +12,8 @@ export function isStripeCheckoutUrl(value: string): boolean {
 /**
  * Leaves the site for Stripe's payment page. A full page load, not a router
  * navigation, because Checkout is another origin; any other address is
- * refused so an API value can never send the competitor elsewhere.
+ * refused so an API value can never send the competitor or shopper
+ * elsewhere. Used by sign-ups and the shop (ADR-0013, ADR-0016).
  *
  * @returns false when the address is not a Stripe Checkout page
  */

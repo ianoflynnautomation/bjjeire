@@ -1,10 +1,10 @@
 # Feature: Shop
 
-**Status**: In progress. Part 1 (the directory, renamed from Stores) is shipped: slice 1 of [specs/003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md). Part 2 (BJJ Éire merch) is designed there. Built so far: its plumbing (slice 0) and the catalogue with the organiser's product admin (slice 2). Basket, checkout, orders and the dashboard are not built.
+**Status**: In progress. Part 1 (the directory, renamed from Stores) is shipped: slice 1 of [specs/003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md). Part 2 (BJJ Éire merch) is designed there. Built so far: its plumbing (slice 0), the catalogue with the organiser's product admin (slice 2), and the basket, guest checkout and order page (slice 3). The organiser's orders screen, refunds and the dashboard are not built.
 **Design record**: [../003-bjjeire-merch-shop/](../003-bjjeire-merch-shop/spec.md)
-**Database**: [store.md](../database-contracts/store.md) (directory), [product.md](../database-contracts/product.md) (merch)
-**API**: `/api/v1/store` (directory, unchanged by the rename), `/api/v1/product` (merch catalogue and product admin)
-**SPA route**: `/shop`. The old `/stores` address, and anything under it, redirects to `/shop`. Merch: `/shop/products/:slug`, `/admin/shop`, `/admin/shop/products/:id`.
+**Database**: [store.md](../database-contracts/store.md) (directory), [product.md](../database-contracts/product.md), [merch-order.md](../database-contracts/merch-order.md), [shop-settings.md](../database-contracts/shop-settings.md) (merch)
+**API**: `/api/v1/store` (directory, unchanged by the rename), `/api/v1/product` (merch catalogue and product admin), `/api/v1/order` (guest orders, the delivery fee and the shop's Stripe webhook)
+**SPA route**: `/shop`. The old `/stores` address, and anything under it, redirects to `/shop`. Merch: `/shop/products/:slug`, `/shop/basket`, `/shop/checkout`, `/shop/orders/:id`, `/admin/shop`, `/admin/shop/products/:id`.
 **Feature flags**: `Stores` (the directory, fail-closed). The flag keeps its name. `Merch` (BJJ Éire merch, `FEATURE_MERCH`, fail-closed, off by default; ADR-0016).
 **Acceptance**: `bjjeire-tests/specs/features/shop.md`, `bjjeire-tests/tests/features/stores/`
 **Requirements**: `bjjeire/requirements` · epic `&4` (`#4001`–`#4007`) · merch epic (`#6001`–`#6028`, provisional)
@@ -98,13 +98,43 @@ Rules:
 - Shop shows a change to stock, price or visibility within a minute, on every API replica.
 - Every organiser change is recorded in the audit log.
 
-Until checkout ships (slice 3), nothing is held and no order exists, so
-`#6015`'s "orders already paid keep the price they paid" is proven with the
-order tests.
+An order keeps the price and delivery fee it was made with, whatever the
+organiser changes later (`OrderIT`).
+
+## User Story 7 — Shopper buys merch and pays online (P1)
+
+User Story 3 in the design record and the STC overlay; numbered 7 here, after this file's own stories.
+
+A shopper adds sizes to a basket, reviews the total with delivery, and pays as
+a guest on Stripe's hosted page, the same provider BJJ Éire competitions use.
+
+1. `#6005`: Given a product size in stock, when a shopper adds it to the basket, then the basket shows it with quantity, item price and running total, and the shopper can change the quantity or remove it
+2. `#6006`: Given a basket, when the shopper goes to pay, then they see the full amount, items plus delivery, before paying, and are asked for the delivery details the order needs
+3. `#6007`: Given a shopper paying for a basket, when the payment succeeds, then the order is confirmed, each size's stock goes down by the quantity bought, and a confirmation email is sent with items, amount paid and delivery details
+4. `#6008`: Given a shopper paying for a basket, when the payment fails or is abandoned, then no order is confirmed, no money is taken, and the stock held for them is released
+5. `#6009`: Given the last items of a size, when two shoppers try to buy them at the same moment, then only as many as are in stock are sold; the other shopper is told the size sold out and is not charged, or is refunded in full if a charge was taken
+6. `#6010`: Given a basket that holds a size that has since sold out or a price that has since changed, when the shopper goes to pay, then they are told what changed before they pay
+7. `#6011`: Given a confirmed order, when the shopper follows the link in their confirmation email, then they can see the order's items, amount paid, delivery details and status
+8. `#6012`: Given a visitor with no account, when they buy merch, then they check out as a guest with their name and email, and are never asked to sign in or create an account
+
+Rules:
+
+- The basket is kept in this browser only, as the product, size and quantity of each line; it holds no prices. A line holds at most 10, and the basket at most 20, never more than can be bought. A basket icon in the navigation shows how many items it holds while merch is on.
+- A line that sold out or went off sale is marked in the basket, and checkout waits until it is removed.
+- Delivery is one flat fee per order, to the Republic of Ireland or Northern Ireland only (a Northern Ireland postcode starts BT). An Irish address may leave out the Eircode; one that is given must be valid. Until the organiser sets a fee, delivery is free.
+- The checkout sends the prices and delivery fee the shopper saw. If any of them, or the availability, changed, nothing is held or charged: the shopper sees each change, the basket is updated, and they pay again. Right after a price change, another API replica can show the old price for up to 30 seconds, so a second try in that window can be told the same change again.
+- Stock is held for 30 minutes while the shopper pays, and released if they do not finish. A guest can hold at most 3 unpaid orders at once, per email and per address they connect from; never more, even when several arrive at once.
+- Only Stripe's signed message confirms an order, whether or not the shopper comes back to the site. The page Stripe returns to waits for it, asking every 2 seconds for up to a minute, then empties the basket.
+- A payment that arrives after the hold ended confirms the order if the stock is still there, and is otherwise refunded in full automatically, with a mail saying so.
+- The confirmation mail lists the items, the delivery fee, the amount paid and the address, and links to the order page. The link holds a key after `#`; anyone with the link can read the order, nobody without it can, and a wrong key reads as "Order not found" ([ADR-0018](../../docs/adr/0018-order-access-key-kept-until-confirmed.md)).
+- A waiting order can be returned to Stripe's page until its hold ends; after that the shopper starts again from the basket.
+- If the confirmation mail cannot be sent, the order stays confirmed.
 
 ## Not built yet
 
-Stories 3 (basket and payment), 5 (orders and refunds), 6 (dashboard) and the
-rest of 7 of the design record, `#6005`–`#6012` and `#6018`–`#6028`, are
-specified in [specs/003-bjjeire-merch-shop/spec.md](../003-bjjeire-merch-shop/spec.md)
-and move here as each slice ships.
+Stories 5 (orders and refunds), 6 (dashboard) and the rest of 7 of the design
+record, `#6018`–`#6025` and `#6028`, are specified in
+[specs/003-bjjeire-merch-shop/spec.md](../003-bjjeire-merch-shop/spec.md)
+and move here as each slice ships. Until the orders screen ships, the
+organiser fulfils and refunds orders from Stripe's dashboard and sets the
+delivery fee in the `ShopSettings` document.

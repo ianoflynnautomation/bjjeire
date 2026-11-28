@@ -323,7 +323,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(properties.cors().allowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // X-Order-Key: a guest reads their order with the key from its link (ADR-0016).
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Order-Key"));
         configuration.setExposedHeaders(
                 List.of("X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset", "Retry-After"));
 
