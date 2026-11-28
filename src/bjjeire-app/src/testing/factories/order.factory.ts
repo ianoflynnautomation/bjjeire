@@ -31,7 +31,7 @@ export function createOrderCheckout(
 ): OrderCheckoutDto {
   return {
     orderId: nextId(),
-    orderKey: 'k3y-from-the-api',
+    orderKey: 'test-order-key',
     checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_shop_1',
     holdExpiresAt: '2026-11-23T10:30:00Z',
     totalCents: 9650,
